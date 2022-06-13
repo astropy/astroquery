@@ -1,0 +1,511 @@
+API VERSION: 1.1
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS                  1 Ceres (A801 AA)            2022-Jun-10 08:57:28
+Rec #:       1 (+COV) Soln.date: 2021-Apr-13_11:04:44   # obs: 1075 (1995-2021)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2458849.5 ! 2020-Jan-01.00 (TDB)         Residual RMS= .24563
+   EC= .07687465013145245  QR= 2.556401146697176   TP= 2458240.1791309435
+   OM= 80.3011901917491    W=  73.80896808746482   IN= 10.59127767086216
+   A= 2.769289292143484    MA= 130.3159688200986   ADIST= 2.982177437589792
+   PER= 4.60851            N= .213870839           ANGMOM= .028541613
+   DAN= 2.69515            DDN= 2.81323            L= 153.8445988
+   B= 10.1666388           MOID= 1.59231997        TP= 2018-May-01.6791309435
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417
+   H= 3.33                 G= .120                 B-V= .713
+                           ALBEDO= .090            STYP= C
+ 
+ASTEROID comments: 
+1: soln ref.= JPL#48, OCC=0           radar(60 delay, 0 Dop.)
+2: source=ORB
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Fri Jun 10 08:57:29 2022 Pasadena, USA      / Horizons    
+*******************************************************************************
+Target body name: 1 Ceres (A801 AA)               {source: JPL#48}
+Center body name: Earth (399)                     {source: DE441}
+Center-site name: GEOCENTRIC
+*******************************************************************************
+Start time      : A.D. 2022-Jun-10 00:00:00.0000 UT      
+Stop  time      : A.D. 2022-Jul-10 00:00:00.0000 UT      
+Step-size       : 14400 minutes
+*******************************************************************************
+Target pole/equ : IAU                             {West-longitude positive}
+Target radii    : 482.1 x 482.1 x 445.9 km        {Equator, meridian, pole}    
+Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
+Center pole/equ : ITRF93                          {East-longitude positive}
+Center radii    : 6378.1 x 6378.1 x 6356.8 km     {Equator, meridian, pole}    
+Target primary  : Sun
+Vis. interferer : MOON (R_eq= 1737.400) km        {source: DE441}
+Rel. light bend : Sun, EARTH                      {source: DE441}
+Rel. lght bnd GM: 1.3271E+11, 3.9860E+05 km^3/s^2                              
+Small-body perts: Yes                             {source: SB441-N16}
+Atmos refraction: NO (AIRLESS)
+RA format       : DEG
+Time format     : BOTH
+EOP file        : eop.220608.p220901                                           
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2022-JUN-08. PREDICTS-> 2022-AUG-31
+Units conversion: 1 au= 149597870.700 km, c= 299792.458 km/s, 1 day= 86400.0 s 
+Table cut-offs 1: Elevation (-90.0deg=NO ),Airmass (>38.000=NO), Daylight (NO )
+Table cut-offs 2: Solar elongation (  0.0,180.0=NO ),Local Hour Angle( 0.0=NO )
+Table cut-offs 3: RA/DEC angular rate (     0.0=NO )                           
+Table format    : Comma Separated Values (spreadsheet)
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2458849.5 ! 2020-Jan-01.00 (TDB)         Residual RMS= .24563        
+   EC= .07687465013145245  QR= 2.556401146697176   TP= 2458240.1791309435      
+   OM= 80.3011901917491    W=  73.80896808746482   IN= 10.59127767086216       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X= 1.007608869613381E+00  Y=-2.390064275223502E+00  Z=-1.332124522752402E+00
+  VX= 9.201724467227128E-03 VY= 3.370381135398406E-03 VZ=-2.850337057661093E-04
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417             
+   H= 3.33                 G= .120                 B-V= .713                   
+                           ALBEDO= .090            STYP= C                     
+*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+ Date__(UT)__HR:MN, Date_________JDUT, , , R.A._(ICRF), DEC_(ICRF), R.A._(a-app), DEC_(a-app),  dRA*cosD, d(DEC)/dt, Azi_(a-app), Elev_(a-app),  dAZ*cosE, d(ELV)/dt,   X_(sat-prim), Y_(sat-prim), SatPANG,  L_Ap_Sid_Time,  a-mass, mag_ex,    APmag,  S-brt,      Illu%,  Def_illu,  ang-sep, vis.,  Ang-diam,  ObsSub-LON, ObsSub-LAT,  SunSub-LON, SunSub-LAT,  SN.ang,  SN.dist,    NP.ang,  NP.dist,  hEcl-Lon,hEcl-Lat,                r,       rdot,             delta,     deldot,  1-way_down_LT,       VmagSn,     VmagOb,     S-O-T,/r,     S-T-O,  T-O-M, MN_Illu%,     O-P-T,    PsAng,   PsAMV,      PlAng,  Cnst,        TDB-UT,     ObsEcLon,   ObsEcLat,  N.Pole-RA, N.Pole-DC,      GlxLon,    GlxLat,  L_Ap_SOL_Time,  399_ins_LT,  RA_3sigma, DEC_3sigma,  SMAA_3sig, SMIA_3sig,   Theta, Area_3sig,  POS_3sigma,  RNG_3sigma, RNGRT_3sig,   DOP_S_3sig, DOP_X_3sig, RT_delay_3sig,  Tru_Anom,  L_Ap_Hour_Ang,       phi,  PAB-LON,  PAB-LAT,
+*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+$$SOE
+ 2022-Jun-10 00:00, 2459740.500000000, , ,   101.73343,   26.78554,    102.07267,    26.76211,  64.31742,  -1.85528,        n.a.,         n.a.,      n.a.,      n.a.,      79188.677,    13568.996,  75.189,           n.a.,    n.a.,   n.a.,    8.741,  6.360,   99.46575,    0.0020, 79088.71,    *,  0.377968,  262.465211,  -4.479302,  254.063163,  -4.592377,  265.38,     0.03,  356.3150,   -0.174,  108.7886,  5.0999,   2.603715306632, -0.9916566,  3.51731638211972,  7.2339189,    29.25262835,   18.9934330, 46.1647682,   21.9691,/T,    8.3884,   97.1,  74.2811,  149.6389,   85.235, 264.706,   -0.10808,   Gem,     69.184717,  100.7867811,  3.7751601,  291.42763,  66.76033,  188.305637, 10.941149,           n.a.,    0.000000,      0.000,      0.000,    0.00008,   0.00002, -85.755, 0.0000000,       0.000,      0.0129,  0.0000000,         0.00,       0.00,      0.000000,  315.3658,           n.a.,    8.3833, 104.6299,   4.4474,
+ 2022-Jun-20 00:00, 2459750.500000000, , ,   106.56175,   26.59903,    106.89983,    26.56560,  65.04421,  -4.03596,        n.a.,         n.a.,      n.a.,      n.a.,      60579.378,    11283.967,  75.508,           n.a.,    n.a.,   n.a.,    8.672,  6.271,   99.67620,    0.0012, 60835.95,    *,  0.374118,   59.491337,  -4.009794,   52.975408,  -4.632334,  263.32,     0.02,  358.2091,   -0.173,  111.1837,  5.4854,   2.598112111260, -0.9484020,  3.55351777391857,  5.3011903,    29.55370614,   19.0321982, 46.9548417,   16.8989,/T,    6.5293,  120.8,  62.3079,  156.5681,   83.185, 266.975,    0.39272,   Gem,     69.184450,  105.1084081,  4.0097249,  291.42763,  66.76033,  190.288988, 14.801572,           n.a.,    0.000000,      0.000,      0.000,    0.00007,   0.00002, -87.815, 0.0000000,       0.000,      0.0113,  0.0000000,         0.00,       0.00,      0.000000,  317.7890,           n.a.,    6.5242, 107.9883,   4.7532,
+ 2022-Jun-30 00:00, 2459760.500000000, , ,   111.42655,   26.26772,    111.76255,    26.22440,  65.56345,  -6.18733,        n.a.,         n.a.,      n.a.,      n.a.,      42408.400,    10948.714,  72.732,           n.a.,    n.a.,   n.a.,    8.586,  6.172,   99.83310,    0.0006, 43295.38,    *,  0.371512,  216.530192,  -3.537825,  211.939210,  -4.664167,  258.12,     0.02,    0.1262,   -0.171,  113.5920,  5.8629,   2.592764176742, -0.9032594,  3.57844492658187,  3.3228409,    29.76101895,   19.0692914, 47.5923849,   12.0265,/T,    4.6879,  1.678,   0.8385,  163.2820,   77.981, 269.238,    0.87466,   Gem,     69.184175,  109.4822081,  4.2464186,  291.42763,  66.76033,  192.347837, 18.700029,           n.a.,    0.000000,      0.000,      0.000,    0.00007,   0.00002, -89.911, 0.0000000,       0.000,      0.0099,  0.0000000,         0.00,       0.00,      0.000000,  320.2225,           n.a.,    4.6828, 111.3799,   5.0567,
+ 2022-Jul-10 00:00, 2459770.500000000, , ,   116.30339,   25.79505,    116.63659,    25.74219,  65.81537,  -8.26018,        n.a.,         n.a.,      n.a.,      n.a.,      24646.746,    12536.045,  61.268,           n.a.,    n.a.,   n.a.,    8.487,  6.065,   99.93260,    0.0002, 27360.89,    *,  0.370121,   13.594372,  -3.071989,   10.956180,  -4.687710,  244.31,     0.01,    2.0456,   -0.171,  116.0133,  6.2315,   2.587682204769, -0.8563013,  3.59188943334117,  1.3394328,    29.87283350,   19.1046252, 48.0186168,    7.6002,/T,    2.9797,  120.9,  80.2316,  169.4168,   64.160, 271.475,    1.32903,   Gem,     69.183895,  113.8960191,  4.4869397,  291.42763,  66.76033,  194.497592, 22.621680,           n.a.,    0.000000,      0.000,      0.000,    0.00007,   0.00002,  87.980, 0.0000000,       0.000,      0.0088,  0.0000000,         0.00,       0.00,      0.000000,  322.6654,           n.a.,    2.9753, 114.7983,   5.3588,
+$$EOE
+*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+Column meaning:
+ 
+TIME
+
+  Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" time-scale. UTC is kept within 0.9 seconds of UT1
+using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the non-uniform civil UT time-scale requested for output
+has not been determined for UTC times after the next July or January 1st.
+Therefore, the last known leap-second is used as a constant over future
+intervals.
+
+  Time tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+
+  Any 'b' symbol in the 1st-column denotes a B.C. date. First-column blank
+(" ") denotes an A.D. date. Calendar dates prior to 1582-Oct-15 are in the
+Julian calendar system. Later calendar dates are in the Gregorian system.
+
+  NOTE: "n.a." in output means quantity "not available" at the print-time.
+ 
+STATISTICAL UNCERTAINTIES
+
+  Output includes formal +/- 3 standard-deviation statistical orbit uncertainty
+quantities. There is a 99.7% chance the actual value is within given bounds.
+These statistical calculations assume observational data errors are random. If
+there are systematic biases (such as timing, reduction or star-catalog errors),
+results can be optimistic. Because the epoch covariance is mapped using
+linearized variational partial derivatives, results can also be optimistic for
+times far from the solution epoch, particularly for objects having close
+planetary encounters.
+ 
+ 'R.A._(ICRF), DEC_(ICRF),' =
+  Astrometric right ascension and declination of the target center with
+respect to the observing site (coordinate origin) in the reference frame of
+the planetary ephemeris (ICRF). Compensated for down-leg light-time delay
+aberration.
+
+  Units: RA  in decimal degrees,  ddd.fffff{ffff}
+         DEC in decimal degrees,  sdd.fffff{ffff}
+ 
+ 'R.A._(a-app), DEC_(a-app),' =
+  Airless apparent right ascension and declination of the target center with
+respect to an instantaneous reference frame defined by the Earth equator of-dat
+(z-axis) and meridian containing the Earth equinox of-date (x-axis, EOP-correct
+IAU76/80). Compensated for down-leg light-time delay, gravitational deflection
+of light, stellar aberration, precession & nutation. Note: equinox (RA origin)
+is offset -53 mas from the of-date frame defined by the IAU06/00a P & N system.
+
+  Units: RA  in decimal degrees, ddd.fffff{ffff}
+         DEC in decimal degrees  sdd.fffff{ffff}
+
+ 
+ 'dRA*cosD, d(DEC)/dt,' =
+  The angular rate of change in aparent RA and DEC of the target. This is
+with respect to the non-inertial IAU76/80 Earth true equator and equinox
+of-date reference frame.  d(RA)/dt is multiplied by the cosine of declination
+to provide a linear rate in the plane-of-sky. Units: ARCSECONDS PER HOUR
+ 
+ 'Azi_(a-app), Elev_(a-app),' =
+  Airless apparent azimuth and elevation of target center. Compensated
+for light-time, the gravitational deflection of light, stellar aberration,
+precession and nutation. Azimuth is measured clockwise from north:
+
+  North(0) -> East(90) -> South(180) -> West(270) -> North (360)
+
+Elevation angle is with respect to a plane perpendicular to the reference
+surface local zenith direction. TOPOCENTRIC ONLY.  Units: DEGREES
+ 
+ 'dAZ*cosE, d(ELV)/dt,' =
+   The rate of change of target center apparent azimuth and elevation
+(airless). d(AZ)/dt is multiplied by the cosine of the elevation angle.
+TOPOCENTRIC ONLY. Units: ARCSECOND PER MINUTE
+ 
+ 'X_(sat-prim), Y_(sat-prim), SatPANG,' =
+   Satellite apparent differential coordinates in the plane-of-sky with
+respect to the primary body along with the satellite position angle.
+Differential coordinates are defined in RA as:
+
+     X= ((RA_sat - RA_primary) * cosine(DEC_primary))
+
+... and in DEC as:
+
+     Y= (DEC_sat - DEC_primary)
+
+Non-lunar satellites only. "SatPANG" is the counter-clockwise (CCW) position
+angle from the reference-frame of-date north-pole to a line from the primary
+center to the satellite center. Units: ARCSECONDS (X & Y), DEGREES (pos, angle)
+ 
+ 'L_Ap_Sid_Time,' =
+   Local Apparent Sidereal Time. The angle measured westward in the body
+true-equator of-date plane from the meridian containing the body-fixed
+observer to the meridian containing the true Earth equinox (defined by
+intersection of the true Earth equator of date with the ecliptic of date).
+TOPOCENTRIC ONLY. Units: HH.fffffffffff  (decimal hours)
+ 
+ 'a-mass, mag_ex,' =
+    RELATIVE optical airmass and visual magnitude extinction. Airmass is the
+ratio between the absolute optical airmass for the targets' refracted CENTER
+point to the absolute optical airmass at zenith. Also output is the estimated
+visual magnitude extinction due to the atmosphere, as seen by the observer.
+AVAILABLE ONLY FOR TOPOCENTRIC EARTH SITES WHEN THE TARGET IS ABOVE THE
+HORIZON.  Units: none (airmass) and magnitudes (extinction).
+ 
+ 'APmag,  S-brt,' =
+   The asteroids' approximate apparent airless visual magnitude and surface
+brightness using the standard IAU H-G system magnitude model:
+
+   APmag = H + 5*log10(delta) + 5*log10(r) - 2.5*log10((1-G)*phi_1 + G*phi_2)
+
+   For solar phase angles >90 deg, the error could exceed 1 magnitude. For
+phase angles >120 degrees, output values are rounded to the nearest integer to
+indicate error could be large and unknown. For Earth-based observers, the
+estimated dimming due to atmospheric absorption (extinction) is available as
+a separate, requestable quantity.
+
+   Surface brightness is the average airless visual magnitude of a
+square-arcsecond of the illuminated portion of the apparent disk. It is
+computed only if the target radius is known.
+
+   Units: MAGNITUDES & MAGNITUDES PER SQUARE ARCSECOND
+ 
+ 'Illu%,' =
+   Fraction of the target objects' assumed circular disk illuminated by Sun
+(phase), as seen by the observer.  Units: PERCENT
+ 
+ 'Def_illu,' =
+   Defect of illumination. The maximum angular width of the target body's
+assumed circular disk diameter NOT illuminated by the Sun. Units: ARCSECONDS
+ 
+ 'ang-sep, vis.,' =
+  The angular separation between the center of the target object and the center
+of the (remote) primary body it revolves around, as seen by the observer, with
+target visibility code. The observer cannot be on the primary body.
+
+  Visibility codes (refers to limb-to-limb):
+
+    /t = Transiting primary body disk    /O = Occulted by primary body disk
+    /p = Partial umbral eclipse          /P = Occulted partial umbral eclipse
+    /u = Total umbral eclipse            /U = Occulted total umbral eclipse
+    /- = Target is the primary body      /* = None of above ("free and clear")
+
+  The radius of both primary and target body is taken to be the equatorial
+value (maximum, given a triaxial shape). Atmospheric effects and oblateness
+aspect are NOT currently considered.  Light-time is considered.
+
+  Units: ARCSECONDS and visibility code
+ 
+ 'Ang-diam,' =
+   The equatorial angular width of the target body full disk, if it were fully
+illuminated and visible to the observer. If the target body diameter is unknown
+"n.a." is output.
+
+   Units: ARCSECONDS
+ 
+ 'ObsSub-LON, ObsSub-LAT,' =
+   Apparent planetodetic longitude and latitude of the center of the target
+disc seen by the OBSERVER at print-time. This is NOT exactly the same as the
+"nearest" sub-point for a non-spherical target shape (since the center of
+the disc might not be the point closest to the observer), but is generally
+very close if not a very irregular body shape. Down-leg light travel-time
+from target to observer is taken into account. Latitude is the angle between
+the equatorial plane and the line perpendicular to the reference ellipsoid of
+the body, so includes body oblateness. The reference ellipsoid is an oblate
+spheroid with a single flatness coefficient in which the y-axis body radius
+is taken to be the same value as the x-axis radius. Positive longitude is to
+the WEST for this target. Cartographic system is given in the header.
+   Units: DEGREES DEGREES
+ 
+ 'SunSub-LON, SunSub-LAT,' =
+   Apparent sub-solar longitude and latitude of the Sun on the target. The
+apparent planetodetic longitude and latitude of the center of the target disc
+as seen from the Sun, as seen by the observer at print-time. This is NOT
+exactly the same as the "sub-solar" (nearest) point for a non-spherical target
+shape (since the center of the disc seen from the Sun might not be the closest
+point to the Sun), but is very close if not a highly irregular body shape.
+Light travel-time from Sun to target and from target to observer is taken into
+account.  Latitude is the angle between the equatorial plane and the line
+perpendicular to the reference ellipsoid of the body. The reference ellipsoid
+is an oblate spheroid with a single flatness coefficient in which the y-axis
+body radius is taken to be the same value as the x-axis radius.  Positive
+longitude is to the WEST for this target. Cartographic system is given in the
+header.   Units: DEGREES DEGREES
+ 
+ 'SN.ang,  SN.dist,' =
+  Targets' apparent sub-solar point position angle (counter-clockwise with
+respect to the direction of the true-of-date reference-frame north-pole) and
+its angular distance from the sub-observer point (center of disk) at print
+time. A negative distance indicates the sub-solar point is on the hidden
+hemisphere.  Units: DEGREES and ARCSECONDS
+ 
+ 'NP.ang,  NP.dist,' =
+  Targets' apparent north-pole position angle (counter-clockwise with respect
+to the direction of the true-of-date reference-frame north-pole) and its
+angular distance from the sub-observer point (center of disk) at observation
+time.  A negative distance indicates the planets' north-pole is on the hidden
+hemisphere.  Units: DEGREES and ARCSECONDS
+ 
+ 'hEcl-Lon,hEcl-Lat,' =
+    Geometric heliocentric J2000 ecliptic longitude and latitude of target
+center at the instant light leaves it to be observed at print time (print time
+minus down-leg light-time).  Units: DEGREES
+ 
+ 'r,       rdot,' =
+   The Sun's apparent range ("r", light-time aberrated) and range-rate ("rdot")
+relative to the target center, as seen by the observer. A positive "rdot" means
+the target center was moving away from the Sun, negative means moving toward
+the Sun.  Units: AU and KM/S
+ 
+ 'delta,     deldot,' =
+   Apparent range ("delta", light-time aberrated) and range-rate ("delta-dot")
+of the target center relative to the observer. A positive "deldot" means the
+target center is moving away from the observer, negative indicates movement
+toward the observer.  Units: AU and KM/S
+ 
+ '1-way_down_LT,' =
+   1-way down-leg light-time from target center to observer. The elapsed time
+since light (observed at print-time) would have left or reflected off a point
+at the center of the target. Units: MINUTES
+ 
+ 'VmagSn,     VmagOb,' =
+   Magnitude of target centers' velocity with respect to the Sun ("VmagSn")
+and the observer ("VmagOb") at the time light left the target center to be
+observed (print time minus down-leg light-time). These are absolute values
+of the velocity vectors (total speeds) and do NOT indicate direction of motion.
+Units: KM/S
+ 
+ 'S-O-T,/r,' =
+   Sun-Observer-Target apparent SOLAR ELONGATION ANGLE seen from the observers'
+location at print-time.
+
+   The '/r' column provides a code indicating the targets' apparent position
+relative to the Sun in the observers' sky, as described below:
+
+   Case A: For an observing location on the surface of a rotating body, that
+body rotational sense is considered:
+
+    /T indicates target TRAILS Sun   (evening sky: rises and sets AFTER Sun)
+    /L indicates target LEADS Sun    (morning sky: rises and sets BEFORE Sun)
+
+   Case B: For an observing point that does not have a rotational model (such
+as a spacecraft), the "leading" and "trailing" condition is defined by the
+observers' heliocentric ORBITAL motion:
+
+    * If continuing in the observers' current direction of heliocentric
+       motion would encounter the targets' apparent longitude first, followed
+       by the Sun's, the target LEADS the Sun as seen by the observer.
+
+    * If the Sun's apparent longitude would be encountered first, followed
+       by the targets', the target TRAILS the Sun.
+
+   Two other codes can be output:
+    /* indicates observer is Sun-centered    (undefined)
+    /? Target is aligned with Sun center     (no lead or trail)
+
+   The S-O-T solar elongation angle is numerically the minimum separation
+angle of the Sun and target in the sky in any direction. It does NOT indicate
+the amount of separation in the leading or trailing directions, which would
+be defined along the equator of a spherical coordinate system.
+
+   Units: DEGREES
+ 
+ 'S-T-O,' =
+   The Sun-Target-Observer angle; the interior vertex angle at target center
+formed by a vector from the target to the apparent center of the Sun (at
+reflection time on the target) and the apparent vector from target to the
+observer at print-time. Slightly different from true PHASE ANGLE (requestable
+separately) at the few arcsecond level in that it includes stellar aberration
+on the down-leg from target to observer.  Units: DEGREES
+ 
+ 'T-O-M, MN_Illu%,' =
+   Target-Observer-Moon LUNAR ELONGATION angle and illuminated percentage.
+The apparent lunar elongation angle between target body center and Moon
+center, seen from the observing site, along with fraction of the lunar disk
+illuminated by the Sun. A negative lunar elongation angle indicates the target
+center is behind the Moon.  Units: DEGREES & PERCENT
+ 
+ 'O-P-T,' =
+   Observer-Primary-Target angle; apparent angle between a target satellite,
+its primarys' center and an observer at print time. Interior vertex angle at
+the primary.  Units: DEGREES
+ 
+ 'PsAng,   PsAMV,' =
+   The position angles of the extended Sun-to-target radius vector ("PsAng")
+and the negative of the targets' heliocentric velocity vector ("PsAMV"), as
+seen in the observers' plane-of-sky, measured counter-clockwise (east) from
+reference-frame north-pole. Primarily intended for ACTIVE COMETS, "PsAng"
+is an indicator of the comets' gas-tail orientation in the sky (being in the
+anti-sunward direction) while "PsAMV" is an indicator of dust-tail orientation.
+Units: DEGREES
+ 
+ 'PlAng,' =
+   Angle between observer and target orbital plane, measured from center
+of target at the moment light seen at observation time leaves the target.
+Positive values indicate observer is above the objects' orbital plane, in
+the direction of reference-frame +z axis.  Units: DEGREES
+ 
+ 'Cnst,' =
+   Constellation ID; the 3-letter abbreviation for the name of the
+constellation containing the target centers' astrometric position,
+as defined by IAU (1930) boundary delineation.  See documentation
+for list of abbreviations.
+ 
+ 'TDB-UT,' =
+   Difference between the uniform Barycentric Dynamical time-scale and the
+Earth-rotation dependent Universal Time. Prior to 1962, the difference is with
+respect to UT1 (TDB-UT1) and the 0.002 second maximum amplitude distinction
+between TT and TDB is not maintained. For 1962 and later, the difference is
+with respect to UTC (TDB-UTC) and periodic terms less than 1.e-6 second are
+ignored. Values beyond the next July or January 1st may change if a leap-second
+is later required by the IERS. Values from the present date forward through
+the next ~78 days are predictions. Beyond that prediction interval, the last
+prediction is taken as a constant for all future dates. Units: SECONDS
+ 
+ 'ObsEcLon,   ObsEcLat,' =
+   Observer-centered IAU76/80 ecliptic-of-date longitude and latitude of the
+target centers' apparent position, with light-time, gravitational deflection of
+light, and stellar aberrations.  Units: DEGREES
+ 
+ 'N.Pole-RA, N.Pole-DC,' =
+    ICRF right ascension and declination of the target body's north-pole
+direction at the time light left the body to be observed at print time.
+Target pole/rotation model is given in the header. Units: DEGREES
+ 
+ 'GlxLon,    GlxLat,' =
+   Observer-centered Galactic System II (post WW II) longitude and latitude
+of the target centers' apparent position, with light-time, gravitational
+deflection of light, and stellar aberrations. Units: DEGREES
+ 
+ 'L_Ap_SOL_Time,' =
+   Local Apparent SOLAR Time at observing site. This is the time indicated by
+a sundial. TOPOCENTRIC ONLY.  Units: HH.fffffffffff  (decimal angular hours)
+ 
+ '399_ins_LT,' =
+   Instantaneous light-time of the station with respect to Earth center at
+print-time. The geometric (or "true") separation of site and Earth center,
+divided by the speed of light.  Units: MINUTES
+ 
+ 'RA_3sigma, DEC_3sigma,' =
+  Uncertainty in Right-Ascension and Declination. Output values are the formal
++/- 3 standard-deviations (sigmas) around nominal position. Units: ARCSECONDS
+ 
+ 'SMAA_3sig, SMIA_3sig,   Theta, Area_3sig,' =
+  Plane-of-sky (POS) error ellipse data. These quantities summarize the
+targets' 3-dimensional 3-standard-deviation formal uncertainty volume projected
+into a reference plane perpendicular to the observers' line-of-sight.
+
+   SMAA_3sig = Angular width of the 3-sigma error ellipse semi-major
+                axis in POS. Units: ARCSECONDS.
+
+   SMIA_3sig = Angular width of the 3-sigma error ellipse semi-minor
+                axis in POS. Units: ARCSECONDS.
+
+   Theta     = Orientation angle of the error ellipse in POS; the
+                clockwise angle from the direction of increasing RA to
+                the semi-major axis of the error ellipse, in the
+                direction of increasing DEC.  Units: DEGREES.
+
+   Area_3sig = Area of sky enclosed by the 3-sigma error ellipse.
+                Units: ARCSECONDS ^ 2.
+ 
+ 'POS_3sigma,' =
+  The Root-Sum-of-Squares (RSS) of the 3-standard deviation plane-of-sky error
+ellipse major and minor axes.  This single pointing uncertainty number gives an
+angular distance (a circular radius) from the targets' nominal position in the
+sky that encompasses the error-ellipse. Units: ARCSECONDS.
+ 
+ 'RNG_3sigma, RNGRT_3sig,' =
+  Range and range rate (radial velocity) formal 3-standard-deviation
+uncertainties.  Units: KM, KM/S
+ 
+ 'DOP_S_3sig, DOP_X_3sig, RT_delay_3sig,' =
+  Doppler radar uncertainties at S-band (2380 MHz) and X-band (8560 MHz)
+frequencies, along with the round-trip (total) delay to first-order.
+Units: HERTZ and SECONDS
+ 
+ 'Tru_Anom,' =
+   Apparent true anomaly angle of the targets' heliocentric orbit position;
+the angle in the targets' instantaneous orbit plane from the orbital periapse
+direction to the target, measured positively in the direction of motion.
+The position of the target is taken to be at the moment light seen by the
+observer at print-time would have left the center of the object. That is,
+the heliocentric position of the target used to compute the true anomaly is
+one down-leg light-time prior to the print-time. Units: DEGREES
+ 
+ 'L_Ap_Hour_Ang,' =
+   Local apparent HOUR ANGLE of target at observing site. The angle between the
+observers' meridian plane, containing Earth's axis of-date and local zenith
+direction, and a great circle passing through Earth's axis-of-date and the
+targets' direction, measured westward from the zenith meridian to target
+meridian along the equator. Negative values are angular times UNTIL transit.
+Positive values are angular times SINCE transit. Exactly 24_hrs/360_degrees.
+EARTH TOPOCENTRIC ONLY.  Units: sHH.fffffffff  (decimal angular hours)
+ 
+ 'phi,  PAB-LON,  PAB-LAT,' =
+   "phi" is the true PHASE ANGLE at the observers' location at print time.
+"PAB-LON" and "PAB-LAT" are the J2000 ecliptic longitude and latitude of the
+phase angle bisector direction; the outward directed angle bisecting the arc
+created by the apparent vector from Sun to target center and the astrometric
+vector from observer to target center. For an otherwise uniform ellipsoid, the
+time when its long-axis is perpendicular to the PAB direction approximately
+corresponds to lightcurve maximum (or maximum brightness) of the body. PAB is
+discussed in Harris et al., Icarus 57, 251-258 (1984).
+
+   Units: DEGREES, DEGREES, DEGREES
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/hrzn_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Author      : Jon.D.Giorgini@jpl.nasa.gov
+
+*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
