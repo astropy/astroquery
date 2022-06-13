@@ -14,7 +14,7 @@ from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
-from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.decorators import deprecated_renamed_argument, deprecated_attribute
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -35,6 +35,12 @@ class HorizonsClass(BaseQuery):
     """
 
     TIMEOUT = conf.timeout
+
+    raw_response = deprecated_attribute(
+        'raw_response', '0.4.7',
+        alternative=("an `_async` method (e.g., `ephemerides_async`) to "
+                     "return a response object, and access the content with "
+                     "`response.text`"))
 
     def __init__(self, id=None, location=None, epochs=None,
                  id_type=None):
@@ -137,7 +143,7 @@ class HorizonsClass(BaseQuery):
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
         self.uri = None  # will contain query URL
-        self.raw_response = None  # will contain raw response from server
+        self._raw_response = None  # will contain raw response from server
 
     def __str__(self):
         """
@@ -1148,13 +1154,13 @@ class HorizonsClass(BaseQuery):
                 pass
             raise
 
-        self.raw_response = response.text
+        self._raw_response = response.text
 
         # return raw response, if desired
         if self.return_raw:
             # reset return_raw flag
             self.return_raw = False
-            return self.raw_response
+            return self._raw_response
 
         # split response by line break
         src = response.text.split('\n')
@@ -1264,7 +1270,7 @@ class HorizonsClass(BaseQuery):
             else:
                 raise ValueError(('Query failed without known error message; '
                                   'received the following response:\n'
-                                  '{}').format(self.raw_response))
+                                  '{}').format(response.text))
         # strip whitespaces from column labels
         headerline = [h.strip() for h in headerline]
 
