@@ -221,7 +221,7 @@ class AlmaClass(QueryWithLogin):
         ----------
 
         archvie_host : str
-        The discovered ARC hostname.
+            The discovered ARC hostname.
 
         Returns
         -------
@@ -242,12 +242,12 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._datalink_url = commons.get_access_url(
-                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.datalink_service_uri_path),
-                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    f"ivo://{self.service_id_auth(base_url_host)}{conf.datalink_service_uri_path}",
+                    f"https://{base_url_host}{conf.registry_path}",
                     conf.datalink_standard_id)
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    "ERROR getting the CADC registry: {}".format(str(err)))
+                    f"ERROR getting the CADC registry: {str(err)}")
                 raise err
         return self._datalink_url
 
@@ -263,12 +263,12 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._sia_url = commons.get_access_url(
-                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.sia_service_uri_path),
-                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    f"ivo://{self.service_id_auth(base_url_host)}{conf.sia_service_uri_path}",
+                    f"https://{base_url_host}{conf.registry_path}",
                     conf.sia_standard_id)
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    "ERROR getting the CADC registry: {}".format(str(err)))
+                    f"ERROR getting the CADC registry: {str(err)}")
                 raise err
         return self._sia_url
 
@@ -284,12 +284,12 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._tap_url = commons.get_access_url(
-                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.tap_service_uri_path),
-                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    f"ivo://{self.service_id_auth(base_url_host)}{conf.tap_service_uri_path}",
+                    f"https://{base_url_host}{conf.registry_path}",
                     conf.tap_standard_id)
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    "ERROR getting the CADC registry: {}".format(str(err)))
+                    f"ERROR getting the CADC registry: {str(err)}")
                 raise err
         return self._tap_url
 

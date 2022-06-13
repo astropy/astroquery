@@ -224,6 +224,7 @@ their types.
     <BLANKLINE>
       Name                 Type            Unit       Description
     ------------------------------------------------------------------------------------------
+      access_estsize       int            kbyte       Estimated size of datasets in kilobytes
       access_format        char(9)                    Content format of the data
       access_url           char(72*)                  URL to download the data
       antenna_arrays       char(660*)                 Blank-separated list of Pad:Antenna pairs, i.e., A109:DV09 J504:DV02 J505:DV05 for antennas DV09, DV02 and DV05 sitting on pads A109, J504, and J505, respectively.
@@ -240,6 +241,7 @@ their types.
       em_min               double          m          start spectral coordinate value
       em_res_power         double                     typical spectral resolution
       em_resolution        double          m          Estimated frequency resolution from all the spectral windows, using median values of channel widths.
+      em_xel		           int	                      Number of elements along the spectral axis
       facility_name        char(3)                    telescope name
       first_author         char(256*)                 The first author as provided by <a href="http://telbib.eso.org">telbib.eso.org</a>.
       frequency            double          GHz        Observed (tuned) reference frequency on the sky.
@@ -259,6 +261,7 @@ their types.
       obs_release_date     char(*)                    timestamp of date the data becomes publicly available
       obs_title            char(256*)                 Case-insensitive search over the project title
       pol_states           char(64*)                  polarization states present in the data
+      pol_xel              int                        Number of polarization samples
       proposal_abstract    char(4000*)                Text search on the proposal abstract. Only abstracts will be returned which contain the given text. The search is case-insensitive.
       proposal_authors     char(2000*)                Full name of CoIs .
       proposal_id          char(64*)                  Identifier of proposal to which NO observation belongs.
@@ -272,6 +275,8 @@ their types.
       s_ra                 double          deg        RA of central coordinates
       s_region             char(*)         deg        region bounded by observation
       s_resolution         double          deg        typical spatial resolution
+      s_xel1               int                        Number of elements along the first spatial axis
+      s_xel2               int                        Number of elements along the second spatial axis
       scan_intent          char(256*)                 Scan intent list for the observed field.
       schedblock_name      char(128*)                 Name of the Scheduling Block used as a template for executing the ASDM containing this Field.
       science_keyword      char(200*)                 None
@@ -284,6 +289,7 @@ their types.
       t_max                double          d          end time of observation (MJD)
       t_min                double          d          start time of observation (MJD)
       t_resolution         double          s          typical temporal resolution
+      t_xel                int                        Number of elements along the time axis
       target_name          char(256*)                 name of intended target
       type                 char(16*)                  Type flags.
       velocity_resolution  double          m/s        Estimated velocity resolution from all the spectral windows, from frequency resolution.
