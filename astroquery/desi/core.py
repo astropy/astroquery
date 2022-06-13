@@ -17,16 +17,17 @@ __all__ = ['DESILegacySurvey', 'DESILegacySurveyClass']
 
 class DESILegacySurveyClass(BaseQuery):
 
-    def query_region(self, coordinates, radius, *, data_release=9):
+    def query_region(self, coordinates, radius=None, *, data_release=9):
         """
         Queries a region around the specified coordinates.
 
         Parameters
         ----------
-        coordinates : `astropy.coordinates`
+        coordinates : `~astropy.coordinates.SkyCoord`
             coordinates around which to query.
-        radius : `astropy.units.Quantity`
-            the radius of the cone search.
+        radius : `~astropy.coordinates.Angle`,  optional
+            the radius of the region. If missing, set to default
+            value of 0.5 arcmin.
         data_release: int
             the data release of the LegacySurvey to use.
 
@@ -34,6 +35,9 @@ class DESILegacySurveyClass(BaseQuery):
         -------
         response : `astropy.table.Table`
         """
+
+        if radius is None:
+            radius = coord.Angle(0.5, unit='arcmin')
 
         tap_service = vo.dal.TAPService(conf.tap_service_url)
         coordinates_transformed = coordinates.transform_to(coord.ICRS)
