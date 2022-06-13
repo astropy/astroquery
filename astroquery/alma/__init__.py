@@ -14,7 +14,7 @@ _arc_service_id_map = {
 }
 
 # separate list of ARC URLs as they each deploy their own IVOA services.
-_arc_url_list = list(map(lambda id: 'https://{}'.format(id), _arc_service_id_map.keys()))
+_arc_url_list = [f'https://{id}' for id in _arc_service_id_map]
 
 # list the URLs here separately so they can be used in tests.
 _url_list = ['https://almascience.org'] + _arc_url_list

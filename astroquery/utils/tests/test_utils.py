@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from cmath import exp
 from collections import OrderedDict
 import os
 import requests
@@ -16,6 +17,7 @@ from astropy.table import Table
 import astropy.utils.data as aud
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
+import unittest
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
@@ -509,3 +511,81 @@ def test_is_coordinate(coordinates, expected):
 def test_radius_to_unit(radius):
     c = commons.radius_to_unit(radius)
     assert c is not None
+
+
+# This method will be used by the mock in test_get_access_url to replace requests.get
+def _mocked_requests_get(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, text, status_code):
+            self.text = text
+            self.status_code = status_code
+
+        def text(self):
+            return self.text
+
+        def raise_for_status(self):
+            return None
+
+    example_1_capabilities_document = """<?xml version="1.0" encoding="UTF-8"?>
+<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<capability standardID="ivo://ivoa.net/auth#example">
+<interface xsi:type="vs:ParamHTTP">
+    <accessURL use="full">https://example.com/service1/endpoint</accessURL>
+</interface>
+</capability>
+</vosi:capabilities>"""
+
+    example_2_capabilities_document = """<?xml version="1.0" encoding="UTF-8"?>
+<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<capability standardID="ivo://ivoa.net/auth#example">
+<interface xsi:type="vs:ParamHTTP">
+    <accessURL use="full">https://example.com/service2/endpoint</accessURL>
+</interface>
+</capability>
+</vosi:capabilities>"""
+
+    if args[0] == 'https://example.com/reg/resource-caps':
+        return MockResponse("ivo://example.com/service1 = https://example.com/service1/capabilities\nivo://example.com/service2 = https://example.com/service2/capabilities", 200)
+    elif args[0] == 'https://example.com/service1/capabilities':
+        return MockResponse(example_1_capabilities_document, 200)
+    elif args[0] == 'https://example.com/service2/capabilities':
+        return MockResponse(example_2_capabilities_document, 200)
+
+    pytest.fail('Should not get here.')
+
+
+@pytest.mark.parametrize('service, capability, expected',
+                         [
+                            ('ivo://example.com/service1', 'ivo://ivoa.net/auth#example', 'https://example.com/service1/endpoint'),
+                            ('ivo://example.com/service2', 'ivo://ivoa.net/auth#example', 'https://example.com/service2/endpoint'),
+                            ('bogus', '', ''),
+                            ('', '', '')
+                         ])
+def test_get_access_url(service, capability, expected):
+    """
+    Test for get_access_url to obtain a download URL from a Capabilities document
+    of an IVOA service.
+    """
+    _test_get_access_url(service, capability, expected)
+
+@unittest.mock.patch('requests.get', side_effect=_mocked_requests_get)
+def _test_get_access_url(service, capability, expected, mock_get):
+    orig_caps = commons.get_access_url.caps
+    url = None
+    try:
+        # Force resource-caps to get called.
+        commons.get_access_url.caps = {}
+        url = commons.get_access_url(service, 'https://example.com/reg/resource-caps', capability)
+        if url:
+            assert url == expected
+            tc = unittest.TestCase()
+            expected_url = requests.utils.parse_url(expected)
+            tc.assertIn(unittest.mock.call('https://example.com/reg/resource-caps'), mock_get.call_args_list, 'No resource-caps called.')
+            tc.assertIn(unittest.mock.call(f'https://example.com{expected_url.path.replace("endpoint", "capabilities")}'), mock_get.call_args_list, 'No capabilities called.')
+    except RuntimeError as runtime_error:
+        # Should only happen if the provided service is empty.
+        assert url is None
+        assert str(runtime_error) == f'No or invalid service provided ({service}).'
+    finally:
+        commons.get_access_url.caps = orig_caps
+
