@@ -33,6 +33,7 @@ from astropy.table import Table
 from astropy import units as u
 import warnings
 from astroquery.exceptions import InputWarning
+from collections.abc import Iterable
 
 
 class GaiaClass(TapPlus):
@@ -44,6 +45,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+    GAIA_MESSAGES = "notification?action=GetNotifications"
 
     def __init__(self, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -51,7 +53,7 @@ class GaiaClass(TapPlus):
                  gaia_data_server='https://gea.esac.esa.int/',
                  tap_server_context="tap-server",
                  data_server_context="data-server",
-                 verbose=False):
+                 verbose=False, show_server_messages=True):
         super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context=tap_server_context,
                                         tap_context="tap",
@@ -73,6 +75,10 @@ class GaiaClass(TapPlus):
                                       verbose=verbose)
         else:
             self.__gaiadata = datalink_handler
+
+        # Enable notifications
+        if show_server_messages:
+            self.get_status_messages()
 
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):
@@ -158,7 +164,7 @@ class GaiaClass(TapPlus):
         except HTTPError as err:
             log.error("Error logging out data server")
 
-    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=True,
+    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=False,
                   band=None, avoid_datatype_check=False, format="votable", output_file=None,
                   overwrite_output_file=False, verbose=False):
         """Loads the specified table
@@ -185,12 +191,12 @@ class GaiaClass(TapPlus):
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
             'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
-        valid_data : bool, optional, default True
-            By default, the epoch photometry service returns only valid data,
-            that is, all data rows where flux is not null and
-            rejected_by_photometry flag is not true. In order to retrieve
-            all data associated to a given source without this filter,
-            this request parameter should be included (valid_data=False)
+        valid_data : bool, optional, default False
+            By default, the epoch photometry service returns all available data, including
+            data rows where flux is null and/or the rejected_by_photometry flag is set to True.
+            In order to retrieve only valid data (data rows where flux is not null and/or the
+            rejected_by_photometry flag is set to False) this request parameter should be included
+            with valid_data=True.
         band : str, optional, default None, valid values: G, BP, RP
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
@@ -910,6 +916,28 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun)
+
+    def get_status_messages(self):
+        """Retrieve the messages to inform users about
+        the status of Gaia TAP
+        """
+        try:
+            subContext = self.GAIA_MESSAGES
+            connHandler = self._TapPlus__getconnhandler()
+            response = connHandler.execute_tapget(subContext, False)
+            if response.status == 200:
+                if isinstance(response, Iterable):
+                    for line in response:
+
+                        try:
+                            print(line.decode("utf-8").split('=', 1)[1])
+                        except ValueError as e:
+                            print(e)
+                        except IndexError:
+                            print("Archive down for maintenance")
+
+        except OSError:
+            print("Status messages could not be retrieved")
 
 
 Gaia = GaiaClass()
