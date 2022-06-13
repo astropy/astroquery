@@ -38,9 +38,9 @@ class HorizonsClass(BaseQuery):
 
     raw_response = deprecated_attribute(
         'raw_response', '0.4.7',
-        alternative=("an `_async` method (e.g., `ephemerides_async`) to "
+        alternative=("an ``_async`` method (e.g., ``ephemerides_async``) to "
                      "return a response object, and access the content with "
-                     "`response.text`"))
+                     "``response.text``"))
 
     def __init__(self, id=None, location=None, epochs=None,
                  id_type=None):
