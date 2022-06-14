@@ -213,7 +213,7 @@ class AlmaClass(QueryWithLogin):
 
     def service_id_auth(self, archive_host):
         """
-        Convenience property to get the current Service ID authority.  Each ARC will have a different authority in
+        Convenience property to get the current Service ID URI authority.  Each ARC will have a different authority in
         the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden,
         use the default value.
 
