@@ -74,6 +74,7 @@ class DESILegacySurveyClass(BaseQuery):
             Whether to display a progress bar if the file is downloaded
             from a remote server.  Default is True.
         image_band: str, optional
+            Default to 'g'
 
         Returns
         -------
