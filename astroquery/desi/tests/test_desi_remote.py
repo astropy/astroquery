@@ -1,6 +1,6 @@
 import pytest
-import astroquery.desi
 
+from astroquery.desi import DESILegacySurvey
 from astropy.io.fits import HDUList
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
@@ -13,13 +13,11 @@ class TestLegacySurveyClass:
 
     def test_query_region(self):
 
-        ra = Angle('11h04m27s', unit='hourangle').degree
-        dec = Angle('+38d12m32s', unit='hourangle').degree
-        coordinates = SkyCoord(ra, dec, unit='degree')
+        coordinates = SkyCoord('11h04m27s +38d12m32s')
 
         radius = Angle(5, unit='arcmin')
 
-        query1 = astroquery.desi.DESILegacySurvey.query_region(coordinates, radius=radius, data_release=9)
+        query1 = DESILegacySurvey.query_region(coordinates, radius=radius, data_release=9)
 
         assert isinstance(query1, Table)
 
@@ -27,23 +25,23 @@ class TestLegacySurveyClass:
     def test_get_images(self, valid_inputs):
 
         if valid_inputs:
-            ra = Angle('11h04m27s', unit='hourangle').degree
-            dec = Angle('+38d12m32s', unit='hourangle').degree
-            radius_input = 0.5  # arcmin
+            ra = 166.1125
+            dec = 38.209
+            radius_input = 0.5
             pixels = 60
         else:
-            ra = Angle('86.633212', unit='degree').degree
-            dec = Angle('22.01446', unit='degree').degree
-            radius_input = 3  # arcmin
+            ra = 86.633212
+            dec = 22.01446
+            radius_input = 3
             pixels = 1296000
 
         pos = SkyCoord(ra, dec, unit='degree')
         radius = Angle(radius_input, unit='arcmin')
 
         if valid_inputs:
-            query1 = astroquery.desi.DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
+            query1 = DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
             assert isinstance(query1, list)
             assert isinstance(query1[0], HDUList)
         else:
             with pytest.raises(NoResultsWarning):
-                astroquery.desi.DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
+                DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
