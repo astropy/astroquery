@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - name: Python 3.9 with all dependencies with remote data
