@@ -65,11 +65,8 @@ class Conf(_config.ConfigNamespace):
 
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
-    # override for testing or alternate archive location.
-    _configured_archive_url = [os.environ["ARCHIVE_URL"]] if "ARCHIVE_URL" in os.environ else _url_list
-
     archive_url = _config.ConfigItem(
-        _configured_archive_url,
+        _url_list,
         'The ALMA Archive mirror to use.')
 
     auth_url = _config.ConfigItem(
