@@ -217,6 +217,9 @@ class AlmaClass(QueryWithLogin):
         the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden,
         use the default value.
 
+        The authority of a URI is the host.  E.g.:
+        ivo://example.org/service (example.org is the authority)
+
         Parameters
         ----------
 
