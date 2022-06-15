@@ -12,8 +12,9 @@ from astroquery.exceptions import NoResultsWarning
 class TestLegacySurveyClass:
 
     def test_query_region(self):
-
-        coordinates = SkyCoord('11h04m27s +38d12m32s')
+        ra = 166.1125
+        dec = 38.209
+        coordinates = SkyCoord(ra, dec, unit='degree')
 
         radius = Angle(5, unit='arcmin')
 
