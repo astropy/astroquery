@@ -17,10 +17,8 @@ import numpy as np
 from astroquery.casda import Casda
 from astroquery.exceptions import LoginError
 
-try:
-    from unittest.mock import Mock, patch, MagicMock
-except ImportError:
-    pytest.skip("Install mock for the casda tests.", allow_module_level=True)
+from unittest.mock import Mock, MagicMock
+
 
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
               'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml',
