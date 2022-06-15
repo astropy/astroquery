@@ -40,18 +40,9 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['dummy_hdu_list_fits'])  # TODO: add images option
-        encoding = kwargs.get('encoding', None)
-        f = None
-        try:
-            if encoding == 'binary':
-                f = open(file_obj, 'rb')
-                yield f
-            else:
-                f = open(file_obj, 'rb')
-                yield f
-        finally:
-            if f is not None:
-                f.close()
+        # f = None
+        with open(file_obj, 'rb') as f:
+            yield f
 
     mp = request.getfixturevalue("monkeypatch")
 
@@ -78,7 +69,8 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['dummy_tractor_fits'])
 
     if filename is not None:
-        content = open(filename, 'rb').read()
+        with open(filename, 'rb') as f:
+            content = f.read()
     return MockResponse(content)
 
 
