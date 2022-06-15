@@ -19,7 +19,7 @@ __all__ = ['DESILegacySurvey', 'DESILegacySurveyClass']
 
 class DESILegacySurveyClass(BaseQuery):
 
-    def query_region(self, coordinates, radius=None, *, data_release=9):
+    def query_region(self, coordinates, radius=0.5*u.arcmin, *, data_release=9):
         """
         Queries a region around the specified coordinates.
 
@@ -38,17 +38,13 @@ class DESILegacySurveyClass(BaseQuery):
         response : `~astropy.table.Table`
         """
 
-        if radius is None:
-            radius = Quantity(0.5, unit='arcmin')
-
         tap_service = vo.dal.TAPService(conf.tap_service_url)
         coordinates_transformed = coordinates.transform_to(coord.ICRS)
 
         qstr = (f"SELECT all * FROM ls_dr{data_release}.tractor WHERE "
-               f"dec>{(coordinates_transformed.dec - radius).to(u.deg).value} and "
-               f"dec<{(coordinates_transformed.dec + radius).to(u.deg).value} and "
-               f"ra>{coordinates_transformed.ra.to(u.deg).value - radius.to(u.deg).value / np.cos(coordinates_transformed.dec.to(u.deg).value * np.pi / 180.)} and "
-               f"ra<{coordinates_transformed.ra.to(u.deg).value + radius.to(u.deg).value / np.cos(coordinates_transformed.dec.to(u.deg).value * np.pi / 180)}")
+                f"dec<{(coordinates_transformed.dec + radius).to_value(u.deg)} and "
+                f"ra>{coordinates_transformed.ra.to_value(u.deg) - radius.to_value(u.deg) / np.cos(coordinates_transformed.dec)} and "
+                f"ra<{coordinates_transformed.ra.to_value(u.deg) + radius.to_value(u.deg) / np.cos(coordinates_transformed.dec)}")
 
         tap_result = tap_service.run_sync(qstr)
         tap_result = tap_result.to_table()
@@ -58,7 +54,7 @@ class DESILegacySurveyClass(BaseQuery):
 
         return filtered_table
 
-    def get_images(self, position, pixels, radius=None, *, data_release=9, show_progress=True, image_band='g'):
+    def get_images(self, position, pixels=None, radius=0.5*u.arcmin, *, data_release=9, show_progress=True, image_band='g'):
         """
         Downloads the images for a certain region of interest.
 
@@ -80,9 +76,6 @@ class DESILegacySurveyClass(BaseQuery):
         -------
         list: A list of `~astropy.io.fits.HDUList` objects.
         """
-
-        if radius is None:
-            radius = Quantity(0.5, u.arcmin)
 
         position_transformed = position.transform_to(coord.ICRS)
 
