@@ -53,10 +53,7 @@ def patch_get_readable_fileobj(request):
             if f is not None:
                 f.close()
 
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
 
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
