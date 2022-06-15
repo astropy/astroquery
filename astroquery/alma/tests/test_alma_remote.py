@@ -302,7 +302,6 @@ class TestAlma:
         #                     science=True)
         # assert len(result) == 1
 
-    @pytest.mark.xfail(reason="ra dec search known issue")
     def test_misc(self, alma):
         # miscellaneous set of common tests
         #
