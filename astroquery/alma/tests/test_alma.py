@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from cmath import exp
 from io import StringIO
 import os
 
@@ -14,6 +15,8 @@ from astropy.time import Time
 from astroquery.alma import Alma
 from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT
 from astroquery.alma.tapsql import _val_parse
+from astroquery.utils import commons
+
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -378,6 +381,93 @@ def test_tap():
                                             language='ADQL', maxrec=None)
 
 
+def _mocked_tap_access_url(*args, **kwargs):
+    if args[0] == 'ivo://alma.na/tap':
+        return 'https://alma.na/tap'
+    elif args[0] == 'ivo://alma.eu/tap':
+        return 'https://alma.eu/tap'
+    elif args[0] == 'ivo://alma.ea/tap':
+        return 'https://alma.ea/tap'
+    else:
+        raise RuntimeError(f'Cannot get entry for {args[0]}')
+
+
+@pytest.mark.parametrize('data_archive_url, expected', 
+                         [
+                            ('https://almascience.nrao.edu', 'https://alma.na/tap'), 
+                            ('https://almascience.eso.org', 'https://alma.eu/tap'), 
+                            ('https://almascience.nao.ac.jp', 'https://alma.ea/tap')
+                         ])
+def test_tap_url(data_archive_url, expected):
+    _test_tap_url(data_archive_url, expected)
+
+
+@patch('astroquery.utils.commons.get_access_url', side_effect=_mocked_tap_access_url)
+def _test_tap_url(data_archive_url, expected, _mock_access_url):
+    alma = Alma()
+    alma._get_dataarchive_url = Mock(return_value=data_archive_url)
+    alma._get_dataarchive_url.reset_mock()
+    assert alma.tap_url == expected
+
+
+def _mocked_sia_access_url(*args, **kwargs):
+    if args[0] == 'ivo://alma.na/sia':
+        return 'https://alma.na/sia2'
+    elif args[0] == 'ivo://alma.eu/sia':
+        return 'https://alma.eu/sia2'
+    elif args[0] == 'ivo://alma.ea/sia':
+        return 'https://alma.ea/sia2'
+    else:
+        raise RuntimeError(f'Cannot get entry for {args[0]}')
+
+
+@pytest.mark.parametrize('data_archive_url, expected', 
+                         [
+                            ('https://almascience.nrao.edu', 'https://alma.na/sia2'), 
+                            ('https://almascience.eso.org', 'https://alma.eu/sia2'), 
+                            ('https://almascience.nao.ac.jp', 'https://alma.ea/sia2')
+                         ])
+def test_sia_url(data_archive_url, expected):
+    _test_sia_url(data_archive_url, expected)
+
+
+@patch('astroquery.utils.commons.get_access_url', side_effect=_mocked_sia_access_url)
+def _test_sia_url(data_archive_url, expected, _mock_access_url):
+    alma = Alma()
+    alma._get_dataarchive_url = Mock(return_value=data_archive_url)
+    alma._get_dataarchive_url.reset_mock()
+    assert alma.sia_url == expected
+
+
+def _mocked_datalink_access_url(*args, **kwargs):
+    if args[0] == 'ivo://alma.na/datalink':
+        return 'https://alma.na/datalink'
+    elif args[0] == 'ivo://alma.eu/datalink':
+        return 'https://alma.eu/datalink'
+    elif args[0] == 'ivo://alma.ea/datalink':
+        return 'https://alma.ea/datalink'
+    else:
+        raise RuntimeError(f'Cannot get entry for {args[0]}')
+
+
+@pytest.mark.parametrize('data_archive_url, expected', 
+                         [
+                            ('https://almascience.nrao.edu', 'https://alma.na/datalink'), 
+                            ('https://almascience.eso.org', 'https://alma.eu/datalink'), 
+                            ('https://almascience.nao.ac.jp', 'https://alma.ea/datalink')
+                         ])
+def test_datalink_url(data_archive_url, expected):
+    _test_datalink_url(data_archive_url, expected)
+
+
+@patch('astroquery.utils.commons.get_access_url', side_effect=_mocked_datalink_access_url)
+def _test_datalink_url(data_archive_url, expected, _mock_access_url):
+    alma = Alma()
+    alma._get_dataarchive_url = Mock(return_value=data_archive_url)
+    alma._get_dataarchive_url.reset_mock()
+    assert alma.datalink_url == expected
+
+
 def test_get_data_info():
     datalink_mock = Mock()
     dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
@@ -397,6 +487,59 @@ def test_get_data_info():
 
     datalink_mock.run_sync.assert_called_once_with('uid://A001/X12a3/Xe9')
 
+
+# This method will be used by the mock in test_get_data_info_expand_tarfiles to replace requests.get
+def _mocked_datalink_sync(*args, **kwargs):
+    class MockResponse:
+        # Emulate the DatalinkResults
+        service_def_1 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
+        service_def_2 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+
+        def __init__(self, table):
+            self.table = table
+
+        def to_table(self):
+            return self.table
+
+        @property
+        def status(self):
+            return ['OK']
+
+        def iter_procs(self):
+            return [self.service_def_1, self.service_def_2]
+
+    print(f"\n\nFOUND ARGS {args}\n\n")
+
+    if args[0] == 'uid://A001/X12a3/Xe9':
+        return MockResponse(Table.read(data_path('alma-datalink.xml'), format='votable'))
+    elif args[0] == '2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar':
+        return MockResponse(Table.read(data_path('alma-datalink-recurse-this.xml'), format='votable'))
+    elif args[0] == '2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar':
+        return MockResponse(Table.read(data_path('alma-datalink-recurse-aux.xml'), format='votable'))
+
+    pytest.fail('Should not get here.')
+
+
+# @patch('pyvo.dal.adhoc.DatalinkService', side_effect=_mocked_datalink_sync)
+def test_get_data_info_expand_tarfiles():
+    class MockDataLinkService:
+        def run_sync(self, uid):
+            return _mocked_datalink_sync(uid)
+
+    alma = Alma()
+    alma._datalink = MockDataLinkService()
+    result = alma.get_data_info(uids='uid://A001/X12a3/Xe9', expand_tarfiles=True)
+
+    # Entire expanded structure is 61 links long.
+    assert len(result) == 61
+
+
+def test_service_id_auth():
+    alma = Alma()
+    assert alma.service_id_auth('almascience.nrao.edu') == 'alma.na'
+    assert alma.service_id_auth('almascience.eso.org') == 'alma.eu'
+    assert alma.service_id_auth('almascience.nao.ac.jp') == 'alma.ea'
+    assert alma.service_id_auth('alma-alternate-example.com') == 'almascience.org'
 
 def test_galactic_query():
     """
