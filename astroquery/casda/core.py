@@ -20,8 +20,6 @@ import numpy as np
 # 3. local imports - use relative imports
 from ..query import QueryWithLogin
 from ..utils import commons
-# prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
@@ -245,7 +243,8 @@ class CasdaClass(QueryWithLogin):
             The table with all unreleased (non public) data products filtered out.
         """
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
-        return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
+        return table[(table['obs_release_date'] != '')
+                     & np.array([obs_date < now for obs_date in table['obs_release_date']])]
 
     def _create_job(self, table, service_name, verbose):
         # Use datalink to get authenticated access for each file
