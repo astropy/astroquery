@@ -392,10 +392,10 @@ def _mocked_tap_access_url(*args, **kwargs):
         raise RuntimeError(f'Cannot get entry for {args[0]}')
 
 
-@pytest.mark.parametrize('data_archive_url, expected', 
+@pytest.mark.parametrize('data_archive_url, expected',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/tap'), 
-                            ('https://almascience.eso.org', 'https://alma.eu/tap'), 
+                            ('https://almascience.nrao.edu', 'https://alma.na/tap'),
+                            ('https://almascience.eso.org', 'https://alma.eu/tap'),
                             ('https://almascience.nao.ac.jp', 'https://alma.ea/tap')
                          ])
 def test_tap_url(data_archive_url, expected):
@@ -421,10 +421,10 @@ def _mocked_sia_access_url(*args, **kwargs):
         raise RuntimeError(f'Cannot get entry for {args[0]}')
 
 
-@pytest.mark.parametrize('data_archive_url, expected', 
+@pytest.mark.parametrize('data_archive_url, expected',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/sia2'), 
-                            ('https://almascience.eso.org', 'https://alma.eu/sia2'), 
+                            ('https://almascience.nrao.edu', 'https://alma.na/sia2'),
+                            ('https://almascience.eso.org', 'https://alma.eu/sia2'),
                             ('https://almascience.nao.ac.jp', 'https://alma.ea/sia2')
                          ])
 def test_sia_url(data_archive_url, expected):
@@ -450,10 +450,10 @@ def _mocked_datalink_access_url(*args, **kwargs):
         raise RuntimeError(f'Cannot get entry for {args[0]}')
 
 
-@pytest.mark.parametrize('data_archive_url, expected', 
+@pytest.mark.parametrize('data_archive_url, expected',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/datalink'), 
-                            ('https://almascience.eso.org', 'https://alma.eu/datalink'), 
+                            ('https://almascience.nrao.edu', 'https://alma.na/datalink'),
+                            ('https://almascience.eso.org', 'https://alma.eu/datalink'),
                             ('https://almascience.nao.ac.jp', 'https://alma.ea/datalink')
                          ])
 def test_datalink_url(data_archive_url, expected):
@@ -540,6 +540,7 @@ def test_service_id_auth():
     assert alma.service_id_auth('almascience.eso.org') == 'alma.eu'
     assert alma.service_id_auth('almascience.nao.ac.jp') == 'alma.ea'
     assert alma.service_id_auth('alma-alternate-example.com') == 'almascience.org'
+
 
 def test_galactic_query():
     """
