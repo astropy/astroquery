@@ -110,7 +110,8 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Determine API connection and service name
         if catalog.lower() in self._service_api_connection.SERVICES:
-            self._current_connection = self._service_api_connection
+            search = 'search/panstarrs/dr2/mean.json'
+            self._current_connection = os.path.join(self._service_api_connection, search)
             service = catalog
         else:
             self._current_connection = self._portal_api_connection
@@ -161,6 +162,7 @@ class CatalogsClass(MastQueryWithLogin):
         for prop, value in kwargs.items():
             params[prop] = value
 
+        print(service)
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
