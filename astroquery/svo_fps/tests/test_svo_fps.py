@@ -46,9 +46,14 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
 
 
 def test_get_filter_index(patch_get):
-    table = SvoFps.get_filter_index(TEST_LAMBDA*u.angstrom, (TEST_LAMBDA+100)*u.angstrom)
+    lambda_min = TEST_LAMBDA*u.angstrom
+    lambda_max = lambda_min + 100*u.angstrom
+    table = SvoFps.get_filter_index(lambda_min, lambda_max)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
+    # Results should not depend on the unit of the wavelength: #2443. If they do then
+    # `get_mockreturn` raises `NotImplementedError`.
+    SvoFps.get_filter_index(lambda_min.to(u.m), lambda_max)
 
 
 def test_get_transmission_data(patch_get):

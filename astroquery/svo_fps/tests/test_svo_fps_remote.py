@@ -1,5 +1,6 @@
 import pytest
 import astropy.io.votable.exceptions
+from astropy import units as u
 
 from ..core import SvoFps
 
@@ -8,7 +9,7 @@ from ..core import SvoFps
 class TestSvoFpsClass:
 
     def test_get_filter_index(self):
-        table = SvoFps.get_filter_index()
+        table = SvoFps.get_filter_index(12_000*u.angstrom, 12_100*u.angstrom)
         # Check if column for Filter ID (named 'filterID') exists in table
         assert 'filterID' in table.colnames
 
