@@ -674,12 +674,12 @@ def test_get_access_url(service, capability, expected):
 
 @unittest.mock.patch('requests.get', side_effect=_mocked_requests_get)
 def _test_get_access_url(service, capability, expected, mock_get):
-    orig_caps = astroquery.alma.get_access_url.caps
+    orig_caps = astroquery.alma.core.get_access_url.caps
     url = None
     try:
         # Force resource-caps to get called.
-        astroquery.alma.get_access_url.caps = {}
-        url = astroquery.alma.get_access_url(service, 'https://example.com/reg/resource-caps', capability)
+        astroquery.alma.core.get_access_url.caps = {}
+        url = astroquery.alma.core.get_access_url(service, 'https://example.com/reg/resource-caps', capability)
         if url:
             assert url == expected
             tc = unittest.TestCase()
@@ -691,4 +691,4 @@ def _test_get_access_url(service, capability, expected, mock_get):
         assert url is None
         assert str(runtime_error) == f'No or invalid service provided ({service}).'
     finally:
-        astroquery.alma.get_access_url.caps = orig_caps
+        astroquery.alma.core.get_access_url.caps = orig_caps
