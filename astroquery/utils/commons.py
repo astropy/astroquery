@@ -8,7 +8,6 @@ import warnings
 import os
 import shutil
 import socket
-from bs4 import BeautifulSoup
 from io import BytesIO, StringIO
 from urllib.error import URLError
 
@@ -468,90 +467,3 @@ def parse_votable(content):
     """
     tables = votable.parse(BytesIO(content), verify='warn')
     return tables
-
-
-def static_vars(**kwargs):
-    def decorate(func):
-        for k in kwargs:
-            setattr(func, k, kwargs[k])
-        return func
-    return decorate
-
-
-@static_vars(caps={})
-def get_access_url(service, reg_url, capability=None):
-    """
-    Returns the URL corresponding to a service by doing a lookup in the cadc
-    registry. It returns the access URL corresponding to cookie authentication.
-
-    Parameters
-    ----------
-    service : str
-        the service the capability belongs to. It can be identified
-        by a URI (e.g. 'ivo://alma.na/tap) which is looked up in the Registry
-        or by the URL where the service capabilities is found.
-    reg_url: str
-        The full URL of the Registry to lookup the given service.
-    capability : str
-        uri representing the capability for which the access url is sought.
-
-    Returns
-    -------
-    The access url
-
-    Note
-    ------
-    This function implements the functionality of a Registry as defined
-    by the IVOA. It should be eventually moved to its own directory.
-
-    Caching should be considered to reduce the number of remote calls to Registry
-    """
-
-    service_url = requests.utils.parse_url(service)
-
-    # not a valid URI/URL
-    if not service_url.scheme:
-        raise RuntimeError(f"No or invalid service provided ({service}).")
-
-    caps_url = ''
-
-    # absolute URL, so use it as-is
-    if service_url.scheme.startswith("http"):
-        if not capability:
-            return service
-        caps_url = service
-    else:
-        # get capabilities from the Registry
-        if not get_access_url.caps:
-            response = requests.get(reg_url)
-            response.raise_for_status()
-            for line in response.text.splitlines():
-                if len(line) > 0 and not line.startswith("#"):
-                    service_id, capabilies_url = line.split("=")
-                    get_access_url.caps[service_id.strip()] = \
-                        capabilies_url.strip()
-        # lookup the service
-        service_uri = service_url.url
-        if service_uri not in get_access_url.caps:
-            raise AttributeError(
-                f"Cannot find the capabilities of service {service} from {reg_url}")
-        # look up in the Registry for the service capabilities
-        caps_url = get_access_url.caps[service_uri]
-        if not capability:
-            return caps_url
-    response2 = requests.get(caps_url)
-    response2.raise_for_status()
-
-    soup = BeautifulSoup(response2.text, features="html5lib")
-    for cap in soup.find_all("capability"):
-        if cap.get("standardid", None) == capability:
-            if len(cap.find_all("interface")) == 1:
-                return cap.find_all("interface")[0].accessurl.text
-            for i in cap.find_all("interface"):
-                if hasattr(i, "securitymethod"):
-                    sm = i.securitymethod
-                    if not sm or sm.get("standardid", None) is None or\
-                    sm['standardid'] == "ivo://ivoa.net/sso#cookie":
-                        return i.accessurl.text
-    raise RuntimeError(f"ERROR - capability {capability} not found or not working with "
-                    "anonymous or cookie access")

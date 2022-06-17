@@ -29,7 +29,6 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
-from astroquery.utils.commons import ASTROPY_LT_4_1
 from astroquery.exceptions import CorruptDataWarning
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
@@ -231,7 +230,7 @@ class AlmaClass(QueryWithLogin):
         if not self._datalink_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._datalink_url = commons.get_access_url(
+                self._datalink_url = get_access_url(
                     f"ivo://{self.service_id_auth(base_url_host)}{conf.datalink_service_uri_path}",
                     f"https://{base_url_host}{conf.registry_path}",
                     conf.datalink_standard_id)
@@ -252,7 +251,7 @@ class AlmaClass(QueryWithLogin):
         if not self._sia_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._sia_url = commons.get_access_url(
+                self._sia_url = get_access_url(
                     f"ivo://{self.service_id_auth(base_url_host)}{conf.sia_service_uri_path}",
                     f"https://{base_url_host}{conf.registry_path}",
                     conf.sia_standard_id)
@@ -273,7 +272,7 @@ class AlmaClass(QueryWithLogin):
         if not self._tap_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._tap_url = commons.get_access_url(
+                self._tap_url = get_access_url(
                     f"ivo://{self.service_id_auth(base_url_host)}{conf.tap_service_uri_path}",
                     f"https://{base_url_host}{conf.registry_path}",
                     conf.tap_standard_id)
@@ -575,7 +574,7 @@ class AlmaClass(QueryWithLogin):
             service_def_dict.update({row.service_def: row.access_url for row in res.iter_procs()})
 
             temp = res.to_table()
-            if ASTROPY_LT_4_1:
+            if commons.ASTROPY_LT_4_1:
                 # very annoying
                 for col in [x for x in temp.colnames
                             if x not in ['content_length', 'readable']]:
@@ -1201,10 +1200,97 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(
             "select distinct proposal_abstract from "
             "ivoa.obscore where proposal_id='{}'".format(projectid))
-        if ASTROPY_LT_4_1:
+        if commons.ASTROPY_LT_4_1:
             return [result[0]['proposal_abstract'].astype(str)]
         else:
             return [result[0]['proposal_abstract']]
+
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return decorate
+
+
+@static_vars(caps={})
+def get_access_url(service, reg_url, capability=None):
+    """
+    Returns the URL corresponding to a service by doing a lookup in the cadc
+    registry. It returns the access URL corresponding to cookie authentication.
+
+    Parameters
+    ----------
+    service : str
+        the service the capability belongs to. It can be identified
+        by a URI (e.g. 'ivo://alma.na/tap) which is looked up in the Registry
+        or by the URL where the service capabilities is found.
+    reg_url: str
+        The full URL of the Registry to lookup the given service.
+    capability : str
+        uri representing the capability for which the access url is sought.
+
+    Returns
+    -------
+    The access url
+
+    Note
+    ------
+    This function implements the functionality of a Registry as defined
+    by the IVOA. It should be eventually moved to its own directory.
+
+    Caching should be considered to reduce the number of remote calls to Registry
+    """
+
+    service_url = requests.utils.parse_url(service)
+
+    # not a valid URI/URL
+    if not service_url.scheme:
+        raise RuntimeError(f"No or invalid service provided ({service}).")
+
+    caps_url = ''
+
+    # absolute URL, so use it as-is
+    if service_url.scheme.startswith("http"):
+        if not capability:
+            return service
+        caps_url = service
+    else:
+        # get capabilities from the Registry
+        if not get_access_url.caps:
+            response = requests.get(reg_url)
+            response.raise_for_status()
+            for line in response.text.splitlines():
+                if len(line) > 0 and not line.startswith("#"):
+                    service_id, capabilies_url = line.split("=")
+                    get_access_url.caps[service_id.strip()] = \
+                        capabilies_url.strip()
+        # lookup the service
+        service_uri = service_url.url
+        if service_uri not in get_access_url.caps:
+            raise AttributeError(
+                f"Cannot find the capabilities of service {service} from {reg_url}")
+        # look up in the Registry for the service capabilities
+        caps_url = get_access_url.caps[service_uri]
+        if not capability:
+            return caps_url
+    response2 = requests.get(caps_url)
+    response2.raise_for_status()
+
+    soup = BeautifulSoup(response2.text, features="html5lib")
+    for cap in soup.find_all("capability"):
+        if cap.get("standardid", None) == capability:
+            if len(cap.find_all("interface")) == 1:
+                return cap.find_all("interface")[0].accessurl.text
+            for i in cap.find_all("interface"):
+                if hasattr(i, "securitymethod"):
+                    sm = i.securitymethod
+                    if not sm or sm.get("standardid", None) is None or\
+                    sm['standardid'] == "ivo://ivoa.net/sso#cookie":
+                        return i.accessurl.text
+    raise RuntimeError(f"ERROR - capability {capability} not found or not working with "
+                    "anonymous or cookie access")
 
 
 Alma = AlmaClass()
