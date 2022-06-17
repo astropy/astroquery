@@ -3,7 +3,6 @@
 ALMA Archive service.
 """
 from astropy import config as _config
-import os
 
 
 # map Service IDs to their ARC hosts
