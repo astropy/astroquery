@@ -68,9 +68,9 @@ class SvoFpsClass(BaseQuery):
 
         Parameters
         ----------
-        wavelength_eff_min : `~astropy.units.Quantity` having units of angstrom, optional
+        wavelength_eff_min : `~astropy.units.Quantity` with units of length, optional
             Minimum value of Wavelength Effective (default is 0 angstrom)
-        wavelength_eff_max : `~astropy.units.Quantity` having units of angstrom, optional
+        wavelength_eff_max : `~astropy.units.Quantity` with units of length, optional
             Maximum value of Wavelength Effective (default is a very large
             quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
         kwargs : dict
@@ -81,8 +81,8 @@ class SvoFpsClass(BaseQuery):
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
-        query = {'WavelengthEff_min': wavelength_eff_min.value,
-                 'WavelengthEff_max': wavelength_eff_max.value}
+        query = {'WavelengthEff_min': wavelength_eff_min.to_value(u.angstrom),
+                 'WavelengthEff_max': wavelength_eff_max.to_value(u.angstrom)}
         error_msg = 'No filter found for requested Wavelength Effective range'
         return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 
