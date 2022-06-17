@@ -28,7 +28,7 @@ jobs:
             toxargs: -v
             toxposargs: -v --durations=50
 
-          - name: pre-repease dependencies with all dependencies
+          - name: pre-release dependencies with all dependencies
             os: ubuntu-latest
             python: '3.10'
             toxenv: py310-test-alldeps-predeps
