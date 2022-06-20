@@ -1,5 +1,4 @@
 import pytest
-import astropy.io.votable.exceptions
 from astropy import units as u
 
 from ..core import SvoFps
@@ -26,11 +25,3 @@ class TestSvoFpsClass:
         table = SvoFps.get_filter_list(test_facility, test_instrument)
         # Check if column for Filter ID (named 'filterID') exists in table
         assert 'filterID' in table.colnames
-
-    # Test for failing case (a dummy invalid query)
-    def test_IndexError_in_data_from_svo(self):
-        invalid_query = {'Invalid_param': 0}
-        with pytest.raises(astropy.io.votable.exceptions.E09) as exc:
-            SvoFps.data_from_svo(invalid_query)
-
-        assert 'must have a value attribute' in str(exc)
