@@ -68,6 +68,9 @@ svo_fps
 - The wavelength limits in ``get_filter_index()`` can now be specified using any
   length unit, not just angstroms. [#2444]
 
+- Queries with invalid parameter names now raise an ``InvalidQueryError``.
+  [#2446]
+
 gaia
 ^^^^
 

@@ -9,10 +9,22 @@ from astropy.io.votable import parse_single_table
 from . import conf
 
 from ..query import BaseQuery
+from astroquery.exceptions import InvalidQueryError
+
 
 __all__ = ['SvoFpsClass', 'SvoFps']
 
 FLOAT_MAX = np.finfo(np.float64).max
+
+# Valid query parameters taken from
+# http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
+_params_with_range = {"WavelengthRef", "WavelengthMean", "WavelengthEff",
+                     "WavelengthMin", "WavelengthMax", "WidthEff", "FWHM"}
+QUERY_PARAMETERS = _params_with_range.copy()
+for suffix in ("_min", "_max"):
+    QUERY_PARAMETERS.update(param + suffix for param in _params_with_range)
+QUERY_PARAMETERS.update(("Instrument", "Facility", "PhotSystem", "ID", "PhotCalID",
+                         "FORMAT", "VERB"))
 
 
 class SvoFpsClass(BaseQuery):
@@ -35,8 +47,8 @@ class SvoFpsClass(BaseQuery):
         query : dict
             Used to create a HTTP query string i.e. send to SVO FPS to get data.
             In dictionary, specify keys as search parameters (str) and
-            values as required. List of search parameters can be found at
-            http://svo2.cab.inta-csic.es/theory/fps/fps.php?FORMAT=metadata
+            values as required. Description of search parameters can be found at
+            http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
         error_msg : str, optional
             Error message to be shown in case no table element found in the
             responded VOTable. Use this to make error message verbose in context
@@ -49,6 +61,14 @@ class SvoFpsClass(BaseQuery):
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
+        bad_params = [param for param in query if param not in QUERY_PARAMETERS]
+        if bad_params:
+            raise InvalidQueryError(
+                f"parameter{'s' if len(bad_params) > 1 else ''} "
+                f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
+                f"invalid. For a description of valid query parameters see "
+                 "http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
+            )
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)

@@ -2,6 +2,7 @@ import pytest
 import os
 from astropy import units as u
 
+from astroquery.exceptions import InvalidQueryError
 from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
@@ -66,3 +67,12 @@ def test_get_filter_list(patch_get):
     table = SvoFps.get_filter_list(TEST_FACILITY, TEST_INSTRUMENT)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
+
+
+def test_invalid_query(patch_get):
+    msg = r"^parameter bad_param is invalid\. For a description of valid query "
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.data_from_svo(query={"bad_param": 0, "FWHM": 20})
+    msg = r"^parameters invalid_param, bad_param are invalid\. For a description of "
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.data_from_svo(query={"invalid_param": 0, 'bad_param': -1})
