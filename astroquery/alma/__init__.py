@@ -33,35 +33,6 @@ class Conf(_config.ConfigNamespace):
 
     service_uri_map = _arc_service_id_map
 
-    registry_path = _config.ConfigItem(
-        '/reg/resource-caps',
-        'ALMA Registry path')
-
-    tap_service_uri_path = _config.ConfigItem(
-        '/tap',
-        'ALMA TAP ObsCore service URI path')
-
-    tap_standard_id = _config.ConfigItem(
-        'ivo://ivoa.net/std/TAP',
-        'ALMA TAP service standard ID')
-
-    datalink_service_uri_path = _config.ConfigItem(
-        '/datalink',
-        'ALMA DataLink service URI path')
-
-    datalink_standard_id = _config.ConfigItem(
-        'ivo://ivoa.net/std/DataLink#links-1.0',
-        'ALMA DataLink service standard ID'
-    )
-
-    sia_service_uri_path = _config.ConfigItem(
-        '/sia',
-        'ALMA SIAv2 service URI path')
-
-    sia_standard_id = _config.ConfigItem(
-        'ivo://ivoa.net/std/SIA#query-2.0',
-        'ALMA SIAv2 service standard ID')
-
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
