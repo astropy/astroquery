@@ -155,6 +155,25 @@ ALMA_FORM_KEYS = {
 }
 
 
+# The path, on the current ARC, to the IVOA registry to lookup a service endpoint.
+REGISTRY_PATH = '/reg/resource-caps'
+
+# used to construct a TAP service identifier
+TAP_SERVICE_URI_PATH = '/tap'
+# used to look up the TAP service
+TAP_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/TAP'
+
+# used to construct a DataLink service identifier
+DATALINK_SERVICE_URI_PATH = '/datalink'
+# used to look up the DataLink service
+DATALINK_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/DataLink#links-1.0'
+
+# used to construct an SIA service identifier
+SIA_SERVICE_URI_PATH = '/sia'
+# used to look up the SIAv2 service
+SIA_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/SIA#query-2.0'
+
+
 def _gen_sql(payload):
     sql = 'select * from ivoa.obscore'
     where = ''
@@ -231,9 +250,9 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._datalink_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{conf.datalink_service_uri_path}",
-                    f"https://{base_url_host}{conf.registry_path}",
-                    conf.datalink_standard_id)
+                    f"ivo://{self.service_id_auth(base_url_host)}{DATALINK_SERVICE_URI_PATH}",
+                    f"https://{base_url_host}{REGISTRY_PATH}",
+                    DATALINK_SERVICE_STANDARD_ID)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -252,9 +271,9 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._sia_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{conf.sia_service_uri_path}",
-                    f"https://{base_url_host}{conf.registry_path}",
-                    conf.sia_standard_id)
+                    f"ivo://{self.service_id_auth(base_url_host)}{SIA_SERVICE_URI_PATH}",
+                    f"https://{base_url_host}{REGISTRY_PATH}",
+                    SIA_SERVICE_STANDARD_ID)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -273,9 +292,9 @@ class AlmaClass(QueryWithLogin):
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
                 self._tap_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{conf.tap_service_uri_path}",
-                    f"https://{base_url_host}{conf.registry_path}",
-                    conf.tap_standard_id)
+                    f"ivo://{self.service_id_auth(base_url_host)}{TAP_SERVICE_URI_PATH}",
+                    f"https://{base_url_host}{REGISTRY_PATH}",
+                    TAP_SERVICE_STANDARD_ID)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -747,7 +766,7 @@ class AlmaClass(QueryWithLogin):
                 if 'content-length' in check_filename.headers:
                     length = int(check_filename.headers['content-length'])
                     if length == 0:
-                        warnings.warn('URL {0} has length=0'.format(url))
+                        warnings.warn('URL {0} has length=0'.format(file_link))
                     elif existing_file_length == length:
                         log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
                     elif existing_file_length < length:
@@ -758,7 +777,7 @@ class AlmaClass(QueryWithLogin):
                                       f"size {length}.  The download is likely corrupted.",
                                       CorruptDataWarning)
                 else:
-                    warnings.warn(f"Could not verify {url} because it has no 'content-length'")
+                    warnings.warn(f"Could not verify {file_link} because it has no 'content-length'")
 
             try:
                 if not verify_only:
