@@ -63,7 +63,7 @@ class CatalogsClass(MastQueryWithLogin):
                            version=None, pagesize=None, page=None, **kwargs):
         """
         Given a sky position and radius, returns a list of catalog entries.
-        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
+        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 
         Parameters
         ----------
@@ -216,7 +216,7 @@ class CatalogsClass(MastQueryWithLogin):
     def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns a list of catalog entries.
-        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
+        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 
         Parameters
         ----------
