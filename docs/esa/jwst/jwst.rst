@@ -104,23 +104,22 @@ service degradation.
   >>> width=u.Quantity(5, u.deg)
   >>> height=u.Quantity(5, u.deg)
   >>> r=Jwst.query_region(coordinate=coord, width=width, height=height)
-  >>> r
 
   Query finished.
-         dist                       obsid                 ...  type typecode
-  ------------------ ------------------------------------ ... ----- --------
-  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
+           dist                observationid          ...
+    ------------------ ------------------------------ ...
+    0.5520678701664351 jw02516010001_xx107_00007_miri ...
+    0.5520678701664351 jw02516010001_xx104_00004_miri ...
+    0.5520678701664351 jw02516010001_xx102_00002_miri ...
+    0.5520678701664351 jw02516010001_xx10b_00011_miri ...
+    0.5520678701664351 jw02516010001_xx109_00009_miri ...
+    0.5520678701664351 jw02516010001_xx105_00005_miri ...
+    0.5520678701664351 jw02516010001_xx103_00003_miri ...
+    0.5520678701664351 jw02516010001_xx10a_00010_miri ...
+    0.5520678701664351 jw02516010001_xx101_00001_miri ...
+    0.5520678701664351 jw02516010001_xx106_00006_miri ...
+    ...                ...                            ...
+
 
 
 1.2. Cone search
@@ -136,22 +135,21 @@ service degradation.
   >>> radius=u.Quantity(5.0, u.deg)
   >>> j=Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
   >>> r=j.get_results()
-  >>> r
 
-         dist                       obsid                 ...  type typecode
-  ------------------ ------------------------------------ ... ----- --------
-  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
-  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
+             dist                observationid        ...
+    ------------------ ------------------------------ ...
+    0.5520678701664351 jw02516010001_xx107_00007_miri ...
+    0.5520678701664351 jw02516010001_xx104_00004_miri ...
+    0.5520678701664351 jw02516010001_xx102_00002_miri ...
+    0.5520678701664351 jw02516010001_xx10b_00011_miri ...
+    0.5520678701664351 jw02516010001_xx109_00009_miri ...
+    0.5520678701664351 jw02516010001_xx105_00005_miri ...
+    0.5520678701664351 jw02516010001_xx103_00003_miri ...
+    0.5520678701664351 jw02516010001_xx10a_00010_miri ...
+    0.5520678701664351 jw02516010001_xx101_00001_miri ...
+    0.5520678701664351 jw02516010001_xx106_00006_miri ...
+    ...                ...                            ...
+
 
 1.3. Query by target name
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,24 +169,21 @@ element in the list if the target name cannot be resolved).
   >>> target_resolver='ALL'
   >>> radius=u.Quantity(5, u.deg)
   >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, radius=radius)
-  >>> r
 
-         dist                   observationid         ...
-  ------------------ -------------------------------- ...
-  3.4465676399769096 jw01179006001_xx100_00000_nircam ...
-  3.4465676399769096 jw01179005001_xx100_00000_nircam ...
-  3.4465676399769096 jw01179005001_xx103_00003_nircam ...
-  3.4465676399769096 jw01179006001_xx101_00001_nircam ...
-  3.4465676399769096 jw01179005001_xx102_00002_nircam ...
-  3.4465676399769096 jw01179006001_xx105_00002_nircam ...
-  3.4465676399769096 jw01179005001_xx106_00003_nircam ...
-  3.4465676399769096 jw01179006001_xx102_00002_nircam ...
-  3.4465676399769096 jw01179006001_xx103_00003_nircam ...
-  3.4465676399769096 jw01179005001_xx101_00001_nircam ...
-  3.4465676399769096 jw01179005001_xx104_00001_nircam ...
-  3.4465676399769096 jw01179006001_xx104_00001_nircam ...
-  3.4465676399769096 jw01179006001_xx106_00003_nircam ...
-  3.4465676399769096 jw01179005001_xx105_00002_nircam ...
+            dist                  observationid           ...
+    -------------------- -------------------------------- ...
+    0.003349189664076155   jw01714001004_xx106_00002_miri ...
+    0.003349189664076155   jw01714001003_xx10q_00002_miri ...
+    0.003349189664076155   jw01714001006_xx107_00003_miri ...
+    0.003349189664076155   jw01714001002_xx105_00001_miri ...
+    0.003349189664076155 jw01714005001_xx106_00006_nircam ...
+    0.003349189664076155   jw01714001003_xx10w_00004_miri ...
+    0.003349189664076155   jw01714001002_xx103_00003_miri ...
+    0.003349189664076155   jw01714001004_xx104_00004_miri ...
+    0.003349189664076155   jw01714001006_xx10n_00003_miri ...
+    0.003349189664076155   jw01714001005_xx10p_00001_miri ...
+    ...                    ...                            ...
+
 
 This method uses the same parameters as query region, but also includes the target name and the catalogue
 (target resolver) to retrieve the coordinates.
@@ -203,20 +198,20 @@ This method uses the same parameters as query region, but also includes the targ
   >>> width=u.Quantity(5, u.deg)
   >>> height=u.Quantity(5, u.deg)
   >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, width=width, height=height, async_job=True)
-  >>> r
 
-         dist                        observationid              ...
-  ---------------------- -------------------------------------- ...
-  0.00010777991644807922 jw00322001003_02101_00001_nrca1        ...
-  0.00010777991644807922 jw00322001003_02101_00001_nrcb2        ...
-  0.00010777991644807922 jw96854009004_xxxxx_00003-00003_nircam ...
-  0.00010777991644807922 jw00322001003_02101_00001_nrcblong     ...
-  0.00010777991644807922 jw00827011001_02101_00001_mirimage     ...
-  0.00010777991644807922 jw01039004001_xx101_00001_miri         ...
-  0.00010777991644807922 jw00322001003_02101_00001_nrcb1        ...
-  0.00010777991644807922 jw00322001002_02101_00001_nrcb2        ...
-  0.00010777991644807922 jw96854009001_xx102_00002_nircam       ...
-  ...                    ...                                    ...
+            dist                  observationid            ...
+    ------------------- ---------------------------------- ...
+    0.25984680687093176 jw01043010001_02101_00013_mirimage ...
+    0.25984680687093176 jw01043010001_02101_00004_mirimage ...
+    0.25984680687093176 jw01043010001_02101_00014_mirimage ...
+    0.25984680687093176 jw01043007001_02101_00006_mirimage ...
+    0.25984680687093176 jw01043008001_02101_00016_mirimage ...
+    0.25984680687093176 jw01043007001_02101_00008_mirimage ...
+    0.25984680687093176 jw01043009001_02101_00013_mirimage ...
+    0.25984680687093176 jw01043007001_02101_00007_mirimage ...
+    0.25984680687093176 jw01043007001_02101_00009_mirimage ...
+    0.25984680687093176 jw01043009001_02101_00004_mirimage ...
+    ...                 ...                                ...
 
 1.4 Getting data products
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,16 +220,17 @@ To query the data products associated with a certain Observation ID
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list=Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
+  >>> product_list=Jwst.get_product_list(observation_id='jw01063107001_02101_00013_nrca3')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename']))
 
-  filename: jw00777011001_02104_00001_nrcblong_c1005_crf.fits
-  filename: jw00777011001_02104_00001_nrcblong_cal.fits
-  filename: jw00777011001_02104_00001_nrcblong_cal.jpg
-  filename: jw00777011001_02104_00001_nrcblong_cal_thumb.jpg
-  filename: jw00777011001_02104_00001_nrcblong_i2d.fits
-  filename: jw00777011001_02104_00001_nrcblong_o011_crf.fits
+    filename: jw01063-o107_20220328t013707_image2_144_asn.json
+    filename: jw01063107001_02101_00013_nrca3_cal.fits
+    filename: jw01063107001_02101_00013_nrca3_cal.jpg
+    filename: jw01063107001_02101_00013_nrca3_cal_thumb.jpg
+    filename: jw01063107001_02101_00013_nrca3_i2d.fits
+    ...
+
 
 You can filter by product type and calibration level (using a numerical value or the option 'ALL' -set by default- that will download
 all the products associated to this observation_id with the same and lower levels).
@@ -242,51 +238,46 @@ all the products associated to this observation_id with the same and lower level
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list=Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
+  >>> product_list=Jwst.get_product_list(observation_id='jw01023029001_02101_00004_mirimage', product_type='science')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename']))
 
-  filename: jw97012001001_02101_00001_guider1_cal.fits
-  filename: jw97012001001_02101_00001_guider1_uncal.fits
+    filename: jw01023029001_02101_00004_mirimage_c1006_crf.fits
+    filename: jw01023029001_02101_00004_mirimage_cal.fits
+    filename: jw01023029001_02101_00004_mirimage_i2d.fits
+    filename: jw01023029001_02101_00004_mirimage_o029_crf.fits
+    filename: jw01023029001_02101_00004_mirimage_rate.fits
+    ...
+
 
 To download a data product
 
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> query="select a.artifactid, a.uri from jwst.artifact a, jwst.plane p where p.planeid=a.planeid and p.obsid='00000000-0000-0000-9c08-f5be8f3df805'"
+  >>> query="select o.observationid, a.artifactid, a.filename from jwst.observation o join jwst.artifact a on a.obsid = o.obsid where o.proposal_id = '01166' and o.intent = 'science'"
   >>> job=Jwst.launch_job(query, async_job=True)
   >>> results=job.get_results()
-  >>> results
-               artifactid                               filename
-  ------------------------------------ ------------------------------------------------
-  00000000-0000-0000-a4f7-23ab64230444        jw00601004001_02102_00001_nrcb1_rate.fits
-  00000000-0000-0000-b796-76a61aade312    jw00601004001_02102_00001_nrcb1_rateints.fits
-  00000000-0000-0000-ad5e-7d388b43ca4b jw00601004001_02102_00001_nrcb1_trapsfilled.fits
-  00000000-0000-0000-9335-09ff0e02f06b       jw00601004001_02102_00001_nrcb1_uncal.fits
-  00000000-0000-0000-864d-b03ced521884        jw00601004001_02102_00001_nrcb1_uncal.jpg
-  00000000-0000-0000-9392-45ebdada66be  jw00601004001_02102_00001_nrcb1_uncal_thumb.jpg
+             observationid                       artifactid                                    filename
+    ------------------------------- ------------------------------------ ----------------------------------------------------
+    jw01166091001_02102_00002_nrca3 6ab73824-6587-4bca-84a8-eb48ac7251be jw01166-o091_20220505t044658_wfs-image2_058_asn.json
+    jw01166091001_02102_00002_nrca3 c999249f-c554-4a5f-bd6a-099f1fe48864             jw01166091001_02102_00002_nrca3_cal.fits
+    jw01166091001_02102_00002_nrca3 004433de-a4b3-4dc6-9177-0f9d78a97bda              jw01166091001_02102_00002_nrca3_cal.jpg
+    jw01166091001_02102_00002_nrca3 5b89920d-532d-43be-b70b-973c4bfdfdcc        jw01166091001_02102_00002_nrca3_cal_thumb.jpg
+    jw01166091001_02102_00002_nrca3 5a86e351-3066-4c46-8698-c49aade6ec98            jw01166091001_02102_00002_nrca3_rate.fits
+    ...                             ...                                  ...
 
 
-  >>> output_file=Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
-  >>> output_file=Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
+  >>> output_file=Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')
+  >>> output_file=Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')
 
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
 than get_product_list.
 
 .. code-block:: python
 
-  >>> observation_id='jw00777011001_02104_00001_nrcblong'
+  >>> observation_id='jw01122001001_0210r_00001_nrs2'
   >>> results=Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
-
-  INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.esa.jwst.core]
-  Retrieving data.
-  Done.
-  Product(s) saved at: /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777011001_02104_00001_nrcblong_all_products
-  Product = /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_1\jw00777011001_02104_00001_nrcblong_uncal.fits
-  Product = /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_2\jw00777011001_02104_00001_nrcblong_cal.fits
-  Product =/<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_2\jw00777011001_02104_00001_nrcblong_i2d.fits
-
 
 A temporary directory is created with the files and a list of the them is provided.
 
@@ -310,10 +301,14 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
 .. code-block:: python
 
-  >>> observation_id='jw00777011001_02104_00001_nrcblong'
+  >>> observation_id='jw01076-o110_s01130_nircam_f444w-grismr'
   >>> results=Jwst.get_related_observations(observation_id=observation_id)
 
-  [' jw00777-o011_t005_nircam_f277w-sub160', 'jw00777-c1005_t005_nircam_f277w-sub160']
+    jw01076110001_02101_00001_nrcalong
+    jw01076110001_02101_00001_nrcblong
+    jw01076110001_02101_00002_nrcalong
+    jw01076110001_02101_00002_nrcblong
+    ...
 
 
 1.5 Getting public tables
@@ -328,20 +323,16 @@ To load only table names (TAP+ capability)
   >>> for table in (tables):
   >>>   print(table.name)
 
-  public.dual
-  tap_schema.columns
-  tap_schema.key_columns
-  tap_schema.keys
-  tap_schema.schemas
-  tap_schema.tables
-  jwst.artifact
-  jwst.chunk
-  jwst.main
-  jwst.observation
-  jwst.observationmember
-  jwst.part
-  jwst.plane
-  jwst.plane_inputs
+    ivoa.obscore
+    jwst.archive
+    jwst.artifact
+    jwst.chunk
+    jwst.harvestskipuri
+    jwst.main
+    jwst.moc
+    jwst.observation
+    ...
+
 
 To load table names (TAP compatible)
 
@@ -352,20 +343,13 @@ To load table names (TAP compatible)
   >>> for table in (tables):
   >>>   print(table.name)
 
-  public.dual
-  tap_schema.columns
-  tap_schema.key_columns
-  tap_schema.keys
-  tap_schema.schemas
-  tap_schema.tables
-  jwst.artifact
-  jwst.chunk
-  jwst.main
-  jwst.observation
-  jwst.observationmember
-  jwst.part
-  jwst.plane
-  jwst.plane_inputs
+    ivoa.obscore
+    jwst.archive
+    jwst.artifact
+    jwst.chunk
+    jwst.harvestskipuri
+    jwst.main
+    ...
 
 To load only a table (TAP+ capability)
 
@@ -377,7 +361,7 @@ To load only a table (TAP+ capability)
 
   TAP Table name: jwst.main
   Description:
-  Num. columns: 112
+  Num. columns: 109
 
 
 Once a table is loaded, columns can be inspected
@@ -389,21 +373,13 @@ Once a table is loaded, columns can be inspected
   >>> for column in (table.columns):
   >>>   print(column.name)
 
-  obsid
-  planeid
-  public
-  calibrationlevel
-  dataproducttype
-  algorithm_name
-  collection
-  creatorid
-  energy_bandpassname
-  ...
-  time_exposure
-  time_resolution
-  time_samplesize
-  type
-  typecode
+    algorithm_name
+    calibrationlevel
+    collection
+    creatorid
+    dataproducttype
+    energy_bandpassname
+    ...
 
 1.6 Synchronous query
 ~~~~~~~~~~~~~~~~~~~~~
@@ -423,56 +399,48 @@ Query without saving results in a file:
   >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, observationuri, planeid, calibrationlevel, \
+  >>> instrument_name, proposal_id, planeid, calibrationlevel, \
   >>> dataproducttype \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
   >>> print(job)
 
-  Jobid: None
-  Phase: COMPLETED
-  Owner: None
-  Output file: sync_20170223111452.xml.gz
-  Results: None
+    <Table length=100>
+          name       dtype
+    ---------------- ------
+     instrument_name object
+         proposal_id object
+             planeid object
+    calibrationlevel  int32
+     dataproducttype object
+    Jobid: None
+    Phase: COMPLETED
+    Owner: None
+    Output file: 1655977738493O-result.vot.gz
+    Results: None
 
   >>> r=job.get_results()
   >>> r['planeid']
 
-                planeid
-  ------------------------------------
-  00000000-0000-0000-9d6d-f192fde74ce4
-  00000000-0000-0000-8a85-d34d6a411611
-  00000000-0000-0000-969c-a49226673efa
-  00000000-0000-0000-8c07-c26c24bec2ee
-  00000000-0000-0000-89d2-b42624493c84
-  00000000-0000-0000-800d-659917e7bb26
-  00000000-0000-0000-8cb6-748fa37d47e3
-  00000000-0000-0000-8573-92ad575b8fb4
-  00000000-0000-0000-8572-b7b226953a2c
-  00000000-0000-0000-8d1d-765c362e3227
-                                   ...
-  00000000-0000-0000-b7d9-b4686ed37bf0
-  00000000-0000-0000-822f-08376ffe6f0b
-  00000000-0000-0000-8a8e-8cd48bb4cd7a
-  00000000-0000-0000-8a9d-3e1aae1281ba
-  00000000-0000-0000-a2ac-1ac288320bf7
-  00000000-0000-0000-a20f-835a58ca7872
-  00000000-0000-0000-aa9c-541cc6e5ff87
-  00000000-0000-0000-8fe4-092c69639602
-  00000000-0000-0000-acfb-6e445e284609
-  00000000-0000-0000-96ff-efd5bbcd5afe
-  00000000-0000-0000-8d90-2ca5ebac4a51
-  Length = 37 rows
+    instrument_name proposal_id               planeid                calibrationlevel dataproducttype
+    --------------- ----------- ------------------------------------ ---------------- ---------------
+                FGS       01014 a7a6e058-397b-48d1-bfa4-ea80b2999fd9                3           image
+                FGS       01014 f2b90da8-51fb-4f6d-89a3-e7675a3d40f5                3           image
+                FGS       01014 791ebe6c-c447-48ce-88fe-4f941da7a3a3                3           image
+                FGS       01014 b00c52c0-f8c2-4092-b179-6cadf77c8049                3           image
+                FGS       01014 ffe420aa-fcaa-4dc5-9098-079ccb01de64                3           image
+    ...             ...         ...                                  ...              ...
+
 
 Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.esa.jwst import JWST
+  >>> from astroquery.esa.jwst import Jwst
   >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, observationuri, planeid, calibrationlevel, \
-  >>> dataproducttype, target_ra, target_dec \
-  >>> FROM jwst.main ORDER BY instrument_name, observationuri", \
+  >>> instrument_name, proposal_id, planeid, calibrationlevel, \
+  >>> dataproducttype \
+  >>> FROM jwst.main ORDER BY instrument_name, observationuri",\
   >>> dump_to_file=True)
   >>>
   >>> print(job)
@@ -480,40 +448,21 @@ Query saving results in a file:
   Jobid: None
   Phase: COMPLETED
   Owner: None
-  Output file: sync_20181116164108.xml.gz
+  Output file: 1655978085454O-result.vot.gz
   Results: None
 
   >>> r=job.get_results()
-  >>> print(r['solution_id'])
 
-  >>> r=job.get_results()
-  >>> print(r['planeid'])
-
-                planeid
-  ------------------------------------
-  00000000-0000-0000-9d6d-f192fde74ce4
-  00000000-0000-0000-8a85-d34d6a411611
-  00000000-0000-0000-969c-a49226673efa
-  00000000-0000-0000-8c07-c26c24bec2ee
-  00000000-0000-0000-89d2-b42624493c84
-  00000000-0000-0000-800d-659917e7bb26
-  00000000-0000-0000-8cb6-748fa37d47e3
-  00000000-0000-0000-8573-92ad575b8fb4
-  00000000-0000-0000-8572-b7b226953a2c
-  00000000-0000-0000-8d1d-765c362e3227
-                                   ...
-  00000000-0000-0000-b7d9-b4686ed37bf0
-  00000000-0000-0000-822f-08376ffe6f0b
-  00000000-0000-0000-8a8e-8cd48bb4cd7a
-  00000000-0000-0000-8a9d-3e1aae1281ba
-  00000000-0000-0000-a2ac-1ac288320bf7
-  00000000-0000-0000-a20f-835a58ca7872
-  00000000-0000-0000-aa9c-541cc6e5ff87
-  00000000-0000-0000-8fe4-092c69639602
-  00000000-0000-0000-acfb-6e445e284609
-  00000000-0000-0000-96ff-efd5bbcd5afe
-  00000000-0000-0000-8d90-2ca5ebac4a51
-  Length = 37 rows
+    instrument_name proposal_id               planeid                calibrationlevel dataproducttype
+    --------------- ----------- ------------------------------------ ---------------- ---------------
+                FGS       01014 a7a6e058-397b-48d1-bfa4-ea80b2999fd9                3           image
+                FGS       01014 f2b90da8-51fb-4f6d-89a3-e7675a3d40f5                3           image
+                FGS       01014 791ebe6c-c447-48ce-88fe-4f941da7a3a3                3           image
+                FGS       01014 b00c52c0-f8c2-4092-b179-6cadf77c8049                3           image
+                FGS       01014 ffe420aa-fcaa-4dc5-9098-079ccb01de64                3           image
+                FGS       01014 41147ac7-db70-4f39-ac35-1913a53e9725                3           image
+                FGS       01014 a38b5170-7041-4ff9-89a3-b9b8c5803cbc                2           image
+    ...             ...         ...                                  ...              ...
 
 
 1.7 Synchronous query on an 'on-the-fly' uploaded table
@@ -560,33 +509,14 @@ Query without saving results in a file:
   Results: None
 
   >>> r=job.get_results()
-  >>> r['planeid']
+  >>> r['observationid']
 
-    solution_id
-  -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-                ...
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  Length = 100 rows
+       jw01070001002_04101_00003_nrca1
+       jw01070001002_04101_00003_nrca1
+       jw01286007001_xx10k_00001_nirspec
+       jw01290023001_xx10b_00001_miri
+       jw01568006004_xx101_00001_nircam
+       ...
 
 Query saving results in a file:
 
@@ -606,33 +536,16 @@ Query saving results in a file:
 
 
   >>> r=job.get_results()
-  >>> r['solution_id']
+  >>> r['instrument_name']
 
-               planeid
-  ------------------------------------
-  00000000-0000-0000-9d6d-f192fde74ce4
-  00000000-0000-0000-8a85-d34d6a411611
-  00000000-0000-0000-969c-a49226673efa
-  00000000-0000-0000-8c07-c26c24bec2ee
-  00000000-0000-0000-89d2-b42624493c84
-  00000000-0000-0000-800d-659917e7bb26
-  00000000-0000-0000-8cb6-748fa37d47e3
-  00000000-0000-0000-8573-92ad575b8fb4
-  00000000-0000-0000-8572-b7b226953a2c
-  00000000-0000-0000-8d1d-765c362e3227
-                                   ...
-  00000000-0000-0000-b7d9-b4686ed37bf0
-  00000000-0000-0000-822f-08376ffe6f0b
-  00000000-0000-0000-8a8e-8cd48bb4cd7a
-  00000000-0000-0000-8a9d-3e1aae1281ba
-  00000000-0000-0000-a2ac-1ac288320bf7
-  00000000-0000-0000-a20f-835a58ca7872
-  00000000-0000-0000-aa9c-541cc6e5ff87
-  00000000-0000-0000-8fe4-092c69639602
-  00000000-0000-0000-acfb-6e445e284609
-  00000000-0000-0000-96ff-efd5bbcd5afe
-  00000000-0000-0000-8d90-2ca5ebac4a51
-  Length = 37 rows
+    NIRCAM
+    NIRCAM
+    NIRISS/MSA
+    MIRI/IFU
+    NIRCAM/IMAGE
+    MIRI
+    ...
+
 
 
 1.9 Asynchronous job removal
