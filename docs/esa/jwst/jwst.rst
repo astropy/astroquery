@@ -104,6 +104,7 @@ service degradation.
   >>> width=u.Quantity(5, u.deg)
   >>> height=u.Quantity(5, u.deg)
   >>> r=Jwst.query_region(coordinate=coord, width=width, height=height)
+  >>> r
 
   Query finished.
            dist                observationid          ...
@@ -135,6 +136,7 @@ service degradation.
   >>> radius=u.Quantity(5.0, u.deg)
   >>> j=Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
   >>> r=j.get_results()
+  >>> r
 
              dist                observationid        ...
     ------------------ ------------------------------ ...
@@ -169,6 +171,7 @@ element in the list if the target name cannot be resolved).
   >>> target_resolver='ALL'
   >>> radius=u.Quantity(5, u.deg)
   >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, radius=radius)
+  >>> r
 
             dist                  observationid           ...
     -------------------- -------------------------------- ...
@@ -198,6 +201,7 @@ This method uses the same parameters as query region, but also includes the targ
   >>> width=u.Quantity(5, u.deg)
   >>> height=u.Quantity(5, u.deg)
   >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, width=width, height=height, async_job=True)
+  >>> r
 
             dist                  observationid            ...
     ------------------- ---------------------------------- ...
@@ -258,6 +262,8 @@ To download a data product
   >>> query="select o.observationid, a.artifactid, a.filename from jwst.observation o join jwst.artifact a on a.obsid = o.obsid where o.proposal_id = '01166' and o.intent = 'science'"
   >>> job=Jwst.launch_job(query, async_job=True)
   >>> results=job.get_results()
+  >>> results
+
              observationid                       artifactid                                    filename
     ------------------------------- ------------------------------------ ----------------------------------------------------
     jw01166091001_02102_00002_nrca3 6ab73824-6587-4bca-84a8-eb48ac7251be jw01166-o091_20220505t044658_wfs-image2_058_asn.json
@@ -303,6 +309,7 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
   >>> observation_id='jw01076-o110_s01130_nircam_f444w-grismr'
   >>> results=Jwst.get_related_observations(observation_id=observation_id)
+  >>> results
 
     jw01076110001_02101_00001_nrcalong
     jw01076110001_02101_00001_nrcblong
@@ -399,7 +406,7 @@ Query without saving results in a file:
   >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, proposal_id, planeid, calibrationlevel, \
+  >>> instrument_name, proposal_id, calibrationlevel, \
   >>> dataproducttype \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
@@ -410,7 +417,6 @@ Query without saving results in a file:
     ---------------- ------
      instrument_name object
          proposal_id object
-             planeid object
     calibrationlevel  int32
      dataproducttype object
     Jobid: None
@@ -420,16 +426,16 @@ Query without saving results in a file:
     Results: None
 
   >>> r=job.get_results()
-  >>> r['planeid']
+  >>> r
 
-    instrument_name proposal_id               planeid                calibrationlevel dataproducttype
-    --------------- ----------- ------------------------------------ ---------------- ---------------
-                FGS       01014 a7a6e058-397b-48d1-bfa4-ea80b2999fd9                3           image
-                FGS       01014 f2b90da8-51fb-4f6d-89a3-e7675a3d40f5                3           image
-                FGS       01014 791ebe6c-c447-48ce-88fe-4f941da7a3a3                3           image
-                FGS       01014 b00c52c0-f8c2-4092-b179-6cadf77c8049                3           image
-                FGS       01014 ffe420aa-fcaa-4dc5-9098-079ccb01de64                3           image
-    ...             ...         ...                                  ...              ...
+    instrument_name proposal_id calibrationlevel dataproducttype
+    --------------- ----------- ---------------- ---------------
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+    ...             ...          ...              ...
 
 
 Query saving results in a file:
@@ -438,7 +444,7 @@ Query saving results in a file:
 
   >>> from astroquery.esa.jwst import Jwst
   >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, proposal_id, planeid, calibrationlevel, \
+  >>> instrument_name, proposal_id, calibrationlevel, \
   >>> dataproducttype \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri",\
   >>> dump_to_file=True)
@@ -452,17 +458,18 @@ Query saving results in a file:
   Results: None
 
   >>> r=job.get_results()
+  >>> r
 
-    instrument_name proposal_id               planeid                calibrationlevel dataproducttype
-    --------------- ----------- ------------------------------------ ---------------- ---------------
-                FGS       01014 a7a6e058-397b-48d1-bfa4-ea80b2999fd9                3           image
-                FGS       01014 f2b90da8-51fb-4f6d-89a3-e7675a3d40f5                3           image
-                FGS       01014 791ebe6c-c447-48ce-88fe-4f941da7a3a3                3           image
-                FGS       01014 b00c52c0-f8c2-4092-b179-6cadf77c8049                3           image
-                FGS       01014 ffe420aa-fcaa-4dc5-9098-079ccb01de64                3           image
-                FGS       01014 41147ac7-db70-4f39-ac35-1913a53e9725                3           image
-                FGS       01014 a38b5170-7041-4ff9-89a3-b9b8c5803cbc                2           image
-    ...             ...         ...                                  ...              ...
+    instrument_name proposal_id calibrationlevel dataproducttype
+    --------------- ----------- ---------------- ---------------
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                3           image
+                FGS       01014                2           image
+    ...             ...         ...              ...
 
 
 1.7 Synchronous query on an 'on-the-fly' uploaded table
