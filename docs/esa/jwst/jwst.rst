@@ -100,10 +100,10 @@ service degradation.
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> coord=SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
-  >>> width=u.Quantity(5, u.deg)
-  >>> height=u.Quantity(5, u.deg)
-  >>> r=Jwst.query_region(coordinate=coord, width=width, height=height)
+  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> width = u.Quantity(5, u.deg)
+  >>> height = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_region(coordinate=coord, width=width, height=height)
   >>> r
 
   Query finished.
@@ -132,10 +132,10 @@ service degradation.
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> coord=SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius=u.Quantity(5.0, u.deg)
-  >>> j=Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
-  >>> r=j.get_results()
+  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> radius = u.Quantity(5.0, u.deg)
+  >>> j = Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
+  >>> r = j.get_results()
   >>> r
 
              dist                observationid        ...
@@ -167,10 +167,10 @@ element in the list if the target name cannot be resolved).
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
   >>>
-  >>> target_name='M1'
-  >>> target_resolver='ALL'
-  >>> radius=u.Quantity(5, u.deg)
-  >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, radius=radius)
+  >>> target_name = 'M1'
+  >>> target_resolver = 'ALL'
+  >>> radius = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_target(target_name=target_name, target_resolver=target_resolver, radius=radius)
   >>> r
 
             dist                  observationid           ...
@@ -196,11 +196,11 @@ This method uses the same parameters as query region, but also includes the targ
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
   >>>
-  >>> target_name='LMC'
-  >>> target_resolver='NED'
-  >>> width=u.Quantity(5, u.deg)
-  >>> height=u.Quantity(5, u.deg)
-  >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, width=width, height=height, async_job=True)
+  >>> target_name = 'LMC'
+  >>> target_resolver = 'NED'
+  >>> width = u.Quantity(5, u.deg)
+  >>> height = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_target(target_name=target_name, target_resolver=target_resolver, width=width, height=height, async_job=True)
   >>> r
 
             dist                  observationid            ...
@@ -224,15 +224,16 @@ To query the data products associated with a certain Observation ID
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list=Jwst.get_product_list(observation_id='jw01063107001_02101_00013_nrca3')
-  >>> for row in product_list:
-  >>>     print("filename: %s" % (row['filename']))
+  >>> product_list = Jwst.get_product_list(observation_id='jw01063107001_02101_00013_nrca3')
+  >>> print(product_list['filename'])
 
-    filename: jw01063-o107_20220328t013707_image2_144_asn.json
-    filename: jw01063107001_02101_00013_nrca3_cal.fits
-    filename: jw01063107001_02101_00013_nrca3_cal.jpg
-    filename: jw01063107001_02101_00013_nrca3_cal_thumb.jpg
-    filename: jw01063107001_02101_00013_nrca3_i2d.fits
+                        filename
+    ------------------------------------------------
+    jw01063-o107_20220328t013707_image2_144_asn.json
+            jw01063107001_02101_00013_nrca3_cal.fits
+             jw01063107001_02101_00013_nrca3_cal.jpg
+       jw01063107001_02101_00013_nrca3_cal_thumb.jpg
+            jw01063107001_02101_00013_nrca3_i2d.fits
     ...
 
 
@@ -242,15 +243,16 @@ all the products associated to this observation_id with the same and lower level
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list=Jwst.get_product_list(observation_id='jw01023029001_02101_00004_mirimage', product_type='science')
-  >>> for row in product_list:
-  >>>     print("filename: %s" % (row['filename']))
+  >>> product_list = Jwst.get_product_list(observation_id='jw01023029001_02101_00004_mirimage', product_type='science')
+  >>> print(product_list['filename'])
 
-    filename: jw01023029001_02101_00004_mirimage_c1006_crf.fits
-    filename: jw01023029001_02101_00004_mirimage_cal.fits
-    filename: jw01023029001_02101_00004_mirimage_i2d.fits
-    filename: jw01023029001_02101_00004_mirimage_o029_crf.fits
-    filename: jw01023029001_02101_00004_mirimage_rate.fits
+                         filename
+    -------------------------------------------------
+    jw01023029001_02101_00004_mirimage_c1006_crf.fits
+          jw01023029001_02101_00004_mirimage_cal.fits
+          jw01023029001_02101_00004_mirimage_i2d.fits
+     jw01023029001_02101_00004_mirimage_o029_crf.fits
+         jw01023029001_02101_00004_mirimage_rate.fits
     ...
 
 
@@ -259,9 +261,9 @@ To download a data product
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> query="select o.observationid, a.artifactid, a.filename from jwst.observation o join jwst.artifact a on a.obsid = o.obsid where o.proposal_id = '01166' and o.intent = 'science'"
-  >>> job=Jwst.launch_job(query, async_job=True)
-  >>> results=job.get_results()
+  >>> query = "select o.observationid, a.artifactid, a.filename from jwst.observation o join jwst.artifact a on a.obsid = o.obsid where o.proposal_id = '01166' and o.intent = 'science'"
+  >>> job = Jwst.launch_job(query, async_job=True)
+  >>> results = job.get_results()
   >>> results
 
              observationid                       artifactid                                    filename
@@ -274,16 +276,16 @@ To download a data product
     ...                             ...                                  ...
 
 
-  >>> output_file=Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')
-  >>> output_file=Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')
+  >>> output_file = Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')
+  >>> output_file = Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')
 
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
 than get_product_list.
 
 .. code-block:: python
 
-  >>> observation_id='jw01122001001_0210r_00001_nrs2'
-  >>> results=Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
+  >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
 
 A temporary directory is created with the files and a list of the them is provided.
 
@@ -307,8 +309,8 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
 .. code-block:: python
 
-  >>> observation_id='jw01076-o110_s01130_nircam_f444w-grismr'
-  >>> results=Jwst.get_related_observations(observation_id=observation_id)
+  >>> observation_id = 'jw01076-o110_s01130_nircam_f444w-grismr'
+  >>> results = Jwst.get_related_observations(observation_id=observation_id)
   >>> results
 
     jw01076110001_02101_00001_nrcalong
@@ -326,8 +328,8 @@ To load only table names (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables=Jwst.load_tables(only_names=True)
-  >>> for table in (tables):
+  >>> tables = Jwst.load_tables(only_names=True)
+  >>> for table in tables:
   >>>   print(table.name)
 
     ivoa.obscore
@@ -346,8 +348,8 @@ To load table names (TAP compatible)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables=Jwst.load_tables()
-  >>> for table in (tables):
+  >>> tables = Jwst.load_tables()
+  >>> for table in tables:
   >>>   print(table.name)
 
     ivoa.obscore
@@ -363,7 +365,7 @@ To load only a table (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> table=Jwst.load_table('jwst.main')
+  >>> table = Jwst.load_table('jwst.main')
   >>> print(table)
 
   TAP Table name: jwst.main
@@ -376,9 +378,8 @@ Once a table is loaded, columns can be inspected
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> table=Jwst.load_table('jwst.main')
-  >>> for column in (table.columns):
-  >>>   print(column.name)
+  >>> table = Jwst.load_table('jwst.main')
+  >>> print(*(column.name for column in table.columns), sep="\n")
 
     algorithm_name
     calibrationlevel
@@ -405,10 +406,10 @@ Query without saving results in a file:
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, proposal_id, calibrationlevel, \
-  >>> dataproducttype \
-  >>> FROM jwst.main ORDER BY instrument_name, observationuri")
+  >>> job = Jwst.launch_job("SELECT TOP 100 "
+  >>>       "instrument_name, proposal_id, calibrationlevel, "
+  >>>       "dataproducttype "
+  >>>       "FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
   >>> print(job)
 
@@ -425,7 +426,7 @@ Query without saving results in a file:
     Output file: 1655977738493O-result.vot.gz
     Results: None
 
-  >>> r=job.get_results()
+  >>> r = job.get_results()
   >>> r
 
     instrument_name proposal_id calibrationlevel dataproducttype
@@ -443,11 +444,11 @@ Query saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> job=Jwst.launch_job("SELECT TOP 100 \
-  >>> instrument_name, proposal_id, calibrationlevel, \
-  >>> dataproducttype \
-  >>> FROM jwst.main ORDER BY instrument_name, observationuri",\
-  >>> dump_to_file=True)
+  >>> job = Jwst.launch_job("SELECT TOP 100 "
+  >>>       "instrument_name, proposal_id, calibrationlevel, "
+  >>>       "dataproducttype "
+  >>>       "FROM jwst.main ORDER BY instrument_name, observationuri",
+  >>>       dump_to_file=True)
   >>>
   >>> print(job)
 
@@ -457,7 +458,7 @@ Query saving results in a file:
   Output file: 1655978085454O-result.vot.gz
   Results: None
 
-  >>> r=job.get_results()
+  >>> r = job.get_results()
   >>> r
 
     instrument_name proposal_id calibrationlevel dataproducttype
@@ -480,11 +481,11 @@ A table can be uploaded to the server in order to be used in a query.
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> upload_resource='mytable.xml.gz'
-  >>> j=Jwst.launch_job(query="SELECT * from tap_upload.table_test", \
-  >>>   upload_resource=upload_resource, \
-  >>>   upload_table_name="table_test", verbose=True)
-  >>> r=j.get_results()
+  >>> upload_resource = 'mytable.xml.gz'
+  >>> j = Jwst.launch_job(query="SELECT * from tap_upload.table_test",
+  >>>                   upload_resource=upload_resource,
+  >>>                   upload_table_name="table_test", verbose=True)
+  >>> r = j.get_results()
   >>> r.pprint()
 
   source_id alpha delta
@@ -506,7 +507,7 @@ Query without saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> job=Jwst.launch_job("select top 100 * from jwst.main", async_job=True)
+  >>> job = Jwst.launch_job("select top 100 * from jwst.main", async_job=True)
   >>> print(job)
 
   Jobid: 1542383562372I
@@ -515,7 +516,7 @@ Query without saving results in a file:
   Output file: async_20181116165244.vot
   Results: None
 
-  >>> r=job.get_results()
+  >>> r = job.get_results()
   >>> r['observationid']
 
        jw01070001002_04101_00003_nrca1
@@ -531,7 +532,7 @@ Query saving results in a file:
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> job=Jwst.launch_job("select top 100 * from jwst.main", dump_to_file=True)
+  >>> job = Jwst.launch_job("select top 100 * from jwst.main", dump_to_file=True)
   >>>
   >>> print(job)
 
@@ -542,7 +543,7 @@ Query saving results in a file:
   Results: None
 
 
-  >>> r=job.get_results()
+  >>> r = job.get_results()
   >>> r['instrument_name']
 
     NIRCAM
@@ -563,7 +564,7 @@ To remove asynchronous
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> job=Jwst.remove_jobs(["job_id_1","job_id_2",...])
+  >>> job = Jwst.remove_jobs(["job_id_1","job_id_2",...])
 
 
 -----------------------
@@ -636,8 +637,8 @@ To perform a logout:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables=Jwst.load_tables(only_names=True, include_shared_tables=True)
-  >>> for table in (tables):
+  >>> tables = Jwst.load_tables(only_names=True, include_shared_tables=True)
+  >>> for table in tables:
   >>>   print(table.name)
 
   public.dual
