@@ -126,7 +126,7 @@ class CloudAccess:  # pragma:no-cover
             if include_bucket:
                 path = "s3://{}/{}".format(self.pubdata_bucket, path)
             elif full_url:
-                path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
+                path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
             return path
         except self.botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] != "404":
