@@ -84,16 +84,12 @@ class RingNodeClass(BaseQuery):
     def _url(self):
         return self.url or conf.url
 
-    @property
-    def _timeout(self):
-        return conf.timeout if self.timeout is None else self.timeout
-
     def __str__(self):
 
         return "PDSRingNode instance"
 
     def ephemeris_async(self, planet, *, epoch=None, location=None, neptune_arcmodel=3,
-                            get_query_payload=False, get_raw_response=False, cache=True):
+                            get_query_payload=False, cache=True):
         """
         send query to Planetary Ring Node server
 
@@ -117,6 +113,8 @@ class RingNodeClass(BaseQuery):
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request parameters as
             a dict, default: False
+        cache : boolean, optional
+            When set to `True` the method caches the download, default: True
 
 
         Returns
@@ -230,7 +228,7 @@ class RingNodeClass(BaseQuery):
 
         # query and parse
         response = self._request(
-            "GET", self._url, params=request_payload, timeout=self._timeout, cache=cache
+            "GET", self._url, params=request_payload, timeout=self.timeout, cache=cache
         )
 
         return response
@@ -251,7 +249,6 @@ class RingNodeClass(BaseQuery):
         bodytable : `astropy.QTable`
         ringtable : `astropy.QTable`
         """
-        self.last_response = response
         try:
             self._last_query.remove_cache_file(self.cache_location)
         except FileNotFoundError:

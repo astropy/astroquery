@@ -53,7 +53,9 @@ def test_parse_result(patch_request):
 
 def test_ephemeris_query_Uranus(patch_request):
 
-    bodytable, ringtable = pds.RingNode.ephemeris(
+    pds_inst = pds.RingNode()
+    pds_inst._last_query = AstroQuery('GET', 'http://dummy')
+    bodytable, ringtable = pds_inst.ephemeris(
         planet="Uranus",
         epoch="2022-05-03 00:00",
         location=(-120.355 * u.deg, 10.0 * u.deg, 1000 * u.m),
@@ -128,7 +130,9 @@ def test_ephemeris_query_Uranus(patch_request):
 
 def test_ephemeris_query_Pluto(patch_request):
 
-    bodytable, ringtable = pds.RingNode.ephemeris(
+    pds_inst = pds.RingNode()
+    pds_inst._last_query = AstroQuery('GET', 'http://dummy')
+    bodytable, ringtable = pds_inst.ephemeris(
         planet="Pluto",
         epoch="2021-10-07 07:25",
     )
@@ -201,7 +205,9 @@ def test_ephemeris_query_Pluto(patch_request):
 def test_ephemeris_query_Neptune(patch_request):
     '''Verify that the Neptune ring arcs are queried properly'''
 
-    bodytable, ringtable = pds.RingNode.ephemeris(
+    pds_inst = pds.RingNode()
+    pds_inst._last_query = AstroQuery('GET', 'http://dummy')
+    bodytable, ringtable = pds_inst.ephemeris(
         planet="Neptune",
         epoch="2021-10-07 07:25",
         neptune_arcmodel=2
@@ -233,7 +239,9 @@ def test_ephemeris_query_Neptune(patch_request):
 
 def test_ephemeris_query_Saturn(patch_request):
     '''Check Saturn F ring is queried properly'''
-    bodytable, ringtable = pds.RingNode.ephemeris(
+    pds_inst = pds.RingNode()
+    pds_inst._last_query = AstroQuery('GET', 'http://dummy')
+    bodytable, ringtable = pds_inst.ephemeris(
         planet="Saturn",
         epoch="2021-10-07 07:25",
     )
@@ -249,7 +257,9 @@ def test_ephemeris_query_Saturn(patch_request):
 
 
 def test_ephemeris_query_payload():
-    res = pds.RingNode.ephemeris(
+    pds_inst = pds.RingNode()
+    pds_inst._last_query = AstroQuery('GET', 'http://dummy')
+    res = pds_inst.ephemeris(
         planet="Neptune",
         epoch="2022-05-03 00:00",
         neptune_arcmodel=1,
