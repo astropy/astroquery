@@ -270,21 +270,29 @@ class RingNodeClass(BaseQuery):
             # minor body table part 1
             elif group.startswith("Body"):
                 group = "NAIF " + group  # fixing lack of header for NAIF ID
+                bodytable_names = ("NAIF ID", "Body", "RA", "Dec", "RA (deg)", "Dec (deg)", "dRA", "dDec")
+                bodytable_units = [None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]
                 bodytable = table.QTable.read(group, format="ascii.fixed_width",
                                         col_starts=(0, 4, 18, 35, 54, 68, 80, 91),
                                         col_ends=(4, 18, 35, 54, 68, 80, 91, 102),
-                                        names=("NAIF ID", "Body", "RA", "Dec", "RA (deg)", "Dec (deg)", "dRA", "dDec"),
-                                        units=([None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]))
+                                        names=bodytable_names)
+                                        # units=(bodytable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
+                for name, unit in zip(bodytable_names, bodytable_units):
+                    bodytable[name].unit = unit
 
             # minor body table part 2
             elif group.startswith("Sub-"):
                 group = "\n".join(group.split("\n")[1:])  # fixing two-row header
                 group = "NAIF" + group[4:]
+                bodytable2_names = ("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance")
+                bodytable2_units = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
                 bodytable2 = table.QTable.read(group, format="ascii.fixed_width",
                                         col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
                                         col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
-                                        names=("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance"),
-                                        units=([None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]))
+                                        names=bodytable2_names)
+                                        # units=(bodytable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
+                for name, unit in zip(bodytable2_names, bodytable2_units):
+                    bodytable2[name].unit = unit
 
             # ring plane data
             elif group.startswith("Ring s"):
@@ -293,7 +301,7 @@ class RingNodeClass(BaseQuery):
                     l = line.split(":")
                     if "Ring sub-solar latitude" in l[0]:
                         [sub_sun_lat, sub_sun_lat_min, sub_sun_lat_max] = [
-                            float(s.strip(", \n()")) for s in re.split("\(|to", l[1])
+                            float(s.strip(", \n()")) for s in re.split(r"\(|to", l[1])
                         ]
                         systemtable = {
                             "sub_sun_lat": sub_sun_lat * u.deg,
@@ -343,11 +351,15 @@ class RingNodeClass(BaseQuery):
             # --------- below this line, planet-specific info ------------
             # Uranus individual rings data
             elif group.startswith("Ring    "):
+                ringtable_names = ("ring", "pericenter", "ascending node")
+                ringtable_units = [None, u.deg, u.deg]
                 ringtable = table.QTable.read("     " + group, format="ascii.fixed_width",
                     col_starts=(5, 18, 29),
                     col_ends=(18, 29, 36),
-                    names=("ring", "pericenter", "ascending node"),
-                    units=([None, u.deg, u.deg]))
+                    names=ringtable_names)
+                    # units=(ringtable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
+                for name, unit in zip(ringtable_names, ringtable_units):
+                    ringtable[name].unit = unit
 
             # Saturn F-ring data
             elif group.startswith("F Ring"):
