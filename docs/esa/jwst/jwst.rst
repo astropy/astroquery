@@ -494,7 +494,6 @@ Query without saving results in a file:
   Owner: None
   Output file: async_20181116165244.vot
   Results: None
-
   >>> r = job.get_results()
   >>> r['observationid']
        jw01070001002_04101_00003_nrca1
