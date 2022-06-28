@@ -1,4 +1,3 @@
-.. doctest-skip-all
 
 .. _astroquery.esa.jwst:
 
@@ -79,7 +78,7 @@ Examples
 
 It is highly recommended checking the status of JWST TAP before executing this module. To do this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.get_status_messages()
@@ -94,7 +93,7 @@ service degradation.
 1.1. Query region
 ~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
@@ -126,7 +125,7 @@ service degradation.
 1.2. Cone search
 ~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
@@ -162,7 +161,7 @@ resolver is provider, ALL (which is also the default value), using all the afore
 catalogues in the defined order to obtain the required coordinates (using the following
 element in the list if the target name cannot be resolved).
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
@@ -191,7 +190,7 @@ element in the list if the target name cannot be resolved).
 This method uses the same parameters as query region, but also includes the target name and the catalogue
 (target resolver) to retrieve the coordinates.
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
@@ -221,7 +220,7 @@ This method uses the same parameters as query region, but also includes the targ
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 To query the data products associated with a certain Observation ID
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw01063107001_02101_00013_nrca3')
@@ -240,7 +239,7 @@ To query the data products associated with a certain Observation ID
 You can filter by product type and calibration level (using a numerical value or the option 'ALL' -set by default- that will download
 all the products associated to this observation_id with the same and lower levels).
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw01023029001_02101_00004_mirimage', product_type='science')
@@ -258,7 +257,7 @@ all the products associated to this observation_id with the same and lower level
 
 To download a data product
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> query = "select o.observationid, a.artifactid, a.filename from jwst.observation o join jwst.artifact a on a.obsid = o.obsid where o.proposal_id = '01166' and o.intent = 'science'"
@@ -282,7 +281,7 @@ To download a data product
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
 than get_product_list.
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
   >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
@@ -307,7 +306,7 @@ If proprietary data is requested and the user has not logged in:
 It is also possible to extract the products associated to an observation with upper calibration levels with get_related_observations.
 Using the observation ID as input parameter, this function will retrieve the observations (IDs) that use it to create a composite observation.
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> observation_id = 'jw01076-o110_s01130_nircam_f444w-grismr'
   >>> results = Jwst.get_related_observations(observation_id=observation_id)
@@ -325,7 +324,7 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
 To load only table names (TAP+ capability)
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables(only_names=True)
@@ -345,7 +344,7 @@ To load only table names (TAP+ capability)
 
 To load table names (TAP compatible)
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables()
@@ -362,7 +361,7 @@ To load table names (TAP compatible)
 
 To load only a table (TAP+ capability)
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
@@ -375,7 +374,7 @@ To load only a table (TAP+ capability)
 
 Once a table is loaded, columns can be inspected
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
@@ -402,7 +401,7 @@ The results can be saved in memory (default) or in a file.
 
 Query without saving results in a file:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
@@ -441,7 +440,7 @@ Query without saving results in a file:
 
 Query saving results in a file:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> job = Jwst.launch_job("SELECT TOP 100 "
@@ -478,7 +477,7 @@ Query saving results in a file:
 
 A table can be uploaded to the server in order to be used in a query.
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> upload_resource = 'mytable.xml.gz'
@@ -504,7 +503,7 @@ The results can be saved in memory (default) or in a file.
 
 Query without saving results in a file:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> job = Jwst.launch_job("select top 100 * from jwst.main", async_job=True)
@@ -528,7 +527,7 @@ Query without saving results in a file:
 
 Query saving results in a file:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
@@ -561,7 +560,7 @@ Query saving results in a file:
 
 To remove asynchronous
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> job = Jwst.remove_jobs(["job_id_1","job_id_2",...])
@@ -590,7 +589,7 @@ The main differences are:
 
 Using the command line:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword')
@@ -600,14 +599,14 @@ It is possible to use a file where the credentials are stored:
 
 *The file must containing user and password in two different lines.*
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(credentials_file='my_credentials_file')
 
 MAST tokens can also be used in command line functions:
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword', token='mastToken')
@@ -615,7 +614,7 @@ MAST tokens can also be used in command line functions:
 If the user is logged in and a MAST token has not been included or must be changed, it can be
 specified using the ``set_token`` function.
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword')
@@ -624,7 +623,7 @@ specified using the ``set_token`` function.
 To perform a logout:
 
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.logout()
@@ -634,7 +633,7 @@ To perform a logout:
 2.2. Listing shared tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables(only_names=True, include_shared_tables=True)
