@@ -268,8 +268,6 @@ To download a data product
     jw01166091001_02102_00002_nrca3 5b89920d-532d-43be-b70b-973c4bfdfdcc        jw01166091001_02102_00002_nrca3_cal_thumb.jpg
     jw01166091001_02102_00002_nrca3 5a86e351-3066-4c46-8698-c49aade6ec98            jw01166091001_02102_00002_nrca3_rate.fits
     ...                             ...                                  ...
-
-
   >>> output_file = Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')
   >>> output_file = Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')
 
@@ -278,6 +276,7 @@ than get_product_list.
 
 .. doctest-remote-data::
 
+  >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
   >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
 
@@ -303,6 +302,7 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
 .. doctest-remote-data::
 
+  >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01076-o110_s01130_nircam_f444w-grismr'
   >>> results = Jwst.get_related_observations(observation_id=observation_id)
   >>> results
