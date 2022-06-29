@@ -155,23 +155,14 @@ ALMA_FORM_KEYS = {
 }
 
 
-# The path, on the current ARC, to the IVOA registry to lookup a service endpoint.
-REGISTRY_PATH = '/reg/resource-caps'
+# used to lookup the TAP service on an ARC
+TAP_SERVICE_PATH = '/tap'
 
-# used to construct a TAP service identifier
-TAP_SERVICE_URI_PATH = '/tap'
-# used to look up the TAP service
-TAP_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/TAP'
+# used to lookup the DataLink service on an ARC
+DATALINK_SERVICE_PATH = '/datalink'
 
-# used to construct a DataLink service identifier
-DATALINK_SERVICE_URI_PATH = '/datalink'
-# used to look up the DataLink service
-DATALINK_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/DataLink#links-1.0'
-
-# used to construct an SIA service identifier
-SIA_SERVICE_URI_PATH = '/sia'
-# used to look up the SIAv2 service
-SIA_SERVICE_STANDARD_ID = 'ivo://ivoa.net/std/SIA#query-2.0'
+# used to lookup the SIA service on an ARC
+SIA_SERVICE_PATH = '/sia2'
 
 
 def _gen_sql(payload):
@@ -216,28 +207,6 @@ class AlmaClass(QueryWithLogin):
         self._tap_url = None
         self._datalink_url = None
 
-    def service_id_auth(self, archive_host):
-        """
-        Convenience property to get the current Service ID URI authority.  Each ARC will have a different authority in
-        the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden,
-        use the default value.
-
-        The authority of a URI is the host.  E.g.:
-        ivo://example.org/service (example.org is the authority)
-
-        Parameters
-        ----------
-
-        archvie_host : str
-            The discovered ARC hostname.
-
-        Returns
-        -------
-
-        The Service ID authority.  Never None.
-        """
-        return conf.service_uri_map[archive_host] if archive_host in conf.service_uri_map else conf.default_service_id_auth
-
     @property
     def datalink(self):
         if not self._datalink:
@@ -247,12 +216,8 @@ class AlmaClass(QueryWithLogin):
     @property
     def datalink_url(self):
         if not self._datalink_url:
-            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._datalink_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{DATALINK_SERVICE_URI_PATH}",
-                    f"https://{base_url_host}{REGISTRY_PATH}",
-                    DATALINK_SERVICE_STANDARD_ID)
+                self._datalink_url = f"{self._get_dataarchive_url()}{DATALINK_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -268,12 +233,8 @@ class AlmaClass(QueryWithLogin):
     @property
     def sia_url(self):
         if not self._sia_url:
-            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._sia_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{SIA_SERVICE_URI_PATH}",
-                    f"https://{base_url_host}{REGISTRY_PATH}",
-                    SIA_SERVICE_STANDARD_ID)
+                self._sia_url = f"{self._get_dataarchive_url()}{SIA_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -289,12 +250,8 @@ class AlmaClass(QueryWithLogin):
     @property
     def tap_url(self):
         if not self._tap_url:
-            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
             try:
-                self._tap_url = get_access_url(
-                    f"ivo://{self.service_id_auth(base_url_host)}{TAP_SERVICE_URI_PATH}",
-                    f"https://{base_url_host}{REGISTRY_PATH}",
-                    TAP_SERVICE_STANDARD_ID)
+                self._tap_url = f"{self._get_dataarchive_url()}{TAP_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the CADC registry: {str(err)}")
@@ -1223,93 +1180,6 @@ class AlmaClass(QueryWithLogin):
             return [result[0]['proposal_abstract'].astype(str)]
         else:
             return [result[0]['proposal_abstract']]
-
-
-def static_vars(**kwargs):
-    def decorate(func):
-        for k in kwargs:
-            setattr(func, k, kwargs[k])
-        return func
-    return decorate
-
-
-@static_vars(caps={})
-def get_access_url(service, reg_url, capability=None):
-    """
-    Returns the URL corresponding to a service by doing a lookup in the cadc
-    registry. It returns the access URL corresponding to cookie authentication.
-
-    Parameters
-    ----------
-    service : str
-        the service the capability belongs to. It can be identified
-        by a URI (e.g. 'ivo://alma.na/tap) which is looked up in the Registry
-        or by the URL where the service capabilities is found.
-    reg_url: str
-        The full URL of the Registry to lookup the given service.
-    capability : str
-        uri representing the capability for which the access url is sought.
-
-    Returns
-    -------
-    The access url
-
-    Note
-    ------
-    This function implements the functionality of a Registry as defined
-    by the IVOA. It should be eventually moved to its own directory.
-
-    Caching should be considered to reduce the number of remote calls to Registry
-    """
-
-    service_url = requests.utils.parse_url(service)
-
-    # not a valid URI/URL
-    if not service_url.scheme:
-        raise RuntimeError(f"No or invalid service provided ({service}).")
-
-    caps_url = ''
-
-    # absolute URL, so use it as-is
-    if service_url.scheme.startswith("http"):
-        if not capability:
-            return service
-        caps_url = service
-    else:
-        # get capabilities from the Registry
-        if not get_access_url.caps:
-            response = requests.get(reg_url)
-            response.raise_for_status()
-            for line in response.text.splitlines():
-                if len(line) > 0 and not line.startswith("#"):
-                    service_id, capabilies_url = line.split("=")
-                    get_access_url.caps[service_id.strip()] = \
-                        capabilies_url.strip()
-        # lookup the service
-        service_uri = service_url.url
-        if service_uri not in get_access_url.caps:
-            raise AttributeError(
-                f"Cannot find the capabilities of service {service} from {reg_url}")
-        # look up in the Registry for the service capabilities
-        caps_url = get_access_url.caps[service_uri]
-        if not capability:
-            return caps_url
-    response2 = requests.get(caps_url)
-    response2.raise_for_status()
-
-    soup = BeautifulSoup(response2.text, features="html5lib")
-    for cap in soup.find_all("capability"):
-        if cap.get("standardid", None) == capability:
-            if len(cap.find_all("interface")) == 1:
-                return cap.find_all("interface")[0].accessurl.text
-            for i in cap.find_all("interface"):
-                if hasattr(i, "securitymethod"):
-                    sm = i.securitymethod
-                    if not sm or sm.get("standardid", None) is None or\
-                    sm['standardid'] == "ivo://ivoa.net/sso#cookie":
-                        return i.accessurl.text
-    raise RuntimeError(f"ERROR - capability {capability} not found or not working with "
-                    "anonymous or cookie access")
 
 
 Alma = AlmaClass()

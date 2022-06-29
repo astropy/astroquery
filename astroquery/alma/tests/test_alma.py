@@ -383,91 +383,55 @@ def test_tap():
                                             language='ADQL', maxrec=None)
 
 
-def _mocked_tap_access_url(*args, **kwargs):
-    if args[0] == 'ivo://alma.na/tap':
-        return 'https://alma.na/tap'
-    elif args[0] == 'ivo://alma.eu/tap':
-        return 'https://alma.eu/tap'
-    elif args[0] == 'ivo://alma.ea/tap':
-        return 'https://alma.ea/tap'
-    else:
-        raise RuntimeError(f'Cannot get entry for {args[0]}')
-
-
-@pytest.mark.parametrize('data_archive_url, expected',
+@pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/tap'),
-                            ('https://almascience.eso.org', 'https://alma.eu/tap'),
-                            ('https://almascience.nao.ac.jp', 'https://alma.ea/tap')
+                            ('https://almascience.nrao.edu'),
+                            ('https://almascience.eso.org'),
+                            ('https://almascience.nao.ac.jp')
                          ])
-def test_tap_url(data_archive_url, expected):
-    _test_tap_url(data_archive_url, expected)
+def test_tap_url(data_archive_url):
+    _test_tap_url(data_archive_url)
 
 
-@patch('astroquery.alma.core.get_access_url', side_effect=_mocked_tap_access_url)
-def _test_tap_url(data_archive_url, expected, _mock_access_url):
+def _test_tap_url(data_archive_url):
     alma = Alma()
     alma._get_dataarchive_url = Mock(return_value=data_archive_url)
     alma._get_dataarchive_url.reset_mock()
-    assert alma.tap_url == expected
+    assert alma.tap_url == f"{data_archive_url}/tap"
 
 
-def _mocked_sia_access_url(*args, **kwargs):
-    if args[0] == 'ivo://alma.na/sia':
-        return 'https://alma.na/sia2'
-    elif args[0] == 'ivo://alma.eu/sia':
-        return 'https://alma.eu/sia2'
-    elif args[0] == 'ivo://alma.ea/sia':
-        return 'https://alma.ea/sia2'
-    else:
-        raise RuntimeError(f'Cannot get entry for {args[0]}')
-
-
-@pytest.mark.parametrize('data_archive_url, expected',
+@pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/sia2'),
-                            ('https://almascience.eso.org', 'https://alma.eu/sia2'),
-                            ('https://almascience.nao.ac.jp', 'https://alma.ea/sia2')
+                            ('https://almascience.nrao.edu'),
+                            ('https://almascience.eso.org'),
+                            ('https://almascience.nao.ac.jp')
                          ])
-def test_sia_url(data_archive_url, expected):
-    _test_sia_url(data_archive_url, expected)
+def test_sia_url(data_archive_url):
+    _test_sia_url(data_archive_url)
 
 
-@patch('astroquery.alma.core.get_access_url', side_effect=_mocked_sia_access_url)
-def _test_sia_url(data_archive_url, expected, _mock_access_url):
+def _test_sia_url(data_archive_url):
     alma = Alma()
     alma._get_dataarchive_url = Mock(return_value=data_archive_url)
     alma._get_dataarchive_url.reset_mock()
-    assert alma.sia_url == expected
+    assert alma.sia_url == f"{data_archive_url}/sia2"
 
 
-def _mocked_datalink_access_url(*args, **kwargs):
-    if args[0] == 'ivo://alma.na/datalink':
-        return 'https://alma.na/datalink'
-    elif args[0] == 'ivo://alma.eu/datalink':
-        return 'https://alma.eu/datalink'
-    elif args[0] == 'ivo://alma.ea/datalink':
-        return 'https://alma.ea/datalink'
-    else:
-        raise RuntimeError(f'Cannot get entry for {args[0]}')
-
-
-@pytest.mark.parametrize('data_archive_url, expected',
+@pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu', 'https://alma.na/datalink'),
-                            ('https://almascience.eso.org', 'https://alma.eu/datalink'),
-                            ('https://almascience.nao.ac.jp', 'https://alma.ea/datalink')
+                            ('https://almascience.nrao.edu'),
+                            ('https://almascience.eso.org'),
+                            ('https://almascience.nao.ac.jp')
                          ])
-def test_datalink_url(data_archive_url, expected):
-    _test_datalink_url(data_archive_url, expected)
+def test_datalink_url(data_archive_url):
+    _test_datalink_url(data_archive_url)
 
 
-@patch('astroquery.alma.core.get_access_url', side_effect=_mocked_datalink_access_url)
-def _test_datalink_url(data_archive_url, expected, _mock_access_url):
+def _test_datalink_url(data_archive_url):
     alma = Alma()
     alma._get_dataarchive_url = Mock(return_value=data_archive_url)
     alma._get_dataarchive_url.reset_mock()
-    assert alma.datalink_url == expected
+    assert alma.datalink_url == f"{data_archive_url}/datalink"
 
 
 def test_get_data_info():
@@ -536,14 +500,6 @@ def test_get_data_info_expand_tarfiles():
     assert len(result) == 61
 
 
-def test_service_id_auth():
-    alma = Alma()
-    assert alma.service_id_auth('almascience.nrao.edu') == 'alma.na'
-    assert alma.service_id_auth('almascience.eso.org') == 'alma.eu'
-    assert alma.service_id_auth('almascience.nao.ac.jp') == 'alma.ea'
-    assert alma.service_id_auth('alma-alternate-example.com') == 'almascience.org'
-
-
 def test_galactic_query():
     """
     regression test for 1867
@@ -592,81 +548,3 @@ def test_download_files():
     alma._request.return_value = Mock(headers={})
     result = alma.download_files(['https://location/file1'])
     assert not result
-
-
-# This method will be used by the mock in test_get_access_url to replace requests.get
-def _mocked_requests_get(*args, **kwargs):
-    class MockResponse:
-        def __init__(self, text, status_code):
-            self.text = text
-            self.status_code = status_code
-
-        def text(self):
-            return self.text
-
-        def raise_for_status(self):
-            return None
-
-    example_1_capabilities_document = """<?xml version="1.0" encoding="UTF-8"?>
-<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<capability standardID="ivo://ivoa.net/auth#example">
-<interface xsi:type="vs:ParamHTTP">
-    <accessURL use="full">https://example.com/service1/endpoint</accessURL>
-</interface>
-</capability>
-</vosi:capabilities>"""
-
-    example_2_capabilities_document = """<?xml version="1.0" encoding="UTF-8"?>
-<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<capability standardID="ivo://ivoa.net/auth#example">
-<interface xsi:type="vs:ParamHTTP">
-    <accessURL use="full">https://example.com/service2/endpoint</accessURL>
-</interface>
-</capability>
-</vosi:capabilities>"""
-
-    if args[0] == 'https://example.com/reg/resource-caps':
-        return MockResponse("ivo://example.com/service1 = https://example.com/service1/capabilities\nivo://example.com/service2 = https://example.com/service2/capabilities", 200)
-    elif args[0] == 'https://example.com/service1/capabilities':
-        return MockResponse(example_1_capabilities_document, 200)
-    elif args[0] == 'https://example.com/service2/capabilities':
-        return MockResponse(example_2_capabilities_document, 200)
-
-    pytest.fail('Should not get here.')
-
-
-@pytest.mark.parametrize('service, capability, expected',
-                         [
-                            ('ivo://example.com/service1', 'ivo://ivoa.net/auth#example', 'https://example.com/service1/endpoint'),
-                            ('ivo://example.com/service2', 'ivo://ivoa.net/auth#example', 'https://example.com/service2/endpoint'),
-                            ('bogus', '', ''),
-                            ('', '', '')
-                         ])
-def test_get_access_url(service, capability, expected):
-    """
-    Test for get_access_url to obtain a download URL from a Capabilities document
-    of an IVOA service.
-    """
-    _test_get_access_url(service, capability, expected)
-
-
-@unittest.mock.patch('requests.get', side_effect=_mocked_requests_get)
-def _test_get_access_url(service, capability, expected, mock_get):
-    orig_caps = astroquery.alma.core.get_access_url.caps
-    url = None
-    try:
-        # Force resource-caps to get called.
-        astroquery.alma.core.get_access_url.caps = {}
-        url = astroquery.alma.core.get_access_url(service, 'https://example.com/reg/resource-caps', capability)
-        if url:
-            assert url == expected
-            tc = unittest.TestCase()
-            expected_url = requests.utils.parse_url(expected)
-            tc.assertIn(unittest.mock.call('https://example.com/reg/resource-caps'), mock_get.call_args_list, 'No resource-caps called.')
-            tc.assertIn(unittest.mock.call(f'https://example.com{expected_url.path.replace("endpoint", "capabilities")}'), mock_get.call_args_list, 'No capabilities called.')
-    except RuntimeError as runtime_error:
-        # Should only happen if the provided service is empty.
-        assert url is None
-        assert str(runtime_error) == f'No or invalid service provided ({service}).'
-    finally:
-        astroquery.alma.core.get_access_url.caps = orig_caps

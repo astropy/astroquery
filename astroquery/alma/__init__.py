@@ -5,18 +5,12 @@ ALMA Archive service.
 from astropy import config as _config
 
 
-# map Service IDs to their ARC hosts
-_arc_service_id_map = {
-    'almascience.eso.org': 'alma.eu',
-    'almascience.nrao.edu': 'alma.na',
-    'almascience.nao.ac.jp': 'alma.ea'
-}
-
-# separate list of ARC URLs as they each deploy their own IVOA services.
-_arc_url_list = [f'https://{id}' for id in _arc_service_id_map]
-
 # list the URLs here separately so they can be used in tests.
-_url_list = ['https://almascience.org'] + _arc_url_list
+_url_list = ['https://almascience.org',
+             'https://almascience.eso.org',
+             'https://almascience.nrao.edu',
+             'https://almascience.nao.ac.jp'
+             ]
 
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
 
@@ -30,8 +24,6 @@ class Conf(_config.ConfigNamespace):
     # is used when overriding the default registry, which assumes to have
     # just almascience.org as the authority in the Service IDs.
     default_service_id_auth = 'almascience.org'
-
-    service_uri_map = _arc_service_id_map
 
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
