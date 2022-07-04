@@ -119,24 +119,20 @@ def _gen_numeric_sql(field, value):
 def _gen_str_sql(field, value):
     result = ''
 
-    # arrays are allowed and will be converted to IN() clauses.
-    if isinstance(value, list):
-        result += "{} IN ({})".format(field, ', '.join(["'{}'".format(val) for val in value]))
-    else:
-        for interval in _val_parse(value, str):
-            if result:
-                result += ' OR '
-            if '*' in interval:
-                # use LIKE
-                # escape wildcards if they exists in the value
-                interval = interval.replace('%', r'\%')  # noqa
-                interval = interval.replace('_', r'\_')  # noqa
-                # ADQL wild cards are % and _
-                interval = interval.replace('*', '%')
-                interval = interval.replace('?', '_')
-                result += "{} LIKE '{}'".format(field, interval)
-            else:
-                result += "{}='{}'".format(field, interval)
+    for interval in _val_parse(value, str):
+        if result:
+            result += ' OR '
+        if '*' in interval:
+            # use LIKE
+            # escape wildcards if they exists in the value
+            interval = interval.replace('%', r'\%')  # noqa
+            interval = interval.replace('_', r'\_')  # noqa
+            # ADQL wild cards are % and _
+            interval = interval.replace('*', '%')
+            interval = interval.replace('?', '_')
+            result += "{} LIKE '{}'".format(field, interval)
+        else:
+            result += "{}='{}'".format(field, interval)
     if ' OR ' in result:
         # use brackets for multiple ORs
         return '(' + result + ')'
@@ -284,6 +280,8 @@ def _val_parse(value, val_type=float):
         except Exception as e:
             raise ValueError(
                 'Error parsing {}. Details: {}'.format(value, str(e)))
+    elif isinstance(value, list):
+        result = value
     else:
         result.append(value)
     return result

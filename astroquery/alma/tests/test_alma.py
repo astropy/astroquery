@@ -178,7 +178,7 @@ def test_gen_array_sql():
     test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
     assert _gen_sql({"spatial_resolution": "<0.1",
         "science_keyword": test_keywords}) == common_select + \
-            "spatial_resolution<=0.1 AND science_keyword IN ('High-mass star formation', 'Disks around high-mass stars')"
+            "spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' OR science_keyword='Disks around high-mass stars')"
 
 
 def test_gen_datetime_sql():
