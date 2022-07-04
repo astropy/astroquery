@@ -173,6 +173,14 @@ def test_gen_str_sql():
         "(proposal_id LIKE '2012.%' OR proposal_id LIKE '2013._3%')"
 
 
+def test_gen_array_sql():
+    common_select = "select * from ivoa.obscore WHERE "
+    test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
+    assert _gen_sql({"spatial_resolution": "<0.1",
+        "science_keyword": test_keywords}) == common_select + \
+            "spatial_resolution<=0.1 AND science_keyword IN ('High-mass star formation', 'Disks around high-mass stars')"
+
+
 def test_gen_datetime_sql():
     common_select = 'select * from ivoa.obscore WHERE '
     assert _gen_sql({'start_date': '01-01-2020'}) == common_select + \
