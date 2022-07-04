@@ -118,7 +118,6 @@ def _gen_numeric_sql(field, value):
 
 def _gen_str_sql(field, value):
     result = ''
-
     for interval in _val_parse(value, str):
         if result:
             result += ' OR '
