@@ -18,6 +18,29 @@ To use `astroquery.astrometry_net` you will need to set up an account at
 `astrometry.net`_ and get your API key. The API key is available under your
 profile at `astrometry.net`_ when you are logged in.
 
+Setting API key for astroquery.astrometry_net
+---------------------------------------------
+1. Go to https://nova.astrometry.net and sign in.
+2. Copy your API key
+3. Add the following to your config file located at ``$HOME/.astropy/config/astroquery.cfg``
+
+.. code-block:: python
+
+    [astrometry_net]
+
+    ## The Astrometry.net API key.
+    api_key =
+
+    ## Name of server
+    server = http://nova.astrometry.net
+
+    ## Default timeout for connecting to server
+    timeout = 120
+
+4. Add your API key to the config file!
+
+For more information about `astropy.config`, see: https://docs.astropy.org/en/stable/config/index.html
+
 TODO: explain how to set config item for api key or how to get it into keyring.
 
 .. note::
