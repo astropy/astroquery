@@ -20,6 +20,10 @@ profile at `astrometry.net`_ when you are logged in.
 
 Setting API key for astroquery.astrometry_net
 ---------------------------------------------
+
+Adding API key to astroquery.cfg
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 1. Go to https://nova.astrometry.net and sign in.
 2. Copy your API key
 3. Add the following to your config file located at ``$HOME/.astropy/config/astroquery.cfg``
@@ -41,8 +45,38 @@ Setting API key for astroquery.astrometry_net
 
 For more information about `astropy.config`, see: https://docs.astropy.org/en/stable/config/index.html
 
-TODO: explain how to set config item for api key or how to get it into keyring.
+Using keyring to store API key
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can use the `keyring <https://pypi.python.org/pypi/keyring>`_ module to store your API key.
 
+.. code-block:: python
+
+    >>> import keyring
+    >>> keyring.set_password('astroquery:astrometry_net', None, 'apikeyhere')
+
+If you have multiple users and keys you can change ``None`` to another name to assign usernames to different keys.
+
+Now you can include the `keyring <https://pypi.python.org/pypi/keyring>`_ module to set your API key.
+
+.. code-block:: python
+
+    >>> import keyring
+    >>> from astroquery.astrometry_net import AstrometryNet
+    WARNING: Astrometry.net API key not found in configuration file [astroquery.astrometry_net.core]
+    WARNING: You need to manually edit the configuration file and add it [astroquery.astrometry_net.core]
+    WARNING: You may also register it for this session with AstrometryNet.key = 'XXXXXXXX' [astroquery.astrometry_net.core]
+    >>> ast = AstrometryNet()
+    WARNING: Astrometry.net API key not found in configuration file [astroquery.astrometry_net.core]
+    WARNING: You need to manually edit the configuration file and add it [astroquery.astrometry_net.core]
+    WARNING: You may also register it for this session with AstrometryNet.key = 'XXXXXXXX' [astroquery.astrometry_net.core]
+    >>> ast.api_key = keyring.get_password('astroquery:astrometry_net', '')
+
+For multiple users, replace the empty argument with the desired username.
+
+.. code-block:: python
+
+    >>> ast.api_key = keyring.get_password('astroquery:astrometry_net', 'username')
+    
 .. note::
 
     Be aware that some information you submit to `astrometry.net`_ is publicly
