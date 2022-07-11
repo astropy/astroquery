@@ -95,7 +95,7 @@ class TestESAHubble:
     def test_download_product_by_calibration(self):
         parameters = {'observation_id': "J6FL25S4Q",
                       'cal_level': "RAW",
-                      'filename': "J6FL25S4Q.vot",
+                      'filename': "J6FL25S4Q.vot.test",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -106,7 +106,7 @@ class TestESAHubble:
     def test_download_product_by_product_type(self):
         parameters = {'observation_id': "J6FL25S4Q",
                       'product_type': "SCIENCE_PRODUCT",
-                      'filename': "J6FL25S4Q.vot",
+                      'filename': "J6FL25S4Q.vot.test",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -131,6 +131,7 @@ class TestESAHubble:
         ehst.get_postcard(observation_id="X0MC5101T",
                           filename="X0MC5101T.vot",
                           verbose=True)
+        os.remove("X0MC5101T.vot")
 
     @patch.object(ESAHubbleClass, 'cone_search')
     @patch.object(ESAHubbleClass, '_query_tap_target')

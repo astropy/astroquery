@@ -109,6 +109,7 @@ class TestXMMNewton:
                     continue
                 fname_info = xsa._parse_filename(fname)
                 assert fname_info["X"] == "P"
+        os.remove("filename.tar")
 
     _files = {
         "0405320501": {

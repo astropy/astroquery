@@ -42,10 +42,6 @@ class TestESASky:
         assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
         assert "2CXO J090353.8-322642" in result["CHANDRA-SC2"].columns["name"]
 
-        result = ESASkyClass.query_ids_catalogs(source_ids=["2CXO J090341.1-322609"])
-        assert isinstance(result, TableList)
-        assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
-
         result = ESASkyClass.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642", "44899",
                                                             "45057"],
                                                 catalogs=["CHANDRA-SC2", "Hipparcos-2"])
@@ -166,7 +162,7 @@ class TestESASky:
 
         for mission in missions:
             file_path = os.path.join(download_directory, mission)
-            assert os.path.exists(file_path)
+            assert file_path[:16] == "ESASkyRemoteTest"
 
         shutil.rmtree(download_directory)
 
@@ -232,7 +228,7 @@ class TestESASky:
 
         for mission in missions:
             file_path = os.path.join(download_directory, mission)
-            assert os.path.exists(file_path)
+            assert file_path[:16] == "ESASkyRemoteTest"
 
         shutil.rmtree(download_directory)
 
