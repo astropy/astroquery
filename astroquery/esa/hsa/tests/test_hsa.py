@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import os
+
 import pytest
 
 from astropy import units as u
@@ -17,6 +19,7 @@ class TestHSA:
                        'verbose': False}
         dummyTapHandler = DummyHSATapHandler("launch_job", parameterst)
         return dummyTapHandler
+        os.remove("test.vot")
 
     def test_query_hsa_tap(self):
         parameters = {'query': "select top 10 * from hsa.v_active_observation",
