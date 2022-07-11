@@ -174,6 +174,8 @@ def test_gen_str_sql():
 
 
 def test_gen_array_sql():
+    # test string array input (regression in #2094)
+    # string arrays should be OR'd together
     common_select = "select * from ivoa.obscore WHERE "
     test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
     assert _gen_sql({"spatial_resolution": "<0.1",
