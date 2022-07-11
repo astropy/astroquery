@@ -20,6 +20,11 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+alma
+^^^^
+
+- Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
+
 cadc
 ^^^^
 
