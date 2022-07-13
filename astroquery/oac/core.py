@@ -12,6 +12,7 @@ and James Guillochon (jguillochon@cfa.harvard.edu)
 
 import json
 import csv
+import re
 
 import astropy.units as u
 from astropy.table import Column, Table
@@ -435,7 +436,12 @@ class OACClass(BaseQuery):
 
     def _format_output(self, raw_output):
         if self.FORMAT == 'csv':
-            split_output = raw_output.splitlines()
+
+            fixed_raw_output = re.sub('<[^<]+?>', '', raw_output)
+            split_output = fixed_raw_output.splitlines()
+
+            # Remove any HTML tags
+
             columns = list(csv.reader([split_output[0]], delimiter=',',
                            quotechar='"'))[0]
             rows = split_output[1:]

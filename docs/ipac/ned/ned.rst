@@ -29,7 +29,7 @@ instance if you want to query NGC 224
     No. Object Name     RA     ... Redshift Points Diameter Points Associations
                      degrees   ...
     --- ----------- ---------- ... --------------- --------------- ------------
-      1 MESSIER 031   10.68479 ...              37               7            2
+      1 MESSIER 031   10.68479 ...              37              13            2
 
 
 Query a region
@@ -140,10 +140,10 @@ These queries can be used to retrieve all objects that appear in the specified
     No.        Object Name            RA     ... Diameter Points Associations
                                    degrees   ...
     --- ------------------------- ---------- ... --------------- ------------
-      1                  NGC 0262   12.19642 ...               8            0
+      1                  NGC 0262   12.19642 ...              12            0
       2                  NGC 0449    19.0302 ...               7            0
       3                  NGC 0591   23.38028 ...               7            0
-      4                 UGC 01214   25.99084 ...               7            0
+      4                 UGC 01214   25.99084 ...              12            0
     ...                       ...        ... ...             ...          ...
      33 WISEA J202325.39+113134.6  305.85577 ...               2            0
      34                 UGC 12149  340.28163 ...               8            0
@@ -185,7 +185,7 @@ To get the URLs of the downloadable FITS images:
 
     >>> from astroquery.ipac.ned import Ned
     >>> image_list = Ned.get_image_list("m1")
-    >>> image_list  # doctest: +NORMALIZE_WHITESPACE
+    >>> image_list  # doctest: +IGNORE_OUTPUT
     ['http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz',
      'http://ned.ipac.caltech.edu/img/1995RXCD3.T...0000C/p084n22a:I:0.1-2.4keV:cop1995.fits.gz',
      'http://ned.ipac.caltech.edu/img/1996RXCD6.T...0000C/p083n22a:I:0.1-2.4keV:cps1996.fits.gz',
@@ -245,11 +245,11 @@ for the specified object. We look at a simple example:
       2 12h29m06.7000s ...                                   Uncertain origin
       3 12h29m06.7000s ...                                   Uncertain origin
     ...            ... ...                      ...                       ...
-    113    12h29m07.9s ...                                   Uncertain origin
-    114      12h29m04s ...                                   Uncertain origin
-    115      12h29m06s ...                                   Uncertain origin
-    116      12h29m08s ...                                   Uncertain origin
-    Length = 117 rows
+    119    12h29m07.9s ...                                   Uncertain origin
+    120      12h29m04s ...                                   Uncertain origin
+    121      12h29m06s ...                                   Uncertain origin
+    122      12h29m08s ...                                   Uncertain origin
+    Length = 123 rows
 
 
 Reference/API

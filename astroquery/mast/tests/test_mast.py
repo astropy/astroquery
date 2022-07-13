@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import json
 import os
 import re
 from shutil import copyfile
@@ -12,13 +13,15 @@ from astropy.io import fits
 
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
-from ...exceptions import (InvalidQueryError, InputWarning)
+from astroquery.mast.services import _json_to_table
+from astroquery.utils.mocks import MockResponse
+from astroquery.exceptions import InvalidQueryError, InputWarning
 
-from ... import mast
+from astroquery import mast
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
+              'mission_search_results': 'mission_results.json',
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
@@ -102,7 +105,7 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
     return [MockResponse(content)]
 
 
-def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use_json=False, **kwargs):
     if "panstarrs" in url:
         filename = data_path(DATA_FILES["panstarrs"])
     elif "tesscut" in url:
@@ -115,6 +118,10 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **k
             filename = data_path(DATA_FILES['z_survey'])
         else:
             filename = data_path(DATA_FILES['z_cutout_fit'])
+    elif use_json and data['radius'] == 5:
+        filename = data_path(DATA_FILES["mission_incorrect_results"])
+    elif use_json:
+        filename = data_path(DATA_FILES["mission_search_results"])
     content = open(filename, 'rb').read()
     return MockResponse(content)
 
@@ -169,6 +176,91 @@ def zcut_download_mockreturn(url, file_path):
         filename = data_path(DATA_FILES['z_cutout_fit'])
     copyfile(filename, file_path)
     return
+
+
+###########################
+# MissionSearchClass Test #
+###########################
+
+
+def test_missions_query_region_async(patch_post):
+    responses = mast.MastMissions.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
+    assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_object_async(patch_post):
+    responses = mast.MastMissions.query_object_async("M101", radius="0.002 deg")
+    assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_object(patch_post):
+    result = mast.MastMissions.query_object("M101", radius=".002 deg")
+    assert isinstance(result, Table)
+    assert len(result) > 0
+
+
+def test_missions_query_region(patch_post):
+    result = mast.MastMissions.query_region(regionCoords, radius=0.002 * u.deg)
+    assert isinstance(result, Table)
+    assert len(result) > 0
+
+
+def test_missions_query_criteria_async(patch_post):
+    pep_id = {'sci_pep_id': '12556'}
+    obs_type = {'sci_obs_type': "SPECTRUM"}
+    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
+    datasets = {'sci_data_set_name': ""}
+    pi_lname = {'sci_pi_last_name': ""}
+    actual_duration = {'sci_actual_duration': ""}
+    spec_1234 = {'sci_spec_1234': ""}
+    release_date = {'sci_release_date': ""}
+    start_time = {'sci_start_time': ""}
+    obs_type = {'sci_obs_type': 'all'}
+    aec = {'sci_aec': 'S'}
+    responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
+                                                       radius=3,
+                                                       conditions=[pep_id,
+                                                                   obs_type,
+                                                                   instruments,
+                                                                   datasets,
+                                                                   pi_lname,
+                                                                   spec_1234,
+                                                                   release_date,
+                                                                   start_time,
+                                                                   obs_type,
+                                                                   aec])
+    assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_criteria_async_with_missing_results(patch_post):
+    pep_id = {'sci_pep_id': '12556'}
+    obs_type = {'sci_obs_type': "SPECTRUM"}
+    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
+    datasets = {'sci_data_set_name': ""}
+    pi_lname = {'sci_pi_last_name': ""}
+    actual_duration = {'sci_actual_duration': ""}
+    spec_1234 = {'sci_spec_1234': ""}
+    release_date = {'sci_release_date': ""}
+    start_time = {'sci_start_time': ""}
+    obs_type = {'sci_obs_type': 'all'}
+    aec = {'sci_aec': 'S'}
+    aperture = {'sci_aper_1234': 'WF3'}
+
+    with pytest.raises(KeyError) as e_info:
+        responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
+                                                           radius=5,
+                                                           conditions=[pep_id,
+                                                                       obs_type,
+                                                                       instruments,
+                                                                       datasets,
+                                                                       pi_lname,
+                                                                       spec_1234,
+                                                                       release_date,
+                                                                       start_time,
+                                                                       obs_type,
+                                                                       aec,
+                                                                       aperture])
+        table = _json_to_table(json.loads(responses), 'results')
 
 
 ###################
@@ -589,6 +681,23 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+    # Exercising the search by moving target
+    sector_table = mast.Tesscut.get_sectors(objectname="Ceres",
+                                            moving_target=True)
+    assert isinstance(sector_table, Table)
+    assert len(sector_table) == 1
+    assert sector_table['sectorName'][0] == "tess-s0001-1-3"
+    assert sector_table['sector'][0] == 1
+    assert sector_table['camera'][0] == 1
+    assert sector_table['ccd'][0] == 3
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
@@ -616,6 +725,27 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
+    # Exercising the search by moving target
+    manifest = mast.Tesscut.download_cutouts(objectname="Eleonora",
+                                             moving_target=True,
+                                             size=5,
+                                             path=str(tmpdir))
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]['Local Path'])
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(objectname="Eleonora",
+                                      moving_target=True,
+                                      coordinates=coord,
+                                      size=5,
+                                      path=str(tmpdir))
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
 
@@ -630,6 +760,25 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Exercising the search by object name
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname='Eleonora',
+                                                moving_target=True,
+                                                size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(objectname="Eleonora",
+                                 moving_target=True,
+                                 coordinates=coord,
+                                 size=5)
+    assert error_str in str(invalid_query.value)
+
 
 ######################
 # ZcutClass tests #

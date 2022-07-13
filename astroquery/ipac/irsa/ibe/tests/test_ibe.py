@@ -8,7 +8,7 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astroquery.ipac.irsa.ibe import Ibe
 
 DATA_FILES = {

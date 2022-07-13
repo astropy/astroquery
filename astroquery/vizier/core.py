@@ -74,7 +74,7 @@ class VizierClass(BaseQuery):
             (This parameter's default is set from a configuration object.)
         """
 
-        super(VizierClass, self).__init__()
+        super().__init__()
         self.columns = columns
         self.column_filters = column_filters
         self.catalog = catalog

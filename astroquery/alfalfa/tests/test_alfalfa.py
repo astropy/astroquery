@@ -5,7 +5,7 @@ import requests
 from astropy import coordinates
 import pytest
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import alfalfa
 
 DATA_FILES = {'catalog': 'alfalfa_cat_small.txt',
@@ -15,7 +15,7 @@ DATA_FILES = {'catalog': 'alfalfa_cat_small.txt',
 class MockResponseAlfalfa(MockResponse):
 
     def __init__(self, content, **kwargs):
-        super(MockResponseAlfalfa, self).__init__(content, **kwargs)
+        super().__init__(content, **kwargs)
 
     def iter_lines(self):
         for line in self.text.split("\n"):

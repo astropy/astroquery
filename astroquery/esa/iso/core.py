@@ -1,14 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Jesus Salgado
-@contact: jesusjuansalgado@gmail.com
+=====================
+ISO Astroquery Module
+=====================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 14 July 2020
-
 
 """
 import re
@@ -34,7 +31,7 @@ class ISOClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
 
     def __init__(self, tap_handler=None):
-        super(ISOClass, self).__init__()
+        super().__init__()
 
         if tap_handler is None:
             self._tap = TapPlus(url=self.metadata_url)

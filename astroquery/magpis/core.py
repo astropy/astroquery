@@ -90,7 +90,7 @@ class MagpisClass(BaseQuery):
         content_buffer = BytesIO(response.content)
         try:
             return fits.open(content_buffer, ignore_missing_end=True)
-        except IOError:
+        except OSError:
             raise InvalidQueryError(response.content)
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
@@ -114,7 +114,7 @@ class MagpisClass(BaseQuery):
         if get_query_payload:
             return request_payload
         response = self._request("POST", url=self.URL, data=request_payload,
-                                 timeout=self.TIMEOUT, verify=False)
+                                 timeout=self.TIMEOUT)
         return response
 
     def list_surveys(self):

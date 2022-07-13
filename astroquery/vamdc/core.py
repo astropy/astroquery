@@ -23,7 +23,7 @@ class VamdcClass(BaseQuery):
     CACHE_LOCATION = conf.cache_location
 
     def __init__(self, doimport=True):
-        super(VamdcClass, self).__init__()
+        super().__init__()
 
         if not doimport:
             # this is a hack to allow the docstrings to be produced without

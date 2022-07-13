@@ -3,7 +3,7 @@
 import pytest
 import os
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, Angle

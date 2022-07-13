@@ -40,7 +40,7 @@ class CosmoSimClass(QueryWithLogin):
     USERNAME = conf.username
 
     def __init__(self):
-        super(CosmoSimClass, self).__init__()
+        super().__init__()
 
     def _login(self, username=None, password=None, store_password=False,
                reenter_password=False):

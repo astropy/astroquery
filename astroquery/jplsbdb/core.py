@@ -337,8 +337,13 @@ class SBDBClass(BaseQuery):
             # change units where necessary
             if q['units'] in conf.data_unit_replace.keys():
                 q['units'] = conf.data_unit_replace[q['units']]
+            # change exponential symbol in unit string from '^' to '**'
+            if (q['units'] is not None) and ('^' in q['units']):
+                q['units'] = q['units'].replace('^', '**')
             try:
                 unit = u.Unit(q['units'])
+            except ValueError:
+                unit = u.Unit(q['units'], format='ogip')
             except TypeError:
                 unit = 1
 

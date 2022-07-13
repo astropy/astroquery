@@ -8,7 +8,7 @@ from astropy.table import Table
 import numpy as np
 
 from ... import simbad
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...utils import commons
 from ...query import AstroQuery
 from ...exceptions import TableParseError
@@ -40,7 +40,7 @@ class MockResponseSimbad(MockResponse):
 
     def __init__(self, script, cache=False, **kwargs):
         # preserve, e.g., headers
-        super(MockResponseSimbad, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.content = self.get_content(script)
 
     def get_content(self, script):

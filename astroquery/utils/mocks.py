@@ -3,7 +3,7 @@
 import json
 
 # The MockResponse class is currently relied upon in code and thus
-# temporarily got moved out of testing_tools to avoid adding pytest as a
+# temporarily got moved here to avoid adding pytest as a
 # mandatory dependency
 
 

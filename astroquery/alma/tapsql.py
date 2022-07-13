@@ -279,6 +279,8 @@ def _val_parse(value, val_type=float):
         except Exception as e:
             raise ValueError(
                 'Error parsing {}. Details: {}'.format(value, str(e)))
+    elif isinstance(value, list):
+        result = value
     else:
         result.append(value)
     return result

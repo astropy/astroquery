@@ -6,7 +6,7 @@ import tempfile
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult

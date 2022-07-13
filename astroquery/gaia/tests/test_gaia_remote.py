@@ -6,6 +6,15 @@ from .. import GaiaClass
 
 
 @pytest.mark.remote_data
+def test_query_object_columns_with_radius():
+    # Regression test: `columns` were ignored if `radius` was provided [#2025]
+    Gaia = GaiaClass()
+    sc = SkyCoord(ra=0*u.deg, dec=0*u.deg)
+    table = Gaia.query_object_async(sc, radius=10*u.arcsec, columns=['ra'])
+    assert table.colnames == ['ra', 'dist']
+
+
+@pytest.mark.remote_data
 def test_query_object_row_limit():
     Gaia = GaiaClass()
     coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')

@@ -1,9 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import abc
 import inspect
 import pickle
+import copy
 import getpass
 import hashlib
 import keyring
@@ -26,6 +25,10 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 def to_cache(response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
+    response = copy.deepcopy(response)
+    if hasattr(response, 'request'):
+        for key in tuple(response.request.hooks.keys()):
+            del response.request.hooks[key]
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
@@ -109,7 +112,7 @@ class AstroQuery:
                 response = pickle.load(f)
             if not isinstance(response, requests.Response):
                 response = None
-        except IOError:  # TODO: change to FileNotFoundError once drop py2 support
+        except FileNotFoundError:
             response = None
         if response:
             log.debug("Retrieving data from {0}".format(request_file))
@@ -125,8 +128,8 @@ class AstroQuery:
         if os.path.exists(request_file):
             os.remove(request_file)
         else:
-            raise OSError(f"Tried to remove cache file {request_file} but "
-                          "it does not exist")
+            raise FileNotFoundError(f"Tried to remove cache file {request_file} but "
+                                    "it does not exist")
 
 
 class LoginABCMeta(abc.ABCMeta):
@@ -141,7 +144,7 @@ class LoginABCMeta(abc.ABCMeta):
     """
 
     def __new__(cls, name, bases, attrs):
-        newcls = super(LoginABCMeta, cls).__new__(cls, name, bases, attrs)
+        newcls = super().__new__(cls, name, bases, attrs)
 
         if '_login' in attrs and name not in ('BaseQuery', 'QueryWithLogin'):
             # skip theses two classes, BaseQuery and QueryWithLogin, so
@@ -173,8 +176,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         self.cache_location = os.path.join(
             paths.get_cache_dir(), 'astroquery',
             self.__class__.__name__.split("Class")[0])
-        if not os.path.exists(self.cache_location):
-            os.makedirs(self.cache_location)
+        os.makedirs(self.cache_location, exist_ok=True)
         self._cache_active = True
 
     def __call__(self, *args, **kwargs):
@@ -469,7 +471,7 @@ class QueryWithLogin(BaseQuery):
     """
 
     def __init__(self):
-        super(QueryWithLogin, self).__init__()
+        super().__init__()
         self._authenticated = False
 
     def _get_password(self, service_name, username, reenter=False):

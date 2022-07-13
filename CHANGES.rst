@@ -1,25 +1,194 @@
-0.4.6 (unreleased)
+0.4.7 (unreleased)
 ==================
 
 New Tools and Services
 ----------------------
 
+gaia
+^^^^
+
+- TAP notifications service is now available for Gaia. If there is notification for the users,
+  for example planned or our unplanned downtimes of the archive, etc. The notification
+  will be also visible when accessing the archive through Astroquery. [#2376]
+
+hsa
+^^^
+
+- New module to access ESA Herschel mission. [#2122]
+
 
 Service fixes and enhancements
 ------------------------------
-esa.xmm_newton
+
+alma
+^^^^
+
+- Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
+
+cadc
+^^^^
+
+- Deprecated keywords and ``run_query`` method have been removed. [#2389]
+
+casda
+^^^^^
+
+- Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [#2366]
+
+- Use the standard ``login`` method for authenticating, which supports the system
+  keyring [#2386]
+
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The deprecated methods ``query_planet()`` and ``query_star()`` have been removed.
+
+jplhorizons
+^^^^^^^^^^^
+
+- Deprecate ``get_raw_response`` options in query methods.  The raw response may
+  be retrieved from the _async() methods. [#2418]
+
+jplsbdb
+^^^^^^^
+
+- Fix a bug for jplsdbd query when the returned physical quantity contains
+  a unit with exponential. [#2377]
+
+linelists.cdms
 ^^^^^^^^^^^^^^
 
-- Add option to download proprietary data [#2251]
+- Fix issues with the line name parser and the line data parser; the original
+  implementation was incomplete and upstream was not fully documented. [#2385, #2411]
 
-esa.jwst
-^^^^^^^^^^
+oac
+^^^
 
-- Minor fixes, documentation updated. [#2257]
+- Fix bug in parsing events that contain html tags (e.g. in their alias
+  field). [#2423]
+
+svo_fps
+^^^^^^^
+
+- The wavelength limits in ``get_filter_index()`` can now be specified using any
+  length unit, not just angstroms. [#2444]
+
+- Queries with invalid parameter names now raise an ``InvalidQueryError``.
+  [#2446]
+
+gaia
+^^^^
+
+- Method 'load_data' now has the parameter 'valid_data' set to False by default.
+  With this change the epoch photometry service returns all data associated
+  to a given source. [#2376]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
+  added to help the testcleanup narrative in narrative documentations. [#2384]
+
+
+0.4.6 (2022-03-22)
+==================
+
+Service fixes and enhancements
+------------------------------
+
+alma
+^^^^
+
+- Added ``verify_only`` option to check if data downloaded with correct file
+  size. [#2263]
+
+- Deprecated keywords and ``stage_data`` method has been removed. [#2309]
+
+- Deprecate broken functions from ``alma.utils``. [#2332]
+
+- Optional keyword arguments are now keyword only. [#2309]
+
+casda
+^^^^^
+
+- Simplify file names produced by ``download_files`` to avoid filename too
+  long errors. [#2308]
+
+esa.hubble
+^^^^^^^^^^
+
+- Changed ``query_target`` method to use TAP instead of AIO. [#2268]
+
+
+- Added new method ``get_hap_hst_link`` and ``get_member_observations`` to
+  get related observations. [#2268]
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Add option to download proprietary data. [#2251]
+
+gaia
+^^^^
+
+- The ``query_object()`` and ``query_object_async()`` methods of
+  ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
+  ``radius`` is specified. [#2249]
+
+- Enhanced methods ``launch_job`` and ``launch_job_async`` to avoid issues with
+  the name provided by the user for the output file when the results are
+  returned by the TAP in compressed format. [#2077]
+
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fixes to alias query, and regularize keyword removed from deprecated
+  ``query_star`` method. [#2264]
+
+mast
+^^^^
+
+- Adding moving target functionality to ``Tesscut`` [#2121]
+
+- Adding ``MastMissions`` class to provide mission-specific metadata query
+  functionalities. [#2095]
+
+- GALEX data is now available to download anonymously from the public
+  STScI S3 buckets. [#2261]
+
+- Adding the All-Sky PLATO Input Catalog ('plato') as a catalog option for
+  methods of ``Catalogs``. [#2279]
+
+- Optional keyword arguments are now keyword only. [#2317]
+
+sdss
+^^^^
+
+- Fix ``query_crossid`` for spectral data and DR17. [#2258, #2304]
+
+- Fix ``query_crossid`` to be able to query larger list of coordinates. [#2305]
+
+- Fix ``query_crossid`` for very old data releases (< DR10). [#2318]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+- Remove obsolete testing tools. [#2287]
+
+- Callback hooks are deleted before caching. Potentially all cached queries
+  prior to this PR will be rendered invalid. [#2295]
+
+utils.tap
+^^^^^^^^^
+
+- The modules that make use of the ``astroquery.utils.tap.model.job.Job`` class
+  (e.g. Gaia) no longer print messages about where the results of async queries
+  were written if the ``verbose`` setting is ``False``. [#2299]
+
+- New method, ``rename_table``, which allows the user to rename table and
+  column names. [#2077]
 
 
 

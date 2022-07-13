@@ -9,10 +9,22 @@ from astropy.io.votable import parse_single_table
 from . import conf
 
 from ..query import BaseQuery
+from astroquery.exceptions import InvalidQueryError
+
 
 __all__ = ['SvoFpsClass', 'SvoFps']
 
 FLOAT_MAX = np.finfo(np.float64).max
+
+# Valid query parameters taken from
+# http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
+_params_with_range = {"WavelengthRef", "WavelengthMean", "WavelengthEff",
+                     "WavelengthMin", "WavelengthMax", "WidthEff", "FWHM"}
+QUERY_PARAMETERS = _params_with_range.copy()
+for suffix in ("_min", "_max"):
+    QUERY_PARAMETERS.update(param + suffix for param in _params_with_range)
+QUERY_PARAMETERS.update(("Instrument", "Facility", "PhotSystem", "ID", "PhotCalID",
+                         "FORMAT", "VERB"))
 
 
 class SvoFpsClass(BaseQuery):
@@ -35,8 +47,8 @@ class SvoFpsClass(BaseQuery):
         query : dict
             Used to create a HTTP query string i.e. send to SVO FPS to get data.
             In dictionary, specify keys as search parameters (str) and
-            values as required. List of search parameters can be found at
-            http://svo2.cab.inta-csic.es/theory/fps/fps.php?FORMAT=metadata
+            values as required. Description of search parameters can be found at
+            http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
         error_msg : str, optional
             Error message to be shown in case no table element found in the
             responded VOTable. Use this to make error message verbose in context
@@ -49,6 +61,14 @@ class SvoFpsClass(BaseQuery):
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
+        bad_params = [param for param in query if param not in QUERY_PARAMETERS]
+        if bad_params:
+            raise InvalidQueryError(
+                f"parameter{'s' if len(bad_params) > 1 else ''} "
+                f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
+                f"invalid. For a description of valid query parameters see "
+                 "http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
+            )
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)
@@ -68,9 +88,9 @@ class SvoFpsClass(BaseQuery):
 
         Parameters
         ----------
-        wavelength_eff_min : `~astropy.units.Quantity` having units of angstrom, optional
+        wavelength_eff_min : `~astropy.units.Quantity` with units of length, optional
             Minimum value of Wavelength Effective (default is 0 angstrom)
-        wavelength_eff_max : `~astropy.units.Quantity` having units of angstrom, optional
+        wavelength_eff_max : `~astropy.units.Quantity` with units of length, optional
             Maximum value of Wavelength Effective (default is a very large
             quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
         kwargs : dict
@@ -81,8 +101,8 @@ class SvoFpsClass(BaseQuery):
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
-        query = {'WavelengthEff_min': wavelength_eff_min.value,
-                 'WavelengthEff_max': wavelength_eff_max.value}
+        query = {'WavelengthEff_min': wavelength_eff_min.to_value(u.angstrom),
+                 'WavelengthEff_max': wavelength_eff_max.to_value(u.angstrom)}
         error_msg = 'No filter found for requested Wavelength Effective range'
         return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 

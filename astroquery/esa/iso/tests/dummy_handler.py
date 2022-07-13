@@ -1,19 +1,18 @@
 """
-
-@author: Jesus Salgado
-@contact: jesusjuansalgado@gmail.com
+=====================
+ISO Astroquery Module
+=====================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 15 July 2020
 """
 
 
 __all__ = ['DummyHandler']
 
 
-class DummyHandler(object):
+class DummyHandler:
 
     def __init__(self, method, parameters):
         self._invokedMethod = method
@@ -31,30 +30,21 @@ class DummyHandler(object):
         if method == self._invokedMethod:
             return
         else:
-            raise ValueError("Method '{}' is not invoked. (Invoked method \
-                             is '{}'.)").format(method, self_invokedMethod)
+            raise ValueError(f"Method '{method}' is not invoked. (Invoked method "
+                             f"is '{self._invokedMethod}').")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
             return len(self._parameters) == 0
         if len(parameters) != len(self._parameters):
-            raise ValueError("Wrong number of parameters for method '{}'. \
-                              Found: {}. Expected {}").format(
-                                    method_name,
-                                    len(self._parameters),
-                                    len(parameters))
+            raise ValueError(f"Wrong number of parameters for method '{method_name}'. "
+                             f"Found: {len(self._parameters)}. Expected {len(parameters)}")
         for key in parameters:
             if key in self._parameters:
                 # check value
                 if self._parameters[key] != parameters[key]:
-                    raise ValueError("Wrong '{}' parameter \
-                                     value for method '{}'. \
-                                     Found:'{}'. Expected:'{}'").format(
-                                        method_name,
-                                        key,
-                                        self._parameters[key],
-                                        parameters[key])
+                    raise ValueError(f"Wrong '{key}' parameter "
+                                     f"value for method '{method_name}'. "
+                                     f"Found:'{self._parameters[key]}'. Expected:'{parameters[key]}'")
             else:
-                raise ValueError("Parameter '%s' not found in method '%s'",
-                                 (str(key), method_name))
-        return True
+                raise ValueError(f"Parameter '{key}' not found in method '{method_name}'")

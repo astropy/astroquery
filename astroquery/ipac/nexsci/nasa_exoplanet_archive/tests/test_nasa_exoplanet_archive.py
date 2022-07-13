@@ -13,8 +13,8 @@ from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.exceptions import NoResultsWarning
-from astroquery.utils.testing_tools import MockResponse
-from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError
+from astroquery.utils.mocks import MockResponse
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError, get_access_url
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -119,56 +119,53 @@ def patch_get(request):  # pragma: nocover
     return mp
 
 
-def test_regularize_object_name(patch_get):
-    NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
-
-    NasaExoplanetArchiveMock._tap_tables = ['list']
-    assert NasaExoplanetArchiveMock._regularize_object_name("kepler 2") == "HAT-P-7"
-    assert NasaExoplanetArchiveMock._regularize_object_name("kepler 1 b") == "TrES-2 b"
-
-    with pytest.warns(NoResultsWarning) as warning:
-        NasaExoplanetArchiveMock._regularize_object_name("not a planet")
-    assert "No aliases found for name: 'not a planet'" == str(warning[0].message)
+# aliaslookup file in data/
+LOOKUP_DATA_FILE = 'bpic_aliaslookup.json'
 
 
-def test_backwards_compat(patch_get):
-    """
-    These are the tests from the previous version of this interface.
-    They query old tables by default and should return InvalidTableError.
-    """
-    NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
-    NasaExoplanetArchiveMock._tap_tables = ['list']
 
-    # test_hd209458b_exoplanets_archive
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ")
-        assert "replaced" in str(error)
+# monkeypatch replacement request function
+def query_aliases_mock(self, *args, **kwargs):
+    with open(data_path(LOOKUP_DATA_FILE), 'rb') as f:
+        response = json.load(f)
+    return response
 
-    # test_hd209458b_exoplanet_archive_coords
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ")
-        assert "replaced" in str(error)
 
-    # test_hd209458_stellar_exoplanet
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_star("HD 209458")
-        assert "replaced" in str(error)
+# use a pytest fixture to create a dummy 'requests.get' function,
+# that mocks(monkeypatches) the actual 'requests.get' function:
+@pytest.fixture
+def query_aliases_request(request):
+    mp = request.getfixturevalue("monkeypatch")
+    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock)
+    return mp
 
-    # test_hd136352_stellar_exoplanet_archive
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_star("HD 136352")
-        assert "replaced" in str(error)
 
-    # test_exoplanet_archive_query_all_columns
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ", all_columns=True)
-        assert "replaced" in str(error)
+def test_query_aliases(query_aliases_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases(object_name='bet Pic')
+    assert len(result) > 10
+    assert 'GJ 219' in result
+    assert 'bet Pic' in result
+    assert '2MASS J05471708-5103594' in result
+
+
+def test_query_aliases_planet(query_aliases_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases('bet Pic b')
+    assert len(result) > 10
+    assert 'GJ 219 b' in result
+    assert 'bet Pic b' in result
+    assert '2MASS J05471708-5103594 b' in result
+
+
+def test_get_access_url():
+    assert get_access_url('tap') == conf.url_tap
+    assert get_access_url('api') == conf.url_api
+    assert get_access_url('aliaslookup') == conf.url_aliaslookup
 
 
 @pytest.mark.parametrize("table,query", API_TABLES)

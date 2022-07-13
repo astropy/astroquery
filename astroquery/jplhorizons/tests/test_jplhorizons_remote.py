@@ -2,8 +2,10 @@
 
 
 import pytest
-from astropy.tests.helper import assert_quantity_allclose
 from numpy.ma import is_masked
+
+from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ... import jplhorizons
 
@@ -31,16 +33,18 @@ class TestHorizonsClass:
 
         assert_quantity_allclose(
             [2451544.5,
-             188.70280, 9.09829, 34.40955, -2.68359,
-             8.469, 7.009, 96.17083,
-             161.3828, 10.4528, 2.551099014238, 0.1744491,
-             2.26315116146176, -21.9390511, 18.822054,
-             95.3996, 22.5698, 292.551, 296.850,
-             184.3426220, 11.7996521, 289.864329, 71.545655,
-             0, 0],
+             188.7028, 9.09829, 34.40955, -2.68359,
+             96.17083,
+             161.3828, 10.4528, 2.551099027865, 0.1744491,
+             2.26315121010004, -21.9390512, 18.82205467,
+             95.3996, 22.5698, 292.551,
+             296.85,
+             184.3426241, 11.7996517, 289.864335,
+             71.545654,
+             0.0, 0.0],
             [res['datetime_jd'],
              res['RA'], res['DEC'], res['RA_rate'], res['DEC_rate'],
-             res['V'], res['surfbright'], res['illumination'],
+             res['illumination'],
              res['EclLon'], res['EclLat'], res['r'], res['r_rate'],
              res['delta'], res['delta_rate'], res['lighttime'],
              res['elong'], res['alpha'], res['sunTargetPA'],
@@ -48,6 +52,10 @@ class TestHorizonsClass:
              res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'],
              res['GlxLat'],
              res['RA_3sigma'], res['DEC_3sigma']], rtol=1e-3)
+
+        # V and surfbright tend to vary a lot more than the others.  Give them a
+        # more generous test:
+        assert_quantity_allclose([8.239, 6.779], [res['V'], res['surfbright']], rtol=0.1)
 
     def test_ephemerides_query_two(self):
         # check comet ephemerides using options
@@ -169,9 +177,13 @@ class TestHorizonsClass:
         assert len(res) == 32
 
     def test_ephemerides_query_raw(self):
-        res = (jplhorizons.Horizons(id='Ceres', location='500',
-                                    id_type='smallbody', epochs=2451544.5).
-               ephemerides(get_raw_response=True))
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .ephemerides(get_raw_response=True))
 
         assert len(res) >= 15400
 
@@ -221,10 +233,13 @@ class TestHorizonsClass:
                                  rtol=1e-3)
 
     def test_elements_query_raw(self):
-        res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   id_type='smallbody',
-                                   epochs=2451544.5).elements(
-                                       get_raw_response=True)
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500@10',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .elements(get_raw_response=True))
 
         assert len(res) >= 6686
 
@@ -255,10 +270,13 @@ class TestHorizonsClass:
              res['range_rate']], rtol=1e-3)
 
     def test_vectors_query_raw(self):
-        res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   id_type='smallbody',
-                                   epochs=2451544.5).vectors(
-                                       get_raw_response=True)
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500@10',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .vectors(get_raw_response=True))
 
         assert len(res) >= 6412
 

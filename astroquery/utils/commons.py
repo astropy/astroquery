@@ -53,11 +53,16 @@ __all__ = ['send_request',
            'validate_email',
            'ASTROPY_LT_4_1',
            'ASTROPY_LT_4_3',
-           'ASTROPY_LT_5_0']
+           'ASTROPY_LT_5_0',
+           'ASTROPY_LT_5_1']
 
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
+
+ASTROPY_LT_5_1 = not minversion('astropy', '5.1dev197')
+# Update the line above once 5.1 is released
+# ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
 
 
 @deprecated('0.4.4', alternative='astroquery.query.BaseQuery._request')
@@ -241,12 +246,12 @@ class TableList(list):
                                  "or list of (k,v) pairs")
 
         self._dict = inp
-        super(TableList, self).__init__(inp.values())
+        super().__init__(inp.values())
 
     def __getitem__(self, key):
         if isinstance(key, int):
             # get the value in the (key,value) pair
-            return super(TableList, self).__getitem__(key)
+            return super().__getitem__(key)
         elif key in self._dict:
             return self._dict[key]
         else:
@@ -403,7 +408,7 @@ class FileContainer:
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError, AttributeError):
+            except (OSError, AttributeError):
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             try:

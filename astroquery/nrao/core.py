@@ -9,7 +9,6 @@ import keyring
 
 from io import BytesIO
 
-import numpy as np
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates

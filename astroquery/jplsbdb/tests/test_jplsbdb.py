@@ -3,7 +3,7 @@
 import pytest
 import os
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 import astropy.units as u
 from astropy.tests.helper import assert_quantity_allclose
 from .. import SBDB, SBDBClass

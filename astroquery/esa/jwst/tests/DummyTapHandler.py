@@ -75,7 +75,6 @@ class DummyTapHandler:
             else:
                 raise ValueError(f"Parameter '{str(key)}' not found "
                                  f"for method '{method_name}'")
-        return False
 
     def load_tables(self, only_names=False, include_shared_tables=False,
                     verbose=False):

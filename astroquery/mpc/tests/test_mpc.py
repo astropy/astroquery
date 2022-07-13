@@ -52,7 +52,7 @@ from astropy.time import Time
 
 from ...exceptions import InvalidQueryError
 from ... import mpc
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from requests import Request
 
 

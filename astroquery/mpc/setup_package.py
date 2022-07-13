@@ -3,7 +3,7 @@ import os
 
 
 def get_package_data():
-    paths_test = [os.path.join('data', 'comet_object_C20112S1.json'),
+    paths_test = [os.path.join('data', 'comet_object_C2012S1.json'),
                   os.path.join('data', '*.html'),
                   os.path.join('data', 'mpc_obs.dat')]
 

@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from astroquery.ipac.irsa import sha
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 DATA_FILES = {'img': 'img.fits',
               'nid_t': 'nid_t.txt',

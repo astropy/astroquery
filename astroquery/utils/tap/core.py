@@ -11,8 +11,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
-
+Modified on 1 jun. 2021 by mhsarmiento
 """
 from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
@@ -31,7 +30,6 @@ import getpass
 import os
 from astropy.table.table import Table
 import tempfile
-
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -246,6 +244,8 @@ class Tap:
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -265,6 +265,8 @@ class Tap:
         -------
         A Job object
         """
+        output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
+                                                                                               output_format)
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
             print(f"Launched query: '{query}'")
@@ -310,7 +312,7 @@ class Tap:
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                False,
-                                                               output_file,
+                                                               output_file_updated,
                                                                headers,
                                                                isError,
                                                                output_format)
@@ -358,6 +360,8 @@ class Tap:
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -383,6 +387,10 @@ class Tap:
         -------
         A Job object
         """
+
+        output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
+                                                                                               output_format)
+
         if verbose:
             print(f"Launched query: '{query}'")
         if upload_resource is not None:
@@ -412,7 +420,7 @@ class Tap:
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                True,
-                                                               output_file,
+                                                               output_file_updated,
                                                                headers,
                                                                isError,
                                                                output_format)
@@ -571,7 +579,7 @@ class Tap:
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
             "QUERY": str(query),
-            "UPLOAD": ""+str(uploadValue)}
+            "UPLOAD": "" + str(uploadValue)}
         if autorun is True:
             args['PHASE'] = 'RUN'
         if name is not None:
@@ -657,7 +665,7 @@ class Tap:
         if urlInfoPos < 0:
             raise ValueError("Invalid URL format")
 
-        urlInfo = url[(urlInfoPos+3):]
+        urlInfo = url[(urlInfoPos + 3):]
 
         items = urlInfo.split("/")
 
@@ -672,7 +680,7 @@ class Tap:
         if portPos > 0:
             # port found
             host = hostPort[0:portPos]
-            port = int(hostPort[portPos+1:])
+            port = int(hostPort[portPos + 1:])
         else:
             # no port found
             host = hostPort
@@ -693,10 +701,10 @@ class Tap:
             tapContext = f"/{items[2]}"
         else:
             data = []
-            for i in range(1, itemsSize-1):
+            for i in range(1, itemsSize - 1):
                 data.append(f"/{items[i]}")
             serverContext = utils.util_create_string_from_buffer(data)
-            tapContext = f"/{items[itemsSize-1]}"
+            tapContext = f"/{items[itemsSize - 1]}"
         if verbose:
             print(f"protocol: '{protocol}'")
             print(f"host: '{host}'")
@@ -713,6 +721,7 @@ class TapPlus(Tap):
     """TAP plus class
     Provides TAP and TAP+ capabilities
     """
+
     def __init__(self, url=None,
                  host=None,
                  server_context=None,
@@ -1532,7 +1541,7 @@ class TapPlus(Tap):
                     chunk = f.read()
                 files = [['FILE', os.path.basename(resource), chunk]]
                 contentType, body = connHandler.encode_multipart(args, files)
-            else:    # upload from URL
+            else:  # upload from URL
                 args = {
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
@@ -1628,14 +1637,14 @@ class TapPlus(Tap):
             raise ValueError("Table name cannot be null")
         if force_removal is True:
             args = {
-                    "TABLE_NAME": str(table_name),
-                    "DELETE": "TRUE",
-                    "FORCE_REMOVAL": "TRUE"}
+                "TABLE_NAME": str(table_name),
+                "DELETE": "TRUE",
+                "FORCE_REMOVAL": "TRUE"}
         else:
             args = {
-                    "TABLE_NAME": str(table_name),
-                    "DELETE": "TRUE",
-                    "FORCE_REMOVAL": "FALSE"}
+                "TABLE_NAME": str(table_name),
+                "DELETE": "TRUE",
+                "FORCE_REMOVAL": "FALSE"}
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_upload(data, verbose=verbose)
@@ -1648,15 +1657,90 @@ class TapPlus(Tap):
         msg = f"Table '{table_name}' deleted."
         print(msg)
 
+    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict=None,
+                     verbose=False):
+        """ This method allows you to update the column names of a user table.
+
+        Parameters
+        ----------
+        table_name: str, required
+            old name of the user's table
+        new_table_name: str, required
+            new name of the user's table
+        new_column_names_dict: dict str:str
+            dict with pairs "old_column1_name:new_column1_name"
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        """
+        if new_column_names_dict is None:
+            new_column_names_dict = {}
+        args = {}
+
+        if table_name is None:
+            raise ValueError(
+                "Argument 'table_name' is mandatory. "
+                "Please introduce the name of the table that is going to be updated")
+        if (new_table_name is None) and (new_column_names_dict is None):
+            raise ValueError("Please introduce as minimum a new name for the table or a new name for a column with "
+                             "format old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
+        if new_table_name is not None:
+            if new_column_names_dict is None:
+                # case 1: We only need to rename the table
+                args = self.get_args_4_rename_table(table_name, new_table_name)
+            else:
+                # case 2: We need to rename both, table and column names
+                args = self.get_args_4_rename_table(table_name, new_table_name, new_column_names_dict)
+
+        if new_table_name is None:
+            if new_column_names_dict:
+                # case 3: We only need to rename the columns but same table name
+                args = self.get_args_4_rename_table(table_name, table_name, new_column_names_dict)
+
+        connHandler = self.__getconnhandler()
+        data = connHandler.url_encode(args)
+        response = connHandler.execute_table_tool(data, verbose=verbose)
+
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
+        if verbose:
+            msg = f"Table '{table_name}' updated."
+            print(msg)
+
+    def get_args_4_rename_table(self, table_name, new_table_name, new_column_names_dict):
+
+        args = {}
+
+        if not new_column_names_dict:
+            args = {
+                "action": "rename",
+                "new_table_name": new_table_name,
+                "table_name": table_name
+            }
+        else:
+            new_column_names = ','.join(f'{key}:{value}' for key, value in new_column_names_dict.items())
+
+            args = {
+                "action": "rename",
+                "new_column_names": new_column_names,
+                "new_table_name": new_table_name,
+                "table_name": table_name
+            }
+        return args
+
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):
         """Updates a user table
 
         Parameters
         ----------
-        table_name : str, required
+        table_name : str
             table to be updated
-        list_of_changes : list, required
+        list_of_changes : list
             list of lists, each one of them containing sets of
             [column_name, field_name, value].
             column_name is the name of the column to be updated
@@ -1738,11 +1822,11 @@ class TapPlus(Tap):
     def get_table_update_arguments(table_name, columns, list_of_changes):
         num_cols = len(columns)
         args = {
-                "ACTION": "edit",
-                "NUMTABLES": str(1),
-                "TABLE0_NUMCOLS": str(num_cols),
-                "TABLE0": str(table_name),
-                }
+            "ACTION": "edit",
+            "NUMTABLES": str(1),
+            "TABLE0_NUMCOLS": str(num_cols),
+            "TABLE0": str(table_name),
+        }
         index = 0
         for column in columns:
             found_in_changes = False
@@ -1872,11 +1956,11 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name : str, required
+        table_name : str
             table to be set
-        ra_column_name : str, required
+        ra_column_name : str
             ra column to be set
-        dec_column_name : str, required
+        dec_column_name : str
             dec column to be set
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1890,11 +1974,11 @@ class TapPlus(Tap):
             raise ValueError("Dec column name cannot be null")
 
         args = {
-                "ACTION": "radec",
-                "TABLE_NAME": str(table_name),
-                "RA": str(ra_column_name),
-                "DEC": str(dec_column_name),
-                }
+            "ACTION": "radec",
+            "TABLE_NAME": str(table_name),
+            "RA": str(ra_column_name),
+            "DEC": str(dec_column_name),
+        }
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_table_edit(data, verbose=verbose)

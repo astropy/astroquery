@@ -40,7 +40,7 @@ def _validate_params(func):
 class CoordParseError(ValueError):
 
     def __init__(self, message='Could not parse `coord` argument.', **kwargs):
-        super(ValueError, self).__init__(message, **kwargs)
+        super().__init__(message, **kwargs)
 
 
 @async_to_sync

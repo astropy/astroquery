@@ -52,7 +52,7 @@ class CdsClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def __init__(self):
-        super(CdsClass, self).__init__()
+        super().__init__()
         self.path_moc_file = None
         self.return_moc = False
 

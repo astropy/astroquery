@@ -53,7 +53,7 @@ class CloudAccess:  # pragma:no-cover
         import boto3
         import botocore
 
-        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler"]
+        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex"]
 
         self.boto3 = boto3
         self.botocore = botocore
@@ -116,14 +116,17 @@ class CloudAccess:  # pragma:no-cover
         if path is None:
             raise InvalidQueryError("Malformed data uri {}".format(data_product['dataURI']))
 
-        path = path.lstrip("/")
+        if 'galex' in path:
+            path = path.lstrip("/mast/")
+        else:
+            path = path.lstrip("/")
 
         try:
             s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
             if include_bucket:
                 path = "s3://{}/{}".format(self.pubdata_bucket, path)
             elif full_url:
-                path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
+                path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
             return path
         except self.botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] != "404":

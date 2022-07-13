@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from multiprocessing import Value
 import pytest
 import os
 from collections import OrderedDict
@@ -9,15 +8,17 @@ from numpy.ma import is_masked
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...query import AstroQuery
-from ...exceptions import TableParseError
 from ... import jplhorizons
 
 # files in data/ for different query types
-DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',
-              'elements': 'ceres_elements.txt',
-              'vectors': 'ceres_vectors.txt',
+DATA_FILES = {'ephemerides-single': 'ceres_ephemerides_single.txt',
+              'elements-single': 'ceres_elements_single.txt',
+              'vectors-single': 'ceres_vectors_single.txt',
+              'ephemerides-range': 'ceres_ephemerides_range.txt',
+              'elements-range': 'ceres_elements_range.txt',
+              'vectors-range': 'ceres_vectors_range.txt',
               '"1935 UZ"': 'no_H.txt',
               '"tlist_error"': 'tlist_error.txt'}
 
@@ -29,12 +30,18 @@ def data_path(filename):
 
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
-
     if kwargs['params']['COMMAND'] == '"Ceres"':
-        # pick DATA_FILE based on query type
+        # pick DATA_FILE based on query type and time request
         query_type = {'OBSERVER': 'ephemerides',
                       'ELEMENTS': 'elements',
                       'VECTORS': 'vectors'}[kwargs['params']['EPHEM_TYPE']]
+
+        if 'TLIST' in kwargs['params']:
+            query_type += '-single'
+        elif ('START_TIME' in kwargs['params']
+              and 'STOP_TIME' in kwargs['params']
+              and 'STEP_SIZE' in kwargs['params']):
+            query_type += '-range'
 
         with open(data_path(DATA_FILES[query_type]), 'rb') as f:
             response = MockResponse(content=f.read(), url=url)
@@ -231,8 +238,8 @@ def test_no_H(patch_request):
 
 def test_id_type_deprecation():
     """Test deprecation warnings based on issue 1742.
-￼
-￼    https://github.com/astropy/astroquery/pull/2161
+
+    https://github.com/astropy/astroquery/pull/2161
 
     """
 
