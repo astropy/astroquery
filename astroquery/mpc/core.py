@@ -1184,7 +1184,11 @@ class MPCClass(BaseQuery):
 
             if len(src) == 0:
                 raise RuntimeError(('No data queried. Are the target '
-                                    'identifiers correct?'))
+                                    'identifiers correct?  Is the MPC '
+                                    'database search working for your '
+                                    'object? The service is hosted at '
+                                    'https://www.minorplanetcenter.net/'
+                                    'search_db'))
 
             # return raw response if requested
             if self.get_raw_response:
