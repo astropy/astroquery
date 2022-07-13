@@ -373,7 +373,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return self.query_criteria_async(table, get_query_payload=get_query_payload, cache=cache, **criteria)
 
     @class_or_instance
-    def query_aliases(self, object_name, *, cache=None):
+    def query_aliases(self, object_name, *, cache=False):
         """
         Search for aliases for a given confirmed planet or planet host
 
@@ -393,19 +393,22 @@ class NasaExoplanetArchiveClass(BaseQuery):
         data = self._request_query_aliases(object_name)
 
         try:
-            objname_split = object_name.split()
-            if len(objname_split) > 1 and len(objname_split[-1]) == 1 and objname_split[-1].isalpha():
-                pl_letter = object_name.split()[-1]
+            resolved_name = data['manifest']['resolved_name']
+            resolved_name_split = resolved_name.split()
+            system_name = data['manifest']['system_name']
+            n_stars = data['manifest']['system_snapshot']['number_of_stars']
+
+            # Asked for system
+            if resolved_name == system_name and n_stars > 1:
+                aliases = data['system']['system_info']['alias_set']['aliases']
+            # Asked for planet
+            elif len(resolved_name_split) > 1 and len(resolved_name_split[-1]) == 1 and resolved_name_split[-1].isalpha() and resolved_name_split[-1].islower():
+                aliases = data['system']['objects']['planet_set']['planets'][resolved_name]['alias_set']['aliases']
+            # Asked for star
             else:
-                pl_letter = ''
+                aliases = data['system']['objects']['stellar_set']['stars'][resolved_name]['alias_set']['aliases']
 
-            default_objname = [data['system']['system_info']['alias_set']['default_name']]
-            other_objnames = list(set(data['system']['objects']['stellar_set']['stars'][default_objname[0]]['alias_set']['aliases']) - set(default_objname))
-            other_objnames.sort()
-            aliases = default_objname + other_objnames
-
-            if pl_letter:
-                aliases = [a + ' ' + pl_letter for a in aliases]
+            aliases = [resolved_name] + list(set(aliases) - set([resolved_name]))
 
         except KeyError:
             aliases = []
