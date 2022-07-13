@@ -10,7 +10,7 @@ Generate offline ephemeris files for testing with the following commands.
 
   * The third object must be one that does not exist in the MPC database.  The
     string 'test fail' is sufficient.
-  
+
   * The fourth object must be one that fails an orbit lookup.  Today (2022
     July), that is 2008 JG, which has a permanent number 613986. The ephemeris
     service is not resolving the temporary designation to the permanent number,
