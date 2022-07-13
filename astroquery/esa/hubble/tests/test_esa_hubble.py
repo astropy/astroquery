@@ -102,6 +102,7 @@ class TestESAHubble:
                               calibration_level=parameters['cal_level'],
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
+        os.remove("J6FL25S4Q.vot.test")
 
     def test_download_product_by_product_type(self):
         parameters = {'observation_id': "J6FL25S4Q",
@@ -125,6 +126,9 @@ class TestESAHubble:
                               product_type=parameters['product_type'],
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
+        os.remove("J6FL25S4Q.vot.test")
+        os.remove("J6FL25S4Q.vot.test.fits.gz")
+        os.remove("J6FL25S4Q.vot.test.jpg")
 
     def test_get_postcard(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
@@ -227,6 +231,7 @@ class TestESAHubble:
     def test_get_artifact(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_artifact("w0ji0v01t_c2f.fits.gz")
+        os.remove("w0ji0v01t_c2f.fits.gz")
 
     def test_get_columns(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",

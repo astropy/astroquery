@@ -297,6 +297,7 @@ class TestXMMNewton:
         _tarname = "tarfile_lightcurves.tar"
         self._create_tar_lightcurves(_tarname, self._files_lightcurves)
         assert os.path.isfile(_tarname)
+        os.remove("tarfile_lightcurves.tar")
 
     def test_get_epic_spectra_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
