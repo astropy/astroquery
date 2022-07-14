@@ -1,0 +1,105 @@
+{
+    "manifest": {
+        "requested_name": "bet pic b",
+        "resolved_name": "bet Pic b",
+        "system_name": "bet Pic",
+        "lookup_status": "OK",
+        "compilation_date": "2022-07-13 16:53:58.899538",
+        "system_snapshot": {
+            "number_of_stars": 1,
+            "number_of_planets": 2
+        }
+    },
+    "system": {
+        "system_info": {
+            "id": "bet Pic",
+            "alias_set": {
+                "item_count": 1,
+                "default_name": "bet Pic",
+                "aliases": [
+                    "bet Pic"
+                ]
+            }
+        },
+        "objects": {
+            "stellar_set": {
+                "item_count": 1,
+                "stars": {
+                    "bet Pic": {
+                        "is_host": "True",
+                        "alias_set": {
+                            "item_count": 14,
+                            "default_name": "bet Pic",
+                            "aliases": [
+                                "TIC 270577175",
+                                "Gaia DR2 4792774797545105664",
+                                "GJ 219",
+                                "HR 2020",
+                                "bet Pic",
+                                "HD 39060",
+                                "HIP 27321",
+                                "SAO 234134",
+                                "CD-51 1620",
+                                "CPD-51 774",
+                                "IRAS 05460-5104",
+                                "TYC 8099-01392-1",
+                                "2MASS J05471708-5103594",
+                                "WISE J054717.10-510358.4"
+                            ]
+                        }
+                    }
+                }
+            },
+            "planet_set": {
+                "item_count": 2,
+                "planets": {
+                    "bet Pic b": {
+                        "requested_object": "True",
+                        "alias_set": {
+                            "item_count": 14,
+                            "default_name": "bet Pic b",
+                            "aliases": [
+                                "GJ 219 b",
+                                "HR 2020 b",
+                                "bet Pic b",
+                                "HD 39060 b",
+                                "HIP 27321 b",
+                                "SAO 234134 b",
+                                "CD-51 1620 b",
+                                "CPD-51 774 b",
+                                "IRAS 05460-5104 b",
+                                "TYC 8099-01392-1 b",
+                                "2MASS J05471708-5103594 b",
+                                "WISE J054717.10-510358.4 b",
+                                "TIC 270577175 b",
+                                "Gaia DR2 4792774797545105664 b"
+                            ]
+                        }
+                    },
+                    "bet Pic c": {
+                        "alias_set": {
+                            "item_count": 14,
+                            "default_name": "bet Pic c",
+                            "aliases": [
+                                "GJ 219 c",
+                                "HR 2020 c",
+                                "bet Pic c",
+                                "HD 39060 c",
+                                "HIP 27321 c",
+                                "SAO 234134 c",
+                                "CD-51 1620 c",
+                                "CPD-51 774 c",
+                                "IRAS 05460-5104 c",
+                                "TYC 8099-1392-1 c",
+                                "2MASS J05471708-5103594 c",
+                                "WISE J054717.10-510358.4 c",
+                                "TIC 270577175 c",
+                                "Gaia DR2 4792774797545105664 c"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
