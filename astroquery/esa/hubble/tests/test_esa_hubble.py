@@ -97,7 +97,7 @@ class TestESAHubble:
         tempdir = tempfile.mkdtemp("temp")
         parameters = {'observation_id': "J6FL25S4Q",
                       'cal_level': "RAW",
-                      'filename': tempdir + "/" + "J6FL25S4Q.vot.test",
+                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -109,7 +109,7 @@ class TestESAHubble:
         tempdir = tempfile.mkdtemp("temp")
         parameters = {'observation_id': "J6FL25S4Q",
                       'product_type': "SCIENCE_PRODUCT",
-                      'filename': tempdir + "/" + "J6FL25S4Q.vot.test",
+                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -133,7 +133,7 @@ class TestESAHubble:
         tempdir = tempfile.mkdtemp("temp")
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_postcard(observation_id="X0MC5101T",
-                          filename=tempdir + "/" + "X0MC5101T.vot",
+                          filename=os.path.join(tempdir, "X0MC5101T.vot"),
                           verbose=True)
 
     @patch.object(ESAHubbleClass, 'cone_search')
@@ -230,7 +230,7 @@ class TestESAHubble:
     def test_get_artifact(self):
         tempdir = tempfile.mkdtemp("temp")
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.get_artifact(tempdir + "/" + "w0ji0v01t_c2f.fits.gz")
+        ehst.get_artifact(os.path.join(tempdir, "w0ji0v01t_c2f.fits.gz"))
 
     def test_get_columns(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
