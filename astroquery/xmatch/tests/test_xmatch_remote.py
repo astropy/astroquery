@@ -32,6 +32,18 @@ def test_is_xmatch_up():
         pytest.xfail("XMATCH appears to be down.  Exception was: {0}".format(ex))
 
 
+@pytest.fixture(scope="module")
+def remote_table():
+    # this can be used to check that the API is still functional & doing as expected
+    infile = os.path.join(DATA_DIR, "posList.csv")
+    outfile = os.path.join(DATA_DIR, "http_result.csv")
+    os.system("curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv "
+              "-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  "
+              "http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}".
+              format(outfile, infile))
+    return ascii.read(outfile, format="csv", fast_reader=False)
+
+
 @pytest.mark.remote_data
 @pytest.mark.dependency(depends=["xmatch_up"])
 class TestXMatch:
@@ -55,7 +67,7 @@ class TestXMatch:
         assert xmatch.is_table_available('vizier:II/311/wise')
         assert not xmatch.is_table_available('blablabla')
 
-    def test_xmatch_query(self, xmatch):
+    def test_xmatch_query(self, xmatch, remote_table):
         with open(os.path.join(DATA_DIR, 'posList.csv'), 'r') as pos_list:
             try:
                 table = xmatch.query(
@@ -70,10 +82,9 @@ class TestXMatch:
             'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
         assert len(table) == 11
 
-        http_test_table = self.http_test()
-        assert all(table == http_test_table)
+        assert all(table == remote_table)
 
-    def test_xmatch_query_astropy_table(self, xmatch):
+    def test_xmatch_query_astropy_table(self, xmatch, remote_table):
         datapath = os.path.join(DATA_DIR, 'posList.csv')
         input_table = Table.read(datapath, format='ascii.csv')
         try:
@@ -89,8 +100,7 @@ class TestXMatch:
             'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
         assert len(table) == 11
 
-        http_test_table = self.http_test()
-        assert all(table == http_test_table)
+        assert all(table == remote_table)
 
     @pytest.mark.skipif('regions' not in sys.modules,
                         reason="requires astropy-regions")
@@ -102,14 +112,3 @@ class TestXMatch:
         except ReadTimeout:
             pytest.xfail("xmatch query timed out.")
         assert len(table) == 185
-
-    def http_test(self):
-        # this can be used to check that the API is still functional & doing as expected
-        infile = os.path.join(DATA_DIR, 'posList.csv')
-        outfile = os.path.join(DATA_DIR, 'http_result.csv')
-        os.system('curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv '
-                  '-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  '
-                  'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}'.
-                  format(outfile, infile))
-        table = ascii.read(outfile, format='csv', fast_reader=False)
-        return table
