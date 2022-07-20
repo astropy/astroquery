@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os.path
+from pathlib import Path
 import os
 import sys
 import pytest
@@ -20,7 +20,7 @@ except ImportError:
 from ...xmatch import XMatch
 
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = Path(__file__).parent / "data"
 
 
 @pytest.mark.remote_data
@@ -33,10 +33,10 @@ def test_is_xmatch_up():
 
 
 @pytest.fixture(scope="module")
-def remote_table():
+def remote_table(tmp_path_factory):
     # this can be used to check that the API is still functional & doing as expected
-    infile = os.path.join(DATA_DIR, "posList.csv")
-    outfile = os.path.join(DATA_DIR, "http_result.csv")
+    infile = DATA_DIR / "posList.csv"
+    outfile = tmp_path_factory.mktemp("remote_data") / "http_result.csv"
     os.system("curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv "
               "-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  "
               "http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}".
@@ -68,7 +68,7 @@ class TestXMatch:
         assert not xmatch.is_table_available('blablabla')
 
     def test_xmatch_query(self, xmatch, remote_table):
-        with open(os.path.join(DATA_DIR, 'posList.csv'), 'r') as pos_list:
+        with open(DATA_DIR / "posList.csv", "r") as pos_list:
             try:
                 table = xmatch.query(
                     cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
@@ -85,8 +85,7 @@ class TestXMatch:
         assert all(table == remote_table)
 
     def test_xmatch_query_astropy_table(self, xmatch, remote_table):
-        datapath = os.path.join(DATA_DIR, 'posList.csv')
-        input_table = Table.read(datapath, format='ascii.csv')
+        input_table = Table.read(DATA_DIR / "posList.csv", format="ascii.csv")
         try:
             table = xmatch.query(
                 cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
