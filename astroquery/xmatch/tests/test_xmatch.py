@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os.path
+from pathlib import Path
 
 import requests
 import pytest
@@ -11,6 +11,7 @@ from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from ...xmatch import XMatch
 
+DATA_DIR = Path(__file__).parent / "data"
 DATA_FILES = {
     'get': 'tables.csv',  # .action.getVizieRTableNames
     'post': 'query_res.csv',  # .request.xmatch
@@ -24,8 +25,8 @@ class MockResponseXmatch(MockResponse):
         super().__init__(**kwargs)
 
         self.data = data
-        fn = data_path(DATA_FILES[method.lower()])
-        with open(fn, 'rb') as file:
+        filename = DATA_DIR / DATA_FILES[method.lower()]
+        with open(filename, "rb") as file:
             self.content = file.read()
 
     def get_content(self):
@@ -42,11 +43,6 @@ def patch_request(request):
 
 def request_mockreturn(method, url, data, **kwargs):
     return MockResponseXmatch(method, url, data)
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
 
 
 def test_xmatch_query_invalid_max_distance():
@@ -84,7 +80,7 @@ def test_xmatch_query_local(monkeypatch):
         'send_request',
         lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
             request_mockreturn(request_type, url, data, **kwargs))
-    with open(data_path('posList.csv')) as pos_list:
+    with open(DATA_DIR / "posList.csv") as pos_list:
         response = xm.query_async(
             cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
             colRA1='ra', colDec1='dec')
@@ -105,7 +101,7 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         'send_request',
         lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
             request_mockreturn(request_type, url, data, **kwargs))
-    with open(data_path('posList.csv')) as pos_list:
+    with open(DATA_DIR / "posList.csv") as pos_list:
         input_table = Table.read(pos_list.readlines(),
                                  format='ascii.csv',
                                  guess=False)
