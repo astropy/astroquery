@@ -441,7 +441,7 @@ class XMMNewtonClass(BaseQuery):
                                 elif fname_info["I"] == "PN":
                                     inst = "PN/"
                                     file_name, file_ext = os.path.splitext(rmf_fname)
-                                    rmf_fname = file_name + "_v18.0" + file_ext
+                                    rmf_fname = file_name + "_v20.0" + file_ext
 
                                 link = self._rmf_ftp + inst + rmf_fname
 
