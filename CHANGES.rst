@@ -83,6 +83,11 @@ gaia
   With this change the epoch photometry service returns all data associated
   to a given source. [#2376]
 
+sdss
+^^^^
+
+- ``query_region()`` now does a cone search around the specified
+  coordinates. [#2345]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

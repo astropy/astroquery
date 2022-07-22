@@ -6,7 +6,9 @@ import socket
 import numpy as np
 from numpy.testing import assert_allclose
 
+import astropy.units as u
 from astropy.io import fits
+from astropy.coordinates import Angle
 from astropy.table import Column, Table
 import pytest
 
@@ -25,26 +27,33 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
 
 
 @pytest.fixture
-def patch_get(request):
+def patch_request(request):
+    def mockreturn(method, url, **kwargs):
+        if 'data' in kwargs:
+            cmd = kwargs['data']['uquery']
+        else:
+            cmd = kwargs['params']['cmd']
+        if 'SpecObjAll' in cmd:
+            filename = data_path(DATA_FILES['spectra_id'])
+        else:
+            filename = data_path(DATA_FILES['images_id'])
+        content = open(filename, 'rb').read()
+        return MockResponse(content, url)
+
     mp = request.getfixturevalue("monkeypatch")
 
-    mp.setattr(sdss.SDSS, '_request', get_mockreturn)
+    mp.setattr(sdss.SDSS, '_request', mockreturn)
     return mp
 
 
 @pytest.fixture
-def patch_post(request):
+def patch_request_slow(request):
+    def mockreturn_slow(method, url, **kwargs):
+        raise TimeoutError
+
     mp = request.getfixturevalue("monkeypatch")
 
-    mp.setattr(sdss.SDSS, '_request', post_mockreturn)
-    return mp
-
-
-@pytest.fixture
-def patch_get_slow(request):
-    mp = request.getfixturevalue("monkeypatch")
-
-    mp.setattr(sdss.SDSS, '_request', get_mockreturn_slow)
+    mp.setattr(sdss.SDSS, '_request', mockreturn_slow)
     return mp
 
 
@@ -82,25 +91,6 @@ def patch_get_readable_fileobj_slow(request):
     return mp
 
 
-def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
-    if 'SpecObjAll' in params['cmd']:
-        filename = data_path(DATA_FILES['spectra_id'])
-    else:
-        filename = data_path(DATA_FILES['images_id'])
-    content = open(filename, 'rb').read()
-    return MockResponse(content, **kwargs)
-
-
-def get_mockreturn_slow(method, url, params=None, timeout=0, **kwargs):
-    raise TimeoutError
-
-
-def post_mockreturn(method, url, params=None, timeout=0, **kwargs):
-    filename = data_path(DATA_FILES['images_id'])
-    content = open(filename, 'rb').read()
-    return MockResponse(content)
-
-
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -116,7 +106,7 @@ coords_list = [coords, coords]
 coords_column = Column(coords_list, name='coordinates')
 
 # List of all data releases.
-dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
 
 
 # We are not testing queries for DR11 because it is not easily available to
@@ -164,30 +154,30 @@ def image_tester(images, filetype):
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, dr,
+def test_sdss_spectrum(patch_request, patch_get_readable_fileobj, dr,
                        coords=coords):
     xid = sdss.SDSS.query_region(coords, data_release=dr, spectro=True)
-    url_tester(dr)
+    url_tester_crossid(dr)
     sp = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
     image_tester(sp, 'spectra')
-    url_tester(dr)
+    # url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj, dr):
+def test_sdss_spectrum_mjd(patch_request, patch_get_readable_fileobj, dr):
     sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572, data_release=dr)
     image_tester(sp, 'spectra')
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj, dr,
+def test_sdss_spectrum_coords(patch_request, patch_get_readable_fileobj, dr,
                               coords=coords):
     sp = sdss.SDSS.get_spectra(coords, data_release=dr)
     image_tester(sp, 'spectra')
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
+def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
     query = """
             select top 10
               z, ra, dec, bestObjID
@@ -210,35 +200,35 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
+def test_sdss_image_from_query_region(patch_request, patch_get_readable_fileobj,
                                       dr, coords=coords):
     xid = sdss.SDSS.query_region(coords, data_release=dr)
+    url_tester_crossid(dr)
     # TODO test what img is
     img = sdss.SDSS.get_images(matches=xid)
     image_tester(img, 'images')
-    url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_image_run(patch_get, patch_get_readable_fileobj, dr):
+def test_sdss_image_run(patch_request, patch_get_readable_fileobj, dr):
     img = sdss.SDSS.get_images(run=1904, camcol=3, field=164, data_release=dr)
     image_tester(img, 'images')
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, dr,
+def test_sdss_image_coord(patch_request, patch_get_readable_fileobj, dr,
                           coord=coords):
     img = sdss.SDSS.get_images(coords, data_release=dr)
     image_tester(img, 'images')
 
 
-def test_sdss_template(patch_get, patch_get_readable_fileobj):
+def test_sdss_template(patch_request, patch_get_readable_fileobj):
     template = sdss.SDSS.get_spectral_template('qso')
     image_tester(template, 'spectra')
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_specobj(patch_get, dr):
+def test_sdss_specobj(patch_request, dr):
     xid = sdss.SDSS.query_specobj(plate=2340, data_release=dr)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
                       format='ascii.csv', comment='#')
@@ -252,7 +242,7 @@ def test_sdss_specobj(patch_get, dr):
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_sdss_photoobj(patch_get, dr):
+def test_sdss_photoobj(patch_request, dr):
     xid = sdss.SDSS.query_photoobj(
         run=1904, camcol=3, field=164, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
@@ -266,7 +256,7 @@ def test_sdss_photoobj(patch_get, dr):
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_list_coordinates(patch_get, dr):
+def test_list_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_list, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
@@ -275,10 +265,11 @@ def test_list_coordinates(patch_get, dr):
     # test fail.
     data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
+    url_tester_crossid(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_column_coordinates(patch_get, dr):
+def test_column_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
@@ -287,26 +278,26 @@ def test_column_coordinates(patch_get, dr):
     # test fail.
     data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
-    url_tester(dr)
+    url_tester_crossid(dr)
 
 
-def test_query_timeout(patch_get_slow, coord=coords):
+def test_query_timeout(patch_request_slow, coord=coords):
     with pytest.raises(TimeoutError):
         sdss.SDSS.query_region(coords, timeout=1)
 
 
-def test_spectra_timeout(patch_get, patch_get_readable_fileobj_slow):
+def test_spectra_timeout(patch_request, patch_get_readable_fileobj_slow):
     with pytest.raises(TimeoutError):
         sdss.SDSS.get_spectra(plate=2345, fiberID=572)
 
 
-def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
+def test_images_timeout(patch_request, patch_get_readable_fileobj_slow):
     with pytest.raises(TimeoutError):
         sdss.SDSS.get_images(run=1904, camcol=3, field=164)
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_query_crossid(patch_post, dr):
+def test_query_crossid(patch_request, dr):
     xid = sdss.SDSS.query_crossid(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
@@ -318,42 +309,186 @@ def test_query_crossid(patch_post, dr):
     url_tester_crossid(dr)
 
 
+def test_query_crossid_large_radius(patch_request):
+    """Test raising an exception if too large a search radius.
+    """
+    with pytest.raises(ValueError):
+        xid = sdss.SDSS.query_crossid(coords_column, radius=5.0 * u.arcmin)
+
+
+def test_query_crossid_invalid_radius(patch_request):
+    """Test raising an exception if search radius can't be parsed.
+    """
+    with pytest.raises(TypeError):
+        xid = sdss.SDSS.query_crossid(coords_column, radius='2.0 * u.arcmin')
+
+
+def test_query_crossid_invalid_names(patch_request):
+    """Test raising an exception if user-supplied object names are invalid.
+    """
+    with pytest.raises(ValueError):
+        xid = sdss.SDSS.query_crossid(coords_column, obj_names=['A1'])
+
+
+def test_query_crossid_parse_angle_value(patch_request):
+    """Test parsing angles with astropy.coordinates.Angle.
+    """
+    query_payload, files = sdss.SDSS.query_crossid(coords_column,
+                                                   radius='3 arcsec',
+                                                   get_query_payload=True)
+
+    assert query_payload['radius'] == 0.05
+
+
+def test_query_crossid_explicit_angle_value(patch_request):
+    """Test parsing angles with astropy.coordinates.Angle.
+    """
+    query_payload, files = sdss.SDSS.query_crossid(coords_column,
+                                                   radius=Angle('3 arcsec'),
+                                                   get_query_payload=True)
+
+    assert query_payload['radius'] == 0.05
+
+
 # ===========
 # Payload tests
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_list_coordinates_payload(patch_get, dr):
-    expect = ("SELECT DISTINCT "
+def test_list_coordinates_region_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
-              "FROM PhotoObjAll AS p   WHERE "
-              "((p.ra between 2.02291 and 2.02402) and "
-              "(p.dec between 14.8393 and 14.8404)) or "
-              "((p.ra between 2.02291 and 2.02402) and "
-              "(p.dec between 14.8393 and 14.8404))")
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
     query_payload = sdss.SDSS.query_region(coords_list,
                                            get_query_payload=True,
                                            data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'allObj'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_column_coordinates_region_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload = sdss.SDSS.query_region(coords_column,
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'allObj'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_column_coordinates_region_spectro_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field, "
+              "s.z, s.plate, s.mjd, s.fiberID, s.specobjid, s.run2d "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "ORDER BY x.up_id")
+    query_payload = sdss.SDSS.query_region(coords_column, spectro=True,
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'allObj'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_column_coordinates_region_payload_custom_fields(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.r, p.psfMag_r "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload = sdss.SDSS.query_region(coords_column,
+                                           get_query_payload=True,
+                                           fields=['r', 'psfMag_r'],
+                                           data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'allObj'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_list_coordinates_cross_id_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.ra, p.dec, p.psfMag_u, p.psfMagerr_u, p.psfMag_g, p.psfMagerr_g, "
+              "p.psfMag_r, p.psfMagerr_r, p.psfMag_i, p.psfMagerr_i, p.psfMag_z, p.psfMagerr_z, "
+              "dbo.fPhotoTypeN(p.type) AS type "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload, files = sdss.SDSS.query_crossid(coords_list,
+                                                   get_query_payload=True,
+                                                   data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'nearPrim'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_column_coordinates_cross_id_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.ra, p.dec, p.psfMag_u, p.psfMagerr_u, p.psfMag_g, p.psfMagerr_g, "
+              "p.psfMag_r, p.psfMagerr_r, p.psfMag_i, p.psfMagerr_i, p.psfMag_z, p.psfMagerr_z, "
+              "dbo.fPhotoTypeN(p.type) AS type "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload, files = sdss.SDSS.query_crossid(coords_column,
+                                                   get_query_payload=True,
+                                                   data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'nearPrim'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_column_coordinates_cross_id_payload_custom_fields(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.r, p.psfMag_r, dbo.fPhotoTypeN(p.type) AS type "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload, files = sdss.SDSS.query_crossid(coords_column,
+                                                   get_query_payload=True,
+                                                   fields=['r', 'psfMag_r'],
+                                                   data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'nearPrim'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_photoobj_run_camcol_field_payload(patch_request, dr):
+    expect = ("SELECT DISTINCT "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p WHERE "
+              "(p.run=5714 AND p.camcol=6 AND p.rerun=301)")
+    query_payload = sdss.SDSS.query_photoobj_async(run=5714, camcol=6,
+                                                   get_query_payload=True,
+                                                   data_release=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_column_coordinates_payload(patch_get, dr):
+def test_spectra_plate_mjd_payload(patch_request, dr):
     expect = ("SELECT DISTINCT "
-              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
-              "FROM PhotoObjAll AS p   WHERE "
-              "((p.ra between 2.02291 and 2.02402) and "
-              "(p.dec between 14.8393 and 14.8404)) or "
-              "((p.ra between 2.02291 and 2.02402) and "
-              "(p.dec between 14.8393 and 14.8404))")
-    query_payload = sdss.SDSS.query_region(coords_column,
-                                           get_query_payload=True,
-                                           data_release=dr)
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field, "
+              "s.z, s.plate, s.mjd, s.fiberID, s.specobjid, s.run2d "
+              "FROM PhotoObjAll AS p "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "WHERE "
+              "(s.plate=751 AND s.mjd=52251)")
+    query_payload = sdss.SDSS.query_specobj_async(plate=751, mjd=52251,
+                                                  get_query_payload=True,
+                                                  data_release=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
 
 
-def test_field_help_region(patch_get):
+def test_field_help_region(patch_request):
     valid_field = sdss.SDSS.query_region(coords, field_help=True)
     assert isinstance(valid_field, dict)
     assert 'photoobj_all' in valid_field

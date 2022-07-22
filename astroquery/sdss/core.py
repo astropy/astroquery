@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 
 from astropy import units as u
-import astropy.coordinates as coord
+from astropy.coordinates import Angle
 from astropy.table import Table, Column
 
 from ..query import BaseQuery
@@ -27,6 +27,7 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
+    MAX_CROSSID_RADIUS = 3.0 * u.arcmin
     QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
     QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
@@ -55,19 +56,21 @@ class SDSSClass(BaseQuery):
                            'qso_bal': [30, 31], 'qso_bright': 32
                            }
 
-    def query_crossid_async(self, coordinates, obj_names=None,
-                            photoobj_fields=None, specobj_fields=None,
-                            get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec,
+    def query_crossid_async(self, coordinates, radius=5. * u.arcsec, timeout=TIMEOUT,
+                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
+                            spectro=False, region=False, field_help=False, get_query_payload=False,
                             data_release=conf.default_release, cache=True):
         """
         Query using the cross-identification web interface.
 
+        This query returns the nearest `primary object`_.
+
+        .. _`primary object`: https://www.sdss.org/dr17/help/glossary/#surveyprimary
+
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of
-            coordinates or `~astropy.table.Column` of coordinates The
-            target(s) around which to search. It may be specified as a
+        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` of coordinates
+            The target(s) around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
             may also be entered as strings as specified in the
@@ -77,13 +80,19 @@ class SDSSClass(BaseQuery):
             ra = np.array([220.064728084,220.064728467,220.06473483])
             dec = np.array([0.870131920218,0.87013210119,0.870138329659])
             coordinates = SkyCoord(ra, dec, frame='icrs', unit='deg')
-        radius : str or `~astropy.units.Quantity` object, optional The
-            string must be parsable by `~astropy.coordinates.Angle`. The
+        radius : str or `~astropy.units.Quantity` object or `~astropy.coordinates.Angle` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 5 arcsec.
+            `astropy.units` or `~astropy.coordinates.Angle` object from
+            `astropy.coordinates` may also be used. Defaults to 5 arcsec.
+            The maximum allowed value is 3 arcmin.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        fields : list, optional
+            SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+            to quantities required to find corresponding spectra and images
+            of matched objects (e.g. plate, fiberID, mjd, etc.).
         photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
@@ -94,76 +103,86 @@ class SDSSClass(BaseQuery):
             Target names. If given, every coordinate should have a
             corresponding name, and it gets repeated in the query result.
             It generates unique object names by default.
-        get_query_payload : bool
+        spectro : bool, optional
+            Look for spectroscopic match in addition to photometric match? If
+            True, objects will only count as a match if photometry *and*
+            spectroscopy exist. If False, will look for photometric matches
+            only.
+        region : bool, optional
+            Normally cross-id only returns the closest primary object.
+            Setting this to ``True`` will return all objects within `radius`.
+        field_help: str or bool, optional
+            Field name to check whether a valid PhotoObjAll or SpecObjAll
+            field name. If `True` or it is an invalid field name all the valid
+            field names are returned as a dict.
+        get_query_payload : bool, optional
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        cache : bool, optional
+            If ``True`` use the request caching mechanism.
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         """
 
-        if (not isinstance(coordinates, list) and
-                not isinstance(coordinates, Column) and
-                not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
-            coordinates = [coordinates]
+        if isinstance(radius, Angle):
+            radius = radius.to(u.arcmin).value
+        else:
+            try:
+                radius = Angle(radius).to(u.arcmin).value
+            except ValueError:
+                raise TypeError("radius should be either Quantity or "
+                                "convertible to float.")
+        if radius > self.MAX_CROSSID_RADIUS.value:
+            raise ValueError(f"radius must be less than {self.MAX_CROSSID_RADIUS}.")
 
+        if (not isinstance(coordinates, list) and
+            not isinstance(coordinates, Column) and
+            not (isinstance(coordinates, commons.CoordClasses) and
+                 not coordinates.isscalar)):
+            coordinates = [coordinates]
         if obj_names is None:
             obj_names = ['obj_{0}'.format(i) for i in range(len(coordinates))]
         elif len(obj_names) != len(coordinates):
             raise ValueError("Number of coordinates and obj_names should "
-                             "be equal")
-
-        if isinstance(radius, u.Quantity):
-            radius = radius.to(u.arcmin).value
+                         "be equal")
+        if region:
+            data = "ra dec \n"
+            data_format = '{ra} {dec}'
         else:
-            try:
-                float(radius)
-            except TypeError:
-                raise TypeError("radius should be either Quantity or "
-                                "convertible to float.")
-
-        sql_query = 'SELECT\r\n'  # Older versions expect the CRLF to be there.
-
-        if specobj_fields is None:
-            if photoobj_fields is None:
-                photoobj_fields = crossid_defs
-            photobj_fields = ['p.{0}'.format(i) for i in photoobj_fields]
-            photobj_fields.append('p.objID as obj_id')
-            specobj_fields = []
-        else:
-            specobj_fields = ['s.{0}'.format(i) for i in specobj_fields]
-            if photoobj_fields is not None:
-                photobj_fields = ['p.{0}'.format(i) for i in photoobj_fields]
-                photobj_fields.append('p.objID as obj_id')
-            else:
-                photobj_fields = []
-                specobj_fields.append('s.SpecObjID as obj_id')
-
-        sql_query += ', '.join(photobj_fields + specobj_fields)
-
-        sql_query += ',dbo.fPhotoTypeN(p.type) as type \
-                      FROM #upload u JOIN #x x ON x.up_id = u.up_id \
-                      JOIN PhotoObjAll p ON p.objID = x.objID '
-        if specobj_fields:
-            sql_query += 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
-        sql_query += 'ORDER BY x.up_id'
-
-        data = "obj_id ra dec \n"
-        data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
-                                                  coordinates[i].ra.deg,
-                                                  coordinates[i].dec.deg)
+            data = "name ra dec \n"  # SDSS's own examples default to 'name'.  'obj_id' is too easy to confuse with 'objID'
+            data_format = '{obj} {ra} {dec}'
+        data += " \n ".join([data_format.format(obj=obj_names[i],
+                                                ra=coordinates[i].ra.deg,
+                                                dec=coordinates[i].dec.deg)
                              for i in range(len(coordinates))])
 
         # firstcol is hardwired, as obj_names is always passed
         files = {'upload': ('astroquery', data)}
-        request_payload = dict(uquery=sql_query,
-                               firstcol=1,
-                               format='csv', photoScope='nearPrim',
-                               radius=radius,
-                               photoUpType='ra-dec', searchType='photo')
 
-        if data_release > 11:
-            request_payload['searchtool'] = 'CrossID'
+        request_payload = self._args_to_payload(coordinates=coordinates,
+                                                fields=fields,
+                                                spectro=spectro, region=region,
+                                                photoobj_fields=photoobj_fields,
+                                                specobj_fields=specobj_fields, field_help=field_help,
+                                                data_release=data_release)
+        if field_help:
+            return request_payload, files
+
+        request_payload['radius'] = radius
+        if region:
+            request_payload['firstcol'] = 0  # First column is RA.
+            request_payload['photoScope'] = 'allObj'  # All nearby objects, i.e. PhotoObjAll
+        else:
+            request_payload['firstcol'] = 1  # Skip one column, which contains the object name.
+            request_payload['photoScope'] = 'nearPrim'  # Nearest primary object
+        request_payload['photoUpType'] = 'ra-dec'  # Input data payload has RA, Dec coordinates
+        request_payload['searchType'] = 'photo'
 
         if get_query_payload:
             return request_payload, files
@@ -174,21 +193,22 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_region_async(self, coordinates, radius=2. * u.arcsec,
-                           fields=None, spectro=False, timeout=TIMEOUT,
-                           get_query_payload=False, photoobj_fields=None,
-                           specobj_fields=None, field_help=False,
-                           obj_names=None, data_release=conf.default_release,
-                           cache=True):
+    def query_region_async(self, coordinates, radius=2. * u.arcsec, timeout=TIMEOUT,
+                           fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
+                           spectro=False, field_help=False, get_query_payload=False,
+                           data_release=conf.default_release, cache=True):
         """
-        Used to query a region around given coordinates. Equivalent to
-        the object cross-ID from the web interface.
+        Used to query a circular region (a "cone search") around given coordinates.
+
+        This function is equivalent to the object cross-ID (`query_crossid`),
+        with slightly different parameters. It returns all objects within the
+        search radius; this could potentially include duplicate observations
+        of the same object.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of
-            coordinates or `~astropy.table.Column` of coordinates The
-            target(s) around which to search. It may be specified as a
+        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` of coordinates
+            The target(s) around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
             may also be entered as strings as specified in the
@@ -198,40 +218,43 @@ class SDSSClass(BaseQuery):
             ra = np.array([220.064728084,220.064728467,220.06473483])
             dec = np.array([0.870131920218,0.87013210119,0.870138329659])
             coordinates = SkyCoord(ra, dec, frame='icrs', unit='deg')
-        radius : str or `~astropy.units.Quantity` object, optional The
-            string must be parsable by `~astropy.coordinates.Angle`. The
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 2 arcsec.
+            The maximum allowed value is 3 arcmin.
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
             of matched objects (e.g. plate, fiberID, mjd, etc.).
-        spectro : bool, optional
-            Look for spectroscopic match in addition to photometric match? If
-            True, objects will only count as a match if photometry *and*
-            spectroscopy exist. If False, will look for photometric matches
-            only.
-        timeout : float, optional
-            Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `SDSSClass.TIMEOUT`.
         photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
+        obj_names : str, or list or `~astropy.table.Column`, optional
+            Target names. If given, every coordinate should have a
+            corresponding name, and it gets repeated in the query result.
+        spectro : bool, optional
+            Look for spectroscopic match in addition to photometric match? If
+            True, objects will only count as a match if photometry *and*
+            spectroscopy exist. If False, will look for photometric matches
+            only.
         field_help: str or bool, optional
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
-        obj_names : str, or list or `~astropy.table.Column`, optional
-            Target names. If given, every coordinate should have a
-            corresponding name, and it gets repeated in the query result.
-        get_query_payload : bool
+        get_query_payload : bool, optional
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        cache : bool, optional
+            If ``True`` use the request caching mechanism.
 
         Examples
         --------
@@ -254,16 +277,23 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
-        request_payload = self._args_to_payload(
-            coordinates=coordinates, radius=radius, fields=fields,
-            spectro=spectro, photoobj_fields=photoobj_fields,
-            specobj_fields=specobj_fields, field_help=field_help,
-            obj_names=obj_names, data_release=data_release)
+        request_payload, files = self.query_crossid_async(coordinates=coordinates,
+                                                          radius=radius, fields=fields,
+                                                          photoobj_fields=photoobj_fields,
+                                                          specobj_fields=specobj_fields,
+                                                          obj_names=obj_names,
+                                                          spectro=spectro,
+                                                          region=True,
+                                                          field_help=field_help,
+                                                          get_query_payload=True,
+                                                          data_release=data_release)
+
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(data_release)
-        response = self._request("GET", url, params=request_payload,
+        url = self._get_crossid_url(data_release)
+        response = self._request("POST", url, data=request_payload,
+                                 files=files,
                                  timeout=timeout, cache=cache)
         return response
 
@@ -297,11 +327,13 @@ class SDSSClass(BaseQuery):
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
-        get_query_payload : bool
+        get_query_payload : bool, optional
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        cache : bool, optional
+            If ``True`` use the request caching mechanism.
 
         Examples
         --------
@@ -375,11 +407,13 @@ class SDSSClass(BaseQuery):
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
-        get_query_payload : bool
+        get_query_payload : bool, optional
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        cache : bool, optional
+            If ``True`` use the request caching mechanism.
 
         Examples
         --------
@@ -438,8 +472,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        cache : bool, optional
+            If ``True`` use the request caching mechanism.
 
         Examples
         --------
@@ -484,7 +520,7 @@ class SDSSClass(BaseQuery):
 
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          timeout=TIMEOUT, get_query_payload=False,
+                          timeout=TIMEOUT,
                           data_release=conf.default_release, cache=True,
                           show_progress=True):
         """
@@ -515,20 +551,21 @@ class SDSSClass(BaseQuery):
             Result of `query_region`.
         plate : integer, optional
             Plate number.
+        fiberID : integer, optional
+            Fiber number.
         mjd : integer, optional
             Modified Julian Date indicating the date a given piece of SDSS data
             was taken.
-        fiberID : integer, optional
-            Fiber number.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        get_query_payload : bool
-            If True, this will return the data the query would have sent out,
-            but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use. With the default server, this
             only supports DR8 or later.
+        cache : bool, optional
+            Cache the spectra using astropy's caching system
+        show_progress : bool, optional
+            If False, do not display download progress.
 
         Returns
         -------
@@ -559,20 +596,15 @@ class SDSSClass(BaseQuery):
         """
 
         if not matches:
-            request_payload = self._args_to_payload(
-                specobj_fields=['run2d', 'plate',
-                                'mjd', 'fiberID'],
-                coordinates=coordinates, radius=radius, spectro=True,
-                plate=plate, mjd=mjd, fiberID=fiberID,
-                data_release=data_release)
-            if get_query_payload:
-                return request_payload
-
-            url = self._get_query_url(data_release)
-            result = self._request("GET", url, params=request_payload,
-                              timeout=timeout, cache=cache)
-
-            matches = self._parse_result(result)
+            if coordinates is None:
+                matches = self.query_specobj(plate=plate, mjd=mjd, fiberID=fiberID,
+                                             fields=['run2d', 'plate', 'mjd', 'fiberID'],
+                                             timeout=timeout, data_release=data_release, cache=cache)
+            else:
+                matches = self.query_crossid(coordinates, radius=radius,
+                                             specobj_fields=['run2d', 'plate', 'mjd', 'fiberID'],
+                                             spectro=True,
+                                             timeout=timeout, data_release=data_release, cache=cache)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -634,7 +666,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True,
+                         cache=True,
                          data_release=conf.default_release,
                          show_progress=True):
         """
@@ -676,19 +708,18 @@ class SDSSClass(BaseQuery):
             Output of one camera column of CCDs.
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
-        band : str, list
+        band : str or list
             Could be individual band, or list of bands.
             Options: ``'u'``, ``'g'``, ``'r'``, ``'i'``, or ``'z'``.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        cache : bool
+        cache : bool, optional
             Cache the images using astropy's caching system
-        get_query_payload : bool
-            If True, this will return the data the query would have sent out,
-            but does not actually do the query.
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
+        show_progress : bool, optional
+            If False, do not display download progress.
 
         Returns
         -------
@@ -718,21 +749,20 @@ class SDSSClass(BaseQuery):
 
         """
         if not matches:
-            request_payload = self._args_to_payload(
-                fields=['run', 'rerun', 'camcol', 'field'],
-                coordinates=coordinates, radius=radius, spectro=False, run=run,
-                rerun=rerun, camcol=camcol, field=field,
-                data_release=data_release)
-            if get_query_payload:
-                return request_payload
-
-            url = self._get_query_url(data_release)
-            result = self._request("GET", url, params=request_payload,
-                              timeout=timeout, cache=cache)
-            matches = self._parse_result(result)
+            if coordinates is None:
+                matches = self.query_photoobj(run=run, rerun=rerun,
+                                              camcol=camcol, field=field,
+                                              fields=['run', 'rerun', 'camcol', 'field'],
+                                              timeout=timeout,
+                                              data_release=data_release, cache=cache)
+            else:
+                matches = self.query_crossid(coordinates, radius=radius,
+                                             fields=['run', 'rerun', 'camcol', 'field'],
+                                             timeout=timeout, data_release=data_release, cache=cache)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
+
         if not isinstance(matches, Table):
             raise ValueError("'matches' must be an astropy Table")
 
@@ -771,8 +801,7 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_images_async(
             coordinates=coordinates, radius=radius, matches=matches, run=run,
             rerun=rerun, data_release=data_release, camcol=camcol, field=field,
-            band=band, timeout=timeout, get_query_payload=get_query_payload,
-            show_progress=show_progress)
+            band=band, timeout=timeout, show_progress=show_progress)
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -795,12 +824,14 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        kind : str, list
+        kind : str or list
             Which spectral template to download? Options are stored in the
             dictionary astroquery.sdss.SDSS.AVAILABLE_TEMPLATES
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        show_progress : bool, optional
+            If False, do not display download progress.
 
         Examples
         --------
@@ -879,29 +910,24 @@ class SDSSClass(BaseQuery):
         else:
             return Table(arr)
 
-    def _args_to_payload(self, coordinates=None, radius=2. * u.arcsec,
-                         fields=None, spectro=False,
+    def _args_to_payload(self, coordinates=None,
+                         fields=None, spectro=False, region=False,
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
                          photoobj_fields=None, specobj_fields=None,
-                         field_help=None, obj_names=None,
+                         field_help=None,
                          data_release=conf.default_release):
         """
         Construct the SQL query from the arguments.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of
-            coordinates or `~astropy.table.Column` or coordinates
+        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` or coordinates
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-        radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units`
-            may also be used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
@@ -913,6 +939,8 @@ class SDSSClass(BaseQuery):
             only. If ``spectro`` is True, it is possible to let coordinates
             undefined and set at least one of ``plate``, ``mjd`` or ``fiberID``
             to search using these fields.
+        region : bool, optional
+            Used internally to distinguish certain types of queries.
         plate : integer, optional
             Plate number.
         mjd : integer, optional
@@ -940,10 +968,7 @@ class SDSSClass(BaseQuery):
             Field name to check whether it is a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
-        obj_names : str, or list or `~astropy.table.Column`, optional
-            Target names. If given, every coordinate should have a
-            corresponding name, and it gets repeated in the query result
-        data_release : int
+        data_release : int, optional
             The data release of the SDSS to use.
 
         Returns
@@ -982,20 +1007,28 @@ class SDSSClass(BaseQuery):
 
         # Construct SQL query
         q_select = 'SELECT DISTINCT '
+        crossid = coordinates is not None and not region  # crossid queries have different default fields
+        if coordinates is not None:
+            q_select = 'SELECT\r\n'  # Older versions expect the CRLF to be there.
         q_select_field = []
+        fields_spectro = False
         if photoobj_fields is None and specobj_fields is None:
             # Fields to return
             if fields is None:
-                photoobj_fields = photoobj_defs
+                if crossid:
+                    photoobj_fields = crossid_defs
+                else:
+                    photoobj_fields = photoobj_defs
                 if spectro:
                     specobj_fields = specobj_defs
             else:
                 for sql_field in fields:
                     if (sql_field in photoobj_all
-                            or sql_field.lower() in photoobj_all):
+                        or sql_field.lower() in photoobj_all):
                         q_select_field.append('p.{0}'.format(sql_field))
                     elif (sql_field in specobj_all
-                            or sql_field.lower() in specobj_all):
+                          or sql_field.lower() in specobj_all):
+                        fields_spectro = True
                         q_select_field.append('s.{0}'.format(sql_field))
 
         if photoobj_fields is not None:
@@ -1004,33 +1037,21 @@ class SDSSClass(BaseQuery):
         if specobj_fields is not None:
             for sql_field in specobj_fields:
                 q_select_field.append('s.{0}'.format(sql_field))
+            if crossid and fields is None:
+                q_select_field.append('s.SpecObjID AS obj_id')
+        if crossid:
+            q_select_field.append('dbo.fPhotoTypeN(p.type) AS type')
         q_select += ', '.join(q_select_field)
 
-        q_from = 'FROM PhotoObjAll AS p '
-        if spectro:
-            q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
-        else:
-            q_join = ''
-
-        q_where = 'WHERE '
+        q_from = 'FROM PhotoObjAll AS p'
         if coordinates is not None:
-            if (not isinstance(coordinates, list) and
-                not isinstance(coordinates, Column) and
-                not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
-                coordinates = [coordinates]
-            for n, target in enumerate(coordinates):
-                # Query for a region
-                target = commons.parse_coordinates(target).transform_to('fk5')
+            q_from = 'FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID'
+        if spectro or specobj_fields or fields_spectro:
+            q_from += ' JOIN SpecObjAll AS s ON p.objID = s.bestObjID'
 
-                ra = target.ra.degree
-                dec = target.dec.degree
-                dr = coord.Angle(radius).to('degree').value
-                if n > 0:
-                    q_where += ' or '
-                q_where += ('((p.ra between %g and %g) and '
-                            '(p.dec between %g and %g))'
-                            % (ra - dr, ra + dr, dec - dr, dec + dr))
+        q_where = None
+        if coordinates is not None:
+            q_where = 'ORDER BY x.up_id'
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
@@ -1055,12 +1076,20 @@ class SDSSClass(BaseQuery):
                 raise ValueError('must specify at least one of `coordinates`, '
                                  '`run`, `camcol` or `field`')
 
-        sql = "{0} {1} {2} {3}".format(q_select, q_from, q_join, q_where)
+        sql = "{0} {1} {2}".format(q_select, q_from, q_where)
 
-        request_payload = dict(cmd=sql, format='csv')
-
-        if data_release > 11:
-            request_payload['searchtool'] = 'SQL'
+        # In DR 8 & DR9 the format parameter is case-sensitive, but in later
+        # releases that does not appear to be the case.  In principle 'csv'
+        # should work for all.
+        request_payload = dict(format='csv')
+        if coordinates is not None:
+            request_payload['uquery'] = sql
+            if data_release > 11:
+                request_payload['searchtool'] = 'CrossID'
+        else:
+            request_payload['cmd'] = sql
+            if data_release > 11:
+                request_payload['searchtool'] = 'SQL'
 
         return request_payload
 
