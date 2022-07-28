@@ -162,6 +162,7 @@ ALMA_FORM_KEYS = {
 def _gen_sql(payload):
     sql = 'select * from ivoa.obscore'
     where = ''
+    unused_payload = payload.copy()
     if payload:
         for constraint in payload:
             for attrib_category in ALMA_FORM_KEYS.values():
@@ -181,6 +182,15 @@ def _gen_sql(payload):
                             else:
                                 where = ' WHERE '
                             where += attrib_where
+
+                        # Delete this key to see what's left over afterward
+                        del unused_payload[constraint]
+
+    if unused_payload:
+        # Left over (unused) constraints passed.  Let the user know.
+        remaining = [f'{p} -> {unused_payload[p]}' for p in unused_payload]
+        raise TypeError(f'Unsupported arguments were passed:\n{remaining}')
+
     return sql + where
 
 
