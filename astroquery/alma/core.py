@@ -192,7 +192,7 @@ def _gen_sql(payload):
     if unused_payload:
         # Left over (unused) constraints passed.  Let the user know.
         remaining = [f'{p} -> {unused_payload[p]}' for p in unused_payload]
-        raise ValueError(f'Unsupported arguments were passed:\n{remaining}')
+        raise TypeError(f'Unsupported arguments were passed:\n{remaining}')
 
     return sql + where
 
