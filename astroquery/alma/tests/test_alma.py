@@ -246,10 +246,10 @@ def test_pol_sql():
 def test_unused_args():
     alma = Alma()
     alma._get_dataarchive_url = Mock()
-    with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock, pytest.raises(ValueError) as typeError:
+    with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock, pytest.raises(ValueError) as valueError:
         name_mock.return_value = SkyCoord(1, 2, unit='deg')
         alma.query_object('M13', public=False, bogus=True, nope=False, band_list=[3])
-        assert "['bogus -> True', 'nope -> False']" in str(typeError.value)
+        assert "['bogus -> True', 'nope -> False']" in str(valueError.value)
 
 
 def test_query():
