@@ -184,7 +184,10 @@ def _gen_sql(payload):
                             where += attrib_where
 
                         # Delete this key to see what's left over afterward
-                        del unused_payload[constraint]
+                        #
+                        # Use pop to avoid the slight possibility of trying to remove
+                        # an already removed key
+                        unused_payload.pop(constraint)
 
     if unused_payload:
         # Left over (unused) constraints passed.  Let the user know.
