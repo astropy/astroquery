@@ -20,7 +20,7 @@ from .field_names import (photoobj_defs, specobj_defs,
 __all__ = ['SDSS', 'SDSSClass']
 __doctest_skip__ = ['SDSSClass.*']
 
-
+# Imaging pixelscale 0.396 arcsec
 sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 
 
