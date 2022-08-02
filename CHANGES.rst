@@ -87,7 +87,7 @@ sdss
 ^^^^
 
 - ``query_region()`` now does a cone search around the specified
-  coordinates. [#2345]
+  coordinates. [#2477]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

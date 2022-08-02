@@ -110,7 +110,7 @@ class SDSSClass(BaseQuery):
             only.
         region : bool, optional
             Normally cross-id only returns the closest primary object.
-            Setting this to ``True`` will return all objects within `radius`.
+            Setting this to ``True`` will return all objects.
         field_help: str or bool, optional
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
