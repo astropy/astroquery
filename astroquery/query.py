@@ -191,7 +191,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                     olduseragent=S.headers['User-Agent']))
 
         self.cache_location = os.path.join(
-            paths.get_cache_dir(), 'astroquery',
+            conf.cache_location,
             self.__class__.__name__.split("Class")[0])
         os.makedirs(self.cache_location, exist_ok=True)
 
@@ -248,7 +248,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         """Resets cache preferences to default values"""
 
         self.cache_location = os.path.join(
-            paths.get_cache_dir(), 'astroquery',
+            conf.cache_location,
             self.__class__.__name__.split("Class")[0])
         os.makedirs(self.cache_location, exist_ok=True)
 

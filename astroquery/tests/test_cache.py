@@ -12,38 +12,39 @@ URL2 = "http://fakeurl.ac.uk"
 TEXT1 = "Penguin"
 TEXT2 = "Walrus"
 
+
 def set_response(resp_text, resp_status=200):
     """Function that allows us to set a specific mock response for cache testing"""
 
     def get_mockreturn(url, *args, **kwargs):
         """Generate a mock return to a requests call"""
-    
+
         myresp = requests.Response()
         myresp._content = resp_text
         myresp.request = requests.PreparedRequest()
         myresp.status_code = resp_status
-    
+
         return myresp
-    
+
     requests.Session.request = get_mockreturn
 
     
 class TestClass(QueryWithLogin):
     """Bare bones class for testing caching"""
-    
+
     def test_func(self, requrl):
-        
+
         return self._request(method="GET", url=requrl)
-    
+
     def _login(self, username):
-        
+
         resp = self._request(method="GET", url=username)
-        
+
         if resp.content == "Penguin":
             return True
         else:
             return False
-        
+
 
 def test_cache_reset():
     mytest = TestClass()
@@ -60,7 +61,7 @@ def test_cache_reset():
     assert mytest.cache_timeout == default_timeout
     assert mytest.cache_location == default_loc
 
-    
+
 def test_basic_caching():
 
     mytest = TestClass()
@@ -68,7 +69,7 @@ def test_basic_caching():
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
-    
+
     set_response(TEXT1)
 
     resp = mytest.test_func(URL1)
@@ -120,19 +121,18 @@ def test_timeout():
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    mytest.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily 
-    
+    mytest.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily
+
     set_response(TEXT1)  # setting the response
-    
+
     resp = mytest.test_func(URL1)  # should be cached
     assert resp.content == TEXT1
 
     set_response(TEXT2)  # changing the respont
-    
+
     resp = mytest.test_func(URL1)  # should access cached value
     assert resp.content == TEXT1
 
     sleep(2)  # run out cache time
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # no see the new response
-    
