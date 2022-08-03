@@ -248,8 +248,9 @@ class BaseQuery(metaclass=LoginABCMeta):
         """Resets cache preferences to default values"""
 
         self.cache_location = os.path.join(
-            conf.cache_location,
+            paths.get_cache_dir(), 'astroquery',
             self.__class__.__name__.split("Class")[0])
+        os.makedirs(self.cache_location, exist_ok=True)
 
         self._cache_active = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
