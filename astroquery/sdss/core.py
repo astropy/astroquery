@@ -56,7 +56,7 @@ class SDSSClass(BaseQuery):
                            'qso_bal': [30, 31], 'qso_bright': 32
                            }
 
-    def query_crossid_async(self, coordinates, radius=5. * u.arcsec, timeout=TIMEOUT,
+    def query_crossid_async(self, coordinates, *, radius=5. * u.arcsec, timeout=TIMEOUT,
                             fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                             spectro=False, region=False, field_help=False, get_query_payload=False,
                             data_release=conf.default_release, cache=True):
@@ -131,10 +131,10 @@ class SDSSClass(BaseQuery):
         """
 
         if isinstance(radius, Angle):
-            radius = radius.to(u.arcmin).value
+            radius = radius.to_value(u.arcmin)
         else:
             try:
-                radius = Angle(radius).to(u.arcmin).value
+                radius = Angle(radius).to_value(u.arcmin)
             except ValueError:
                 raise TypeError("radius should be either Quantity or "
                                 "convertible to float.")
@@ -147,7 +147,7 @@ class SDSSClass(BaseQuery):
                  not coordinates.isscalar)):
             coordinates = [coordinates]
         if obj_names is None:
-            obj_names = ['obj_{0}'.format(i) for i in range(len(coordinates))]
+            obj_names = [f'obj_{i:d}' for i in range(len(coordinates))]
         elif len(obj_names) != len(coordinates):
             raise ValueError("Number of coordinates and obj_names should "
                          "be equal")
@@ -193,7 +193,7 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_region_async(self, coordinates, radius=2. * u.arcsec, timeout=TIMEOUT,
+    def query_region_async(self, coordinates, *, radius=2. * u.arcsec, timeout=TIMEOUT,
                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
@@ -297,7 +297,7 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
+    def query_specobj_async(self, *, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False, field_help=False,
                             data_release=conf.default_release, cache=True):
@@ -373,7 +373,7 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_photoobj_async(self, run=None, rerun=301, camcol=None,
+    def query_photoobj_async(self, *, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
                              get_query_payload=False, field_help=False,
                              data_release=conf.default_release, cache=True):
@@ -459,7 +459,7 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT,
+    def query_sql_async(self, sql_query, *, timeout=TIMEOUT,
                         data_release=conf.default_release,
                         cache=True, **kwargs):
         """
@@ -809,7 +809,7 @@ class SDSSClass(BaseQuery):
             else:
                 return [obj.get_fits() for obj in readable_objs]
 
-    def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT,
+    def get_spectral_template_async(self, kind='qso', *, timeout=TIMEOUT,
                                     show_progress=True):
         """
         Download spectral templates from SDSS DR-2.
@@ -864,7 +864,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_nosections(get_spectral_template_async.__doc__)
-    def get_spectral_template(self, kind='qso', timeout=TIMEOUT,
+    def get_spectral_template(self, kind='qso', *, timeout=TIMEOUT,
                               show_progress=True):
         """
         Returns
@@ -888,6 +888,8 @@ class SDSSClass(BaseQuery):
         ----------
         response : `requests.Response`
             Result of requests -> np.atleast_1d.
+        verbose : bool, optional
+            Not currently used.
 
         Returns
         -------
@@ -990,18 +992,18 @@ class SDSSClass(BaseQuery):
             elif field_help:
                 ret = 0
                 if field_help in photoobj_all:
-                    print("{0} is a valid 'photoobj_field'".format(field_help))
+                    print(f"{field_help} is a valid 'photoobj_field'")
                     ret += 1
                 if field_help in specobj_all:
-                    print("{0} is a valid 'specobj_field'".format(field_help))
+                    print(f"{field_help} is a valid 'specobj_field'")
                     ret += 1
             if ret > 0:
                 return
             else:
                 if field_help is not True:
-                    warnings.warn("{0} isn't a valid 'photobj_field' or "
+                    warnings.warn(f"{field_help} isn't a valid 'photobj_field' or "
                                   "'specobj_field' field, valid fields are"
-                                  "returned.".format(field_help))
+                                  "returned.")
                 return {'photoobj_all': photoobj_all,
                         'specobj_all': specobj_all}
 
@@ -1025,18 +1027,18 @@ class SDSSClass(BaseQuery):
                 for sql_field in fields:
                     if (sql_field in photoobj_all
                         or sql_field.lower() in photoobj_all):
-                        q_select_field.append('p.{0}'.format(sql_field))
+                        q_select_field.append(f'p.{sql_field}')
                     elif (sql_field in specobj_all
                           or sql_field.lower() in specobj_all):
                         fields_spectro = True
-                        q_select_field.append('s.{0}'.format(sql_field))
+                        q_select_field.append(f's.{sql_field}')
 
         if photoobj_fields is not None:
             for sql_field in photoobj_fields:
-                q_select_field.append('p.{0}'.format(sql_field))
+                q_select_field.append(f'p.{sql_field}')
         if specobj_fields is not None:
             for sql_field in specobj_fields:
-                q_select_field.append('s.{0}'.format(sql_field))
+                q_select_field.append(f's.{sql_field}')
             if crossid and fields is None:
                 q_select_field.append('s.SpecObjID AS obj_id')
         if crossid:
@@ -1076,7 +1078,7 @@ class SDSSClass(BaseQuery):
                 raise ValueError('must specify at least one of `coordinates`, '
                                  '`run`, `camcol` or `field`')
 
-        sql = "{0} {1} {2}".format(q_select, q_from, q_where)
+        sql = f"{q_select} {q_from} {q_where}"
 
         # In DR 8 & DR9 the format parameter is case-sensitive, but in later
         # releases that does not appear to be the case.  In principle 'csv'
@@ -1094,6 +1096,8 @@ class SDSSClass(BaseQuery):
         return request_payload
 
     def _get_query_url(self, data_release):
+        """Generate URL for generic SQL queries.
+        """
         if data_release < 10:
             suffix = self.QUERY_URL_SUFFIX_DR_OLD
         elif data_release == 10:
@@ -1106,6 +1110,8 @@ class SDSSClass(BaseQuery):
         return url
 
     def _get_crossid_url(self, data_release):
+        """Generate URL for CrossID queries.
+        """
         if data_release < 10:
             suffix = self.XID_URL_SUFFIX_OLD
         elif data_release == 10:

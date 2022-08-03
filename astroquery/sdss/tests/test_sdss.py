@@ -312,21 +312,21 @@ def test_query_crossid(patch_request, dr):
 def test_query_crossid_large_radius(patch_request):
     """Test raising an exception if too large a search radius.
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="radius must be less than"):
         xid = sdss.SDSS.query_crossid(coords_column, radius=5.0 * u.arcmin)
 
 
 def test_query_crossid_invalid_radius(patch_request):
     """Test raising an exception if search radius can't be parsed.
     """
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="radius should be either Quantity"):
         xid = sdss.SDSS.query_crossid(coords_column, radius='2.0 * u.arcmin')
 
 
 def test_query_crossid_invalid_names(patch_request):
     """Test raising an exception if user-supplied object names are invalid.
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Number of coordinates and obj_names"):
         xid = sdss.SDSS.query_crossid(coords_column, obj_names=['A1'])
 
 
