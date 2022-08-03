@@ -28,7 +28,7 @@ def set_response(resp_text, resp_status=200):
 
     requests.Session.request = get_mockreturn
 
-    
+
 class TestClass(QueryWithLogin):
     """Bare bones class for testing caching"""
 
@@ -81,7 +81,7 @@ def test_basic_caching():
     resp = mytest.test_func(URL2)  # query that has not been cached
     assert resp.content == TEXT2
     assert len(os.listdir(mytest.cache_location)) == 2
- 
+
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1  # query that was cached
     assert len(os.listdir(mytest.cache_location)) == 2  # no new cache file
