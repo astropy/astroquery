@@ -241,10 +241,10 @@ class BaseQuery(metaclass=LoginABCMeta):
         """Resets cache preferences to default values"""
 
         self.cache_location = os.path.join(
-            conf.cache_location,
+            conf.default_cache_location,
             self.__class__.__name__.split("Class")[0])
 
-        self._cache_active = conf.use_cache
+        self.cache_active = conf.default_cache_active
         self.cache_timeout = conf.default_cache_timeout
 
     @property
@@ -354,6 +354,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                                files=files, timeout=timeout, json=json)
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
+
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
                                              allow_redirects=allow_redirects,
