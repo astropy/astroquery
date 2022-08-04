@@ -190,14 +190,10 @@ class BaseQuery(metaclass=LoginABCMeta):
             .format(vers=version.version,
                     olduseragent=S.headers['User-Agent']))
 
-        self.cache_location = os.path.join(
-            conf.cache_location,
-            self.__class__.__name__.split("Class")[0])
-        os.makedirs(self.cache_location, exist_ok=True)
-
         self.name = self.__class__.__name__.split("Class")[0]
-        self._cache_active = conf.use_cache
-        self.cache_timeout = conf.default_cache_timeout
+
+
+        self.reset_cache_preferences()
 
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
@@ -248,11 +244,11 @@ class BaseQuery(metaclass=LoginABCMeta):
         """Resets cache preferences to default values"""
 
         self.cache_location = os.path.join(
-            conf.cache_location,
+            conf.default_cache_location,
             self.__class__.__name__.split("Class")[0])
         os.makedirs(self.cache_location, exist_ok=True)
 
-        self._cache_active = conf.use_cache
+        self.cache_active = conf.default_cache_active
         self.cache_timeout = conf.default_cache_timeout
 
     def _request(self, method, url,
@@ -317,7 +313,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        if (cache is not False) and self._cache_active:
+        if (cache is not False) and self.cache_active:
             cache = True
         else:
             cache = False
@@ -343,7 +339,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             query = AstroQuery(method, url, params=params, data=data, headers=headers,
                                files=files, timeout=timeout, json=json)
-            if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
+            if ((self.cache_location is None) or (not self.cache_active) or (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
@@ -493,12 +489,13 @@ class suspend_cache:
 
     def __init__(self, obj):
         self.obj = obj
+        self.original_cache_setting = self.obj.cache_active
 
     def __enter__(self):
-        self.obj._cache_active = False
+        self.obj.cache_active = False
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.obj._cache_active = True
+        self.obj.cache_active = self.original_cache_setting
         return False
 
 

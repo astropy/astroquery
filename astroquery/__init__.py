@@ -48,11 +48,11 @@ class Conf(_config.ConfigNamespace):
           604800,  # 1 week
           'Astroquery-wide default cache timeout (seconds).'
           )
-    cache_location = _config.ConfigItem(
+    default_cache_location = _config.ConfigItem(
           os.path.join(_config.paths.get_cache_dir(), 'astroquery'),
           'Astroquery default cache location (within astropy cache).'
           )
-    use_cache = _config.ConfigItem(
+    default_cache_active = _config.ConfigItem(
         True,
         "Astroquery global cache usage, False turns off all caching."
         )

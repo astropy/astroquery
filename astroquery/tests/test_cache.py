@@ -48,7 +48,7 @@ class TestClass(QueryWithLogin):
 
 def test_cache_reset():
     mytest = TestClass()
-    assert mytest._cache_active
+    assert mytest.cache_active
 
     default_timeout = mytest.cache_timeout
     default_loc = mytest.cache_location
@@ -65,7 +65,7 @@ def test_cache_reset():
 def test_basic_caching():
 
     mytest = TestClass()
-    assert mytest._cache_active
+    assert mytest.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -96,7 +96,7 @@ def test_basic_caching():
 def test_login():
 
     mytest = TestClass()
-    assert mytest._cache_active
+    assert mytest.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -116,7 +116,7 @@ def test_login():
 def test_timeout():
 
     mytest = TestClass()
-    assert mytest._cache_active
+    assert mytest.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -136,3 +136,24 @@ def test_timeout():
     sleep(2)  # run out cache time
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # no see the new response
+
+
+def test_deactivate():
+
+    mytest = TestClass()
+    mytest.cache_active = False
+
+    mytest.clear_cache()
+    assert len(os.listdir(mytest.cache_location)) == 0
+
+    set_response(TEXT1)
+
+    resp = mytest.test_func(URL1)
+    assert resp.content == TEXT1
+    assert len(os.listdir(mytest.cache_location)) == 0
+
+    set_response(TEXT2)
+
+    resp = mytest.test_func(URL1)
+    assert resp.content == TEXT2
+    assert len(os.listdir(mytest.cache_location)) == 0
