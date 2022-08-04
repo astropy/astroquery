@@ -191,8 +191,6 @@ class BaseQuery(metaclass=LoginABCMeta):
                     olduseragent=S.headers['User-Agent']))
 
         self.name = self.__class__.__name__.split("Class")[0]
-
-
         self.reset_cache_preferences()
 
     def __call__(self, *args, **kwargs):
