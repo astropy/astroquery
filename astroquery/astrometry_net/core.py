@@ -33,6 +33,24 @@ import time
 __all__ = ['AstrometryNet', 'AstrometryNetClass']
 
 
+MISSING_API_KEY = """
+Astrometry.net API key not set. You should either set this in the astroquery configuration file using:
+
+    [astrometry_net]
+    api_key = qwdqwjnoi12ioj
+
+or you can set it for this session only using the ``conf`` object:
+
+    from astroquery.astrometry_net import conf
+    conf.api_key = 'qwdqwjnoi12ioj'
+
+or using the ``api_key`` property on the ``AstrometryNet`` class:
+
+    from astroquery.astrometry_net import AstrometryNet
+    AstrometryNet.api_key = 'qwdqwjnoi12ioj'
+""".lstrip()
+
+
 @async_to_sync
 class AstrometryNetClass(BaseQuery):
     """
@@ -71,7 +89,7 @@ class AstrometryNetClass(BaseQuery):
     def api_key(self):
         """ Return the Astrometry.net API key. """
         if not conf.api_key:
-            log.error("Astrometry.net API key not in configuration file")
+            raise RuntimeError(MISSING_API_KEY)
         return conf.api_key
 
     @api_key.setter
@@ -103,18 +121,10 @@ class AstrometryNetClass(BaseQuery):
                             values=key_info['allowed']))
 
     def __init__(self):
-        """ Show a warning message if the API key is not in the configuration file. """
         super().__init__()
-        if not conf.api_key:
-            log.warning("Astrometry.net API key not found in configuration file")
-            log.warning("You need to manually edit the configuration file and add it")
-            log.warning(
-                "You may also register it for this session with AstrometryNet.key = 'XXXXXXXX'")
         self._session_id = None
 
     def _login(self):
-        if not self.api_key:
-            raise RuntimeError('You must set the API key before using this service.')
         login_url = url_helpers.join(self.API_URL, 'login')
         payload = self._construct_payload({'apikey': self.api_key})
         result = self._request('POST', login_url,

@@ -25,6 +25,12 @@ alma
 
 - Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
 
+astrometry.net
+^^^^^^^^^^^^^^
+
+- Avoid duplicated warnings about API key and raise an error only when API key is
+  needed but not set. [#2483]
+
 cadc
 ^^^^
 
