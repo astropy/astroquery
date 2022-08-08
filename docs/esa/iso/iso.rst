@@ -24,15 +24,14 @@ Examples
 1. Querying ISO data
 ------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO  # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
   >>> table=ISO.query_ida_tap(query="SELECT tdt,ra,dec,aotname,target " +
   ...   "FROM ida.observations " +
   ...   "WHERE INTERSECTS(CIRCLE('ICRS',10.68470833,41.26875,0.08333333333333333)," +
   ...   "ida.observations.s_region_fov)=1")
-  >>> table.pprint()
+  >>> table.pprint()  # doctest: +IGNORE_OUTPUT
   tdt         ra         dec      aotname    target
               h          deg
   -------- ----------- ------------ ------- ------------
@@ -66,10 +65,9 @@ position ('ra=10.68470833, ec=41.26875' in degrees, that corresponds with M31).
 
 The result of a query can be stored in a file by defining the output format and the output file name.
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
   >>> table = ISO.query_ida_tap(query="select top 10 * from ida.observations",
   ...                       output_format='csv', output_file='results10.csv')
 
@@ -84,10 +82,11 @@ provided by this service, see section 'Getting Tables Details'.
 2. Getting ISO data
 ------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
+  >>> import tarfile
+  >>>
   >>> ISO.download_data('80000203', retrieval_type="OBSERVATION",
   ...   product_level="DEFAULT_DATA_SET",
   ...   filename="80000203", verbose=True)
@@ -95,15 +94,14 @@ provided by this service, see section 'Getting Tables Details'.
   INFO: Copying file to 80000203.tar... [astroquery.esa.iso.core]
   INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET to 80000203.tar [astroquery.esa.iso.core]
   '80000203.tar'
-  >>> import tarfile
   >>> tar = tarfile.open("80000203.tar")
   >>> tar.list()    # doctest: +IGNORE_OUTPUT
-  -rw-r--r-- idaops/0       1094 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//pich80000203.gif 
-  -rw-r--r-- idaops/0     266240 2005-12-23 12:02:54 ././ISO1601052542/EXTRAKON//C10480000203.tar 
-  -rw-r--r-- idaops/0      14400 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//psph80000203.fits 
-  -rw-r--r-- idaops/0       5599 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//ppch80000203.gif 
-  -rw-r--r-- idaops/0     266240 2005-12-23 12:02:54 ././ISO1601052542/EXTRAKON//C10180000203.tar 
-  >>> tar.extract("././ISO1648561466/EXTRAKON//psph80000203.fits")
+  -rw-r--r-- idaops/0       1094 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//pich80000203.gif 
+  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10480000203.tar 
+  -rw-r--r-- idaops/0      14400 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//psph80000203.fits 
+  -rw-r--r-- idaops/0       5599 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//ppch80000203.gif 
+  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10180000203.tar 
+  >>> tar.extract("././ISO1659972236/EXTRAKON//psph80000203.fits")  # doctest: +SKIP
   >>> tar.extractall()
 
 'download_data' method invokes the data download of files from the ISO Data Archive, using the
@@ -128,28 +126,28 @@ Both query and download methods are designed to be used in coordination. For exa
 for SWS observations with a certain target associated (not calibration) for the revolution 800 and
 we can loop on the observations to download the best products (DEFAULT_DATA_SET) in different tar files.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.iso import ISO      # doctest: +IGNORE_OUTPUT
   >>> table=ISO.query_ida_tap(query="SELECT tdt, revno, aotname, ra, dec  FROM " +
   ...                               "ida.observations WHERE " +
   ...                               "revno=800 and aotname like 'S%' and target != ''")
-  >>> print(table)
-    tdt    revno aotname      ra        dec
-                              h         deg
+  >>> print(table)   # doctest: +IGNORE_OUTPUT
+    tdt    revno aotname      ra        dec   
+                              h         deg   
   -------- ----- ------- ------------ --------
-  80000104   800    S01  16.477365333 41.88163
-  80002504   800    S01       2.74033 55.18761
-  80000938   800    S01     21.691944 76.37833
-  80000828   800    S02  21.035861333 68.15064
-  80002304   800    S07   2.428013333 62.09789
-  80002450   800    S01      2.550044 58.03472
   80002247   800    S07   2.428012666 62.09789
   80002014   800    S02   0.901055333 73.08528
+  80002504   800    S01       2.74033 55.18761
+  80000828   800    S02  21.035861333 68.15064
+  80000104   800    S01  16.477365333 41.88163
+  80000938   800    S01     21.691944 76.37833
+  80002304   800    S07   2.428013333 62.09789
+  80002450   800    S01      2.550044 58.03472
+  >>>
   >>> for observation in table:
   ...     ISO.download_data(str(observation['tdt']), retrieval_type="OBSERVATION",
-  ...        product_level="DEFAULT_DATA_SET", filename=str(observation['tdt']), verbose=True)
+  ...        product_level="DEFAULT_DATA_SET", filename=str(observation['tdt']), verbose=True)  # doctest: +SKIP
   INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000104&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
   INFO: Copying file to 80000104.tar... [astroquery.esa.iso.core]
   INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000104&product_level=DEFAULT_DATA_SET to 80000104.tar [astroquery.esa.iso.core]
@@ -187,13 +185,13 @@ we can loop on the observations to download the best products (DEFAULT_DATA_SET)
 2. Getting ISO postcards
 -------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO    # doctest: +IGNORE_OUTPUT
-  >>> ISO.get_postcard('80001538', filename="postcard")  # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
   >>> from IPython.display import Image
   >>> from IPython.core.display import HTML
+  >>>
+  >>> ISO.get_postcard('80001538', filename="postcard")   # doctest: +IGNORE_OUTPUT
   >>> Image(filename = "postcard.png", width=400, height=100)
   <IPython.core.display.Image object>
 
@@ -211,11 +209,9 @@ This will download the ISO postcard for the observation '80001538' and it will s
 3. Getting ISO Tables Details through TAP
 ------------------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
-.. doctest-skip::
 
-  >>> from astroquery.esa.iso import ISO   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
   >>> ISO.get_tables()    # doctest: +IGNORE_OUTPUT
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
@@ -238,10 +234,9 @@ This will show the available tables in ISO TAP service in the ISO Data Archive.
 4. Getting columns details of ISO TAP
 -------------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO 
   >>> ISO.get_columns('ida.observations')     # doctest: +IGNORE_OUTPUT
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
@@ -270,15 +265,16 @@ compatible tables are provided:
 
 All these tables can be queried using the TAP interface and allow geometrical queries.
 
-.. code-block:: python
 .. doctest-remote-data::
 
-  >>> # First we obtain the coordinates of a certain object (M31) in degrees
+  >>> from astroquery.esa.iso import ISO
   >>> from astropy import units as u
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.simbad import Simbad
+  >>>
+  >>> # First we obtain the coordinates of a certain object (M31) in degrees
   >>> result_table = Simbad.query_object("M31")
-  >>> print(result_table)
+  >>> print(result_table)    # doctest: +IGNORE_OUTPUT
   MAIN_ID      RA          DEC      ... COO_WAVELENGTH     COO_BIBCODE
             "h:m:s"      "d:m:s"    ...
   ------- ------------ ------------ ... -------------- -------------------
@@ -287,14 +283,14 @@ All these tables can be queried using the TAP interface and allow geometrical qu
   ...              frame='icrs')
   >>> ra = str(c.ra.degree[0])
   >>> dec = str(c.dec.degree[0])
+  >>>
   >>> # Then we use these coordinates to discover spectral data
-  >>> from astroquery.esa.iso import ISO
-  >>> table=ISO.query_ida_tap(query="SELECT target_name, ra, dec, reference " +
+  >>> table = ISO.query_ida_tap(query="SELECT target_name, ra, dec, reference " +
   ...								"FROM ivoa.ssap WHERE " +
   ...                               "INTERSECTS(CIRCLE('ICRS'," + ra + "," + dec +
   ...								",0.08333333333333333)," +
   ...                               "s_region_fov)=1")
-  >>> table.pprint_all()
+  >>> table.pprint_all()    # doctest: +IGNORE_OUTPUT
               target_name                   ra        dec                                         reference
   ------------------------------------ ------------ -------- -----------------------------------------------------------------------------------
   ISO SWS01 Spectrum Target: M31_BULGE      10.6917 41.26997 http://nida.esac.esa.int/nida-sl-tap/data?RETRIEVAL_TYPE=STANDALONE&obsno=400015010
@@ -306,11 +302,10 @@ This query displays spectra with a field of view that overlaps with the central 
 
 Same can be done to discover images M31 images:
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> # We use again the coordinates to discover image data
-  >>> table=ISO.query_ida_tap(query="SELECT image_title, ra, dec, access_url " +
+  >>> table = ISO.query_ida_tap(query="SELECT image_title, ra, dec, access_url " +
   ...                               "FROM ivoa.siap WHERE " +
   ...                               "INTERSECTS(CIRCLE('ICRS'," + ra + "," + dec +
   ...                               ",0.08333333333333333)," +
@@ -331,38 +326,29 @@ Either by invocation of the URL provided in every row of previous section or usi
 
 Images can be displayed by using the following code:
 
-.. code-block:: python
-.. doctest-remote-data:
+.. Skipping plotting example
+.. doctest-skip::
 
-  >>> #How to display an ISO image
-  >>> from astroquery.esa.iso import ISO     # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.iso import ISO
+  >>> from astropy.io import fits
+  >>> import matplotlib
+  >>> from matplotlib import pyplot as plt
+  >>> from matplotlib.colors import LogNorm
+  >>>
   >>> ISO.download_data('80001538', retrieval_type="STANDALONE",
   ...                   filename="80001538")
   '80001538.fits'
-  >>> from astropy.io import fits
-  >>> from matplotlib import pyplot as plt
   >>> f = fits.open('80001538.fits')   # doctest: +IGNORE_WARNINGS
   >>> f.info()
   Filename: 80001538.fits
   No.    Name      Ver    Type      Cards   Dimensions   Format
     0  PRIMARY       1 PrimaryHDU      75   (32, 32)   float32
-  >>> # The image is in the primary extension
-  >>> image_data = f[0].data
+  >>> image_data = f[0].data  # The image is in the primary extension
   >>> f.close()
   >>>
-  >>> # Set up matplotlib and use a nicer set of plot parameters
-  >>> # %config InlineBackend.rc = {}
-  >>> import matplotlib
-  >>> import matplotlib.pyplot as plt
-  >>> from matplotlib.colors import LogNorm
-  >>>
-  >>> #We configure the plot to be interactive
-  >>> # %matplotlib widget
   >>> plt.ion()
-  >>> plt.imshow(image_data, cmap='Reds')   # doctest: +IGNORE_OUTPUT
-  <matplotlib.image.AxesImage object at 0x11ac313a0>
-  >>> plt.colorbar()      # doctest: +IGNORE_OUTPUT
-  <matplotlib.colorbar.Colorbar object at 0x11f96e8b0>
+  >>> plt.imshow(image_data, cmap='Reds')
+  >>> plt.colorbar()
 
 .. figure:: images/camdynamicDisplay.png
    :scale: 100%
@@ -371,11 +357,19 @@ Images can be displayed by using the following code:
 
 And spectra can be displayed by using the following code:
 
-.. code-block:: python
-.. doctest-remote-data::
+.. Skipping plotting example
+.. doctest-skip::
 
+  >>> from astroquery.esa.iso import ISO
+  >>> import urllib.request
+  >>> from astropy.io import fits
+  >>> from astropy import units as u
+  >>> import numpy as np
+  >>> from matplotlib import pyplot as plt
+  >>> from astropy.visualization import quantity_support
+  >>> from specutils import Spectrum1D
+  >>>
   >>> # Search for M31 spectra
-  >>> from astroquery.esa.iso import ISO    # doctest: +IGNORE_OUTPUT
   >>> table=ISO.query_ida_tap(query="SELECT target_name, ra, dec, " +
   ...                               "axes, units, reference FROM ivoa.ssap " +
   ...                               "WHERE " +
@@ -393,18 +387,12 @@ And spectra can be displayed by using the following code:
   >>> ISO.download_data('58002102', retrieval_type="STANDALONE", filename="58002102")  # doctest: +IGNORE_OUTPUT
   >>>
   >>> # Download using the SSAP table URL invocation (both are equivalent)
-  >>> import urllib.request
   >>> urllib.request.urlretrieve('http://nida.esac.esa.int/nida-sl-tap/data?' +
   ...                            'RETRIEVAL_TYPE=STANDALONE&obsno=580020010',
   ...                            '58002102.fits')   # doctest: +IGNORE_OUTPUT
   ('58002102.fits', <http.client.HTTPMessage object at 0x11a6a3fd0>)
-  >>> # Opening the spectral fits file using astropy modules
-  >>> from astropy.io import fits
-  >>> from astropy import units as u
-  >>> import numpy as np
-  >>> from matplotlib import pyplot as plt
-  >>> from astropy.visualization import quantity_support
-  >>> quantity_support()   # doctest: +IGNORE_OUTPUT
+  >>> # Opening the spectral fits file using astropy modules  
+  >>> quantity_support()
   <astropy.visualization.units.quantity_support.<locals>.MplQuantityConverter object at 0x11c1a9d60>
   >>> f = fits.open('58002102.fits')
   >>> f.info()
@@ -425,14 +413,12 @@ And spectra can be displayed by using the following code:
   >>> # The spectrum is in the first HDU of this file.
   >>> specdata = f[1].data
   >>> f.close()
-  >>> from specutils import Spectrum1D
   >>> lamb = specdata['WAVE']  * u.um
   >>> flux = specdata['FLUX']  * u.Unit('W cm-2 um-1')
   >>> spec = Spectrum1D(spectral_axis=lamb, flux=flux)
-  >>> # %matplotlib widget
   >>> plt.ion()
   >>> f, ax = plt.subplots()
-  >>> ax.step(spec.spectral_axis, spec.flux)  # doctest: +IGNORE_OUTPUT
+  >>> ax.step(spec.spectral_axis, spec.flux)
   [<matplotlib.lines.Line2D object at 0x1204e5190>]
 
 .. figure:: images/spectradynamicDisplay.png

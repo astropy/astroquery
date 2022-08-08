@@ -20,15 +20,17 @@ Examples
 1. Getting Herschel data
 ------------------------
 
-.. doctest-remote-data::
+.. Skipping becuase of how long the download takes
+.. doctest-skip::   
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')  # doctest: +IGNORE_OUTPUT
+  >>> HSA.download_data(observation_id='1342195355',  retrieval_type='OBSERVATION',
+  ...                   instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 
-This will download the product of the observation '1342195355' with the instrument 'PACS' and
+This will download the products of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.tar'. The parameters available are detailed in the API.
 
 For more details of the parameters check the section 6 of the ``Direct Product Access using TAP`` in the
@@ -41,11 +43,12 @@ For more details about the products check:
 2. Getting Observation Products
 -------------------------------
 
-.. doctest-remote-data::
+.. Skipping becuase of how long the download takes
+.. doctest-skip::
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.get_observation('1342195355', instrument_name='PACS')  # doctest: +IGNORE_OUTPUT
+  >>> HSA.get_observation('1342195355', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 

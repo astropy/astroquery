@@ -34,36 +34,37 @@ SCIENCE_PRODUCT or POSTCARD).
 This will download all files for the raw calibration level of the observation 'J6FL25S4Q' and it will store them in a tar called
 'raw_data_for_J6FL25S4Q.tar'.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
-  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="raw_data_for_J6FL25S4Q.tar")  # doctest: +IGNORE_OUTPUT
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW",
+  ...                            filename="raw_data_for_J6FL25S4Q.tar")  # doctest: +IGNORE_OUTPUT
 
 This will download the science files associated to the observation 'J6FL25S4Q' and it will store them in a file called
 'science_data_for_J6FL25S4Q.tar.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="J6FL25S4Q", filename="science_data_for_J6FL25S4Q.tar", product_type="SCIENCE_PRODUCT")
+  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", product_type="SCIENCE_PRODUCT",
+  ...                            filename="science_data_for_J6FL25S4Q.tar")   # doctest: +IGNORE_OUTPUT
 
 This third case will download the science files associated to the observation 'J6FL25S4Q' in raw calibration level and it will store them in a file called
 'science_raw_data_for_J6FL25S4Q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="science_raw_data_for_J6FL25S4Q", product_type="SCIENCE_PRODUCT")
+  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW",
+  ...                            filename="science_raw_data_for_J6FL25S4Q", product_type="SCIENCE_PRODUCT")   # doctest: +IGNORE_OUTPUT
 
 ---------------------------
 2. Getting Hubble postcards
 ---------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
@@ -82,8 +83,6 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 
 Note: Artifact is a single Hubble product file.
 
-.. code-block:: python
-.. doctest-remote-data::
 .. doctest-skip::
 
   >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
@@ -100,12 +99,11 @@ artifact to be download.
 
 The query_target function queries the name of the target as given by the proposer of the observations.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
-  >>> table = esahubble.query_target("m31", "m31_query.xml")  # doctest: +IGNORE_OUTPUT
+  >>> table = esahubble.query_target("m31", filename="m31_query.xml")  # doctest: +IGNORE_OUTPUT
 
 This will retrieve a table with the output of the query.
 It will also download a file storing all metadata for all observations
@@ -155,28 +153,59 @@ Access Protocol (TAP).
 
 This is an example of a query with all the parameters and the verbose flag activated, so the query is shown as a log message.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.query_criteria(calibration_level = 3,
-  ...                                     data_product_type = 'image',
-  ...                                      intent='SCIENCE',
-  ...                                      obs_collection=['HLA'],
-  ...                                      instrument_name = ['WFC3'],
-  ...                                      filters = ['F555W', 'F606W'],
-  ...                                      async_job = False,
-  ...                                      output_file = 'output1.vot.gz',
-  ...                                      output_format="votable",
-  ...                                      verbose = True,
-  ...                                      get_query = False)
-  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
-  AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
-  where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%'
-  AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name
-  LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR
-  o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
+  ...                                   data_product_type = 'image',
+  ...                                   intent='SCIENCE',
+  ...                                   obs_collection=['HLA'],
+  ...                                   instrument_name = ['WFC3'],
+  ...                                   filters = ['F555W', 'F606W'],
+  ...                                   async_job = False,
+  ...                                   output_file = 'output1.vot.gz',
+  ...                                   output_format="votable",
+  ...                                   verbose = True,
+  ...                                   get_query = False)    # doctest: +IGNORE_OUTPUT
+  INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
+  Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%'))'
+  ------>http
+  host = hst.esac.esa.int:80
+  context = /tap-server/tap//sync
+  Content-type = application/x-www-form-urlencoded
+  200 200
+  [('Date', 'Mon, 25 Jul 2022 15:46:58 GMT'), ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.4.16 mod_jk/1.2.48'), ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'), ('Expires', '0'), ('X-XSS-Protection', '1; mode=block'), ('X-Frame-Options', 'SAMEORIGIN'), ('X-Content-Type-Options', 'nosniff'), ('Content-Encoding', 'gzip'), ('Content-Disposition', 'attachment;filename="1658764018965O-result.vot"'), ('Content-Type', 'application/x-votable+xml'), ('Set-Cookie', 'JSESSIONID=B3AD5976E059A042D39AAA35C9C814FC; Path=/; HttpOnly'), ('Connection', 'close'), ('Transfer-Encoding', 'chunked')]
+  Retrieving sync. results...
+  Saving results to: output1.vot.gz
+  Query finished.
+  >>> print(result)    # doctest: +IGNORE_OUTPUT
+   algorithm_name  collection ...         ra                 dec        
+       object        object   ...      float64             float64      
+  ---------------- ---------- ... ------------------ -------------------
+  HLA ASSOCIATIONS        HLA ... 196.03170537675234 -49.368511417967795
+          exposure        HLA ... 196.03171011284857  -49.36851677699096
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+  HLA ASSOCIATIONS        HLA ...  259.2792176982667  43.133150839338235
+  HLA ASSOCIATIONS        HLA ...  68.97704902707727 -12.677248264318337
+  HLA ASSOCIATIONS        HLA ...  68.97704902707727 -12.677248264318337
+          exposure        HLA ...  68.97705442773626 -12.677252912230811
+               ...        ... ...                ...                 ...
+  HLA ASSOCIATIONS        HLA ... 210.80500687669544  54.278497365211976
+          exposure        HLA ...  152.7572845488674   -4.80118571219738
+          exposure        HLA ...  152.7572845488674   -4.80118571219738
+  HLA ASSOCIATIONS        HLA ...  152.7572806802392  -4.801183163442886
+          exposure        HLA ...  152.7572845488674   -4.80118571219738
+  HLA ASSOCIATIONS        HLA ... 202.44374997285675 -23.750512499483055
+          exposure        HLA ... 202.44375533561396 -23.750513053780008
+  HLA ASSOCIATIONS        HLA ... 202.44374997285675 -23.750512499483055
+          exposure        HLA ... 202.44375533561396 -23.750513053780008
+          exposure        HLA ...  152.8105559087745   -4.65644496753373
+          exposure        HLA ...  152.8105559087745   -4.65644496753373
+  Length = 2000 rows
 
 This will make a synchronous search, limited to 2000 results to find the observations that match these specific
 requirements. It will also download a votable file called **output.vot.gz** containing the result of the
@@ -184,32 +213,52 @@ query.
 
 The following example uses the string definition of the calibration level ('PRODUCT') and executes an asynchronous job to get all the results that match the criteria.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
-  ...                                      data_product_type = 'image',
-  ...                                      intent='SCIENCE',
-  ...                                      obs_collection=['HLA'],
-  ...                                      instrument_name = ['WFC3'],
-  ...                                      filters = ['F555W', 'F606W'],
-  ...                                      async_job = True,
-  ...                                      output_file = 'output2.vot.gz',
-  ...                                      output_format="votable",
-  ...                                      verbose = True,
-  ...                                      get_query = False) # doctest: +IGNORE_OUTPUT
-  Saving results to: output2.vot.gz
-  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation AS o LEFT
-  JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid where(p.calibration_level LIKE
-  '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND
-  (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%'
-  OR o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
+  ...                                   data_product_type = 'image',
+  ...                                   intent='SCIENCE',
+  ...                                   obs_collection=['HLA'],
+  ...                                   instrument_name = ['WFC3'],
+  ...                                   filters = ['F555W', 'F606W'],
+  ...                                   async_job = True,
+  ...                                   output_file = 'output2.vot.gz',
+  ...                                   output_format="votable",
+  ...                                   verbose = False,
+  ...                                   get_query = False)
+  >>> print(result)  # doctest: +IGNORE_OUTPUT
+   algorithm_name  collection ...         ra                 dec        
+  ---------------- ---------- ... ------------------ -------------------
+  HLA ASSOCIATIONS        HLA ... 196.03170537675234 -49.368511417967795
+          exposure        HLA ... 196.03171011284857  -49.36851677699096
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+          exposure        HLA ...  259.2792180139594   43.13314581814599
+  HLA ASSOCIATIONS        HLA ...  259.2792176982667  43.133150839338235
+  HLA ASSOCIATIONS        HLA ...  68.97704902707727 -12.677248264318337
+  HLA ASSOCIATIONS        HLA ...  68.97704902707727 -12.677248264318337
+          exposure        HLA ...  68.97705442773626 -12.677252912230811
+          exposure        HLA ...  68.97705442773626 -12.677252912230811
+               ...        ... ...                ...                 ...
+          exposure        HLA ...  345.6583071276117   56.72394842149916
+          exposure        HLA ... 345.65831033427037  56.723950318257195
+          exposure        HLA ...    345.65826624404   56.72397181023684
+          exposure        HLA ...  345.6582969971932   56.72398324705819
+          exposure        HLA ... 345.65825980977695   56.72394255099519
+          exposure        HLA ...  345.6582694604474    56.7239515193261
+          exposure        HLA ...  345.6582302371085   56.72396314167643
+          exposure        HLA ... 345.65834620470923   56.72399729379321
+  HLA ASSOCIATIONS        HLA ...  345.6583089525364  56.723967490767976
+          exposure        HLA ... 295.67142911697397  -10.32552919162329
+          exposure        HLA ... 140.37867144039893   45.11729184881005
+  Length = 12965 rows
+
 
 As has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
@@ -227,38 +276,42 @@ As has been mentioned, these parameters are optional and it is not necessary to 
 
 If no criteria are specified to limit the selection, this function will retrieve all the observations.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()     # doctest: +IGNORE_OUTPUT
-  >>> result = esahubble.query_criteria(async_job = False,
-  ...                                      verbose = True)
-  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
-  AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
-  [astroquery.esa.hubble.core]
+  >>> result = esahubble.query_criteria(async_job = False, verbose = True)    # doctest: +IGNORE_OUTPUT
+  INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id [astroquery.esa.hubble.core]
+  Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id'
+  ------>http
+  host = hst.esac.esa.int:80
+  context = /tap-server/tap//sync
+  Content-type = application/x-www-form-urlencoded
+  200 200
+  [('Date', 'Mon, 25 Jul 2022 16:21:18 GMT'), ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.4.16 mod_jk/1.2.48'), ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'), ('Expires', '0'), ('X-XSS-Protection', '1; mode=block'), ('X-Frame-Options', 'SAMEORIGIN'), ('X-Content-Type-Options', 'nosniff'), ('Content-Encoding', 'gzip'), ('Content-Disposition', 'attachment;filename="1658766078997O-result.vot"'), ('Content-Type', 'application/x-votable+xml'), ('Set-Cookie', 'JSESSIONID=7098EC515E7A2240E6F3129D23564139; Path=/; HttpOnly'), ('Connection', 'close'), ('Transfer-Encoding', 'chunked')]
+  Retrieving sync. results...
+  Query finished.
 
- This last example will provide the ADQL query based on the criteria defined by the user.
+This last example will provide the ADQL query based on the criteria defined by the user.
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
   >>> esahubble = ESAHubble()      # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
-  ...                                      data_product_type = 'image',
-  ...                                      intent='SCIENCE',
-  ...                                      obs_collection=['HLA'],
-  ...                                      instrument_name = ['WFC3'],
-  ...                                      filters = ['F555W', 'F606W'],
-  ...                                      get_query = True)
-  INFO: Query finished. [astroquery.utils.tap.core]
+  ...                                   data_product_type = 'image',
+  ...                                   intent='SCIENCE',
+  ...                                   obs_collection=['HLA'],
+  ...                                   instrument_name = ['WFC3'],
+  ...                                   filters = ['F555W', 'F606W'],
+  ...                                   get_query = True)
+  >>> print(result)
+  select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%'))
 
 --------------------------------------
 6. Cone searches in the Hubble archive
 --------------------------------------
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astropy import coordinates
@@ -280,46 +333,85 @@ in memory, without defining neither a filename nor the "save" tag.
 It is also possible to perform a cone search defined by a target name or coordinates, a radius
 and a set of criteria to filter the results.
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
+  >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.cone_search_criteria(target= 'm31',radius=7,
-                                              obs_collection=['HST'],
-                                              data_product_type = 'image',
-                                              instrument_name = ['ACS/WFC'],
-                                              filters = ['F435W'],
-                                              async_job = True,
-                                              filename = 'output1.vot.gz',
-                                              output_format="votable")
-  >>> result
+  ...                                         obs_collection=['HST'],
+  ...                                         data_product_type = 'image',
+  ...                                         instrument_name = ['ACS/WFC'],
+  ...                                         filters = ['F435W'],
+  ...                                         async_job = True,
+  ...                                         filename = 'output1.vot.gz',
+  ...                                         output_format="votable")
+  >>> print(result)    # doctest: +IGNORE_OUTPUT
+  algorithm_name collection            end_time           ...         ra                dec        
+  -------------- ---------- ----------------------------- ... ------------------ ------------------
+    multidrizzle        HST 2002-06-29 15:25:57.556128+00 ... 10.773035733571806  41.28459914735614
+         drizzle        HST    2002-06-29 12:15:20.787+00 ... 10.809522856742248  41.29351658280752
+         drizzle        HST    2002-06-29 12:15:20.787+00 ... 10.809522856742248  41.29351658280752
+         drizzle        HST    2002-06-29 12:15:20.787+00 ... 10.809522856742248  41.29351658280752
+         drizzle        HST    2002-06-29 15:25:57.557+00 ... 10.809522856742248  41.29351658280752
+         drizzle        HST    2002-06-29 15:25:57.557+00 ... 10.809522856742248  41.29351658280752
+         drizzle        HST    2002-06-29 15:25:57.557+00 ... 10.809522856742248  41.29351658280752
+        exposure        HST    2002-06-29 10:40:25.757+00 ... 10.809522856742248  41.29351658280752
+        exposure        HST    2002-06-29 10:40:25.757+00 ... 10.809522856742248  41.29351658280752
+        exposure        HST    2002-06-29 10:49:21.757+00 ... 10.809522856742248  41.29351658280752
+        exposure        HST    2002-06-29 10:49:21.757+00 ... 10.809522856742248  41.29351658280752
+             ...        ...                           ... ...                ...                ...
+        exposure        HST     2013-06-19 01:44:51.32+00 ... 10.766005545644669 41.309233725982274
+         drizzle        HST      2014-06-26 02:01:04.4+00 ...  10.56783424321201  41.26161655867049
+         drizzle        HST      2014-06-26 02:01:04.4+00 ...  10.56783424321201  41.26161655867049
+        exposure        HST    2014-06-26 00:04:17.347+00 ...  10.56783424321201  41.26161655867049
+        exposure        HST    2014-06-26 00:04:17.347+00 ...  10.56783424321201  41.26161655867049
+        exposure        HST 2014-06-26 00:26:04.320001+00 ...  10.56784158160213  41.26168995624255
+        exposure        HST 2014-06-26 00:26:04.320001+00 ...  10.56784158160213  41.26168995624255
+        exposure        HST    2014-06-26 01:37:39.337+00 ... 10.567904084182938  41.26166780758625
+        exposure        HST    2014-06-26 01:37:39.337+00 ... 10.567904084182938  41.26166780758625
+        exposure        HST    2014-06-26 02:01:03.337+00 ... 10.567896755477244  41.26159439998882
+        exposure        HST    2014-06-26 02:01:03.337+00 ... 10.567896755477244  41.26159439998882
+  Length = 323 rows
 
-    <Table length=302>
-    algorithm_name collection         end_time           end_time_mjd   exposure_duration ... target_name calibration_level data_product_type         ra                dec
-        object       object            object              float64           float64      ...    object         object            object           float64            float64
-    -------------- ---------- ----------------------- ----------------- ----------------- ... ----------- ----------------- ----------------- ------------------ -----------------
-           drizzle        HST 2002-06-29 14:15:20.787 52454.51065725694            1600.0 ...      M31-T3        CALIBRATED             image 10.791884595154517 41.28819762447081
-               ...        ...                     ...               ...               ... ...         ...               ...               ...                ...               ...
-          exposure        HST   2014-06-26 03:40:17.0 56834.06964120371            1246.0 ...   M-31-CORE        CALIBRATED             image 10.531742116262286 41.25273489574185
-          exposure        HST   2014-06-26 03:40:17.0 56834.06964120371            1246.0 ...   M-31-CORE               RAW             image 10.531742116262286 41.25273489574185
 
-
-.. code-block:: python
+.. doctest-remote-data::
 
   >>> from astropy import coordinates
   >>> from astropy import units as u
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-  >>> result = esahubble.cone_search_criteria(coordinates=c,radius=7*u.arcmin,
-                                              obs_collection=['HST'],
-                                              instrument_name = ['WFPC2'],
-                                              filters = ['F606W'],
-                                              async_job = True,
-                                              filename = 'output1.vot.gz',
-                                              output_format="votable",
-                                              verbose=True)
-  >>> str(table)
+  >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()  # doctest: +IGNORE_OUTPUT
+  >>> coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+  >>> result = esahubble.cone_search_criteria(coordinates=coords,
+  ...                                         radius=7*u.arcmin,
+  ...                                         obs_collection=['HST'],
+  ...                                         instrument_name = ['WFPC2'],
+  ...                                         filters = ['F606W'],
+  ...                                         async_job = True,
+  ...                                         filename = 'output1.vot.gz',
+  ...                                         output_format="votable")
+  >>> print(result)   # doctest: +IGNORE_OUTPUT
+  algorithm_name collection          end_time          ...         ra                dec        
+  -------------- ---------- -------------------------- ... ------------------ ------------------
+        exposure        HST 1996-07-11 19:57:16.567+00 ... 10.707934959432448  41.29717554921647
+        exposure        HST 1996-07-11 19:57:16.567+00 ... 10.707934959432448  41.29717554921647
+        exposure        HST 1996-07-11 23:10:56.567+00 ... 10.707934959432448  41.29717554921647
+        exposure        HST 1996-07-11 23:10:56.567+00 ... 10.707934959432448  41.29717554921647
+        exposure        HST 1995-08-07 17:18:17.427+00 ... 10.667025486961762  41.27549451122148
+        exposure        HST 1995-08-07 17:18:17.427+00 ... 10.667025486961762  41.27549451122148
+        exposure        HST  1998-08-13 15:41:53.99+00 ...  10.62792588770676  41.16842053688991
+        exposure        HST  1998-08-13 15:41:53.99+00 ...  10.62792588770676  41.16842053688991
+        exposure        HST  1998-08-13 15:53:53.99+00 ... 10.627778569005512 41.168427385527195
+        exposure        HST  1998-08-13 15:53:53.99+00 ... 10.627778569005512 41.168427385527195
+        exposure        HST 1999-06-06 17:52:53.323+00 ... 10.726290793310492  41.17571391732456
+        exposure        HST 1999-06-06 17:52:53.323+00 ... 10.726290793310492  41.17571391732456
+        exposure        HST  1999-06-06 19:19:33.45+00 ... 10.726290793310492  41.17571391732456
+        exposure        HST  1999-06-06 19:19:33.45+00 ... 10.726290793310492  41.17571391732456
+        exposure        HST  1998-08-13 17:18:53.99+00 ... 10.627778569005512 41.168427385527195
+        exposure        HST  1998-08-13 17:18:53.99+00 ... 10.627778569005512 41.168427385527195
+        exposure        HST  2002-06-29 10:28:56.79+00 ... 10.673753121140141  41.33685901875662
+        exposure        HST  2002-06-29 10:28:56.79+00 ... 10.673753121140141  41.33685901875662
+        exposure        HST  2002-06-29 10:35:56.79+00 ... 10.673753121140141  41.33685901875662
+        exposure        HST  2002-06-29 10:35:56.79+00 ... 10.673753121140141  41.33685901875662
 
 This will perform a cone search with radius 7 arcmins around the target (defined by
 its coordinates or its name) using the filters defined when executing the function.
@@ -334,7 +426,6 @@ This function allows the same parameters than the search criteria (see Section 5
 This function provides access to the HST archive database using the Table
 Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
-.. code-block:: python
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble     # doctest: +IGNORE_OUTPUT
@@ -358,12 +449,13 @@ If the observation is Simple the method returns the Composite observation that
 is built on this simple observation. If the observation is Composite then the
 method returns the simple observations that make it up.
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
+  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.get_member_observations("jdrz0c010")
   >>> print(result)
+  ['jdrz0cjxq', 'jdrz0cjyq']
 
 
 --------------------------------------------------------
@@ -373,12 +465,13 @@ method returns the simple observations that make it up.
 This function takes in an observation id of a Simple HAP or HST observation and
 returns the corresponding HAP or HST observation
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
+  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
+  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
   >>> result = esahubble.get_hap_hst_link("hst_16316_71_acs_sbc_f150lp_jec071i9")
   >>> print(result)
+  ['jec071i9q']
 
 
 

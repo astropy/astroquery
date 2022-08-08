@@ -367,7 +367,7 @@ class ESAHubbleClass(BaseQuery):
                  "pl.main_science_plane='true' and 1=CONTAINS(POINT('ICRS', "
                  f"pos.ra, pos.dec),CIRCLE('ICRS', {str(ra)}, {str(dec)}, {str(radius_in_grades)})) order "
                  "by prop.proposal_id desc")
-        print("type: " + str(type(query)))
+
         if verbose:
             log.info(query)
         table = self.query_hst_tap(query=query, async_job=async_job,
