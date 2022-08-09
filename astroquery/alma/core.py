@@ -309,7 +309,8 @@ class AlmaClass(QueryWithLogin):
                                 payload=payload, **kwargs)
 
     def query_async(self, payload, *, public=True, science=True,
-                    legacy_columns=False, get_query_payload=None, **kwargs):
+                    legacy_columns=False, get_query_payload=None,
+                    maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -326,6 +327,10 @@ class AlmaClass(QueryWithLogin):
         legacy_columns : bool
             True to return the columns from the obsolete ALMA advanced query,
             otherwise return the current columns based on ObsCore model.
+        get_query_payload : bool
+            Flag to indicate whether to simply return the payload.
+        maxrec : integer
+            Cap on the amount of records returned.  Default is no limit.
 
         Returns
         -------
@@ -353,7 +358,7 @@ class AlmaClass(QueryWithLogin):
             return payload
 
         query = _gen_sql(payload)
-        result = self.query_tap(query, maxrec=payload.get('maxrec', None))
+        result = self.query_tap(query, maxrec=maxrec)
         if result is not None:
             result = result.to_table()
         else:
