@@ -25,6 +25,17 @@ alma
 
 - Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
 
+
+astrometry.net
+^^^^^^^^^^^^^^
+
+- Added a ``verbose=`` keyword argument to ``AstrometryNet`` to control whether or not
+  to show any information during solving. [#2484]
+
+- Fixed a bug which caused ``solve_timeout`` to not be respected when an image was
+  solved by constructing a source list internally before sending data to
+  astrometry.net. [#2484]
+
 cadc
 ^^^^
 
