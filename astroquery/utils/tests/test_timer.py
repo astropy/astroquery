@@ -34,6 +34,7 @@ def func_to_time(x):
     return y
 
 
+@pytest.mark.flaky(reruns=1, reruns_delay=10)
 def test_timer():
     """Test function timer."""
     p = RunTimePredictor(func_to_time)
