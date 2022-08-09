@@ -606,7 +606,7 @@ class AlmaClass(QueryWithLogin):
         proprietary or not.
         """
         query = "select distinct data_rights from ivoa.obscore where " \
-                "obs_id='{}'".format(uid)
+                "member_ous_uid='{}'".format(uid)
         result = self.query_tap(query)
         if result:
             tableresult = result.to_table()
