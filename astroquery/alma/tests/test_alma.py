@@ -243,6 +243,18 @@ def test_pol_sql():
         common_select + " WHERE (pol_states='/XX/' OR pol_states='/XX/YY/')"
 
 
+def test_unused_args():
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    # with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock, pytest.raises(TypeError) as typeError:
+    with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock:
+        with pytest.raises(TypeError) as typeError:
+            name_mock.return_value = SkyCoord(1, 2, unit='deg')
+            alma.query_object('M13', public=False, bogus=True, nope=False, band_list=[3])
+
+        assert "['bogus -> True', 'nope -> False']" in str(typeError.value)
+
+
 def test_query():
     # Tests the query and return values
     tap_mock = Mock()

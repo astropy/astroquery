@@ -162,6 +162,7 @@ ALMA_FORM_KEYS = {
 def _gen_sql(payload):
     sql = 'select * from ivoa.obscore'
     where = ''
+    unused_payload = payload.copy()
     if payload:
         for constraint in payload:
             for attrib_category in ALMA_FORM_KEYS.values():
@@ -181,6 +182,18 @@ def _gen_sql(payload):
                             else:
                                 where = ' WHERE '
                             where += attrib_where
+
+                        # Delete this key to see what's left over afterward
+                        #
+                        # Use pop to avoid the slight possibility of trying to remove
+                        # an already removed key
+                        unused_payload.pop(constraint)
+
+    if unused_payload:
+        # Left over (unused) constraints passed.  Let the user know.
+        remaining = [f'{p} -> {unused_payload[p]}' for p in unused_payload]
+        raise TypeError(f'Unsupported arguments were passed:\n{remaining}')
+
     return sql + where
 
 
@@ -296,7 +309,8 @@ class AlmaClass(QueryWithLogin):
                                 payload=payload, **kwargs)
 
     def query_async(self, payload, *, public=True, science=True,
-                    legacy_columns=False, get_query_payload=None, **kwargs):
+                    legacy_columns=False, get_query_payload=None,
+                    maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -313,6 +327,10 @@ class AlmaClass(QueryWithLogin):
         legacy_columns : bool
             True to return the columns from the obsolete ALMA advanced query,
             otherwise return the current columns based on ObsCore model.
+        get_query_payload : bool
+            Flag to indicate whether to simply return the payload.
+        maxrec : integer
+            Cap on the amount of records returned.  Default is no limit.
 
         Returns
         -------
@@ -340,7 +358,7 @@ class AlmaClass(QueryWithLogin):
             return payload
 
         query = _gen_sql(payload)
-        result = self.query_tap(query, maxrec=payload.get('maxrec', None))
+        result = self.query_tap(query, maxrec=maxrec)
         if result is not None:
             result = result.to_table()
         else:
@@ -588,7 +606,7 @@ class AlmaClass(QueryWithLogin):
         proprietary or not.
         """
         query = "select distinct data_rights from ivoa.obscore where " \
-                "obs_id='{}'".format(uid)
+                "member_ous_uid='{}'".format(uid)
         result = self.query_tap(query)
         if result:
             tableresult = result.to_table()
