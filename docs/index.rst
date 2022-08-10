@@ -172,6 +172,36 @@ uncomment the relevant configuration item(s), and insert your desired value(s).
 
   configuration
 
+
+Caching
+-------
+
+By default Astroquery employs query caching with a timeout of 1 week, although individual services
+may have different settings. The user can clear their cache at any time, as well as suspend cache usage,
+and change the cache location. Caching persists between Astroquery sessions.
+If you know the service you are using has released new data recently, or if you believe you are
+not recieving the newest data, try clearing the cache.
+
+The Astroquery cache is divided by service, so each service's cache should be managed invidually.
+Shown here are the cache properties, using `~astroquery.simbad.Simbad` as an example.
+
+.. code-block:: python
+
+  >>> from astroquery.simbad import Simbad
+
+  >>> # Is the cache active?
+  >>> print(Simbad.cache_active)
+  True
+
+  >>> # Cache location
+  >>> print(Simbad.cache_location)
+  /Users/username/.astropy/cache/astroquery/Simbad
+
+  >>> # Cache timout in seconds
+  >>> print(Simbad.cache_timeout)
+  604800
+
+
 Available Services
 ==================
 
