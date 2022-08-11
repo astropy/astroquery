@@ -828,7 +828,15 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         files = self.get_data_info(uids)
-        file_urls = files['access_url']
+        # filter out blank access URLs
+        # it is possible for there to be length-1 lists
+        if len(files) == 1:
+            file_urls = files['access_url']
+            if isinstance(file_urls, str) and file_urls == '':
+                raise ValueError(f"Cannot download uid {uid} because it has no file")
+        else:
+            file_urls = [url for url in files['access_url'] if url]
+
         totalsize = files['content_length'].sum()*u.B
 
         # each_size, totalsize = self.data_size(files)
