@@ -183,7 +183,7 @@ If you know the service you are using has released new data recently, or if you 
 not recieving the newest data, try clearing the cache.
 
 The Astroquery cache is divided by service, so each service's cache should be managed invidually.
-Shown here are the cache properties, using `~astroquery.simbad.Simbad` as an example.
+Shown here are the cache properties, using Simbad as an example.
 
 .. code-block:: python
 
