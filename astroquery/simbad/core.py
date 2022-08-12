@@ -281,8 +281,6 @@ class SimbadClass(SimbadBaseQuery):
                   ),
         '[^0-9]': 'Any (one) character not in the list.'}
 
-    _ORDERED_WILDCARDS = ['*', '?', '[abc]', '[^0-9]']
-
     # query around not included since this is a subcase of query_region
     _function_to_command = {
         'query_object_async': 'query id',
@@ -323,10 +321,7 @@ class SimbadClass(SimbadBaseQuery):
         [abc] : Exactly one character taken in the list.
                 Can also be defined by a range of characters: [A-Z]
         """
-        for key in self._ORDERED_WILDCARDS:
-            print("{key} : {value}\n".format(key=key,
-                                             value=self.WILDCARDS[key]))
-        return
+        print("\n\n".join(f"{k} : {v}" for k, v in self.WILDCARDS.items()))
 
     def list_votable_fields(self):
         """
