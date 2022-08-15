@@ -12,6 +12,7 @@ from collections import namedtuple
 from io import BytesIO
 import warnings
 import astropy.units as u
+from astropy.utils import isiterable
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
@@ -684,7 +685,7 @@ class SimbadClass(SimbadBaseQuery):
             else:
                 frame = set(frame).pop()
 
-            if _has_length(radius):
+            if isiterable(radius):
                 if len(radius) != len(ra):
                     raise ValueError("Mismatch between radii and coordinates")
             else:
@@ -1071,17 +1072,8 @@ def _parse_coordinates(coordinates):
         raise ValueError("Coordinates not specified correctly")
 
 
-def _has_length(x):
-    # some objects have '__len__' attributes but have no len()
-    try:
-        len(x)
-        return True
-    except (TypeError, AttributeError):
-        return False
-
-
 def _get_frame_coords(coordinates):
-    if _has_length(coordinates):
+    if isiterable(coordinates):
         # deal with vectors differently
         parsed = [_get_frame_coords(cc) for cc in coordinates]
         return ([ra for ra, dec, frame in parsed],
