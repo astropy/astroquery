@@ -3,7 +3,6 @@
 Simbad query class for accessing the Simbad Service
 """
 
-import copy
 import re
 import requests
 import json
@@ -302,7 +301,7 @@ class SimbadClass(SimbadBaseQuery):
 
     def __init__(self):
         super().__init__()
-        self._VOTABLE_FIELDS = copy.copy(self._VOTABLE_FIELDS)
+        self._VOTABLE_FIELDS = self._VOTABLE_FIELDS.copy()
 
     def list_wildcards(self):
         """
