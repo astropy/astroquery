@@ -673,8 +673,6 @@ class SimbadClass(SimbadBaseQuery):
 
         # handle the vector case
         if isinstance(ra, list):
-            vector = True
-
             if len(ra) > 10000:
                 warnings.warn("For very large queries, you may receive a "
                               "timeout error.  SIMBAD suggests splitting "
@@ -686,19 +684,16 @@ class SimbadClass(SimbadBaseQuery):
             else:
                 frame = set(frame).pop()
 
-            if vector and _has_length(radius) and len(radius) == len(ra):
-                # all good, continue
-                pass
-            elif vector and _has_length(radius) and len(radius) != len(ra):
-                raise ValueError("Mismatch between radii and coordinates")
-            elif vector and not _has_length(radius):
+            if _has_length(radius):
+                if len(radius) != len(ra):
+                    raise ValueError("Mismatch between radii and coordinates")
+            else:
                 radius = [_parse_radius(radius)] * len(ra)
 
-            if vector:
-                query_str = "\n".join([base_query_str
-                                      .format(ra=ra_, dec=dec_, rad=rad_,
-                                              frame=frame, equinox=equinox)
-                                      for ra_, dec_, rad_ in zip(ra, dec, radius)])
+            query_str = "\n".join(base_query_str
+                                  .format(ra=ra_, dec=dec_, rad=rad_,
+                                          frame=frame, equinox=equinox)
+                                  for ra_, dec_, rad_ in zip(ra, dec, radius))
 
         else:
             radius = _parse_radius(radius)
