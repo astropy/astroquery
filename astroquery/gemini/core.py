@@ -751,7 +751,7 @@ def _gemini_cal_html_to_table(html):
     # This is future-proofing, the existing page has a bug putting the header inside the body
     # but if that gets fixed, we'll want this
     cols = None
-    table_header = table.find("thead")
+    table_header = table.find("thead") if table is not None else None
     header_in_body = True
     if table_header is not None:
         header_in_body = False
