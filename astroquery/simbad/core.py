@@ -202,25 +202,20 @@ class SimbadBibcodeResult(SimbadResult):
     """Bibliography-type Simbad result"""
     @property
     def table(self):
-        bibcode_match = bibcode_regex.search(self.script)
-        splitter = bibcode_match.group(2)
-        ref_list = [splitter + ref for ref in self.data.split(splitter)][1:]
-        max_len = max([len(r) for r in ref_list])
-        table = Table(names=['References'], dtype=['U%i' % max_len])
-        for ref in ref_list:
-            table.add_row([ref])
-        return table
+        splitter = bibcode_regex.search(self.script).group(2)
+        ref_list = [[splitter + ref] for ref in self.data.split(splitter)[1:]]
+        max_len = max(len(r[0]) for r in ref_list)
+        return Table(rows=ref_list, names=['References'], dtype=[f"U{max_len}"])
 
 
 class SimbadObjectIDsResult(SimbadResult):
     """Object identifier list Simbad result"""
     @property
     def table(self):
-        max_len = max([len(i) for i in self.data.splitlines()])
-        table = Table(names=['ID'], dtype=['S%i' % max_len])
-        for id in self.data.splitlines():
-            table.add_row([id.strip()])
-        return table
+        split_lines = self.data.splitlines()
+        ids = [[id.strip()] for id in split_lines]
+        max_len = max(map(len, split_lines))
+        return Table(rows=ids, names=['ID'], dtype=[f"S{max_len}"])
 
 
 class SimbadBaseQuery(BaseQuery):
