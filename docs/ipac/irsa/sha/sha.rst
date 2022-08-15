@@ -100,3 +100,8 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
+
+.. testcleanup::
+
+    >>> from astroquery.utils import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['sha_tmp'])

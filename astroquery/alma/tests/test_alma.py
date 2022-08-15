@@ -173,6 +173,16 @@ def test_gen_str_sql():
         "(proposal_id LIKE '2012.%' OR proposal_id LIKE '2013._3%')"
 
 
+def test_gen_array_sql():
+    # test string array input (regression in #2094)
+    # string arrays should be OR'd together
+    common_select = "select * from ivoa.obscore WHERE "
+    test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
+    assert _gen_sql({"spatial_resolution": "<0.1",
+        "science_keyword": test_keywords}) == common_select + \
+            "spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' OR science_keyword='Disks around high-mass stars')"
+
+
 def test_gen_datetime_sql():
     common_select = 'select * from ivoa.obscore WHERE '
     assert _gen_sql({'start_date': '01-01-2020'}) == common_select + \
@@ -231,6 +241,18 @@ def test_pol_sql():
         common_select + " WHERE (pol_states='/XX/' OR pol_states='/XX/YY/')"
     assert _gen_sql({'polarisation_type': 'Single, Dual'}) == \
         common_select + " WHERE (pol_states='/XX/' OR pol_states='/XX/YY/')"
+
+
+def test_unused_args():
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    # with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock, pytest.raises(TypeError) as typeError:
+    with patch('astroquery.alma.tapsql.coord.SkyCoord.from_name') as name_mock:
+        with pytest.raises(TypeError) as typeError:
+            name_mock.return_value = SkyCoord(1, 2, unit='deg')
+            alma.query_object('M13', public=False, bogus=True, nope=False, band_list=[3])
+
+        assert "['bogus -> True', 'nope -> False']" in str(typeError.value)
 
 
 def test_query():

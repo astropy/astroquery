@@ -35,7 +35,7 @@ def patch_fromname(request):
 
 class MockResponseSkyView(MockResponse):
     def __init__(self):
-        super(MockResponseSkyView, self).__init__()
+        super().__init__()
 
     def get_content(self):
         return self.content
@@ -43,7 +43,7 @@ class MockResponseSkyView(MockResponse):
 
 class MockResponseSkyviewForm(MockResponse):
     def __init__(self, method, url, cache=False, params=None, **kwargs):
-        super(MockResponseSkyviewForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.content = self.get_content(method, url)
 
     def get_content(self, method, url):

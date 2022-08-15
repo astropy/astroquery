@@ -63,7 +63,7 @@ class MPCClass(BaseQuery):
     }
 
     def __init__(self):
-        super(MPCClass, self).__init__()
+        super().__init__()
 
     def query_object_async(self, target_type, get_query_payload=False, *args, **kwargs):
         """

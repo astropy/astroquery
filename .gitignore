@@ -19,6 +19,7 @@ MANIFEST
 .eggs
 pip-wheel-metadata
 .hypothesis
+doctests.py
 
 # Sphinx
 _build

@@ -11,19 +11,20 @@ Created on 13 Aug. 2018
 
 
 """
-import numpy as np
-import pytest
 import os
+import shutil
+import tempfile
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import numpy as np
+import pytest
+from astropy import coordinates
+from astropy.table.table import Table
 from requests.models import Response
+
 from astroquery.esa.hubble import ESAHubbleClass
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
-from astroquery.utils.mocks import MockResponse
-from astropy import coordinates
-from unittest.mock import MagicMock
-from astropy.table.table import Table
-import shutil
 
 
 def data_path(filename):
@@ -93,9 +94,10 @@ class TestESAHubble:
         assert "This product_type is not allowed" in err.value.args[0]
 
     def test_download_product_by_calibration(self):
+        tempdir = tempfile.mkdtemp("temp")
         parameters = {'observation_id': "J6FL25S4Q",
                       'cal_level': "RAW",
-                      'filename': "J6FL25S4Q.vot",
+                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -104,9 +106,10 @@ class TestESAHubble:
                               verbose=parameters['verbose'])
 
     def test_download_product_by_product_type(self):
+        tempdir = tempfile.mkdtemp("temp")
         parameters = {'observation_id': "J6FL25S4Q",
                       'product_type': "SCIENCE_PRODUCT",
-                      'filename': "J6FL25S4Q.vot",
+                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -127,9 +130,10 @@ class TestESAHubble:
                               verbose=parameters['verbose'])
 
     def test_get_postcard(self):
+        tempdir = tempfile.mkdtemp("temp")
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_postcard(observation_id="X0MC5101T",
-                          filename="X0MC5101T.vot",
+                          filename=os.path.join(tempdir, "X0MC5101T.vot"),
                           verbose=True)
 
     @patch.object(ESAHubbleClass, 'cone_search')
@@ -224,8 +228,9 @@ class TestESAHubble:
         ehst.get_tables(True, True)
 
     def test_get_artifact(self):
+        tempdir = tempfile.mkdtemp("temp")
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.get_artifact("w0ji0v01t_c2f.fits.gz")
+        ehst.get_artifact(os.path.join(tempdir, "w0ji0v01t_c2f.fits.gz"))
 
     def test_get_columns(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",

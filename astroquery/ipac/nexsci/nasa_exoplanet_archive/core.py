@@ -17,7 +17,6 @@ from astropy.coordinates import SkyCoord
 from astropy.io import ascii
 from astropy.io.votable import parse_single_table
 from astropy.table import QTable
-from astropy.utils import deprecated, deprecated_renamed_argument
 from astropy.utils.exceptions import AstropyWarning
 
 # Import astroquery utilities
@@ -629,25 +628,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         return data
 
-    def _handle_all_columns_argument(self, **kwargs):
-        """
-        Deal with the ``all_columns`` argument that was exposed by earlier versions
-
-        This method will warn users about this deprecated argument and update the query syntax
-        to use ``select='*'``.
-        """
-        # We also have to manually pop these arguments from the dict because
-        # `deprecated_renamed_argument` doesn't do that for some reason for all supported astropy
-        # versions (v3.1 was beheaving as expected)
-        kwargs.pop("show_progress", None)
-        kwargs.pop("table_path", None)
-
-        # Deal with `all_columns` properly
-        if kwargs.pop("all_columns", None):
-            kwargs["select"] = kwargs.get("select", "*")
-
-        return kwargs
-
     @class_or_instance
     def _request_to_sql(self, request_payload):
         """Convert request_payload dict to SQL query string to be parsed by TAP."""
@@ -676,52 +656,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         tap_query = "{0} {1}".format(query_req, query_opt)
 
         return tap_query
-
-    @deprecated(since="v0.4.1", alternative="query_object")
-    @deprecated_renamed_argument(["show_progress", "table_path"],
-                                 [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_planet(self, planet_name, cache=None, **criteria):
-        """
-        Search the ``exoplanets`` table for a confirmed planet
-
-        Parameters
-        ----------
-        planet_name : str
-            The name of a confirmed planet. If ``regularize`` is ``True``, an attempt will be made
-            to regularize this name using the ``aliastable`` table.
-        cache : bool, optional
-            Should the request result be cached? This can be useful for large repeated queries,
-            but since the data in the archive is updated regularly, this defaults to ``False``.
-        **criteria
-            Any other filtering criteria to apply. Values provided using the ``where`` keyword will
-            be ignored.
-        """
-        criteria = self._handle_all_columns_argument(**criteria)
-        criteria["where"] = "pl_name='{0}'".format(planet_name.strip())
-        return self.query_criteria("exoplanets", cache=cache, **criteria)
-
-    @deprecated(since="v0.4.1", alternative="query_object")
-    @deprecated_renamed_argument(["show_progress", "table_path"],
-                                 [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_star(self, host_name, cache=None, **criteria):
-        """
-        Search the ``exoplanets`` table for a confirmed planet host
-
-        Parameters
-        ----------
-        host_name : str
-            The name of a confirmed planet host. If ``regularize`` is ``True``, an attempt will be
-            made to regularize this name using the ``aliastable`` table.
-        cache : bool, optional
-            Should the request result be cached? This can be useful for large repeated queries,
-            but since the data in the archive is updated regularly, this defaults to ``False``.
-        **criteria
-            Any other filtering criteria to apply. Values provided using the ``where`` keyword will
-            be ignored.
-        """
-        criteria = self._handle_all_columns_argument(**criteria)
-        criteria["where"] = "pl_hostname='{0}'".format(host_name.strip())
-        return self.query_criteria("exoplanets", cache=cache, **criteria)
 
 
 NasaExoplanetArchive = NasaExoplanetArchiveClass()

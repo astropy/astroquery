@@ -80,7 +80,7 @@ class ESASkyClass(BaseQuery):
                  'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
     def __init__(self, tap_handler=None):
-        super(ESASkyClass, self).__init__()
+        super().__init__()
 
         if tap_handler is None:
             self._tap = TapPlus(url=self.URLbase + "/tap")

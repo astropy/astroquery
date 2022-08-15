@@ -39,7 +39,7 @@ class ADSClass(BaseQuery):
 
     def __init__(self, *args):
         """ set some parameters """
-        super(ADSClass, self).__init__()
+        super().__init__()
 
     @class_or_instance
     def query_simple(self, query_string, get_query_payload=False,
@@ -123,7 +123,7 @@ class ADSClass(BaseQuery):
             with open(token_file) as f:
                 self.TOKEN = f.read().strip()
             return self.TOKEN
-        except IOError:
+        except OSError:
             raise RuntimeError('No API token found! Get yours from: '
                                'https://ui.adsabs.harvard.edu/#user/settings/token '
                                'and store it in the API_DEV_KEY environment variable.')

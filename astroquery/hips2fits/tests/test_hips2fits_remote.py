@@ -15,7 +15,7 @@ from matplotlib.colors import Colormap
 
 
 @pytest.mark.remote_data
-class TestHips2fitsRemote(object):
+class TestHips2fitsRemote:
 
     # Create a new WCS astropy object
     w = astropy_wcs.WCS(header={

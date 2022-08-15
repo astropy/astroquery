@@ -45,21 +45,21 @@ class AlfalfaClass(BaseQuery):
             return self.ALFALFACAT
 
         result = requests.get(self.CATALOG_PREFIX)
-        iterable_lines = result.iter_lines()
+        iterable_lines = result.text.split('\n')
 
         # Read header
-        cols = [col for col in next(iterable_lines).rstrip('\n').split(',')]
+        cols = iterable_lines[0].split(',')
 
         catalog = {}
         for col in cols:
             catalog[col] = []
 
         # Parse result
-        for line in iterable_lines:
+        for line in iterable_lines[1:]:
             # skip blank lines or trailing newlines
             if line == "":
                 continue
-            col_values = line.rstrip('\n').split(',')
+            col_values = line.split(',')
             for i, col in enumerate(cols):
                 item = col_values[i].strip()
                 if item == '\"\"':

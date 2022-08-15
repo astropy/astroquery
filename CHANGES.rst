@@ -4,14 +4,103 @@
 New Tools and Services
 ----------------------
 
+gaia
+^^^^
+
+- TAP notifications service is now available for Gaia. If there is notification for the users,
+  for example planned or our unplanned downtimes of the archive, etc. The notification
+  will be also visible when accessing the archive through Astroquery. [#2376]
+
+hsa
+^^^
+
+- New module to access ESA Herschel mission. [#2122]
+
 
 Service fixes and enhancements
 ------------------------------
+
+alma
+^^^^
+
+- Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
+- Throws an error when an unsupported ``kwargs`` (or argument) is passed in to a function. [#2475]
+
+
+astrometry.net
+^^^^^^^^^^^^^^
+
+- Added a ``verbose=`` keyword argument to ``AstrometryNet`` to control whether or not
+  to show any information during solving. [#2484]
+
+- Fixed a bug which caused ``solve_timeout`` to not be respected when an image was
+  solved by constructing a source list internally before sending data to
+  astrometry.net. [#2484]
+
+cadc
+^^^^
+
+- Deprecated keywords and ``run_query`` method have been removed. [#2389]
+
+casda
+^^^^^
+
+- Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [#2366]
+
+- Use the standard ``login`` method for authenticating, which supports the system
+  keyring [#2386]
+
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The deprecated methods ``query_planet()`` and ``query_star()`` have been removed.
+
+jplhorizons
+^^^^^^^^^^^
+
+- Deprecate ``get_raw_response`` options in query methods.  The raw response may
+  be retrieved from the _async() methods. [#2418]
+
+jplsbdb
+^^^^^^^
+
+- Fix a bug for jplsdbd query when the returned physical quantity contains
+  a unit with exponential. [#2377]
+
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Fix issues with the line name parser and the line data parser; the original
+  implementation was incomplete and upstream was not fully documented. [#2385, #2411]
+
+oac
+^^^
+
+- Fix bug in parsing events that contain html tags (e.g. in their alias
+  field). [#2423]
+
+svo_fps
+^^^^^^^
+
+- The wavelength limits in ``get_filter_index()`` can now be specified using any
+  length unit, not just angstroms. [#2444]
+
+- Queries with invalid parameter names now raise an ``InvalidQueryError``.
+  [#2446]
+
+gaia
+^^^^
+
+- Method 'load_data' now has the parameter 'valid_data' set to False by default.
+  With this change the epoch photometry service returns all data associated
+  to a given source. [#2376]
 
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
+  added to help the testcleanup narrative in narrative documentations. [#2384]
 
 
 0.4.6 (2022-03-22)

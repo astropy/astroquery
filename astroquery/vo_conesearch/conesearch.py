@@ -76,7 +76,7 @@ class AsyncConeSearch(AsyncBase):
 
     """
     def __init__(self, *args, **kwargs):
-        super(AsyncConeSearch, self).__init__(conesearch, *args, **kwargs)
+        super().__init__(conesearch, *args, **kwargs)
 
 
 def conesearch(center, radius, *, verb=1, catalog_db=None,

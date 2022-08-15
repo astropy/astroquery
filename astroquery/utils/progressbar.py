@@ -66,7 +66,7 @@ def retrieve(url, outfile, opener=None, overwrite=False):
     S = StringIO(results)
     try:
         fitsfile = fits.open(S, ignore_missing_end=True)
-    except IOError:
+    except OSError:
         S.seek(0)
         G = gzip.GzipFile(fileobj=S)
         fitsfile = fits.open(G, ignore_missing_end=True)

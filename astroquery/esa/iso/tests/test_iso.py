@@ -15,7 +15,7 @@ from astroquery.esa.iso import ISOClass
 from astroquery.esa.iso.tests.dummy_tap_handler import DummyISOTapHandler
 
 
-class TestISO():
+class TestISO:
 
     def get_dummy_tap_handler(self):
         parameters = {'query': "select top 10 * from ida.observations",

@@ -304,7 +304,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
    >>> from astroquery.mast import Observations
    ...
-   >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+   >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
    >>> data_products = Observations.get_product_list(single_obs)
    ...
    >>> manifest = Observations.download_products(data_products, productType="SCIENCE")
@@ -1136,25 +1136,13 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
 
    >>> from astroquery.mast import Observations
    ...
-   >>> Observations.login(token="12348r9w0sa2392ff94as841")
-   INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
-   ...
-   >>> sessioninfo = Observations.session_info()
-   eppn: user_name@stsci.edu
-   ezid: uname
-   ...
-
-.. doctest-skip::
-
-   >>> from astroquery.mast import Observations
-   ...
    >>> my_session = Observations(token="12348r9w0sa2392ff94as841")
    INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
    ...
    >>> sessioninfo = Observations.session_info()
    eppn: user_name@stsci.edu
    ezid: uname
-                ...
+   ...
 
 \* For security tokens should not be typed into a terminal or Jupyter notebook
 but instead input using a more secure method such as `~getpass.getpass`.
@@ -1259,3 +1247,10 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['mastDownload*', 'tess-*', 'lwp13058*', '3dhst*'])
+

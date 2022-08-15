@@ -53,7 +53,7 @@ def pytest_addoption(parser):
     parser.addoption(
         '--alma-site',
         action='store',
-        default='almascience.org',
+        default='almascience.eso.org',
         help='ALMA site (almascience.nrao.edu, almascience.eso.org or '
              'almascience.nao.ac.jp for example)'
     )

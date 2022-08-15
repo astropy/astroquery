@@ -149,7 +149,7 @@ class HitranClass(BaseQuery):
         """
         Initialize a Hitran query class.
         """
-        super(HitranClass, self).__init__()
+        super().__init__()
 
     def _args_to_payload(self, molecule_number=1, isotopologue_number=1,
                          min_frequency=None, max_frequency=None):

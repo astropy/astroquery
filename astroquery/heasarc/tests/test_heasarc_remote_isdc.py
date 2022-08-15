@@ -32,6 +32,7 @@ class TestHeasarcISDC:
                         time="2020-09-01 .. 2020-12-01",
                         resultmax=10,
                         good_isgri=">1000",
+                        cache=False
                     )
 
     def test_filter_custom_args(self):

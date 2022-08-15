@@ -8,7 +8,7 @@ from ...utils import commons
 
 
 @pytest.mark.remote_data
-class TestVizierRemote(object):
+class TestVizierRemote:
 
     target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
                                         unit=(u.deg, u.deg))

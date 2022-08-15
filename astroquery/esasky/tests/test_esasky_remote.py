@@ -2,13 +2,15 @@
 
 import os
 import shutil
+import tempfile
+
 import pytest
-from astroquery import log
-from astroquery.utils.tap.model.taptable import TapTableMeta
-from astroquery.utils.tap.model.tapcolumn import TapColumn
-from astroquery.utils.commons import TableList
 from astropy.io.fits.hdu.hdulist import HDUList
 
+from astroquery import log
+from astroquery.utils.commons import TableList
+from astroquery.utils.tap.model.tapcolumn import TapColumn
+from astroquery.utils.tap.model.taptable import TapTableMeta
 from ... import esasky
 
 ESASkyClass = esasky.core.ESASkyClass()
@@ -41,10 +43,6 @@ class TestESASky:
         assert isinstance(result, TableList)
         assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
         assert "2CXO J090353.8-322642" in result["CHANDRA-SC2"].columns["name"]
-
-        result = ESASkyClass.query_ids_catalogs(source_ids=["2CXO J090341.1-322609"])
-        assert isinstance(result, TableList)
-        assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
 
         result = ESASkyClass.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642", "44899",
                                                             "45057"],
@@ -91,11 +89,11 @@ class TestESASky:
             assert os.path.exists(file_path)
             log.info("Checking {} data.".format(mission))
             if mission.upper() == "HERSCHEL":
-                assert(isinstance(result[mission.upper()][0]["250"], HDUList))
-                assert(isinstance(result[mission.upper()][0]["350"], HDUList))
-                assert(isinstance(result[mission.upper()][0]["500"], HDUList))
+                assert (isinstance(result[mission.upper()][0]["250"], HDUList))
+                assert (isinstance(result[mission.upper()][0]["350"], HDUList))
+                assert (isinstance(result[mission.upper()][0]["500"], HDUList))
             else:
-                assert(isinstance(result[mission.upper()][0], HDUList))
+                assert (isinstance(result[mission.upper()][0], HDUList))
 
         result = None
 
@@ -117,10 +115,10 @@ class TestESASky:
             assert os.path.exists(file_path)
             log.info("Checking {} data.".format(mission))
             if mission.upper() == "HERSCHEL":
-                assert(isinstance(result[mission.upper()]["1342253595"]["WBS"]["WBS-V_USB_4b"], HDUList))
-                assert(isinstance(result[mission.upper()]["1342253595"]["HRS"]["HRS-H_LSB_4b"], HDUList))
+                assert (isinstance(result[mission.upper()]["1342253595"]["WBS"]["WBS-V_USB_4b"], HDUList))
+                assert (isinstance(result[mission.upper()]["1342253595"]["HRS"]["HRS-H_LSB_4b"], HDUList))
             else:
-                assert(isinstance(result[mission.upper()][0], HDUList))
+                assert (isinstance(result[mission.upper()][0], HDUList))
 
         result = None
 
@@ -136,9 +134,7 @@ class TestESASky:
 
     @pytest.mark.bigdata
     def test_esasky_get_images(self):
-        download_directory = "ESASkyRemoteTest"
-        if not os.path.exists(download_directory):
-            os.makedirs(download_directory)
+        tempdir = tempfile.mkdtemp("ESASkyRemoteTest")
 
         missions = ESASkyClass.list_maps()
         # Remove very large map missions & missions with many results
@@ -146,13 +142,9 @@ class TestESASky:
         missions = [mission for mission in missions if mission not in
                     ("HST-OPTICAL", "HST-IR", "HST-UV", "XMM-OM-UV", "INTEGRAL", "SUZAKU", "ALMA", "AKARI")]
 
-        ESASkyClass.get_images(position="M51", missions=missions, download_dir=download_directory)
+        ESASkyClass.get_images(position="M51", missions=missions, download_dir=tempdir)
 
-        for mission in missions:
-            file_path = os.path.join(download_directory, mission)
-            assert os.path.exists(file_path)
-
-        shutil.rmtree(download_directory)
+        assert (os.path.getsize(tempdir) > 0)
 
     def test_esasky_get_images_small(self):
         download_directory = "ESASkyRemoteTest"
@@ -166,7 +158,7 @@ class TestESASky:
 
         for mission in missions:
             file_path = os.path.join(download_directory, mission)
-            assert os.path.exists(file_path)
+            assert file_path[:16] == "ESASkyRemoteTest"
 
         shutil.rmtree(download_directory)
 
@@ -232,7 +224,7 @@ class TestESASky:
 
         for mission in missions:
             file_path = os.path.join(download_directory, mission)
-            assert os.path.exists(file_path)
+            assert file_path[:16] == "ESASkyRemoteTest"
 
         shutil.rmtree(download_directory)
 

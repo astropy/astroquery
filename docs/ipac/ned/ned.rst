@@ -185,7 +185,7 @@ To get the URLs of the downloadable FITS images:
 
     >>> from astroquery.ipac.ned import Ned
     >>> image_list = Ned.get_image_list("m1")
-    >>> image_list  # doctest: +NORMALIZE_WHITESPACE
+    >>> image_list  # doctest: +IGNORE_OUTPUT
     ['http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz',
      'http://ned.ipac.caltech.edu/img/1995RXCD3.T...0000C/p084n22a:I:0.1-2.4keV:cop1995.fits.gz',
      'http://ned.ipac.caltech.edu/img/1996RXCD6.T...0000C/p083n22a:I:0.1-2.4keV:cps1996.fits.gz',
@@ -245,11 +245,11 @@ for the specified object. We look at a simple example:
       2 12h29m06.7000s ...                                   Uncertain origin
       3 12h29m06.7000s ...                                   Uncertain origin
     ...            ... ...                      ...                       ...
-    114    12h29m07.9s ...                                   Uncertain origin
-    115      12h29m04s ...                                   Uncertain origin
-    116      12h29m06s ...                                   Uncertain origin
-    117      12h29m08s ...                                   Uncertain origin
-    Length = 118 rows
+    119    12h29m07.9s ...                                   Uncertain origin
+    120      12h29m04s ...                                   Uncertain origin
+    121      12h29m06s ...                                   Uncertain origin
+    122      12h29m08s ...                                   Uncertain origin
+    Length = 123 rows
 
 
 Reference/API

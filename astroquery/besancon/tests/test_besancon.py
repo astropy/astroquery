@@ -105,6 +105,6 @@ def test_default_params():
 class MockResponseBesancon(MockResponse):
 
     def __init__(self, content=None, url=None, headers={}, **kwargs):
-        super(MockResponseBesancon, self).__init__(content)
+        super().__init__(content)
         self.raw = url  # StringIO.StringIO(url)
         self.headers = headers

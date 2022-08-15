@@ -43,7 +43,7 @@ class EsoClass(QueryWithLogin):
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
 
     def __init__(self):
-        super(EsoClass, self).__init__()
+        super().__init__()
         self._instrument_list = None
         self._survey_list = None
         self.username = None
@@ -808,7 +808,7 @@ class EsoClass(QueryWithLogin):
                 href = link.attrs['href']
                 script = self._request("GET", href, cache=False)
                 fileLinks = re.findall(
-                    r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
+                    r'"(https://dataportal\.eso\.org/dataPortal/api/requests/.*)"',
                     script.text)
 
                 # urls with api/ require using Basic Authentication, though

@@ -3,7 +3,7 @@ import tempfile
 import shutil
 import numpy as np
 import pytest
-import warnings
+
 from datetime import datetime
 import os
 from urllib.parse import urlparse
@@ -40,7 +40,7 @@ def alma(request):
     """
     alma = Alma()
     alma_site = request.config.getoption('--alma-site',
-                                         'almascience.org')
+                                         'almascience.eso.org')
     alma.archive_url = 'https://{}'.format(alma_site)
     return alma
 
@@ -85,12 +85,10 @@ class TestAlma:
             assert row['frequency'] <= 100
             assert '3' in row['band_list']
 
-    @pytest.mark.skipif("SKIP_SLOW",
-                        reason="Extremely slow due to limitations of "
-                               "the implementation")
     def test_bands(self, alma):
         payload = {'band_list': ['5', '7']}
-        result = alma.query(payload)
+        # Added maxrec here as downloading and reading the results take too long.
+        result = alma.query(payload, maxrec=1000)
         assert len(result) > 0
         for row in result:
             assert ('5' in row['band_list']) or ('7' in row['band_list'])
@@ -116,7 +114,6 @@ class TestAlma:
         for row in result:
             assert 'GRB021004' == row['target_name']
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
     def test_ra_dec(self, alma):
         payload = {'ra_dec': '181.0192d -0.01928d'}
         result = alma.query(payload)
@@ -124,6 +121,7 @@ class TestAlma:
 
     @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, alma):
+        # Runs for over 9 minutes
         alma.cache_location = temp_dir
 
         m83_data = alma.query_object('M83', science=True, legacy_columns=True)
@@ -139,7 +137,7 @@ class TestAlma:
         assert not alma.is_proprietary('uid://A001/X12a3/Xe9')
         IVOA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
         now = datetime.utcnow().strftime(IVOA_DATE_FORMAT)[:-3]
-        query = "select top 1 obs_id from ivoa.obscore where " \
+        query = "select top 1 member_ous_uid from ivoa.obscore where " \
                 "obs_release_date > '{}'".format(now)
         result = alma.query_tap(query)
         assert len(result.table) == 1
@@ -149,6 +147,7 @@ class TestAlma:
         with pytest.raises(AttributeError):
             alma.is_proprietary('uid://NON/EXI/STING')
 
+    @pytest.mark.xfail(reason="Depends on PR 2438 (https://github.com/astropy/astroquery/pull/2438)")
     def test_data_info(self, temp_dir, alma):
         alma.cache_location = temp_dir
 
@@ -205,6 +204,8 @@ class TestAlma:
         assert len(results) == len(urls)
 
     def test_download_and_extract(self, temp_dir, alma):
+        # TODO: slowish, runs for ~90s
+
         alma.cache_location = temp_dir
         alma._cycle0_tarfile_content_table = {'ID': ''}
 
@@ -247,7 +248,6 @@ class TestAlma:
             'cache_path/' + asdm_url.split('/')[-1])
         assert downloaded_asdm == [os.path.join(temp_dir, 'foo.py')]
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
     def test_doc_example(self, temp_dir, alma):
         alma.cache_location = temp_dir
         m83_data = alma.query_object('M83', legacy_columns=True)
@@ -259,6 +259,7 @@ class TestAlma:
         gc_data = alma.query_region(galactic_center, 1 * u.deg)
         # assert len(gc_data) >= 425 # Feb 8, 2016
         assert len(gc_data) >= 50  # Nov 16, 2016
+        content_length_column_name = 'content_length'
 
         uids = np.unique(m83_data['Member ous id'])
         if ASTROPY_LT_4_1:
@@ -273,11 +274,11 @@ class TestAlma:
         assert X30.sum() == 4  # Jul 13, 2020
         assert X31.sum() == 4  # Jul 13, 2020
         mous1 = alma.get_data_info('uid://A001/X11f/X30')
-        totalsize_mous1 = mous1['size'].sum() * u.Unit(mous1['size'].unit)
+        totalsize_mous1 = mous1[content_length_column_name].sum() * u.Unit(mous1[content_length_column_name].unit)
         assert (totalsize_mous1.to(u.B) > 1.9*u.GB)
 
         mous = alma.get_data_info('uid://A002/X3216af/X31')
-        totalsize_mous = mous['size'].sum() * u.Unit(mous['size'].unit)
+        totalsize_mous = mous[content_length_column_name].sum() * u.Unit(mous[content_length_column_name].unit)
         # More recent ALMA request responses do not include any information
         # about file size, so we have to allow for the possibility that all
         # file sizes are replaced with -1
@@ -304,7 +305,6 @@ class TestAlma:
         #                     science=True)
         # assert len(result) == 1
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="ra dec search known issue")
     def test_misc(self, alma):
         # miscellaneous set of common tests
         #
@@ -316,11 +316,13 @@ class TestAlma:
         result = alma.query(payload={'pi_name': '*Bally*'}, public=False,
                             maxrec=10)
         assert result
-        result.write('/tmp/alma-onerow.txt', format='ascii')
+        # Add overwrite=True in case the test previously died unexpectedly
+        # and left the temp file.
+        result.write('/tmp/alma-onerow.txt', format='ascii', overwrite=True)
         for row in result:
             assert 'Bally' in row['obs_creator_name']
         result = alma.query(payload=dict(project_code='2016.1.00165.S'),
-                            public=False, cache=False)
+                            public=False)
         assert result
         for row in result:
             assert '2016.1.00165.S' == row['proposal_id']
@@ -339,8 +341,7 @@ class TestAlma:
 
         result = alma.query_region(
             coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
-                                 unit=(u.hour, u.deg)), radius=0.034 * u.deg,
-            payload={'energy.frequency-asu': '215 .. 220'})
+                                 unit=(u.hour, u.deg)), radius=0.034 * u.deg)
 
         result = alma.query(payload=dict(project_code='2012.*',
                                          public_data=True))
@@ -367,7 +368,6 @@ class TestAlma:
             assert '6' == row['band_list']
             assert 'ginsburg' in row['obs_creator_name'].lower()
 
-    @pytest.mark.skipif("SKIP_SLOW")
     def test_user(self, alma):
         # miscellaneous set of tests from current users
         rslt = alma.query({'band_list': [6], 'project_code': '2012.1.*'},
@@ -380,7 +380,6 @@ class TestAlma:
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
-    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle1(self, temp_dir, alma):
         # About 500 MB
         alma.cache_location = temp_dir
@@ -427,7 +426,7 @@ class TestAlma:
         assert len(data) == 6
 
     @pytest.mark.skipif("SKIP_SLOW")
-    @pytest.mark.skip("Not working anymore")
+    @pytest.mark.xfail(reason="Not working anymore")
     def test_cycle0(self, temp_dir, alma):
         # About 20 MB
         alma.cache_location = temp_dir

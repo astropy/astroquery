@@ -43,7 +43,7 @@ class AstrometryNetClass(BaseQuery):
     TIMEOUT = conf.timeout
     API_URL = url_helpers.join(URL, 'api')
 
-    # These are drawn from http://astrometry.net/doc/net/api.html#submitting-a-url
+    # These are drawn from https://astrometry.net/doc/net/api.html#submitting-a-url
     _constraints = {
         'allow_commercial_use': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
         'allow_modifications': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
@@ -104,7 +104,7 @@ class AstrometryNetClass(BaseQuery):
 
     def __init__(self):
         """ Show a warning message if the API key is not in the configuration file. """
-        super(AstrometryNetClass, self).__init__()
+        super().__init__()
         if not conf.api_key:
             log.warning("Astrometry.net API key not found in configuration file")
             log.warning("You need to manually edit the configuration file and add it")
@@ -190,7 +190,7 @@ class AstrometryNetClass(BaseQuery):
                                  'values for {}'.format(scale_type, required_keys))
 
     def monitor_submission(self, submission_id,
-                           solve_timeout=TIMEOUT):
+                           solve_timeout=TIMEOUT, verbose=True):
         """
         Monitor the submission for completion.
 
@@ -202,6 +202,8 @@ class AstrometryNetClass(BaseQuery):
         solve_timeout : ``int``
             Time, in seconds, to wait for the astrometry.net solver to find
             a solution.
+        verbose : bool, optional
+            Whether to print out information about the solving
 
         Returns
         -------
@@ -223,7 +225,8 @@ class AstrometryNetClass(BaseQuery):
         """
         has_completed = False
         job_id = None
-        print('Solving', end='', flush=True)
+        if verbose:
+            print('Solving', end='', flush=True)
         start_time = time.time()
         status = ''
         while not has_completed:
@@ -242,7 +245,8 @@ class AstrometryNetClass(BaseQuery):
             elapsed = now - start_time
             timed_out = elapsed > solve_timeout
             has_completed = (status in ['success', 'failure'] or timed_out)
-            print('.', end='', flush=True)
+            if verbose:
+                print('.', end='', flush=True)
         if status == 'success':
             wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
             wcs_response = self._request('GET', wcs_url)
@@ -259,6 +263,7 @@ class AstrometryNetClass(BaseQuery):
 
     def solve_from_source_list(self, x, y, image_width, image_height,
                                solve_timeout=TIMEOUT,
+                               verbose=True,
                                **settings
                                ):
         """
@@ -278,6 +283,8 @@ class AstrometryNetClass(BaseQuery):
         solve_timeout : int
             Time, in seconds, to wait for the astrometry.net solver to find
             a solution.
+        verbose : bool, optional
+            Whether to print out information about the solving
 
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
@@ -301,13 +308,15 @@ class AstrometryNetClass(BaseQuery):
         response_d = response.json()
         submission_id = response_d['subid']
         return self.monitor_submission(submission_id,
-                                       solve_timeout=solve_timeout)
+                                       solve_timeout=solve_timeout,
+                                       verbose=verbose)
 
     def solve_from_image(self, image_file_path, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
                          fwhm=3, detect_threshold=5,
                          solve_timeout=TIMEOUT,
+                         verbose=True,
                          **settings):
         """
         Plate solve from an image, either by uploading the image to
@@ -343,9 +352,13 @@ class AstrometryNetClass(BaseQuery):
         ra_dec_units : tuple, optional
             Tuple specifying the units of the right ascension and declination in
             the header. The default value is ``('hour', 'degree')``.
+
         solve_timeout : int
             Time, in seconds, to wait for the astrometry.net solver to find
             a solution.
+
+        verbose : bool, optional
+            Whether to print out information about the solving
 
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
@@ -386,32 +399,38 @@ class AstrometryNetClass(BaseQuery):
             else:
                 with fits.open(image_file_path) as f:
                     data = f[0].data
-
-            print("Determining background stats", flush=True)
+            if verbose:
+                print("Determining background stats", flush=True)
             mean, median, std = sigma_clipped_stats(data, sigma=3.0,
                                                     maxiters=5)
             daofind = DAOStarFinder(fwhm=fwhm,
                                     threshold=detect_threshold * std)
-            print("Finding sources", flush=True)
+            if verbose:
+                print("Finding sources", flush=True)
             sources = daofind(data - median)
-            print('Found {} sources'.format(len(sources)), flush=True)
+            if verbose:
+                print('Found {} sources'.format(len(sources)), flush=True)
             # astrometry.net wants a sorted list of sources
             # Sort first (which puts things in ascending order)
             sources.sort('flux')
             # Reverse to get descending order
             sources.reverse()
-            print(sources)
+            if verbose:
+                print(sources)
             return self.solve_from_source_list(sources['xcentroid'],
                                                sources['ycentroid'],
                                                ccd.header['naxis1'],
                                                ccd.header['naxis2'],
+                                               solve_timeout=solve_timeout,
+                                               verbose=verbose,
                                                **settings)
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
         response_d = response.json()
         submission_id = response_d['subid']
         return self.monitor_submission(submission_id,
-                                       solve_timeout=solve_timeout)
+                                       solve_timeout=solve_timeout,
+                                       verbose=verbose)
 
 
 # the default tool for users to interact with is an instance of the Class

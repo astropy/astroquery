@@ -246,12 +246,12 @@ class TableList(list):
                                  "or list of (k,v) pairs")
 
         self._dict = inp
-        super(TableList, self).__init__(inp.values())
+        super().__init__(inp.values())
 
     def __getitem__(self, key):
         if isinstance(key, int):
             # get the value in the (key,value) pair
-            return super(TableList, self).__getitem__(key)
+            return super().__getitem__(key)
         elif key in self._dict:
             return self._dict[key]
         else:
@@ -408,7 +408,7 @@ class FileContainer:
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError, AttributeError):
+            except (OSError, AttributeError):
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             try:
