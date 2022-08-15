@@ -627,10 +627,6 @@ class AlmaClass(QueryWithLogin):
         # add the extra rows
         if expanded_result:
             result = vstack([result, expanded_result], join_type='exact')
-        # else:
-        #     result = result[np.logical_or(np.core.defchararray.find(
-        #         result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
-        #         result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
 
         return result
 
