@@ -29,16 +29,12 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
-from astroquery.utils.commons import ASTROPY_LT_4_1
 from astroquery.exceptions import CorruptDataWarning
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
-ALMA_TAP_PATH = 'tap'
-ALMA_SIA_PATH = 'sia2'
-ALMA_DATALINK_PATH = 'datalink/sync'
 
 # Map from ALMA ObsCore result to ALMA original query result
 # The map is provided in order to preserve the name of the columns in the
@@ -159,6 +155,16 @@ ALMA_FORM_KEYS = {
 }
 
 
+# used to lookup the TAP service on an ARC
+TAP_SERVICE_PATH = '/tap'
+
+# used to lookup the DataLink service on an ARC
+DATALINK_SERVICE_PATH = '/datalink'
+
+# used to lookup the SIA service on an ARC
+SIA_SERVICE_PATH = '/sia2'
+
+
 def _gen_sql(payload):
     sql = 'select * from ivoa.obscore'
     where = ''
@@ -197,43 +203,60 @@ class AlmaClass(QueryWithLogin):
         self._sia = None
         self._tap = None
         self._datalink = None
-        self.sia_url = None
-        self.tap_url = None
-        self.datalink_url = None
+        self._sia_url = None
+        self._tap_url = None
+        self._datalink_url = None
 
     @property
     def datalink(self):
         if not self._datalink:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.datalink_url = base_url + ALMA_DATALINK_PATH
-            else:
-                self.datalink_url = base_url + '/' + ALMA_DATALINK_PATH
-            self._datalink = pyvo.dal.adhoc.DatalinkService(
-                baseurl=self.datalink_url)
+            self._datalink = pyvo.dal.adhoc.DatalinkService(self.datalink_url)
         return self._datalink
+
+    @property
+    def datalink_url(self):
+        if not self._datalink_url:
+            try:
+                self._datalink_url = f"{self._get_dataarchive_url()}{DATALINK_SERVICE_PATH}"
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    f"ERROR getting the CADC registry: {str(err)}")
+                raise err
+        return self._datalink_url
 
     @property
     def sia(self):
         if not self._sia:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.sia_url = base_url + ALMA_SIA_PATH
-            else:
-                self.sia_url = base_url + '/' + ALMA_SIA_PATH
             self._sia = pyvo.dal.sia2.SIAService(baseurl=self.sia_url)
         return self._sia
 
     @property
+    def sia_url(self):
+        if not self._sia_url:
+            try:
+                self._sia_url = f"{self._get_dataarchive_url()}{SIA_SERVICE_PATH}"
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    f"ERROR getting the CADC registry: {str(err)}")
+                raise err
+        return self._sia_url
+
+    @property
     def tap(self):
         if not self._tap:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.tap_url = base_url + ALMA_TAP_PATH
-            else:
-                self.tap_url = base_url + '/' + ALMA_TAP_PATH
             self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
         return self._tap
+
+    @property
+    def tap_url(self):
+        if not self._tap_url:
+            try:
+                self._tap_url = f"{self._get_dataarchive_url()}{TAP_SERVICE_PATH}"
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    f"ERROR getting the CADC registry: {str(err)}")
+                raise err
+        return self._tap_url
 
     def query_object_async(self, object_name, *, public=True,
                            science=True, payload=None, **kwargs):
@@ -505,7 +528,7 @@ class AlmaClass(QueryWithLogin):
         Returns
         -------
         Table with results or None. Table has the following columns: id (UID),
-        access_url (URL to access data), content_length, content_type (MIME
+        access_url (URL to access data), service_def, content_length, content_type (MIME
         type), semantics, description (optional), error_message (optional)
         """
         if uids is None:
@@ -516,13 +539,18 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
         # TODO remove this loop and send uids at once when pyvo fixed
         result = None
+        service_def_dict = {}
         for uid in uids:
             res = self.datalink.run_sync(uid)
             if res.status[0] != 'OK':
                 raise Exception('ERROR {}: {}'.format(res.status[0],
                                                       res.status[1]))
+
+            # Dictionary of service_def entries
+            service_def_dict.update({row.service_def: row.access_url for row in res.iter_procs()})
+
             temp = res.to_table()
-            if ASTROPY_LT_4_1:
+            if commons.ASTROPY_LT_4_1:
                 # very annoying
                 for col in [x for x in temp.colnames
                             if x not in ['content_length', 'readable']]:
@@ -550,17 +578,20 @@ class AlmaClass(QueryWithLogin):
         # require an extra call to the datalink service to get the list of
         # files.
         DATALINK_FILE_TYPE = 'application/x-votable+xml;content=datalink'
-        DATALINK_SEMANTICS = '#datalink'
+        # if expand_tarfiles:
+        # identify the tarballs that can be expandable and replace them
+        # with the list of components
+        expanded_result = None
+        to_delete = []
         if expand_tarfiles:
-            # identify the tarballs that can be expandable and replace them
-            # with the list of components
-            expanded_result = None
-            to_delete = []
             for index, row in enumerate(result):
-                if DATALINK_SEMANTICS in row['semantics'] and \
-                        row['content_type'] == DATALINK_FILE_TYPE:
+                # Recursive DataLink, so look for service_def
+                if row['service_def'] and row['content_type'] == DATALINK_FILE_TYPE:
                     # subsequent call to datalink
-                    file_id = row['access_url'].split('ID=')[1]
+
+                    # Lookup the access_url from the service_def RESOURCE entries.
+                    recursive_access_url = service_def_dict[row['service_def']]
+                    file_id = recursive_access_url.split('ID=')[1]
                     expanded_tar = self.get_data_info(file_id)
                     expanded_tar = expanded_tar[
                         expanded_tar['semantics'] != '#cutout']
@@ -569,16 +600,19 @@ class AlmaClass(QueryWithLogin):
                     else:
                         expanded_result = vstack(
                             [expanded_result, expanded_tar], join_type='exact')
+
+                    # These DataLink entries have no access_url and are links to service_def RESOURCEs only,
+                    # so they can be removed if expanded.
                     to_delete.append(index)
-            # cleanup
-            result.remove_rows(to_delete)
-            # add the extra rows
-            if expanded_result:
-                result = vstack([result, expanded_result], join_type='exact')
-        else:
-            result = result[np.logical_or(np.core.defchararray.find(
-                result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
-                result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
+        # cleanup
+        result.remove_rows(to_delete)
+        # add the extra rows
+        if expanded_result:
+            result = vstack([result, expanded_result], join_type='exact')
+        # else:
+        #     result = result[np.logical_or(np.core.defchararray.find(
+        #         result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
+        #         result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
 
         return result
 
@@ -689,7 +723,7 @@ class AlmaClass(QueryWithLogin):
                 if 'content-length' in check_filename.headers:
                     length = int(check_filename.headers['content-length'])
                     if length == 0:
-                        warnings.warn('URL {0} has length=0'.format(url))
+                        warnings.warn('URL {0} has length=0'.format(file_link))
                     elif existing_file_length == length:
                         log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
                     elif existing_file_length < length:
@@ -700,7 +734,7 @@ class AlmaClass(QueryWithLogin):
                                       f"size {length}.  The download is likely corrupted.",
                                       CorruptDataWarning)
                 else:
-                    warnings.warn(f"Could not verify {url} because it has no 'content-length'")
+                    warnings.warn(f"Could not verify {file_link} because it has no 'content-length'")
 
             try:
                 if not verify_only:
@@ -1142,7 +1176,7 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(
             "select distinct proposal_abstract from "
             "ivoa.obscore where proposal_id='{}'".format(projectid))
-        if ASTROPY_LT_4_1:
+        if commons.ASTROPY_LT_4_1:
             return [result[0]['proposal_abstract'].astype(str)]
         else:
             return [result[0]['proposal_abstract']]

@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from cmath import exp
 from collections import OrderedDict
 import os
 import requests
@@ -16,6 +17,7 @@ from astropy.table import Table
 import astropy.utils.data as aud
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
+import unittest
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
