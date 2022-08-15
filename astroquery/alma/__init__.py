@@ -20,11 +20,6 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.alma`.
     """
 
-    # Used if the current discovered host has no Service ID equivalent.  This
-    # is used when overriding the default registry, which assumes to have
-    # just almascience.org as the authority in the Service IDs.
-    default_service_id_auth = 'almascience.org'
-
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
