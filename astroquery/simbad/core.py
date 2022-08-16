@@ -343,8 +343,8 @@ class SimbadClass(SimbadBaseQuery):
             fields_dict = json.load(f)
 
         print("Available VOTABLE fields:\n")
-        for field in list(sorted(fields_dict.keys())):
-            print("{}".format(field))
+        for field in sorted(fields_dict.keys()):
+            print(str(field))
         print("For more information on a field:\n"
               "Simbad.get_field_description ('field_name') \n"
               "Currently active VOTABLE fields:\n {0}"
@@ -405,10 +405,7 @@ class SimbadClass(SimbadBaseQuery):
             os.path.join('data', 'votable_fields_dict.json'))
 
         with open(dict_file, "r") as f:
-            fields_dict = json.load(f)
-            fields_dict = dict(
-                ((strip_field(ff), fields_dict[ff])
-                 for ff in fields_dict))
+            fields_dict = {strip_field(k): v for k, v in json.load(f).items()}
 
         for field in args:
             sf = strip_field(field)
@@ -417,33 +414,29 @@ class SimbadClass(SimbadBaseQuery):
             else:
                 self._VOTABLE_FIELDS.append(field)
 
-    def remove_votable_fields(self, *args, **kwargs):
+    def remove_votable_fields(self, *args, strip_params=False):
         """
         Removes the specified field names from ``SimbadClass._VOTABLE_FIELDS``
 
         Parameters
         ----------
         list of field_names to be removed
-        strip_params: bool
+        strip_params: bool, optional
             If true, strip the specified keywords before removing them:
             e.g., ra(foo) would remove ra(bar) if this is True
         """
-        strip_params = kwargs.pop('strip_params', False)
-
         if strip_params:
-            sargs = [strip_field(a) for a in args]
+            sargs = {strip_field(a) for a in args}
             sfields = [strip_field(a) for a in self._VOTABLE_FIELDS]
         else:
-            sargs = args
+            sargs = set(args)
             sfields = self._VOTABLE_FIELDS
-        absent_fields = set(sargs) - set(sfields)
 
-        for b, f in list(zip(sfields, self._VOTABLE_FIELDS)):
-            if b in sargs:
-                self._VOTABLE_FIELDS.remove(f)
-
-        for field in absent_fields:
+        for field in sargs.difference(sfields):
             warnings.warn("{field}: this field is not set".format(field=field))
+
+        zipped_fields = zip(sfields, self._VOTABLE_FIELDS)
+        self._VOTABLE_FIELDS = [f for b, f in zipped_fields if b not in sargs]
 
         # check if all fields are removed
         if not self._VOTABLE_FIELDS:
@@ -677,7 +670,7 @@ class SimbadClass(SimbadBaseQuery):
             if len(set(frame)) > 1:
                 raise ValueError("Coordinates have different frames")
             else:
-                frame = set(frame).pop()
+                frame = frame[0]
 
             if isiterable(radius):
                 if len(radius) != len(ra):
@@ -941,20 +934,13 @@ class SimbadClass(SimbadBaseQuery):
         return response
 
     def _get_query_header(self, get_raw=False):
-        votable_fields = ','.join(self.get_votable_fields())
         # if get_raw is set then don't fetch as votable
         if get_raw:
             return ""
-        votable_def = "votable {" + votable_fields + "}"
-        votable_open = "votable open"
-        return "\n".join([votable_def, votable_open])
+        return "votable {" + ','.join(self.get_votable_fields()) + "}\nvotable open"
 
     def _get_query_footer(self, get_raw=False):
-        if get_raw:
-            return ""
-        votable_close = "votable close"
-
-        return votable_close
+        return "" if get_raw else "votable close"
 
     @validate_epoch_decorator
     @validate_equinox_decorator
@@ -989,25 +975,19 @@ class SimbadClass(SimbadBaseQuery):
             kwargs['equi'] = kwargs['equinox']
             del kwargs['equinox']
         # remove default None from kwargs
-        # be compatible with python3
-        for key in list(kwargs):
-            if not kwargs[key]:
-                del kwargs[key]
+        kwargs = {key: value for key, value in kwargs.items() if value is not None}
         # join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
         present_keys = [key for key in all_keys if key in kwargs]
         if caller == 'query_criteria_async':
-            for k in kwargs:
-                present_keys.append(k)
+            present_keys.extend(kwargs)
             # need ampersands to join args
             args_str = '&'.join([str(val) for val in args])
-            if len(args) > 0 and len(present_keys) > 0:
+            if args and present_keys:
                 args_str += " & "
         else:
             args_str = ' '.join([str(val) for val in args])
-        kwargs_str = ' '.join("{key}={value}".format(key=key,
-                                                     value=kwargs[key])
-                              for key in present_keys)
+        kwargs_str = ' '.join(f"{key}={kwargs[key]}" for key in present_keys)
 
         # For the record, I feel dirty for writing this wildcard-case hack.
         # This entire function should be refactored when someone has time.
