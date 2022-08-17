@@ -36,8 +36,8 @@ This will download all files for the raw calibration level of the observation 'J
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW",
   ...                            filename="raw_data_for_J6FL25S4Q.tar")  # doctest: +IGNORE_OUTPUT
 
@@ -46,8 +46,8 @@ This will download the science files associated to the observation 'J6FL25S4Q' a
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="J6FL25S4Q", product_type="SCIENCE_PRODUCT",
   ...                            filename="science_data_for_J6FL25S4Q.tar")   # doctest: +IGNORE_OUTPUT
 
@@ -56,8 +56,8 @@ This third case will download the science files associated to the observation 'J
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW",
   ...                            filename="science_raw_data_for_J6FL25S4Q", product_type="SCIENCE_PRODUCT")   # doctest: +IGNORE_OUTPUT
 
@@ -67,8 +67,8 @@ This third case will download the science files associated to the observation 'J
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> esahubble.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.jpg")  # doctest: +IGNORE_OUTPUT
 
 This will download the postcard for the observation 'J8VP03010' with low
@@ -83,11 +83,12 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 
 Note: Artifact is a single Hubble product file.
 
+.. Doesn't run
 .. doctest-skip::
 
-  >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()     # doctest: +IGNORE_OUTPUT
-  >>> esahubble.get_artifact("w0ji0v01t_c2f.fits.gz")  # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.get_artifact("w0ji0v01t_c2f.fits.gz")
 
 This will download the compressed artifact
 'w0ji0v01t_c2f.fits.gz'. 'w0ji0v01t_c2f.fits' is the name of the Hubble
@@ -101,8 +102,8 @@ The query_target function queries the name of the target as given by the propose
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble 
+  >>> esahubble = ESAHubble()
   >>> table = esahubble.query_target("m31", filename="m31_query.xml")  # doctest: +IGNORE_OUTPUT
 
 This will retrieve a table with the output of the query.
@@ -155,8 +156,8 @@ This is an example of a query with all the parameters and the verbose flag activ
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 3,
   ...                                   data_product_type = 'image',
   ...                                   intent='SCIENCE',
@@ -215,8 +216,8 @@ The following example uses the string definition of the calibration level ('PROD
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
   ...                                   data_product_type = 'image',
   ...                                   intent='SCIENCE',
@@ -261,8 +262,8 @@ As has been mentioned, these parameters are optional and it is not necessary to 
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT',
   ...                                       async_job = False,
   ...                                       output_file = 'output3.vot.gz')
@@ -278,8 +279,8 @@ If no criteria are specified to limit the selection, this function will retrieve
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()     # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(async_job = False, verbose = True)    # doctest: +IGNORE_OUTPUT
   INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id [astroquery.esa.hubble.core]
   Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id'
@@ -296,8 +297,8 @@ This last example will provide the ADQL query based on the criteria defined by t
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()      # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
   ...                                   data_product_type = 'image',
   ...                                   intent='SCIENCE',
@@ -315,8 +316,8 @@ This last example will provide the ADQL query based on the criteria defined by t
 .. doctest-remote-data::
 
   >>> from astropy import coordinates
-  >>> from astroquery.esa.hubble import ESAHubble     # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
   >>> table = esahubble.cone_search(c, 7, "cone_search_m31_5.vot")
 
@@ -335,8 +336,8 @@ and a set of criteria to filter the results.
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble    # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()    # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.cone_search_criteria(target= 'm31',radius=7,
   ...                                         obs_collection=['HST'],
   ...                                         data_product_type = 'image',
@@ -378,8 +379,8 @@ and a set of criteria to filter the results.
 
   >>> from astropy import coordinates
   >>> from astropy import units as u
-  >>> from astroquery.esa.hubble import ESAHubble  # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()  # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
   >>> result = esahubble.cone_search_criteria(coordinates=coords,
   ...                                         radius=7*u.arcmin,
@@ -428,8 +429,8 @@ Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble     # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()       # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
   INFO: Query finished. [astroquery.utils.tap.core]
 
@@ -451,8 +452,8 @@ method returns the simple observations that make it up.
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.get_member_observations("jdrz0c010")
   >>> print(result)
   ['jdrz0cjxq', 'jdrz0cjyq']
@@ -467,8 +468,8 @@ returns the corresponding HAP or HST observation
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble   # doctest: +IGNORE_OUTPUT
-  >>> esahubble = ESAHubble()   # doctest: +IGNORE_OUTPUT
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> result = esahubble.get_hap_hst_link("hst_16316_71_acs_sbc_f150lp_jec071i9")
   >>> print(result)
   ['jec071i9q']
