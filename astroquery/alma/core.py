@@ -233,7 +233,7 @@ class AlmaClass(QueryWithLogin):
                 self._datalink_url = f"{self._get_dataarchive_url()}{DATALINK_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    f"ERROR getting the CADC registry: {str(err)}")
+                    f"ERROR getting the ALMA Archive URL: {str(err)}")
                 raise err
         return self._datalink_url
 
@@ -250,7 +250,7 @@ class AlmaClass(QueryWithLogin):
                 self._sia_url = f"{self._get_dataarchive_url()}{SIA_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    f"ERROR getting the CADC registry: {str(err)}")
+                    f"ERROR getting the  ALMA Archive URL: {str(err)}")
                 raise err
         return self._sia_url
 
@@ -267,7 +267,7 @@ class AlmaClass(QueryWithLogin):
                 self._tap_url = f"{self._get_dataarchive_url()}{TAP_SERVICE_PATH}"
             except requests.exceptions.HTTPError as err:
                 log.debug(
-                    f"ERROR getting the CADC registry: {str(err)}")
+                    f"ERROR getting the  ALMA Archive URL: {str(err)}")
                 raise err
         return self._tap_url
 
