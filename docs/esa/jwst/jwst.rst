@@ -430,7 +430,7 @@ Query without saving results in a file:
     Output file: 1655977738493O-result.vot.gz
     Results: None
   >>> result = job.get_results()
-  >>> result
+  >>> result  # doctest: +IGNORE_OUTPUT
     <Table length=100>
     instrument_name proposal_id calibrationlevel dataproducttype
          object        object        int32            object
@@ -460,7 +460,7 @@ Query saving results in a file:
   Output file: 1655978085454O-result.vot.gz
   Results: None
   >>> result = job.get_results()
-  >>> result
+  >>> result  # doctest: +IGNORE_OUTPUT
     <Table length=100>
     instrument_name proposal_id calibrationlevel dataproducttype
          object        object        int32            object
@@ -518,7 +518,7 @@ Query without saving results in a file:
   Output file: async_20181116165244.vot
   Results: None
   >>> r = job.get_results()
-  >>> r['observationid']
+  >>> r['observationid']  # doctest: +IGNORE_OUTPUT
   <MaskedColumn name='observationid' dtype='object' length=100>
        jw01070001002_04101_00003_nrca1
        jw01070001002_04101_00003_nrca1
@@ -540,7 +540,7 @@ Query saving results in a file:
   Output file: 1635853688471D-result.vot.gz
   Results: None
   >>> r = job.get_results()
-  >>> r['instrument_name']
+  >>> r['instrument_name']  # doctest: +IGNORE_OUTPUT
   <MaskedColumn name='instrument_name' dtype='object' length=100>
           NIRCAM
           NIRCAM
