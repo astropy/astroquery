@@ -284,6 +284,11 @@ def test_query_region_radius_error(patch_post, coordinates, radius,
             coordinates, radius=radius, equinox=equinox, epoch=epoch)
 
 
+def test_query_region_coord_radius_mismatch():
+    with pytest.raises(ValueError, match="^Mismatch between radii and coordinates$"):
+        simbad.SimbadClass().query_region(multicoords, radius=[1, 2, 3] * u.deg)
+
+
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
                          [(ICRS_COORDS, "0d", 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 1.0 * u.marcsec, 2000.0, 'J2000')
