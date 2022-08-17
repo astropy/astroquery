@@ -243,6 +243,7 @@ def test_query_catalog(patch_post):
                           (FK4_COORDS, '5d0m0s', 2000.0, 'J2000'),
                           (FK5_COORDS, None, 2000.0, 'J2000'),
                           (multicoords, 0.5*u.arcsec, 2000.0, 'J2000'),
+                          (multicoords, "0.5s", 2000.0, 'J2000'),
                           ])
 def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
     response1 = simbad.core.Simbad.query_region_async(
@@ -281,6 +282,11 @@ def test_query_region_radius_error(patch_post, coordinates, radius,
     with pytest.raises(u.UnitsError):
         simbad.core.Simbad().query_region(
             coordinates, radius=radius, equinox=equinox, epoch=epoch)
+
+
+def test_query_region_coord_radius_mismatch():
+    with pytest.raises(ValueError, match="^Mismatch between radii and coordinates$"):
+        simbad.SimbadClass().query_region(multicoords, radius=[1, 2, 3] * u.deg)
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
