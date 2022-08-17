@@ -672,7 +672,8 @@ class SimbadClass(SimbadBaseQuery):
             else:
                 frame = frame[0]
 
-            if isiterable(radius):
+            # `radius` as `str` is iterable, but contains only one value.
+            if isiterable(radius) and not isinstance(radius, str):
                 if len(radius) != len(ra):
                     raise ValueError("Mismatch between radii and coordinates")
             else:
