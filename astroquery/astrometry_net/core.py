@@ -37,17 +37,17 @@ MISSING_API_KEY = """
 Astrometry.net API key not set. You should either set this in the astroquery configuration file using:
 
     [astrometry_net]
-    api_key = qwdqwjnoi12ioj
+    api_key = ADD_YOUR_API_KEY_HERE
 
 or you can set it for this session only using the ``conf`` object:
 
     from astroquery.astrometry_net import conf
-    conf.api_key = 'qwdqwjnoi12ioj'
+    conf.api_key = 'ADD_YOUR_API_KEY_HERE'
 
 or using the ``api_key`` property on the ``AstrometryNet`` class:
 
     from astroquery.astrometry_net import AstrometryNet
-    AstrometryNet.api_key = 'qwdqwjnoi12ioj'
+    AstrometryNet.api_key = 'ADD_YOUR_API_KEY_HERE'
 """.lstrip()
 
 
