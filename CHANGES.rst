@@ -37,6 +37,12 @@ astrometry.net
   solved by constructing a source list internally before sending data to
   astrometry.net. [#2484]
 
+astrometry.net
+^^^^^^^^^^^^^^
+
+- Avoid duplicated warnings about API key and raise an error only when API key is
+  needed but not set. [#2483]
+
 cadc
 ^^^^
 

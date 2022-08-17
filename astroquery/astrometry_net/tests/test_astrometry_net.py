@@ -13,17 +13,15 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 
-def test_api_key_property(caplog):
+def test_api_key_property():
     """
     Check that an empty key is returned if the api key is not in
     the configuration file and that the expected message shows up in
     the log.
     """
-    caplog.clear()
     anet = AstrometryNet()
-    key = anet.api_key
-    assert not key
-    assert "Astrometry.net API key not in configuration file" in caplog.text
+    with pytest.raises(RuntimeError, match='Astrometry.net API key not set'):
+        anet.api_key
 
 
 def test_empty_settings_property():
@@ -56,9 +54,8 @@ def test_login_fails_with_no_api_key():
     """
     anet = AstrometryNet()
     anet.api_key = ''
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError, match='Astrometry.net API key not set'):
         anet._login()
-    assert "You must set the API key before using this service." in str(e.value)
 
 
 def test_construct_payload():
