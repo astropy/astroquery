@@ -78,6 +78,13 @@ oac
 - Fix bug in parsing events that contain html tags (e.g. in their alias
   field). [#2423]
 
+simbad
+^^^^^^
+
+- It is now possible to specify multiple coordinates together with a single
+  radius as a string in ``query_region()`` and ``query_region_async()``.
+  [#2494]
+
 svo_fps
 ^^^^^^^
 
