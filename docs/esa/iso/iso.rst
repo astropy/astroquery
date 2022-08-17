@@ -20,11 +20,6 @@ ESA experts at ESAC.
 Examples
 ========
 
-table=ISO.query_ida_tap(query=("SELECT tdt,ra,dec,aotname,target "
-                               "FROM ida.observations "
-                               "WHERE INTERSECTS(CIRCLE('ICRS',10.68470833,41.26875,0.08333333333333333),"
-                               "ida.observations.s_region_fov)=1"))
-
 ------------------------------
 1. Querying ISO data
 ------------------------------
@@ -32,11 +27,11 @@ table=ISO.query_ida_tap(query=("SELECT tdt,ra,dec,aotname,target "
 .. doctest-remote-data::
 
   >>> from astroquery.esa.iso import ISO
-  >>> table=ISO.query_ida_tap(query=("SELECT tdt,ra,dec,aotname,target "
-  ...                                "FROM ida.observations "
-  ...                                "WHERE INTERSECTS(CIRCLE('ICRS',10.68470833,41.26875,"
-  ...                                "0.08333333333333333),"
-  ...                                "ida.observations.s_region_fov)=1"))
+  >>> table = ISO.query_ida_tap(query=("SELECT tdt,ra,dec,aotname,target "
+  ...                                  "FROM ida.observations "
+  ...                                  "WHERE INTERSECTS(CIRCLE('ICRS',10.68470833,41.26875,"
+  ...                                  "0.08333333333333333),"
+  ...                                  "ida.observations.s_region_fov)=1"))
   >>> table.pprint()  # doctest: +IGNORE_OUTPUT
   tdt         ra         dec      aotname    target
               h          deg
