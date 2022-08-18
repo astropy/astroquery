@@ -230,12 +230,7 @@ class AlmaClass(QueryWithLogin):
     def datalink_url(self):
         if not self._datalink_url:
             try:
-                base_url = self._get_dataarchive_url()
-
-                if base_url.endswith('/'):
-                    self._datalink_url = f'{base_url}{DATALINK_SERVICE_PATH}'
-                else:
-                    self._datalink_url = f'{base_url}/{DATALINK_SERVICE_PATH}'
+                self._datalink_url = urljoin(self._get_dataarchive_url(), DATALINK_SERVICE_PATH)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the ALMA Archive URL: {str(err)}")
@@ -252,12 +247,7 @@ class AlmaClass(QueryWithLogin):
     def sia_url(self):
         if not self._sia_url:
             try:
-                base_url = self._get_dataarchive_url()
-
-                if base_url.endswith('/'):
-                    self._sia_url = f'{base_url}{SIA_SERVICE_PATH}'
-                else:
-                    self._sia_url = f'{base_url}/{SIA_SERVICE_PATH}'
+                self._sia_url = urljoin(self._get_dataarchive_url(), SIA_SERVICE_PATH)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the  ALMA Archive URL: {str(err)}")
@@ -274,12 +264,7 @@ class AlmaClass(QueryWithLogin):
     def tap_url(self):
         if not self._tap_url:
             try:
-                base_url = self._get_dataarchive_url()
-
-                if base_url.endswith('/'):
-                    self._tap_url = f'{base_url}{TAP_SERVICE_PATH}'
-                else:
-                    self._tap_url = f'{base_url}/{TAP_SERVICE_PATH}'
+                self._tap_url = urljoin(self._get_dataarchive_url(), TAP_SERVICE_PATH)
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the  ALMA Archive URL: {str(err)}")
