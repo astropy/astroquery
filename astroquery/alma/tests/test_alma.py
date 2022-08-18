@@ -453,7 +453,7 @@ def _test_datalink_url(data_archive_url):
     alma = Alma()
     alma._get_dataarchive_url = Mock(return_value=data_archive_url)
     alma._get_dataarchive_url.reset_mock()
-    assert alma.datalink_url == f"{data_archive_url}/datalink"
+    assert alma.datalink_url == f"{data_archive_url}/datalink/sync"
 
 
 def test_get_data_info():

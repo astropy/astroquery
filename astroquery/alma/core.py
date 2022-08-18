@@ -156,13 +156,13 @@ ALMA_FORM_KEYS = {
 
 
 # used to lookup the TAP service on an ARC
-TAP_SERVICE_PATH = '/tap'
+TAP_SERVICE_PATH = 'tap'
 
 # used to lookup the DataLink service on an ARC
-DATALINK_SERVICE_PATH = '/datalink'
+DATALINK_SERVICE_PATH = 'datalink/sync'
 
 # used to lookup the SIA service on an ARC
-SIA_SERVICE_PATH = '/sia2'
+SIA_SERVICE_PATH = 'sia2'
 
 
 def _gen_sql(payload):
@@ -230,7 +230,12 @@ class AlmaClass(QueryWithLogin):
     def datalink_url(self):
         if not self._datalink_url:
             try:
-                self._datalink_url = f"{self._get_dataarchive_url()}{DATALINK_SERVICE_PATH}"
+                base_url = self._get_dataarchive_url()
+
+                if base_url.endswith('/'):
+                    self._datalink_url = f'{base_url}{DATALINK_SERVICE_PATH}'
+                else:
+                    self._datalink_url = f'{base_url}/{DATALINK_SERVICE_PATH}'
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the ALMA Archive URL: {str(err)}")
@@ -247,7 +252,12 @@ class AlmaClass(QueryWithLogin):
     def sia_url(self):
         if not self._sia_url:
             try:
-                self._sia_url = f"{self._get_dataarchive_url()}{SIA_SERVICE_PATH}"
+                base_url = self._get_dataarchive_url()
+
+                if base_url.endswith('/'):
+                    self._sia_url = f'{base_url}{SIA_SERVICE_PATH}'
+                else:
+                    self._sia_url = f'{base_url}/{SIA_SERVICE_PATH}'
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the  ALMA Archive URL: {str(err)}")
@@ -264,7 +274,12 @@ class AlmaClass(QueryWithLogin):
     def tap_url(self):
         if not self._tap_url:
             try:
-                self._tap_url = f"{self._get_dataarchive_url()}{TAP_SERVICE_PATH}"
+                base_url = self._get_dataarchive_url()
+
+                if base_url.endswith('/'):
+                    self._tap_url = f'{base_url}{TAP_SERVICE_PATH}'
+                else:
+                    self._tap_url = f'{base_url}/{TAP_SERVICE_PATH}'
             except requests.exceptions.HTTPError as err:
                 log.debug(
                     f"ERROR getting the  ALMA Archive URL: {str(err)}")

@@ -127,7 +127,9 @@ You can query by object name or by circular region:
 .. doctest-remote-data::
 
     >>> from astroquery.alma import Alma
-    >>> m83_data = Alma.query_object('M83')
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> m83_data = alma.query_object('M83')
     >>> m83_data.colnames  # doctest: +IGNORE_OUTPUT
     ['obs_publisher_did', 'obs_collection', 'facility_name', 'instrument_name',
     'obs_id', 'dataproduct_type', 'calib_level', 'target_name', 's_ra',
@@ -155,7 +157,9 @@ Region queries are just like any other in astroquery:
     >>> from astropy import units as u
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
-    >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> gc_data = alma.query_region(galactic_center, 1*u.deg)
     >>> print(gc_data)  # doctest: +IGNORE_OUTPUT
          obs_publisher_did      obs_collection facility_name ...     scientific_category           lastModified
                                                              ...
@@ -306,7 +310,9 @@ are >100 GB!
 
     >>> import numpy as np
     >>> from astroquery.alma import Alma
-    >>> m83_data = Alma.query_object('M83')
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> m83_data = alma.query_object('M83')
     >>> uids = np.unique(m83_data['member_ous_uid'])
     >>> print(uids)
          member_ous_uid
@@ -320,7 +326,9 @@ data such as the file names, their urls, sizes etc.
 
 .. doctest-remote-data::
 
-    >>> link_list = Alma.get_data_info(uids[:3])
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> link_list = alma.get_data_info(uids[:3])
 
 By default, ALMA data is delivered as tarball files. However, the content of
 some of these files can be listed and accessed individually. To get information
@@ -329,7 +337,9 @@ on the individual files:
 
 .. doctest-remote-data::
 
-    >>> link_list = Alma.get_data_info(uids[:3], expand_tarfiles=True)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> link_list = alma.get_data_info(uids[:3], expand_tarfiles=True)
 
 You can then go on to download those files.  The download will be cached so
 that repeat queries of the same file will not re-download the data.  The
@@ -374,11 +384,13 @@ files:
     >>> from astropy import units as u
     >>> s255ir = coordinates.SkyCoord(93.26708333, 17.97888889, frame='fk5',
     ...                               unit=(u.deg, u.deg))
-    >>> result = Alma.query_region(s255ir, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> result = alma.query_region(s255ir, radius=0.034*u.deg)
+    >>> uid_url_table = alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
     >>> # downselect to just the FITSf files
     >>> fits_urls = [url for url in uid_url_table['access_url'] if '.fits' in url]
-    >>> filelist = Alma.download_files(fits_urls[:5])  # doctest: +SKIP
+    >>> filelist = alma.download_files(fits_urls[:5])  # doctest: +SKIP
 
 You might want to look at the READMEs from a bunch of files so you know what
 kind of S/N to expect:
