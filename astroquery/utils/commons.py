@@ -23,7 +23,7 @@ from astropy.io import fits, votable
 from astropy.coordinates import BaseCoordinateFrame
 
 from ..exceptions import TimeoutError, InputWarning
-from .. import __version__ as version
+from .. import version
 
 
 def ICRSCoordGenerator(*args, **kwargs):
