@@ -19,7 +19,7 @@ from requests import HTTPError
 import astropy.units as u
 import astropy.coordinates as coord
 
-from astropy.table import Table, Row, vstack, MaskedColumn
+from astropy.table import Table, Row, unique, vstack, MaskedColumn
 from astroquery import log
 
 from astropy.utils import deprecated
@@ -713,6 +713,9 @@ class ObservationsClass(MastQueryWithLogin):
                 product_lists.append(self.get_product_list(oid))
 
             products = vstack(product_lists)
+
+        # Remove duplicate products
+        products = unique(products, keys="dataURI")
 
         # apply filters
         products = self.filter_products(products, mrp_only=mrp_only, **filters)
