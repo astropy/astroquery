@@ -29,6 +29,8 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Spatial resolution', 'Largest angular scale',
                 'QA2 Status', 'Group ous id', 'Pub'}
 
+download_hostname = 'almascience.eso.org'
+
 
 @pytest.fixture
 def alma(request):
@@ -163,6 +165,8 @@ class TestAlma:
 
         # compare with tarball version
         data_info_tar = alma.get_data_info(uid, expand_tarfiles=False)
+
+        # The expanded table should be much longer than the non-expanded table.
         assert len(data_info) > len(data_info_tar)
         # size is the same - not working because service inconsistencies
         # assert sum(data_info['content_length']) == \
@@ -531,7 +535,7 @@ def test_big_download_regression(alma):
 
 @pytest.mark.remote_data
 def test_download_html_file(alma):
-    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'])
+    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
     assert result
 
 
@@ -541,7 +545,7 @@ def test_verify_html_file(alma, caplog):
     # (we are hacking the file later in this test to trigger different failure modes so
     # we need it fresh)
     try:
-        result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+        result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
         local_filepath = result[0]
         os.remove(local_filepath)
     except FileNotFoundError:
@@ -550,10 +554,10 @@ def test_verify_html_file(alma, caplog):
     caplog.clear()
 
     # download the file
-    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'])
+    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
 
-    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
     local_filepath = result[0]
     existing_file_length = 66336
@@ -568,7 +572,7 @@ def test_verify_html_file(alma, caplog):
     existing_file_length = length + 10
     with pytest.warns(expected_warning=CorruptDataWarning,
             match=f"Found cached file {local_filepath} with size {existing_file_length} > expected size {length}.  The download is likely corrupted."):
-        result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+        result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
 
     # manipulate the file: make it small
@@ -576,7 +580,7 @@ def test_verify_html_file(alma, caplog):
         fh.write(b"Empty Text")
 
     caplog.clear()
-    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
     length = 66336
     existing_file_length = 10

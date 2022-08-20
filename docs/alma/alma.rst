@@ -127,7 +127,9 @@ You can query by object name or by circular region:
 .. doctest-remote-data::
 
     >>> from astroquery.alma import Alma
-    >>> m83_data = Alma.query_object('M83')
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> m83_data = alma.query_object('M83')
     >>> m83_data.colnames  # doctest: +IGNORE_OUTPUT
     ['obs_publisher_did', 'obs_collection', 'facility_name', 'instrument_name',
     'obs_id', 'dataproduct_type', 'calib_level', 'target_name', 's_ra',
@@ -155,7 +157,9 @@ Region queries are just like any other in astroquery:
     >>> from astropy import units as u
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
-    >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> gc_data = alma.query_region(galactic_center, 1*u.deg)
     >>> print(gc_data)  # doctest: +IGNORE_OUTPUT
          obs_publisher_did      obs_collection facility_name ...     scientific_category           lastModified
                                                              ...
@@ -224,6 +228,7 @@ their types.
     <BLANKLINE>
       Name                 Type            Unit       Description
     ------------------------------------------------------------------------------------------
+      access_estsize       int            kbyte       Estimated size of datasets in kilobytes
       access_format        char(9)                    Content format of the data
       access_url           char(72*)                  URL to download the data
       antenna_arrays       char(660*)                 Blank-separated list of Pad:Antenna pairs, i.e., A109:DV09 J504:DV02 J505:DV05 for antennas DV09, DV02 and DV05 sitting on pads A109, J504, and J505, respectively.
@@ -240,6 +245,7 @@ their types.
       em_min               double          m          start spectral coordinate value
       em_res_power         double                     typical spectral resolution
       em_resolution        double          m          Estimated frequency resolution from all the spectral windows, using median values of channel widths.
+      em_xel		           int	                      Number of elements along the spectral axis
       facility_name        char(3)                    telescope name
       first_author         char(256*)                 The first author as provided by <a href="http://telbib.eso.org">telbib.eso.org</a>.
       frequency            double          GHz        Observed (tuned) reference frequency on the sky.
@@ -259,6 +265,7 @@ their types.
       obs_release_date     char(*)                    timestamp of date the data becomes publicly available
       obs_title            char(256*)                 Case-insensitive search over the project title
       pol_states           char(64*)                  polarization states present in the data
+      pol_xel              int                        Number of polarization samples
       proposal_abstract    char(4000*)                Text search on the proposal abstract. Only abstracts will be returned which contain the given text. The search is case-insensitive.
       proposal_authors     char(2000*)                Full name of CoIs .
       proposal_id          char(64*)                  Identifier of proposal to which NO observation belongs.
@@ -272,6 +279,8 @@ their types.
       s_ra                 double          deg        RA of central coordinates
       s_region             char(*)         deg        region bounded by observation
       s_resolution         double          deg        typical spatial resolution
+      s_xel1               int                        Number of elements along the first spatial axis
+      s_xel2               int                        Number of elements along the second spatial axis
       scan_intent          char(256*)                 Scan intent list for the observed field.
       schedblock_name      char(128*)                 Name of the Scheduling Block used as a template for executing the ASDM containing this Field.
       science_keyword      char(200*)                 None
@@ -284,6 +293,7 @@ their types.
       t_max                double          d          end time of observation (MJD)
       t_min                double          d          start time of observation (MJD)
       t_resolution         double          s          typical temporal resolution
+      t_xel                int                        Number of elements along the time axis
       target_name          char(256*)                 name of intended target
       type                 char(16*)                  Type flags.
       velocity_resolution  double          m/s        Estimated velocity resolution from all the spectral windows, from frequency resolution.
@@ -300,7 +310,9 @@ are >100 GB!
 
     >>> import numpy as np
     >>> from astroquery.alma import Alma
-    >>> m83_data = Alma.query_object('M83')
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> m83_data = alma.query_object('M83')
     >>> uids = np.unique(m83_data['member_ous_uid'])
     >>> print(uids)
          member_ous_uid
@@ -314,7 +326,9 @@ data such as the file names, their urls, sizes etc.
 
 .. doctest-remote-data::
 
-    >>> link_list = Alma.get_data_info(uids[:3])
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> link_list = alma.get_data_info(uids[:3])
 
 By default, ALMA data is delivered as tarball files. However, the content of
 some of these files can be listed and accessed individually. To get information
@@ -323,7 +337,9 @@ on the individual files:
 
 .. doctest-remote-data::
 
-    >>> link_list = Alma.get_data_info(uids[:3], expand_tarfiles=True)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> link_list = alma.get_data_info(uids[:3], expand_tarfiles=True)
 
 You can then go on to download those files.  The download will be cached so
 that repeat queries of the same file will not re-download the data.  The
@@ -368,11 +384,13 @@ files:
     >>> from astropy import units as u
     >>> s255ir = coordinates.SkyCoord(93.26708333, 17.97888889, frame='fk5',
     ...                               unit=(u.deg, u.deg))
-    >>> result = Alma.query_region(s255ir, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> result = alma.query_region(s255ir, radius=0.034*u.deg)
+    >>> uid_url_table = alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
     >>> # downselect to just the FITSf files
     >>> fits_urls = [url for url in uid_url_table['access_url'] if '.fits' in url]
-    >>> filelist = Alma.download_files(fits_urls[:5])  # doctest: +SKIP
+    >>> filelist = alma.download_files(fits_urls[:5])  # doctest: +SKIP
 
 You might want to look at the READMEs from a bunch of files so you know what
 kind of S/N to expect:

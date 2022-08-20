@@ -6,10 +6,11 @@ from astropy import config as _config
 
 
 # list the URLs here separately so they can be used in tests.
-_url_list = ['http://almascience.org',
+_url_list = ['https://almascience.org',
              'https://almascience.eso.org',
              'https://almascience.nrao.edu',
-             'https://almascience.nao.ac.jp']
+             'https://almascience.nao.ac.jp'
+             ]
 
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
 

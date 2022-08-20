@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+  <RESOURCE type="results">
+    <TABLE>
+      <FIELD name="ID" datatype="char" arraysize="*" ucd="meta.id;meta.main" />
+      <FIELD name="access_url" datatype="char" arraysize="*" ucd="meta.ref.url" />
+      <FIELD name="service_def" datatype="char" arraysize="*" ucd="meta.ref" />
+      <FIELD name="error_message" datatype="char" arraysize="*" ucd="meta.code.error" />
+      <FIELD name="semantics" datatype="char" arraysize="*" ucd="meta.code" />
+      <FIELD name="description" datatype="char" arraysize="*" ucd="meta.note" />
+      <FIELD name="content_type" datatype="char" arraysize="*" ucd="meta.code.mime" />
+      <FIELD name="content_length" datatype="long" ucd="phys.size;meta.file" unit="byte" />
+      <FIELD name="readable" datatype="boolean">
+        <DESCRIPTION>the caller is allowed to use this link with the current authenticated identity</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15.mfs.I.manual.image.pbcor.fits</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: SCIENCE.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>1359360</TD>
+            <TD>true</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD />
+            <TD>SODA.sync</TD>
+            <TD />
+            <TD>#cutout</TD>
+            <TD>Synchronous SODA sub-image of 2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar.</TD>
+            <TD>image/fits</TD>
+            <TD />
+            <TD />
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15.mfs.I.manual.mask.tgz</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: MASK.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>5948</TD>
+            <TD>true</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15.mfs.I.manual.pb.fits.gz</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: SCIENCE.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>488550</TD>
+            <TD>true</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_4_8_12.cube.I.manual.image.pbcor.fits</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: SCIENCE.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>405008640</TD>
+            <TD>true</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD />
+            <TD>SODA.sync</TD>
+            <TD />
+            <TD>#cutout</TD>
+            <TD>Synchronous SODA sub-image of 2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar.</TD>
+            <TD>image/fits</TD>
+            <TD />
+            <TD />
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_4_8_12.cube.I.manual.mask.tgz</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: MASK.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>468531</TD>
+            <TD>true</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+            <TD>https://2022jun.asa-test.hq.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_4_8_12.cube.I.manual.pb.fits.gz</TD>
+            <TD />
+            <TD />
+            <TD>#this</TD>
+            <TD>Download dataset of type: product, and class: SCIENCE.</TD>
+            <TD>application/octet-stream</TD>
+            <TD>148936128</TD>
+            <TD>true</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+    <INFO name="placeholder" value="ignore" />
+  </RESOURCE>
+  <RESOURCE type="meta" ID="SODA.sync" utype="adhoc:service">
+    <PARAM name="resourceIdentifier" datatype="char" arraysize="18" value="ivo://alma.eu/soda" />
+    <PARAM name="standardID" datatype="char" arraysize="32" value="ivo://ivoa.net/std/SODA#sync-1.0" />
+    <PARAM name="accessURL" datatype="char" arraysize="164" value="https://2022jun.asa-test.hq.eso.org/soda/sync?ID=member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15.mfs.I.manual.image.pbcor.fits" />
+    <GROUP name="inputParams" />
+  </RESOURCE>
+  <RESOURCE type="meta" ID="SODA.sync" utype="adhoc:service">
+    <PARAM name="resourceIdentifier" datatype="char" arraysize="18" value="ivo://alma.eu/soda" />
+    <PARAM name="standardID" datatype="char" arraysize="32" value="ivo://ivoa.net/std/SODA#sync-1.0" />
+    <PARAM name="accessURL" datatype="char" arraysize="136" value="https://2022jun.asa-test.hq.eso.org/soda/sync?ID=member.uid___A001_X12a3_Xe9.50_kms_cloud_sci.spw0_4_8_12.cube.I.manual.image.pbcor.fits" />
+    <GROUP name="inputParams" />
+  </RESOURCE>
+</VOTABLE>
