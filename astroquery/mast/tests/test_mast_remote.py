@@ -289,6 +289,25 @@ class TestMast:
         assert os.path.isfile(result2['Local Path'][0])
         assert len(result2) == 1
 
+    def test_observations_download_products_noduplicates(self, tmpdir):
+
+        # Pull products for a NIRSpec MSA observation with 6 known duplicates
+        # of the MSA configuration file
+        products = mast.Observations.get_product_list("87602009")
+
+        # Filter out everything but the MSA config file
+        mask = np.char.find(products["dataURI"], "_msa.fits") != -1
+        products = products[mask]
+
+        assert len(products) == 6
+
+        # Download the product
+        manifest = mast.Observations.download_products(products,
+                                                       download_dir=str(tmpdir))
+
+        # Check that it downloads the MSA config file only once
+        assert len(manifest) == 1
+
     def test_observations_download_file(self, tmpdir):
 
         # enabling cloud connection
