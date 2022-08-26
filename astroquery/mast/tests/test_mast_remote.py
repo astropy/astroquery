@@ -275,7 +275,7 @@ class TestMast:
                 assert os.path.isfile(row['Local Path'])
 
         # just get the curl script
-        result = mast.Observations.download_products(test_obs[0]["obsid"],
+        result = mast.Observations.download_products(test_obs_id[0]["obsid"],
                                                      download_dir=str(tmpdir),
                                                      curl_flag=True,
                                                      productType=["SCIENCE"],
@@ -284,16 +284,16 @@ class TestMast:
         assert os.path.isfile(result['Local Path'][0])
 
         # check for row input
-        result1 = mast.Observations.get_product_list(test_obs[0]["obsid"])
+        result1 = mast.Observations.get_product_list(test_obs_id[0]["obsid"])
         result2 = mast.Observations.download_products(result1[0])
         assert isinstance(result2, Table)
         assert os.path.isfile(result2['Local Path'][0])
         assert len(result2) == 1
 
-    def test_observations_download_products_noduplicates(self, tmpdir):
+    def test_observations_download_products_no_duplicates(tmpdir):
 
-        # Pull products for a NIRSpec MSA observation with 6 known duplicates
-        # of the MSA configuration file
+        # Pull products for a JWST NIRSpec MSA observation with 6 known
+        # duplicates of the MSA configuration file, propID=2736
         products = mast.Observations.get_product_list("87602009")
 
         # Filter out everything but the MSA config file
@@ -309,6 +309,15 @@ class TestMast:
 
         # Check that it downloads the MSA config file only once
         assert len(manifest) == 1
+
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset()
+
+        # Check duplicate cloud URIs as well
+        with pytest.warns(DuplicateResultsWarning):
+            uris = mast.Observations.get_cloud_uris(products)
+
+        assert len(uris) == 1
 
     def test_observations_download_file(self, tmpdir):
 

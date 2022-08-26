@@ -769,7 +769,7 @@ class ObservationsClass(MastQueryWithLogin):
                                      'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
         # Remove duplicate products
-        products = self._remove_duplicate_products(products)
+        data_products = self._remove_duplicate_products(data_products)
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
