@@ -440,9 +440,11 @@ class ObservationsClass(MastQueryWithLogin):
             observations = np.array([observations])
         if isinstance(observations, Table):
             observations = observations['obsid']
+        if isinstance(observations, list):
+            observations = np.array(observations)
 
         observations = observations[observations != ""]
-        if len(observations) == 0:
+        if observations.size == 0:
             raise InvalidQueryError("Observation list is empty, no associated products.")
 
         service = self._caom_products

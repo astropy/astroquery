@@ -441,6 +441,10 @@ def test_observations_get_product_list(patch_post):
     result = mast.Observations.get_product_list(observations[0:4])
     assert isinstance(result, Table)
 
+    in_obsids = ['83229830', '1829332', '26074149', '24556715']
+    result = mast.Observations.get_product_list(in_obsids)
+    assert isinstance(result, Table)
+
 
 def test_observations_filter_products(patch_post):
     products = mast.Observations.get_product_list('2003738726')
