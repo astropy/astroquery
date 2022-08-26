@@ -389,6 +389,28 @@ def test_query_criteria2(patch_post):
     assert 'otype=SNR' in S._last_query.data['script']
 
 
+def test_config_runtime_change():
+    sb = simbad.Simbad()
+
+    assert sb._row_limit == 0
+    with simbad.conf.set_temp('row_limit', 7):
+        assert sb._row_limit == 7
+        sb.ROW_LIMIT = 3
+        assert sb._row_limit == 3
+
+    assert sb._simbad_url == 'https://simbad.u-strasbg.fr/simbad/sim-script'
+    with simbad.conf.set_temp('server', 'simbad.harvard.edu'):
+        assert sb._simbad_url == 'https://simbad.harvard.edu/simbad/sim-script'
+        sb.SIMBAD_URL = 'asdfg'
+        assert sb._simbad_url == 'asdfg'
+
+    assert sb._timeout == 60
+    with simbad.conf.set_temp('timeout', 5):
+        assert sb._timeout == 5
+        sb.TIMEOUT = 3
+        assert sb._timeout == 3
+
+
 def test_simbad_settings1():
     sb = simbad.core.Simbad()
     assert sb.get_votable_fields() == ['main_id', 'coordinates']

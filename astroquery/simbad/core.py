@@ -266,8 +266,8 @@ class SimbadClass(SimbadBaseQuery):
     (http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-url)
 
     """
-    SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
-    TIMEOUT = conf.timeout
+    SIMBAD_URL = ''
+    TIMEOUT = None
     WILDCARDS = {
         '*': 'Any string of characters (including an empty one)',
         '?': 'Any character (exactly one character)',
@@ -286,7 +286,7 @@ class SimbadClass(SimbadBaseQuery):
         'query_bibobj_async': 'query bibobj'
     }
 
-    ROW_LIMIT = conf.row_limit
+    ROW_LIMIT = None
 
     # also find a way to fetch the votable fields table from
     # <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
@@ -297,6 +297,18 @@ class SimbadClass(SimbadBaseQuery):
     def __init__(self):
         super().__init__()
         self._VOTABLE_FIELDS = self._VOTABLE_FIELDS.copy()
+
+    @property
+    def _row_limit(self):
+        return conf.row_limit if self.ROW_LIMIT is None else self.ROW_LIMIT
+
+    @property
+    def _simbad_url(self):
+        return self.SIMBAD_URL or f'https://{conf.server}/simbad/sim-script'
+
+    @property
+    def _timeout(self):
+        return conf.timeout if self.TIMEOUT is None else self.TIMEOUT
 
     def list_wildcards(self):
         """
@@ -496,8 +508,8 @@ class SimbadClass(SimbadBaseQuery):
 
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     def query_object(self, object_name, wildcard=False, verbose=False,
@@ -560,8 +572,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     def query_objects(self, object_names, wildcard=False, verbose=False,
@@ -694,8 +706,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     def query_catalog(self, catalog, verbose=False, cache=True,
@@ -751,8 +763,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     def query_bibobj(self, bibcode, verbose=False, get_query_payload=False):
@@ -805,8 +817,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     def query_bibcode(self, bibcode, wildcard=False, verbose=False,
@@ -873,8 +885,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, cache=cache,
-                                 data=request_payload, timeout=self.TIMEOUT)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
 
         return response
 
@@ -929,8 +941,8 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST", self._simbad_url, data=request_payload,
+                                 timeout=self._timeout, cache=cache)
 
         return response
 
@@ -960,8 +972,8 @@ class SimbadClass(SimbadBaseQuery):
         votable_header = self._get_query_header(get_raw)
         votable_footer = self._get_query_footer(get_raw)
 
-        if self.ROW_LIMIT > 0:
-            script = "set limit " + str(self.ROW_LIMIT)
+        if self._row_limit > 0:
+            script = "set limit " + str(self._row_limit)
         script = "\n".join([script, votable_header, command])
         using_wildcard = False
         if kwargs.get('wildcard'):

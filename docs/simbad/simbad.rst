@@ -245,10 +245,9 @@ instance to query the ESO catalog:
 
 .. code-block:: python
 
-    >>> from astroquery.simbad import Simbad
-    >>> limitedSimbad = Simbad()
-    >>> limitedSimbad.ROW_LIMIT = 6
-    >>> result_table = limitedSimbad.query_catalog('eso')
+    >>> from astroquery.simbad import conf, Simbad
+    >>> with conf.set_temp("row_limit", 6):
+    >>>     result_table = Simbad.query_catalog("eso")
     >>> print(result_table)
 
     MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE
@@ -532,39 +531,57 @@ Customizing the default settings
 ================================
 
 There may be times when you wish to change the defaults that have been set for
-the Simbad queries.
+the Simbad queries. Items defined through the `astropy configuration system
+<https://docs.astropy.org/en/stable/config/index.html>`_ can be modified
+persistently by editing the ``astroquery`` configuration file, or for the
+duration of the active Python session at runtime. For every such configuration
+item there also exists a corresponding class attribute, which provides an
+alternative way of changing the defaults, but if one of those attributes is
+modified then the corresponding configuration item becomes inactive.
 
 Changing the row limit
 ----------------------
 
+By default the number of rows in the query results is not limited (done by
+specifying the limit to be 0). However, for some queries the results can be
+very large. In such cases it may be useful to set a limit to the number of
+rows. This can be done through the :attr:`~astroquery.simbad.Conf.row_limit`
+configuration item, or the corresponding
+:attr:`~astroquery.simbad.SimbadClass.ROW_LIMIT` class attribute::
 
-To fetch all the rows in the result, the row limit must be set to 0. However for some
-queries, results are likely to be very large, in such cases it may be best to
-limit the rows to a smaller number. If you want to do this only for the current
-python session then:
-
-.. code-block:: python
-
+    >>> from astroquery.simbad import conf
+    >>> with conf.set_temp("row_limit", 10):
+    ...     # Row limit is set to 10 within this code block.
+    ...     pass
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.ROW_LIMIT = 15 # now any query fetches at most 15 rows
-
-If you would like to make your choice persistent, then you can do this by
-modifying the setting in the Astroquery configuration file.
+    >>> # Setting the row limit to 15 for the instance.
+    >>> Simbad.ROW_LIMIT = 15
 
 Changing the timeout
 --------------------
 
+The timeout is the time limit in seconds for establishing the connection with
+the Simbad server and by default it is set to 60 seconds. It can be modified
+through the :attr:`~astroquery.simbad.Conf.timeout` configuration item, or the
+corresponding :attr:`~astroquery.simbad.SimbadClass.TIMEOUT` class attribute.
 
-The timeout is the time limit in seconds for establishing connection with the
-Simbad server and by default it is set to 100 seconds. You may want to modify
-this - again you can do this at run-time if you want to adjust it only for the
-current session. To make it persistent, you must modify the setting in the
-Astroquery configuration file.
+Changing the server
+-------------------
 
-.. code-block:: python
+By default all queries are sent to ``simbad.u-strasbg.fr``, but it is also
+possible to connect to the mirror at ``simbad.harvard.edu`` instead. This can
+be specified through the :attr:`~astroquery.simbad.Conf.server` configuration
+item::
+
+    >>> from astroquery.simbad import conf
+    >>> conf.server = "simbad.u-strasbg.fr"
+
+The corresponding class attribute is
+:attr:`~astroquery.simbad.SimbadClass.SIMBAD_URL`, and differently from the
+configuration item it requires the entire URL to be specified::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
+    >>> Simbad.SIMBAD_URL = "http://simbad.u-strasbg.fr/simbad/sim-script"
 
 Specifying which VOTable fields to include in the result
 --------------------------------------------------------
