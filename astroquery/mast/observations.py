@@ -31,7 +31,7 @@ from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          ResolverError, MaxResultsWarning,
+                          ResolverError, MaxResultsWarning, DuplicateResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
 from . import conf, utils
@@ -715,7 +715,12 @@ class ObservationsClass(MastQueryWithLogin):
             products = vstack(product_lists)
 
         # Remove duplicate products
+        number = len(products)
         products = unique(products, keys="dataURI")
+        number_unique = len(products)
+        if number_unique < number:
+            warnings.warn(f"{number - number_unique} of {number} products were duplicates."
+                          f"Only downloading {number_unique} unique product(s).", DuplicateResultsWarning)
 
         # apply filters
         products = self.filter_products(products, mrp_only=mrp_only, **filters)

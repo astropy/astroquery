@@ -14,7 +14,8 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning, RemoteServiceError
+from ...exceptions import (InvalidQueryError, MaxResultsWarning, NoResultsWarning,
+                           DuplicateResultsWarning, RemoteServiceError)
 
 
 OBSID = '1647157'
@@ -302,8 +303,9 @@ class TestMast:
         assert len(products) == 6
 
         # Download the product
-        manifest = mast.Observations.download_products(products,
-                                                       download_dir=str(tmpdir))
+        with pytest.warns(DuplicateResultsWarning):
+            manifest = mast.Observations.download_products(products,
+                                                           download_dir=str(tmpdir))
 
         # Check that it downloads the MSA config file only once
         assert len(manifest) == 1
