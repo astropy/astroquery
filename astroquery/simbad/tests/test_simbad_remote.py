@@ -7,7 +7,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table
 from astroquery.utils.mocks import MockResponse
-from astroquery.simbad import Simbad
+from astroquery.simbad import conf, Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
 
@@ -29,6 +29,23 @@ class TestSimbad:
             shutil.rmtree(my_temp_dir)
         request.addfinalizer(fin)
         return my_temp_dir
+
+    def test_config_runtime_change(self, temp_dir):
+        simbad = Simbad()
+        simbad.cache_location = temp_dir
+        with conf.set_temp('server', 'simbad.harvard.edu'):
+            response = simbad.query_bibobj_async('2006AJ....131.1163S')
+            assert response.url == 'https://simbad.harvard.edu/simbad/sim-script'
+        response = simbad.query_bibobj_async('2006AJ....131.1163S')
+        assert response.url == 'https://simbad.u-strasbg.fr/simbad/sim-script'
+
+        simbad = Simbad()
+        with conf.set_temp('row_limit', 4):
+            result = simbad.query_bibobj('2005A&A.430.165F')
+            assert len(result) == 4
+            simbad.ROW_LIMIT = 5
+            result = simbad.query_bibobj('2005A&A.430.165F')
+            assert len(result) == 5
 
     def test_query_criteria1(self, temp_dir):
         simbad = Simbad()
