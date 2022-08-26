@@ -82,7 +82,8 @@ linelists.cdms
 mast
 ^^^^
 
-- Cull duplicate downloads for the same dataURI in ``Observations.download_products()`` [#2497]
+- Cull duplicate downloads for the same dataURI in ``Observations.download_products()``
+  and duplicate URIs in ``Observations.get_cloud_uris``. [#2497]
 
 oac
 ^^^
