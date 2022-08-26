@@ -715,12 +715,7 @@ class ObservationsClass(MastQueryWithLogin):
             products = vstack(product_lists)
 
         # Remove duplicate products
-        number = len(products)
-        products = unique(products, keys="dataURI")
-        number_unique = len(products)
-        if number_unique < number:
-            warnings.warn(f"{number - number_unique} of {number} products were duplicates."
-                          f"Only downloading {number_unique} unique product(s).", DuplicateResultsWarning)
+        products = self._remove_duplicate_products(products)
 
         # apply filters
         products = self.filter_products(products, mrp_only=mrp_only, **filters)
@@ -773,6 +768,9 @@ class ObservationsClass(MastQueryWithLogin):
             raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
                                      'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
+        # Remove duplicate products
+        products = self._remove_duplicate_products(products)
+
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
@@ -807,6 +805,30 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
+
+    def _remove_duplicate_products(self, data_products):
+        """
+        Removes duplicate data products that have the same dataURI.
+
+        Parameters
+        ----------
+        data_products : `~astropy.table.Table`
+            Table containing products to be checked for duplicates.
+
+        Returns
+        -------
+        unique_products : `~astropy.table.Table`
+            Table containing products with unique dataURIs.
+
+        """
+        number = len(data_products)
+        unique_products = unique(data_products, keys="dataURI")
+        number_unique = len(unique_products)
+        if number_unique < number:
+            warnings.warn(f"{number - number_unique} of {number} products were duplicates."
+                          f"Only downloading {number_unique} unique product(s).", DuplicateResultsWarning)
+
+        return unique_products
 
 
 @async_to_sync
