@@ -16,6 +16,11 @@ hsa
 
 - New module to access ESA Herschel mission. [#2122]
 
+mast
+^^^
+
+- Fixed ``Observations.get_product_list`` to handle input lists of obsids. [#2504]
+
 
 Service fixes and enhancements
 ------------------------------
