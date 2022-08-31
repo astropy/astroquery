@@ -156,7 +156,8 @@ class TestAlma:
         """
         alma.cache_location = temp_dir
 
-        uid = 'uid://A001/X12a3/Xe9'
+        # small solar TP-only data set (<1 GB)
+        uid = 'uid://A001/X87c/X572'
 
         alma.retrieve_data_from_uid([uid])
 
