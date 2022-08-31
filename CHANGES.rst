@@ -68,7 +68,7 @@ ipac.nexsci.nasa_exoplanet_archive
 - The deprecated methods ``query_planet()`` and ``query_star()`` have been removed.
 
 - Stability improvements to ``query_aliases()`` that also addresses bug that made
-  method retrieve no aliases for multiple star systems.
+  method retrieve no aliases for multiple star systems. [#2506]
 
 jplhorizons
 ^^^^^^^^^^^
