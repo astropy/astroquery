@@ -149,12 +149,12 @@ class TestAlma:
         with pytest.raises(AttributeError):
             alma.is_proprietary('uid://NON/EXI/STING')
 
-    def test_retrieve_data(self, temp_dir, alma):
+    def test_retrieve_data(self, temp_path, alma):
         """
         Regression test for issue 2490 (the retrieval step will simply fail if
         given a blank line, so all we're doing is testing that it runs)
         """
-        alma.cache_location = temp_dir
+        alma.cache_location = temp_path
 
         # small solar TP-only data set (<1 GB)
         uid = 'uid://A001/X87c/X572'
