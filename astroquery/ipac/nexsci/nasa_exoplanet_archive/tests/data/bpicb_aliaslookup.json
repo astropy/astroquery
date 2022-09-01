@@ -1,10 +1,10 @@
 {
     "manifest": {
-        "requested_name": "bet pic",
-        "resolved_name": "bet Pic",
+        "requested_name": "bet pic b",
+        "resolved_name": "bet Pic b",
         "system_name": "bet Pic",
         "lookup_status": "OK",
-        "compilation_date": "2022-07-13 16:40:16.625352",
+        "compilation_date": "2022-07-13 16:53:58.899538",
         "system_snapshot": {
             "number_of_stars": 1,
             "number_of_planets": 2
@@ -26,7 +26,6 @@
                 "item_count": 1,
                 "stars": {
                     "bet Pic": {
-                        "requested_object": "True",
                         "is_host": "True",
                         "alias_set": {
                             "item_count": 14,
@@ -55,6 +54,7 @@
                 "item_count": 2,
                 "planets": {
                     "bet Pic b": {
+                        "requested_object": "True",
                         "alias_set": {
                             "item_count": 14,
                             "default_name": "bet Pic b",

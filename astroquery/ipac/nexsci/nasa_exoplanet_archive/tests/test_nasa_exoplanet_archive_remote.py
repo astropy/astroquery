@@ -164,6 +164,13 @@ def test_query_aliases():
 
 
 @pytest.mark.remote_data
+def test_query_aliases_multi():
+    aliases = NasaExoplanetArchive.query_aliases("LTT1445A")
+    assert len(aliases) > 10
+    assert "BD-17 588 A" in aliases
+
+
+@pytest.mark.remote_data
 def test_format():
     table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
     table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")

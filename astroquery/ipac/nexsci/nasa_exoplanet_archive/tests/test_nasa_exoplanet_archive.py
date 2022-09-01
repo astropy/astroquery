@@ -120,7 +120,7 @@ def patch_get(request):  # pragma: nocover
 
 
 # aliaslookup file in data/
-LOOKUP_DATA_FILE = 'bpic_aliaslookup.json'
+LOOKUP_DATA_FILE = ['bpic_aliaslookup.json', 'bpicb_aliaslookup.json']
 
 
 def data_path(filename):
@@ -129,8 +129,8 @@ def data_path(filename):
 
 
 # monkeypatch replacement request function
-def query_aliases_mock(self, *args, **kwargs):
-    with open(data_path(LOOKUP_DATA_FILE), 'rb') as f:
+def query_aliases_mock_0(self, *args, **kwargs):
+    with open(data_path(LOOKUP_DATA_FILE[0]), 'rb') as f:
         response = json.load(f)
     return response
 
@@ -138,13 +138,29 @@ def query_aliases_mock(self, *args, **kwargs):
 # use a pytest fixture to create a dummy 'requests.get' function,
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
-def query_aliases_request(request):
+def query_aliases_request_0(request):
     mp = request.getfixturevalue("monkeypatch")
-    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock)
+    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock_0)
     return mp
 
 
-def test_query_aliases(query_aliases_request):
+# monkeypatch replacement request function
+def query_aliases_mock_1(self, *args, **kwargs):
+    with open(data_path(LOOKUP_DATA_FILE[1]), 'rb') as f:
+        response = json.load(f)
+    return response
+
+
+# use a pytest fixture to create a dummy 'requests.get' function,
+# that mocks(monkeypatches) the actual 'requests.get' function:
+@pytest.fixture
+def query_aliases_request_1(request):
+    mp = request.getfixturevalue("monkeypatch")
+    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock_1)
+    return mp
+
+
+def test_query_aliases(query_aliases_request_0):
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
     result = nasa_exoplanet_archive.query_aliases(object_name='bet Pic')
     assert len(result) > 10
@@ -153,7 +169,7 @@ def test_query_aliases(query_aliases_request):
     assert '2MASS J05471708-5103594' in result
 
 
-def test_query_aliases_planet(query_aliases_request):
+def test_query_aliases_planet(query_aliases_request_1):
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
     result = nasa_exoplanet_archive.query_aliases('bet Pic b')
     assert len(result) > 10
