@@ -16,9 +16,8 @@ import numpy as np
 from urllib.parse import quote as urlencode
 
 from astropy.table import Table, vstack, MaskedColumn
-from astropy.utils import deprecated
 
-from ..query import BaseQuery, QueryWithLogin
+from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InputWarning, NoResultsWarning, RemoteServiceError

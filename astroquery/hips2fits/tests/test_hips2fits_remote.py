@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
 import pytest
-
-from ..core import hips2fits
-
 from astropy import wcs as astropy_wcs
 from astropy.io import fits
-import numpy as np
-
 from astropy.utils.exceptions import AstropyUserWarning
+import numpy as np
 from matplotlib.colors import Colormap
+
+from ..core import hips2fits
 
 
 @pytest.mark.remote_data
@@ -86,8 +83,8 @@ class TestHips2fitsRemote:
         assert isinstance(result, np.ndarray) and result.shape[2] == 3
 
     def test_bad_strech(self):
-        with pytest.raises(AttributeError):
-            result = hips2fits.query_with_wcs(
+        with pytest.raises(AstropyUserWarning, match=r"stretch: must either"):
+            hips2fits.query_with_wcs(
                 hips=self.hips,
                 wcs=self.w,
                 get_query_payload=False,
@@ -107,8 +104,8 @@ class TestHips2fitsRemote:
 
         assert isinstance(result, fits.HDUList)
 
-    def test_query_fits(self):
-        result = hips2fits.query_with_wcs(
+    def test_query_fits_bad_keywords(self):
+        hips2fits.query_with_wcs(
             hips=self.hips,
             wcs=self.w,
             # Here we send additional keywords incompatible with
@@ -131,7 +128,7 @@ class TestHips2fitsRemote:
 
     def test_bad_format_asked(self):
         with pytest.raises(AttributeError):
-            result = hips2fits.query_with_wcs(
+            hips2fits.query_with_wcs(
                 hips=self.hips,
                 wcs=self.w,
                 get_query_payload=False,
@@ -154,7 +151,7 @@ class TestHips2fitsRemote:
         })
 
         with pytest.raises(AttributeError):
-            result = hips2fits.query_with_wcs(
+            hips2fits.query_with_wcs(
                 hips=self.hips,
                 wcs=w2,
                 get_query_payload=False,

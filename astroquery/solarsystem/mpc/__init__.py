@@ -8,3 +8,6 @@ a collection of data services provided by MPC
 """
 
 from ...mpc import MPC, MPCClass
+
+
+__all__ = ["MPC", "MPCClass"]

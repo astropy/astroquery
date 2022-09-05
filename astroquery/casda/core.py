@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-# 1. standard library imports
 from io import BytesIO
 import os
 from urllib.parse import unquote, urlparse
@@ -9,7 +8,6 @@ from xml.etree import ElementTree
 from datetime import datetime, timezone
 import keyring
 
-# 2. third party imports
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.table import Table
@@ -17,18 +15,13 @@ from astropy.io.votable import parse
 from astroquery import log
 import numpy as np
 
-# 3. local imports - use relative imports
 from ..query import QueryWithLogin
 from ..utils import commons
-# prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_nosections
-# async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
-# import configurable items declared in __init__.py
 from . import conf
 from ..exceptions import LoginError
 
-# export all the public classes and methods
+
 __all__ = ['Casda', 'CasdaClass']
 
 

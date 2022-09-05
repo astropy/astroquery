@@ -7,10 +7,8 @@ This module contains various methods for querying MAST observations.
 """
 
 import warnings
-import json
 import time
 import os
-import uuid
 
 import numpy as np
 
@@ -19,22 +17,15 @@ from requests import HTTPError
 import astropy.units as u
 import astropy.coordinates as coord
 
-from astropy.table import Table, Row, unique, vstack, MaskedColumn
+from astropy.table import Table, Row, unique, vstack
 from astroquery import log
 
-from astropy.utils import deprecated
-from astropy.utils.console import ProgressBarOrSpinner
-
-from urllib.parse import quote as urlencode
-
-from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          ResolverError, MaxResultsWarning, NoResultsWarning,
-                          InputWarning, AuthenticationWarning)
+from ..exceptions import (InvalidQueryError, RemoteServiceError,
+                          NoResultsWarning, InputWarning)
 
-from . import conf, utils
+from . import utils
 from .core import MastQueryWithLogin
 
 __all__ = ['Observations', 'ObservationsClass',
@@ -651,8 +642,8 @@ class ObservationsClass(MastQueryWithLogin):
         download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S") + ".sh"
         local_path = os.path.join(out_dir, download_file)
 
-        response = self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
-                                       local_path, data=url_list, method="POST")
+        self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
+                            local_path, data=url_list, method="POST")
 
         status = "COMPLETE"
         msg = None

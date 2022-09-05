@@ -18,8 +18,6 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
 from ..query import BaseQuery
 from bs4 import BeautifulSoup
-from astropy.utils.exceptions import AstropyDeprecationWarning
-from astropy.utils.decorators import deprecated
 from astropy import units as u
 import pyvo
 from pyvo.auth import authsession
@@ -454,8 +452,8 @@ class CadcClass(BaseQuery):
                             range(0, len(publisher_ids), batch_size)):
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url,
-                               urlencode({'ID': pid_sublist}, True),
-                               session=self.cadcdatalink._session))
+                               urlencode({'ID': pid_sublist}, True)),
+                               session=self.cadcdatalink._session)
             for service_def in datalink.bysemantics('#cutout'):
                 access_url = service_def.access_url
                 if isinstance(access_url, bytes):  # ASTROPY_LT_4_1

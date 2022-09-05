@@ -18,8 +18,6 @@ from .utils import _get_data_from_xml
 from . import conf
 
 
-from xml.dom import minidom
-
 __all__ = ['ADS', 'ADSClass']
 
 

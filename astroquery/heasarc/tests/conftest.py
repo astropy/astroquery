@@ -101,10 +101,10 @@ def patch_get(request):
         )
 
     mp.assume_fileid_for_request = lambda patched_fileid_for_request: \
-        mp.setattr('astroquery.heasarc.tests.parametrization.fileid_for_request', patched_fileid_for_request)
+        mp.setattr('astroquery.heasarc.tests.conftest.fileid_for_request', patched_fileid_for_request)
 
     mp.reset_default_fileid_for_request = lambda: \
-        mp.delattr('astroquery.heasarc.tests.parametrization.fileid_for_request')
+        mp.delattr('astroquery.heasarc.tests.conftest.fileid_for_request')
 
     return mp
 

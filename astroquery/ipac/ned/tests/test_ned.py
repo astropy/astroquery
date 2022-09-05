@@ -279,4 +279,4 @@ def test_parse_result(capsys):
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.ned
+        import astroquery.ned  # noqa: F401

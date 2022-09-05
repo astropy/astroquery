@@ -8,4 +8,6 @@ SOLARSYSTEM.JPL.SBDB
 """
 
 from ....jplsbdb import SBDB, SBDBClass
-from . import *
+
+
+__all__ = ["SBDB", "SBDBClass"]

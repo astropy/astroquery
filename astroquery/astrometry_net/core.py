@@ -4,7 +4,6 @@
 import json
 
 from astropy.io import fits
-from astroquery import log
 from astropy.stats import sigma_clipped_stats
 from astropy.coordinates import SkyCoord
 

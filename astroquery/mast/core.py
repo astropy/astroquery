@@ -5,13 +5,7 @@ MAST Core
 
 This the base class for MAST queries.
 """
-
-import warnings
-
-from astropy.utils import deprecated
-
 from ..query import QueryWithLogin
-
 from . import utils
 from .auth import MastAuth
 from .cloud import CloudAccess

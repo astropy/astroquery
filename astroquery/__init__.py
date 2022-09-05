@@ -9,13 +9,15 @@ to access online Astronomical data. Each web service has its own sub-package.
 # Affiliated packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from ._astropy_init import *
+from ._astropy_init import __version__, __githash__, test
 # ----------------------------------------------------------------------------
 
 import os
 import logging
 
 from .logger import _init_log
+
+__all__ = ["__version__", "__githash__", "__citation__", "__bibtex__", "test", "log"]
 
 
 # Set the bibtex entry to the article referenced in CITATION.
@@ -30,18 +32,6 @@ def _get_bibtex():
 
 
 __citation__ = __bibtex__ = _get_bibtex()
-
-
-try:
-    from .version import version as __version__
-except ImportError:
-    # TODO: Issue a warning using the logging framework
-    __version__ = ''
-try:
-    from .version import githash as __githash__
-except ImportError:
-    # TODO: Issue a warning using the logging framework
-    __githash__ = ''
 
 
 # Setup logging for astroquery

@@ -191,7 +191,7 @@ class MPCClass(BaseQuery):
 
         """
 
-        mpc_endpoint = self.get_mpc_object_endpoint(target_type)
+        self.get_mpc_object_endpoint(target_type)
 
         kwargs['limit'] = 1
         return self.query_objects_async(target_type, get_query_payload, *args, **kwargs)

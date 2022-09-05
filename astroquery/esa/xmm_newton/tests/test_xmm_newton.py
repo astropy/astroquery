@@ -10,15 +10,16 @@ import errno
 import os
 import shutil
 import tarfile
-import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from astropy.io import fits
 
 from astroquery.exceptions import LoginError
-from ..core import XMMNewtonClass
-from ..tests.dummy_handler import DummyHandler
-from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
+from astroquery.esa.xmm_newton.core import XMMNewtonClass
+from .dummy_handler import DummyHandler
+from .dummy_tap_handler import DummyXMMNewtonTapHandler
 
 
 def data_path(filename):
@@ -98,9 +99,8 @@ class TestXMMNewton:
         dummyHandler.check_parameters(parameters2, "get_columns")
         dummyHandler.reset()
 
-    def test_parse_filename(self):
-        tempdir = tempfile.mkdtemp("temp")
-        filename = os.path.join(tempdir, "filename.tar")
+    def test_parse_filename(self, tmp_path):
+        filename = Path(tmp_path, "filename.tar")
         self._create_tar(filename, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         with tarfile.open(filename, "r") as tar:
@@ -295,11 +295,10 @@ class TestXMMNewton:
                     shutil.rmtree(os.path.join(ob_name, ftype))
                 shutil.rmtree(ob_name)
 
-    def test_create_tar_lightcurves(self):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile_lightcurves.tar")
-        self._create_tar_lightcurves(_tarpath, self._files_lightcurves)
-        assert os.path.isfile(_tarpath)
+    def test_create_tar_lightcurves(self, tmp_path):
+        path = Path(tmp_path, "tarfile_lightcurves.tar")
+        self._create_tar_lightcurves(path, self._files_lightcurves)
+        assert os.path.isfile(path)
 
     def test_get_epic_spectra_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
@@ -312,14 +311,13 @@ class TestXMMNewton:
         assert err == ("ERROR: File %s not found "
                        "[astroquery.esa.xmm_newton.core]\n" % _tarname)
 
-    def test_get_epic_spectra_invalid_instrumnet(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_spectra_invalid_instrumnet(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_instrument = "II"
         _source_number = 83
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_spectra(_tarpath, _source_number,
+        res = xsa.get_epic_spectra(path, _source_number,
                                    instrument=[_invalid_instrument])
         assert res == {}
         out, err = capsys.readouterr()
@@ -327,14 +325,13 @@ class TestXMMNewton:
                        "[astroquery.esa.xmm_newton.core]\n"
                        % _invalid_instrument)
 
-    def test_get_epic_spectra_invalid_source_number(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_spectra_invalid_source_number(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_source_number = 833
         _default_instrument = ['M1', 'M2', 'PN', 'EP']
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_spectra(_tarpath, _invalid_source_number,
+        res = xsa.get_epic_spectra(path, _invalid_source_number,
                                    instrument=[])
         assert res == {}
         out, err = capsys.readouterr()
@@ -343,7 +340,7 @@ class TestXMMNewton:
                        "  Source Number: %u\n"
                        "  Instrument: %s\n"
                        " [astroquery.esa.xmm_newton.core]\n"
-                       % (_tarpath, _invalid_source_number,
+                       % (path, _invalid_source_number,
                           _default_instrument))
 
     def test_get_epic_images_non_existing_file(self, capsys):
@@ -356,13 +353,12 @@ class TestXMMNewton:
         assert err == ("ERROR: File %s not found "
                        "[astroquery.esa.xmm_newton.core]\n" % _tarname)
 
-    def test_get_epic_images_invalid_instrument(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_images_invalid_instrument(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_instrument = "II"
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarpath,
+        res = xsa.get_epic_images(path,
                                   band=[], instrument=[_invalid_instrument],
                                   get_detmask=True, get_exposure_map=True)
         assert res == {}
@@ -371,13 +367,12 @@ class TestXMMNewton:
                        "[astroquery.esa.xmm_newton.core]\n"
                        % _invalid_instrument)
 
-    def test_get_epic_images_invalid_band(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_images_invalid_band(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_band = 10
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarpath,
+        res = xsa.get_epic_images(path,
                                   band=[_invalid_band], instrument=[],
                                   get_detmask=True, get_exposure_map=True)
         assert res == {}
@@ -385,16 +380,15 @@ class TestXMMNewton:
         assert err == ("WARNING: Invalid band %u "
                        "[astroquery.esa.xmm_newton.core]\n" % _invalid_band)
 
-    def test_get_epic_images(self):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_images(self, tmp_path):
+        path = Path(tmp_path, "tarfile.tar")
         _instruments = ["M1", "M1_expo", "M1_det",
                         "M2", "M2_expo", "M2_det",
                         "PN", "PN_expo", "PN_det",
                         "EP", "EP_expo", "EP_det"]
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarpath, band=[], instrument=[],
+        res = xsa.get_epic_images(path, band=[], instrument=[],
                                   get_detmask=True, get_exposure_map=True)
         assert len(res) == 6  # Number of different bands
         assert len(res[1]) == 9  # Number of different inst within band 1
@@ -472,17 +466,12 @@ class TestXMMNewton:
                             for f in res[b][i]:
                                 assert os.path.isfile(f)
 
-        # Removing files created in this test
-        for ob_name in self._files:
-            shutil.rmtree(ob_name)
-
-    def test_get_epic_lightcurve(self):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
-        self._create_tar(_tarpath, self._files)
+    def test_get_epic_lightcurve(self, tmp_path):
+        path = Path(tmp_path, "tarfile.tar")
+        self._create_tar(path, self._files)
         _source_number = 1
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_lightcurve(_tarpath, _source_number,
+        res = xsa.get_epic_lightcurve(path, _source_number,
                                       instrument=['M1', 'M2', 'PN'])
         assert res == {}
 
@@ -497,13 +486,12 @@ class TestXMMNewton:
         assert err == ("ERROR: File %s not found "
                        "[astroquery.esa.xmm_newton.core]\n" % _tarname)
 
-    def test_get_epic_lightcurve_invalid_instrument(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_lightcurve_invalid_instrument(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_instrument = "II"
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarpath, [], [_invalid_instrument],
+        res = xsa.get_epic_images(path, [], [_invalid_instrument],
                                   get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
@@ -511,14 +499,13 @@ class TestXMMNewton:
                        "[astroquery.esa.xmm_newton.core]\n"
                        % _invalid_instrument)
 
-    def test_get_epic_lightcurve_invalid_source_number(self, capsys):
-        tempdir = tempfile.mkdtemp("temp")
-        _tarpath = os.path.join(tempdir, "tarfile.tar")
+    def test_get_epic_lightcurve_invalid_source_number(self, tmp_path, capsys):
+        path = Path(tmp_path, "tarfile.tar")
         _invalid_source_number = 833
         _default_instrument = ['M1', 'M2', 'PN', 'EP']
-        self._create_tar(_tarpath, self._files)
+        self._create_tar(path, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_lightcurve(_tarpath, _invalid_source_number,
+        res = xsa.get_epic_lightcurve(path, _invalid_source_number,
                                       instrument=[])
         assert res == {}
         out, err = capsys.readouterr()
@@ -527,7 +514,7 @@ class TestXMMNewton:
                        "  Source Number: %u\n"
                        "  Instrument: %s\n"
                        " [astroquery.esa.xmm_newton.core]\n"
-                       % (_tarpath, _invalid_source_number,
+                       % (path, _invalid_source_number,
                           _default_instrument))
 
     def test_create_link(self):

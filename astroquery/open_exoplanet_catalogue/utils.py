@@ -236,17 +236,11 @@ class Number:
     def __float__(self):
         return float(self.value)
 
-    def __cmp__(self, num):
-        return cmp(self.value, num)
-
     def __and__(self, num):
         return self.value & num
 
     def __abs__(self):
         return abs(self.value)
-
-    def __coerce__(self, num):
-        return coerce(self.value, num)
 
     def __hash__(self):
         return hash(self.value)
@@ -259,9 +253,6 @@ class Number:
 
     def __invert__(self):
         return ~self.value
-
-    def __long__(self):
-        return long(self.value)
 
     def __lshift__(self, num):
         return self.value << num

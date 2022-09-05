@@ -5,6 +5,8 @@ SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 """
 from astropy import config as _config
 
+from .core import SDSS, SDSSClass
+
 
 class Conf(_config.ConfigNamespace):
     """
@@ -24,4 +26,5 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import SDSS, SDSSClass
+
+__all__ = ["SDSS", "SDSSClass", conf]

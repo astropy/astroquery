@@ -8,4 +8,6 @@ SOLARSYSTEM.JPL.HORIZONS
 """
 
 from ....jplhorizons import Horizons, HorizonsClass
-from . import *
+
+
+__all__ = ["Horizons", "HorizonsClass"]

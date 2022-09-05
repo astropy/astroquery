@@ -1,9 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import pytest
-import tempfile
-import shutil
-import warnings
 
 from astroquery.exceptions import LoginError, NoResultsWarning
 from astroquery.eso import Eso
@@ -127,8 +124,8 @@ class TestEso:
     def test_retrieve_data_twice(self):
         eso = Eso()
         eso.login()
-        result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
-        result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
+        eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
 
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data_and_calib(self):

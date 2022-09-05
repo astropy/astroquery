@@ -21,7 +21,7 @@ from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InvalidQueryError, MaxResultsWarning, InputWarning
 
-from . import conf, utils
+from . import utils
 from .core import MastQueryWithLogin
 
 

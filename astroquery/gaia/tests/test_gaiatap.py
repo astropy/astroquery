@@ -56,7 +56,7 @@ class TestTap:
         connHandler.set_response(tableRequest, dummy_response)
 
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus, show_server_messages=True)
+        GaiaClass(connHandler, tapplus, show_server_messages=True)
 
     def test_query_object(self):
         conn_handler = DummyConnHandler()

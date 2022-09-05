@@ -7,4 +7,7 @@ warnings.warn("the ``irsa_dust`` module has been moved to "
               "astroquery.ipac.irsa.irsa_dust, "
               "please update your imports.", DeprecationWarning, stacklevel=2)
 
-from astroquery.ipac.irsa.irsa_dust import *
+from astroquery.ipac.irsa.irsa_dust import IrsaDust, IrsaDustClass, Conf, conf
+
+
+__all__ = ['IrsaDust', 'IrsaDustClass', 'Conf', 'conf']

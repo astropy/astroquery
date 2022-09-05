@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 
 import os
-import requests
 
 from astropy import units as u
 from astropy.table import Table

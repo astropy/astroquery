@@ -12,8 +12,6 @@ import os
 import pytest
 
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
-from astroquery.esa.jwst.tests.DummyDataHandler import DummyDataHandler
-
 from astroquery.esa.jwst.core import JwstClass
 
 

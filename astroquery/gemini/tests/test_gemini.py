@@ -90,11 +90,12 @@ def test_observations_query_criteria_radius_defaults(patch_get):
     saved_request = None
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
                                                 observation_type='BIAS', coordinates=coords)
+    assert len(result) > 0
     assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
     assert('/sr=0.300000d' in saved_request['args'][1])
     saved_request = None
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
-                                                observation_type='BIAS', objectname='m101')
+    gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
+                                       observation_type='BIAS', objectname='m101')
     assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
     assert('/sr=0.300000d' in saved_request['args'][1])
 

@@ -24,7 +24,6 @@ from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
 from astroquery.simbad import Simbad
-from astroquery.utils import TableList
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -638,8 +637,6 @@ class TestTap:
         dummyTapHandler.reset()
 
         observation_id = "jw00777011001_02104_00001_nrcblong"
-        cal_level_condition = " AND m.calibrationlevel = m.max_cal_level"
-        prodtype_condition = ""
 
         query = (f"select distinct a.uri, a.artifactid, a.filename, "
                  f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
@@ -900,9 +897,9 @@ class TestTap:
         assert "This target name cannot be determined with this resolver: ALL" in err.value.args[0]
         with pytest.raises(ValueError) as err:
             jwst.query_target(target_name="M1", target_resolver="ALL")
-        assert err.value.args[0] in [f"This target name cannot be determined "
-                                     f"with this resolver: ALL", "Missing "
-                                     f"required argument: 'width'"]
+        assert err.value.args[0] in ["This target name cannot be determined "
+                                     "with this resolver: ALL", "Missing "
+                                     "required argument: 'width'"]
 
         # Testing no valid coordinates from resolvers
         simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')

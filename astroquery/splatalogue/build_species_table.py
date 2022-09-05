@@ -9,8 +9,6 @@ import json
 import os
 import requests
 
-from astropy.config import paths
-
 from . import conf
 
 

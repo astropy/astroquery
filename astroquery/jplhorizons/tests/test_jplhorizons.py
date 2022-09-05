@@ -71,7 +71,7 @@ def test_parse_result(patch_request):
     # need _last_query to be defined
     q._last_query = AstroQuery('GET', 'http://dummy')
     with pytest.raises(ValueError):
-        res = q.ephemerides()
+        q.ephemerides()
 
 
 def test_ephemerides_query(patch_request):
@@ -244,7 +244,7 @@ def test_id_type_deprecation():
     """
 
     with pytest.warns(AstropyDeprecationWarning):
-        res = jplhorizons.Horizons(id='Ceres', id_type='id')
+        jplhorizons.Horizons(id='Ceres', id_type='id')
 
     with pytest.warns(AstropyDeprecationWarning):
-        res = jplhorizons.Horizons(id='Ceres', id_type='majorbody')
+        jplhorizons.Horizons(id='Ceres', id_type='majorbody')

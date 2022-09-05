@@ -333,7 +333,7 @@ def test_get_ephemeris_proper_motion_unit(mu, unit, columns, units,
 
 def test_get_ephemeris_proper_motion_unit_fail(patch_post):
     with pytest.raises(ValueError):
-        result = mpc.core.MPC.get_ephemeris('2P', proper_motion_unit='km/s')
+        mpc.core.MPC.get_ephemeris('2P', proper_motion_unit='km/s')
 
 
 @pytest.mark.parametrize('suppress_daytime,val', ((True, 'y'), (False, 'n')))

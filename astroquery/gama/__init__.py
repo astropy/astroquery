@@ -9,3 +9,6 @@ http://www.gama-survey.org/dr3/query/
 """
 
 from .core import GAMA, GAMAClass
+
+
+__all__ = ["GAMA", "GAMAClass"]

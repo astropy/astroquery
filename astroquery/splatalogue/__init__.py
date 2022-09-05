@@ -35,8 +35,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from . import load_species_table
-from . import utils
 from .core import Splatalogue, SplatalogueClass
 
 __all__ = ['Splatalogue', 'SplatalogueClass',

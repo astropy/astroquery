@@ -26,7 +26,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import *
+from .core import FermiLAT, FermiLATClass, GetFermilatDatafile, get_fermilat_datafile
 
 __all__ = ['FermiLAT', 'FermiLATClass',
            'GetFermilatDatafile', 'get_fermilat_datafile',

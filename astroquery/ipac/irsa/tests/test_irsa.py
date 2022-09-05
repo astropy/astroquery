@@ -176,4 +176,4 @@ def test_spatial_invalid(spatial):
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.irsa
+        import astroquery.irsa  # noqa: F401

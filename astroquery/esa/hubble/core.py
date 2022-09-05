@@ -212,12 +212,12 @@ class ESAHubbleClass(BaseQuery):
             return filename
         elif (product_type == "SCIENCE_PRODUCT"):
             log.info("This is a SCIENCE_PRODUCT, the filename will be "
-                     "renamed to " + filename + ".fits.gz")
-            return filename + ".fits.gz"
+                     f"renamed to {filename}.fits.gz")
+            return f"{filename}.fits.gz"
         else:
             log.info("This is a POSTCARD, the filename will be "
-                     "renamed to " + filename + ".jpg")
-            return filename + ".jpg"
+                     f"renamed to {filename}.jpg")
+            return f"{filename}.jpg"
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -501,7 +501,7 @@ class ESAHubbleClass(BaseQuery):
             ra = target_result['RA_DEGREES']
             dec = target_result['DEC_DEGREES']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
-        except KeyError as e:
+        except KeyError:
             raise ValueError("This target cannot be resolved")
 
     def query_metadata(self, output_format='votable', verbose=False):

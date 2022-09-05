@@ -97,4 +97,4 @@ def test_ibe_field_id(patch_get):
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.ibe
+        import astroquery.ibe  # noqa: F401

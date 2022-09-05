@@ -8,4 +8,6 @@ SOLARSYSTEM.IMCCE.SKYBOT
 """
 
 from ....imcce import Skybot, SkybotClass
-from . import *
+
+
+__all__ = ["Skybot", "SkybotClass"]
