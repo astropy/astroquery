@@ -31,6 +31,7 @@ alma
 - Fixed a regression to handle arrays of string input for the ``query`` methods. [#2094]
 - Throws an error when an unsupported ``kwargs`` (or argument) is passed in to a function. [#2475]
 - New DataLink API handling. [#2493]
+- Fixed bug #2489 in which blank URLs were being sent to the downloader [#2490]
 
 
 astrometry.net

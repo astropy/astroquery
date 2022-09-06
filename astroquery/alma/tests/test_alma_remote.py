@@ -149,7 +149,18 @@ class TestAlma:
         with pytest.raises(AttributeError):
             alma.is_proprietary('uid://NON/EXI/STING')
 
-    @pytest.mark.xfail(reason="Depends on PR 2438 (https://github.com/astropy/astroquery/pull/2438)")
+    def test_retrieve_data(self, temp_path, alma):
+        """
+        Regression test for issue 2490 (the retrieval step will simply fail if
+        given a blank line, so all we're doing is testing that it runs)
+        """
+        alma.cache_location = temp_path
+
+        # small solar TP-only data set (<1 GB)
+        uid = 'uid://A001/X87c/X572'
+
+        alma.retrieve_data_from_uid([uid])
+
     def test_data_info(self, temp_dir, alma):
         alma.cache_location = temp_dir
 
