@@ -48,7 +48,7 @@ def test_parse_result(patch_request):
     # need _last_query to be defined
     q._last_query = AstroQuery('GET', 'http://dummy')
     with pytest.raises(ValueError):
-        res = q.ephemeris('dummy-planet-name')
+        q.ephemeris('dummy-planet-name')
 
 
 def test_ephemeris_query_Uranus(patch_request):

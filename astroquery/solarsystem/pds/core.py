@@ -1,12 +1,9 @@
 # 1. standard library imports
-
 import re
-import warnings
 
 # 2. third party imports
 from astropy.time import Time
 from astropy import table
-from astropy.io import ascii
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from bs4 import BeautifulSoup
@@ -282,14 +279,15 @@ class RingNodeClass(BaseQuery):
 
             # minor body table part 2
             elif group.startswith("Sub-"):
-                group = "\n".join(group.split("\n")[1:])  # fixing two-row header
-                group = "NAIF" + group[4:]
+
+                group = "\n".join(group.split("\n")[2:])  # removing two-row header entirely
                 bodytable2_names = ("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance")
                 bodytable2_units = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
                 bodytable2 = table.QTable.read(group, format="ascii.fixed_width",
                                         col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
                                         col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
-                                        names=bodytable2_names)
+                                        names=bodytable2_names,
+                                        data_start=0)
                                         # units=(bodytable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
                 for name, unit in zip(bodytable2_names, bodytable2_units):
                     bodytable2[name].unit = unit
@@ -370,11 +368,14 @@ class RingNodeClass(BaseQuery):
                         peri = float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()"))
                     elif "F Ring ascending node" in l[0]:
                         ascn = float(l[1].strip(", \n"))
+                ringtable_names = ("ring", "pericenter", "ascending node")
+                ringtable_units = [None, u.deg, u.deg]
                 ringtable = table.QTable(
                     [["F"], [peri], [ascn]],
-                    names=("ring", "pericenter", "ascending node"),
-                    units=(None, u.deg, u.deg),
-                )
+                    names=ringtable_names)
+                    # units=(ringtable_units) # this much cleaner way of adding units is supported in later versions but not in 3.7
+                for name, unit in zip(ringtable_names, ringtable_units):
+                    ringtable[name].unit = unit
 
             # Neptune ring arcs data
             elif group.startswith("Courage"):
@@ -387,11 +388,14 @@ class RingNodeClass(BaseQuery):
                         for s in re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()").split()
                     ]
                     if i == 0:
+                        ringtable_names = ("ring", "min_angle", "max_angle")
+                        ringtable_units = [None, u.deg, u.deg]
                         ringtable = table.QTable(
                             [[ring], [min_angle], [max_angle]],
-                            names=("ring", "min_angle", "max_angle"),
-                            units=(None, u.deg, u.deg),
-                        )
+                            names=ringtable_names)
+                        for name, unit in zip(ringtable_names, ringtable_units):
+                            ringtable[name].unit = unit
+                            # units=(ringtable_units) # this much cleaner way of adding units is supported in later versions but not in 3.7
                     else:
                         ringtable.add_row([ring, min_angle*u.deg, max_angle*u.deg])
 
