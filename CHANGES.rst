@@ -89,6 +89,12 @@ linelists.cdms
 - Fix issues with the line name parser and the line data parser; the original
   implementation was incomplete and upstream was not fully documented. [#2385, #2411]
 
+mast
+^^^^
+
+- Cull duplicate downloads for the same dataURI in ``Observations.download_products()``
+  and duplicate URIs in ``Observations.get_cloud_uris``. [#2497]
+
 oac
 ^^^
 

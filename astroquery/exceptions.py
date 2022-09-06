@@ -7,8 +7,9 @@ from astropy.utils.exceptions import AstropyWarning
 
 __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
            'TableParseError', 'LoginError', 'ResolverError',
-           'NoResultsWarning', 'LargeQueryWarning', 'InputWarning',
-           'AuthenticationWarning', 'MaxResultsWarning', 'CorruptDataWarning']
+           'NoResultsWarning', 'DuplicateResultsWarning', 'LargeQueryWarning',
+           'InputWarning', 'AuthenticationWarning', 'MaxResultsWarning',
+           'CorruptDataWarning']
 
 
 class TimeoutError(Exception):
@@ -61,6 +62,13 @@ class ResolverError(Exception):
 
 
 class NoResultsWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when a query returns no result.
+    """
+    pass
+
+
+class DuplicateResultsWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query returns no result.
     """
