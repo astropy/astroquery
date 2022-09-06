@@ -62,6 +62,11 @@ range) can be listed with
                AsinhSoft float64
         TrasmissionCurve  object
 
+If the wavelength range contains too many entries then a ``TimeoutError`` will
+occur. A smaller wavelength range might succeed, but if a large range really is
+required then you can use the ``timeout`` argument to allow for a longer
+response time.
+
 .. doctest-skip-all
 
 Get list of Filters under a specified Facilty and Instrument

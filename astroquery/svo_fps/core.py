@@ -9,7 +9,7 @@ from astropy.io.votable import parse_single_table
 from . import conf
 
 from ..query import BaseQuery
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, TimeoutError
 
 
 __all__ = ['SvoFpsClass', 'SvoFps']
@@ -100,7 +100,13 @@ class SvoFpsClass(BaseQuery):
         query = {'WavelengthEff_min': wavelength_eff_min.to_value(u.angstrom),
                  'WavelengthEff_max': wavelength_eff_max.to_value(u.angstrom)}
         error_msg = 'No filter found for requested Wavelength Effective range'
-        return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
+        try:
+            return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
+        except requests.ReadTimeout:
+            raise TimeoutError(
+                "Query did not finish fast enough. A smaller wavelength range might "
+                "succeed. Try increasing the timeout limit if a large range is needed."
+            )
 
     def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO

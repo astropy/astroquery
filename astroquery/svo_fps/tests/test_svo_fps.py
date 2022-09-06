@@ -1,8 +1,9 @@
 import pytest
 import os
 from astropy import units as u
+from requests import ReadTimeout
 
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, TimeoutError
 from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
@@ -46,7 +47,7 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
     return MockResponse(content, **kwargs)
 
 
-def test_get_filter_index(patch_get):
+def test_get_filter_index(patch_get, monkeypatch):
     with pytest.raises(TypeError, match="missing 2 required positional arguments"):
         SvoFps.get_filter_index()
     lambda_min = TEST_LAMBDA*u.angstrom
@@ -57,6 +58,17 @@ def test_get_filter_index(patch_get):
     # Results should not depend on the unit of the wavelength: #2443. If they do then
     # `get_mockreturn` raises `NotImplementedError`.
     SvoFps.get_filter_index(lambda_min.to(u.m), lambda_max)
+
+    def get_mockreturn_timeout(*args, **kwargs):
+        raise ReadTimeout
+
+    monkeypatch.setattr(SvoFps, '_request', get_mockreturn_timeout)
+    error_msg = (
+        r"^Query did not finish fast enough\. A smaller wavelength range might "
+        r"succeed\. Try increasing the timeout limit if a large range is needed\.$"
+    )
+    with pytest.raises(TimeoutError, match=error_msg):
+        SvoFps.get_filter_index(lambda_min, lambda_max)
 
 
 def test_get_transmission_data(patch_get):
