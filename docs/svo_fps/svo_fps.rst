@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.svo_fps:
 
 **********************************************************
@@ -17,17 +15,19 @@ from the service as astropy tables.
 Get index list of all Filters
 -----------------------------
 
-The filter index (all available filters with their properties) can be listed
-with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
+The filter index (the properties of all available filters in a wavelength
+range) can be listed with
+:meth:`~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
 
-.. code-block:: python
+.. doctest-remote-data::
 
+    >>> from astropy import units as u
     >>> from astroquery.svo_fps import SvoFps
-    >>> index = SvoFps.get_filter_index()
+    >>> index = SvoFps.get_filter_index(12_000*u.angstrom, 12_100*u.angstrom)
     >>> index.info
-    <Table masked=True length=5139>
-            name          dtype  unit
-    -------------------- ------- ----
+    <Table length=14>
+            name          dtype        unit
+    -------------------- ------- ---------------
     FilterProfileService  object
                 filterID  object
           WavelengthUnit  object
@@ -41,28 +41,28 @@ with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
     CalibrationReference  object
              Description  object
                 Comments  object
-          WavelengthMean float32   AA
-           WavelengthEff float32   AA
-           WavelengthMin float32   AA
-           WavelengthMax float32   AA
-                WidthEff float32   AA
-           WavelengthCen float32   AA
-         WavelengthPivot float32   AA
-          WavelengthPeak float32   AA
-          WavelengthPhot float32   AA
-                    FWHM float32   AA
+           WavelengthRef float64              AA
+          WavelengthMean float64              AA
+           WavelengthEff float64              AA
+           WavelengthMin float64              AA
+           WavelengthMax float64              AA
+                WidthEff float64              AA
+           WavelengthCen float64              AA
+         WavelengthPivot float64              AA
+          WavelengthPeak float64              AA
+          WavelengthPhot float64              AA
+                    FWHM float64              AA
+                    Fsun float64 erg s / (A cm2)
                PhotCalID  object
                   MagSys  object
-               ZeroPoint float32   Jy
+               ZeroPoint float64              Jy
            ZeroPointUnit  object
-                    Mag0 float32
+                    Mag0 float64
            ZeroPointType  object
-               AsinhSoft float32
+               AsinhSoft float64
         TrasmissionCurve  object
 
-There are options to downselect based on the minimum
-and maximum effective wavelength (``wavelength_eff_min``
-and ``wavelength_eff_max``, respectively).
+.. doctest-skip-all
 
 Get list of Filters under a specified Facilty and Instrument
 ------------------------------------------------------------

@@ -47,6 +47,8 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
 
 
 def test_get_filter_index(patch_get):
+    with pytest.raises(TypeError, match="missing 2 required positional arguments"):
+        SvoFps.get_filter_index()
     lambda_min = TEST_LAMBDA*u.angstrom
     lambda_max = lambda_min + 100*u.angstrom
     table = SvoFps.get_filter_index(lambda_min, lambda_max)

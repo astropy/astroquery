@@ -14,8 +14,6 @@ from astroquery.exceptions import InvalidQueryError
 
 __all__ = ['SvoFpsClass', 'SvoFps']
 
-FLOAT_MAX = np.finfo(np.float64).max
-
 # Valid query parameters taken from
 # http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
 _params_with_range = {"WavelengthRef", "WavelengthMean", "WavelengthEff",
@@ -80,19 +78,17 @@ class SvoFpsClass(BaseQuery):
             # If no table element found in VOTable
             raise IndexError(error_msg)
 
-    def get_filter_index(self, wavelength_eff_min=0*u.angstrom,
-                         wavelength_eff_max=FLOAT_MAX*u.angstrom, **kwargs):
+    def get_filter_index(self, wavelength_eff_min, wavelength_eff_max, **kwargs):
         """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
         Wavelength Effective range from SVO
 
         Parameters
         ----------
-        wavelength_eff_min : `~astropy.units.Quantity` with units of length, optional
-            Minimum value of Wavelength Effective (default is 0 angstrom)
-        wavelength_eff_max : `~astropy.units.Quantity` with units of length, optional
-            Maximum value of Wavelength Effective (default is a very large
-            quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
+        wavelength_eff_min : `~astropy.units.Quantity` with units of length
+            Minimum value of Wavelength Effective
+        wavelength_eff_max : `~astropy.units.Quantity` with units of length
+            Maximum value of Wavelength Effective
         kwargs : dict
             Passed to `data_from_svo`.  Relevant arguments include ``cache``
 
