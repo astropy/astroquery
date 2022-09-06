@@ -110,6 +110,9 @@ svo_fps
 - Queries with invalid parameter names now raise an ``InvalidQueryError``.
   [#2446]
 
+- The default wavelength range used by ``get_filter_index()`` was far too
+  large. The user must now always specify both upper and lower limits. [#2509]
+
 gaia
 ^^^^
 
