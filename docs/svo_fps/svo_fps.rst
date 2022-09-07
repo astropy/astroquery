@@ -128,7 +128,7 @@ transmission curve data using
 .. doctest-remote-data::
 
     >>> data = SvoFps.get_transmission_data('2MASS/2MASS.H')
-    >>> print(data)  # doctest: +FLOAT_CMP
+    >>> print(data)
     Wavelength Transmission
         AA
     ---------- ------------
