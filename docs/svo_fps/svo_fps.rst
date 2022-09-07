@@ -67,8 +67,6 @@ occur. A smaller wavelength range might succeed, but if a large range really is
 required then you can use the ``timeout`` argument to allow for a longer
 response time.
 
-.. doctest-skip-all
-
 Get list of Filters under a specified Facilty and Instrument
 ------------------------------------------------------------
 
@@ -77,14 +75,13 @@ Filters for an arbitrary combination of Facility & Instrument (the Facility
 must be specified, but the Instrument is optional).  The data table returned
 is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> filter_list = SvoFps.get_filter_list(facility='Keck', instrument='NIRC2')
     >>> filter_list.info
-
-    <Table masked=True length=11>
-            name          dtype  unit
-    -------------------- ------- ----
+    <Table length=11>
+            name          dtype        unit
+    -------------------- ------- ---------------
     FilterProfileService  object
                 filterID  object
           WavelengthUnit  object
@@ -98,25 +95,26 @@ is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_ind
     CalibrationReference  object
              Description  object
                 Comments  object
-          WavelengthMean float32   AA
-           WavelengthEff float32   AA
-           WavelengthMin float32   AA
-           WavelengthMax float32   AA
-                WidthEff float32   AA
-           WavelengthCen float32   AA
-         WavelengthPivot float32   AA
-          WavelengthPeak float32   AA
-          WavelengthPhot float32   AA
-                    FWHM float32   AA
+           WavelengthRef float64              AA
+          WavelengthMean float64              AA
+           WavelengthEff float64              AA
+           WavelengthMin float64              AA
+           WavelengthMax float64              AA
+                WidthEff float64              AA
+           WavelengthCen float64              AA
+         WavelengthPivot float64              AA
+          WavelengthPeak float64              AA
+          WavelengthPhot float64              AA
+                    FWHM float64              AA
+                    Fsun float64 erg s / (A cm2)
                PhotCalID  object
                   MagSys  object
-               ZeroPoint float32   Jy
+               ZeroPoint float64              Jy
            ZeroPointUnit  object
-                    Mag0 float32
+                    Mag0 float64
            ZeroPointType  object
-               AsinhSoft float32
+               AsinhSoft float64
         TrasmissionCurve  object
-
 
 Get transmission data for a specific Filter
 -------------------------------------------
@@ -127,40 +125,39 @@ If you know the ``filterID`` of the filter (which you can determine with
 transmission curve data using
 `~astroquery.svo_fps.SvoFpsClass.get_transmission_data`:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> data = SvoFps.get_transmission_data('2MASS/2MASS.H')
-    >>> print(data)
+    >>> print(data)  # doctest: +FLOAT_CMP
     Wavelength Transmission
         AA
     ---------- ------------
-    12890.0          0.0
-    13150.0          0.0
-    13410.0          0.0
-    13680.0          0.0
-    13970.0          0.0
-    14180.0          0.0
-    14400.0       0.0005
-    14620.0       0.0028
-    14780.0       0.0081
-    14860.0       0.0287
-        ...          ...
-    18030.0       0.1077
-    18100.0       0.0707
-    18130.0       0.0051
-    18180.0         0.02
-    18280.0       0.0004
-    18350.0          0.0
-    18500.0        1e-04
-    18710.0          0.0
-    18930.0          0.0
-    19140.0          0.0
+       12890.0          0.0
+       13150.0          0.0
+       13410.0          0.0
+       13680.0          0.0
+       13970.0          0.0
+       14180.0          0.0
+       14400.0       0.0005
+       14620.0 0.0027999999
+       14780.0 0.0081000002
+       14860.0 0.0286999997
+           ...          ...
+       18030.0 0.1076999977
+       18100.0 0.0706999972
+       18130.0 0.0051000002
+       18180.0 0.0199999996
+       18280.0       0.0004
+       18350.0          0.0
+       18500.0       0.0001
+       18710.0          0.0
+       18930.0          0.0
+       19140.0          0.0
     Length = 58 rows
-
 
 These are the data needed to plot the transmission curve for filter:
 
-.. code-block:: python
+.. doctest-skip::
 
     >>> import matplotlib.pyplot as plt
     >>> plt.plot(data['Wavelength'], data['Transmission'])
