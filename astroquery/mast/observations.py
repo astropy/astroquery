@@ -31,8 +31,8 @@ from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          ResolverError, MaxResultsWarning, DuplicateResultsWarning,
-                          NoResultsWarning, InputWarning, AuthenticationWarning)
+                          ResolverError, MaxResultsWarning, NoResultsWarning,
+                          InputWarning, AuthenticationWarning)
 
 from . import conf, utils
 from .core import MastQueryWithLogin
@@ -827,8 +827,8 @@ class ObservationsClass(MastQueryWithLogin):
         unique_products = unique(data_products, keys="dataURI")
         number_unique = len(unique_products)
         if number_unique < number:
-            warnings.warn(f"{number - number_unique} of {number} products were duplicates."
-                          f"Only downloading {number_unique} unique product(s).", DuplicateResultsWarning)
+            log.info(f"{number - number_unique} of {number} products were duplicates. "
+                          f"Only downloading {number_unique} unique product(s).")
 
         return unique_products
 
