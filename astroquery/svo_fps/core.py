@@ -9,12 +9,10 @@ from astropy.io.votable import parse_single_table
 from . import conf
 
 from ..query import BaseQuery
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, TimeoutError
 
 
 __all__ = ['SvoFpsClass', 'SvoFps']
-
-FLOAT_MAX = np.finfo(np.float64).max
 
 # Valid query parameters taken from
 # http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
@@ -80,19 +78,17 @@ class SvoFpsClass(BaseQuery):
             # If no table element found in VOTable
             raise IndexError(error_msg)
 
-    def get_filter_index(self, wavelength_eff_min=0*u.angstrom,
-                         wavelength_eff_max=FLOAT_MAX*u.angstrom, **kwargs):
+    def get_filter_index(self, wavelength_eff_min, wavelength_eff_max, **kwargs):
         """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
         Wavelength Effective range from SVO
 
         Parameters
         ----------
-        wavelength_eff_min : `~astropy.units.Quantity` with units of length, optional
-            Minimum value of Wavelength Effective (default is 0 angstrom)
-        wavelength_eff_max : `~astropy.units.Quantity` with units of length, optional
-            Maximum value of Wavelength Effective (default is a very large
-            quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
+        wavelength_eff_min : `~astropy.units.Quantity` with units of length
+            Minimum value of Wavelength Effective
+        wavelength_eff_max : `~astropy.units.Quantity` with units of length
+            Maximum value of Wavelength Effective
         kwargs : dict
             Passed to `data_from_svo`.  Relevant arguments include ``cache``
 
@@ -104,7 +100,13 @@ class SvoFpsClass(BaseQuery):
         query = {'WavelengthEff_min': wavelength_eff_min.to_value(u.angstrom),
                  'WavelengthEff_max': wavelength_eff_max.to_value(u.angstrom)}
         error_msg = 'No filter found for requested Wavelength Effective range'
-        return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
+        try:
+            return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
+        except requests.ReadTimeout:
+            raise TimeoutError(
+                "Query did not finish fast enough. A smaller wavelength range might "
+                "succeed. Try increasing the timeout limit if a large range is needed."
+            )
 
     def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO
