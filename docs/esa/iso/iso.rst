@@ -149,38 +149,8 @@ we can loop on the observations to download the best products (DEFAULT_DATA_SET)
   >>> for observation in table:
   ...     ISO.download_data(str(observation['tdt']), retrieval_type="OBSERVATION",
   ...        product_level="DEFAULT_DATA_SET", filename=str(observation['tdt']), verbose=True)  # doctest: +SKIP
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000104&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80000104.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000104&product_level=DEFAULT_DATA_SET to 80000104.tar [astroquery.esa.iso.core]
-  '80000104.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002504&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80002504.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002504&product_level=DEFAULT_DATA_SET to 80002504.tar [astroquery.esa.iso.core]
-  '80002504.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000938&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80000938.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000938&product_level=DEFAULT_DATA_SET to 80000938.tar [astroquery.esa.iso.core]
-  '80000938.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000828&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80000828.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000828&product_level=DEFAULT_DATA_SET to 80000828.tar [astroquery.esa.iso.core]
-  '80000828.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002304&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80002304.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002304&product_level=DEFAULT_DATA_SET to 80002304.tar [astroquery.esa.iso.core]
-  '80002304.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002450&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80002450.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002450&product_level=DEFAULT_DATA_SET to 80002450.tar [astroquery.esa.iso.core]
-  '80002450.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002247&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80002247.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002247&product_level=DEFAULT_DATA_SET to 80002247.tar [astroquery.esa.iso.core]
-  '80002247.tar'
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002014&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
-  INFO: Copying file to 80002014.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80002014&product_level=DEFAULT_DATA_SET to 80002014.tar [astroquery.esa.iso.core]
-  '80002014.tar'
+  INFO: http://nida.esac.esa.int/...
+
 
 -------------------------------
 2. Getting ISO postcards
@@ -193,6 +163,7 @@ we can loop on the observations to download the best products (DEFAULT_DATA_SET)
   >>> from IPython.core.display import HTML
   >>>
   >>> ISO.get_postcard('80001538', filename="postcard")   # doctest: +IGNORE_OUTPUT
+  Downloading URL http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=POSTCARD&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80001538 to /Users...
   >>> Image(filename = "postcard.png", width=400, height=100)
   <IPython.core.display.Image object>
 
@@ -213,21 +184,24 @@ This will download the ISO postcard for the observation '80001538' and it will s
 .. doctest-remote-data::
 
   >>> from astroquery.esa.iso import ISO
-  >>> ISO.get_tables()    # doctest: +IGNORE_OUTPUT
+  >>> ISO.get_tables()
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['hpdp.cam_sato', 'hpdp.cambendo', 'hpdp.chopc2i', 'hpdp.chopc2ii', 'hpdp.compkon',
-  'hpdp.evolkon','hpdp.extrakon', 'hpdp.kon3p6i', 'hpdp.kon3p6ii', 'hpdp.konkoly',
-  'hpdp.lwsasti', 'hpdp.lwsastii', 'hpdp.misckon', 'hpdp.p32_c200', 'hpdp.p32virgo',
-  'hpdp.scanskon', 'hpdp.sloansws', 'hpdp.solarkon','hpdp.sws01hrd', 'hpdp.ysokon',
-  'tap_config.coord_sys', 'tap_schema.columns', 'tap_schema.key_columns','tap_schema.keys',
-  'tap_schema.schemas', 'tap_schema.tables', 'ida.aph', 'ida.cam_expert', 'ida.cam_measurement',
-  'ida.dqr', 'ida.dqrflags', 'ida.iasd_line', 'ida.lws_expert', 'ida.lws_extras', 'ida.lws_lsan',
-  'ida.lws_measurement','ida.obs_pointing', 'ida.observers', 'ida.pht_expert', 'ida.postcards',
-  'ida.proposals', 'ida.publication_authors', 'ida.sws_common', 'ida.sws_expert', 'ida.usredata',
-  'ida.usredata_files', 'ida.object_type', 'ida.observations', 'ida.publications', 'ida.publications_observations',
-  'ivoa.obscore', 'ivoa.siap', 'ivoa.ssap']
+  ['hpdp.cam_sato', 'hpdp.cambendo', 'hpdp.chopc2i', 'hpdp.chopc2ii',
+   'hpdp.compkon', 'hpdp.evolkon', 'hpdp.extrakon', 'hpdp.kon3p6i',
+   'hpdp.kon3p6ii', 'hpdp.konkoly', 'hpdp.lwsasti', 'hpdp.lwsastii',
+   'hpdp.misckon', 'hpdp.p32_c200', 'hpdp.p32virgo', 'hpdp.scanskon',
+   'hpdp.sloansws', 'hpdp.solarkon', 'hpdp.sws01hrd', 'hpdp.ysokon',
+   'tap_config.coord_sys', 'tap_schema.columns', 'tap_schema.key_columns',
+   'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.tables', 'ida.aph',
+   'ida.cam_expert', 'ida.cam_measurement', 'ida.dqr', 'ida.dqrflags',
+   'ida.iasd_line', 'ida.lws_expert', 'ida.lws_extras', 'ida.lws_lsan',
+   'ida.lws_measurement', 'ida.obs_pointing', 'ida.observers',
+   'ida.pht_expert', 'ida.postcards', 'ida.proposals', 'ida.publication_authors',
+   'ida.sws_common', 'ida.sws_expert', 'ida.usredata', 'ida.usredata_files',
+   'ida.object_type', 'ida.observations', 'ida.publications',
+   'ida.publications_observations', 'ivoa.obscore', 'ivoa.siap', 'ivoa.ssap']
 
 This will show the available tables in ISO TAP service in the ISO Data Archive.
 
@@ -238,15 +212,18 @@ This will show the available tables in ISO TAP service in the ISO Data Archive.
 .. doctest-remote-data::
 
   >>> from astroquery.esa.iso import ISO 
-  >>> ISO.get_columns('ida.observations')     # doctest: +IGNORE_OUTPUT
+  >>> ISO.get_columns('ida.observations')
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['aotname', 'bp_valid', 'cal_flag', 'cam_par_flag', 'caveat', 'cdec', 'comment', 'cra', 'croll',
-  'dec', 'default_vo_product', 'display', 'dist_status', 'ehalind', 'end_time', 'fov', 'hpdp_available',
-  'instid', 'instrument_mode', 'num_publications', 'object_type', 'obsid', 'obsno', 'obsno_char', 'osn',
-  'ott', 'prodqlty', 'propid', 'qltyver', 'ra', 'ra_deg', 'revno', 's_region', 's_region_fov', 'speed',
-  'start_time', 'target', 'targetno', 'tdt', 'tdt_char', 'type', 'usredata_available', 'utc_end', 'utc_start', 'wavelengths']
+  ['aotname', 'bp_valid', 'cal_flag', 'cam_par_flag', 'caveat', 'cdec',
+   'comment', 'cra', 'croll', 'dec', 'default_vo_product', 'display',
+   'dist_status', 'ehalind', 'end_time', 'fov', 'hpdp_available',
+   'instid', 'instrument_mode', 'num_publications', 'object_type', 'obsid',
+   'obsno', 'obsno_char', 'osn', 'ott', 'prodqlty', 'propid', 'qltyver',
+   'ra', 'ra_deg', 'revno', 's_region', 's_region_fov', 'speed',
+   'start_time', 'target', 'targetno', 'tdt', 'tdt_char', 'type',
+   'usredata_available', 'utc_end', 'utc_start', 'wavelengths']
 
 
 This will show the column details of the table 'ida.observations' in ISO TAP service
