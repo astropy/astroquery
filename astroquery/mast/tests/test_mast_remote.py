@@ -15,7 +15,7 @@ from astroquery import mast
 
 from ..utils import ResolverError
 from ...exceptions import (InvalidQueryError, MaxResultsWarning, NoResultsWarning,
-                           DuplicateResultsWarning, RemoteServiceError)
+                           RemoteServiceError)
 
 
 OBSID = '1647157'
@@ -290,7 +290,7 @@ class TestMast:
         assert os.path.isfile(result2['Local Path'][0])
         assert len(result2) == 1
 
-    def test_observations_download_products_no_duplicates(tmpdir):
+    def test_observations_download_products_no_duplicates(self, tmpdir, caplog):
 
         # Pull products for a JWST NIRSpec MSA observation with 6 known
         # duplicates of the MSA configuration file, propID=2736
@@ -303,20 +303,21 @@ class TestMast:
         assert len(products) == 6
 
         # Download the product
-        with pytest.warns(DuplicateResultsWarning):
-            manifest = mast.Observations.download_products(products,
-                                                           download_dir=str(tmpdir))
+        manifest = mast.Observations.download_products(products,
+                                                       download_dir=str(tmpdir))
 
         # Check that it downloads the MSA config file only once
         assert len(manifest) == 1
+
+        # Check that an INFO message about duplicates was logged
+        with caplog.at_level("INFO", logger="astroquery"):
+            assert "products were duplicates" in caplog.text
 
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
 
         # Check duplicate cloud URIs as well
-        with pytest.warns(DuplicateResultsWarning):
-            uris = mast.Observations.get_cloud_uris(products)
-
+        uris = mast.Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
     def test_observations_download_file(self, tmpdir):
