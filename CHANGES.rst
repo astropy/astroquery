@@ -16,11 +16,6 @@ hsa
 
 - New module to access ESA Herschel mission. [#2122]
 
-mast
-^^^
-
-- Fixed ``Observations.get_product_list`` to handle input lists of obsids. [#2504]
-
 
 Service fixes and enhancements
 ------------------------------
@@ -94,6 +89,11 @@ mast
 
 - Cull duplicate downloads for the same dataURI in ``Observations.download_products()``
   and duplicate URIs in ``Observations.get_cloud_uris``. [#2497]
+
+- Fixed ``Observations.get_product_list`` to handle input lists of obsids. [#2504]
+
+- Add a ``flat`` option to ``Observation.download_products()`` to turn off the
+  automatic creation and organizing of products into subdirectories. [#2511]
 
 oac
 ^^^
