@@ -417,29 +417,46 @@ Query without saving results in a file:
   ...       "FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
   >>> print(job)  # doctest: +IGNORE_OUTPUT
-    <Table length=100>
-          name       dtype
-    ---------------- ------
-     instrument_name object
-         proposal_id object
-    calibrationlevel  int32
-     dataproducttype object
-    Jobid: None
-    Phase: COMPLETED
-    Owner: None
-    Output file: 1655977738493O-result.vot.gz
-    Results: None
+  <Table length=100>
+        name       dtype 
+  ---------------- ------
+   instrument_name object
+       proposal_id object
+  calibrationlevel  int32
+   dataproducttype object
+  Jobid: None
+  Phase: COMPLETED
+  Owner: None
+  Output file: 1661441953031O-result.vot.gz
+  Results: None
   >>> result = job.get_results()
   >>> result  # doctest: +IGNORE_OUTPUT
-    <Table length=100>
-    instrument_name proposal_id calibrationlevel dataproducttype
-         object        object        int32            object
-    --------------- ----------- ---------------- ---------------
-                FGS       01014                3           image
-                FGS       01014                3           image
-                FGS       01014                3           image
-                FGS       01014                3           image
-                ...         ...              ...             ...
+  <Table length=100>
+  instrument_name proposal_id calibrationlevel dataproducttype
+       object        object        int32            object    
+  --------------- ----------- ---------------- ---------------
+              FGS        1014                3           image
+              FGS        1014                3           image
+              FGS        1014                3           image
+              FGS        1014                3           image
+              FGS        1014                3           image
+              FGS        1014                2           image
+              FGS        1014                1           image
+              FGS        1014                1           image
+              FGS        1014                2           image
+              FGS        1014                2           image
+              ...         ...              ...             ...
+              FGS        1017                2           image
+              FGS        1017                1           image
+              FGS        1017                2           image
+              FGS        1017                1           image
+              FGS        1017                2           image
+              FGS        1017                1           image
+              FGS        1017                2           image
+              FGS        1017                1           image
+              FGS        1017                2           image
+              FGS        1017                1           image
+              FGS        1017                2           image
 
 
 Query saving results in a file:
