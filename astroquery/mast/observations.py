@@ -584,7 +584,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, flat=False, *, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False,):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
