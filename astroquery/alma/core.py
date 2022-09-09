@@ -591,7 +591,7 @@ class AlmaClass(QueryWithLogin):
         result.remove_rows(to_delete)
         if not with_auxiliary:
             result = result[np.core.defchararray.find(
-                result['semantics'], '#aux') == -1]
+                result['semantics'].astype(str), '#aux') == -1]
         if not with_rawdata:
             result = result[np.core.defchararray.find(
                 result['semantics'], '#progenitor') == -1]
