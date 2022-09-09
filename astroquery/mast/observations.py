@@ -684,7 +684,9 @@ class ObservationsClass(MastQueryWithLogin):
             all files into download_dir without subdirectories.  Or if set to True and
             download_dir is not specified, it will put files in the current directory,
             again with no subdirs.  The default of False puts files into the standard
-            directory structure of "mastDownload/<obs_collection>/<obs_id>/".
+            directory structure of "mastDownload/<obs_collection>/<obs_id>/".  If
+            curl_flag=True, the flat flag has no effect, as astroquery does not control
+            how MAST generates the curl download script.
         cache : bool, optional
             Default is True. If file is found on disc it will not be downloaded again.
             Note: has no affect when downloading curl script.
