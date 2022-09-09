@@ -16,7 +16,7 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import (InvalidQueryError, MaxResultsWarning, NoResultsWarning,
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning,
                            RemoteServiceError)
 
 
@@ -317,6 +317,19 @@ class TestMast:
                                                        download_dir=tmp_path)
 
         assert Path(manifest["Local Path"][0]).parent == tmp_path
+
+    def test_observations_download_products_flat_curl(self, tmp_path, msa_product_table):
+
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
+
+        assert len(products) == 6
+
+        # Download with flat=True, curl_flag=True, look for warning
+        with pytest.warns(InputWarning):
+            mast.Observations.download_products(products, flat=True,
+                                                curl_flag=True,
+                                                download_dir=tmp_path)
 
     def test_observations_download_products_no_duplicates(self, tmp_path, caplog, msa_product_table):
 

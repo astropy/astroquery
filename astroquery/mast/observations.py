@@ -648,8 +648,8 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         url_list = [("uri", url) for url in products['dataURI']]
-        download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
-        local_path = os.path.join(out_dir.rstrip('/'), download_file + ".sh")
+        download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S") + ".sh"
+        local_path = os.path.join(out_dir, download_file)
 
         response = self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
                                        local_path, data=url_list, method="POST")
@@ -745,6 +745,9 @@ class ObservationsClass(MastQueryWithLogin):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
+            if flat:
+                # flat=True doesn't work with curl_flag=True, so issue a warning
+                warnings.warn("flat=True has no effect on curl downloads.", InputWarning)
             manifest = self._download_curl_script(products,
                                                   download_dir)
 
