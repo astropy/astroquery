@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from re import sub
+from pathlib import Path
 import numpy as np
 import os
 import pytest
@@ -309,13 +310,13 @@ class TestMast:
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
+        assert len(products) == 6
+
         # Download with flat=True
         manifest = mast.Observations.download_products(products, flat=True,
                                                        download_dir=tmp_path)
 
-        downloaded_path = manifest["Local Path"][0]
-        filename = os.path.basename(downloaded_path)
-        assert downloaded_path == (tmp_path / filename).as_posix()
+        assert Path(manifest["Local Path"][0]).parent == tmp_path
 
     def test_observations_download_products_no_duplicates(self, tmp_path, caplog, msa_product_table):
 
@@ -340,11 +341,16 @@ class TestMast:
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
-        # enable access to public AWS S3 bucket
-        mast.Observations.enable_cloud_dataset()
+        assert len(products) == 6
 
-        # Check duplicate cloud URIs as well
-        uris = mast.Observations.get_cloud_uris(products)
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset(provider='AWS')
+
+        # Check for cloud URIs.  Accept a NoResultsWarning if AWS S3
+        # doesn't have the file.  It doesn't matter as we're only checking
+        # that the duplicate products have been culled to a single one.
+        with pytest.warns(NoResultsWarning):
+            uris = mast.Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
     def test_observations_download_file(self):
