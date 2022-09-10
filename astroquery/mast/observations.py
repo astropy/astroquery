@@ -584,7 +584,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, *, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False,):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
@@ -594,6 +594,9 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products to be downloaded.
         base_dir : str
             Directory in which files will be downloaded.
+        flat : bool
+            Default is False.  If set to True, no subdirectories will be made for the
+            downloaded files.
         cache : bool
             Default is True. If file is found on disk it will not be downloaded again.
         cloud_only : bool, optional
@@ -610,9 +613,12 @@ class ObservationsClass(MastQueryWithLogin):
         for data_product in products:
 
             # create the local file download path
-            local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
-            if not os.path.exists(local_path):
-                os.makedirs(local_path)
+            if not flat:
+                local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
+                if not os.path.exists(local_path):
+                    os.makedirs(local_path)
+            else:
+                local_path = base_dir
             local_path = os.path.join(local_path, os.path.basename(data_product['productFilename']))
 
             # download the files
@@ -642,8 +648,8 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         url_list = [("uri", url) for url in products['dataURI']]
-        download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
-        local_path = os.path.join(out_dir.rstrip('/'), download_file + ".sh")
+        download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S") + ".sh"
+        local_path = os.path.join(out_dir, download_file)
 
         response = self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
                                        local_path, data=url_list, method="POST")
@@ -660,7 +666,7 @@ class ObservationsClass(MastQueryWithLogin):
                           'Message': [msg]})
         return manifest
 
-    def download_products(self, products, *, download_dir=None,
+    def download_products(self, products, *, download_dir=None, flat=False,
                           cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
         """
         Download data products.
@@ -673,6 +679,14 @@ class ObservationsClass(MastQueryWithLogin):
             or a Table of products (as is returned by `get_product_list`)
         download_dir : str, optional
             Optional.  Directory to download files to.  Defaults to current directory.
+        flat : bool, optional
+            Default is False.  If set to True, and download_dir is specified, it will put
+            all files into download_dir without subdirectories.  Or if set to True and
+            download_dir is not specified, it will put files in the current directory,
+            again with no subdirs.  The default of False puts files into the standard
+            directory structure of "mastDownload/<obs_collection>/<obs_id>/".  If
+            curl_flag=True, the flat flag has no effect, as astroquery does not control
+            how MAST generates the curl download script.
         cache : bool, optional
             Default is True. If file is found on disc it will not be downloaded again.
             Note: has no affect when downloading curl script.
@@ -731,13 +745,19 @@ class ObservationsClass(MastQueryWithLogin):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
+            if flat:
+                # flat=True doesn't work with curl_flag=True, so issue a warning
+                warnings.warn("flat=True has no effect on curl downloads.", InputWarning)
             manifest = self._download_curl_script(products,
                                                   download_dir)
 
         else:
-            base_dir = download_dir.rstrip('/') + "/mastDownload"
+            if flat:
+                base_dir = download_dir
+            else:
+                base_dir = os.path.join(download_dir, "mastDownload")
             manifest = self._download_files(products,
-                                            base_dir=base_dir,
+                                            base_dir=base_dir, flat=flat,
                                             cache=cache,
                                             cloud_only=cloud_only)
 

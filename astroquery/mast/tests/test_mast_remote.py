@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from re import sub
+from pathlib import Path
 import numpy as np
 import os
 import pytest
@@ -14,11 +16,24 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import (InvalidQueryError, MaxResultsWarning, NoResultsWarning,
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning,
                            RemoteServiceError)
 
 
 OBSID = '1647157'
+
+
+@pytest.fixture(scope="module")
+def msa_product_table():
+    # Pull products for a JWST NIRSpec MSA observation with 6 known
+    # duplicates of the MSA configuration file, propID=2736
+    products = mast.Observations.get_product_list("87602009")
+
+    # Filter out everything but the MSA config file
+    mask = np.char.find(products["dataURI"], "_msa.fits") != -1
+    products = products[mask]
+
+    return products
 
 
 @pytest.mark.remote_data
@@ -290,21 +305,42 @@ class TestMast:
         assert os.path.isfile(result2['Local Path'][0])
         assert len(result2) == 1
 
-    def test_observations_download_products_no_duplicates(self, tmpdir, caplog):
+    def test_observations_download_products_flat(self, tmp_path, msa_product_table):
 
-        # Pull products for a JWST NIRSpec MSA observation with 6 known
-        # duplicates of the MSA configuration file, propID=2736
-        products = mast.Observations.get_product_list("87602009")
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
 
-        # Filter out everything but the MSA config file
-        mask = np.char.find(products["dataURI"], "_msa.fits") != -1
-        products = products[mask]
+        assert len(products) == 6
+
+        # Download with flat=True
+        manifest = mast.Observations.download_products(products, flat=True,
+                                                       download_dir=tmp_path)
+
+        assert Path(manifest["Local Path"][0]).parent == tmp_path
+
+    def test_observations_download_products_flat_curl(self, tmp_path, msa_product_table):
+
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
+
+        assert len(products) == 6
+
+        # Download with flat=True, curl_flag=True, look for warning
+        with pytest.warns(InputWarning):
+            mast.Observations.download_products(products, flat=True,
+                                                curl_flag=True,
+                                                download_dir=tmp_path)
+
+    def test_observations_download_products_no_duplicates(self, tmp_path, caplog, msa_product_table):
+
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
 
         assert len(products) == 6
 
         # Download the product
         manifest = mast.Observations.download_products(products,
-                                                       download_dir=str(tmpdir))
+                                                       download_dir=tmp_path)
 
         # Check that it downloads the MSA config file only once
         assert len(manifest) == 1
@@ -313,14 +349,24 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
-        # enable access to public AWS S3 bucket
-        mast.Observations.enable_cloud_dataset()
+    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
 
-        # Check duplicate cloud URIs as well
-        uris = mast.Observations.get_cloud_uris(products)
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
+
+        assert len(products) == 6
+
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset(provider='AWS')
+
+        # Check for cloud URIs.  Accept a NoResultsWarning if AWS S3
+        # doesn't have the file.  It doesn't matter as we're only checking
+        # that the duplicate products have been culled to a single one.
+        with pytest.warns(NoResultsWarning):
+            uris = mast.Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
-    def test_observations_download_file(self, tmpdir):
+    def test_observations_download_file(self):
 
         # enabling cloud connection
         mast.Observations.enable_cloud_dataset(provider='AWS')
