@@ -202,4 +202,4 @@ class TestSDSSRemote:
         # Regression test for #589
 
         results = sdss.SDSS.query_crossid(large_results)
-        assert len(results) == 894
+        assert len(results) == 845
