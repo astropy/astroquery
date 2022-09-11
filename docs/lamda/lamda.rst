@@ -15,7 +15,7 @@ query, use:
 .. doctest-remote-data::
 
     >>> from astroquery.lamda import Lamda
-    >>> Lamda.molecule_dict
+    >>> Lamda.molecule_dict  # doctest: +IGNORE_OUTPUT
     {'catom': 'http://home.strw.leidenuniv.nl/~moldata/datafiles/catom.dat',
     'c+': 'http://home.strw.leidenuniv.nl/~moldata/datafiles/c+.dat',
     'c+@uv': 'http://home.strw.leidenuniv.nl/~moldata/datafiles/c+@uv.dat',
