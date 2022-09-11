@@ -6,7 +6,8 @@ from ... import lamda
 
 @pytest.mark.remote_data
 def test_query():
-    result = lamda.Lamda.query(mol='co')
+    with pytest.warns(UserWarning, match='The first time'):
+        result = lamda.Lamda.query(mol='co')
     assert [len(r) for r in result] == [2, 40, 41]
     collider_dict = result[0]
     assert set(collider_dict.keys()) == set(['PH2', 'OH2'])
