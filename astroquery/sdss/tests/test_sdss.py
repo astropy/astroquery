@@ -196,10 +196,7 @@ def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
     xid = sdss.SDSS.query_sql(query, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['objid'] = data['objid'].astype(np.int64)
+
     compare_xid_data(xid, data)
     url_tester(dr)
 
@@ -237,11 +234,7 @@ def test_sdss_specobj(patch_request, dr):
     xid = sdss.SDSS.query_specobj(plate=2340, data_release=dr)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['specobjid'] = data['specobjid'].astype(np.int64)
-    data['objid'] = data['objid'].astype(np.int64)
+
     compare_xid_data(xid, data)
     url_tester(dr)
 
@@ -252,10 +245,6 @@ def test_sdss_photoobj(patch_request, dr):
         run=1904, camcol=3, field=164, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
     url_tester(dr)
 
@@ -265,10 +254,6 @@ def test_list_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_list, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
     url_tester_crossid(dr)
 
@@ -278,10 +263,6 @@ def test_column_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
     url_tester_crossid(dr)
 
@@ -306,10 +287,6 @@ def test_query_crossid(patch_request, dr):
     xid = sdss.SDSS.query_crossid(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    # The following line is needed for systems where the default integer type
-    # is int32, the column will then be interpreted as string which makes the
-    # test fail.
-    data['objid'] = data['objid'].astype(np.int64)
     compare_xid_data(xid, data)
     url_tester_crossid(dr)
 
