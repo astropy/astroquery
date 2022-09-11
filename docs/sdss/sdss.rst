@@ -4,6 +4,16 @@
 SDSS Queries (`astroquery.sdss`)
 ********************************
 
+Default Data Release
+====================
+
+The default data release is set to Data Release 17 (DR17), which is
+the final data release of the Sloan Digital Sky Survey IV.  DR17
+contains new optical and infrared spectra from both Apache Point
+Observatory and Las Campanas Observatory. Previously released
+integral-field datacubes and maps, stellar library spectra, as well as
+images, are also included in DR17.  Users may select alternate DR's.
+
 Getting started
 ===============
 

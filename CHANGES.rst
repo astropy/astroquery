@@ -133,6 +133,10 @@ sdss
 - ``query_region()`` now does a cone search around the specified
   coordinates. [#2477]
 
+- The default data release has been changed to DR17. [#2478]
+
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
