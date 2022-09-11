@@ -38,7 +38,8 @@ def patch_post(request):
 
 def post_mockreturn(method, url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image'])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 

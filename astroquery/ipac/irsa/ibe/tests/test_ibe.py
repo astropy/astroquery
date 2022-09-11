@@ -56,7 +56,8 @@ def get_mockreturn(self, method, url,
                    json=None):
     filename = data_path(DATA_FILES[(url,
                                      params and frozenset(params.items()))])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(
         content, url=url, headers=headers, stream=stream, auth=auth)
 

@@ -56,7 +56,8 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
     else:
         raise NotImplementedError("Test type not implemented")
 
-    content = open(filename, "rb").read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 

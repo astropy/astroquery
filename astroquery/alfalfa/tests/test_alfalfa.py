@@ -49,7 +49,8 @@ def patch_get_readable_fileobj(request):
 
 def get_mockreturn(url, params=None, timeout=10):
     filename = data_path(DATA_FILES['catalog'])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponseAlfalfa(content)
 
 

@@ -48,7 +48,8 @@ def patch_parse_coordinates(request):
 
 def post_mockreturn(method, url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image_search'])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     response = MockResponse(content, **kwargs)
     return response
 

@@ -48,11 +48,12 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
     if '-source' in datad:
         # a request for the actual data
         filename = data_path(VO_DATA[datad['-source']])
-        content = open(filename, "rb").read()
     elif '-words' in datad:
         # a find_catalog request/only metadata
         filename = data_path(VO_DATA['find_' + datad['-words']])
-        content = open(filename, "rb").read()
+
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 
@@ -93,8 +94,8 @@ def test_parse_angle_err():
 @pytest.mark.parametrize(('filepath'),
                          list(set(VO_DATA.values())))
 def test_parse_result_verbose(filepath, capsys):
-    with open(data_path(filepath), 'rb') as f:
-        table_contents = f.read()
+    with open(data_path(filepath), 'rb') as infile:
+        table_contents = infile.read()
     response = MockResponse(table_contents)
     vizier.core.Vizier._parse_result(response)
     out, err = capsys.readouterr()
@@ -108,7 +109,8 @@ def test_parse_result_verbose(filepath, capsys):
                           ]
                          )  # TODO: 1->50 because it is just 1 table
 def test_parse_result(filepath, objlen):
-    table_contents = open(data_path(filepath), 'rb').read()
+    with open(data_path(filepath), 'rb') as infile:
+        table_contents = infile.read()
     response = MockResponse(table_contents)
     result = vizier.core.Vizier._parse_result(response)
     assert isinstance(result, commons.TableList)
