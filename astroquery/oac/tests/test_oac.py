@@ -39,7 +39,8 @@ def get_mockreturn(method="GET", url=None, data=None, timeout=60, cache=True,
         file_key = 'single_spec'
     else:
         file_key = 'multi_spec'
-    content = open(data_path(DATA_FILES[file_key]), 'rb').read()
+    with open(data_path(DATA_FILES[file_key]), 'rb') as infile:
+        content = infile.read()
     response = MockResponse(content, **kwargs)
     return response
 

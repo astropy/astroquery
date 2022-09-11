@@ -99,7 +99,8 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
         service = "Counts"
     filename = data_path(DATA_FILES[service])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
 
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
@@ -122,13 +123,15 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
         filename = data_path(DATA_FILES["mission_incorrect_results"])
     elif use_json:
         filename = data_path(DATA_FILES["mission_search_results"])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content)
 
 
 def resolver_mockreturn(*args, **kwargs):
     filename = data_path(DATA_FILES["Mast.Name.Lookup"])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content)
 
 
@@ -159,7 +162,8 @@ def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwar
     else:
         filename = data_path(DATA_FILES['tess_cutout'])
 
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content)
 
 

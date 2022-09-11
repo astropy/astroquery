@@ -37,7 +37,10 @@ def patch_request(request):
             filename = data_path(DATA_FILES['spectra_id'])
         else:
             filename = data_path(DATA_FILES['images_id'])
-        content = open(filename, 'rb').read()
+
+        with open(filename, 'rb') as infile:
+            content = infile.read()
+
         return MockResponse(content, url)
 
     mp = request.getfixturevalue("monkeypatch")
@@ -64,9 +67,11 @@ def patch_get_readable_fileobj(request):
         file_obj = data_path(DATA_FILES['spectra'])  # TODO: add images option
         encoding = kwargs.get('encoding', None)
         if encoding == 'binary':
-            yield open(file_obj, 'rb')
+            with open(file_obj, 'rb') as infile:
+                yield infile
         else:
-            yield open(file_obj, 'r', encoding=encoding)
+            with open(file_obj, 'r', encoding=encoding) as infile:
+                yield infile
 
     mp = request.getfixturevalue("monkeypatch")
 
@@ -148,9 +153,9 @@ def compare_xid_data(xid, data):
 def image_tester(images, filetype):
     """Test that an image/spectrum is our fake data."""
     assert type(images) == list
-    data = fits.open(data_path(DATA_FILES[filetype]))
-    assert images[0][0].header == data[0].header
-    assert images[0][0].data == data[0].data
+    with fits.open(data_path(DATA_FILES[filetype])) as data:
+        assert images[0][0].header == data[0].header
+        assert images[0][0].data == data[0].data
 
 
 @pytest.mark.parametrize("dr", dr_list)

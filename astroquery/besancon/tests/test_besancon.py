@@ -80,7 +80,8 @@ def patch_get_readable_fileobj(request):
 
 def post_mockreturn(method, url, data, timeout=10, stream=True, **kwargs):
     filename = data_path('query_return.iframe.html')
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponseBesancon(content, filename, **kwargs)
 
 

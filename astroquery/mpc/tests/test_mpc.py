@@ -93,15 +93,19 @@ def patch_get(request):
 
 
 def get_mockreturn(self, httpverb, url, params={}, auth=None, **kwargs):
+    filename = None
+
     if mpc.core.MPC.MPC_URL in url:
-        content = open(data_path('comet_object_C2012S1.json'), 'rb').read()
+        filename = 'comet_object_C2012S1.json'
     elif url == mpc.core.MPC.OBSERVATORY_CODES_URL:
-        content = open(data_path('ObsCodes.html'), 'rb').read()
+        filename = 'ObsCodes.html'
     elif mpc.core.MPC.MPCOBS_URL in url:
-        content = open(data_path('mpc_obs.dat'), 'rb').read()
+        filename = 'mpc_obs.dat'
     else:
         content = None
-
+    if filename:
+        with open(data_path(filename), 'rb') as infile:
+            content = infile.read()
     return MockResponse(content, url=url, auth=auth)
 
 
@@ -110,7 +114,8 @@ def post_mockreturn(self, httpverb, url, data={}, **kwargs):
         prefix = data['TextArea'].replace(' ', '')
         suffix = '-'.join((data['c'], data['raty'], data['s']))
         filename = data_path('{}_ephemeris_{}.html'.format(prefix, suffix))
-        content = open(filename, 'rb').read()
+        with open(filename, 'rb') as infile:
+            content = infile.read()
     else:
         content = None
 

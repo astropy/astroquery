@@ -83,7 +83,8 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
         key = params['POS'].split()[0] if params['POS'] else None
     filename = data_path(DATA_FILES[key])
     log.debug('providing ' + filename)
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content)
 
 

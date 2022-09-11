@@ -69,7 +69,8 @@ object within the ``MockResponse`` class:
 
     def get_mockreturn(url, params=None, timeout=10):
         filename = data_path(DATA_FILES['votable'])
-        content = open(filename, 'r').read()
+        with open(filename, 'r') as infile:
+            content = infile.read()
         return MockResponse(content)
 
 ``data_path`` is a simple function that looks for the ``data`` directory local to

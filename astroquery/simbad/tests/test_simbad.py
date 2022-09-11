@@ -47,7 +47,8 @@ class MockResponseSimbad(MockResponse):
         match = self.query_regex.search(script)
         if match:
             filename = DATA_FILES[match.group(1)]
-            content = open(data_path(filename), "rb").read()
+            with open(data_path(filename), "rb") as infile:
+                content = infile.read()
             return content
 
 

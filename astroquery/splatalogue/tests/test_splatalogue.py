@@ -30,7 +30,8 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
     if method != 'POST':
         raise ValueError("A 'post request' was made with method != POST")
     filename = data_path(SPLAT_DATA)
-    content = open(filename, "rb").read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 

@@ -35,7 +35,8 @@ def get_mockreturn(url, params=None, stream=False, timeout=10, **kwargs):
     else:
         raise ValueError("Query not pre-loaded.")
 
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 

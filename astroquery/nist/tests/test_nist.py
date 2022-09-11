@@ -27,7 +27,8 @@ def patch_get(request):
 
 def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['lines'])
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as infile:
+        content = infile.read()
     return MockResponse(content, **kwargs)
 
 

@@ -79,8 +79,8 @@ def get_mockreturn(method='GET', url='default_url',
         url = "error.html"
     else:
         raise ValueError("Mismatch: no test made for specified URL")
-
-    content = open(data_path(filename), "rb").read()
+    with open(data_path(filename), "rb") as infile:
+        content = infile.read()
     return MockResponse(content=content, url=url, **kwargs)
 
 

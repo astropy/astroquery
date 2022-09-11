@@ -52,7 +52,8 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
     filename = filename_for_request(url, params)
     try:
-        content = open(filename, "rt").read()
+        with open(filename, 'rt') as infile:
+            content = infile.read()
     except FileNotFoundError:
         log.error(
             f'no stored mock data in {filename} for url="{url}" and params="{params}", '

@@ -40,7 +40,8 @@ def patch_get(request):
 def get_mockreturn(method='GET', url=None, headers=None, timeout=10,
                    **kwargs):
     filename = data_path('test_text.txt')
-    content = open(filename, 'r').read()
+    with open(filename, 'r') as infile:
+        content = infile.read()
 
     return MockResponseADS(content=content)
 
