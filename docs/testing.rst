@@ -84,8 +84,14 @@ the ``test_module.py`` file.
 ``test_module_remote.py``
 -------------------------
 
-The remote tests are much easier.  Just decorate the test class or test
-functions with ``@pytest.mark.remote_data``.
+The remote tests are much easier. The file must contain the following::
+
+    import pytest
+
+    pytestmark = pytest.mark.remote_data
+
+This ensures that the test functions in remote test module are only executed if
+the ``--remote-data`` flag is used.
 
 ``setup_package.py``
 --------------------
