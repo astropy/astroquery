@@ -30,8 +30,8 @@ these collections:
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
-    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Infrared|Optical|UV|EUV|X-ray|Ga', 'Optical', 'Infrared', 'X-ray|Gamma-ray']}
-    CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared', 'Optical']}
+    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Optical', 'Infrared']}
+    CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Optical']}
     CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical', 'Infrared']}
     CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
     CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Infrared', 'Radio', 'Millimeter', '', 'Millimeter|Infrared']}
@@ -57,7 +57,7 @@ the URLs for downloading the corresponding data.
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
-    >>> print(result)
+    >>> print(result)  # doctest: +IGNORE_OUTPUT
       observationURI  sequenceNumber ...     maxLastModified2
                                      ...
     ----------------- -------------- ... -----------------------
@@ -98,8 +98,6 @@ auxiliary data (in this case preview files)
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s')
-    >>> print(len(result))
-    3044
     >>> urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
     ...                           include_auxiliaries=True)
     >>> for url in urls:
@@ -127,7 +125,7 @@ the CADC metadata.
     >>> result_m31 = cadc.query_name('M31')
     >>>
     >>> result = cadc.query_name('Nr3491_1')
-    >>> print(result)
+    >>> print(result)  # doctest: +IGNORE_OUTPUT
       observationURI  sequenceNumber ...     maxLastModified2
                                      ...
     ----------------- -------------- ... -----------------------
@@ -147,7 +145,7 @@ area and resolve the cutout of a result.
     >>> coords = '01h45m07.5s +23d18m00s'
     >>> radius = 0.01*u.deg
     >>> images = cadc.get_images(coords, radius, collection='CFHT')
-    >>> images # doctest: +IGNORE_OUTPUT
+    >>> images  # doctest: +IGNORE_OUTPUT
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805a06ef0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805b23b38>]
 
@@ -312,6 +310,7 @@ To get a list of table objects:
     caom2.distinct_proposal_pi
     caom2.distinct_proposal_title
     caom2.HarvestSkipURI
+    caom2.HarvestState
     caom2.SIAv1
     ivoa.ObsCore
     ivoa.ObsFile
