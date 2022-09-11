@@ -1450,7 +1450,7 @@ class ESASkyClass(BaseQuery):
                 log.info("Downloading Observation ID: {} from {}"
                          .format(observation_id, product_url))
                 sys.stdout.flush()
-                directory_path = mission_directory + "/"
+                directory_path = mission_directory
                 if mission.lower() == self.__HERSCHEL_STRING:
                     try:
                         if is_spectra:
@@ -1501,13 +1501,13 @@ class ESASkyClass(BaseQuery):
                                 with tarfile.open(fileobj=BytesIO(response.content)) as tar:
                                     for member in tar.getmembers():
                                         tar.extract(member, directory_path)
-                                        maps.append(fits.open(directory_path + member.name))
+                                        maps.append(fits.open(os.path.join(directory_path, member.name)))
                             else:
                                 fits_data = response.content
-                                with open(directory_path + file_name, 'wb') as fits_file:
+                                with open(os.path.join(directory_path, file_name), 'wb') as fits_file:
                                     fits_file.write(fits_data)
                                     fits_file.flush()
-                                    maps.append(fits.open(directory_path + file_name))
+                                    maps.append(fits.open(os.path.join(directory_path, file_name)))
                         log.info("[Done]")
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
@@ -1546,7 +1546,7 @@ class ESASkyClass(BaseQuery):
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
                     observation[herschel_filter] = fits.open(
-                        directory_path + member.name
+                        os.path.join(directory_path, member.name)
                     )
         return observation
 
@@ -1566,10 +1566,10 @@ class ESASkyClass(BaseQuery):
                     tar.extract(member, directory_path)
                     herschel_fits = []
                     if (herschel_filter in spectra):
-                        hdul = fits.open(directory_path + member.name)
+                        hdul = fits.open(os.path.join(directory_path, member.name))
                         herschel_fits.append(hdul)
                     else:
-                        herschel_fits = fits.open(directory_path + member.name)
+                        herschel_fits = fits.open(os.path.join(directory_path, member.name))
                         if (isinstance(herschel_fits, list)):
                             herschel_fits = [herschel_fits]
 
@@ -1601,14 +1601,14 @@ class ESASkyClass(BaseQuery):
     def _remove_extra_herschel_directory(self, file_and_directory_name,
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
-        file_name = file_and_directory_name[file_and_directory_name.index("/") + 1:]
+        file_name = os.path.basename(file_and_directory_name)
 
         os.renames(os.path.join(full_directory_path, file_and_directory_name),
                    os.path.join(full_directory_path, file_name))
         return file_name
 
     def _create_mission_directory(self, mission, download_dir):
-        mission_directory = download_dir + "/" + mission
+        mission_directory = os.path.join(download_dir, mission)
         if not os.path.exists(mission_directory):
             os.makedirs(mission_directory)
         return mission_directory
