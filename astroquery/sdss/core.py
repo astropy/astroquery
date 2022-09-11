@@ -1032,7 +1032,7 @@ class SDSSClass(BaseQuery):
             else:
                 if field_help is not True:
                     warnings.warn(f"{field_help} isn't a valid 'photobj_field' or "
-                                  "'specobj_field' field, valid fields are"
+                                  "'specobj_field' field, valid fields are "
                                   "returned.")
                 return {'photoobj_all': photoobj_all,
                         'specobj_all': specobj_all}

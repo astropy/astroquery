@@ -612,7 +612,7 @@ def test_catalogs_query_criteria(patch_post):
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Catalogs.query_criteria(catalog="Tic", objectName="M10")
+        mast.Catalogs.query_criteria(catalog="Tic", objectname="M10")
     assert "non-positional" in str(invalid_query.value)
 
 

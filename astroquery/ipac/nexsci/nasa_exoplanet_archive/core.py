@@ -572,7 +572,16 @@ class NasaExoplanetArchiveClass(BaseQuery):
             column_data.append(data[col])
 
         # Build the new `QTable` and copy over the data masks if there are any
-        result = QTable(column_data, names=column_names, masked=len(column_masks) > 0)
+        # Some units cannot be used for MaskedQuantities, we catch the specific UserWarning
+        # about them here as the end user can do nothing about this
+        with warnings.catch_warnings():
+            colnames_to_ignore = ['surface_gravity', 'st_lum', 'st_lumerr1', 'st_lumerr2',
+                                  'st_logg', 'st_loggerr1', 'st_loggerr2']
+            for column in colnames_to_ignore:
+                warnings.filterwarnings('ignore', message=f'column {column} has a unit but',
+                                        category=UserWarning)
+            result = QTable(column_data, names=column_names, masked=len(column_masks) > 0)
+
         for key, mask in column_masks.items():
             result[key].mask = mask
 

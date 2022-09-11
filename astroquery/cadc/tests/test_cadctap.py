@@ -177,7 +177,9 @@ def test_get_access_url():
         class CapabilitiesResponse:
             def __init__(self):
                 caps_file = data_path('tap_caps.xml')
-                self.text = open(caps_file, 'r').read()
+                with open(caps_file, 'r') as infile:
+                    text = infile.read()
+                self.text = text
 
             def raise_for_status(self):
                 pass

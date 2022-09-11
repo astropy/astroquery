@@ -538,8 +538,8 @@ def test_field_help_region(patch_request):
     existing_s_field = sdss.SDSS.query_region(coords,
                                               field_help='spectroSynFlux_r')
 
-    non_existing_field = sdss.SDSS.query_region(coords,
-                                                field_help='nonexist')
+    with pytest.warns(UserWarning, match="nonexist isn't a valid 'photobj_field' or 'specobj_field'"):
+        non_existing_field = sdss.SDSS.query_region(coords, field_help='nonexist')
 
     assert existing_p_field is None
     assert existing_s_field is None

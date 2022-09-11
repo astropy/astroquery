@@ -41,10 +41,11 @@ def patch_get_readable_fileobj(request):
         is_binary = kwargs.get('encoding', None) == 'binary'
         mode = 'rb' if is_binary else 'r'
         if "fits" in filename:
-            file_obj = open(data_path(DATA_FILES["image"]), mode)
+            with open(data_path(DATA_FILES["image"]), mode) as file_obj:
+                yield file_obj
         else:
-            file_obj = open(data_path(DATA_FILES["votable"]), mode)
-        yield file_obj
+            with open(data_path(DATA_FILES["votable"]), mode) as file_obj:
+                yield file_obj
 
     mp = request.getfixturevalue("monkeypatch")
 
@@ -135,7 +136,8 @@ def test_get_image_list(patch_get, patch_get_readable_fileobj):
 
 
 def test_extract_urls():
-    html_in = open(data_path(DATA_FILES["image_results"]), 'r').read()
+    with open(data_path(DATA_FILES["image_results"]), 'r') as infile:
+        html_in = infile.read()
     urls = ukidss.core.Ukidss.extract_urls(html_in)
     assert len(urls) == 1
 

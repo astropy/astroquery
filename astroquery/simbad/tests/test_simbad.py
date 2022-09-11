@@ -125,15 +125,12 @@ def test_parse_result():
     result1 = sb._parse_result(
         MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
-    with pytest.raises(TableParseError) as ex:
+    expected_exception = 'Failed to parse SIMBAD result! The raw response can be found in self.last_response, '
+
+    with pytest.raises(TableParseError, match=expected_exception):
         sb._parse_result(MockResponseSimbad('query error '),
                 simbad.core.SimbadVOTableResult)
-    assert str(ex.value) == ('Failed to parse SIMBAD result! The raw response '
-                             'can be found in self.last_response, and the '
-                             'error in self.last_table_parse_error. '
-                             'The attempted parsed result is in '
-                             'self.last_parsed_result.\n Exception: 7:115: '
-                             'no element found')
+
     assert isinstance(sb.last_response.text, str)
     assert isinstance(sb.last_response.content, bytes)
 
@@ -361,15 +358,18 @@ def test_votable_fields():
             set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
     sb.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(sb.get_votable_fields()) == set(['z_value', 'velocity'])
-    sb.remove_votable_fields('rot', 'main_id', 'coordinates')
+    # Warning is expected as we removed the 'coordinates' field above:
+    with pytest.warns(UserWarning, match="coordinates: this field is not set"):
+        sb.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(sb.get_votable_fields()) == set(['z_value', 'velocity'])
-    sb.remove_votable_fields('z_value', 'velocity')
-    assert (set(sb.get_votable_fields()) ==
-            set(['main_id', 'coordinates']))
+    with pytest.warns(UserWarning, match="All fields have been removed. Resetting"):
+        sb.remove_votable_fields('z_value', 'velocity')
+    assert set(sb.get_votable_fields()) == set(['main_id', 'coordinates'])
     sb.add_votable_fields('rot', 'z_value', 'velocity')
-    sb.reset_votable_fields()
     assert (set(sb.get_votable_fields()) ==
-            set(['main_id', 'coordinates']))
+            set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
+    sb.reset_votable_fields()
+    assert set(sb.get_votable_fields()) == set(['main_id', 'coordinates'])
 
 
 def test_query_criteria1(patch_post):
@@ -394,9 +394,9 @@ def test_simbad_settings1():
     sb = simbad.core.Simbad()
     assert sb.get_votable_fields() == ['main_id', 'coordinates']
     sb.add_votable_fields('ra', 'dec(5)')
-    sb.remove_votable_fields('ra', 'dec')
-    assert (sb.get_votable_fields() ==
-            ['main_id', 'coordinates', 'dec(5)'])
+    with pytest.warns(UserWarning, match="dec: this field is not set"):
+        sb.remove_votable_fields('ra', 'dec')
+    assert sb.get_votable_fields() == ['main_id', 'coordinates', 'dec(5)']
     sb.reset_votable_fields()
 
 

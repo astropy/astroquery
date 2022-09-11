@@ -22,8 +22,8 @@ def data_path(filename):
 def get_mockreturn(url, params=None, stream=False, timeout=10, **kwargs):
     if stream:
         filename = data_path(DATA_FILES['img'])
-        return MockResponse(open(filename, 'rb').read(),
-                            content_type='image/fits', **kwargs)
+        with open(filename, 'rb') as infile:
+            return MockResponse(infile.read(), content_type='image/fits', **kwargs)
     elif params['RA'] == 163.6136:
         filename = data_path(DATA_FILES['pos_t'])
     elif params['NAIFID'] == 2003226:

@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import json
 import os
+import warnings
 
 from astropy.utils.data import download_file
 from astropy.io import ascii
@@ -30,9 +31,9 @@ class ExoplanetOrbitDatabaseClass:
     def param_units(self):
         if self._param_units is None:
             module_dir = os.path.dirname(os.path.abspath(__file__))
-            units_file = open(os.path.join(module_dir, 'data',
-                                           'exoplanet_orbit_database_units.json'))
-            self._param_units = json.load(units_file)
+            filename = os.path.join(module_dir, 'data', 'exoplanet_orbit_database_units.json')
+            with open(filename) as units_file:
+                self._param_units = json.load(units_file)
 
         return self._param_units
 
@@ -82,7 +83,11 @@ class ExoplanetOrbitDatabaseClass:
                     except ValueError:
                         print(f"WARNING: Unit {self.param_units[col]} not recognised")
 
-            self._table = QTable(exoplanets_table)
+            # Masked quantities are not supported in older astropy, warnings are raised for <v5.0
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', message='dropping mask in Quantity column',
+                                        category=UserWarning)
+                self._table = QTable(exoplanets_table)
 
         return self._table
 

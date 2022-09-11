@@ -65,11 +65,11 @@ def patch_get_readable_fileobj(request):
         if isinstance(filename, str):
             if '1376235131.430670' in filename:
                 is_binary = kwargs.get('encoding', None) == 'binary'
-                file_obj = open(data_path('1376235131.430670.resu'),
-                                "r" + ('b' if is_binary else ''))
+                with open(data_path('1376235131.430670.resu'), "r" + ('b' if is_binary else '')) as file_obj:
+                    yield file_obj
         else:
             file_obj = filename
-        yield file_obj
+            yield file_obj
 
     mp = request.getfixturevalue("monkeypatch")
 

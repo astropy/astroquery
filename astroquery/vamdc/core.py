@@ -13,7 +13,7 @@ from astropy.utils.decorators import deprecated
 __doctest_skip__ = ['VamdcClass.*']
 
 
-@deprecated('0.4.2', 'the module relies on an unmaintained library and is'
+@deprecated('0.4.2', 'the vamdc astroquery module relies on an unmaintained library and is'
             'considered deprecated until completely refactored or upstream'
             'is stablised.')
 @async_to_sync

@@ -66,7 +66,8 @@ class TestCadcClass:
         assert len(result) == len(result2[result2['collection'] == 'CFHT'])
 
         # search for a target
-        results = cadc.query_region(SkyCoord.from_name('M31'), radius=0.016)
+        with pytest.warns(UserWarning, match='Radius should be of '):
+            results = cadc.query_region(SkyCoord.from_name('M31'), radius=0.016)
         assert len(results) > 20
 
     def test_query_name(self):
