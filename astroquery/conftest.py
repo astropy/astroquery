@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+from pathlib import Path
+
+import pytest
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
 # no matter how it is invoked within the source tree.
@@ -57,3 +60,14 @@ def pytest_addoption(parser):
         help='ALMA site (almascience.nrao.edu, almascience.eso.org or '
              'almascience.nao.ac.jp for example)'
     )
+
+
+@pytest.fixture(scope='function')
+def tmp_cwd(tmp_path):
+    """Perform test in a pristine temporary working directory."""
+    old_dir = Path.cwd()
+    os.chdir(tmp_path)
+    try:
+        yield tmp_path
+    finally:
+        os.chdir(old_dir)
