@@ -144,7 +144,7 @@ def url_tester_crossid(data_release):
 
 def compare_xid_data(xid, data):
     for col in xid.colnames:
-        if xid[col].dtype.type is np.string_:
+        if xid[col].dtype.type is np.str_:
             assert xid[col] == data[col]
         else:
             assert_allclose(xid[col], data[col])

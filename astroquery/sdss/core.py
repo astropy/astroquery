@@ -896,21 +896,15 @@ class SDSSClass(BaseQuery):
         table : `~astropy.table.Table`
 
         """
+        if 'error_message' in response.text:
+            raise RemoteServiceError(response.text)
 
-        if 'error_message' in io.BytesIO(response.content):
-            raise RemoteServiceError(response.content)
-        skip_header = 0
-        if response.content.startswith(b'#Table'):
-            skip_header = 1
-        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                                          names=True, dtype=None,
-                                          delimiter=',', skip_header=skip_header,
-                                          comments='#'))
+        arr = Table.read(response.text, format='ascii.csv', comment="#")
 
         if len(arr) == 0:
             return None
         else:
-            return Table(arr)
+            return arr
 
     def _args_to_payload(self, coordinates=None,
                          fields=None, spectro=False, region=False,
