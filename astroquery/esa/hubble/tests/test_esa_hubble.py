@@ -275,18 +275,12 @@ class TestESAHubble:
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
                        'verbose': False}
-        parameters3 = {'query': "select o.*, p.calibration_level, "
-                                "p.data_product_type, pos.ra, pos.dec "
-                                "from ehst.observation "
-                                "AS o JOIN ehst.plane as p on "
-                                "o.observation_uuid=p.observation_uuid "
-                                "JOIN ehst.position as pos on "
-                                "p.plane_id = pos.plane_id where("
-                                "p.calibration_level LIKE '%PRODUCT%' AND "
-                                "p.data_product_type LIKE '%image%' AND "
-                                "o.intent LIKE '%SCIENCE%' AND (o.collection "
-                                "LIKE '%HST%') AND (o.instrument_name LIKE "
-                                "'%WFC3%') AND (o.instrument_configuration "
+        parameters3 = {'query': "select * from ehst.archive where("
+                                "calibration_level=3 AND "
+                                "data_product_type LIKE '%image%' AND "
+                                "intent LIKE '%science%' AND (collection "
+                                "LIKE '%HST%') AND (instrument_name LIKE "
+                                "'%WFC3%') AND (instrument_configuration "
                                 "LIKE '%F555W%'))",
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -322,18 +316,12 @@ class TestESAHubble:
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
                        'verbose': False}
-        parameters3 = {'query': "select o.*, p.calibration_level, "
-                                "p.data_product_type, pos.ra, pos.dec"
-                                " from ehst.observation "
-                                "AS o JOIN ehst.plane as p on "
-                                "o.observation_uuid=p.observation_uuid "
-                                "JOIN ehst.position as pos on p.plane_id "
-                                "= pos.plane_id where("
-                                "p.calibration_level LIKE '%RAW%' AND "
-                                "p.data_product_type LIKE '%image%' AND "
-                                "o.intent LIKE '%SCIENCE%' AND (o.collection "
-                                "LIKE '%HST%') AND (o.instrument_name LIKE "
-                                "'%WFC3%') AND (o.instrument_configuration "
+        parameters3 = {'query': "select * from ehst.archive where("
+                                "calibration_level=1 AND "
+                                "data_product_type LIKE '%image%' AND "
+                                "intent LIKE '%science%' AND (collection "
+                                "LIKE '%HST%') AND (instrument_name LIKE "
+                                "'%WFC3%') AND (instrument_configuration "
                                 "LIKE '%F555W%'))",
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",

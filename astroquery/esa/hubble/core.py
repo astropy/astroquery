@@ -38,8 +38,8 @@ class ESAHubbleClass(BaseQuery):
     metadata_url = conf.METADATA_ACTION
     target_url = conf.TARGET_ACTION
     TIMEOUT = conf.TIMEOUT
-    calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
-                          3: "PRODUCT"}
+    calibration_levels = {"AUXILIARY": 0, "RAW": 1, "CALIBRATED": 2,
+                          "PRODUCT": 3}
     product_types = ["PRODUCT", "SCIENCE_PRODUCT", "POSTCARD"]
     copying_string = "Copying file to {0}..."
 
@@ -629,35 +629,32 @@ class ESAHubbleClass(BaseQuery):
 
         parameters = []
         if calibration_level is not None:
-            parameters.append("p.calibration_level LIKE '%{}%'".format(
+            parameters.append("calibration_level={}".format(
                 self.__get_calibration_level(calibration_level)))
         if data_product_type is not None:
             if isinstance(data_product_type, str):
-                parameters.append("p.data_product_type LIKE '%{}%'".format(
+                parameters.append("data_product_type LIKE '%{}%'".format(
                     data_product_type))
             else:
                 raise ValueError("data_product_type must be a string")
         if intent is not None:
             if isinstance(intent, str):
-                parameters.append("o.intent LIKE '%{}%'".format(intent))
+                parameters.append("intent LIKE '%{}%'".format(intent.lower()))
             else:
                 raise ValueError("intent must be a string")
         if self.__check_list_strings(obs_collection):
-            parameters.append("(o.collection LIKE '%{}%')".format(
-                "%' OR o.collection LIKE '%".join(obs_collection)
+            parameters.append("(collection LIKE '%{}%')".format(
+                "%' OR collection LIKE '%".join(obs_collection)
             ))
         if self.__check_list_strings(instrument_name):
-            parameters.append("(o.instrument_name LIKE '%{}%')".format(
-                "%' OR o.instrument_name LIKE '%".join(instrument_name)
+            parameters.append("(instrument_name LIKE '%{}%')".format(
+                "%' OR instrument_name LIKE '%".join(instrument_name)
             ))
         if self.__check_list_strings(filters):
-            parameters.append("(o.instrument_configuration LIKE '%{}%')"
-                              .format("%' OR o.instrument_configuration "
+            parameters.append("(instrument_configuration LIKE '%{}%')"
+                              .format("%' OR instrument_configuration "
                                       "LIKE '%".join(filters)))
-        query = "select o.*, p.calibration_level, p.data_product_type, " \
-                "pos.ra, pos.dec from ehst.observation AS o JOIN " \
-                "ehst.plane as p on o.observation_uuid=p.observation_uuid " \
-                "JOIN ehst.position as pos on p.plane_id = pos.plane_id"
+        query = "select * from ehst.archive"
         if parameters:
             query += " where({})".format(" AND ".join(parameters))
         if verbose:
@@ -673,13 +670,13 @@ class ESAHubbleClass(BaseQuery):
     def __get_calibration_level(self, calibration_level):
         condition = ""
         if (calibration_level is not None):
-            if isinstance(calibration_level, str):
-                condition = calibration_level
-            elif isinstance(calibration_level, int):
+            if isinstance(calibration_level, int):
                 if calibration_level < 4:
-                    condition = self.calibration_levels[calibration_level]
+                    condition = calibration_level
                 else:
                     raise KeyError("Calibration level must be between 0 and 3")
+            elif isinstance(calibration_level, str):
+                condition = self.calibration_levels[calibration_level]
             else:
                 raise KeyError("Calibration level must be either "
                                "a string or an integer")
