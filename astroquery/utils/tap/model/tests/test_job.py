@@ -41,13 +41,8 @@ def test_job_get_results(capsys, tmpdir):
     outputFormat = "votable"
     job.jobid = jobid
     job.parameters['format'] = outputFormat
-    responseCheckPhase = DummyResponse()
-    responseCheckPhase.set_status_code(500)
-    responseCheckPhase.set_message("ERROR")
-    responseCheckPhase.set_data(method='GET',
-                                context=None,
-                                body='FINISHED',
-                                headers=None)
+    responseCheckPhase = DummyResponse(500)
+    responseCheckPhase.set_data(method='GET', body='FINISHED')
     waitRequest = f"async/{jobid}/phase"
     connHandler = DummyConnHandler()
     connHandler.set_response(waitRequest, responseCheckPhase)
@@ -57,16 +52,10 @@ def test_job_get_results(capsys, tmpdir):
         job.get_results()
 
     responseCheckPhase.set_status_code(200)
-    responseCheckPhase.set_message("OK")
-    responseGetData = DummyResponse()
-    responseGetData.set_status_code(500)
-    responseGetData.set_message("ERROR")
+    responseGetData = DummyResponse(500)
     jobContentFileName = data_path('result_1.vot')
     jobContent = utils.read_file_content(jobContentFileName)
-    responseGetData.set_data(method='GET',
-                             context=None,
-                             body=jobContent,
-                             headers=None)
+    responseGetData.set_data(method='GET', body=jobContent)
     dataRequest = f"async/{jobid}/results/result"
     connHandler.set_response(dataRequest, responseGetData)
 
@@ -74,7 +63,6 @@ def test_job_get_results(capsys, tmpdir):
         job.get_results()
 
     responseGetData.set_status_code(200)
-    responseGetData.set_message("OK")
     res = job.get_results()
     assert len(res) == 3
     assert len(res.columns) == 4

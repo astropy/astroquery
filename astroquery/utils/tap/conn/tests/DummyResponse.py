@@ -21,19 +21,19 @@ class DummyResponse:
     classdocs
     '''
 
-    def __init__(self):
+    STATUS_MESSAGES = {200: "OK", 303: "OK", 500: "ERROR"}
+
+    def __init__(self, status_code=None):
         self.reason = ""
-        self.status = 0
+        self.set_status_code(status_code)
         self.index = 0
         self.set_data(None, None, None, None)
 
-    def set_status_code(self, status):
-        self.status = status
+    def set_status_code(self, status_code):
+        self.status = status_code
+        self.reason = self.STATUS_MESSAGES.get(status_code)
 
-    def set_message(self, reason):
-        self.reason = reason
-
-    def set_data(self, method, context, body, headers):
+    def set_data(self, method, context=None, body=None, headers=None):
         self.method = method
         self.context = context
         self.body = body
