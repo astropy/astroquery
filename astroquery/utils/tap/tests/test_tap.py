@@ -39,10 +39,7 @@ def test_load_tables():
     responseLoadTable = DummyResponse(500)
     tableDataFile = data_path('test_tables.xml')
     tableData = utils.read_file_content(tableDataFile)
-    responseLoadTable.set_data(method='GET',
-                               context=None,
-                               body=tableData,
-                               headers=None)
+    responseLoadTable.set_data(method='GET', body=tableData)
     tableRequest = "tables"
     connHandler.set_response(tableRequest, responseLoadTable)
     with pytest.raises(Exception):
@@ -81,10 +78,7 @@ def test_load_tables_parameters():
     responseLoadTable = DummyResponse(200)
     tableDataFile = data_path('test_tables.xml')
     tableData = utils.read_file_content(tableDataFile)
-    responseLoadTable.set_data(method='GET',
-                               context=None,
-                               body=tableData,
-                               headers=None)
+    responseLoadTable.set_data(method='GET', body=tableData)
     tableRequest = "tables"
     connHandler.set_response(tableRequest, responseLoadTable)
 
@@ -132,10 +126,7 @@ def test_load_table():
     responseLoadTable = DummyResponse(500)
     tableDataFile = data_path('test_table1.xml')
     tableData = utils.read_file_content(tableDataFile)
-    responseLoadTable.set_data(method='GET',
-                               context=None,
-                               body=tableData,
-                               headers=None)
+    responseLoadTable.set_data(method='GET', body=tableData)
     tableSchema = "public"
     tableName = "table1"
     fullQualifiedTableName = f"{tableSchema}.{tableName}"
@@ -163,10 +154,7 @@ def test_launch_sync_job():
     responseLaunchJob = DummyResponse(500)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=jobData,
-                               headers=None)
+    responseLaunchJob.set_data(method='POST', body=jobData)
     query = 'select top 5 * from table'
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
@@ -229,10 +217,7 @@ def test_launch_sync_job_redirect():
     launchResponseHeaders = [
         ['location', resultsLocation]
     ]
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=None)
+    responseLaunchJob.set_data(method='POST')
     query = 'select top 5 * from table'
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
@@ -252,10 +237,7 @@ def test_launch_sync_job_redirect():
     responseResultsJob = DummyResponse(500)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     connHandler.set_response(resultsReq, responseResultsJob)
 
     with pytest.raises(Exception):
@@ -271,10 +253,7 @@ def test_launch_sync_job_redirect():
     # Location available
     # Results raises error (500)
     responseResultsJob.set_status_code(200)
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=launchResponseHeaders)
+    responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
     responseResultsJob.set_status_code(500)
     with pytest.raises(Exception):
         tap.launch_job(query)
@@ -324,10 +303,7 @@ def test_launch_async_job():
     launchResponseHeaders = [
         ['location', f'http://test:1111/tap/async/{jobid}']
     ]
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=launchResponseHeaders)
+    responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
     query = 'query'
     dictTmp = {
         "REQUEST": "doQuery",
@@ -341,20 +317,14 @@ def test_launch_async_job():
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse(500)
-    responsePhase.set_data(method='GET',
-                           context=None,
-                           body="COMPLETED",
-                           headers=None)
+    responsePhase.set_data(method='GET', body="COMPLETED")
     req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse(500)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
@@ -407,10 +377,7 @@ def test_start_job():
     jobid = '12345'
     # Phase POST response
     responsePhase = DummyResponse(200)
-    responsePhase.set_data(method='POST',
-                           context=None,
-                           body=None,
-                           headers=None)
+    responsePhase.set_data(method='POST')
     req = f"async/{jobid}/phase?PHASE=RUN"
     connHandler.set_response(req, responsePhase)
     # Launch response
@@ -419,10 +386,7 @@ def test_start_job():
     launchResponseHeaders = [
         ['location', f'http://test:1111/tap/async/{jobid}']
     ]
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=launchResponseHeaders)
+    responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
     query = 'query'
     dictTmp = {
         "REQUEST": "doQuery",
@@ -435,20 +399,14 @@ def test_start_job():
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse(200)
-    responsePhase.set_data(method='GET',
-                           context=None,
-                           body="COMPLETED",
-                           headers=None)
+    responsePhase.set_data(method='GET', body="COMPLETED")
     req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse(200)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
@@ -476,10 +434,7 @@ def test_abort_job():
     jobid = '12345'
     # Phase POST response
     responsePhase = DummyResponse(200)
-    responsePhase.set_data(method='POST',
-                           context=None,
-                           body=None,
-                           headers=None)
+    responsePhase.set_data(method='POST')
     req = f"async/{jobid}/phase?PHASE=ABORT"
     connHandler.set_response(req, responsePhase)
     # Launch response
@@ -488,10 +443,7 @@ def test_abort_job():
     launchResponseHeaders = [
         ['location', f'http://test:1111/tap/async/{jobid}']
     ]
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=launchResponseHeaders)
+    responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
     query = 'query'
     dictTmp = {
         "REQUEST": "doQuery",
@@ -524,10 +476,7 @@ def test_job_parameters():
     launchResponseHeaders = [
         ['location', f'http://test:1111/tap/async/{jobid}']
     ]
-    responseLaunchJob.set_data(method='POST',
-                               context=None,
-                               body=None,
-                               headers=launchResponseHeaders)
+    responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
     query = 'query'
     dictTmp = {
         "REQUEST": "doQuery",
@@ -540,20 +489,14 @@ def test_job_parameters():
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse(200)
-    responsePhase.set_data(method='GET',
-                           context=None,
-                           body="COMPLETED",
-                           headers=None)
+    responsePhase.set_data(method='GET', body="COMPLETED")
     req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse(200)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
@@ -564,18 +507,12 @@ def test_job_parameters():
 
     # parameter response
     responseParameters = DummyResponse(200)
-    responseParameters.set_data(method='GET',
-                                context=None,
-                                body=None,
-                                headers=None)
+    responseParameters.set_data(method='GET')
     req = f"async/{jobid}?param1=value1"
     connHandler.set_response(req, responseParameters)
     # Phase POST response
     responsePhase = DummyResponse(200)
-    responsePhase.set_data(method='POST',
-                           context=None,
-                           body=None,
-                           headers=None)
+    responsePhase.set_data(method='POST')
     req = f"async/{jobid}/phase?PHASE=RUN"
     connHandler.set_response(req, responsePhase)
 
@@ -595,10 +532,7 @@ def test_list_async_jobs():
     response = DummyResponse(500)
     jobDataFile = data_path('jobs_list.xml')
     jobData = utils.read_file_content(jobDataFile)
-    response.set_data(method='GET',
-                      context=None,
-                      body=jobData,
-                      headers=None)
+    response.set_data(method='GET', body=jobData)
     req = "async"
     connHandler.set_response(req, response)
     with pytest.raises(Exception):
@@ -621,10 +555,7 @@ def test_data():
     responseResultsJob = DummyResponse(200)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     req = "?ID=1%2C2&format=votable"
     connHandler.set_response(req, responseResultsJob)
     req = "?ID=1%2C2"
@@ -660,10 +591,7 @@ def test_datalink():
     responseResultsJob = DummyResponse(200)
     jobDataFile = data_path('job_1.vot')
     jobData = utils.read_file_content(jobDataFile)
-    responseResultsJob.set_data(method='GET',
-                                context=None,
-                                body=jobData,
-                                headers=None)
+    responseResultsJob.set_data(method='GET', body=jobData)
     req = "links?ID=1,2"
     connHandler.set_response(req, responseResultsJob)
 
@@ -828,10 +756,7 @@ def test_update_user_table():
     dummyResponse = DummyResponse(200)
     tableDataFile = data_path('test_table_update.xml')
     tableData = utils.read_file_content(tableDataFile)
-    dummyResponse.set_data(method='GET',
-                           context=None,
-                           body=tableData,
-                           headers=None)
+    dummyResponse.set_data(method='GET', body=tableData)
     tableRequest = f"tables?tables={tableName}"
     connHandler.set_response(tableRequest, dummyResponse)
 
@@ -899,10 +824,7 @@ def test_rename_table():
     dummyResponse = DummyResponse(200)
     tableDataFile = data_path('test_table_rename.xml')
     tableData = utils.read_file_content(tableDataFile)
-    dummyResponse.set_data(method='GET',
-                           context=None,
-                           body=tableData,
-                           headers=None)
+    dummyResponse.set_data(method='GET', body=tableData)
 
     with pytest.raises(Exception):
         tap.rename_table()

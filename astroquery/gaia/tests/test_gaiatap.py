@@ -48,10 +48,7 @@ class TestTap:
 
         message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
-        dummy_response.set_data(method='GET',
-                                context=None,
-                                body=message_text,
-                                headers=None)
+        dummy_response.set_data(method='GET', body=message_text)
         connHandler.set_default_response(dummy_response)
 
         # show_server_messages
@@ -69,10 +66,7 @@ class TestTap:
 
         message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
-        dummy_response.set_data(method='GET',
-                                context=None,
-                                body=message_text,
-                                headers=None)
+        dummy_response.set_data(method='GET', body=message_text)
         conn_handler.set_default_response(dummy_response)
 
         # show_server_messages
@@ -86,10 +80,7 @@ class TestTap:
         response_launch_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
-        response_launch_job.set_data(method='POST',
-                                     context=None,
-                                     body=job_data,
-                                     headers=None)
+        response_launch_job.set_data(method='POST', body=job_data)
         # The query contains decimals: force default response
         conn_handler.set_default_response(response_launch_job)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
@@ -167,27 +158,18 @@ class TestTap:
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
         ]
-        response_launch_job.set_data(method='POST',
-                                     context=None,
-                                     body=None,
-                                     headers=launch_response_headers)
+        response_launch_job.set_data(method='POST', headers=launch_response_headers)
         conn_handler.set_default_response(response_launch_job)
         # Phase response
         response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET',
-                                context=None,
-                                body="COMPLETED",
-                                headers=None)
+        response_phase.set_data(method='GET', body="COMPLETED")
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
         response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET',
-                                      context=None,
-                                      body=job_data,
-                                      headers=None)
+        response_results_job.set_data(method='GET', body=job_data)
         req = "async/" + jobid + "/results/result"
         conn_handler.set_response(req, response_results_job)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
@@ -254,10 +236,7 @@ class TestTap:
         response_launch_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
-        response_launch_job.set_data(method='POST',
-                                     context=None,
-                                     body=job_data,
-                                     headers=None)
+        response_launch_job.set_data(method='POST', body=job_data)
         ra = 19.0
         dec = 20.0
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
@@ -307,10 +286,7 @@ class TestTap:
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
         ]
-        response_launch_job.set_data(method='POST',
-                                     context=None,
-                                     body=None,
-                                     headers=launch_response_headers)
+        response_launch_job.set_data(method='POST', headers=launch_response_headers)
         ra = 19
         dec = 20
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
@@ -318,20 +294,14 @@ class TestTap:
         conn_handler.set_default_response(response_launch_job)
         # Phase response
         response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET',
-                                context=None,
-                                body="COMPLETED",
-                                headers=None)
+        response_phase.set_data(method='GET', body="COMPLETED")
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
         response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET',
-                                      context=None,
-                                      body=job_data,
-                                      headers=None)
+        response_results_job.set_data(method='GET', body=job_data)
         req = "async/" + jobid + "/results/result"
         conn_handler.set_response(req, response_results_job)
         job = tap.cone_search_async(sc, radius)
@@ -459,27 +429,18 @@ class TestTap:
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
         ]
-        response_launch_job.set_data(method='POST',
-                                     context=None,
-                                     body=None,
-                                     headers=launch_response_headers)
+        response_launch_job.set_data(method='POST', headers=launch_response_headers)
         conn_handler.set_default_response(response_launch_job)
         # Phase response
         response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET',
-                                context=None,
-                                body="COMPLETED",
-                                headers=None)
+        response_phase.set_data(method='GET', body="COMPLETED")
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
         response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET',
-                                      context=None,
-                                      body=job_data,
-                                      headers=None)
+        response_results_job.set_data(method='GET', body=job_data)
         req = "async/" + jobid + "/results/result"
         conn_handler.set_response(req, response_results_job)
         query = ("SELECT crossmatch_positional(",

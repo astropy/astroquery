@@ -33,7 +33,7 @@ class DummyResponse:
         self.status = status_code
         self.reason = self.STATUS_MESSAGES.get(status_code)
 
-    def set_data(self, method, context, body, headers):
+    def set_data(self, method, context=None, body=None, headers=None):
         self.method = method
         self.context = context
         self.body = body

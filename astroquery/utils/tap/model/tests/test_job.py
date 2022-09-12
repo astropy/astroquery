@@ -42,10 +42,7 @@ def test_job_get_results(capsys, tmpdir):
     job.jobid = jobid
     job.parameters['format'] = outputFormat
     responseCheckPhase = DummyResponse(500)
-    responseCheckPhase.set_data(method='GET',
-                                context=None,
-                                body='FINISHED',
-                                headers=None)
+    responseCheckPhase.set_data(method='GET', body='FINISHED')
     waitRequest = f"async/{jobid}/phase"
     connHandler = DummyConnHandler()
     connHandler.set_response(waitRequest, responseCheckPhase)
@@ -58,10 +55,7 @@ def test_job_get_results(capsys, tmpdir):
     responseGetData = DummyResponse(500)
     jobContentFileName = data_path('result_1.vot')
     jobContent = utils.read_file_content(jobContentFileName)
-    responseGetData.set_data(method='GET',
-                             context=None,
-                             body=jobContent,
-                             headers=None)
+    responseGetData.set_data(method='GET', body=jobContent)
     dataRequest = f"async/{jobid}/results/result"
     connHandler.set_response(dataRequest, responseGetData)
 

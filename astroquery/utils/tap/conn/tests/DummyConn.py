@@ -29,7 +29,7 @@ class DummyConn:
         self.cookie = None
         self.ishttps = False
 
-    def request(self, method, context, body, headers):
+    def request(self, method, context=None, body=None, headers=None):
         self.response.set_data(method, context, body, headers)
 
     def getresponse(self):
