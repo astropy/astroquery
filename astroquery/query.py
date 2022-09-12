@@ -478,6 +478,22 @@ class BaseQuery(metaclass=LoginABCMeta):
         return response
 
 
+class suspend_cache:
+    """
+    A context manager that suspends caching.
+    """
+
+    def __init__(self, obj=None):
+        self.original_cache_setting = conf.cache_active
+
+    def __enter__(self):
+        conf.cache_active = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        conf.cache_active = self.original_cache_setting
+        return False
+
+
 class QueryWithLogin(BaseQuery):
     """
     This is the base class for all the query classes which are required to
