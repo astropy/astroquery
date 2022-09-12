@@ -233,9 +233,7 @@ class TestTap:
 
         # Launch response: we use default response because the
         # query contains decimals
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(200)
-        responseLaunchJob.set_message("OK")
+        responseLaunchJob = DummyResponse(200)
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
         responseLaunchJob.set_data(method='POST',
@@ -372,9 +370,7 @@ class TestTap:
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(303)
-        responseLaunchJob.set_message("OK")
+        responseLaunchJob = DummyResponse(303)
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [['location', 'http://test:1111/tap/async/' + jobid]]
         responseLaunchJob.set_data(method='POST',
@@ -383,9 +379,7 @@ class TestTap:
                                    headers=launchResponseHeaders)
         connHandler.set_default_response(responseLaunchJob)
         # Phase response
-        responsePhase = DummyResponse()
-        responsePhase.set_status_code(200)
-        responsePhase.set_message("OK")
+        responsePhase = DummyResponse(200)
         responsePhase.set_data(method='GET',
                                context=None,
                                body="COMPLETED",
@@ -393,9 +387,7 @@ class TestTap:
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
         # Results response
-        responseResultsJob = DummyResponse()
-        responseResultsJob.set_status_code(200)
-        responseResultsJob.set_message("OK")
+        responseResultsJob = DummyResponse(200)
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
         responseResultsJob.set_data(method='GET',
@@ -461,9 +453,7 @@ class TestTap:
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         # Launch response: we use default response because the
         # query contains decimals
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(200)
-        responseLaunchJob.set_message("OK")
+        responseLaunchJob = DummyResponse(200)
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
         responseLaunchJob.set_data(method='POST',
@@ -553,9 +543,7 @@ class TestTap:
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(303)
-        responseLaunchJob.set_message("OK")
+        responseLaunchJob = DummyResponse(303)
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [['location', 'http://test:1111/tap/async/' + jobid]]
         responseLaunchJob.set_data(method='POST',
@@ -568,9 +556,7 @@ class TestTap:
         radius = Quantity(1.0, u.deg)
         connHandler.set_default_response(responseLaunchJob)
         # Phase response
-        responsePhase = DummyResponse()
-        responsePhase.set_status_code(200)
-        responsePhase.set_message("OK")
+        responsePhase = DummyResponse(200)
         responsePhase.set_data(method='GET',
                                context=None,
                                body="COMPLETED",
@@ -578,9 +564,7 @@ class TestTap:
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
         # Results response
-        responseResultsJob = DummyResponse()
-        responseResultsJob.set_status_code(200)
-        responseResultsJob.set_message("OK")
+        responseResultsJob = DummyResponse(200)
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
         responseResultsJob.set_data(method='GET',

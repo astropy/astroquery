@@ -44,9 +44,7 @@ class TestTap:
     def test_show_message(self):
         connHandler = DummyConnHandler()
 
-        dummy_response = DummyResponse()
-        dummy_response.set_status_code(200)
-        dummy_response.set_message("OK")
+        dummy_response = DummyResponse(200)
 
         message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
@@ -67,9 +65,7 @@ class TestTap:
         conn_handler = DummyConnHandler()
         # Launch response: we use default response because the query contains
         # decimals
-        dummy_response = DummyResponse()
-        dummy_response.set_status_code(200)
-        dummy_response.set_message("OK")
+        dummy_response = DummyResponse(200)
 
         message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
@@ -87,9 +83,7 @@ class TestTap:
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=True)
         # Launch response: we use default response because the query contains
         # decimals
-        response_launch_job = DummyResponse()
-        response_launch_job.set_status_code(200)
-        response_launch_job.set_message("OK")
+        response_launch_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
         response_launch_job.set_data(method='POST',
@@ -168,9 +162,7 @@ class TestTap:
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
-        response_launch_job = DummyResponse()
-        response_launch_job.set_status_code(303)
-        response_launch_job.set_message("OK")
+        response_launch_job = DummyResponse(303)
         # list of list (httplib implementation for headers in response)
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
@@ -181,9 +173,7 @@ class TestTap:
                                      headers=launch_response_headers)
         conn_handler.set_default_response(response_launch_job)
         # Phase response
-        response_phase = DummyResponse()
-        response_phase.set_status_code(200)
-        response_phase.set_message("OK")
+        response_phase = DummyResponse(200)
         response_phase.set_data(method='GET',
                                 context=None,
                                 body="COMPLETED",
@@ -191,9 +181,7 @@ class TestTap:
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
-        response_results_job = DummyResponse()
-        response_results_job.set_status_code(200)
-        response_results_job.set_message("OK")
+        response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
         response_results_job.set_data(method='GET',
@@ -263,9 +251,7 @@ class TestTap:
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         # Launch response: we use default response because the query contains
         # decimals
-        response_launch_job = DummyResponse()
-        response_launch_job.set_status_code(200)
-        response_launch_job.set_message("OK")
+        response_launch_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
         response_launch_job.set_data(method='POST',
@@ -316,9 +302,7 @@ class TestTap:
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
-        response_launch_job = DummyResponse()
-        response_launch_job.set_status_code(303)
-        response_launch_job.set_message("OK")
+        response_launch_job = DummyResponse(303)
         # list of list (httplib implementation for headers in response)
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
@@ -333,9 +317,7 @@ class TestTap:
         radius = Quantity(1.0, u.deg)
         conn_handler.set_default_response(response_launch_job)
         # Phase response
-        response_phase = DummyResponse()
-        response_phase.set_status_code(200)
-        response_phase.set_message("OK")
+        response_phase = DummyResponse(200)
         response_phase.set_data(method='GET',
                                 context=None,
                                 body="COMPLETED",
@@ -343,9 +325,7 @@ class TestTap:
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
-        response_results_job = DummyResponse()
-        response_results_job.set_status_code(200)
-        response_results_job.set_message("OK")
+        response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
         response_results_job.set_data(method='GET',
@@ -474,9 +454,7 @@ class TestTap:
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
-        response_launch_job = DummyResponse()
-        response_launch_job.set_status_code(303)
-        response_launch_job.set_message("OK")
+        response_launch_job = DummyResponse(303)
         # list of list (httplib implementation for headers in response)
         launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
@@ -487,9 +465,7 @@ class TestTap:
                                      headers=launch_response_headers)
         conn_handler.set_default_response(response_launch_job)
         # Phase response
-        response_phase = DummyResponse()
-        response_phase.set_status_code(200)
-        response_phase.set_message("OK")
+        response_phase = DummyResponse(200)
         response_phase.set_data(method='GET',
                                 context=None,
                                 body="COMPLETED",
@@ -497,9 +473,7 @@ class TestTap:
         req = "async/" + jobid + "/phase"
         conn_handler.set_response(req, response_phase)
         # Results response
-        response_results_job = DummyResponse()
-        response_results_job.set_status_code(200)
-        response_results_job.set_message("OK")
+        response_results_job = DummyResponse(200)
         job_data_file = data_path('job_1.vot')
         job_data = utils.read_file_content(job_data_file)
         response_results_job.set_data(method='GET',
