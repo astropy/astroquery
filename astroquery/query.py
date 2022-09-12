@@ -33,9 +33,6 @@ def to_cache(response, cache_file):
     if hasattr(response, 'request'):
         for key in tuple(response.request.hooks.keys()):
             del response.request.hooks[key]
-
-    chache_dir, _ = os.path.split(cache_file)
-    Path(chache_dir).mkdir(parents=True, exist_ok=True)
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
@@ -191,7 +188,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                     olduseragent=S.headers['User-Agent']))
 
         self.name = self.__class__.__name__.split("Class")[0]
-        self.reset_cache_preferences()
+        self.cache_location = None
 
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
@@ -231,23 +228,24 @@ class BaseQuery(metaclass=LoginABCMeta):
                     f"-----------------------------------------", '\t')
             log.log(5, f"HTTP response\n{response_log}")
 
+    @property
+    def _cache_location(self):
+        cl = self.cache_location or os.path.join(paths.get_cache_dir(), 'astroquery', self.name)
+        Path(cl).mkdir(parents=True, exist_ok=True)
+        return cl
+
+    def get_cache_location(self):
+        return self._cache_location
+
+    def reset_cache_location(self):
+        self.cache_location = None
+
     def clear_cache(self):
         """Removes all cache files."""
 
-        cache_files = [x for x in os.listdir(self.cache_location) if x.endswith("pickle")]
+        cache_files = [x for x in os.listdir(self._cache_location) if x.endswith("pickle")]
         for fle in cache_files:
-            os.remove(os.path.join(self.cache_location, fle))
-
-    def reset_cache_preferences(self):
-        """Resets cache preferences to default values"""
-
-        self.cache_location = os.path.join(
-            conf.default_cache_location,
-            self.__class__.__name__.split("Class")[0])
-        os.makedirs(self.cache_location, exist_ok=True)
-
-        self.cache_active = conf.default_cache_active
-        self.cache_timeout = conf.default_cache_timeout
+            os.remove(os.path.join(self._cache_location, fle))
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
@@ -311,7 +309,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        if (cache is not False) and self.cache_active:
+        if (cache is not False) and conf.cache_active:
             cache = True
         else:
             cache = False
@@ -323,7 +321,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
 
-            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
+            local_filepath = os.path.join(savedir or self._cache_location or '.', local_filename)
 
             response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
                                            continuation=continuation, method=method,
@@ -337,23 +335,23 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             query = AstroQuery(method, url, params=params, data=data, headers=headers,
                                files=files, timeout=timeout, json=json)
-            if ((self.cache_location is None) or (not self.cache_active) or (not cache)):
-                with suspend_cache(self):
+            if ((self._cache_location is None) or (not cache)):
+                with conf.set_temp("cache_active", False):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
-                response = query.from_cache(self.cache_location, self.cache_timeout)
+                response = query.from_cache(self._cache_location, conf.cache_timeout)
                 if not response:
                     response = query.request(self._session,
-                                             self.cache_location,
+                                             self._cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
                                              verify=verify,
                                              json=json)
-                    to_cache(response, query.request_file(self.cache_location))
+                    to_cache(response, query.request_file(self._cache_location))
 
             self._last_query = query
             return response
@@ -480,23 +478,6 @@ class BaseQuery(metaclass=LoginABCMeta):
         return response
 
 
-class suspend_cache:
-    """
-    A context manager that suspends caching.
-    """
-
-    def __init__(self, obj):
-        self.obj = obj
-        self.original_cache_setting = self.obj.cache_active
-
-    def __enter__(self):
-        self.obj.cache_active = False
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.obj.cache_active = self.original_cache_setting
-        return False
-
-
 class QueryWithLogin(BaseQuery):
     """
     This is the base class for all the query classes which are required to
@@ -549,7 +530,7 @@ class QueryWithLogin(BaseQuery):
         pass
 
     def login(self, *args, **kwargs):
-        with suspend_cache(self):
+        with conf.set_temp("cache_active", False):
             self._authenticated = self._login(*args, **kwargs)
         return self._authenticated
 

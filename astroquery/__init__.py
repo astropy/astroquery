@@ -44,18 +44,17 @@ log = _init_log()
 # Set up cache configuration
 class Conf(_config.ConfigNamespace):
 
-    default_cache_timeout = _config.ConfigItem(
-          604800,  # 1 week
-          'Astroquery-wide default cache timeout (seconds).'
-          )
-    default_cache_location = _config.ConfigItem(
-          os.path.join(_config.paths.get_cache_dir(), 'astroquery'),
-          'Astroquery default cache location (within astropy cache).'
-          )
-    default_cache_active = _config.ConfigItem(
+    cache_timeout = _config.ConfigItem(
+        604800,  # 1 week
+        'Astroquery-wide cache timeout (seconds).',
+        cfgtype='integer'
+    )
+
+    cache_active = _config.ConfigItem(
         True,
-        "Astroquery global cache usage, False turns off all caching."
-        )
+        "Astroquery global cache usage, False turns off all caching.",
+        cfgtype='boolean'
+    )
 
 
 conf = Conf()
