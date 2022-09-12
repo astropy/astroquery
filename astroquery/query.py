@@ -338,7 +338,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
 
-            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
+            local_filepath = os.path.join(savedir or self._cache_location or '.', local_filename)
 
             response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
                                            continuation=continuation, method=method,
@@ -361,15 +361,16 @@ class BaseQuery(metaclass=LoginABCMeta):
                                              json=json)
             else:
                 response = query.from_cache(self.cache_location, cache_conf.cache_timeout)
+
                 if not response:
                     response = query.request(self._session,
-                                             self.cache_location,
+                                             self._cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
                                              verify=verify,
                                              json=json)
-                    to_cache(response, query.request_file(self.cache_location))
+                    to_cache(response, query.request_file(self._cache_location))
 
             self._last_query = query
             return response
@@ -512,6 +513,7 @@ class suspend_cache:
     def __exit__(self, exc_type, exc_value, traceback):
         cache_conf.cache_active = self.original_cache_setting
         return False
+
 
 
 class QueryWithLogin(BaseQuery):

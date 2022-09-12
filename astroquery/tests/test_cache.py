@@ -10,6 +10,7 @@ from astropy.config import paths
 from astroquery.query import QueryWithLogin
 from astroquery import cache_conf
 
+
 URL1 = "http://fakeurl.edu"
 URL2 = "http://fakeurl.ac.uk"
 
@@ -82,22 +83,22 @@ def test_basic_caching(changing_mocked_response):
     assert cache_conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
-    assert len(os.listdir(mytest.cache_location)) == 1
+    assert len(os.listdir(mytest.get_cache_location())) == 1
 
     resp = mytest.test_func(URL2)  # query that has not been cached
     assert resp.content == TEXT2
-    assert len(os.listdir(mytest.cache_location)) == 2
+    assert len(os.listdir(mytest.get_cache_location())) == 2
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1  # query that was cached
-    assert len(os.listdir(mytest.cache_location)) == 2  # no new cache file
+    assert len(os.listdir(mytest.get_cache_location())) == 2  # no new cache file
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # Now get new response
@@ -134,11 +135,11 @@ def test_login(changing_mocked_response):
     assert cache_conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     mytest.login("ceb")
     assert mytest.authenticated()
-    assert len(os.listdir(mytest.cache_location)) == 0  # request should not be cached
+    assert len(os.listdir(mytest.get_cache_location())) == 0  # request should not be cached
 
     mytest.login("ceb")
     assert not mytest.authenticated()  # Should not be accessing cache
@@ -151,7 +152,7 @@ def test_timeout(changing_mocked_response, monkeypatch):
     assert cache_conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     resp = mytest.test_func(URL1)  # should be cached
     assert resp.content == TEXT1
@@ -183,11 +184,11 @@ def test_deactivate_directly(changing_mocked_response):
     cache_conf.cache_active = False
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
-    assert len(os.listdir(mytest.cache_location)) == 0
+    assert len(os.listdir(mytest.get_cache_location())) == 0
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2
