@@ -366,7 +366,7 @@ class TestMast:
             uris = mast.Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
-    def test_observations_download_file(self):
+    def test_observations_download_file(self, tmp_cwd):
 
         # enabling cloud connection
         mast.Observations.enable_cloud_dataset(provider='AWS')

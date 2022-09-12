@@ -559,11 +559,11 @@ class ObservationsClass(MastQueryWithLogin):
                 except Exception as ex:
                     log.exception("Error pulling from S3 bucket: {}".format(ex))
                     if cloud_only:
-                        log.warn("Skipping file...")
+                        log.warning("Skipping file...")
                         local_path = ""
                         status = "SKIPPED"
                     else:
-                        log.warn("Falling back to mast download...")
+                        log.warning("Falling back to mast download...")
                         self._download_file(data_url, local_path,
                                             cache=cache, head_safe=True, continuation=False)
             else:
