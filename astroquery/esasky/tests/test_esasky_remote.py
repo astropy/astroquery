@@ -73,11 +73,11 @@ class TestESASky:
                                  ["100001010", "01500403", "21171", "0852000101",
                                   "0851180201", "0851180201", "n3tr01c3q", "1342247257",
                                   "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq", "88600210001"]))
-    def test_esasky_get_images_obs_id(self, tmp_cwd, mission, obsid):
+    def test_esasky_get_images_obs_id(self, tmp_path, mission, obsid):
         result = ESASky.get_images(observation_ids=obsid,
-                                   missions=mission, download_dir=tmp_cwd)
+                                   missions=mission, download_dir=tmp_path)
 
-        assert (tmp_cwd / mission).exists()
+        assert (tmp_path / mission).exists()
         if mission.upper() == "HERSCHEL":
             assert (isinstance(result[mission.upper()][0]["250"], HDUList))
             assert (isinstance(result[mission.upper()][0]["350"], HDUList))
@@ -168,16 +168,18 @@ class TestESASky:
         result = ESASky.query_object_spectra(position="M51")
         assert isinstance(result, TableList)
 
-    @pytest.mark.xfail(raises=OSError, reason="fits.open can't open zip file with many members")
-    @pytest.mark.bigdata
-    def test_esasky_get_spectra(self, tmp_path):
-        missions = ESASky.list_spectra()
-        # HST-IR has no data, LAMOST does not support download
-        missions = [mission for mission in missions if mission not in ("HST-IR", "LAMOST")]
-        ESASky.get_spectra(position="M1", missions=missions, download_dir=tmp_path)
 
-        for mission in missions:
-            assert (tmp_path / mission).exists()
+    @pytest.mark.bigdata
+    @pytest.mark.parametrize("mission", [mission for mission in ESASky.list_spectra()
+                                         if mission not in ("HST-IR", "LAMOST", "CHEOPS",
+                                                            "JWST_Mid-IR", "JWST_Near-IR")])
+    def test_esasky_get_spectra(self, tmp_path, mission):
+        # HST-IR, JWST_Mid-IR and CHEOPS have no data
+        # LAMOST does not support download
+        # JWST_Near-IR returns a zip file with many fits files in it, unsupported
+        ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
+
+        assert (tmp_path / mission).exists()
 
     def test_esasky_get_spectra_small(self, tmp_path):
         missions = ['HST-IR']

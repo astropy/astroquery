@@ -1492,12 +1492,12 @@ class ESASkyClass(BaseQuery):
                             with ZipFile(file=BytesIO(response.content)) as zip:
                                 for info in zip.infolist():
                                     if self._ends_with_fits_like_extentsion(info.filename):
-                                        maps.append(fits.open(zip.extract(info.filename)))
+                                        maps.append(fits.open(zip.extract(info.filename, path=mission_directory)))
                         else:
                             file_name = self._extract_file_name_from_response_header(response.headers)
-                            if (file_name == ""):
+                            if file_name == "":
                                 file_name = self._extract_file_name_from_url(product_url)
-                            if(file_name.lower().endswith(self.__TAR_STRING)):
+                            if file_name.lower().endswith(self.__TAR_STRING):
                                 with tarfile.open(fileobj=BytesIO(response.content)) as tar:
                                     for member in tar.getmembers():
                                         tar.extract(member, directory_path)
