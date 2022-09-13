@@ -168,7 +168,6 @@ class TestESASky:
         result = ESASky.query_object_spectra(position="M51")
         assert isinstance(result, TableList)
 
-
     @pytest.mark.bigdata
     @pytest.mark.parametrize("mission", [mission for mission in ESASky.list_spectra()
                                          if mission not in ("HST-IR", "LAMOST", "CHEOPS",
