@@ -7,13 +7,14 @@ import pytest
 import astropy.units as u
 from astropy.table import Table
 
-# Skip tests in this file until the new API is implemented:
-# https://github.com/astropy/astroquery/issues/2316
-pytest.skip(allow_module_level=True)
-
 from ... import nrao
 from astroquery.utils.mocks import MockResponse
 from ...utils import commons
+
+
+pytest.skip(allow_module_level=True,
+            reason="Skip tests in this file until the new API is implemented: "
+            "https://github.com/astropy/astroquery/issues/2316")
 
 
 def data_path(filename):
