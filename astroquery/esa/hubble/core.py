@@ -475,7 +475,7 @@ class ESAHubbleClass(BaseQuery):
             radius_in_grades = Angle(radius, units.arcmin).deg
         else:
             radius_in_grades = radius.to(units.deg).value
-        cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec)," \
+        cone_query = "1=CONTAINS(POINT('ICRS', ra, dec)," \
                      "CIRCLE('ICRS', {0}, {1}, {2}))". \
             format(str(ra), str(dec), str(radius_in_grades))
         query = "{}{})".format(crit_query, cone_query)

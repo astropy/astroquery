@@ -307,7 +307,7 @@ This last example will provide the ADQL query based on the criteria defined by t
   ...                                   filters = ['F555W', 'F606W'],
   ...                                   get_query = True)
   >>> print(result)
-  select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%'))
+  select * from ehst.archive where(calibration_level=3 AND data_product_type LIKE '%image%' AND intent LIKE '%science%' AND (collection LIKE '%HLA%') AND (instrument_name LIKE '%WFC3%') AND (instrument_configuration LIKE '%F555W%' OR instrument_configuration LIKE '%F606W%'))
 
 --------------------------------------
 6. Cone searches in the Hubble archive
