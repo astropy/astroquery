@@ -169,13 +169,13 @@ class TestESASky:
         assert isinstance(result, TableList)
 
     @pytest.mark.bigdata
-    @pytest.mark.parametrize("mission", [mission for mission in ESASky.list_spectra()
-                                         if mission not in ("HST-IR", "LAMOST", "CHEOPS",
-                                                            "JWST_Mid-IR", "JWST_Near-IR")])
+    @pytest.mark.parametrize("mission", ["XMM-NEWTON", "Chandra", "IUE", "HST-UV",
+                                         "HST-OPTICAL", "ISO-IR", "Herschel"])
     def test_esasky_get_spectra(self, tmp_path, mission):
-        # HST-IR, JWST_Mid-IR and CHEOPS have no data
-        # LAMOST does not support download
-        # JWST_Near-IR returns a zip file with many fits files in it, unsupported
+        # Not all missions are tested here:
+        # - HST-IR, JWST_Mid-IR and CHEOPS have no data
+        # - LAMOST does not support download
+        # - JWST_Near-IR returns a zip file with many fits files in it, unsupported
         ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
 
         assert (tmp_path / mission).exists()
