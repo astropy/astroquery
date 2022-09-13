@@ -21,14 +21,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Python 3.9 with all dependencies with remote data
+          - name: py3.10 all dev deps online
             os: ubuntu-latest
-            python: '3.9'
-            toxenv: py39-test-alldeps-devdeps-online
+            python: '3.10'
+            toxenv: py310-test-alldeps-devdeps-online
             toxargs: -v
             toxposargs: -v --durations=50
 
-          - name: pre-release dependencies with all dependencies
+          - name: Windows py3.9 all deps online
+            os: windows-latest
+            python: '3.9'
+            toxenv: py39-test-alldeps-online
+            toxargs: -v
+            toxposargs: -v --durations=50
+
+          - name: py3.10 pre-release all deps
             os: ubuntu-latest
             python: '3.10'
             toxenv: py310-test-alldeps-predeps
