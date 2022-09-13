@@ -5,9 +5,6 @@ on:
     # Run this job on release tags, but not on pushes to the main branch
     tags:
     - '*'
-  pull_request:
-    branches:
-    - main
   schedule:
     # run every Monday at 5am UTC
     - cron: '0 5 * * 1'
@@ -19,7 +16,7 @@ jobs:
   tests:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-#    if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
+    if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
     strategy:
       fail-fast: false
       matrix:
