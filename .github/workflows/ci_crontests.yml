@@ -5,6 +5,9 @@ on:
     # Run this job on release tags, but not on pushes to the main branch
     tags:
     - '*'
+  pull_request:
+    branches:
+    - main
   schedule:
     # run every Monday at 5am UTC
     - cron: '0 5 * * 1'
@@ -16,19 +19,26 @@ jobs:
   tests:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
+#    if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Python 3.9 with all dependencies with remote data
+          - name: py3.10 all dev deps online
             os: ubuntu-latest
-            python: '3.9'
-            toxenv: py39-test-alldeps-devdeps-online
+            python: '3.10'
+            toxenv: py310-test-alldeps-devdeps-online
             toxargs: -v
             toxposargs: -v --durations=50
 
-          - name: pre-release dependencies with all dependencies
+          - name: Windows py3.9 all deps online
+            os: windows-latest
+            python: '3.9'
+            toxenv: py39-test-alldeps-online
+            toxargs: -v
+            toxposargs: -v --durations=50
+
+          - name: py3.10 pre-release all deps
             os: ubuntu-latest
             python: '3.10'
             toxenv: py310-test-alldeps-predeps
