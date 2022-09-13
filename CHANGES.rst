@@ -20,6 +20,12 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+esa.hubble
+^^^^^^^^^^
+
+- Refactored query_criteria to use ehst.archive table therefore making the query
+  a lot faster. [#2524]
+
 alma
 ^^^^
 
