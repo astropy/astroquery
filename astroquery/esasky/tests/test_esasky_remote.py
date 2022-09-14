@@ -79,11 +79,11 @@ class TestESASky:
 
         assert (tmp_path / mission).exists()
         if mission == "Herschel":
-            assert (isinstance(result[mission.upper()][0]["250"], HDUList))
-            assert (isinstance(result[mission.upper()][0]["350"], HDUList))
-            assert (isinstance(result[mission.upper()][0]["500"], HDUList))
+            assert isinstance(result[mission.upper()][0]["250"], HDUList)
+            assert isinstance(result[mission.upper()][0]["350"], HDUList)
+            assert isinstance(result[mission.upper()][0]["500"], HDUList)
         else:
-            assert (isinstance(result[mission.upper()][0], HDUList))
+            assert isinstance(result[mission.upper()][0], HDUList)
 
     def test_esasky_get_spectra_obs_id(self, tmp_path):
         missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
