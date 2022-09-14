@@ -1501,7 +1501,7 @@ class ESASkyClass(BaseQuery):
                                 with tarfile.open(fileobj=BytesIO(response.content)) as tar:
                                     for member in tar.getmembers():
                                         tar.extract(member, directory_path)
-                                        maps.append(fits.open(os.path.join(directory_path, member.name)))
+                                        maps.append(fits.open(Path(directory_path, member.name)))
                             else:
                                 fits_data = response.content
                                 with open(os.path.join(directory_path, file_name), 'wb') as fits_file:
