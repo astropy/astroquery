@@ -7,6 +7,7 @@ import sys
 import re
 from io import BytesIO
 from zipfile import ZipFile
+from pathlib import Path
 
 from astropy.io import fits
 from astroquery import log

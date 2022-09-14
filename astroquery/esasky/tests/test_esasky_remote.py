@@ -86,20 +86,21 @@ class TestESASky:
         else:
             assert isinstance(result[mission.upper()][0], HDUList)
 
-    def test_esasky_get_spectra_obs_id(self, tmp_path):
-        missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
+    @pytest.mark.parametrize("mission, observation_id",
+                             zip(["ISO-IR", "Chandra", "IUE", "XMM-NEWTON",
+                                  "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"],
+                                 ["02101201", "1005", "LWR13178", "0001730201",
+                                  "ibh706cqq", "1342253595", "z1ax0102t", "oeik2s020"]))
+    def test_esasky_get_spectra_obs_id(self, tmp_path, mission, observation_id):
+        result = ESASky.get_spectra(observation_ids=observation_id,
+                                    missions=mission, download_dir=tmp_path)
 
-        result = ESASky.get_spectra(observation_ids=["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq",
-                                                     "1342253595", "z1ax0102t", "oeik2s020"],
-                                    missions=missions, download_dir=tmp_path)
-
-        for mission in missions:
-            assert (tmp_path / mission).exists()
-            if mission.upper() == "HERSCHEL":
-                assert (isinstance(result[mission.upper()]["1342253595"]["WBS"]["WBS-V_USB_4b"], HDUList))
-                assert (isinstance(result[mission.upper()]["1342253595"]["HRS"]["HRS-H_LSB_4b"], HDUList))
-            else:
-                assert (isinstance(result[mission.upper()][0], HDUList))
+        assert Path(tmp_path, mission).exists()
+        if mission == "Herschel":
+            assert isinstance(result[mission.upper()]["1342253595"]["WBS"]["WBS-V_USB_4b"], HDUList)
+            assert isinstance(result[mission.upper()]["1342253595"]["HRS"]["HRS-H_LSB_4b"], HDUList)
+        else:
+            assert isinstance(result[mission.upper()][0], HDUList)
 
     def test_esasky_query_region_maps(self):
         result = ESASky.query_region_maps(position="M51", radius="5 arcmin")
@@ -111,7 +112,7 @@ class TestESASky:
 
     @pytest.mark.bigdata
     @pytest.mark.parametrize("mission", ['XMM', 'Chandra', 'XMM-OM-OPTICAL',
-                                         'ISO-IR','Herschel', 'JWST_Mid-IR',
+                                         'ISO-IR', 'Herschel', 'JWST_Mid-IR',
                                          'JWST_Near-IR', 'Spitzer'])
     def test_esasky_get_images(self, tmp_path, mission):
         ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
