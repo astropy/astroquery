@@ -366,10 +366,7 @@ class TestMast:
             uris = mast.Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
-    def test_observations_download_file(self, tmp_cwd):
-
-        # enabling cloud connection
-        mast.Observations.enable_cloud_dataset(provider='AWS')
+    def test_observations_download_file(self, tmp_path):
 
         # get observations from GALEX instrument with query_criteria
         observations = mast.Observations.query_criteria(objectname='M1',
@@ -383,9 +380,10 @@ class TestMast:
 
         # pull the URI of a single product
         uri = products['dataURI'][0]
+        local_path = Path(tmp_path, Path(uri).name)
 
         # download it
-        result = mast.Observations.download_file(uri, cloud_only=True)
+        result = mast.Observations.download_file(uri, local_path=local_path)
         assert result == ('COMPLETE', None, None)
 
     def test_get_cloud_uri(self):
