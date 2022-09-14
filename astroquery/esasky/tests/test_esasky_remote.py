@@ -118,20 +118,11 @@ class TestESASky:
 
         assert tmp_path.stat().st_size
 
-    def test_esasky_get_images_small(self, tmp_path):
-        # ISO is only ~ 163 kB
-        missions = ['ISO-IR']
-
-        ESASky.get_images(position="M51", radius="12arcmin", missions=missions,
-                          download_dir=tmp_path)
-        for mission in missions:
-            assert Path(tmp_path, mission).exists()
-
     @pytest.mark.bigdata
     def test_esasky_get_images_hst(self, tmp_path):
         ESASky.get_images(position="M11", radius="2.1 deg", missions="HST-UV",
                           download_dir=tmp_path)
-        assert (tmp_path / "HST-UV").exists()
+        assert Path(tmp_path, "HST-UV").exists()
 
     def test_esasky_query_region_catalogs(self):
         result = ESASky.query_region_catalogs(position="M51", radius="5 arcmin")
@@ -142,18 +133,19 @@ class TestESASky:
         assert isinstance(result, TableList)
 
     def test_esasky_get_maps(self, tmp_path):
-        file_path = tmp_path / 'ISO-IR'
+        mission = 'ISO-IR'
+        file_path = Path(tmp_path, mission)
 
         all_maps = ESASky.query_object_maps(position="M51")
-        iso_maps = ESASky.query_object_maps(position="M51", missions='ISO-IR')
+        iso_maps = ESASky.query_object_maps(position="M51", missions=mission)
         # Remove a few maps, so the other list will have downloadable ones, too
-        iso_maps['ISO-IR'].remove_rows([0, 1])
+        iso_maps[mission].remove_rows([0, 1])
         ESASky.get_maps(iso_maps, download_dir=tmp_path)
-        assert len(os.listdir(file_path)) == len(all_maps['ISO-IR']) - 2
+        assert len(os.listdir(file_path)) == len(all_maps[mission]) - 2
 
-        iso_maps2 = dict({'ISO-IR': all_maps['ISO-IR'][:2]})
+        iso_maps2 = dict({mission: all_maps[mission][:2]})
         ESASky.get_maps(iso_maps2, download_dir=tmp_path)
-        assert len(os.listdir(file_path)) == len(all_maps['ISO-IR'])
+        assert len(os.listdir(file_path)) == len(all_maps[mission])
 
     def test_esasky_query_region_spectra(self):
         result = ESASky.query_region_spectra(position="M51", radius="5 arcmin")
