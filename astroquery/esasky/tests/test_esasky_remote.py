@@ -78,7 +78,7 @@ class TestESASky:
                                    missions=mission, download_dir=tmp_path)
 
         assert (tmp_path / mission).exists()
-        if mission.upper() == "HERSCHEL":
+        if mission == "Herschel":
             assert (isinstance(result[mission.upper()][0]["250"], HDUList))
             assert (isinstance(result[mission.upper()][0]["350"], HDUList))
             assert (isinstance(result[mission.upper()][0]["500"], HDUList))
