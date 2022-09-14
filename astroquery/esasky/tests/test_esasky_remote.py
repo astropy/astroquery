@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
+from pathlib import Path
 
 import pytest
 from astropy.io.fits.hdu.hdulist import HDUList
@@ -109,23 +110,22 @@ class TestESASky:
         assert isinstance(result, TableList)
 
     @pytest.mark.bigdata
-    def test_esasky_get_images(self, tmp_path):
-
-        missions = ['XMM', 'Chandra', 'XMM-OM-OPTICAL', 'ISO-IR', 'Herschel', 'JWST_Mid-IR', 'JWST_Near-IR', 'Spitzer']
-        ESASky.get_images(position="M51", missions=missions, download_dir=tmp_path)
+    @pytest.mark.parametrize("mission", ['XMM', 'Chandra', 'XMM-OM-OPTICAL',
+                                         'ISO-IR','Herschel', 'JWST_Mid-IR',
+                                         'JWST_Near-IR', 'Spitzer'])
+    def test_esasky_get_images(self, tmp_path, mission):
+        ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
 
         assert tmp_path.stat().st_size
 
-    @pytest.mark.skip(reason="Query returns nothing; test checks if tempdir exists")
     def test_esasky_get_images_small(self, tmp_path):
         # ISO is only ~ 163 kB
         missions = ['ISO-IR']
 
-        ESASky.get_images(position="M6", radius="12arcmin", missions=missions,
+        ESASky.get_images(position="M51", radius="12arcmin", missions=missions,
                           download_dir=tmp_path)
         for mission in missions:
-            path = tmp_path / mission
-            assert path.parent.exists()
+            assert Path(tmp_path, mission).exists()
 
     @pytest.mark.bigdata
     def test_esasky_get_images_hst(self, tmp_path):
