@@ -119,7 +119,7 @@ class TestESASky:
         missions = ['XMM', 'Chandra', 'XMM-OM-OPTICAL', 'ISO-IR', 'Herschel', 'JWST_Mid-IR', 'JWST_Near-IR', 'Spitzer']
         ESASky.get_images(position="M51", missions=missions, download_dir=tmp_path)
 
-        assert os.path.getsize(tmp_path) > 0
+        assert tmp_path.stat().st_size
 
     @pytest.mark.skip(reason="Query returns nothing; test checks if tempdir exists")
     def test_esasky_get_images_small(self, tmp_path):
