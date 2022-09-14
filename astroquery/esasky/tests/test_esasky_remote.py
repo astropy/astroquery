@@ -78,7 +78,7 @@ class TestESASky:
         result = ESASky.get_images(observation_ids=obsid,
                                    missions=mission, download_dir=tmp_path)
 
-        assert (tmp_path / mission).exists()
+        assert Path(tmp_path, mission).exists()
         if mission == "Herschel":
             assert isinstance(result[mission.upper()][0]["250"], HDUList)
             assert isinstance(result[mission.upper()][0]["350"], HDUList)
@@ -165,7 +165,7 @@ class TestESASky:
         # - JWST_Near-IR returns a zip file with many fits files in it, unsupported
         ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
 
-        assert (tmp_path / mission).exists()
+        assert Path(tmp_path, mission).exists()
 
     def test_esasky_get_spectra_small(self, tmp_path):
         missions = ['HST-IR']
@@ -174,21 +174,22 @@ class TestESASky:
                            download_dir=tmp_path)
 
         for mission in missions:
-            assert (tmp_path / mission).exists()
+            assert Path(tmp_path, mission).exists()
 
     def test_esasky_get_spectra_from_table(self, tmp_path):
-        file_path = tmp_path / 'ISO-IR'
+        mission = 'ISO-IR'
+        file_path = Path(tmp_path, mission)
 
         all_spectra = ESASky.query_object_spectra(position="M51")
-        iso_spectra = ESASky.query_object_spectra(position="M51", missions='ISO-IR')
+        iso_spectra = ESASky.query_object_spectra(position="M51", missions=mission)
         # Remove a few maps, so the other list will have downloadable ones, too
-        iso_spectra['ISO-IR'].remove_rows([0, 1])
+        iso_spectra[mission].remove_rows([0, 1])
         ESASky.get_spectra_from_table(query_table_list=iso_spectra, download_dir=tmp_path)
-        assert len(os.listdir(file_path)) == len(all_spectra['ISO-IR']) - 2
+        assert len(os.listdir(file_path)) == len(all_spectra[mission]) - 2
 
-        iso_spectra2 = dict({'ISO-IR': all_spectra['ISO-IR'][:2]})
+        iso_spectra2 = dict({mission: all_spectra[mission][:2]})
         ESASky.get_spectra_from_table(query_table_list=iso_spectra2, download_dir=tmp_path)
-        assert len(os.listdir(file_path)) == len(all_spectra['ISO-IR'])
+        assert len(os.listdir(file_path)) == len(all_spectra[mission])
 
     def test_query(self):
         result = ESASky.query(query="SELECT * from observations.mv_v_esasky_xmm_om_uv_fdw")
@@ -265,4 +266,4 @@ class TestESASky:
         assert "XMM" in fits_files
         assert isinstance(fits_files["XMM"][0], HDUList)
 
-        assert (tmp_path / "XMM").exists()
+        assert Path(tmp_path, "XMM").exists()
