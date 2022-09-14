@@ -1601,7 +1601,7 @@ class ESASkyClass(BaseQuery):
     def _remove_extra_herschel_directory(self, file_and_directory_name,
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
-        file_name = os.path.basename(file_and_directory_name)
+        file_name = Path(file_and_directory_name).name
 
         os.renames(os.path.join(full_directory_path, file_and_directory_name),
                    os.path.join(full_directory_path, file_name))
