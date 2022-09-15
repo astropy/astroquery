@@ -27,15 +27,12 @@ an object by name:
     >>> object_name = '3c273'
     >>> table = heasarc.query_object(object_name, mission=mission)
     >>> table[:3].pprint(max_width=120)
-       SEQ_ID   INSTRUMENT EXPOSURE         NAME            RA     DEC      START_TIME        END_TIME      SEARCH_OFFSET_
-                              S                           DEGREE  DEGREE       MJD              MJD
-    ----------- ---------- -------- -------------------- -------- ------ ---------------- ---------------- ---------------
-    RH701576N00 HRI           68154 3C 273               187.2800 2.0500 49704.3090856482 49724.6236226852  0.190 (3C273)
-    <BLANKLINE>
-    RP600242A01 PSPCB         24822 GIOVANELLI-HAYNES CL 186.9300 1.6000 48980.6468865741 48982.9284837963 34.236 (3C273)
-    <BLANKLINE>
-    RH700234N00 HRI           17230 3C 273               187.2800 2.0500 48629.2693055556 48632.4716782407  0.190 (3C273)
-    <BLANKLINE>
+         SEQ_ID      INSTRUMENT EXPOSURE         NAME         ...  DEC      START_TIME        END_TIME      SEARCH_OFFSET_ 
+                                   s                          ...  deg         mjd              mjd                        
+    ---------------- ---------- -------- -------------------- ... ------ ---------------- ---------------- ----------------
+    RH701576N00          HRI       68154 3C 273               ... 2.0500 49704.3090856482 49724.6236226852  0.190 (3c273)\n
+    RP600242A01          PSPCB     24822 GIOVANELLI-HAYNES CL ... 1.6000 48980.6468865741 48982.9284837963 34.236 (3c273)\n
+    RH700234N00          HRI       17230 3C 273               ... 2.0500 48629.2693055556 48632.4716782407  0.190 (3c273)\n
 
 Alternatively, a query can also be conducted around a specific set of sky
 coordinates:
@@ -49,15 +46,12 @@ coordinates:
     >>> coords = SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
     >>> table = heasarc.query_region(coords, mission=mission, radius='1 degree')
     >>> table[:3].pprint(max_width=120)
-       SEQ_ID   INSTRUMENT EXPOSURE ...    START_TIME        END_TIME                     SEARCH_OFFSET_
-                              S     ...       MJD              MJD
-    ----------- ---------- -------- ... ---------------- ---------------- ----------------------------------------------
-    RH701576N00 HRI           68154 ... 49704.3090856482 49724.6236226852  0.191 (187.2779228198005,2.0524148595265435)
-    <BLANKLINE>
-    RP600242A01 PSPCB         24822 ... 48980.6468865741 48982.9284837963 34.237 (187.2779228198005,2.0524148595265435)
-    <BLANKLINE>
-    RH700234N00 HRI           17230 ... 48629.2693055556 48632.4716782407  0.191 (187.2779228198005,2.0524148595265435)
-    <BLANKLINE>
+         SEQ_ID      INSTRUMENT EXPOSURE ...    START_TIME        END_TIME                 SEARCH_OFFSET_            
+                                   s     ...       mjd              mjd                                              
+    ---------------- ---------- -------- ... ---------------- ---------------- --------------------------------------
+    RH701576N00          HRI       68154 ... 49704.3090856482 49724.6236226852  0.191 (187.2779228198,2.0524148595)\n
+    RP600242A01          PSPCB     24822 ... 48980.6468865741 48982.9284837963 34.237 (187.2779228198,2.0524148595)\n
+    RH700234N00          HRI       17230 ... 48629.2693055556 48632.4716782407  0.191 (187.2779228198,2.0524148595)\n
 
 Note that the :meth:`~astroquery.heasarc.HeasarcClass.query_region` converts
 the passed coordinates to the FK5 reference frame before submitting the query.
@@ -82,14 +76,12 @@ specify which columns will be returned:
 
     >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='EXPOSURE,RA,DEC')
     >>> table[:3].pprint()
-    EXPOSURE    RA     DEC    SEARCH_OFFSET_
-       S      DEGREE  DEGREE
-    -------- -------- ------ ---------------
-       68154 187.2800 2.0500  0.190 (3C273)
-    <BLANKLINE>
-       24822 186.9300 1.6000 34.236 (3C273)
-    <BLANKLINE>
-       17230 187.2800 2.0500  0.190 (3C273)
+    EXPOSURE    RA     DEC    SEARCH_OFFSET_ 
+       s       deg     deg                   
+    -------- -------- ------ ----------------
+       68154 187.2800 2.0500  0.190 (3c273)\n
+       24822 186.9300 1.6000 34.236 (3c273)\n
+       17230 187.2800 2.0500  0.190 (3c273)\n
 
 Note that the ``SEARCH_OFFSET_`` column will always be included in the results.
 If a column name is passed to the ``fields`` parameter which does not exist in
@@ -141,15 +133,12 @@ parameter. The following sorts the results by the value in the 'EXPOSURE' column
 
     >>> table = heasarc.query_object(object_name, mission='rosmaster', sortvar='EXPOSURE')
     >>> table[:3].pprint()
-       SEQ_ID   INSTRUMENT EXPOSURE ...     END_TIME      SEARCH_OFFSET_
-                              S     ...       MJD
-    ----------- ---------- -------- ... ---------------- ---------------
-    RH120001N00 HRI               0 ... 48079.8913773148  0.496 (3C273)
-    <BLANKLINE>
-    RH701979N00 HRI             354 ... 49726.0977083333  0.190 (3C273)
-    <BLANKLINE>
-    RP141520N00 PSPCB           485 ... 49540.0447569444  0.496 (3C273)
-    <BLANKLINE>
+         SEQ_ID      INSTRUMENT EXPOSURE ...     END_TIME      SEARCH_OFFSET_ 
+                                   s     ...       mjd                        
+    ---------------- ---------- -------- ... ---------------- ----------------
+    RH120001N00          HRI           0 ... 48079.8913773148  0.496 (3c273)\n
+    RH701979N00          HRI         354 ... 49726.0977083333  0.190 (3c273)\n
+    RP141520N00          PSPCB       485 ... 49540.0447569444  0.496 (3c273)\n
 
 Setting the ``resultmax`` parameter controls the maximum number of results to be
 returned. The following will store only the first 10 results:
@@ -167,12 +156,11 @@ It is also possible to select time range:
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
     >>> table = heasarc.query_region('3C273', mission="numaster", radius='1 degree', time='2019-01-01 .. 2020-01-01')
-    >>> table.pprint()
-     NAME    RA    ... ISSUE_FLAG                 SEARCH_OFFSET_
-           DEGREE  ...
-    ----- -------- ... ---------- ----------------------------------------------
-    3C273 187.2473 ...          0 2.077 (187.27792209362673,2.0523864234098044)
-    <BLANKLINE>
+    >>> table.pprint(max_width=120)
+                           NAME                           RA     DEC   ... ISSUE_FLAG             SEARCH_OFFSET_           
+                                                         deg     deg   ...                                                 
+    -------------------------------------------------- -------- ------ ... ---------- -------------------------------------
+    3C273                                              187.2473 2.0362 ...          0 2.077 (187.2779220931,2.0523864229)\n
 
 
 Getting list of available missions

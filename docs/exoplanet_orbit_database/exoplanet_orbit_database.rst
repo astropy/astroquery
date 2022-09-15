@@ -18,7 +18,7 @@ to columns wherever possible.
         <QTable length=2>
             A        AUPPER   ... NAME_LOWERCASE              sky_coord
             AU         AU     ...                              deg,deg
-         float64    float64   ...     str19                     object
+         float64    float64   ...     str19                    SkyCoord
         --------- ----------- ... -------------- -----------------------------------
         0.0780099  0.00130017 ...    kepler-107d 297.0282083332539,48.20861111111111
         0.0344721 0.000675924 ...   kepler-1049b  287.3467499971389,47.7729444445504
@@ -43,9 +43,9 @@ is also a special column of sky coordinates for each target, named ``sky_coord``
         >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
         >>> hatp11b = ExoplanetOrbitDatabase.query_planet('HAT-P-11 b')
         >>> hatp11b['PER']  # Planet period
-        <Quantity 4.8878162 d>
+        <MaskedQuantity 4.8878162 d>
         >>> hatp11b['R']  # Planet radius
-        <Quantity 0.422 jupiterRad>
+        <MaskedQuantity 0.422 jupiterRad>
         >>> hatp11b['sky_coord'] # Position of host star
         <SkyCoord (ICRS): (ra, dec) in deg
             (297.70890417, 48.08029444)>
