@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import warnings
 from collections import OrderedDict
+from pathlib import Path
 
 # ASTROPY
 from astropy.io import votable
@@ -85,7 +86,7 @@ def check_conesearch_sites(destdir=os.curdir, verbose=True, parallel=True,
     if url_list == 'default':
         url_list = conf.conesearch_urls
 
-    if (not isinstance(destdir, str) or len(destdir) == 0
+    if (not isinstance(destdir, (str, Path))
             or os.path.exists(destdir) and not os.path.isdir(destdir)):
         raise OSError('Invalid destination directory')  # pragma: no cover
 

@@ -68,7 +68,7 @@ class TestMOCServerRemote:
     @pytest.mark.skipif('mocpy' not in sys.modules,
                         reason="requires MOCPy")
     @pytest.mark.parametrize('moc_order', [5, 10])
-    def test_moc_order_param(self, moc_order):
+    def test_moc_order_param(self, moc_order, tmp_cwd):
         moc_region = MOC.from_json({'0': [1]})
 
         result = cds.query_region(region=moc_region,

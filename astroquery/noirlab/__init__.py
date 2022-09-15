@@ -65,7 +65,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.noirlab`.
     """
     server = _config.ConfigItem(
-        ['https://astroarchive.noao.edu',
+        ['https://astroarchive.noirlab.edu',
          ],
         'Name of the NOIRLAB server to use.'
         )

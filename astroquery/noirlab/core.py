@@ -3,7 +3,7 @@ Provide astroquery API access to OIR Lab Astro Data Archive (natica).
 
 This does DB access through web-services.
 """
-
+from packaging.version import Version
 import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -53,15 +53,14 @@ class NoirlabClass(BaseQuery):
                                      f'{self.NAT_URL}/api/version',
                                      timeout=self.TIMEOUT,
                                      cache=True)
-            self._api_version = float(response.content)
+            self._api_version = str(float(response.content))
         return self._api_version
 
     def _validate_version(self):
-        KNOWN_GOOD_API_VERSION = 2.0
-        if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
+        KNOWN_GOOD_API_VERSION = "2.0"
+        if Version(self.api_version).major > Version(KNOWN_GOOD_API_VERSION).major:
             msg = (f'The astroquery.noirlab module is expecting an older '
                    f'version of the {self.NAT_URL} API services. '
-                   f'Please upgrade to latest astroquery.  '
                    f'Expected version {KNOWN_GOOD_API_VERSION} but got '
                    f'{self.api_version} from the API.')
             raise Exception(msg)

@@ -1,17 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import tempfile
-import shutil
-import numpy as np
-import pytest
-
 from datetime import datetime
 import os
+from pathlib import Path
 from urllib.parse import urlparse
 import re
 from unittest.mock import Mock, MagicMock, patch
 
 from astropy import coordinates
 from astropy import units as u
+import numpy as np
+import pytest
 
 from astroquery.exceptions import CorruptDataWarning
 from astroquery.utils.commons import ASTROPY_LT_4_1
@@ -49,15 +47,6 @@ def alma(request):
 
 @pytest.mark.remote_data
 class TestAlma:
-    @pytest.fixture()
-    def temp_dir(self, request):
-        my_temp_dir = tempfile.mkdtemp()
-
-        def fin():
-            shutil.rmtree(my_temp_dir)
-        request.addfinalizer(fin)
-        return my_temp_dir
-
     def test_public(self, alma):
         results = alma.query(payload=None, public=True, maxrec=100)
         assert len(results) == 100
@@ -68,8 +57,8 @@ class TestAlma:
         for row in results:
             assert row['data_rights'] == 'Proprietary'
 
-    def test_SgrAstar(self, temp_dir, alma):
-        alma.cache_location = temp_dir
+    def test_SgrAstar(self, tmp_path, alma):
+        alma.cache_location = tmp_path
 
         result_s = alma.query_object('Sgr A*', legacy_columns=True)
 
@@ -122,9 +111,9 @@ class TestAlma:
         assert len(result) > 0
 
     @pytest.mark.skipif("SKIP_SLOW")
-    def test_m83(self, temp_dir, alma):
+    def test_m83(self, tmp_path, alma):
         # Runs for over 9 minutes
-        alma.cache_location = temp_dir
+        alma.cache_location = tmp_path
 
         m83_data = alma.query_object('M83', science=True, legacy_columns=True)
         uids = np.unique(m83_data['Member ous id'])
@@ -149,20 +138,20 @@ class TestAlma:
         with pytest.raises(AttributeError):
             alma.is_proprietary('uid://NON/EXI/STING')
 
-    def test_retrieve_data(self, temp_path, alma):
+    def test_retrieve_data(self, tmp_path, alma):
         """
         Regression test for issue 2490 (the retrieval step will simply fail if
         given a blank line, so all we're doing is testing that it runs)
         """
-        alma.cache_location = temp_path
+        alma.cache_location = tmp_path
 
         # small solar TP-only data set (<1 GB)
         uid = 'uid://A001/X87c/X572'
 
         alma.retrieve_data_from_uid([uid])
 
-    def test_data_info(self, temp_dir, alma):
-        alma.cache_location = temp_dir
+    def test_data_info(self, tmp_path, alma):
+        alma.cache_location = tmp_path
 
         uid = 'uid://A001/X12a3/Xe9'
         data_info = alma.get_data_info(uid, expand_tarfiles=True)
@@ -189,8 +178,8 @@ class TestAlma:
                 file_url = url
                 break
         assert file_url
-        alma.download_files([file_url], savedir=temp_dir)
-        assert os.stat(os.path.join(temp_dir, file)).st_size
+        alma.download_files([file_url], savedir=tmp_path)
+        assert Path(tmp_path, file).stat().st_size
 
         # mock downloading an entire program
         download_files_mock = Mock()
@@ -200,9 +189,9 @@ class TestAlma:
         comparison = download_files_mock.mock_calls[0][1] == data_info_tar['access_url']
         assert comparison.all()
 
-    def test_download_data(self, temp_dir, alma):
+    def test_download_data(self, tmp_path, alma):
         # test only fits files from a program
-        alma.cache_location = temp_dir
+        alma.cache_location = tmp_path
 
         uid = 'uid://A001/X12a3/Xe9'
         data_info = alma.get_data_info(uid, expand_tarfiles=True)
@@ -214,14 +203,14 @@ class TestAlma:
         alma._download_file = download_mock
         urls = [x['access_url'] for x in data_info
                 if fitsre.match(x['access_url'])]
-        results = alma.download_files(urls, savedir=temp_dir)
+        results = alma.download_files(urls, savedir=tmp_path)
         alma._download_file.call_count == len(results)
         assert len(results) == len(urls)
 
-    def test_download_and_extract(self, temp_dir, alma):
+    def test_download_and_extract(self, tmp_path, alma):
         # TODO: slowish, runs for ~90s
 
-        alma.cache_location = temp_dir
+        alma.cache_location = tmp_path
         alma._cycle0_tarfile_content_table = {'ID': ''}
 
         uid = 'uid://A001/X12a3/Xe9'
@@ -261,10 +250,10 @@ class TestAlma:
                     [asdm_url], include_asdm=True, regex=r'.*\.py')
         delete_mock.assert_called_once_with(
             'cache_path/' + asdm_url.split('/')[-1])
-        assert downloaded_asdm == [os.path.join(temp_dir, 'foo.py')]
+        assert downloaded_asdm == [Path(tmp_path, 'foo.py')]
 
-    def test_doc_example(self, temp_dir, alma):
-        alma.cache_location = temp_dir
+    def test_doc_example(self, tmp_path, alma):
+        alma.cache_location = tmp_path
         m83_data = alma.query_object('M83', legacy_columns=True)
         # the order can apparently sometimes change
         # These column names change too often to keep testing.
@@ -299,8 +288,8 @@ class TestAlma:
         # file sizes are replaced with -1
         assert (totalsize_mous.to(u.GB).value > 52)
 
-    def test_query(self, temp_dir, alma):
-        alma.cache_location = temp_dir
+    def test_query(self, tmp_path, alma):
+        alma.cache_location = tmp_path
 
         result = alma.query(payload={'start_date': '<11-11-2011'},
                             public=False, legacy_columns=True, science=True)
@@ -395,9 +384,9 @@ class TestAlma:
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
-    def test_cycle1(self, temp_dir, alma):
+    def test_cycle1(self, tmp_path, alma):
         # About 500 MB
-        alma.cache_location = temp_dir
+        alma.cache_location = tmp_path
         target = 'NGC4945'
         project_code = '2012.1.00912.S'
         payload = {'project_code': project_code,
@@ -442,9 +431,9 @@ class TestAlma:
 
     @pytest.mark.skipif("SKIP_SLOW")
     @pytest.mark.xfail(reason="Not working anymore")
-    def test_cycle0(self, temp_dir, alma):
+    def test_cycle0(self, tmp_path, alma):
         # About 20 MB
-        alma.cache_location = temp_dir
+        alma.cache_location = tmp_path
 
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
@@ -477,7 +466,7 @@ class TestAlma:
         # There are 10 small files, but only 8 unique
         assert len(data) == 8
 
-    def test_keywords(self, temp_dir, alma):
+    def test_keywords(self, tmp_path, alma):
 
         alma.help_tap()
         result = alma.query_tap(
@@ -545,24 +534,15 @@ def test_big_download_regression(alma):
 
 
 @pytest.mark.remote_data
-def test_download_html_file(alma):
+def test_download_html_file(alma, tmp_path):
+    alma.cache_location = tmp_path
     result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
     assert result
 
 
 @pytest.mark.remote_data
-def test_verify_html_file(alma, caplog):
-    # first, make sure the file is not cached (in case this test gets called repeatedly)
-    # (we are hacking the file later in this test to trigger different failure modes so
-    # we need it fresh)
-    try:
-        result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
-        local_filepath = result[0]
-        os.remove(local_filepath)
-    except FileNotFoundError:
-        pass
-
-    caplog.clear()
+def test_verify_html_file(alma, caplog, tmp_path):
+    alma.cache_location = tmp_path
 
     # download the file
     result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
@@ -570,19 +550,18 @@ def test_verify_html_file(alma, caplog):
 
     result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
-    local_filepath = result[0]
-    existing_file_length = 66336
-    assert f"Found cached file {local_filepath} with expected size {existing_file_length}." in caplog.text
+    local_filepath = Path(result[0])
+    expected_file_length = local_filepath.stat().st_size
+    assert f"Found cached file {local_filepath} with expected size {expected_file_length}." in caplog.text
 
     # manipulate the file
     with open(local_filepath, 'ab') as fh:
         fh.write(b"Extra Text")
 
     caplog.clear()
-    length = 66336
-    existing_file_length = length + 10
+    new_file_length = expected_file_length + 10
     with pytest.warns(expected_warning=CorruptDataWarning,
-            match=f"Found cached file {local_filepath} with size {existing_file_length} > expected size {length}.  The download is likely corrupted."):
+                      match=f"Found cached file {local_filepath} with size {new_file_length} > expected size {expected_file_length}.  The download is likely corrupted."):
         result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
 
@@ -593,10 +572,5 @@ def test_verify_html_file(alma, caplog):
     caplog.clear()
     result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
-    length = 66336
     existing_file_length = 10
-    assert f"Found cached file {local_filepath} with size {existing_file_length} < expected size {length}.  The download should be continued." in caplog.text
-
-    # cleanup: we don't want `test_download_html_file` to fail if this test is re-run
-    if os.path.exists(local_filepath):
-        os.remove(local_filepath)
+    assert f"Found cached file {local_filepath} with size {existing_file_length} < expected size {expected_file_length}.  The download should be continued." in caplog.text

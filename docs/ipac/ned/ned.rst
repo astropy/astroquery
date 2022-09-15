@@ -27,9 +27,9 @@ instance if you want to query NGC 224
     >>> result_table = Ned.query_object("NGC 224")
     >>> print(result_table) # an astropy.table.Table
     No. Object Name     RA     ... Redshift Points Diameter Points Associations
-                     degrees   ...
+                     degrees   ...                                             
     --- ----------- ---------- ... --------------- --------------- ------------
-      1 MESSIER 031   10.68479 ...              37              13            2
+      1 MESSIER 031   10.68479 ...              38              13            2
 
 
 Query a region
@@ -240,16 +240,28 @@ for the specified object. We look at a simple example:
     No.       RA       ... Published Frequence Mode         Qualifiers
                        ...
     --- -------------- ... ------------------------ -------------------------
-      0 12h29m06.6997s ...
+      0 12h29m06.6997s ...                                                   
       1 12h29m06.7000s ...                                   Uncertain origin
       2 12h29m06.7000s ...                                   Uncertain origin
       3 12h29m06.7000s ...                                   Uncertain origin
+      4 12h29m06.7000s ...                                   Uncertain origin
+      5 12h29m06.7000s ...                                   Uncertain origin
+      6 12h29m06.7001s ...                                   Uncertain origin
+      7 12h29m06.6996s ...                                   Uncertain origin
+      8 12h29m06.7001s ...                                   Uncertain origin
+      9 12h29m06.7001s ...                                   Uncertain origin
     ...            ... ...                      ...                       ...
-    119    12h29m07.9s ...                                   Uncertain origin
-    120      12h29m04s ...                                   Uncertain origin
-    121      12h29m06s ...                                   Uncertain origin
-    122      12h29m08s ...                                   Uncertain origin
-    Length = 123 rows
+    123   12h29m07.55s ...   Broad-band measurement From reprocessed raw data
+    124   12h29m06.05s ...   Broad-band measurement        From new, raw data
+    125    12h29m06.5s ...   Broad-band measurement        From new, raw data
+    126    12h29m06.5s ...   Broad-band measurement From reprocessed raw data
+    127    12h29m09.0s ...                                   Uncertain origin
+    128    12h29m08.9s ...                                   Uncertain origin
+    129    12h29m07.9s ...                                   Uncertain origin
+    130      12h29m04s ...                                   Uncertain origin
+    131      12h29m06s ...                                   Uncertain origin
+    132      12h29m08s ...                                   Uncertain origin
+    Length = 133 rows
 
 
 Reference/API

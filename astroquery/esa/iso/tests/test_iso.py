@@ -58,7 +58,7 @@ class TestISO:
         link = ida.get_postcard_link(**parameters)
 
     @pytest.mark.remote_data
-    def test_download_data(self):
+    def test_download_data(self, tmp_cwd):
         parameters = {'tdt': "40001501",
                       'product_level': "DEFAULT_DATA_SET",
                       'retrieval_type': "OBSERVATION",
@@ -69,7 +69,7 @@ class TestISO:
         assert res == "file.tar", "File name is " + res + " and not file.tar"
 
     @pytest.mark.remote_data
-    def test_download_postcard(self):
+    def test_download_postcard(self, tmp_cwd):
         parameters = {'tdt': "40001501",
                       'filename': "file",
                       'verbose': False}

@@ -6,12 +6,12 @@ import astropy.coordinates as coord
 from astropy.table import Table
 from astropy import units as u
 
-# Skip tests in this file until the new API is implemented:
-# https://github.com/astropy/astroquery/issues/2316
-pytest.skip(allow_module_level=True)
-
 from astroquery.utils.commons import ASTROPY_LT_4_1
 from ... import nrao
+
+pytest.skip(allow_module_level=True,
+            reason="Skip tests in this file until the new API is implemented: "
+            "https://github.com/astropy/astroquery/issues/2316")
 
 
 @pytest.mark.remote_data

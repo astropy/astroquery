@@ -6,8 +6,7 @@ import shutil
 import warnings
 
 from astroquery.exceptions import LoginError, NoResultsWarning
-
-from ...eso import Eso
+from astroquery.eso import Eso
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
@@ -22,18 +21,9 @@ SKIP_SLOW = True
 
 @pytest.mark.remote_data
 class TestEso:
-    @pytest.fixture()
-    def temp_dir(self, request):
-        my_temp_dir = tempfile.mkdtemp()
-
-        def fin():
-            shutil.rmtree(my_temp_dir)
-        request.addfinalizer(fin)
-        return my_temp_dir
-
-    def test_SgrAstar(self, temp_dir):
+    def test_SgrAstar(self, tmp_path):
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
 
         instruments = eso.list_instruments(cache=False)
         # in principle, we should run both of these tests
@@ -58,10 +48,10 @@ class TestEso:
         assert 'Object' in result_s.colnames
         assert 'b333' in result_s['Object']
 
-    def test_multisurvey(self, temp_dir):
+    def test_multisurvey(self, tmp_path):
 
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
         eso.ROW_LIMIT = 1000
         # first b333 was at 157
         # first pistol....?
@@ -101,13 +91,13 @@ class TestEso:
 
         assert result_s is None
 
-    def test_SgrAstar_remotevslocal(self, temp_dir):
+    def test_SgrAstar_remotevslocal(self, tmp_path):
         eso = Eso()
         # Remote version
         result1 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
         # Local version
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
         result2 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=True)
         assert all(result1 == result2)
@@ -172,9 +162,9 @@ class TestEso:
 
         assert np.all(tbl == tblb)
 
-    def test_each_instrument_SgrAstar(self, temp_dir):
+    def test_each_instrument_SgrAstar(self, tmp_path):
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
 
         instruments = eso.list_instruments(cache=False)
 
@@ -189,9 +179,9 @@ class TestEso:
                     assert len(result_i) > 0
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_each_survey_SgrAstar(self, temp_dir):
+    def test_each_survey_SgrAstar(self, tmp_path):
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
 
         surveys = eso.list_surveys(cache=False)
         for survey in surveys:
@@ -209,9 +199,9 @@ class TestEso:
 
     @pytest.mark.skipif("SKIP_SLOW")
     @pytest.mark.parametrize('cache', (False, True))
-    def test_each_survey_nosource(self, temp_dir, cache):
+    def test_each_survey_nosource(self, tmp_path, cache):
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
         surveys = eso.list_surveys(cache=cache)
@@ -219,9 +209,9 @@ class TestEso:
             # just test that it doesn't crash
             eso.query_surveys(survey, cache=cache)
 
-    def test_mixed_case_instrument(self, temp_dir):
+    def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
-        eso.cache_location = temp_dir
+        eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
         result1 = eso.query_instrument('midi', coord1=266.41681662,

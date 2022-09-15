@@ -112,7 +112,7 @@ class TestXMMNewtonRemote:
                     shutil.rmtree(ob_name)
 
     @pytest.mark.remote_data
-    def test_download_data(self):
+    def test_download_data(self, tmp_cwd):
         parameters = {'observation_id': "0112880801",
                       'level': "ODF",
                       'filename': 'file',
@@ -121,7 +121,7 @@ class TestXMMNewtonRemote:
         xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
-    def test_download_data_single_file(self):
+    def test_download_data_single_file(self, tmp_cwd):
         parameters = {'observation_id': "0762470101",
                       'level': "PPS",
                       'name': 'OBSMLI',
@@ -133,7 +133,7 @@ class TestXMMNewtonRemote:
         xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
-    def test_get_postcard(self):
+    def test_get_postcard(self, tmp_cwd):
         parameters = {'observation_id': "0112880801",
                       'image_type': "OBS_EPIC",
                       'filename': None,
@@ -142,7 +142,7 @@ class TestXMMNewtonRemote:
         xsa.get_postcard(**parameters)
 
     @pytest.mark.remote_data
-    def test_get_postcard_filename(self):
+    def test_get_postcard_filename(self, tmp_cwd):
         parameters = {'observation_id': "0112880801",
                       'image_type': "OBS_EPIC",
                       'filename': "test",
@@ -195,7 +195,6 @@ class TestXMMNewtonRemote:
         assert report_diff_values(slew_source, table)
 
     @pytest.mark.remote_data
-    @pytest.mark.xfail(raises=LoginError)
     def test_download_proprietary_data_incorrect_credentials(self):
         parameters = {'observation_id': "0762470101",
                       'prop': 'True',
@@ -207,10 +206,10 @@ class TestXMMNewtonRemote:
                       'extension': 'FTZ',
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.download_data(**parameters)
+        with pytest.raises(LoginError):
+            xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
-    @pytest.mark.xfail(raises=LoginError)
     def test_download_proprietary_data_without_credentials(self):
         parameters = {'observation_id': "0883780101",
                       'level': "PPS",
@@ -220,10 +219,11 @@ class TestXMMNewtonRemote:
                       'extension': 'FTZ',
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.download_data(**parameters)
+        with pytest.raises(LoginError):
+            xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
-    def test_get_epic_spectra(self):
+    def test_get_epic_spectra(self, tmp_cwd):
         _tarname = "tarfile.tar"
         _source_number = 83
         _instruments = ["M1", "M1_arf", "M1_bkg", "M1_rmf",

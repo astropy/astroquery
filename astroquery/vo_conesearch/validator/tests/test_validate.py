@@ -11,7 +11,6 @@ Tests for `astroquery.vo_conesearch.validator.validate`.
 """
 # STDLIB
 import os
-import shutil
 
 # THIRD-PARTY
 import pytest
@@ -33,9 +32,10 @@ class TestConeSearchValidation:
     """Validation on a small subset of Cone Search sites."""
 
     @pytest.fixture(autouse=True)
-    def setup_class(self, tmpdir):
+    def setup_class(self, tmp_path):
         self.datadir = 'data'
-        self.out_dir = tmpdir.mkdir('data').strpath
+        self.out_dir = tmp_path / self.datadir
+        self.out_dir.mkdir()
         self.filenames = {
             'good': 'conesearch_good.json',
             'warn': 'conesearch_warn.json',
@@ -53,8 +53,6 @@ class TestConeSearchValidation:
 
     @pytest.mark.parametrize(('parallel'), [True, False])
     def test_validation(self, parallel):
-        if os.path.exists(self.out_dir):
-            shutil.rmtree(self.out_dir)
 
         validate.check_conesearch_sites(
             destdir=self.out_dir, parallel=parallel, url_list=None)
