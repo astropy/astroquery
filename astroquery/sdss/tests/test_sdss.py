@@ -483,6 +483,7 @@ def test_get_spectra_coordinates_payload(patch_request, dr):
     assert query_payload['format'] == 'csv'
     assert query_payload['photoScope'] == 'nearPrim'
 
+
 @pytest.mark.parametrize("dr", dr_list)
 def test_get_images_photoobj_payload(patch_request, dr):
     expect = ("SELECT DISTINCT "
