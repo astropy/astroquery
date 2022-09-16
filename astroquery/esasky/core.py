@@ -1489,7 +1489,8 @@ class ESASkyClass(BaseQuery):
 
                         response.raise_for_status()
 
-                        if mission.lower() == "integral":
+                        if ('Content-Type' in response.headers
+                            and response.headers['Content-Type'] == 'application/zip'):
                             with ZipFile(file=BytesIO(response.content)) as zip:
                                 for info in zip.infolist():
                                     if self._ends_with_fits_like_extentsion(info.filename):
@@ -1734,7 +1735,7 @@ class ESASkyClass(BaseQuery):
         from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         id_column = json["uniqueIdentifierField"]
         if "observations" in json["tapTable"] or "spectra" in json["tapTable"]:
-            if id_column == "observation_oid":
+            if id_column in ("observation_oid", "plane_id"):
                 id_column = "observation_id"
             if id_column == "designation":
                 id_column = "obsid"
