@@ -63,7 +63,7 @@ class TestSDSSRemote:
         sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572)
 
     def test_sdss_spectrum_coords(self):
-        sp = sdss.SDSS.get_spectra(self.coords)
+        sp = sdss.SDSS.get_spectra(coordinates=self.coords)
 
     def test_sdss_sql(self):
         query = """
@@ -91,7 +91,7 @@ class TestSDSSRemote:
         img = sdss.SDSS.get_images(run=1904, camcol=3, field=164)
 
     def test_sdss_image_coord(self):
-        img = sdss.SDSS.get_images(self.coords)
+        img = sdss.SDSS.get_images(coordinates=self.coords)
 
     def test_sdss_specobj(self):
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
@@ -161,7 +161,7 @@ class TestSDSSRemote:
                                "self._request, fix it before merging #586"))
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
-            sdss.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
+            sdss.SDSS.get_spectra(coordinates=self.coords, timeout=self.mintimeout)
 
     def test_query_non_default_field(self):
         # A regression test for #469

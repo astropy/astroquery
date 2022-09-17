@@ -2,7 +2,6 @@
 """
 Access Sloan Digital Sky Survey database online.
 """
-import io
 import warnings
 import numpy as np
 
@@ -518,7 +517,7 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
+    def get_spectra_async(self, *, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False,
                           data_release=conf.default_release, cache=True,
@@ -648,7 +647,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_nosections(get_spectra_async.__doc__)
-    def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
+    def get_spectra(self, *, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
                     timeout=TIMEOUT, get_query_payload=False,
                     data_release=conf.default_release, cache=True,
@@ -811,7 +810,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_nosections(get_images_async.__doc__)
-    def get_images(self, coordinates=None, radius=2. * u.arcsec,
+    def get_images(self, *, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
                    get_query_payload=False, data_release=conf.default_release,
@@ -943,7 +942,7 @@ class SDSSClass(BaseQuery):
         else:
             return arr
 
-    def _args_to_payload(self, coordinates=None,
+    def _args_to_payload(self, *, coordinates=None,
                          fields=None, spectro=False, region=False,
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,

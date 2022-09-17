@@ -141,6 +141,7 @@ sdss
 
 - The default data release has been changed to DR17. [#2478]
 
+- Optional keyword arguments are now keyword only. [#2477, #2532]
 
 
 Infrastructure, Utility and Other Changes and Additions

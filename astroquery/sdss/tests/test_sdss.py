@@ -177,7 +177,7 @@ def test_sdss_spectrum_mjd(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum_coords(patch_request, patch_get_readable_fileobj, dr,
                               coords=coords):
-    sp = sdss.SDSS.get_spectra(coords, data_release=dr)
+    sp = sdss.SDSS.get_spectra(coordinates=coords, data_release=dr)
     image_tester(sp, 'spectra')
 
 
@@ -220,7 +220,7 @@ def test_sdss_image_run(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_coord(patch_request, patch_get_readable_fileobj, dr,
                           coord=coords):
-    img = sdss.SDSS.get_images(coords, data_release=dr)
+    img = sdss.SDSS.get_images(coordinates=coords, data_release=dr)
     image_tester(img, 'images')
 
 
