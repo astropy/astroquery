@@ -2,7 +2,6 @@
 """
 Access Sloan Digital Sky Survey database online.
 """
-import io
 import warnings
 import numpy as np
 
@@ -518,9 +517,9 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
+    def get_spectra_async(self, *, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          timeout=TIMEOUT,
+                          timeout=TIMEOUT, get_query_payload=False,
                           data_release=conf.default_release, cache=True,
                           show_progress=True):
         """
@@ -559,6 +558,9 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        get_query_payload : bool, optional
+            If True, this will return the data the query would have sent out,
+            but does not actually do the query.
         data_release : int, optional
             The data release of the SDSS to use. With the default server, this
             only supports DR8 or later.
@@ -599,12 +601,19 @@ class SDSSClass(BaseQuery):
             if coordinates is None:
                 matches = self.query_specobj(plate=plate, mjd=mjd, fiberID=fiberID,
                                              fields=['run2d', 'plate', 'mjd', 'fiberID'],
-                                             timeout=timeout, data_release=data_release, cache=cache)
+                                             timeout=timeout, get_query_payload=get_query_payload,
+                                             data_release=data_release, cache=cache)
             else:
-                matches = self.query_crossid(coordinates, radius=radius,
+                matches = self.query_crossid(coordinates, radius=radius, timeout=timeout,
                                              specobj_fields=['run2d', 'plate', 'mjd', 'fiberID'],
-                                             spectro=True,
-                                             timeout=timeout, data_release=data_release, cache=cache)
+                                             spectro=True, get_query_payload=get_query_payload,
+                                             data_release=data_release, cache=cache)
+            if get_query_payload:
+                if coordinates is None:
+                    return matches
+                else:
+                    return matches[0]
+
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -638,10 +647,10 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_nosections(get_spectra_async.__doc__)
-    def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
+    def get_spectra(self, *, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT, cache=True,
-                    data_release=conf.default_release,
+                    timeout=TIMEOUT, get_query_payload=False,
+                    data_release=conf.default_release, cache=True,
                     show_progress=True):
         """
         Returns
@@ -654,8 +663,13 @@ class SDSSClass(BaseQuery):
                                                radius=radius, matches=matches,
                                                plate=plate, fiberID=fiberID,
                                                mjd=mjd, timeout=timeout,
+                                               get_query_payload=get_query_payload,
                                                data_release=data_release,
+                                               cache=cache,
                                                show_progress=show_progress)
+
+        if get_query_payload:
+            return readable_objs
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -666,7 +680,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         cache=True,
+                         cache=True, get_query_payload=False,
                          data_release=conf.default_release,
                          show_progress=True):
         """
@@ -714,6 +728,9 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        get_query_payload : bool, optional
+            If True, this will return the data the query would have sent out,
+            but does not actually do the query.
         cache : bool, optional
             Cache the images using astropy's caching system
         data_release : int, optional
@@ -753,12 +770,19 @@ class SDSSClass(BaseQuery):
                 matches = self.query_photoobj(run=run, rerun=rerun,
                                               camcol=camcol, field=field,
                                               fields=['run', 'rerun', 'camcol', 'field'],
-                                              timeout=timeout,
+                                              timeout=timeout, get_query_payload=get_query_payload,
                                               data_release=data_release, cache=cache)
             else:
-                matches = self.query_crossid(coordinates, radius=radius,
+                matches = self.query_crossid(coordinates, radius=radius, timeout=timeout,
                                              fields=['run', 'rerun', 'camcol', 'field'],
-                                             timeout=timeout, data_release=data_release, cache=cache)
+                                             get_query_payload=get_query_payload,
+                                             data_release=data_release, cache=cache)
+            if get_query_payload:
+                if coordinates is None:
+                    return matches
+                else:
+                    return matches[0]
+
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -786,7 +810,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_nosections(get_images_async.__doc__)
-    def get_images(self, coordinates=None, radius=2. * u.arcsec,
+    def get_images(self, *, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
                    get_query_payload=False, data_release=conf.default_release,
@@ -798,10 +822,22 @@ class SDSSClass(BaseQuery):
 
         """
 
-        readable_objs = self.get_images_async(
-            coordinates=coordinates, radius=radius, matches=matches, run=run,
-            rerun=rerun, data_release=data_release, camcol=camcol, field=field,
-            band=band, timeout=timeout, show_progress=show_progress)
+        readable_objs = self.get_images_async(coordinates=coordinates,
+                                              radius=radius,
+                                              matches=matches,
+                                              run=run,
+                                              rerun=rerun,
+                                              camcol=camcol,
+                                              field=field,
+                                              band=band,
+                                              timeout=timeout,
+                                              cache=cache,
+                                              get_query_payload=get_query_payload,
+                                              data_release=data_release,
+                                              show_progress=show_progress)
+
+        if get_query_payload:
+            return readable_objs
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -906,7 +942,7 @@ class SDSSClass(BaseQuery):
         else:
             return arr
 
-    def _args_to_payload(self, coordinates=None,
+    def _args_to_payload(self, *, coordinates=None,
                          fields=None, spectro=False, region=False,
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,

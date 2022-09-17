@@ -177,7 +177,7 @@ def test_sdss_spectrum_mjd(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum_coords(patch_request, patch_get_readable_fileobj, dr,
                               coords=coords):
-    sp = sdss.SDSS.get_spectra(coords, data_release=dr)
+    sp = sdss.SDSS.get_spectra(coordinates=coords, data_release=dr)
     image_tester(sp, 'spectra')
 
 
@@ -220,7 +220,7 @@ def test_sdss_image_run(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_coord(patch_request, patch_get_readable_fileobj, dr,
                           coord=coords):
-    img = sdss.SDSS.get_images(coords, data_release=dr)
+    img = sdss.SDSS.get_images(coordinates=coords, data_release=dr)
     image_tester(img, 'images')
 
 
@@ -452,6 +452,63 @@ def test_photoobj_run_camcol_field_payload(patch_request, dr):
                                                    data_release=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_spectra_specobj_payload(patch_request, dr):
+    expect = ("SELECT DISTINCT "
+              "s.run2d, s.plate, s.mjd, s.fiberID "
+              "FROM PhotoObjAll AS p "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "WHERE "
+              "(s.plate=751 AND s.mjd=52251)")
+    query_payload = sdss.SDSS.get_spectra_async(plate=751, mjd=52251,
+                                                get_query_payload=True,
+                                                data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_spectra_coordinates_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "s.run2d, s.plate, s.mjd, s.fiberID, s.SpecObjID AS obj_id, dbo.fPhotoTypeN(p.type) AS type "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "ORDER BY x.up_id")
+    query_payload = sdss.SDSS.get_spectra_async(coordinates=coords_column,
+                                                get_query_payload=True,
+                                                data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'nearPrim'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_images_photoobj_payload(patch_request, dr):
+    expect = ("SELECT DISTINCT "
+              "p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p WHERE "
+              "(p.run=5714 AND p.camcol=6 AND p.rerun=301)")
+    query_payload = sdss.SDSS.get_images_async(run=5714, camcol=6,
+                                               get_query_payload=True,
+                                               data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_images_coordinates_payload(patch_request, dr):
+    expect = ("SELECT\r\n"
+              "p.run, p.rerun, p.camcol, p.field, dbo.fPhotoTypeN(p.type) AS type "
+              "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
+              "ORDER BY x.up_id")
+    query_payload = sdss.SDSS.get_images_async(coordinates=coords_column,
+                                               get_query_payload=True,
+                                               data_release=dr)
+    assert query_payload['uquery'] == expect
+    assert query_payload['format'] == 'csv'
+    assert query_payload['photoScope'] == 'nearPrim'
 
 
 @pytest.mark.parametrize("dr", dr_list)
