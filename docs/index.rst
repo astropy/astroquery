@@ -182,24 +182,32 @@ and change the cache location. Caching persists between Astroquery sessions.
 If you know the service you are using has released new data recently, or if you believe you are
 not recieving the newest data, try clearing the cache.
 
-The Astroquery cache is divided by service, so each service's cache should be managed invidually.
-Shown here are the cache properties, using Simbad as an example.
+
+The Astroquery cache location is divided by service, so each service's cache should be managed invidually,
+however whether the cache is active and the expiration time are controlled centrally through the
+astroquery ``conf`` module. Astroquery uses the Astropy configuration infrastructure, information about
+temporarily or permanently changing configuration values can be found
+`here <https://docs.astropy.org/en/latest/config/index.html>`_.
+
+Shown here are the cache properties, using Simbad as an example:
 
 .. code-block:: python
 
+  >>> from astroquery import conf
   >>> from astroquery.simbad import Simbad
 
   >>> # Is the cache active?
-  >>> print(Simbad.cache_active)
+  >>> print(conf.cache_active)
   True
 
+  >>> # Cache timout in seconds
+  >>> print(conf.cache_timeout)
+  604800
+  
   >>> # Cache location
   >>> print(Simbad.cache_location)
   /Users/username/.astropy/cache/astroquery/Simbad
 
-  >>> # Cache timout in seconds
-  >>> print(Simbad.cache_timeout)
-  604800
 
 
 Available Services
