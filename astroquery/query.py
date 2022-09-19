@@ -18,6 +18,8 @@ from astropy.config import paths
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
+from astropy.utils import deprecated
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery import version, log, conf
 from astroquery.utils import system_tools
@@ -106,7 +108,7 @@ class AstroQuery:
         return self._hash
 
     def request_file(self, cache_location):
-        fn = os.path.join(cache_location, self.hash() + ".pickle")
+        fn = cache_location.joinpath(self.hash() + ".pickle")
         return fn
 
     def from_cache(self, cache_location, cache_timeout):
@@ -116,7 +118,7 @@ class AstroQuery:
                 expired = False
             else:
                 current_time = datetime.utcnow()
-                cache_time = datetime.utcfromtimestamp(os.path.getmtime(request_file))
+                cache_time = datetime.utcfromtimestamp(request_file.stat().st_mtime)
                 expired = ((current_time-cache_time) > timedelta(seconds=cache_timeout))
             if not expired:
                 with open(request_file, "rb") as f:
@@ -139,8 +141,8 @@ class AstroQuery:
         """
         request_file = self.request_file(cache_location)
 
-        if os.path.exists(request_file):
-            os.remove(request_file)
+        if request_file.exists:
+            request_file.unlink()
         else:
             raise FileNotFoundError(f"Tried to remove cache file {request_file} but "
                                     "it does not exist")
@@ -188,7 +190,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                     olduseragent=S.headers['User-Agent']))
 
         self.name = self.__class__.__name__.split("Class")[0]
-        self.cache_location = None
+        self._cache_location = None
 
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
@@ -229,23 +231,23 @@ class BaseQuery(metaclass=LoginABCMeta):
             log.log(5, f"HTTP response\n{response_log}")
 
     @property
-    def _cache_location(self):
-        cl = self.cache_location or os.path.join(paths.get_cache_dir(), 'astroquery', self.name)
-        Path(cl).mkdir(parents=True, exist_ok=True)
+    def cache_location(self):
+        cl = self._cache_location or Path(paths.get_cache_dir(), 'astroquery', self.name)
+        cl.mkdir(parents=True, exist_ok=True)
         return cl
 
-    def get_cache_location(self):
-        return self._cache_location
+    @cache_location.setter
+    def cache_location(self, loc):
+        self._cache_location = Path(loc)
 
     def reset_cache_location(self):
-        self.cache_location = None
+        """Resets the cache location to the default astropy cache"""
+        self._cache_location = None
 
     def clear_cache(self):
         """Removes all cache files."""
-
-        cache_files = [x for x in os.listdir(self._cache_location) if x.endswith("pickle")]
-        for fle in cache_files:
-            os.remove(os.path.join(self._cache_location, fle))
+        for fle in self.cache_location.glob("*.pickle"):
+            fle.unlink()
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
@@ -309,10 +311,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        if (cache is not False) and conf.cache_active:
-            cache = True
-        else:
-            cache = False
+        cache &= conf.cache_active
 
         if save:
             local_filename = url.split('/')[-1]
@@ -321,7 +320,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
 
-            local_filepath = os.path.join(savedir or self._cache_location or '.', local_filename)
+            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
 
             response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
                                            continuation=continuation, method=method,
@@ -335,23 +334,23 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             query = AstroQuery(method, url, params=params, data=data, headers=headers,
                                files=files, timeout=timeout, json=json)
-            if ((self._cache_location is None) or (not cache)):
+            if (self.cache_location is None) or (not cache):
                 with conf.set_temp("cache_active", False):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
-                response = query.from_cache(self._cache_location, conf.cache_timeout)
+                response = query.from_cache(self.cache_location, conf.cache_timeout)
                 if not response:
                     response = query.request(self._session,
-                                             self._cache_location,
+                                             self.cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
                                              verify=verify,
                                              json=json)
-                    to_cache(response, query.request_file(self._cache_location))
+                    to_cache(response, query.request_file(self.cache_location))
 
             self._last_query = query
             return response
@@ -478,6 +477,8 @@ class BaseQuery(metaclass=LoginABCMeta):
         return response
 
 
+@deprecated(since="v0.4.7", message=("The suspend_cache function is deprecated,"
+                                     "Use the conf set_temp function instead."))
 class suspend_cache:
     """
     A context manager that suspends caching.

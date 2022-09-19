@@ -51,6 +51,8 @@ class TestClass(QueryWithLogin):
 
 
 def test_conf():
+    conf.reset()
+
     default_timeout = conf.cache_timeout
     default_active = conf.cache_active
 
@@ -75,72 +77,75 @@ def test_conf():
 
 
 def test_basic_caching():
+    conf.reset()
 
     mytest = TestClass()
     assert conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     set_response(TEXT1)
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
-    assert len(os.listdir(mytest.get_cache_location())) == 1
+    assert len(os.listdir(mytest.cache_location)) == 1
 
     set_response(TEXT2)
 
     resp = mytest.test_func(URL2)  # query that has not been cached
     assert resp.content == TEXT2
-    assert len(os.listdir(mytest.get_cache_location())) == 2
+    assert len(os.listdir(mytest.cache_location)) == 2
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1  # query that was cached
-    assert len(os.listdir(mytest.get_cache_location())) == 2  # no new cache file
+    assert len(os.listdir(mytest.cache_location)) == 2  # no new cache file
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # Now get new response
 
 
 def test_change_location(tmpdir):
+    conf.reset()
 
     mytest = TestClass()
-    default_cache_location = mytest.get_cache_location()
+    default_cache_location = mytest.cache_location
 
-    assert paths.get_cache_dir() in default_cache_location
-    assert "astroquery" in mytest.get_cache_location()
-    assert mytest.name in mytest.get_cache_location()
+    assert paths.get_cache_dir() in str(default_cache_location)
+    assert "astroquery" in mytest.cache_location.parts
+    assert mytest.name in mytest.cache_location.parts
 
-    new_loc = os.path.join(tmpdir, "new_dir")
+    new_loc = "new_dir"
     mytest.cache_location = new_loc
-    assert mytest.get_cache_location() == new_loc
+    assert str(mytest.cache_location) == new_loc
 
     mytest.reset_cache_location()
-    assert mytest.get_cache_location() == default_cache_location
+    assert mytest.cache_location == default_cache_location
 
     Path(new_loc).mkdir(parents=True, exist_ok=True)
     with paths.set_temp_cache(new_loc):
-        assert new_loc in mytest.get_cache_location()
-        assert "astroquery" in mytest.get_cache_location()
-        assert mytest.name in mytest.get_cache_location()
+        assert new_loc in mytest.cache_location.parts
+        assert "astroquery" in mytest.cache_location.parts
+        assert mytest.name in mytest.cache_location.parts
 
 
 def test_login():
+    conf.reset()
 
     mytest = TestClass()
     assert conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     set_response(TEXT1)  # Text 1 is set as the approved password
 
     mytest.login("ceb")
     assert mytest.authenticated()
-    assert len(os.listdir(mytest.get_cache_location())) == 0  # request should not be cached
+    assert len(os.listdir(mytest.cache_location)) == 0  # request should not be cached
 
     set_response(TEXT2)  # Text 2 is not the approved password
 
@@ -149,12 +154,13 @@ def test_login():
 
 
 def test_timeout():
+    conf.reset()
 
     mytest = TestClass()
     assert conf.cache_active
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     conf.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily
 
@@ -174,21 +180,43 @@ def test_timeout():
 
 
 def test_deactivate():
+    conf.reset()
 
     mytest = TestClass()
     conf.cache_active = False
 
     mytest.clear_cache()
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     set_response(TEXT1)
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
 
     set_response(TEXT2)
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2
-    assert len(os.listdir(mytest.get_cache_location())) == 0
+    assert len(os.listdir(mytest.cache_location)) == 0
+
+    conf.reset()
+    assert conf.cache_active is True
+
+    with conf.set_temp('cache_active', False):
+        mytest.clear_cache()
+        assert len(os.listdir(mytest.cache_location)) == 0
+
+        set_response(TEXT1)
+
+        resp = mytest.test_func(URL1)
+        assert resp.content == TEXT1
+        assert len(os.listdir(mytest.cache_location)) == 0
+
+        set_response(TEXT2)
+
+        resp = mytest.test_func(URL1)
+        assert resp.content == TEXT2
+        assert len(os.listdir(mytest.cache_location)) == 0
+
+    assert conf.cache_active is True
