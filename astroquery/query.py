@@ -293,7 +293,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
 
-            response = self._download_file(url, local_filepath, cache=cache,
+            response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
                                            continuation=continuation, method=method,
                                            allow_redirects=allow_redirects,
                                            auth=auth, **req_kwargs)

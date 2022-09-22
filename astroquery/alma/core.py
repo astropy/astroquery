@@ -158,6 +158,9 @@ ALMA_FORM_KEYS = {
 # used to lookup the TAP service on an ARC
 TAP_SERVICE_PATH = 'tap'
 
+# standard ID URI to look for when expanding TAR files
+DATALINK_STANDARD_ID = 'ivo://ivoa.net/std/DataLink#links-1.0'
+
 # used to lookup the DataLink service on an ARC
 DATALINK_SERVICE_PATH = 'datalink/sync'
 
@@ -503,7 +506,7 @@ class AlmaClass(QueryWithLogin):
         """
         if not hasattr(self, 'dataarchive_url'):
             if self.archive_url in ('http://almascience.org', 'https://almascience.org'):
-                response = self._request('GET', self.archive_url,
+                response = self._request('GET', self.archive_url, timeout=self.TIMEOUT,
                                          cache=False)
                 response.raise_for_status()
                 # Jan 2017: we have to force https because the archive doesn't
@@ -557,15 +560,18 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
         # TODO remove this loop and send uids at once when pyvo fixed
         result = None
-        service_def_dict = {}
+        datalink_service_def_dict = {}
         for uid in uids:
             res = self.datalink.run_sync(uid)
             if res.status[0] != 'OK':
                 raise Exception('ERROR {}: {}'.format(res.status[0],
                                                       res.status[1]))
 
-            # Dictionary of service_def entries
-            service_def_dict.update({row.service_def: row.access_url for row in res.iter_procs()})
+            # Collect the ad-hoc DataLink services for later retrieval if expand_tarballs is set
+            if expand_tarfiles:
+                for adhoc_service in res.iter_adhocservices():
+                    if self.is_datalink_adhoc_service(adhoc_service):
+                        datalink_service_def_dict[adhoc_service.ID] = adhoc_service
 
             temp = res.to_table()
             if commons.ASTROPY_LT_4_1:
@@ -589,13 +595,6 @@ class AlmaClass(QueryWithLogin):
         if not with_rawdata:
             result = result[np.core.defchararray.find(
                 result['semantics'], '#progenitor') == -1]
-        # primary data delivery type is files packaged in tarballs. However
-        # some type of data has an alternative way to retrieve each individual
-        # file as an alternative (semantics='#datalink' and
-        # 'content_type=application/x-votable+xml;content=datalink'). They also
-        # require an extra call to the datalink service to get the list of
-        # files.
-        DATALINK_FILE_TYPE = 'application/x-votable+xml;content=datalink'
         # if expand_tarfiles:
         # identify the tarballs that can be expandable and replace them
         # with the list of components
@@ -603,12 +602,12 @@ class AlmaClass(QueryWithLogin):
         to_delete = []
         if expand_tarfiles:
             for index, row in enumerate(result):
-                # Recursive DataLink, so look for service_def
-                if row['service_def'] and row['content_type'] == DATALINK_FILE_TYPE:
+                service_def_id = row['service_def']
+                # service_def record, so check if it points to a DataLink document
+                if service_def_id and service_def_id in datalink_service_def_dict:
                     # subsequent call to datalink
-
-                    # Lookup the access_url from the service_def RESOURCE entries.
-                    recursive_access_url = service_def_dict[row['service_def']]
+                    adhoc_service = datalink_service_def_dict[service_def_id]
+                    recursive_access_url = self.get_adhoc_service_access_url(adhoc_service)
                     file_id = recursive_access_url.split('ID=')[1]
                     expanded_tar = self.get_data_info(file_id)
                     expanded_tar = expanded_tar[
@@ -629,6 +628,20 @@ class AlmaClass(QueryWithLogin):
             result = vstack([result, expanded_result], join_type='exact')
 
         return result
+
+    def is_datalink_adhoc_service(self, adhoc_service):
+        standard_id = self.get_adhoc_service_parameter(adhoc_service, 'standardID')
+        return standard_id == DATALINK_STANDARD_ID
+
+    def get_adhoc_service_access_url(self, adhoc_service):
+        return self.get_adhoc_service_parameter(adhoc_service, 'accessURL')
+
+    def get_adhoc_service_parameter(self, adhoc_service, parameter_id):
+        for p in adhoc_service.params:
+            if p.ID == parameter_id:
+                return p.value
+
+        return None
 
     def is_proprietary(self, uid):
         """
@@ -708,7 +721,7 @@ class AlmaClass(QueryWithLogin):
         for file_link in unique(files):
             log.debug("Downloading {0} to {1}".format(file_link, savedir))
             try:
-                check_filename = self._request('HEAD', file_link, auth=auth)
+                check_filename = self._request('HEAD', file_link, auth=auth, timeout=self.TIMEOUT)
                 check_filename.raise_for_status()
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
@@ -988,7 +1001,7 @@ class AlmaClass(QueryWithLogin):
         if not hasattr(self, '_cycle0_tarfile_content_table'):
             url = urljoin(self._get_dataarchive_url(),
                           'alma-data/archive/cycle-0-tarfile-content')
-            response = self._request('GET', url, cache=True)
+            response = self._request('GET', url, cache=True, timeout=self.TIMEOUT)
 
             # html.parser is needed because some <tr>'s have form:
             # <tr width="blah"> which the default parser does not pick up
