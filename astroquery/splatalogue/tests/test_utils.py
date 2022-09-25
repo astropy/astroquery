@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import splatalogue
 from astropy import units as u
 import numpy as np
 import pytest
-from .test_splatalogue import patch_post
+
+from ... import splatalogue
 from .. import utils
 
 
