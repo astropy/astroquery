@@ -83,7 +83,7 @@ class TestHips2fitsRemote:
         assert isinstance(result, np.ndarray) and result.shape[2] == 3
 
     def test_bad_strech(self):
-        with pytest.raises(AstropyUserWarning, match=r"stretch: must either"):
+        with pytest.raises(AttributeError, match=r"Unknown value azs for stretch parameter"):
             hips2fits.query_with_wcs(
                 hips=self.hips,
                 wcs=self.w,
