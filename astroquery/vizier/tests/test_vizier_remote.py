@@ -6,7 +6,6 @@ from astropy import coordinates
 
 from astroquery import vizier
 from astroquery.utils import commons
-from astroquery.exceptions import TableParseError
 
 
 @pytest.mark.remote_data
@@ -124,9 +123,8 @@ class TestVizierRemote:
 
     def test_findcatalog_maxcatalog(self):
         V = vizier.core.Vizier()
-        with pytest.raises(TableParseError, match=r"Failed to parse VIZIER result"):
-            cats = V.find_catalogs('eclipsing binary', max_catalogs=5000)
-            assert len(cats) >= 468
+        cats = V.find_catalogs('eclipsing binary', max_catalogs=5000)
+        assert len(cats) >= 468
 
         # with pytest.raises(ValueError) as exc:
         #    V.find_catalogs('eclipsing binary')
@@ -137,10 +135,9 @@ class TestVizierRemote:
     def test_findcatalog_ucd(self):
         V = vizier.core.Vizier()
         ucdresult = V(ucd='time.age*').find_catalogs('eclipsing binary', max_catalogs=5000)
-        with pytest.raises(TableParseError, match=r"Failed to parse VIZIER result"):
-            result = V.find_catalogs('eclipsing binary', max_catalogs=5000)
+        result = V.find_catalogs('eclipsing binary', max_catalogs=5000)
 
-            assert len(ucdresult) >= 12  # count as of 1/15/2018
-            assert len(result) >= 628
-            # important part: we're testing that UCD is parsed and some catalogs are ruled out
-            assert len(ucdresult) < len(result)
+        assert len(ucdresult) >= 12  # count as of 1/15/2018
+        assert len(result) >= 628
+        # important part: we're testing that UCD is parsed and some catalogs are ruled out
+        assert len(ucdresult) < len(result)
