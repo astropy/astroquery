@@ -641,8 +641,6 @@ class AlmaClass(QueryWithLogin):
             if p.ID == parameter_id:
                 return p.value
 
-        return None
-
     def is_proprietary(self, uid):
         """
         Given an ALMA UID, query the servers to determine whether it is
