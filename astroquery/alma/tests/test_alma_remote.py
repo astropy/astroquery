@@ -250,7 +250,7 @@ class TestAlma:
                     [asdm_url], include_asdm=True, regex=r'.*\.py')
         delete_mock.assert_called_once_with(
             'cache_path/' + asdm_url.split('/')[-1])
-        assert downloaded_asdm == [Path(tmp_path, 'foo.py')]
+        assert Path(*downloaded_asdm) == Path(tmp_path, 'foo.py')
 
     def test_doc_example(self, tmp_path, alma):
         alma.cache_location = tmp_path
