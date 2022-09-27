@@ -13,7 +13,7 @@ Created on 13 Aug. 2018
 """
 import os
 import shutil
-import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -93,11 +93,10 @@ class TestESAHubble:
                                   product_type="SCIENCE")
         assert "This product_type is not allowed" in err.value.args[0]
 
-    def test_download_product_by_calibration(self):
-        tempdir = tempfile.mkdtemp("temp")
+    def test_download_product_by_calibration(self, tmp_path):
         parameters = {'observation_id': "J6FL25S4Q",
                       'cal_level': "RAW",
-                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
+                      'filename': Path(tmp_path, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -105,11 +104,10 @@ class TestESAHubble:
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
 
-    def test_download_product_by_product_type(self):
-        tempdir = tempfile.mkdtemp("temp")
+    def test_download_product_by_product_type(self, tmp_path):
         parameters = {'observation_id': "J6FL25S4Q",
                       'product_type': "SCIENCE_PRODUCT",
-                      'filename': os.path.join(tempdir, "J6FL25S4Q.vot.test"),
+                      'filename': Path(tmp_path, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.download_product(observation_id=parameters['observation_id'],
@@ -129,11 +127,10 @@ class TestESAHubble:
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
 
-    def test_get_postcard(self):
-        tempdir = tempfile.mkdtemp("temp")
+    def test_get_postcard(self, tmp_path):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_postcard(observation_id="X0MC5101T",
-                          filename=os.path.join(tempdir, "X0MC5101T.vot"),
+                          filename=Path(tmp_path, "X0MC5101T.vot"),
                           verbose=True)
 
     @patch.object(ESAHubbleClass, 'cone_search')
@@ -165,7 +162,7 @@ class TestESAHubble:
                              parameters['filename'],
                              parameters['output_format'],
                              parameters['cache'])
-            dummyTapHandler = DummyHubbleTapHandler("cone_search", parameters)
+            DummyHubbleTapHandler("cone_search", parameters)
 
     def test_cone_search_coords(self):
         coords = "00h42m44.51s +41d16m08.45s"
@@ -215,37 +212,27 @@ class TestESAHubble:
         self.get_dummy_tap_handler().check_call("launch_job", parameters2)
 
     def test_get_tables(self):
-        parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
-                      'output_file': "test2.vot",
-                      'output_format': "votable",
-                      'verbose': False}
-
-        parameters2 = {'only_names': True,
+        parameters = {'only_names': True,
                        'verbose': True}
 
-        dummyTapHandler = DummyHubbleTapHandler("get_tables", parameters2)
+        DummyHubbleTapHandler("get_tables", parameters)
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_tables(True, True)
 
-    def test_get_artifact(self):
-        tempdir = tempfile.mkdtemp("temp")
+    def test_get_artifact(self, tmp_path):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.get_artifact(os.path.join(tempdir, "w0ji0v01t_c2f.fits.gz"))
+        path = Path(tmp_path, "w0ji0v01t_c2f.fits.gz")
+        ehst.get_artifact(path)
 
     def test_get_columns(self):
-        parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
-                      'output_file': "test2.vot",
-                      'output_format': "votable",
-                      'verbose': False}
-
-        parameters2 = {'table_name': "table",
+        parameters = {'table_name': "table",
                        'only_names': True,
                        'verbose': True}
 
-        dummyTapHandler = DummyHubbleTapHandler("get_columns", parameters2)
+        dummyTapHandler = DummyHubbleTapHandler("get_columns", parameters)
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_columns("table", True, True)
-        dummyTapHandler.check_call("get_columns", parameters2)
+        dummyTapHandler.check_call("get_columns", parameters)
 
     def test_query_criteria(self):
         parameters1 = {'calibration_level': "PRODUCT",

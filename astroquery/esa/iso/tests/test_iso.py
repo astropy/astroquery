@@ -32,7 +32,7 @@ class TestISO:
                       'filename': "file",
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
-        link = ida.get_download_link(**parameters)
+        ida.get_download_link(**parameters)
 
     def test_get_download_link_verbose(self):
         parameters = {'tdt': "40001501",
@@ -41,21 +41,21 @@ class TestISO:
                       'filename': "file",
                       'verbose': True}
         ida = ISOClass(self.get_dummy_tap_handler())
-        link = ida.get_download_link(**parameters)
+        ida.get_download_link(**parameters)
 
     def test_get_postcard_link(self):
         parameters = {'tdt': "40001501",
                       'filename': "file",
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
-        link = ida.get_postcard_link(**parameters)
+        ida.get_postcard_link(**parameters)
 
     def test_get_postcard_link_verbose(self):
         parameters = {'tdt': "40001501",
                       'filename': "file",
                       'verbose': True}
         ida = ISOClass(self.get_dummy_tap_handler())
-        link = ida.get_postcard_link(**parameters)
+        ida.get_postcard_link(**parameters)
 
     @pytest.mark.remote_data
     def test_download_data(self, tmp_cwd):
@@ -110,7 +110,7 @@ class TestISO:
         parameters = {'only_names': False,
                        'verbose': True}
 
-        dummyTapHandler = DummyISOTapHandler("get_tables", parameters)
+        DummyISOTapHandler("get_tables", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())
         ida.get_tables(only_names=False, verbose=True)
 
@@ -119,6 +119,6 @@ class TestISO:
                        'only_names': False,
                        'verbose': True}
 
-        dummyTapHandler = DummyISOTapHandler("get_columns", parameters)
+        DummyISOTapHandler("get_columns", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())
         ida.get_columns("table", only_names=False, verbose=True)

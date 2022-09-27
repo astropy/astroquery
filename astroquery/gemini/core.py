@@ -15,10 +15,9 @@ from astropy.table import Table, MaskedColumn
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
-from ..query import BaseQuery, QueryWithLogin
+from ..query import QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
-from ..exceptions import AuthenticationWarning
 
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import

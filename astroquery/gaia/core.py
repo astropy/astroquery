@@ -13,27 +13,25 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 18 Ene. 2022 by mhsarmiento
 """
+import zipfile
+import os
+from datetime import datetime
+import shutil
+from collections.abc import Iterable
+
+from astropy import units
+from astropy.units import Quantity
+from astropy.io import votable
+from astropy.io import fits
+from astropy.table import Table
+from astropy import units as u
 from requests import HTTPError
 
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astroquery import log
-from astropy import units
-from astropy.units import Quantity
-import zipfile
 from astroquery.utils.tap import taputils
 from . import conf
-import os
-from datetime import datetime
-import shutil
-import astroquery.utils.tap.model.modelutils as modelutils
-from astropy.io import votable
-from astropy.io import fits
-from astropy.table import Table
-from astropy import units as u
-import warnings
-from astroquery.exceptions import InputWarning
-from collections.abc import Iterable
 
 
 class GaiaClass(TapPlus):
@@ -105,7 +103,7 @@ class GaiaClass(TapPlus):
             TapPlus.login(self, user=user, password=password,
                           credentials_file=credentials_file,
                           verbose=verbose)
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
@@ -114,7 +112,7 @@ class GaiaClass(TapPlus):
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging in data server")
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
@@ -130,7 +128,7 @@ class GaiaClass(TapPlus):
         try:
             log.info("Login to gaia TAP server")
             TapPlus.login_gui(self, verbose=verbose)
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
@@ -139,7 +137,7 @@ class GaiaClass(TapPlus):
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging in data server")
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
@@ -154,14 +152,14 @@ class GaiaClass(TapPlus):
         """
         try:
             TapPlus.logout(self, verbose=verbose)
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging out TAP server")
             return
         log.info("Gaia TAP server logout OK")
         try:
             TapPlus.logout(self.__gaiadata, verbose=verbose)
             log.info("Gaia data server logout OK")
-        except HTTPError as err:
+        except HTTPError:
             log.error("Error logging out data server")
 
     def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=False,
@@ -732,7 +730,7 @@ class GaiaClass(TapPlus):
             if isinstance(col.unit, u.UnrecognizedUnit):
                 try:
                     col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
-                except Exception as err:
+                except Exception:
                     pass
             elif isinstance(col.unit, str):
                 col.unit = col.unit.replace(".", " ").replace("'", "")

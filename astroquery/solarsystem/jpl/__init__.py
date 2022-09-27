@@ -7,6 +7,8 @@ astroquery.solarsystem.jpl
 a collection of data services provided by JPL
 """
 
-from .sbdb import *
-from .horizons import *
-from . import *
+from .sbdb import SBDB, SBDBClass
+from .horizons import Horizons, HorizonsClass
+
+
+__all__ = ["SBDB", "SBDBClass", "Horizons", "HorizonsClass"]

@@ -14,7 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
 
 

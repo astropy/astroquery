@@ -83,6 +83,4 @@ conf = Conf()
 
 from .core import Ned, NedClass
 
-__all__ = ['Ned', 'NedClass',
-           'Conf', 'conf',
-           ]
+__all__ = ['Ned', 'NedClass', 'Conf', 'conf']

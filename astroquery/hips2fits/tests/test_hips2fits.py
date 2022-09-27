@@ -1,18 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
-import pytest
-
-from ..core import hips2fits
-
 from astropy import wcs as astropy_wcs
-from astropy.io import fits
-import numpy as np
-
-from astropy.utils.exceptions import AstropyUserWarning
 from matplotlib.colors import Colormap
-
 from astropy.coordinates import Angle, Longitude, Latitude
 import astropy.units as u
+
+from ..core import hips2fits
 
 
 class TestHips2fitsRemote:

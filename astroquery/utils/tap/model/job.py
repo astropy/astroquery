@@ -21,7 +21,7 @@ from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 import requests
-import sys
+
 
 __all__ = ['Job']
 

@@ -833,7 +833,7 @@ class AlmaClass(QueryWithLogin):
         if len(files) == 1:
             file_urls = files['access_url']
             if isinstance(file_urls, str) and file_urls == '':
-                raise ValueError(f"Cannot download uid {uid} because it has no file")
+                raise ValueError(f"Cannot download uid {uids} because it has no file")
         else:
             file_urls = [url for url in files['access_url'] if url]
 

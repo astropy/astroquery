@@ -641,7 +641,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             request_payload["order by"] = request_payload.pop("order")
         if "format" in request_payload.keys():
             # TODO figure out what to do with the format keyword
-            responseformat = request_payload.pop("format")
+            request_payload.pop("format")
         if "ra" in request_payload.keys():  # means this is a `query_region` call
             request_payload["where"] = ("contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1"
                                         .format(request_payload["ra"], request_payload["dec"],

@@ -3,12 +3,29 @@
 Common non-package specific utility
 functions that will ultimately be merged into `astropy.utils`.
 """
-import warnings
-
-from .progressbar import *
-from .download_file_list import *
-from .class_or_instance import *
-from .commons import *
+from .progressbar import chunk_report, chunk_read
+from .download_file_list import download_list_of_fitsfiles
+from .class_or_instance import class_or_instance
+from .commons import (send_request, parse_coordinates, TableList, suppress_vo_warnings,
+                      validate_email, ASTROPY_LT_4_1, ASTROPY_LT_4_3, ASTROPY_LT_5_0,
+                      ASTROPY_LT_5_1)
 from .process_asyncs import async_to_sync
 from .docstr_chompers import prepend_docstr_nosections
 from .cleanup_downloads import cleanup_saved_downloads
+
+
+__all__ = ['chunk_report', 'chunk_read',
+           'download_list_of_fitsfiles',
+           'class_or_instance',
+           'send_request',
+           'parse_coordinates',
+           'TableList',
+           'suppress_vo_warnings',
+           'validate_email',
+           'ASTROPY_LT_4_1',
+           'ASTROPY_LT_4_3',
+           'ASTROPY_LT_5_0',
+           'ASTROPY_LT_5_1',
+           "async_to_sync",
+           "prepend_docstr_nosections",
+           "cleanup_saved_downloads"]

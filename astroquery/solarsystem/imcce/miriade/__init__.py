@@ -8,4 +8,6 @@ SOLARSYSTEM.IMCCE.MIRIADE
 """
 
 from ....imcce import Miriade, MiriadeClass
-from . import *
+
+
+__all__ = ["Miriade", "MiriadeClass"]

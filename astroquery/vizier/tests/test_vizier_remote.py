@@ -3,8 +3,9 @@ import pytest
 
 import astropy.units as u
 from astropy import coordinates
-from ... import vizier
-from ...utils import commons
+
+from astroquery import vizier
+from astroquery.utils import commons
 
 
 @pytest.mark.remote_data
@@ -101,7 +102,7 @@ class TestVizierRemote:
         C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg,
                                  frame='galactic')
 
-        r2 = V.query_region(C, radius=2 * u.arcmin)
+        V.query_region(C, radius=2 * u.arcmin)
 
     def test_multicoord(self):
 

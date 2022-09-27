@@ -9,7 +9,6 @@ This file contains functionality for accessing MAST holdings in the cloud.
 import os
 import warnings
 import threading
-import requests
 
 from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner

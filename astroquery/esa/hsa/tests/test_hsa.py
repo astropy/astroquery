@@ -1,17 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 
-import pytest
-
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from ..core import HSAClass
-from ..tests.dummy_handler import DummyHandler
 from ..tests.dummy_tap_handler import DummyHSATapHandler
 
 
 class TestHSA:
-
     def get_dummy_tap_handler(self):
         parameterst = {'query': "select top 10 * from hsa.v_active_observation",
                        'output_file': "test.vot",

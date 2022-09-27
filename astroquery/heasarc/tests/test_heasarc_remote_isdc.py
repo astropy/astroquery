@@ -2,11 +2,11 @@
 
 import pytest
 import requests
+from astropy.time import Time, TimeDelta
 
 from ...heasarc import Heasarc, Conf
 from ...utils import commons
-
-from .parametrization import parametrization_local_save_remote, patch_get, MockResponse
+from .conftest import parametrization_local_save_remote, MockResponse
 
 
 @parametrization_local_save_remote
@@ -34,6 +34,7 @@ class TestHeasarcISDC:
                         good_isgri=">1000",
                         cache=False
                     )
+        assert len(table) > 0
 
     def test_filter_custom_args(self):
         object_name = 'Crab'
@@ -43,14 +44,14 @@ class TestHeasarcISDC:
 
         with self.isdc_context:
             with pytest.raises(ValueError):
-                table = heasarc.query_object(
-                            object_name,
-                            mission=mission,
-                            radius='1 degree',
-                            time="2020-09-01 .. 2020-12-01",
-                            resultmax=10,
-                            very_good_isgri=">1000",
-                        )
+                heasarc.query_object(
+                    object_name,
+                    mission=mission,
+                    radius='1 degree',
+                    time="2020-09-01 .. 2020-12-01",
+                    resultmax=10,
+                    very_good_isgri=">1000",
+                    )
 
     def test_basic_time(self):
         object_name = 'Crab'
@@ -77,8 +78,6 @@ class TestHeasarcISDC:
     def test_compare_time(self, patch_get):
         patch_get.assume_fileid_for_request(
             lambda url, params: f"last-month-{params['tablehead'].split()[-1]}")
-
-        from astropy.time import Time, TimeDelta
 
         object_name = 'Crab'
 

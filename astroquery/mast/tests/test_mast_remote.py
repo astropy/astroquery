@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from re import sub
 from pathlib import Path
 import numpy as np
 import os
@@ -16,8 +15,8 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning,
-                           RemoteServiceError)
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
+                           NoResultsWarning)
 
 
 OBSID = '1647157'

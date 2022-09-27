@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from urllib.parse import SplitResult, urlsplit
-import os.path
 
 
 def urljoin_keep_path(url, path):

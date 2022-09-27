@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from cmath import exp
 from io import StringIO
 import os
 
 import pytest
-import requests
-import unittest
 from unittest.mock import patch, Mock
 
 from astropy import units as u
@@ -14,7 +11,6 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
 
-import astroquery.alma
 from astroquery.alma import Alma
 from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT
 from astroquery.alma.tapsql import _val_parse

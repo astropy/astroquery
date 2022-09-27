@@ -10,11 +10,8 @@ import pytest
 import requests
 
 from astropy.coordinates import SkyCoord
-from astropy.utils.exceptions import AstropyDeprecationWarning
-
-from astroquery.exceptions import NoResultsWarning
 from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError, get_access_url
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, get_access_url
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -312,4 +309,4 @@ def test_get_tap_tables():
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.nasa_exoplanet_archive
+        import astroquery.nasa_exoplanet_archive  # noqa: F401

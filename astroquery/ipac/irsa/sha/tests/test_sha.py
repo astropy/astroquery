@@ -50,19 +50,19 @@ def patch_get(request):
 
 def test_pos_t(patch_get):
     # Example queries for SHA API help page
-    pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)
+    sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
 
 def test_nid_t(patch_get):
-    nid_t = sha.query(naifid=2003226)
+    sha.query(naifid=2003226)
 
 
 def test_pid_t(patch_get):
-    pid_t = sha.query(pid=30080)
+    sha.query(pid=30080)
 
 
 def test_rqk_t(patch_get):
-    rqk_t = sha.query(reqkey=21641216)
+    sha.query(reqkey=21641216)
 
 
 def test_get_file(patch_get):
@@ -73,9 +73,9 @@ def test_get_file(patch_get):
     # Not implemented because running will download file
     # sha.save_file(table_url)
     # sha.save_file(image_url)
-    img = sha.get_file(image_url)
+    sha.get_file(image_url)
 
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.sha
+        import astroquery.sha  # noqa: F401

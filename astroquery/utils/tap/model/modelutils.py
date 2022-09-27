@@ -16,8 +16,8 @@ Created on 30 jun. 2016
 """
 
 import os
+
 from astropy.table import Table as APTable
-from astropy import units as u, io
 
 from astroquery.utils.tap.xmlparser import utils
 
@@ -39,15 +39,7 @@ def read_results_table_from_file(file_name, output_format, correct_units=True):
         result = APTable.read(file_name, format=astropy_format)
 
         if correct_units:
-            for cn in result.colnames:
-                col = result[cn]
-                if isinstance(col.unit, u.UnrecognizedUnit):
-                    try:
-                        col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
-                    except Exception as ex:
-                        pass
-                elif isinstance(col.unit, str):
-                    col.unit = col.unit.replace(".", " ").replace("'", "")
+            utils.modify_unrecognized_table_units(result)
 
         return result
     else:

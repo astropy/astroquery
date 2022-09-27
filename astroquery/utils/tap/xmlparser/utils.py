@@ -38,15 +38,7 @@ def read_http_response(response, output_format, correct_units=True):
         pass
 
     if correct_units:
-        for cn in result.colnames:
-            col = result[cn]
-            if isinstance(col.unit, u.UnrecognizedUnit):
-                try:
-                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
-                except Exception as ex:
-                    pass
-            elif isinstance(col.unit, str):
-                col.unit = col.unit.replace(".", " ").replace("'", "")
+        modify_unrecognized_table_units(result)
 
     return result
 
@@ -66,3 +58,17 @@ def read_file_content(file_path):
     file_content = file_handler.read()
     file_handler.close()
     return file_content
+
+
+def modify_unrecognized_table_units(table):
+    """Modifies the units of an input table column in place
+    """
+    for cn in table.colnames:
+        col = table[cn]
+        if isinstance(col.unit, u.UnrecognizedUnit):
+            try:
+                col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
+            except Exception:
+                pass
+        elif isinstance(col.unit, str):
+            col.unit = col.unit.replace(".", " ").replace("'", "")

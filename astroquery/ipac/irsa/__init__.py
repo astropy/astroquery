@@ -33,6 +33,4 @@ conf = Conf()
 
 from .core import Irsa, IrsaClass
 
-__all__ = ['Irsa', 'IrsaClass',
-           'Conf', 'conf',
-           ]
+__all__ = ['Irsa', 'IrsaClass', 'Conf', 'conf',]

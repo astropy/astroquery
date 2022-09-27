@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import os
-import warnings
 
 from bs4 import BeautifulSoup
 import astropy.units as u

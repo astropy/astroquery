@@ -8,20 +8,14 @@ import requests
 from astropy import coordinates
 from astropy.table import Table
 
-try:
-    from mocpy import MOC
-    HAS_MOCPY = True
-except ImportError:
-    HAS_MOCPY = False
-
-try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
-    HAS_REGIONS = True
-except ImportError:
-    HAS_REGIONS = False
-
 from ..core import cds
 from astroquery.utils.mocks import MockResponse
+
+
+pytest.importorskip("mocpy")
+pytest.importorskip("regions")
+
+from regions import CircleSkyRegion, PolygonSkyRegion
 
 
 DATA_FILES = {
@@ -72,8 +66,6 @@ with regards to the true results stored in a file located in the data directory
 """
 
 
-@pytest.mark.skipif('not HAS_REGIONS')
-@pytest.mark.skipif('not HAS_MOCPY')
 @pytest.mark.parametrize('datafile',
                          ['PROPERTIES_SEARCH', 'HIPS_FROM_SAADA_AND_ALASKY'])
 def test_request_results(patch_get, datafile):
@@ -97,8 +89,6 @@ request param 'intersect' is correct
 """
 
 
-@pytest.mark.skipif('not HAS_REGIONS')
-@pytest.mark.skipif('not HAS_MOCPY')
 @pytest.mark.parametrize('RA, DEC, RADIUS',
                          [(10.8, 6.5, 0.5),
                           (25.6, -23.2, 1.1),
@@ -117,8 +107,6 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
            (request_payload['SR'] == str(RADIUS))
 
 
-@pytest.mark.skipif('not HAS_REGIONS')
-@pytest.mark.skipif('not HAS_MOCPY')
 @pytest.mark.parametrize('poly, poly_payload',
                          [(polygon1, 'Polygon 57.376 24.053 56.391 24.622 56.025 24.049 56.616 24.291'),
                           (polygon2, 'Polygon 58.376 24.053 53.391 25.622 56.025 22.049 54.616 27.291')])
@@ -132,8 +120,6 @@ def test_polygon_spatial_request(poly, poly_payload):
     assert request_payload['stc'] == poly_payload
 
 
-@pytest.mark.skipif('not HAS_REGIONS')
-@pytest.mark.skipif('not HAS_MOCPY')
 @pytest.mark.parametrize('intersect',
                          ['encloses', 'overlaps', 'covers'])
 def test_intersect_param(intersect):

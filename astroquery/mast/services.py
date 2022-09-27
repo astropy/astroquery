@@ -6,23 +6,22 @@ MAST Microservices API
 This module contains various methods for querying MAST microservice APIs.
 """
 
-import json
 import time
 import warnings
 
 import numpy as np
 
-from astropy.table import Table, Column, MaskedColumn
+from astropy.table import Table, MaskedColumn
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import TimeoutError, NoResultsWarning
 
-from . import conf, utils
+from . import conf
 
 
-__all__ = []
+__all__ = ["ServiceAPI"]
 
 
 def _json_to_table(json_obj, data_key='data'):

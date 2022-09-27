@@ -7,6 +7,8 @@ astroquery.solarsystem.imcce
 a collection of data services provided by IMCCE
 """
 
-from .miriade import *
-from .skybot import *
-from . import *
+from .miriade import Miriade, MiriadeClass
+from .skybot import Skybot, SkybotClass
+
+
+__all__ = ["Miriade", "MiriadeClass", "Skybot", "SkybotClass"]

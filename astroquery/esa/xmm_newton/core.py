@@ -12,9 +12,6 @@ Created on 3 Sept 2019
 
 """
 import re
-from getpass import getpass
-from ...utils.tap.core import TapPlus
-from ...query import BaseQuery, QueryWithLogin
 import shutil
 import cgi
 from pathlib import Path
@@ -23,10 +20,14 @@ import os
 import configparser
 
 from astropy.io import fits
-from . import conf
 from astroquery import log
 from astropy.coordinates import SkyCoord
+
+from . import conf
 from ...exceptions import LoginError
+from ...utils.tap.core import TapPlus
+from ...query import BaseQuery, QueryWithLogin
+
 
 __all__ = ['XMMNewton', 'XMMNewtonClass']
 

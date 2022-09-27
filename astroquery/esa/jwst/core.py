@@ -12,10 +12,8 @@ import binascii
 import gzip
 import os
 import shutil
-import sys
 import tarfile
 import zipfile
-from builtins import isinstance
 from datetime import datetime
 
 from astropy import log
@@ -34,6 +32,7 @@ from astroquery.utils.tap import TapPlus
 from astroquery.vizier import Vizier
 from . import conf
 from .data_access import JwstDataHandler
+
 
 __all__ = ['Jwst', 'JwstClass']
 
@@ -691,7 +690,7 @@ class JwstClass(BaseQuery):
                 for line in response:
                     string_message = line.decode("utf-8")
                     print(string_message[string_message.index('=')+1:])
-        except OSError as e:
+        except OSError:
             print("Status messages could not be retrieved")
 
     def get_product_list(self, *, observation_id=None,
@@ -782,7 +781,7 @@ class JwstClass(BaseQuery):
                     planeids.append(
                         JwstClass.get_decoded_string(row["planeid"]))
             return planeids, max_cal_level
-        except Exception as e:
+        except Exception:
             raise ValueError("This observation_id does not exist in "
                              "JWST database")
 

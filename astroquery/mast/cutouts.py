@@ -14,7 +14,6 @@ import time
 import json
 import zipfile
 import os
-import requests
 
 from io import BytesIO
 
@@ -26,11 +25,8 @@ from astropy.coordinates import Angle
 from astropy.table import Table
 from astropy.io import fits
 
-from ..query import BaseQuery
-from ..utils import commons
-from ..exceptions import InputWarning, NoResultsWarning, InvalidQueryError, RemoteServiceError
+from ..exceptions import InputWarning, NoResultsWarning, InvalidQueryError
 
-from . import conf
 from .utils import parse_input_location
 from .core import MastQueryWithLogin
 

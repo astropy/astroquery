@@ -1,13 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
+import platform
+import re
+import warnings
+from urllib import parse as urlparse
+
 from astropy import table
 from astroquery import log
 from astropy.utils.console import ProgressBar
 from bs4 import BeautifulSoup
-from urllib import parse as urlparse
-import re
-import warnings
 
 from ..exceptions import InvalidQueryError
 from ..query import BaseQuery
@@ -214,9 +216,6 @@ def write_lamda_datafile(filename, tables):
     tables: tuple
         Tuple of Tables ({rateid: coll_table}, rad_table, mol_table)
     """
-    import platform
-    import sys
-
     collrates, radtransitions, enlevels = tables
 
     levels_hdr = ("""! MOLECULE

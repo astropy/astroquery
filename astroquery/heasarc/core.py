@@ -256,7 +256,7 @@ class HeasarcClass(BaseQuery):
         except ValueError:
             try:
                 return self._fallback(response.text)
-            except Exception as e:
+            except Exception:
                 return self._old_w3query_fallback(response.content)
 
     def _args_to_payload(self, **kwargs):

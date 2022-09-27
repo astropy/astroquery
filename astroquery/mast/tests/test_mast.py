@@ -215,7 +215,6 @@ def test_missions_query_criteria_async(patch_post):
     instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
     datasets = {'sci_data_set_name': ""}
     pi_lname = {'sci_pi_last_name': ""}
-    actual_duration = {'sci_actual_duration': ""}
     spec_1234 = {'sci_spec_1234': ""}
     release_date = {'sci_release_date': ""}
     start_time = {'sci_start_time': ""}
@@ -242,7 +241,6 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
     instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
     datasets = {'sci_data_set_name': ""}
     pi_lname = {'sci_pi_last_name': ""}
-    actual_duration = {'sci_actual_duration': ""}
     spec_1234 = {'sci_spec_1234': ""}
     release_date = {'sci_release_date': ""}
     start_time = {'sci_start_time': ""}
@@ -250,7 +248,7 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
     aec = {'sci_aec': 'S'}
     aperture = {'sci_aper_1234': 'WF3'}
 
-    with pytest.raises(KeyError) as e_info:
+    with pytest.raises(KeyError):
         responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
                                                            radius=5,
                                                            conditions=[pep_id,
@@ -264,7 +262,7 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
                                                                        obs_type,
                                                                        aec,
                                                                        aperture])
-        table = _json_to_table(json.loads(responses), 'results')
+        _json_to_table(json.loads(responses), 'results')
 
 
 ###################

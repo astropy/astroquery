@@ -13,8 +13,7 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.query import BaseQuery
 import shutil
 import cgi
-import sys
-import requests
+from requests import HTTPError
 from pathlib import Path
 
 from . import conf

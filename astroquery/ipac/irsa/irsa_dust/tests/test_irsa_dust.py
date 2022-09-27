@@ -373,4 +373,4 @@ class TestDust(DustTestCase):
 
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
-        import astroquery.irsa_dust
+        import astroquery.irsa_dust  # noqa: F401

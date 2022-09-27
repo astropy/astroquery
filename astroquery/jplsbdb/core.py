@@ -7,7 +7,6 @@ from numpy import fromstring, isnan, array
 import astropy.units as u
 
 from ..query import BaseQuery
-from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
 

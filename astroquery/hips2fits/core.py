@@ -1,34 +1,26 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ..query import BaseQuery
+import io
+import json
+import warnings
 
+import numpy as np
+from astropy.io import fits
+from astropy.coordinates import Angle
+import astropy.units as u
+from PIL import Image
+
+from astropy.utils.exceptions import AstropyUserWarning
+
+from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync
 from . import conf
 
-from astropy import wcs
 
 __all__ = ['hips2fits', 'hips2fitsClass']
 __doctest_skip__ = ['hips2fitsClass.*']
-
-import json
-
-# Numpy is used for deserializing the string of bytes
-# returned by hips2fits into a valid float32 numpy array
-import numpy as np
-# astropy.io.fits is used for creating a new HDUList
-# from the image data received
-from astropy.io import fits
-from astropy.coordinates import Angle
-import astropy.units as u
-
-# Used for deserializing string of bytes to an image (i.e. a numpy array)
-import io
-from PIL import Image
-
-from astropy.utils.exceptions import AstropyUserWarning
-import warnings
 
 
 @async_to_sync
