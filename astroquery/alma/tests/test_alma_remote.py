@@ -185,9 +185,13 @@ class TestAlma:
         download_files_mock = Mock()
         alma.download_files = download_files_mock
         alma.retrieve_data_from_uid([uid])
-
-        comparison = download_files_mock.mock_calls[0][1] == data_info_tar['access_url']
-        assert comparison.all()
+        trimmed_access_url_list = [e for e in data_info_tar['access_url'].data if len(e) > 0]
+        trimmed_access_urls = (trimmed_access_url_list,)
+        mock_calls = download_files_mock.mock_calls[0][1]
+        print(f"\n\nComparing {mock_calls} to {trimmed_access_urls}\n\n")
+        # comparison = download_files_mock.mock_calls[0][1] == data_info_tar['access_url']
+        assert mock_calls == trimmed_access_urls
+        # assert comparison.all()
 
     def test_download_data(self, tmp_path, alma):
         # test only fits files from a program

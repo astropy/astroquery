@@ -453,31 +453,32 @@ def _test_datalink_url(data_archive_url):
 
 
 def test_get_data_info():
-    datalink_mock = Mock()
-    dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
+    class MockDataLinkService:
+        def run_sync(self, uid):
+            return _mocked_datalink_sync(uid)
 
-    # Emulate the DatalinkResults
-    service_def_1 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
-    service_def_2 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
-
-    mock_response = Mock(to_table=Mock(return_value=dl_result), iter_procs=Mock(return_value=[service_def_1, service_def_2]))
-    mock_response.status = ['OK']
-    datalink_mock.run_sync.return_value = mock_response
     alma = Alma()
     alma._get_dataarchive_url = Mock()
-    alma._datalink = datalink_mock
+    alma._datalink = MockDataLinkService()
     result = alma.get_data_info(uids='uid://A001/X12a3/Xe9')
     assert len(result) == 9
-
-    datalink_mock.run_sync.assert_called_once_with('uid://A001/X12a3/Xe9')
 
 
 # This method will be used by the mock in test_get_data_info_expand_tarfiles to replace requests.get
 def _mocked_datalink_sync(*args, **kwargs):
     class MockResponse:
-        # Emulate the DatalinkResults
-        service_def_1 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
-        service_def_2 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+        adhoc_service_1_param1 = type('', (object, ), {'ID': 'standardID', 'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
+        adhoc_service_1_param2 = type('', (object, ), {'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
+        adhoc_service_1 = type('', (object, ), {'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'params': [adhoc_service_1_param1, adhoc_service_1_param2]})()
+
+        adhoc_service_2_param1 = type('', (object, ), {'ID': 'standardID', 'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
+        adhoc_service_2_param2 = type('', (object, ), {'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+        adhoc_service_2 = type('', (object, ), {'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'params': [adhoc_service_1_param1, adhoc_service_1_param2]})()
+
+        adhoc_services = {
+            'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar': adhoc_service_1,
+            'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar': adhoc_service_2
+        }
 
         def __init__(self, table):
             self.table = table
@@ -489,8 +490,11 @@ def _mocked_datalink_sync(*args, **kwargs):
         def status(self):
             return ['OK']
 
-        def iter_procs(self):
-            return [self.service_def_1, self.service_def_2]
+        def iter_adhocservices(self):
+            return [self.adhoc_service_1, self.adhoc_service_2]
+
+        def get_adhocservice_by_id(self, adhoc_service_id):
+            return self.adhoc_services[adhoc_service_id]
 
     print(f"\n\nFOUND ARGS {args}\n\n")
 
@@ -514,8 +518,8 @@ def test_get_data_info_expand_tarfiles():
     alma._datalink = MockDataLinkService()
     result = alma.get_data_info(uids='uid://A001/X12a3/Xe9', expand_tarfiles=True)
 
-    # Entire expanded structure is 61 links long.
-    assert len(result) == 61
+    # Entire expanded structure is 19 links long.
+    assert len(result) == 19
 
 
 def test_galactic_query():
