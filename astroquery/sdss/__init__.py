@@ -28,4 +28,4 @@ conf = Conf()
 from .core import SDSS, SDSSClass
 
 
-__all__ = ["SDSS", "SDSSClass", conf]
+__all__ = ['SDSS', 'SDSSClass', 'Conf', 'conf']
