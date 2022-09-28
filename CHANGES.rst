@@ -56,6 +56,9 @@ cadc
 
 - Deprecated keywords and ``run_query`` method have been removed. [#2389]
 
+- Added the ability to pass longer that filename Path objects as
+  ``output_file``. [#2541]
+
 casda
 ^^^^^
 

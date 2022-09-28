@@ -10,7 +10,6 @@ from urllib.parse import urlsplit, parse_qs
 from pathlib import Path
 import os
 import sys
-from pathlib import Path
 
 from astropy.table import Table as AstroTable
 from astropy.io.fits.hdu.hdulist import HDUList
