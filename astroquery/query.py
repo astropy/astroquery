@@ -277,14 +277,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             and the server response object, if ``save`` is True and ``return_response_on_save``
             is True.
         """
-        req_kwargs = dict(
-            params=params,
-            data=data,
-            headers=headers,
-            files=files,
-            timeout=timeout,
-            json=json
-        )
+
         if save:
             local_filename = url.split('/')[-1]
             if os.name == 'nt':
@@ -296,13 +289,15 @@ class BaseQuery(metaclass=LoginABCMeta):
             response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
                                            continuation=continuation, method=method,
                                            allow_redirects=allow_redirects,
-                                           auth=auth, **req_kwargs)
+                                           auth=auth, params=params, data=data, headers=headers,
+                                           files=files, json=json)
             if return_response_on_save:
                 return local_filepath, response
             else:
                 return local_filepath
         else:
-            query = AstroQuery(method, url, **req_kwargs)
+            query = AstroQuery(method, url, params=params, data=data, headers=headers,
+                               files=files, timeout=timeout, json=json)
             if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
