@@ -20,7 +20,7 @@ If you need to get radial velocities data for an object you can do the following
 
     >>> from astroquery.dace import Dace
     >>> radial_velocities_table = Dace.query_radial_velocities('HD40307')
-    >>> radial_velocities_table.pprint(max_lines=5, max_width=120)
+    >>> radial_velocities_table.pprint(max_lines=5, max_width=120)  # doctest: +IGNORE_OUTPUT
        berv       berv_err ... date_night                                  raw_file
     ----------------- -------- ... ---------- -------------------------------------------------------------------------
     1.73905237267071      NaN ... 1998-11-13 coralie98/DRS-3.3/reduced/1998-11-13/CORALIE.1998-11-14T07:42:28.001.fits

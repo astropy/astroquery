@@ -109,7 +109,7 @@ list of available instrument-specific queries can be obtained with the
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
-    >>> eso.list_instruments()   
+    >>> eso.list_instruments()
     ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir',
      'vircam', 'apex', 'giraffe', 'uves', 'xshooter', 'espresso', 'muse', 'crires',
      'kmos', 'sinfoni', 'amber', 'gravity', 'matisse', 'midi', 'pionier', 'wlgsu']
@@ -185,31 +185,24 @@ return the observation date column.
     >>> print(len(table))
     38
     >>> print(table.columns)
-    <TableColumns names=('Release Date','Object','RA','DEC','Target Ra Dec','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM Seeing-avg')>
+    <TableColumns names=('Release Date','Object','RA','DEC','Target Ra Dec','Target l b','DATE OBS','Program ID','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM Seeing-avg')>
     >>> table.pprint(max_width=100)
     Release Date          Object             RA     ...       DPR.TECH       INS.MODE DIMM Seeing-avg
     ------------ ----------------------- ---------- ... -------------------- -------- ---------------
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.01]
+      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.03]
       2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]
       2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.01]
+      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.06]
+      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.05]
       2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.74 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.66 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.64 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.60 [0.01]
              ...                     ...        ... ...                  ...      ...             ...
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.72 [0.01]
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.62 [0.01]
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.61 [0.01]
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.54 [0.01]
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.53 [0.01]
+      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.54 [0.03]
+      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.53 [0.04]
+      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]
+      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]
       2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.01]
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.01]
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.01]
-      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.01]
-      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.01]
+      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.02]
+      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.03]
     Length = 38 rows
 
 And indeed, 38 datasets are found, and the ``DATE OBS`` column is in the result table.
@@ -375,13 +368,13 @@ would like to download datasets from an existing request, either submitted
 through the functions here or externally, call ``retrieve_data`` with the
 ``request_id`` option:
 
-.. doctest-skip:: 
+.. doctest-skip::
 
     >>> data_files = eso.retrieve_data(table['DP.ID'][:2], request_id=999999)
 
 The ``request_id`` can be found in the automatic email sent by the archive after
 staging the initial request, i.e., https://dataportal.eso.org/rh/requests/[USERNAME]/{request_id}.
-A summary of your available requests is shown at https://dataportal.eso.org/rh/requests/[USERNAME]/recentRequests.  
+A summary of your available requests is shown at https://dataportal.eso.org/rh/requests/[USERNAME]/recentRequests.
 
 Note: The function does check that the specified retrieval URL based on
 ``request_id`` is valid and then that the datasets indicated there are
