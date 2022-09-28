@@ -4,10 +4,12 @@ Access Sloan Digital Sky Survey database online.
 """
 import warnings
 import numpy as np
+import sys
 
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.table import Table, Column
+from astropy.utils.exceptions import AstropyWarning
 
 from ..query import BaseQuery
 from . import conf
@@ -935,7 +937,16 @@ class SDSSClass(BaseQuery):
         if 'error_message' in response.text:
             raise RemoteServiceError(response.text)
 
-        arr = Table.read(response.text, format='ascii.csv', comment="#")
+        with warnings.catch_warnings():
+            # Capturing the warning and converting the objid column to int64 is necessary for consistency as
+            # it was convereted to string on systems with defaul integer int32 due to an overflow.
+            if sys.platform.startswith('win'):
+                warnings.filterwarnings("ignore", category=AstropyWarning,
+                                        message=r'OverflowError converting to IntType in column.*')
+            arr = Table.read(response.text, format='ascii.csv', comment="#")
+            for id_column in ['objid', 'specobjid']:
+                if id_column in arr.columns:
+                    arr[id_column] = arr[id_column].astype(np.int64)
 
         if len(arr) == 0:
             return None
