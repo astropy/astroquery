@@ -594,7 +594,7 @@ class AlmaClass(QueryWithLogin):
                 result['semantics'].astype(str), '#aux') == -1]
         if not with_rawdata:
             result = result[np.core.defchararray.find(
-                result['semantics'], '#progenitor') == -1]
+                result['semantics'].astype(str), '#progenitor') == -1]
         # if expand_tarfiles:
         # identify the tarballs that can be expandable and replace them
         # with the list of components
