@@ -7,6 +7,7 @@ CadcClass TAP plus
 """
 from io import BytesIO
 from urllib.parse import urlsplit, parse_qs
+from pathlib import Path
 import os
 import sys
 
@@ -177,9 +178,7 @@ def test_get_access_url():
         class CapabilitiesResponse:
             def __init__(self):
                 caps_file = data_path('tap_caps.xml')
-                with open(caps_file, 'r') as infile:
-                    text = infile.read()
-                self.text = text
+                self.text = Path(caps_file).read_text()
 
             def raise_for_status(self):
                 pass
@@ -408,7 +407,7 @@ def test_get_images():
        Mock(side_effect=lambda x, y, z: ['https://some.url']))
 def test_get_images_async():
     with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as readable_fobj_mock:
-        readable_fobj_mock.return_value = open(data_path('query_images.fits'), 'rb')
+        readable_fobj_mock.return_value = Path(data_path('query_images.fits'))
 
     cadc = Cadc()
     readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s',

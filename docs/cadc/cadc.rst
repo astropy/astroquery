@@ -444,6 +444,7 @@ Multiple temporary tables to be used at once can be specified as such.
 
 More details about temporary table upload can be found in the IVOA TAP specification.
 
+.. TODO: remove the IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2538 is fixed
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -460,13 +461,14 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     >>> # now use them to join with the remote table
     >>> results = cadc.exec_sync("SELECT o.observationID, intent FROM caom2.Observation o "
     ...                          "JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID",
-    ...                          uploads={'test_upload': 'my_observations.xml'})
+    ...                          uploads={'test_upload': 'my_observations.xml'})  # doctest: +IGNORE_WARNINGS
     >>> print(results)  # doctest: +IGNORE_OUTPUT
               observationID             intent
     ---------------------------------- -------
                 c13a_060826_044314_ori science
     tess2021167190903-s0039-1-3-0210-s science
                              tu1657207 science
+
 
 The feature allows a user to save the results of a query to use them later or
 correlate them with data in other TAP services.

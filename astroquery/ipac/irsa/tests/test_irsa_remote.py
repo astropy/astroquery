@@ -49,8 +49,9 @@ class TestIrsa:
 
     def test_query_region_polygon(self):
         polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
-        result = Irsa.query_region(
-            "m31", catalog="fp_psc", spatial="Polygon", polygon=polygon, cache=False)
+        with pytest.warns(UserWarning, match='Polygon endpoints are being interpreted'):
+            result = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
+                                       polygon=polygon, cache=False)
 
         assert isinstance(result, Table)
 

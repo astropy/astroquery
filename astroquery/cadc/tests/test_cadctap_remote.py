@@ -8,6 +8,7 @@ Canadian Astronomy Data Centre
 import pytest
 import os
 import requests
+from pathlib import Path
 from datetime import datetime
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -180,7 +181,6 @@ class TestCadcClass:
         result = cadc.exec_sync(query)
         assert len(result) == 0
 
-    @pytest.mark.xfail(reason='#2325')
     def test_get_images(self):
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
@@ -224,7 +224,6 @@ class TestCadcClass:
 
         assert len(filtered_resp_urls) == len(image_urls)
 
-    @pytest.mark.xfail(reason='#2325')
     def test_get_images_async(self):
         cadc = Cadc()
         coords = '01h45m07.5s +23d18m00s'
@@ -294,3 +293,20 @@ class TestCadcClass:
         if len(jobs) > 5:
             jobs_subset = cadc.list_async_jobs(last=5)
             assert len(jobs_subset) == 5
+
+    @pytest.mark.xfail(reason='https://github.com/astropy/astroquery/issues/2538')
+    def test_uploads(self, tmp_path):
+        cadc = Cadc()
+        # save a few observations on a local file
+        output_file = Path(tmp_path, 'my_observations.xml')
+        cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
+                       output_file=output_file)#'my_observations.xml')
+#        assert output_file.exists()
+
+        # now use them to join with the remote table
+        results = cadc.exec_sync(
+            "SELECT o.observationID, intent FROM caom2.Observation o JOIN "
+            "tap_upload.test_upload tu ON o.observationID=tu.observationID",
+            uploads={'test_upload': output_file})#'my_observations.xml'})
+
+        assert len(results) == 3
