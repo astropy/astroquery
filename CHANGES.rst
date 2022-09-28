@@ -151,7 +151,7 @@ Infrastructure, Utility and Other Changes and Additions
   added to help the testcleanup narrative in narrative documentations. [#2384]
 
 - Removal of the non-functional ``nrao`` module as it was completely
-  uncompatible with the refactored upstream API. [#2546]
+  incompatible with the refactored upstream API. [#2546]
 
 
 
