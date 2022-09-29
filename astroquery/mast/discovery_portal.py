@@ -18,7 +18,8 @@ from urllib.parse import quote as urlencode
 
 from astropy.table import Table, vstack, MaskedColumn
 
-from ..query import BaseQuery
+from astroquery import conf as asq_conf
+from ..query import BaseQuery, QueryWithLogin, AstroQuery, to_cache
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InputWarning, NoResultsWarning, RemoteServiceError
@@ -216,11 +217,12 @@ class PortalAPI(BaseQuery):
         # Note: the method only exposes 4 parameters of the underlying _request() function
         # to play nice with existing mocks
         # Caching:  follow BaseQuery._request()'s pattern, which uses an AstroQuery object
+
         if not cache:
             response = self._request(method, url, data=data, headers=headers, retrieve_all=retrieve_all)
         else:
             cacher = self._get_cacher(method, url, data, headers, retrieve_all)
-            response = cacher.from_cache(self.cache_location)
+            response = cacher.from_cache(self.cache_location, asq_conf.cache_timeout)
             if not response:
                 response = self._request(method, url, data=data, headers=headers, retrieve_all=retrieve_all)
                 to_cache(response, cacher.request_file(self.cache_location))
