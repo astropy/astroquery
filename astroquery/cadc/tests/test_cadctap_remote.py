@@ -300,13 +300,13 @@ class TestCadcClass:
         # save a few observations on a local file
         output_file = Path(tmp_path, 'my_observations.xml')
         cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
-                       output_file=output_file)#'my_observations.xml')
-#        assert output_file.exists()
+                       output_file=output_file)
+        assert output_file.exists()
 
         # now use them to join with the remote table
         results = cadc.exec_sync(
             "SELECT o.observationID, intent FROM caom2.Observation o JOIN "
             "tap_upload.test_upload tu ON o.observationID=tu.observationID",
-            uploads={'test_upload': output_file})#'my_observations.xml'})
+            uploads={'test_upload': output_file})
 
         assert len(results) == 3

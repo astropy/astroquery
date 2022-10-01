@@ -68,8 +68,7 @@ def patch_get_readable_fileobj(request):
                 with open(data_path('1376235131.430670.resu'), "r" + ('b' if is_binary else '')) as file_obj:
                     yield file_obj
         else:
-            file_obj = filename
-            yield file_obj
+            yield filename
 
     mp = request.getfixturevalue("monkeypatch")
 
