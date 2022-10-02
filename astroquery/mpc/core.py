@@ -1302,7 +1302,12 @@ class MPCClass(BaseQuery):
         data['epoch'].unit = u.d
         data['RA'].unit = u.deg
         data['DEC'].unit = u.deg
-        data['mag'].unit = u.mag
+
+        # Masked quantities are not supported in older astropy, warnings are raised for <v5.0
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', message='dropping mask in Quantity column',
+                                    category=UserWarning)
+            data['mag'].unit = u.mag
 
         return data
 

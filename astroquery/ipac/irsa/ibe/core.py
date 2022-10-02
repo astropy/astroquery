@@ -8,7 +8,6 @@ API from
  https://irsa.ipac.caltech.edu/ibe/
 """
 
-
 import os
 import webbrowser
 from bs4 import BeautifulSoup
@@ -270,7 +269,7 @@ class IbeClass(BaseQuery):
             response = self._request('GET', url, timeout=self.TIMEOUT,
                                      cache=cache)
 
-            root = BeautifulSoup(response.text)
+            root = BeautifulSoup(response.text, 'html5lib')
             links = root.findAll('a')
 
             missions = [os.path.basename(a.attrs['href'].rstrip('/'))
@@ -308,7 +307,7 @@ class IbeClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
-        root = BeautifulSoup(response.text)
+        root = BeautifulSoup(response.text, 'html5lib')
         links = root.findAll('a')
         datasets = [a.text for a in links
                     if a.attrs['href'].count('/') >= 4  # shown as '..'; ignore
@@ -362,7 +361,7 @@ class IbeClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
-        root = BeautifulSoup(response.text)
+        root = BeautifulSoup(response.text, 'html5lib')
         return [tr.find('td').string for tr in root.findAll('tr')[1:]]
 
     # Unfortunately, the URL construction for each data set is different, and

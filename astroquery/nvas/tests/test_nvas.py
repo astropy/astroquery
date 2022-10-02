@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import numpy.testing as npt
 import astropy.units as u
 import pytest
+from astropy.io.fits.verify import VerifyWarning
 
 from ...import nvas
 from astroquery.utils.mocks import MockResponse
@@ -60,11 +61,11 @@ def patch_get_readable_fileobj(request):
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         encoding = kwargs.get('encoding', None)
         if encoding == 'binary':
-            file_obj = open(data_path(DATA_FILES["image"]), 'rb')
+            with open(data_path(DATA_FILES["image"]), 'rb') as file_obj:
+                yield file_obj
         else:
-            file_obj = open(data_path(DATA_FILES["image"]),
-                            "r", encoding=encoding)
-        yield file_obj
+            with open(data_path(DATA_FILES["image"]), "r", encoding=encoding) as file_obj:
+                yield file_obj
 
     mp = request.getfixturevalue("monkeypatch")
 
@@ -95,7 +96,8 @@ def test_parse_coordinates(coordinates):
 
 
 def test_extract_image_urls():
-    html_in = open(data_path(DATA_FILES['image_search']), 'r').read()
+    with open(data_path(DATA_FILES['image_search']), 'r') as infile:
+        html_in = infile.read()
     image_list = nvas.core.Nvas.extract_image_urls(html_in)
     assert len(image_list) == 2
 
@@ -109,7 +111,8 @@ def test_get_images_async(patch_post, patch_parse_coordinates):
 
 def test_get_images(patch_post, patch_parse_coordinates,
                     patch_get_readable_fileobj):
-    images = nvas.core.Nvas.get_images(COORDS_GAL, radius='5d0m0s', band='all')
+    with pytest.warns(VerifyWarning, match="Invalid 'BLANK' keyword in header"):
+        images = nvas.core.Nvas.get_images(COORDS_GAL, radius='5d0m0s', band='all')
     assert images is not None
 
 

@@ -175,7 +175,7 @@ is an ra, dec pair expressed in degrees:
 
     >>> from astroquery.ipac.irsa import Irsa
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-    ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
+    ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])  # doctest: +IGNORE_WARNINGS
     >>> print(table)
         ra        dec         clon         clat     ... ext_key  j_h   h_k   j_k
        deg        deg                               ...

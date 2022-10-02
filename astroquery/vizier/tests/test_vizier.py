@@ -229,7 +229,8 @@ class TestVizierClass:
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
         assert str(v.keywords) == ('-kw.Mission=ANS\n-kw.Mission='
                                    'Chandra\n-kw.Wavelength=optical')
-        v = vizier.core.Vizier(keywords=['xy', 'optical'])
+        with pytest.warns(UserWarning, match="xy : No such keyword"):
+            v = vizier.core.Vizier(keywords=['xy', 'optical'])
         assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
         assert str(v.keywords) == '-kw.Mission=COBE\n-kw.Wavelength=optical'

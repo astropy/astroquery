@@ -11,6 +11,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io.votable import parse
+from astropy.io.votable.exceptions import W03, W50
 from astroquery import log
 import numpy as np
 
@@ -269,7 +270,8 @@ def test_query_region_async_box(patch_get):
 
 
 def test_filter_out_unreleased():
-    all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
+    with pytest.warns(W03):
+        all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
     assert all_records[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
     assert all_records[1]['obs_release_date'] == '2218-01-02T16:51:00.728Z'
     assert all_records[2]['obs_release_date'] == ''
@@ -331,7 +333,8 @@ def test_stage_data(patch_get):
     casda = Casda()
     fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
-    urls = casda.stage_data(table, verbose=True)
+    with pytest.warns(W50, match="Invalid unit string 'pixels'"):
+        urls = casda.stage_data(table, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
 
@@ -348,7 +351,8 @@ def test_cutout(patch_get):
     casda = Casda()
     fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
-    urls = casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
+    with pytest.warns(W50, match="Invalid unit string 'pixels'"):
+        urls = casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/cutout.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/cutout.fits']
 
@@ -363,7 +367,8 @@ def test_cutout_no_args(patch_get):
     casda.POLL_INTERVAL = 1
     with pytest.raises(ValueError,
             match=r"Please provide cutout parameters such as coordinates, band or channel\."):
-        casda.cutout(table)
+        with pytest.warns(W50, match="Invalid unit string 'pixels'"):
+            casda.cutout(table)
 
 
 def test_cutout_unauthorised(patch_get):

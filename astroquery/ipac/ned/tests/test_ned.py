@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
+from contextlib import contextmanager
 
 from numpy import testing as npt
 import pytest
@@ -47,12 +48,14 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
+    @contextmanager
     def get_readable_fileobj_mockreturn(filename, cache=True, encoding=None,
                                         show_progress=True):
         # Need to read FITS files with binary encoding: should raise error
         # otherwise
         assert encoding == 'binary'
-        return open(data_path(DATA_FILES['image']), 'rb')
+        with open(data_path(DATA_FILES['image']), 'rb') as infile:
+            yield infile
 
     mp = request.getfixturevalue("monkeypatch")
 
@@ -138,7 +141,8 @@ def test_photometry(patch_get):
 
 
 def test_extract_image_urls():
-    html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
+    with open(data_path(DATA_FILES['extract_urls']), 'r') as infile:
+        html_in = infile.read()
     url_list = ned.core.Ned._extract_image_urls(html_in)
     assert len(url_list) == 5
     for url in url_list:

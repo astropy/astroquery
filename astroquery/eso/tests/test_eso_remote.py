@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import pytest
+import warnings
 
 from astroquery.exceptions import LoginError, NoResultsWarning
 from astroquery.eso import Eso
@@ -14,6 +15,9 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
 # Some tests take too long, leading to travis timeouts
 # TODO: make this a configuration item
 SKIP_SLOW = True
+
+SGRA_SURVEYS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
+                'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
 
 
 @pytest.mark.remote_data
@@ -81,6 +85,7 @@ class TestEso:
         eso = Eso()
         surveys = eso.list_surveys(cache=False)
         assert len(surveys) > 0
+
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
             result_s = eso.query_surveys(surveys[0], coord1=202.469575,
@@ -142,6 +147,8 @@ class TestEso:
         # list.
         assert len(result) == 1
 
+    # TODO: remove filter when https://github.com/astropy/astroquery/issues/2539 is fixed
+    @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()
@@ -166,7 +173,7 @@ class TestEso:
         instruments = eso.list_instruments(cache=False)
 
         for instrument in instruments:
-            with pytest.warns(None) as record:
+            with warnings.catch_warnings(record=True) as record:
                 result_i = eso.query_instrument(instrument, coord1=266.41681662,
                                                 coord2=-29.00782497, cache=False)
                 # Sometimes there are ResourceWarnings, we ignore those for this test
@@ -175,36 +182,30 @@ class TestEso:
                 else:
                     assert len(result_i) > 0
 
-    @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_each_survey_SgrAstar(self, tmp_path):
-        eso = Eso()
-        eso.cache_location = tmp_path
-
-        surveys = eso.list_surveys(cache=False)
-        for survey in surveys:
-            with pytest.warns(None) as record:
-                result_s = eso.query_surveys(survey, coord1=266.41681662,
-                                             coord2=-29.00782497,
-                                             box='01 00 00',
-                                             cache=False)
-                # Sometimes there are ResourceWarnings, we ignore those for this test
-                if len(record) > 0 and NoResultsWarning in {record[i].category for i in range(len(record))}:
-                    assert result_s is None
-                else:
-                    print([record[i].message for i in range(len(record))])
-                    assert len(result_s) > 0
-
-    @pytest.mark.skipif("SKIP_SLOW")
-    @pytest.mark.parametrize('cache', (False, True))
-    def test_each_survey_nosource(self, tmp_path, cache):
+    def test_each_survey_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        surveys = eso.list_surveys(cache=cache)
+
+        surveys = eso.list_surveys(cache=False)
         for survey in surveys:
-            # just test that it doesn't crash
-            eso.query_surveys(survey, cache=cache)
+            if survey in SGRA_SURVEYS:
+                result_s = eso.query_surveys(survey, coord1=266.41681662,
+                                             coord2=-29.00782497,
+                                             box='01 00 00',
+                                             cache=False)
+                assert len(result_s) > 0
+            else:
+                with pytest.warns(NoResultsWarning):
+                    result_s = eso.query_surveys(survey, coord1=266.41681662,
+                                                 coord2=-29.00782497,
+                                                 box='01 00 00',
+                                                 cache=False)
+                    assert result_s is None
+
+                    generic_result = eso.query_surveys(survey)
+                    assert len(generic_result) > 0
 
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()

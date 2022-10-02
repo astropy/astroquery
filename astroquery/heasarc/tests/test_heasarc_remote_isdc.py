@@ -3,6 +3,7 @@
 import pytest
 import requests
 from astropy.time import Time, TimeDelta
+import astropy.units as u
 
 from ...heasarc import Heasarc, Conf
 from ...utils import commons
@@ -83,7 +84,7 @@ class TestHeasarcISDC:
 
         heasarc = Heasarc()
 
-        month_ago = (Time.now() - TimeDelta(30)).isot[:10]
+        month_ago = (Time.now() - TimeDelta(30 * u.day)).isot[:10]
         today = Time.now().isot[:10]
         T = month_ago + " .. " +  today
 

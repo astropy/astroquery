@@ -5,11 +5,14 @@ import os
 import socket
 import numpy as np
 from numpy.testing import assert_allclose
+import sys
+import warnings
 
 import astropy.units as u
 from astropy.io import fits
 from astropy.coordinates import Angle
 from astropy.table import Column, Table
+from astropy.utils.exceptions import AstropyWarning
 import pytest
 
 from ... import sdss
@@ -194,11 +197,17 @@ def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
               and zWarning = 0
             """
     xid = sdss.SDSS.query_sql(query, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['images_id']),
-                      format='ascii.csv', comment='#')
 
-    compare_xid_data(xid, data)
-    url_tester(dr)
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['images_id']),
+                          format='ascii.csv', comment='#')
+
+        data['objid'] = data['objid'].astype(np.int64)
+        compare_xid_data(xid, data)
+        url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
@@ -232,39 +241,68 @@ def test_sdss_template(patch_request, patch_get_readable_fileobj):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_specobj(patch_request, dr):
     xid = sdss.SDSS.query_specobj(plate=2340, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['spectra_id']),
-                      format='ascii.csv', comment='#')
 
-    compare_xid_data(xid, data)
-    url_tester(dr)
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['spectra_id']),
+                          format='ascii.csv', comment='#')
+        data['objid'] = data['objid'].astype(np.int64)
+        data['specobjid'] = data['specobjid'].astype(np.int64)
+        compare_xid_data(xid, data)
+        url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_photoobj(patch_request, dr):
     xid = sdss.SDSS.query_photoobj(
         run=1904, camcol=3, field=164, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['images_id']),
-                      format='ascii.csv', comment='#')
-    compare_xid_data(xid, data)
-    url_tester(dr)
+
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['images_id']),
+                          format='ascii.csv', comment='#')
+
+        data['objid'] = data['objid'].astype(np.int64)
+        compare_xid_data(xid, data)
+        url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_list_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_list, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['images_id']),
-                      format='ascii.csv', comment='#')
-    compare_xid_data(xid, data)
-    url_tester_crossid(dr)
+
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['images_id']),
+                          format='ascii.csv', comment='#')
+
+        data['objid'] = data['objid'].astype(np.int64)
+
+        compare_xid_data(xid, data)
+        url_tester_crossid(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_column, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['images_id']),
-                      format='ascii.csv', comment='#')
-    compare_xid_data(xid, data)
-    url_tester_crossid(dr)
+
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['images_id']),
+                          format='ascii.csv', comment='#')
+
+        data['objid'] = data['objid'].astype(np.int64)
+
+        compare_xid_data(xid, data)
+        url_tester_crossid(dr)
 
 
 def test_query_timeout(patch_request_slow, coord=coords):
@@ -285,10 +323,18 @@ def test_images_timeout(patch_request, patch_get_readable_fileobj_slow):
 @pytest.mark.parametrize("dr", dr_list)
 def test_query_crossid(patch_request, dr):
     xid = sdss.SDSS.query_crossid(coords_column, data_release=dr)
-    data = Table.read(data_path(DATA_FILES['images_id']),
-                      format='ascii.csv', comment='#')
-    compare_xid_data(xid, data)
-    url_tester_crossid(dr)
+
+    with warnings.catch_warnings():
+        if sys.platform.startswith('win'):
+            warnings.filterwarnings("ignore", category=AstropyWarning,
+                                    message=r'OverflowError converting.*')
+        data = Table.read(data_path(DATA_FILES['images_id']),
+                          format='ascii.csv', comment='#')
+
+        data['objid'] = data['objid'].astype(np.int64)
+
+        compare_xid_data(xid, data)
+        url_tester_crossid(dr)
 
 
 def test_query_crossid_large_radius(patch_request):
@@ -538,8 +584,8 @@ def test_field_help_region(patch_request):
     existing_s_field = sdss.SDSS.query_region(coords,
                                               field_help='spectroSynFlux_r')
 
-    non_existing_field = sdss.SDSS.query_region(coords,
-                                                field_help='nonexist')
+    with pytest.warns(UserWarning, match="nonexist isn't a valid 'photobj_field' or 'specobj_field'"):
+        non_existing_field = sdss.SDSS.query_region(coords, field_help='nonexist')
 
     assert existing_p_field is None
     assert existing_s_field is None
