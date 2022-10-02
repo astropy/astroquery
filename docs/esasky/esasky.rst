@@ -20,7 +20,6 @@ Get the available catalog names
 
 If you know the names of all the available catalogs you can use :meth:`~astroquery.esasky.ESASkyClass.list_catalogs`:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -38,7 +37,6 @@ Get the available maps mission names
 
 If you know the names of all the available maps missions you can use :meth:`~astroquery.esasky.ESASkyClass.list_maps`:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> maps_list = ESASky.list_maps()
@@ -52,7 +50,6 @@ Get the available spectra mission names
 
 If you know the names of all the available spectra you can use :meth:`~astroquery.esasky.ESASkyClass.list_spectra`:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> spectra_list = ESASky.list_spectra()
@@ -66,7 +63,7 @@ Get the available SSO mission names
 If you know the names of all the available missions with SSO cross match data, you can use
 :meth:`~astroquery.esasky.ESASkyClass.list_sso`:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> sso_list = ESASky.list_sso()
     >>> print(sso_list)
@@ -87,7 +84,6 @@ row_limit parameter. You can set the parameter to -1, which will result in the m
 
 For instance to query an object around M51 in the Hubble catalog:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -96,14 +92,13 @@ For instance to query an object around M51 in the Hubble catalog:
 Note that the catalog may also be specified as a list.
 So the above query may also be written as:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> result = ESASky.query_object_catalogs(position="M51", missions=["HSC", "XMM-OM"])  # doctest: +REMOTE_DATA
+    >>> result = ESASky.query_object_catalogs(position="M51", missions=["HSC", "XMM-OM"])
 
 To search in all available catalogs you can write ``"all"`` instead of a catalog name. The same thing will happen if you
 don't write any catalog name.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> result = ESASky.query_object_catalogs(position="M51", missions="all")
@@ -111,7 +106,6 @@ don't write any catalog name.
 
 To see the result:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> print(result)
@@ -132,7 +126,6 @@ name.
 
 To access an individual table from the `~astroquery.utils.TableList` object
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> interesting_table = result['ALLWISE']
@@ -145,7 +138,6 @@ To access an individual table from the `~astroquery.utils.TableList` object
 To do some common processing to all the tables in the returned `~astroquery.utils.TableList` object, you can just use a
 for loop:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> for table in result:
@@ -157,7 +149,6 @@ As mentioned earlier, :meth:`astroquery.esasky.ESASkyClass.query_object_maps` an
 :meth:`astroquery.esasky.ESASkyClass.query_object_spectra` works extremely similar. It will return all maps or spectra
 that contain the chosen object or coordinate. To execute the same command as above you write this:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> result = ESASky.query_object_maps(position="M51", missions="all")
@@ -177,7 +168,6 @@ sources (currently 100 000).
 To query a region either the coordinates or the object name around which to query should be specified along with the
 value for the radius of the region. For instance to query region around M51 in the HSC catalog:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -186,14 +176,13 @@ value for the radius of the region. For instance to query region around M51 in t
 
 Note that the catalog may also be specified as a list. So the above query may also be written as:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs=["HSC", "XMM-OM"]) # doctest: +REMOTE_DATA
+    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs=["HSC", "XMM-OM"])
 
 To search in all available catalogs you can write ``"all"`` instead of a catalog name. The same thing will happen if you
 don't write any catalog name.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs="all")
@@ -201,14 +190,13 @@ don't write any catalog name.
 
 In the same manner, the radius can be specified with either a string or any `~astropy.units.Quantity`
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> result = ESASky.query_region_catalogs(position="M51", radius="10 arcmin")
 
 To see the result:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> print(result)
     TableList with 18 tables:
@@ -235,20 +223,21 @@ You can use, :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` and
 :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` with the same parameters. To execute the same command as above
 you write this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> result = ESASky.query_region_maps(position="M51", radius=10 * u.arcmin, missions="all")
     >>> result = ESASky.query_region_spectra(position="M51", radius=10 * u.arcmin, missions="all")
 
 The parameters are interchangeable in the same way as in :meth:`~astroquery.esasky.ESASkyClass.query_region_catalogs`.
 
+
 Get the metadata of specific observations or sources
 ----------------------------------------------------
+
 If you already know the observation ID's or source names of interest, you can get their related metadata directly with
 :meth:`~astroquery.esasky.ESASkyClass.query_ids_maps`, or :meth:`~astroquery.esasky.ESASkyClass.query_ids_catalogs`, or
 :meth:`~astroquery.esasky.ESASkyClass.query_ids_spectra`
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> maps = ESASky.query_ids_maps(observation_ids=["lbsk03vbq", "ieag90010"], missions="HST-UV")
@@ -272,7 +261,6 @@ The method returns a `dict` to separate the different missions. All mission exce
 `~astropy.io.fits.HDUList`. For Herschel each item in the list is a dictionary where the used filter is the key and the
 HDUList is the value.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -291,9 +279,7 @@ HDUList is the value.
 As mentioned above, you can also download a images from a list of observation ID's. To do that you just have to use the
 parameter observation_id instead of target and position.
 
-.. code-block:: python
 .. doctest-remote-data::
-.. doctest-skip::
 
     >>> from astroquery.esasky import ESASky
     >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
@@ -301,7 +287,7 @@ parameter observation_id instead of target and position.
 Note that the fits files also are stored to disk. By default they are saved to the working directory but the location
 can be chosen by the download_dir parameter:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")
     >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
@@ -313,18 +299,15 @@ You can also fetch images using :meth:`astroquery.esasky.ESASkyClass.get_maps`. 
 :meth:`astroquery.esasky.ESASkyClass.get_images` except that it takes a `~astroquery.utils.TableList` instead of
 position, radius and missions.
 
-.. code-block:: python
+
 .. doctest-remote-data::
-.. doctest-skip::
 
     >>> table_list = ESASky.query_region_maps(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
     >>> images = ESASky.get_maps(query_table_list=table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
 
-.. code-block:: python
 .. doctest-remote-data::
-.. doctest-skip::
 
     >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'],
     ...                            download_dir="/home/user/esasky")
@@ -332,6 +315,7 @@ This example is equivalent to:
 
 Get spectra
 -----------
+
 There are also two methods to download spectra: :meth:`astroquery.esasky.ESASkyClass.get_spectra` and
 :meth:`astroquery.esasky.ESASkyClass.get_spectra_from_table`. These two methods use the same parameters as
 :meth:`astroquery.esasky.ESASkyClass.get_maps` and :meth:`astroquery.esasky.ESASkyClass.get_images` respectively.
@@ -339,7 +323,6 @@ There are also two methods to download spectra: :meth:`astroquery.esasky.ESASkyC
 The methods returns a `dict` to separate the different missions. All mission except Herschel returns a list of
 `~astropy.io.fits.HDUList`. Herschel returns a three-level dictionary.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -348,18 +331,11 @@ The methods returns a `dict` to separate the different missions. All mission exc
 
 or
 
-.. code-block:: python
 .. doctest-remote-data::
-.. doctest-skip::
 
     >>> table_list = ESASky.query_region_spectra(position="m51", radius="20 arcmin",
     ...                                          missions=['Herschel', 'XMM-NEWTON'])
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")
-
-The return value is structured in a dictionary like this:
-
-.. code-block:: python
-
     dict: {
     'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
         '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
@@ -371,7 +347,6 @@ The return value is structured in a dictionary like this:
 
 Here is another example for Herschel, since it is a bit special:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
@@ -384,6 +359,7 @@ Here is another example for Herschel, since it is a bit special:
 
 Solar System Object Crossmatch
 ------------------------------
+
 ESASky has a solar system object crossmatch feature which performs a crossmatch on the SSO orbits against the entire
 mission archives to find observations in which the SSO fell within the imaging instrument's field of view during the
 time the images were being taken. `Read more about the ESASky SSO feature
@@ -391,7 +367,7 @@ time the images were being taken. `Read more about the ESASky SSO feature
 :meth:`astroquery.esasky.ESASkyClass.query_sso` which works like the other query methods, but it takes an SSO name as
 input instead of a position.
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> result = ESASky.query_sso(sso_name="Pallas", missions=["XMM", "HST"])
@@ -399,7 +375,7 @@ input instead of a position.
 In some cases an SSO name is ambiguous, in which case you may need to use a more precise SSO name or specify the SSO
 type of the desired object. For example:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> ESASky.query_sso(sso_name="503")
@@ -416,7 +392,7 @@ type of the desired object. For example:
 
 In this case, you can specify the sso_type
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> ESASky.query_sso(sso_name="503", sso_type="SATELLITE")
@@ -424,7 +400,7 @@ In this case, you can specify the sso_type
 
 You can see the available missions with:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> ESASky.list_sso()
@@ -437,7 +413,7 @@ This function works very similar to :meth:`astroquery.esasky.ESASkyClass.get_ima
 :meth:`astroquery.esasky.ESASkyClass.get_maps`, as it structures the return values in the same way, and most parameters
 are the same. You can for example, download a table list just like in get_maps by doing something like this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> table_list_from_query_maps=ESASky.query_sso(sso_name="ganymede", missions="XMM")
@@ -446,7 +422,7 @@ are the same. You can for example, download a table list just like in get_maps b
 
 Or download everything on an SSO by something like this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> images=ESASky.get_images_sso(sso_name="ganymede")
@@ -456,7 +432,7 @@ This module also offers access to IMCCE's SsODNet resolver, which allows you to 
 objects with a given name. Here you can see all matches and there aliases and types. You can use this method to help you
 specify which SSO you are after. Use :meth:`astroquery.esasky.ESASkyClass.find_sso` like this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> list_of_matches=ESASky.find_sso(sso_name="Io")
