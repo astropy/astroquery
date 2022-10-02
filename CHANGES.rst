@@ -33,7 +33,7 @@ alma
 - Throws an error when an unsupported ``kwargs`` (or argument) is passed in to a function. [#2475]
 - New DataLink API handling. [#2493]
 - Fixed bug #2489 in which blank URLs were being sent to the downloader [#2490]
-
+- Removed deprecated broken functions from ``alma.utils``. [#2331]
 
 astrometry.net
 ^^^^^^^^^^^^^^

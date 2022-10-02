@@ -2,20 +2,10 @@
 Utilities for making finder charts and overlay images for ALMA proposing
 """
 import string
-import os
 
-import numpy as np
-
-from astropy import wcs
-from astroquery import log
 from astropy import units as u
-from astropy.io import fits
 from astropy.coordinates import SkyCoord
 from astroquery.utils.commons import ASTROPY_LT_4_1
-
-from astroquery.skyview import SkyView
-from astroquery.alma import Alma
-
 
 __all__ = ['parse_frequency_support', 'footprint_to_reg', 'approximate_primary_beam_sizes']
 
@@ -67,10 +57,9 @@ def footprint_to_reg(footprint):
 
     reglist = []
 
-    meta={'source': 1, 'include': 1,
-          'fixed': 0, 'text': ''}
-    visual={'color': 'green', 'dash': '0', 'dashlist': '8 3',
-            'font': '"helvetica 10 normal roman"', 'width': '1'}
+    meta = {'source': 1, 'include': 1, 'fixed': 0, 'text': ''}
+    visual = {'color': 'green', 'dash': '0', 'dashlist': '8 3',
+              'font': '"helvetica 10 normal roman"', 'width': '1'}
 
     entries = footprint.split()
     if entries[0] == 'Circle':
@@ -82,12 +71,10 @@ def footprint_to_reg(footprint):
         polygons = [index for index, entry in enumerate(entries) if entry == 'Polygon']
 
         for start, stop in zip(polygons, polygons[1:]+[None]):
-            #reg = Shape('polygon', [float(x) for x in entries[start+1:stop] if x != 'ICRS'])
             ra = [float(x) for x in entries[start+1:stop:2]]*u.deg
             dec = [float(x) for x in entries[start+2:stop:2]]*u.deg
             vertices = SkyCoord(ra, dec, frame='icrs')
-            reg = regions.PolygonSkyCoord(vertices=vertices,
-                                          meta=meta, visual=visual)
+            reg = regions.PolygonSkyCoord(vertices=vertices, meta=meta, visual=visual)
             reglist.append(reg)
 
     return reglist
