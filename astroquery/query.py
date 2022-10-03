@@ -21,7 +21,7 @@ import astropy.utils.data
 from astropy.utils import deprecated
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from astroquery import version, log, conf
+from astroquery import version, log, cache_conf
 from astroquery.utils import system_tools
 
 
@@ -311,7 +311,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        cache &= conf.cache_active
+        cache &= cache_conf.cache_active
 
         if save:
             local_filename = url.split('/')[-1]
@@ -335,13 +335,13 @@ class BaseQuery(metaclass=LoginABCMeta):
             query = AstroQuery(method, url, params=params, data=data, headers=headers,
                                files=files, timeout=timeout, json=json)
             if (self.cache_location is None) or (not cache):
-                with conf.set_temp("cache_active", False):
+                with cache_conf.set_temp("cache_active", False):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
-                response = query.from_cache(self.cache_location, conf.cache_timeout)
+                response = query.from_cache(self.cache_location, cache_conf.cache_timeout)
                 if not response:
                     response = query.request(self._session,
                                              self.cache_location,
@@ -485,7 +485,7 @@ class suspend_cache:
     """
 
     def __init__(self, obj=None):
-        self.original_cache_setting = conf.cache_active
+        self.original_cache_setting = cache_conf.cache_active
 
     def __enter__(self):
         conf.cache_active = False

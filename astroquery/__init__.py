@@ -42,7 +42,7 @@ log = _init_log()
 
 
 # Set up cache configuration
-class Conf(_config.ConfigNamespace):
+class Cache_Conf(_config.ConfigNamespace):
 
     cache_timeout = _config.ConfigItem(
         604800,  # 1 week
@@ -57,4 +57,4 @@ class Conf(_config.ConfigNamespace):
     )
 
 
-conf = Conf()
+cache_conf = Cache_Conf()
