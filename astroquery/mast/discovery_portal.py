@@ -134,6 +134,8 @@ class PortalAPI(BaseQuery):
         if session:
             self._session = session
 
+        self.name = "Mast"
+
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
         """

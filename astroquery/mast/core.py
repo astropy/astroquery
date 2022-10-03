@@ -59,6 +59,27 @@ class MastQueryWithLogin(QueryWithLogin):
 
         return self._auth_obj.login(token, store_token, reenter_token)
 
+    @property
+    def cache_location(self):
+        cl = self._portal_api_connection.cache_location
+        cl_2 = self._service_api_connection.cache_location
+
+        if cl != cl_2:
+            print("What should we do in this case? (currently setting it by force)")
+            self._service_api_connection.cache_location = cl
+        
+        return cl
+
+    @cache_location.setter
+    def cache_location(self, loc):
+        self._portal_api_connection.cache_location = loc
+        self._service_api_connection.cache_location = loc
+
+    def reset_cache_location(self):
+        """Resets the cache location to the default astropy cache"""
+        self._portal_api_connection.reset_cache_location()
+        self._service_api_connection.reset_cache_location()
+
     def session_info(self, verbose=True):
         """
         Displays information about current MAST user, and returns user info dictionary.
