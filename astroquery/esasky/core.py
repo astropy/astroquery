@@ -102,17 +102,22 @@ class ESASkyClass(BaseQuery):
         output_format : str, optional, default 'votable'
             possible values 'votable' or 'csv'
         verbose : bool, optional, default 'False'
-            flag to display information about the process
+            flag to display information about the process and warnings when
+            the data doesn't conform to its standard.
 
         Returns
         -------
         A table object
         """
         if not verbose:
-            commons.suppress_vo_warnings()
-            warnings.filterwarnings("ignore", category=astropy.units.core.UnitsWarning)
-        job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format, verbose=verbose,
-                                   dump_to_file=output_file is not None)
+            with warnings.catch_warnings():
+                commons.suppress_vo_warnings()
+                warnings.filterwarnings("ignore", category=astropy.units.core.UnitsWarning)
+                job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
+                                           verbose=verbose, dump_to_file=output_file is not None)
+        else:
+            job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
+                                       verbose=verbose, dump_to_file=output_file is not None)
         return job.get_results()
 
     def get_tables(self, *, only_names=True, verbose=False, cache=True):
