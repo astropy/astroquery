@@ -24,13 +24,12 @@ If you know the names of all the available catalogs you can use :meth:`~astroque
 
     >>> from astroquery.esasky import ESASky
     >>> catalog_list = ESASky.list_catalogs()
-    >>> print(catalog_list)      # doctest: +IGNORE_OUTPUT
-    ['LAMOST', 'AllWise', 'AKARI-IRC-SC', 'TwoMASS', 'INTEGRAL',
-    'CHANDRA-SC2', 'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW',
-    'Tycho-2', 'Gaia-eDR3', 'Hipparcos-2', 'HSC', 'Herschel-HPPSC-070',
-    'Herschel-HPPSC-100', 'Herschel-HPPSC-160', 'Herschel-SPSC-250',
-    'Herschel-SPSC-350', 'Herschel-SPSC-500','Planck-PGCC',
-    'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ2']
+    >>> print(catalog_list)
+    ['LAMOST_LRS', 'LAMOST_MRS', 'AllWise', 'Spitzer', 'AKARI-IRC-SC', 'TwoMASS', 'INTEGRAL', 'CHANDRA-SC2',
+    'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 'Gaia-DR3', 'Hipparcos-2', 'HSC',
+    'Herschel-HPPSC-070', 'Herschel-HPPSC-100', 'Herschel-HPPSC-160', 'Herschel-SPSC-250', 'Herschel-SPSC-350',
+    'Herschel-SPSC-500', 'Planck-PGCC', 'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ2',
+    'Icecube', 'Fermi_4FGL-DR2', 'Fermi_3FHL', 'Fermi_4LAC-DR2', '2WHSP', '2RXS', 'OU_Blazars']
 
 Get the available maps mission names
 ------------------------------------
@@ -40,10 +39,9 @@ If you know the names of all the available maps missions you can use :meth:`~ast
 .. doctest-remote-data::
 
     >>> maps_list = ESASky.list_maps()
-    >>> print(maps_list)    # doctest: +IGNORE_OUTPUT
-    ['INTEGRAL', 'XMM', 'Chandra', 'SUZAKU', 'XMM-OM-OPTICAL',
-    'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'ISO-IR',
-    'Herschel', 'AKARI', 'Spitzer', 'ALMA']
+    >>> print(maps_list)
+    ['INTEGRAL', 'XMM', 'Chandra', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR',
+    'ISO-IR', 'Herschel', 'AKARI', 'JWST-MID-IR', 'JWST-NEAR-IR', 'Spitzer', 'ALMA']
 
 Get the available spectra mission names
 ---------------------------------------
@@ -53,9 +51,9 @@ If you know the names of all the available spectra you can use :meth:`~astroquer
 .. doctest-remote-data::
 
     >>> spectra_list = ESASky.list_spectra()
-    >>> print(spectra_list)    # doctest: +IGNORE_OUTPUT
-    ['XMM-NEWTON', 'Chandra', 'IUE', 'HST-UV', 'HST-OPTICAL',
-    'HST-IR', 'ISO-IR', 'Herschel', 'LAMOST']
+    >>> print(spectra_list)
+    ['XMM-NEWTON', 'Chandra', 'IUE', 'HST-UV', 'HST-OPTICAL', 'JWST-MID-IR', 'JWST-NEAR-IR', 'HST-IR', 'ISO-IR',
+    'Herschel', 'LAMOST_LRS', 'LAMOST_MRS', 'CHEOPS']
 
 Get the available SSO mission names
 -----------------------------------
@@ -67,7 +65,7 @@ If you know the names of all the available missions with SSO cross match data, y
 
     >>> sso_list = ESASky.list_sso()
     >>> print(sso_list)
-    ['Herschel', 'HST', 'XMM']
+    ['Herschel', 'HST', 'XMM', 'XMM-OM']
 
 
 Query an object
@@ -87,21 +85,21 @@ For instance to query an object around M51 in the Hubble catalog:
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> result = ESASky.query_object_catalogs(position="M51", missions="HSC")
+    >>> result = ESASky.query_object_catalogs(position="M51", catalogs="HSC")
 
 Note that the catalog may also be specified as a list.
 So the above query may also be written as:
 
 .. doctest-remote-data::
 
-    >>> result = ESASky.query_object_catalogs(position="M51", missions=["HSC", "XMM-OM"])
+    >>> result = ESASky.query_object_catalogs(position="M51", catalogs=["HSC", "XMM-OM"])
 
 To search in all available catalogs you can write ``"all"`` instead of a catalog name. The same thing will happen if you
 don't write any catalog name.
 
 .. doctest-remote-data::
 
-    >>> result = ESASky.query_object_catalogs(position="M51", missions="all")
+    >>> result = ESASky.query_object_catalogs(position="M51", catalogs="all")
     >>> result = ESASky.query_object_catalogs(position="M51")
 
 To see the result:
@@ -109,16 +107,16 @@ To see the result:
 .. doctest-remote-data::
 
     >>> print(result)
-    TableList with 9 tables:
-        '0:ALLWISE' with 13 column(s) and 1 row(s)
-        '1:TWOMASS' with 9 column(s) and 3 row(s)
-        '2:CHANDRA-SC2' with 41 column(s) and 9 row(s)
-        '3:XMM-EPIC-STACK' with 13 column(s) and 1 row(s)
-        '4:XMM-EPIC' with 14 column(s) and 11 row(s)
-        '5:XMM-OM' with 11 column(s) and 5 row(s)
-        '6:HSC' with 9 column(s) and 230 row(s)
-        '7:HERSCHEL-HPPSC-070' with 15 column(s) and 1 row(s)
-        '8:HERSCHEL-HPPSC-100' with 15 column(s) and 1 row(s)
+     TableList with 9 tables:
+    	'0:ALLWISE' with 25 column(s) and 1 row(s)
+    	'1:TWOMASS' with 14 column(s) and 3 row(s)
+    	'2:CHANDRA-SC2' with 41 column(s) and 9 row(s)
+    	'3:XMM-EPIC-STACK' with 347 column(s) and 1 row(s)
+    	'4:XMM-EPIC' with 223 column(s) and 12 row(s)
+    	'5:XMM-OM' with 122 column(s) and 5 row(s)
+    	'6:HSC' with 27 column(s) and 230 row(s)
+    	'7:HERSCHEL-HPPSC-070' with 21 column(s) and 1 row(s)
+    	'8:HERSCHEL-HPPSC-100' with 21 column(s) and 1 row(s)
 
 All the results are returned as a `~astroquery.utils.TableList` object. This is a container for `~astropy.table.Table`
 objects. It is basically an extension to `~collections.OrderedDict` for storing a `~astropy.table.Table` against its
@@ -129,7 +127,7 @@ To access an individual table from the `~astroquery.utils.TableList` object
 .. doctest-remote-data::
 
     >>> interesting_table = result['ALLWISE']
-    >>> print(interesting_table)
+    >>> print(interesting_table)  # doctest: +IGNORE_OUTPUT
             name             ra        dec     ... w3mpro_error w4mpro w4mpro_error
                             deg        deg     ...     mag       mag       mag
     ------------------- ----------- ---------- ... ------------ ------ ------------
@@ -158,6 +156,7 @@ The parameters are interchangeable in the same way as in :meth:`~astroquery.esas
 
 Query a region
 --------------
+
 The region queries work in a similar way as query_object, except that you must choose a radius as well. There are three
 query region methods in this module :meth:`astroquery.esasky.ESASkyClass.query_region_catalogs`,
 :meth:`astroquery.esasky.ESASkyClass.query_region_maps`, and :meth:`astroquery.esasky.ESASkyClass.query_region_spectra`.
@@ -172,26 +171,15 @@ value for the radius of the region. For instance to query region around M51 in t
 
     >>> from astroquery.esasky import ESASky
     >>> import astropy.units as u
-    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs="HSC")
-
-Note that the catalog may also be specified as a list. So the above query may also be written as:
-
-.. doctest-remote-data::
-
     >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs=["HSC", "XMM-OM"])
 
 To search in all available catalogs you can write ``"all"`` instead of a catalog name. The same thing will happen if you
 don't write any catalog name.
+In the same manner, the radius can be specified with either a string or any `~astropy.units.Quantity`.
 
 .. doctest-remote-data::
 
     >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs="all")
-    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin)
-
-In the same manner, the radius can be specified with either a string or any `~astropy.units.Quantity`
-
-.. doctest-remote-data::
-
     >>> result = ESASky.query_region_catalogs(position="M51", radius="10 arcmin")
 
 To see the result:
@@ -199,25 +187,27 @@ To see the result:
 .. doctest-remote-data::
 
     >>> print(result)
-    TableList with 18 tables:
-        '0:LAMOST' with 21 column(s) and 41 row(s)
-        '1:ALLWISE' with 13 column(s) and 1762 row(s)
-        '2:AKARI-IRC-SC' with 13 column(s) and 1 row(s)
-        '3:TWOMASS' with 9 column(s) and 188 row(s)
-        '4:CHANDRA-SC2' with 41 column(s) and 430 row(s)
-        '5:XMM-EPIC-STACK' with 13 column(s) and 214 row(s)
-        '6:XMM-EPIC' with 14 column(s) and 823 row(s)
-        '7:XMM-OM' with 11 column(s) and 4849 row(s)
-        '8:XMM-SLEW' with 9 column(s) and 2 row(s)
-        '9:GAIA-EDR3' with 20 column(s) and 932 row(s)
-        '10:HSC' with 9 column(s) and 10000 row(s)
-        '11:HERSCHEL-HPPSC-070' with 15 column(s) and 93 row(s)
-        '12:HERSCHEL-HPPSC-100' with 15 column(s) and 122 row(s)
-        '13:HERSCHEL-HPPSC-160' with 15 column(s) and 93 row(s)
-        '14:HERSCHEL-SPSC-250' with 16 column(s) and 59 row(s)
-        '15:HERSCHEL-SPSC-350' with 16 column(s) and 24 row(s)
-        '16:HERSCHEL-SPSC-500' with 16 column(s) and 7 row(s)
-        '17:PLANCK-PCCS2-HFI' with 8 column(s) and 8 row(s)
+    TableList with 20 tables:
+    	'0:LAMOST_LRS' with 43 column(s) and 37 row(s)
+    	'1:ALLWISE' with 25 column(s) and 1762 row(s)
+    	'2:SPITZER' with 146 column(s) and 1082 row(s)
+    	'3:AKARI-IRC-SC' with 29 column(s) and 1 row(s)
+    	'4:TWOMASS' with 14 column(s) and 188 row(s)
+    	'5:CHANDRA-SC2' with 41 column(s) and 430 row(s)
+    	'6:XMM-EPIC-STACK' with 347 column(s) and 225 row(s)
+    	'7:XMM-EPIC' with 223 column(s) and 941 row(s)
+    	'8:XMM-OM' with 122 column(s) and 4849 row(s)
+    	'9:XMM-SLEW' with 106 column(s) and 2 row(s)
+    	'10:GAIA-DR3' with 153 column(s) and 932 row(s)
+    	'11:HSC' with 27 column(s) and 10000 row(s)
+    	'12:HERSCHEL-HPPSC-070' with 21 column(s) and 93 row(s)
+   	'13:HERSCHEL-HPPSC-100' with 21 column(s) and 122 row(s)
+   	'14:HERSCHEL-HPPSC-160' with 21 column(s) and 93 row(s)
+    	'15:HERSCHEL-SPSC-250' with 36 column(s) and 59 row(s)
+    	'16:HERSCHEL-SPSC-350' with 36 column(s) and 24 row(s)
+    	'17:HERSCHEL-SPSC-500' with 36 column(s) and 7 row(s)
+    	'18:PLANCK-PCCS2-HFI' with 9 column(s) and 8 row(s)
+    	'19:2RXS' with 306 column(s) and 2 row(s)
 
 You can use, :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` and
 :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` with the same parameters. To execute the same command as above
@@ -241,8 +231,11 @@ If you already know the observation ID's or source names of interest, you can ge
 .. doctest-remote-data::
 
     >>> maps = ESASky.query_ids_maps(observation_ids=["lbsk03vbq", "ieag90010"], missions="HST-UV")
+    INFO: Retrieving tables... [astroquery.utils.tap.core]
+    INFO: Parsing tables... [astroquery.utils.tap.core]
+    INFO: Done. [astroquery.utils.tap.core]
     >>> catalogs = ESASky.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642",
-                                                         "44899", "45057"], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+    ...                                                  "44899", "45057"], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
     >>> spectra = ESASky.query_ids_spectra(observation_ids="0001730501")
 
 If you already know which missions you are interested in, it is recommended to explicitly mention them in the mission
@@ -264,7 +257,7 @@ HDUList is the value.
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])   # doctest: +IGNORE_OUTPUT
+    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])   # doctest: +IGNORE_WARNINGS +IGNORE_OUTPUT
     Starting download of HERSCHEL data. (25 files)
     Downloading Observation ID: 1342188589 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8618001&DATA_RETRIEVAL_ORIGIN=UI [Done]
     Downloading Observation ID: 1342188328 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8637833&DATA_RETRIEVAL_ORIGIN=UI
@@ -281,16 +274,11 @@ parameter observation_id instead of target and position.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
+    >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])   # doctest: +IGNORE_WARNINGS +IGNORE_OUTPUT
 
 Note that the fits files also are stored to disk. By default they are saved to the working directory but the location
-can be chosen by the download_dir parameter:
+can be chosen by the download_dir parameter.
 
-.. doctest-remote-data::
-
-    >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")
-    >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
 
 Get maps
 --------
@@ -300,17 +288,18 @@ You can also fetch images using :meth:`astroquery.esasky.ESASkyClass.get_maps`. 
 position, radius and missions.
 
 
+.. Skip testing examples with with hard-wired download dir values
 .. doctest-remote-data::
 
     >>> table_list = ESASky.query_region_maps(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
-    >>> images = ESASky.get_maps(query_table_list=table_list, download_dir="/home/user/esasky")
+    >>> images = ESASky.get_maps(query_table_list=table_list, download_dir="/home/user/esasky")  # doctest: +SKIP
 
 This example is equivalent to:
 
 .. doctest-remote-data::
 
     >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'],
-    ...                            download_dir="/home/user/esasky")
+    ...                            download_dir="/home/user/esasky")  # doctest: +SKIP
 
 
 Get spectra
@@ -323,11 +312,12 @@ There are also two methods to download spectra: :meth:`astroquery.esasky.ESASkyC
 The methods returns a `dict` to separate the different missions. All mission except Herschel returns a list of
 `~astropy.io.fits.HDUList`. Herschel returns a three-level dictionary.
 
+.. TODO: Skipping for now as it keeps timinig out. Needs fixing
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> spectra = ESASky.get_spectra(position="m51", radius="20 arcmin", missions=['Herschel', 'XMM-NEWTON'])
-    >>> spectra = ESASky.get_spectra(observation_ids=["02101201", "z1ax0102t"], missions=["ISO-IR", "HST-UV"])
+    >>> spectra = ESASky.get_spectra(position="m51", radius="20 arcmin", missions=['Herschel', 'XMM-NEWTON'])  # doctest: +SKIP
+    >>> spectra = ESASky.get_spectra(observation_ids=["02101201", "z1ax0102t"], missions=["ISO-IR", "HST-UV"])  # doctest: +IGNORE_OUTPUT
 
 or
 
@@ -335,7 +325,7 @@ or
 
     >>> table_list = ESASky.query_region_spectra(position="m51", radius="20 arcmin",
     ...                                          missions=['Herschel', 'XMM-NEWTON'])
-    >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")
+    >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list)
     dict: {
     'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
         '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
@@ -356,6 +346,15 @@ Here is another example for Herschel, since it is a bit special:
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=[('HERSCHEL', herschel_result)], download_dir='Spectra_new')
     >>> spectra['HERSCHEL']['1342211195']['red'].keys()
     >>> spectra['HERSCHEL']['1342211195']['red']['HPSTBRRS'].info()
+    observation_id target_name  instrument   observing_mode_name            band         duration
+                                                                                         seconds
+    -------------- ------------ ---------- ------------------------ ------------------- ---------
+        1342180479          M51       HIFI HifiMappingModeDBSRaster   555.45-571.56 GHz  8014.085
+        1342211195 m51 strip2-1       PACS             PacsLineSpec 62.96-190.85 micron    1254.0
+        1342211188          m51       PACS             PacsLineSpec 52.15-159.67 micron    5597.0
+        1342180478          M51       HIFI       HifiMappingModeOTF   562.54-578.65 GHz  4012.741
+    ...
+
 
 Solar System Object Crossmatch
 ------------------------------
