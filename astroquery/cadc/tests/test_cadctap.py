@@ -384,12 +384,14 @@ def test_exec_sync(tmp_path):
 
         assert report_diff_values(table, actual_table, fileobj=sys.stdout)
 
-    # check file handlers, too
-    with open(os.path.join(tmp_path, 'test_open_file_handler.xml'), 'w+b') as open_file:
-        cadc.exec_sync('some query', output_file=open_file)
+    # check file handlers, but skip on windows as it has issues with
+    # context managers and open files
+    if not sys.platform.startswith('win'):
+        with open(os.path.join(tmp_path, 'test_open_file_handler.xml'), 'w+b') as open_file:
+            cadc.exec_sync('some query', output_file=open_file)
 
-    actual = parse(os.path.join(tmp_path, 'test_open_file_handler.xml'))
-    assert report_diff_values(table, actual_table, fileobj=sys.stdout)
+        actual = parse(os.path.join(tmp_path, 'test_open_file_handler.xml'))
+        assert report_diff_values(table, actual_table, fileobj=sys.stdout)
 
 
 @patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
