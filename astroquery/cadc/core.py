@@ -11,6 +11,7 @@ from astroquery import log
 import warnings
 import requests
 from numpy import ma
+from pathlib import Path
 from urllib.parse import urlencode
 from urllib.error import HTTPError
 
@@ -587,7 +588,7 @@ class CadcClass(BaseQuery):
             the maximum records to return. defaults to the service default
         uploads :
             Temporary tables to upload and run with the queries
-        output_file : str or file handler
+        output_file : str, Path, or file handler
             File to save the results to
         output_format :
             Format of the output (default is basic). Must be one
@@ -608,10 +609,13 @@ class CadcClass(BaseQuery):
         if output_file:
             if isinstance(output_file, str):
                 fname = output_file
+            elif isinstance(output_file, Path):
+                # Merge this case into the str once astropy is >=5.1
+                fname = str(output_file)
             elif hasattr(output_file, 'name'):
                 fname = output_file.name
             else:
-                raise AttributeError('Not a valid file name or file handler')
+                raise AttributeError('Not a valid file name, Path, or file handler')
             result.write(fname, format=output_format, overwrite=True)
         return result
 

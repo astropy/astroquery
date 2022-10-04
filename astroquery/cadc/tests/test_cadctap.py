@@ -15,10 +15,10 @@ from astropy.table import Table as AstroTable
 from astropy.io.fits.hdu.hdulist import HDUList
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
+from astropy.utils.diff import report_diff_values
 from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy import units as u
 import pytest
-import tempfile
 import requests
 
 from pyvo.auth import securitymethods
@@ -348,7 +348,7 @@ def test_get_image_list():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
-def test_exec_sync():
+def test_exec_sync(tmp_path):
     # save results in a file
     # create the VOTable result
     # example from http://docs.astropy.org/en/stable/io/votable/
@@ -369,20 +369,29 @@ def test_exec_sync():
     response = Mock()
     response.to_table.return_value = table.to_table()
     cadc.cadctap.search = Mock(return_value=response)
-    output_file = '{}/test_vooutput.xml'.format(tempfile.tempdir)
-    cadc.exec_sync('some query', output_file=output_file)
 
-    actual = parse(output_file)
-    assert len(votable.resources) == len(actual.resources) == 1
-    assert len(votable.resources[0].tables) ==\
-        len(actual.resources[0].tables) == 1
-    actual_table = actual.resources[0].tables[0]
-    try:
-        # TODO remove when astropy LTS upgraded
-        from astropy.utils.diff import report_diff_values
+    output_files = [os.path.join(tmp_path, 'test_vooutput.xml'),
+                    Path(tmp_path, 'test_path_vooutput.xml')]
+
+    for output_file in output_files:
+        cadc.exec_sync('some query', output_file=output_file)
+
+        actual = parse(output_file)
+        assert len(votable.resources) == len(actual.resources) == 1
+        assert len(votable.resources[0].tables) ==\
+            len(actual.resources[0].tables) == 1
+        actual_table = actual.resources[0].tables[0]
+
         assert report_diff_values(table, actual_table, fileobj=sys.stdout)
-    except ImportError:
-        pass
+
+    # check file handlers, but skip on windows as it has issues with
+    # context managers and open files
+    if not sys.platform.startswith('win'):
+        with open(os.path.join(tmp_path, 'test_open_file_handler.xml'), 'w+b') as open_file:
+            cadc.exec_sync('some query', output_file=open_file)
+
+        actual = parse(os.path.join(tmp_path, 'test_open_file_handler.xml'))
+        assert report_diff_values(table, actual_table, fileobj=sys.stdout)
 
 
 @patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
