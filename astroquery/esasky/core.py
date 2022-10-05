@@ -114,10 +114,10 @@ class ESASkyClass(BaseQuery):
                 commons.suppress_vo_warnings()
                 warnings.filterwarnings("ignore", category=astropy.units.core.UnitsWarning)
                 job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
-                                           verbose=verbose, dump_to_file=output_file is not None)
+                                           verbose=False, dump_to_file=output_file is not None)
         else:
             job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
-                                       verbose=verbose, dump_to_file=output_file is not None)
+                                       verbose=True, dump_to_file=output_file is not None)
         return job.get_results()
 
     def get_tables(self, *, only_names=True, verbose=False, cache=True):
@@ -1551,7 +1551,7 @@ class ESASkyClass(BaseQuery):
         if verbose:
             return fits.open(path)
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            warnings.filterwarnings("ignore", category=astropy.io.fits.verify.VerifyWarning)
             return fits.open(path)
 
     def _ends_with_fits_like_extentsion(self, name):
