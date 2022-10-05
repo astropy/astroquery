@@ -5,6 +5,7 @@ import os
 import tarfile
 import sys
 import re
+import warnings
 from io import BytesIO
 from zipfile import ZipFile
 from pathlib import Path
@@ -101,16 +102,22 @@ class ESASkyClass(BaseQuery):
         output_format : str, optional, default 'votable'
             possible values 'votable' or 'csv'
         verbose : bool, optional, default 'False'
-            flag to display information about the process
+            flag to display information about the process and warnings when
+            the data doesn't conform to its standard.
 
         Returns
         -------
         A table object
         """
-        job = self._tap.launch_job(query=query, output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose,
-                                   dump_to_file=output_file is not None)
+        if not verbose:
+            with warnings.catch_warnings():
+                commons.suppress_vo_warnings()
+                warnings.filterwarnings("ignore", category=astropy.units.core.UnitsWarning)
+                job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
+                                           verbose=False, dump_to_file=output_file is not None)
+        else:
+            job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
+                                       verbose=True, dump_to_file=output_file is not None)
         return job.get_results()
 
     def get_tables(self, *, only_names=True, verbose=False, cache=True):
@@ -132,9 +139,7 @@ class ESASkyClass(BaseQuery):
         if cache and self._cached_tables is not None:
             tables = self._cached_tables
         else:
-            tables = self._tap.load_tables(only_names=only_names,
-                                           include_shared_tables=False,
-                                           verbose=verbose)
+            tables = self._tap.load_tables(only_names=only_names, include_shared_tables=False, verbose=verbose)
             self._cached_tables = tables
         if only_names:
             return [t.name for t in tables]
@@ -159,8 +164,7 @@ class ESASkyClass(BaseQuery):
         A list of columns
         """
 
-        tables = self.get_tables(only_names=False,
-                                 verbose=verbose)
+        tables = self.get_tables(only_names=False, verbose=verbose)
         columns = None
         for table in tables:
             if str(table.name) == str(table_name):
@@ -219,9 +223,8 @@ class ESASkyClass(BaseQuery):
         return self._json_object_field_to_list(
             self._get_sso_json(), self.__MISSION_STRING)
 
-    def query_object_maps(self, position, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True,
-                          row_limit=DEFAULT_ROW_LIMIT):
+    def query_object_maps(self, position, missions=__ALL_STRING, get_query_payload=False, cache=True,
+                          row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
         This method queries a chosen object or coordinate for all available maps
         which have observation data on the chosen position. It returns a
@@ -247,6 +250,9 @@ class ESASkyClass(BaseQuery):
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -270,11 +276,11 @@ class ESASkyClass(BaseQuery):
                                       missions=missions,
                                       get_query_payload=get_query_payload,
                                       cache=cache,
-                                      row_limit=row_limit)
+                                      row_limit=row_limit,
+                                      verbose=verbose)
 
-    def query_object_catalogs(self, position, catalogs=__ALL_STRING,
-                              row_limit=DEFAULT_ROW_LIMIT,
-                              get_query_payload=False, cache=True):
+    def query_object_catalogs(self, position, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                              get_query_payload=False, cache=True, verbose=False):
         """
         This method queries a chosen object or coordinate for all available
         catalogs and returns a TableList with all the found catalogs metadata
@@ -301,6 +307,10 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
+
         Returns
         -------
         table_list : `~astroquery.utils.TableList`
@@ -323,11 +333,11 @@ class ESASkyClass(BaseQuery):
                                           catalogs=catalogs,
                                           row_limit=row_limit,
                                           get_query_payload=get_query_payload,
-                                          cache=cache)
+                                          cache=cache,
+                                          verbose=verbose)
 
-    def query_object_spectra(self, position, missions=__ALL_STRING,
-                             get_query_payload=False, cache=True,
-                             row_limit=DEFAULT_ROW_LIMIT):
+    def query_object_spectra(self, position, missions=__ALL_STRING, get_query_payload=False, cache=True,
+                             row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
         This method queries a chosen object or coordinate for all available missions
         which have spectral data on the chosen position. It returns a
@@ -353,6 +363,9 @@ class ESASkyClass(BaseQuery):
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -376,7 +389,8 @@ class ESASkyClass(BaseQuery):
                                          missions=missions,
                                          get_query_payload=get_query_payload,
                                          cache=cache,
-                                         row_limit=row_limit)
+                                         row_limit=row_limit,
+                                         verbose=verbose)
 
     def find_sso(self, sso_name, *, sso_type="ALL", cache=True):
         """
@@ -445,8 +459,7 @@ class ESASkyClass(BaseQuery):
         except (HTTPError, ConnectionError) as err:
             log.error("Connection failed with {}.".format(err))
 
-    def query_sso(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING,
-                       row_limit=DEFAULT_ROW_LIMIT):
+    def query_sso(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
         This method performs a crossmatch on the chosen solar system object
         and the selected missions using ESASky's crossmatch algorithm.
@@ -470,6 +483,9 @@ class ESASkyClass(BaseQuery):
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -531,14 +547,14 @@ class ESASkyClass(BaseQuery):
                     'AND c.sso_type = \'{sso_type}\'' \
                 .format(top=top, data_table=data_table, x_match_table=x_match_table,
                         sso_db_identifier=sso_db_identifier, sso_name=sso['sso_name'], sso_type=sso_type)
-            table = self.query(query)
+            table = self.query(query, verbose=verbose)
             if len(table) > 0:
                 query_result[name.upper()] = table
 
         return commons.TableList(query_result)
 
     def get_images_sso(self, *, sso_name=None, sso_type="ALL", table_list=None, missions=__ALL_STRING,
-                       download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
+                       download_dir=_MAPS_DOWNLOAD_DIR, cache=True, verbose=False):
         """
         This method gets the fits files for the input (either a sso_name or table_list)
         and downloads all maps to the the selected folder.
@@ -573,6 +589,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -606,7 +625,8 @@ class ESASkyClass(BaseQuery):
         sso_name = self._sanitize_input_sso_name(sso_name)
         sso_type = self._sanitize_input_sso_type(sso_type)
         if table_list is None:
-            map_query_result = self.query_sso(sso_name=sso_name, sso_type=sso_type, missions=sanitized_missions)
+            map_query_result = self.query_sso(sso_name=sso_name, sso_type=sso_type, missions=sanitized_missions,
+                                              verbose=verbose)
         else:
             map_query_result = self._sanitize_input_table_list(table_list)
 
@@ -616,11 +636,8 @@ class ESASkyClass(BaseQuery):
         for query_mission in map_query_result.keys():
             if query_mission.lower() in sanitized_missions:
                 maps[query_mission] = (
-                    self._get_maps_for_mission(
-                        map_query_result[query_mission],
-                        query_mission,
-                        download_dir,
-                        cache, json))
+                    self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache,
+                        json, verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
@@ -631,9 +648,8 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def query_region_maps(self, position, radius, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True,
-                          row_limit=DEFAULT_ROW_LIMIT):
+    def query_region_maps(self, position, radius, missions=__ALL_STRING, get_query_payload=False, cache=True,
+                          row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
         This method queries a chosen region for all available maps and returns a
         TableList with all the found maps metadata for the chosen missions and
@@ -660,6 +676,9 @@ class ESASkyClass(BaseQuery):
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -690,16 +709,14 @@ class ESASkyClass(BaseQuery):
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
-                                 get_query_payload=get_query_payload, cache=cache)
-
-        if (get_query_payload):
+                                 get_query_payload=get_query_payload, cache=cache, verbose=verbose)
+        if get_query_payload:
             return query_result
 
         return commons.TableList(query_result)
 
-    def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,
-                              row_limit=DEFAULT_ROW_LIMIT,
-                              get_query_payload=False, cache=True):
+    def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                              get_query_payload=False, cache=True, verbose=False):
         """
         This method queries a chosen region for all available catalogs and
         returns a TableList with all the found catalogs metadata for the chosen
@@ -726,6 +743,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -756,16 +776,15 @@ class ESASkyClass(BaseQuery):
 
         self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
-                                 get_query_payload=get_query_payload, cache=cache)
+                                 get_query_payload=get_query_payload, cache=cache, verbose=verbose)
 
-        if (get_query_payload):
+        if get_query_payload:
             return query_result
 
         return commons.TableList(query_result)
 
-    def query_region_spectra(self, position, radius, missions=__ALL_STRING,
-                             row_limit=DEFAULT_ROW_LIMIT,
-                             get_query_payload=False, cache=True):
+    def query_region_spectra(self, position, radius, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                             get_query_payload=False, cache=True, verbose=False):
         """
         This method queries a chosen region for all available spectra and returns a
         TableList with all the found spectra metadata for the chosen missions and
@@ -792,6 +811,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -822,15 +844,15 @@ class ESASkyClass(BaseQuery):
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
-                                 get_query_payload=get_query_payload, cache=cache)
+                                 get_query_payload=get_query_payload, cache=cache, verbose=verbose)
 
-        if (get_query_payload):
+        if get_query_payload:
             return query_result
 
         return commons.TableList(query_result)
 
     def query_ids_maps(self, observation_ids, *, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
-                       get_query_payload=False, cache=True):
+                       get_query_payload=False, cache=True, verbose=False):
         """
         This method fetches the metadata for all the given observations id's and returns a TableList.
 
@@ -852,6 +874,9 @@ class ESASkyClass(BaseQuery):
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -875,7 +900,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
                                  row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
-                                 ids=sanitized_observation_ids)
+                                 ids=sanitized_observation_ids, verbose=verbose)
 
         if get_query_payload:
             return query_result
@@ -883,7 +908,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     def query_ids_catalogs(self, source_ids, *, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
-                           get_query_payload=False, cache=True):
+                           get_query_payload=False, cache=True, verbose=False):
         """
         This method fetches the metadata for all the given source id's and returns a TableList.
 
@@ -905,6 +930,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -928,7 +956,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
         self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
                                  row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
-                                 ids=sanitized_source_ids)
+                                 ids=sanitized_source_ids, verbose=verbose)
 
         if get_query_payload:
             return query_result
@@ -936,7 +964,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     def query_ids_spectra(self, observation_ids, *, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
-                          get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True, verbose=False):
         """
         This method fetches the metadata for all the given observations id's and returns a TableList.
 
@@ -958,6 +986,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -981,7 +1012,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
                                  row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
-                                 ids=sanitized_observation_ids)
+                                 ids=sanitized_observation_ids, verbose=verbose)
 
         if get_query_payload:
             return query_result
@@ -989,7 +1020,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     def get_maps(self, query_table_list, *, missions=__ALL_STRING,
-                 download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
+                 download_dir=_MAPS_DOWNLOAD_DIR, cache=True, verbose=False):
         """
         This method takes the dictionary of missions and metadata as returned by
         query_region_maps and downloads all maps to the selected folder.
@@ -1014,6 +1045,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -1042,19 +1076,16 @@ class ESASkyClass(BaseQuery):
 
         for query_mission in sanitized_query_table_list.keys():
 
-            if (query_mission.lower() in sanitized_missions):
+            if query_mission.lower() in sanitized_missions:
                 maps[query_mission] = (
-                    self._get_maps_for_mission(
-                        sanitized_query_table_list[query_mission],
-                        query_mission,
-                        download_dir,
-                        cache, json))
+                    self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
+                        cache, json, verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
             log.info("No maps got downloaded, check errors above.")
 
-        elif (len(sanitized_query_table_list) > 0):
+        elif len(sanitized_query_table_list) > 0:
             log.info("Maps available at {}.".format(os.path.abspath(download_dir)))
         else:
             log.info("No maps found.")
@@ -1062,7 +1093,7 @@ class ESASkyClass(BaseQuery):
 
     def get_images(self, *, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
                    missions=__ALL_STRING, download_dir=_MAPS_DOWNLOAD_DIR,
-                   cache=True):
+                   cache=True, verbose=False):
         """
         This method gets the fits files available for the selected mission and
         position or observation_ids and downloads all maps to the the selected folder.
@@ -1092,7 +1123,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
-
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -1127,35 +1160,33 @@ class ESASkyClass(BaseQuery):
                                                       sanitized_radius,
                                                       sanitized_missions,
                                                       get_query_payload=False,
-                                                      cache=cache)
+                                                      cache=cache,
+                                                      verbose=verbose)
         else:
             map_query_result = self.query_ids_maps(missions=sanitized_missions,
                                                    observation_ids=sanitized_observation_ids,
                                                    get_query_payload=False,
-                                                   cache=cache)
+                                                   cache=cache,
+                                                   verbose=verbose)
         maps = dict()
 
         json = self._get_observation_json()
         for query_mission in map_query_result.keys():
             maps[query_mission] = (
-                self._get_maps_for_mission(
-                    map_query_result[query_mission],
-                    query_mission,
-                    download_dir,
-                    cache, json))
+                self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache, json,
+                    verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
             log.info("No maps got downloaded, check errors above.")
-        elif (len(map_query_result) > 0):
+        elif len(map_query_result) > 0:
             log.info("Maps available at {}".format(os.path.abspath(download_dir)))
         else:
             log.info("No maps found.")
         return maps
 
-    def get_spectra(self, *, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
-                    missions=__ALL_STRING, download_dir=_SPECTRA_DOWNLOAD_DIR,
-                    cache=True):
+    def get_spectra(self, *, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
+                    download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True, verbose=False):
         """
         This method gets the fits files available for the selected missions and
         position or observation_ids and downloads all spectra to the the selected folder.
@@ -1184,6 +1215,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -1220,33 +1254,26 @@ class ESASkyClass(BaseQuery):
         spectra = dict()
 
         if sanitized_observation_ids is None:
-            spectra_query_result = self.query_region_spectra(position,
-                                                             sanitized_radius,
-                                                             sanitized_missions,
-                                                             get_query_payload=False,
-                                                             cache=cache)
+            spectra_query_result = self.query_region_spectra(position, sanitized_radius, sanitized_missions,
+                                                             get_query_payload=False, cache=cache, verbose=verbose)
         else:
             spectra_query_result = self.query_ids_spectra(missions=sanitized_missions,
                                                           observation_ids=sanitized_observation_ids,
-                                                          get_query_payload=False,
-                                                          cache=cache)
+                                                          get_query_payload=False, cache=cache, verbose=verbose)
         json = self._get_spectra_json()
         for query_mission in spectra_query_result.keys():
             spectra[query_mission] = (
-                self._get_maps_for_mission(
-                    spectra_query_result[query_mission],
-                    query_mission,
-                    download_dir,
-                    cache, json, True))
+                self._get_maps_for_mission(spectra_query_result[query_mission], query_mission, download_dir, cache,
+                    json, is_spectra=True, verbose=verbose))
 
-        if (len(spectra_query_result) > 0):
+        if len(spectra_query_result) > 0:
             log.info("Spectra available at {}".format(os.path.abspath(download_dir)))
         else:
             log.info("No spectra found.")
         return spectra
 
     def get_spectra_from_table(self, query_table_list, missions=__ALL_STRING,
-                               download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
+                               download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True, verbose=False):
         """
         This method takes the dictionary of missions and metadata as returned by
         query_region_spectra and downloads all spectra to the selected folder.
@@ -1270,6 +1297,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        verbose : bool, optional
+            Defaults to `False`. If `True` warnings are displayed when any FITS
+            data or VOTable doesn't conform to its standard.
 
         Returns
         -------
@@ -1300,15 +1330,12 @@ class ESASkyClass(BaseQuery):
 
         for query_mission in sanitized_query_table_list.keys():
 
-            if (query_mission.lower() in sanitized_missions):
+            if query_mission.lower() in sanitized_missions:
                 spectra[query_mission] = (
-                    self._get_maps_for_mission(
-                        sanitized_query_table_list[query_mission],
-                        query_mission,
-                        download_dir,
-                        cache, json, True))
+                self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
+                    cache, json, is_spectra=True, verbose=verbose))
 
-        if (len(sanitized_query_table_list) > 0):
+        if len(sanitized_query_table_list) > 0:
             log.info("Spectra available at {}.".format(os.path.abspath(download_dir)))
         else:
             log.info("No spectra found.")
@@ -1326,7 +1353,7 @@ class ESASkyClass(BaseQuery):
         if isinstance(missions, list):
             return missions
         if isinstance(missions, str):
-            if (missions.lower() == self.__ALL_STRING):
+            if missions.lower() == self.__ALL_STRING:
                 return self.list_maps()
             else:
                 return [missions]
@@ -1337,7 +1364,7 @@ class ESASkyClass(BaseQuery):
         if isinstance(spectra, list):
             return spectra
         if isinstance(spectra, str):
-            if (spectra.lower() == self.__ALL_STRING):
+            if spectra.lower() == self.__ALL_STRING:
                 return self.list_spectra()
             else:
                 return [spectra]
@@ -1348,7 +1375,7 @@ class ESASkyClass(BaseQuery):
         if isinstance(catalogs, list):
             return catalogs
         if isinstance(catalogs, str):
-            if (catalogs.lower() == self.__ALL_STRING):
+            if catalogs.lower() == self.__ALL_STRING:
                 return self.list_catalogs()
             else:
                 return [catalogs]
@@ -1417,7 +1444,7 @@ class ESASkyClass(BaseQuery):
             return "sso_id"
         return "sso_name"
 
-    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False):
+    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False, verbose=False):
         if is_spectra and mission.lower() == self.__HERSCHEL_STRING:
             maps = dict()
         else:
@@ -1431,7 +1458,7 @@ class ESASkyClass(BaseQuery):
             log.info(mission + " does not yet support downloading of fits files")
             return maps
 
-        if (len(maps_table[url_key]) > 0):
+        if len(maps_table[url_key]) > 0:
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
             log.info("Starting download of {} data. ({} files)".format(
@@ -1440,12 +1467,13 @@ class ESASkyClass(BaseQuery):
                 product_url = maps_table[url_key][index]
                 if isinstance(product_url, bytes):
                     product_url = product_url.decode('utf-8')
-                if(mission.lower() == self.__HERSCHEL_STRING):
+                if mission.lower() == self.__HERSCHEL_STRING:
                     observation_id = maps_table["observation_id"][index]
                     if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 else:
-                    observation_id = maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
+                    observation_id = \
+                        maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
                     if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 log.info("Downloading Observation ID: {} from {}"
@@ -1458,15 +1486,9 @@ class ESASkyClass(BaseQuery):
                             key = maps_table['observation_id'][index]
                             if isinstance(key, bytes):
                                 key = key.decode('utf-8')
-                            maps[key] = self._get_herschel_spectra(
-                                product_url,
-                                directory_path,
-                                cache)
+                            maps[key] = self._get_herschel_spectra(product_url, directory_path, cache, verbose=verbose)
                         else:
-                            maps.append(self._get_herschel_map(
-                                product_url,
-                                directory_path,
-                                cache))
+                            maps.append(self._get_herschel_map(product_url, directory_path, cache, verbose=verbose))
                         log.info("[Done]")
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
@@ -1490,11 +1512,12 @@ class ESASkyClass(BaseQuery):
                         response.raise_for_status()
 
                         if ('Content-Type' in response.headers
-                            and response.headers['Content-Type'] == 'application/zip'):
+                                and response.headers['Content-Type'] == 'application/zip'):
                             with ZipFile(file=BytesIO(response.content)) as zip:
                                 for info in zip.infolist():
                                     if self._ends_with_fits_like_extentsion(info.filename):
-                                        maps.append(fits.open(zip.extract(info.filename, path=mission_directory)))
+                                        maps.append(self._open_fits(
+                                            zip.extract(info.filename, path=mission_directory), verbose=verbose))
                         else:
                             file_name = self._extract_file_name_from_response_header(response.headers)
                             if file_name == "":
@@ -1503,13 +1526,14 @@ class ESASkyClass(BaseQuery):
                                 with tarfile.open(fileobj=BytesIO(response.content)) as tar:
                                     for member in tar.getmembers():
                                         tar.extract(member, directory_path)
-                                        maps.append(fits.open(Path(directory_path, member.name)))
+                                        maps.append(self._open_fits(Path(directory_path, member.name), verbose=verbose))
                             else:
                                 fits_data = response.content
                                 with open(os.path.join(directory_path, file_name), 'wb') as fits_file:
                                     fits_file.write(fits_data)
                                     fits_file.flush()
-                                    maps.append(fits.open(os.path.join(directory_path, file_name)))
+                                    maps.append(
+                                        self._open_fits(os.path.join(directory_path, file_name), verbose=verbose))
                         log.info("[Done]")
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
@@ -1523,6 +1547,13 @@ class ESASkyClass(BaseQuery):
 
         return maps
 
+    def _open_fits(self, path, verbose=False):
+        if verbose:
+            return fits.open(path)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=astropy.io.fits.verify.VerifyWarning)
+            return fits.open(path)
+
     def _ends_with_fits_like_extentsion(self, name):
         lower_case_name = name.lower()
         return (lower_case_name.endswith("fits")
@@ -1535,7 +1566,7 @@ class ESASkyClass(BaseQuery):
                 or lower_case_name.endswith("fts.gz")
                 )
 
-    def _get_herschel_map(self, product_url, directory_path, cache):
+    def _get_herschel_map(self, product_url, directory_path, cache, verbose=False):
         observation = dict()
         response = self._request('GET', product_url, cache=cache,
                                  stream=True, headers=self._get_header())
@@ -1544,15 +1575,15 @@ class ESASkyClass(BaseQuery):
         with tarfile.open(fileobj=BytesIO(response.content)) as tar:
             for member in tar.getmembers():
                 member_name = member.name.lower()
-                if ('hspire' in member_name or 'hpacs' in member_name):
+                if 'hspire' in member_name or 'hpacs' in member_name:
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
-                    observation[herschel_filter] = fits.open(
-                        os.path.join(directory_path, member.name)
+                    observation[herschel_filter] = self._open_fits(
+                        os.path.join(directory_path, member.name), verbose=verbose
                     )
         return observation
 
-    def _get_herschel_spectra(self, product_url, directory_path, cache):
+    def _get_herschel_spectra(self, product_url, directory_path, cache, verbose=False):
         spectra = dict()
         response = self._request('GET', product_url, cache=cache,
                                  stream=True, headers=self._get_header())
@@ -1563,28 +1594,28 @@ class ESASkyClass(BaseQuery):
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name
-                    or 'hhifi' in member_name):
+                        or 'hhifi' in member_name):
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
                     herschel_fits = []
-                    if (herschel_filter in spectra):
-                        hdul = fits.open(os.path.join(directory_path, member.name))
+                    if herschel_filter in spectra:
+                        hdul = self._open_fits(os.path.join(directory_path, member.name), verbose=verbose)
                         herschel_fits.append(hdul)
                     else:
-                        herschel_fits = fits.open(os.path.join(directory_path, member.name))
-                        if (isinstance(herschel_fits, list)):
+                        herschel_fits = self._open_fits(os.path.join(directory_path, member.name), verbose=verbose)
+                        if isinstance(herschel_fits, list):
                             herschel_fits = [herschel_fits]
 
                     hduListType = {}
                     for hduList in herschel_fits:
-                        if (hduList[0].header['INSTRUME'] == 'HIFI'):
-                            if ('BACKEND' in hduList[0].header):
+                        if hduList[0].header['INSTRUME'] == 'HIFI':
+                            if 'BACKEND' in hduList[0].header:
                                 headerKey = 'BACKEND'
                                 label = hduList[0].header[headerKey].upper()
-                            if ('SIDEBAND' in hduList[0].header):
+                            if 'SIDEBAND' in hduList[0].header:
                                 headerKey = 'SIDEBAND'
                                 label = label + '_{}'.format(hduList[0].header[headerKey].upper())
-                            if ('BAND' in hduList[0].header):
+                            if 'BAND' in hduList[0].header:
                                 headerKey = 'BAND'
                                 label = label + '_{}'.format(hduList[0].header[headerKey].lower())
                             hduListType[label] = hduList
@@ -1597,7 +1628,7 @@ class ESASkyClass(BaseQuery):
 
     def _get_herschel_filter_name(self, member_name):
         for herschel_filter in self.__HERSCHEL_FILTERS.keys():
-            if (bool(re.search(herschel_filter, member_name))):
+            if bool(re.search(herschel_filter, member_name)):
                 return self.__HERSCHEL_FILTERS[herschel_filter]
 
     def _remove_extra_herschel_directory(self, file_and_directory_name,
@@ -1622,31 +1653,24 @@ class ESASkyClass(BaseQuery):
         filename_string = "filename="
         start_index = (content_disposition.index(filename_string) +
                        len(filename_string))
-        if (content_disposition[start_index] == '\"'):
+        if content_disposition[start_index] == '\"':
             start_index += 1
 
-        if (".gz" in content_disposition[start_index:].lower()):
-            end_index = (
-                content_disposition.lower().index(".gz", start_index + 1) + len(".gz"))
+        if ".gz" in content_disposition[start_index:].lower():
+            end_index = (content_disposition.lower().index(".gz", start_index + 1) + len(".gz"))
             return content_disposition[start_index: end_index]
-        elif (self.__FITS_STRING in content_disposition[start_index:].lower()):
+        elif self.__FITS_STRING in content_disposition[start_index:].lower():
             end_index = (
-                content_disposition.lower().index(self.__FITS_STRING, start_index + 1) +
-                len(self.__FITS_STRING))
+                    content_disposition.lower().index(self.__FITS_STRING, start_index + 1) + len(self.__FITS_STRING))
             return content_disposition[start_index: end_index]
-        elif (self.__FTZ_STRING in content_disposition[start_index:].upper()):
-            end_index = (
-                content_disposition.upper().index(self.__FTZ_STRING, start_index + 1) +
-                len(self.__FTZ_STRING))
+        elif self.__FTZ_STRING in content_disposition[start_index:].upper():
+            end_index = (content_disposition.upper().index(self.__FTZ_STRING, start_index + 1) + len(self.__FTZ_STRING))
             return content_disposition[start_index: end_index]
-        elif (".fit" in content_disposition[start_index:].upper()):
-            end_index = (
-                content_disposition.upper().index(".fit", start_index + 1) + len(".fit"))
+        elif ".fit" in content_disposition[start_index:].upper():
+            end_index = (content_disposition.upper().index(".fit", start_index + 1) + len(".fit"))
             return content_disposition[start_index: end_index]
-        elif (self.__TAR_STRING in content_disposition[start_index:].lower()):
-            end_index = (
-                content_disposition.lower().index(self.__TAR_STRING, start_index + 1) +
-                len(self.__TAR_STRING))
+        elif self.__TAR_STRING in content_disposition[start_index:].lower():
+            end_index = (content_disposition.lower().index(self.__TAR_STRING, start_index + 1) + len(self.__TAR_STRING))
             return content_disposition[start_index: end_index]
         else:
             return ""
@@ -1655,7 +1679,7 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
 
-    def _query(self, name, json, **kwargs):
+    def _query(self, name, json, verbose=False, **kwargs):
         table_tap_name = self._find_mission_tap_table_name(json, name)
         if 'ids' in kwargs:
             query = self._build_id_query(ids=kwargs.get('ids'),
@@ -1677,7 +1701,7 @@ class ESASkyClass(BaseQuery):
             # is a number and "2CXO J090341.1-322609" cannot be converted to a number.
             return query
 
-        return self.query(query, output_format="votable")
+        return self.query(query, output_format="votable", verbose=verbose)
 
     def _build_region_query(self, coordinates, radius, row_limit, json):
         ra = coordinates.transform_to('icrs').ra.deg
@@ -1699,19 +1723,19 @@ class ESASkyClass(BaseQuery):
         if radius_deg == 0:
             if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
-                            format(ra, dec, commons.radius_to_unit(
-                                      self.__MIN_RADIUS_CATALOG_STRING,
-                                      unit='deg')))
+                               format(ra, dec, commons.radius_to_unit(
+                    self.__MIN_RADIUS_CATALOG_STRING,
+                    unit='deg')))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
-                           format(tap_ra_column, tap_dec_column,
-                                  ra,
-                                  dec,
-                                  commons.radius_to_unit(
-                                      self.__MIN_RADIUS_CATALOG_STRING,
-                                      unit='deg')))
+                               format(tap_ra_column, tap_dec_column,
+                                      ra,
+                                      dec,
+                                      commons.radius_to_unit(
+                                          self.__MIN_RADIUS_CATALOG_STRING,
+                                          unit='deg')))
         else:
-            if (json[self.__USE_INTERSECT_STRING]):
+            if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
                                format(ra, dec, radius_deg))
             else:
@@ -1761,21 +1785,21 @@ class ESASkyClass(BaseQuery):
 
         return query
 
-    def _store_query_result(self, query_result, names, json, **kwargs):
+    def _store_query_result(self, query_result, names, json, verbose=False, **kwargs):
         for name in names:
-            table = self._query(name=name, json=json, **kwargs)
+            table = self._query(name=name, json=json, verbose=verbose, **kwargs)
             if len(table) > 0:
                 query_result[name.upper()] = table
 
     def _find_mission_parameters_in_json(self, mission_tap_name, json):
         for mission in json:
-            if (mission[self.__TAP_TABLE_STRING] == mission_tap_name):
+            if mission[self.__TAP_TABLE_STRING] == mission_tap_name:
                 return mission
         raise ValueError("Input tap name {} not available.".format(mission_tap_name))
 
     def _find_mission_tap_table_name(self, json, mission_name):
         for index in range(len(json)):
-            if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
+            if json[index][self.__MISSION_STRING].lower() == mission_name.lower():
                 return json[index][self.__TAP_TABLE_STRING]
 
         raise ValueError("Input {} not available.".format(mission_name))
@@ -1814,7 +1838,7 @@ class ESASkyClass(BaseQuery):
 
     def _get_json_data_for_mission(self, json, mission):
         for index in range(len(json)):
-            if (json[index][self.__MISSION_STRING].lower() == mission.lower()):
+            if json[index][self.__MISSION_STRING].lower() == mission.lower():
                 return json[index]
 
     def _create_request_payload(self, query):
