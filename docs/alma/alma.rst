@@ -387,7 +387,7 @@ files:
     >>> alma = Alma()
     >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
     >>> result = alma.query_region(s255ir, radius=0.034*u.deg)
-    >>> uid_url_table = alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
+    >>> uid_url_table = alma.get_data_info(result['member_ous_uid'][0], expand_tarfiles=True)
     >>> # downselect to just the FITSf files
     >>> fits_urls = [url for url in uid_url_table['access_url'] if '.fits' in url]
     >>> filelist = alma.download_files(fits_urls[:5])  # doctest: +SKIP
