@@ -18,6 +18,7 @@ import os
 from unittest.mock import patch
 
 import pytest
+from astropy.table import Column
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -39,6 +40,19 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+@pytest.fixture(scope="module")
+def column_attrs():
+    dtypes = {
+        "alpha": np.float64,
+        "delta": np.float64,
+        "source_id": object,
+        "table1_oid": np.int32
+    }
+    columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
+    columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    return columns
+
+
 class TestTap:
 
     def test_show_message(self):
@@ -58,7 +72,7 @@ class TestTap:
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         GaiaClass(connHandler, tapplus, show_server_messages=True)
 
-    def test_query_object(self):
+    def test_query_object(self, column_attrs):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
@@ -87,54 +101,18 @@ class TestTap:
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert table[colname].attrs_equal(attrs)
         # by radius
         radius = Quantity(1, u.deg)
         table = tap.query_object(sc, radius=radius)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert table[colname].attrs_equal(attrs)
 
-    def test_query_object_async(self):
+    def test_query_object_async(self, column_attrs):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
@@ -167,54 +145,18 @@ class TestTap:
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert table[colname].attrs_equal(attrs)
         # by radius
         radius = Quantity(1, u.deg)
         table = tap.query_object_async(sc, radius=radius)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert table[colname].attrs_equal(attrs)
 
-    def test_cone_search_sync(self):
+    def test_cone_search_sync(self, column_attrs):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
@@ -241,28 +183,10 @@ class TestTap:
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        self.__check_results_column(results,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(results,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert results[colname].attrs_equal(attrs)
 
-    def test_cone_search_async(self):
+    def test_cone_search_async(self, column_attrs):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
         tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
@@ -303,26 +227,8 @@ class TestTap:
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        self.__check_results_column(results,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(results,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+        for colname, attrs in column_attrs.items():
+            assert results[colname].attrs_equal(attrs)
 
         # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
         # had no effect.
@@ -338,22 +244,6 @@ class TestTap:
         assert 'name_from_class' in job.parameters['query']
         # Cleanup.
         conf.reset('MAIN_GAIA_TABLE')
-
-    def __check_results_column(self, results, column_name, description, unit,
-                               data_type):
-        c = results[column_name]
-        assert c.description == description, \
-            "Wrong description for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, description, c.description)
-        assert c.unit == unit, \
-            "Wrong unit for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, unit, c.unit)
-        assert c.dtype == data_type, \
-            "Wrong dataType for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, data_type, c.dtype)
 
     def test_load_data(self):
         dummy_handler = DummyTapHandler()
