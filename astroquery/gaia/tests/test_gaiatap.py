@@ -60,21 +60,8 @@ class TestTap:
 
     def test_query_object(self):
         conn_handler = DummyConnHandler()
-        # Launch response: we use default response because the query contains
-        # decimals
-        dummy_response = DummyResponse(200)
-
-        message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
-
-        dummy_response.set_data(method='GET', body=message_text)
-        conn_handler.set_default_response(dummy_response)
-
-        # show_server_messages
-        tableRequest = 'notification?action=GetNotifications'
-        conn_handler.set_response(tableRequest, dummy_response)
-
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=True)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         # Launch response: we use default response because the query contains
         # decimals
         response_launch_job = DummyResponse(200)
