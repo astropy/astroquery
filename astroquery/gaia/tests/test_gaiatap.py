@@ -29,7 +29,6 @@ from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.units import Quantity
 import numpy as np
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
@@ -37,6 +36,8 @@ from astroquery.utils.tap import taputils
 
 
 job_data = utils.read_file_content(Path(__file__).parent.joinpath("data", "job_1.vot"))
+
+skycoord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
 
 @pytest.fixture(scope="module")
@@ -119,28 +120,24 @@ class TestTap:
         GaiaClass(connHandler, tapplus, show_server_messages=True)
 
     def test_query_object(self, column_attrs, mock_querier):
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
-                      frame='icrs')
         with pytest.raises(ValueError) as err:
-            mock_querier.query_object(sc)
+            mock_querier.query_object(skycoord)
         assert "Missing required argument: width" in err.value.args[0]
 
-        width = Quantity(12, u.deg)
+        width = 12 * u.deg
 
         with pytest.raises(ValueError) as err:
-            mock_querier.query_object(sc, width=width)
+            mock_querier.query_object(skycoord, width=width)
         assert "Missing required argument: height" in err.value.args[0]
 
-        height = Quantity(10, u.deg)
-        table = mock_querier.query_object(sc, width=width, height=height)
+        table = mock_querier.query_object(skycoord, width=width, height=10 * u.deg)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
         # by radius
-        radius = Quantity(1, u.deg)
-        table = mock_querier.query_object(sc, radius=radius)
+        table = mock_querier.query_object(skycoord, radius=1 * u.deg)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -148,19 +145,16 @@ class TestTap:
             assert table[colname].attrs_equal(attrs)
 
     def test_query_object_async(self, column_attrs, mock_querier_async):
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
-                      frame='icrs')
-        width = Quantity(12, u.deg)
-        height = Quantity(10, u.deg)
-        table = mock_querier_async.query_object_async(sc, width=width, height=height)
+        table = mock_querier_async.query_object_async(
+            skycoord, width=12 * u.deg, height=10 * u.deg
+        )
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
         # by radius
-        radius = Quantity(1, u.deg)
-        table = mock_querier_async.query_object_async(sc, radius=radius)
+        table = mock_querier_async.query_object_async(skycoord, radius=1 * u.deg)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -168,12 +162,7 @@ class TestTap:
             assert table[colname].attrs_equal(attrs)
 
     def test_cone_search_sync(self, column_attrs, mock_querier):
-        ra = 19.0
-        dec = 20.0
-        sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
-        radius = Quantity(1.0, u.deg)
-        job = mock_querier.cone_search(sc, radius)
-        assert job is not None, "Expected a valid job"
+        job = mock_querier.cone_search(skycoord, 1 * u.deg)
         assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
@@ -188,12 +177,8 @@ class TestTap:
             assert results[colname].attrs_equal(attrs)
 
     def test_cone_search_async(self, column_attrs, mock_querier_async):
-        ra = 19
-        dec = 20
-        sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
-        radius = Quantity(1.0, u.deg)
-        job = mock_querier_async.cone_search_async(sc, radius)
-        assert job is not None, "Expected a valid job"
+        radius = 1.0 * u.deg
+        job = mock_querier_async.cone_search_async(skycoord, radius)
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
@@ -211,16 +196,13 @@ class TestTap:
         # had no effect.
         # The preceding tests should have used the default value.
         assert 'gaiadr2.gaia_source' in job.parameters['query']
-        # Test changing the table name through conf.
-        conf.MAIN_GAIA_TABLE = 'name_from_conf'
-        job = mock_querier_async.cone_search_async(sc, radius)
-        assert 'name_from_conf' in job.parameters['query']
-        # Changing the value through the class should overrule conf.
-        mock_querier_async.MAIN_GAIA_TABLE = 'name_from_class'
-        job = mock_querier_async.cone_search_async(sc, radius)
-        assert 'name_from_class' in job.parameters['query']
-        # Cleanup.
-        conf.reset('MAIN_GAIA_TABLE')
+        with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
+            job = mock_querier_async.cone_search_async(skycoord, radius)
+            assert "name_from_conf" in job.parameters["query"]
+            # Changing the value through the class should overrule conf.
+            mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
+            job = mock_querier_async.cone_search_async(skycoord, radius)
+            assert "name_from_class" in job.parameters["query"]
 
     def test_load_data(self):
         dummy_handler = DummyTapHandler()
@@ -228,37 +210,30 @@ class TestTap:
 
         ids = "1,2,3,4"
         retrieval_type = "epoch_photometry"
-        valid_data = True
-        band = None
-        format = "votable"
         verbose = True
-        data_structure = "INDIVIDUAL"
         output_file = os.path.abspath("output_file")
         path_to_end_with = os.path.join("gaia", "test", "output_file")
         if not output_file.endswith(path_to_end_with):
             output_file = os.path.abspath(path_to_end_with)
 
-        params_dict = {}
-        params_dict['VALID_DATA'] = "true"
-        params_dict['ID'] = ids
-        params_dict['FORMAT'] = str(format)
-        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
-        params_dict['DATA_STRUCTURE'] = str(data_structure)
-        params_dict['USE_ZIP_ALWAYS'] = 'true'
-
         tap.load_data(ids=ids,
                       retrieval_type=retrieval_type,
-                      valid_data=valid_data,
-                      band=band,
-                      format=format,
+                      valid_data=True,
                       verbose=verbose,
                       output_file=output_file)
-        parameters = {}
-        parameters['params_dict'] = params_dict
-        # Output file name contains a timestamp: cannot be verified
-        of = dummy_handler._DummyTapHandler__parameters['output_file']
-        parameters['output_file'] = of
-        parameters['verbose'] = verbose
+
+        parameters = {
+            "params_dict": {
+                "VALID_DATA": "true",
+                "ID": ids,
+                "FORMAT": "votable",
+                "RETRIEVAL_TYPE": retrieval_type,
+                "DATA_STRUCTURE": "INDIVIDUAL",
+                "USE_ZIP_ALWAYS": "true",
+            },
+            "output_file": dummy_handler._DummyTapHandler__parameters["output_file"],
+            "verbose": verbose,
+        }
         dummy_handler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):
@@ -266,18 +241,13 @@ class TestTap:
         tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
         ids = ["1", "2", "3", "4"]
         verbose = True
-        parameters = {}
-        parameters['ids'] = ids
-        parameters['verbose'] = verbose
         tap.get_datalinks(ids, verbose)
-        dummy_handler.check_call('get_datalinks', parameters)
+        dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": verbose})
 
     def test_xmatch(self, mock_querier_async):
-        # check parameters
         # missing table A
         with pytest.raises(ValueError) as err:
             mock_querier_async.cross_match(
-                full_qualified_table_name_a=None,
                 full_qualified_table_name_b='schemaB.tableB',
                 results_table_name='results',
             )
@@ -295,7 +265,6 @@ class TestTap:
         with pytest.raises(ValueError) as err:
             mock_querier_async.cross_match(
                 full_qualified_table_name_a='schemaA.tableA',
-                full_qualified_table_name_b=None,
                 results_table_name='results',
             )
         assert "Table name B argument is mandatory" in err.value.args[0]
@@ -313,7 +282,6 @@ class TestTap:
             mock_querier_async.cross_match(
                 full_qualified_table_name_a='schemaA.tableA',
                 full_qualified_table_name_b='schemaB.tableB',
-                results_table_name=None,
             )
         assert "Results table name argument is mandatory" in err.value.args[0]
         # wrong results table (with schema)
@@ -345,23 +313,6 @@ class TestTap:
             )
         assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
                in err.value.args[0]
-        # check default parameters
-        parameters = {}
-        query = "SELECT crossmatch_positional(\
-            'schemaA','tableA',\
-            'schemaB','tableB',\
-            1.0,\
-            'results')\
-            FROM dual;"
-        parameters['query'] = query
-        parameters['name'] = 'results'
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['background'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
         job = mock_querier_async.cross_match(
             full_qualified_table_name_a='schemaA.tableA',
             full_qualified_table_name_b='schemaB.tableB',
