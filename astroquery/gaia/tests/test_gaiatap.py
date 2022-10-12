@@ -30,6 +30,7 @@ from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
 import numpy as np
+from astroquery.utils import ASTROPY_LT_4_1
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
 from astroquery.utils.tap import taputils
@@ -49,7 +50,8 @@ def column_attrs():
         "table1_oid": np.int32
     }
     columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
-    columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    if not ASTROPY_LT_4_1:
+        columns["source_id"].meta = {"_votable_string_dtype": "char"}
     return columns
 
 
