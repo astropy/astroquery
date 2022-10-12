@@ -131,16 +131,12 @@ class TestTap:
         assert "Missing required argument: height" in err.value.args[0]
 
         table = mock_querier.query_object(skycoord, width=width, height=10 * u.deg)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
+        assert len(table) == 3
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
         # by radius
         table = mock_querier.query_object(skycoord, radius=1 * u.deg)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
+        assert len(table) == 3
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
 
@@ -148,47 +144,35 @@ class TestTap:
         table = mock_querier_async.query_object_async(
             skycoord, width=12 * u.deg, height=10 * u.deg
         )
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
+        assert len(table) == 3
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
         # by radius
         table = mock_querier_async.query_object_async(skycoord, radius=1 * u.deg)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
+        assert len(table) == 3
         for colname, attrs in column_attrs.items():
             assert table[colname].attrs_equal(attrs)
 
     def test_cone_search_sync(self, column_attrs, mock_querier):
         job = mock_querier.cone_search(skycoord, 1 * u.deg)
-        assert job.async_ is False, "Expected a synchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
+        assert job.async_ is False
+        assert job.get_phase() == "COMPLETED"
+        assert job.failed is False
         # results
         results = job.get_results()
-        assert len(results) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(results))
+        assert len(results) == 3
         for colname, attrs in column_attrs.items():
             assert results[colname].attrs_equal(attrs)
 
     def test_cone_search_async(self, column_attrs, mock_querier_async):
         radius = 1.0 * u.deg
         job = mock_querier_async.cone_search_async(skycoord, radius)
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
+        assert job.async_ is True
+        assert job.get_phase() == "COMPLETED"
+        assert job.failed is False
         # results
         results = job.get_results()
-        assert len(results) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(results))
+        assert len(results) == 3
         for colname, attrs in column_attrs.items():
             assert results[colname].attrs_equal(attrs)
 
@@ -318,22 +302,18 @@ class TestTap:
             full_qualified_table_name_b='schemaB.tableB',
             results_table_name='results',
         )
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
+        assert job.async_ is True
+        assert job.get_phase() == "COMPLETED"
+        assert job.failed is False
         job = mock_querier_async.cross_match(
             full_qualified_table_name_a='schemaA.tableA',
             full_qualified_table_name_b='schemaB.tableB',
             results_table_name='results',
             background=True,
         )
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'EXECUTING', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('EXECUTING', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
+        assert job.async_ is True
+        assert job.get_phase() == "EXECUTING"
+        assert job.failed is False
 
     @patch.object(TapPlus, 'login')
     def test_login(self, mock_login):
