@@ -10,7 +10,7 @@ import warnings
 
 import astropy.units as u
 from astropy.io import fits
-from astropy.coordinates import Angle
+from astropy.coordinates import Angle, SkyCoord
 from astropy.table import Column, Table
 from astropy.utils.exceptions import AstropyWarning
 import pytest
@@ -105,7 +105,7 @@ def data_path(filename):
 
 
 # Test Case: A Seyfert 1 galaxy
-coords = commons.ICRSCoordGenerator('0h8m05.63s +14d50m23.3s')
+coords = SkyCoord("0h8m05.63s +14d50m23.3s", frame="icrs")
 
 # Test Case: list of coordinates
 coords_list = [coords, coords]

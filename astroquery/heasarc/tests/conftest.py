@@ -4,6 +4,7 @@ import glob
 import hashlib
 import requests
 import pytest
+from astropy.coordinates import SkyCoord
 from ... import log
 
 """
@@ -15,6 +16,10 @@ else
     runs remote test patched so that the test data is stored in a temporary directory.
     advice is given to copy the newly generated test data into the repository
 """
+
+
+# The quasar 3C 273
+skycoord_3C_273 = SkyCoord("12h29m06.70s +02d03m08.7s", frame="icrs")
 
 
 class MockResponse:

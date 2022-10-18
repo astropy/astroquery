@@ -4,12 +4,15 @@ import os
 import numpy.testing as npt
 import pytest
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 
 from ....utils import commons
 from astroquery.utils.mocks import MockResponse
 from ... import first
 
 DATA_FILES = {'image': 'image.fits'}
+
+skycoord = SkyCoord(162.530 * u.deg, 30.677 * u.deg, frame="icrs")
 
 
 def data_path(filename):
@@ -42,15 +45,12 @@ def post_mockreturn(method, url, data, timeout, **kwargs):
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
     response = first.core.First.get_images_async(
-        commons.ICRSCoordGenerator(162.530, 30.677, unit=(u.deg, u.deg)),
-        image_size=0.2 * u.deg, get_query_payload=True)
+        skycoord, image_size=0.2 * u.deg, get_query_payload=True)
     npt.assert_approx_equal(response['ImageSize'], 12, significant=3)
-    response = first.core.First.get_images_async(
-        commons.ICRSCoordGenerator(162.530, 30.677, unit=(u.deg, u.deg)))
+    response = first.core.First.get_images_async(skycoord)
     assert response is not None
 
 
 def test_get_images(patch_post, patch_parse_coordinates):
-    image = first.core.First.get_images(
-        commons.ICRSCoordGenerator(162.530, 30.677, unit=(u.deg, u.deg)))
+    image = first.core.First.get_images(skycoord)
     assert image is not None

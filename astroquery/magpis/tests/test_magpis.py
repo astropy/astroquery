@@ -5,10 +5,14 @@ import os
 import numpy.testing as npt
 import pytest
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 
 from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from ... import magpis
+
+
+skycoord = SkyCoord(10.5 * u.deg, 0.0 * u.deg, frame="galactic")
 
 DATA_FILES = {'image': 'image.fits'}
 
@@ -50,23 +54,18 @@ def test_list_surveys():
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
     response = magpis.core.Magpis.get_images_async(
-        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)),
-        image_size=2 * u.deg, survey="gps6epoch3", get_query_payload=True)
+        skycoord, image_size=2 * u.deg, survey="gps6epoch3", get_query_payload=True)
     npt.assert_approx_equal(response['ImageSize'], 120, significant=3)
     assert response['Survey'] == 'gps6epoch3'
-    response = magpis.core.Magpis.get_images_async(
-        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)))
+    response = magpis.core.Magpis.get_images_async(skycoord)
     assert response is not None
 
 
 def test_get_images(patch_post, patch_parse_coordinates):
-    image = magpis.core.Magpis.get_images(
-        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)))
+    image = magpis.core.Magpis.get_images(skycoord)
     assert image is not None
 
 
 @pytest.mark.xfail
 def test_get_images_fail(patch_post, patch_parse_coordinates):
-    magpis.core.Magpis.get_images(
-        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)),
-        survey='Not a survey')
+    magpis.core.Magpis.get_images(skycoord, survey="Not a survey")

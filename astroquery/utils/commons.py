@@ -14,36 +14,18 @@ from urllib.error import URLError
 import requests
 
 import astropy.units as u
-from astropy import coordinates as coord
 from collections import OrderedDict
 from astropy.utils import deprecated, minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
-from astropy.coordinates import BaseCoordinateFrame
+from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
 
 from ..exceptions import TimeoutError, InputWarning
 from .. import version
 
 
-def ICRSCoordGenerator(*args, **kwargs):
-    return coord.SkyCoord(*args, frame='icrs', **kwargs)
-
-
-def GalacticCoordGenerator(*args, **kwargs):
-    return coord.SkyCoord(*args, frame='galactic', **kwargs)
-
-
-def FK5CoordGenerator(*args, **kwargs):
-    return coord.SkyCoord(*args, frame='fk5', **kwargs)
-
-
-def FK4CoordGenerator(*args, **kwargs):
-    return coord.SkyCoord(*args, frame='fk4', **kwargs)
-
-
-ICRSCoord = coord.SkyCoord
-CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
+CoordClasses = (SkyCoord, BaseCoordinateFrame)
 
 
 __all__ = ['send_request',
@@ -134,7 +116,7 @@ def radius_to_unit(radius, unit='degree'):
     -------
     Floating point scalar value of radius in degrees
     """
-    rad = coord.Angle(radius)
+    rad = Angle(radius)
 
     if isinstance(unit, str):
         if hasattr(rad, unit):
@@ -169,7 +151,7 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, str):
         try:
-            c = ICRSCoordGenerator(coordinates)
+            c = SkyCoord(coordinates, frame="icrs")
             warnings.warn("Coordinate string is being interpreted as an "
                           "ICRS coordinate.", InputWarning)
 
@@ -182,21 +164,21 @@ def parse_coordinates(coordinates):
             if ((ASTROPY_LT_5_0 and isinstance(err.args[1], u.UnitsError)) or
                 (not ASTROPY_LT_5_0 and isinstance(err.__context__, u.UnitsError))):
                 try:
-                    c = ICRSCoordGenerator(coordinates, unit='deg')
+                    c = SkyCoord(coordinates, unit="deg", frame="icrs")
                     warnings.warn("Coordinate string is being interpreted as an "
                                   "ICRS coordinate provided in degrees.", InputWarning)
 
                 except ValueError:
-                    c = ICRSCoord.from_name(coordinates)
+                    c = SkyCoord.from_name(coordinates, frame="icrs")
             else:
-                c = ICRSCoord.from_name(coordinates)
+                c = SkyCoord.from_name(coordinates, frame="icrs")
 
     elif isinstance(coordinates, CoordClasses):
         if hasattr(coordinates, 'frame'):
             c = coordinates
         else:
             # Convert the "frame" object into a SkyCoord
-            c = coord.SkyCoord(coordinates)
+            c = SkyCoord(coordinates)
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
@@ -329,7 +311,7 @@ def _is_coordinate(coordinates):
         # its coordinate-like enough
         return True
     try:
-        ICRSCoordGenerator(coordinates)
+        SkyCoord(coordinates, frame="icrs")
         return True
     except ValueError:
         return False

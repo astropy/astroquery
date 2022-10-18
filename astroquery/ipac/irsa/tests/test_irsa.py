@@ -5,12 +5,11 @@ import re
 import numpy as np
 
 import pytest
+from astropy.coordinates import SkyCoord
 from astropy.table import Table
-import astropy.coordinates as coord
 import astropy.units as u
 
 from astroquery.utils.mocks import MockResponse
-from astroquery.utils import commons
 from astroquery.ipac.irsa import Irsa, conf
 from astroquery.ipac import irsa
 
@@ -19,8 +18,7 @@ DATA_FILES = {'Cone': 'Cone.xml',
               'Polygon': 'Polygon.xml'}
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
-            commons.GalacticCoordGenerator(l=121.1743, b=-21.5733,
-                                           unit=(u.deg, u.deg))]
+            SkyCoord(l=121.1743 * u.deg, b=-21.5733 * u.deg, frame="galactic")]
 
 
 def data_path(filename):
@@ -120,9 +118,9 @@ def test_query_region_box(coordinates, patch_get):
     assert isinstance(result, Table)
 
 
-poly1 = [coord.SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-         coord.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-         coord.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly1 = [SkyCoord(ra=10.1 * u.deg, dec=10.1 * u.deg),
+         SkyCoord(ra=10.0 * u.deg, dec=10.1 * u.deg),
+         SkyCoord(ra=10.0 * u.deg, dec=10.0 * u.deg)]
 poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg),
          (10.0 * u.deg, 10.0 * u.deg)]
 

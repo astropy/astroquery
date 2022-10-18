@@ -2,17 +2,15 @@
 import pytest
 
 import astropy.units as u
-from astropy import coordinates
+from astropy.coordinates import SkyCoord
 
 from astroquery import vizier
 from astroquery.utils import commons
+from .conftest import scalar_skycoord, vector_skycoord
 
 
 @pytest.mark.remote_data
 class TestVizierRemote:
-
-    target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
-                                        unit=(u.deg, u.deg))
 
     def test_query_object(self):
         result = vizier.core.Vizier.query_object(
@@ -32,22 +30,21 @@ class TestVizierRemote:
 
     def test_query_region(self):
         result = vizier.core.Vizier.query_region(
-            self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
+            scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
 
         assert isinstance(result, commons.TableList)
 
     def test_query_region_async(self):
         response = vizier.core.Vizier.query_region_async(
-            self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
+            scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
         assert response is not None
 
     def test_query_region_async_galactic(self):
         response = vizier.core.Vizier.query_region_async(
-            self.target, radius=0.5 * u.deg, catalog="HIP",
-            frame="galactic")
+            scalar_skycoord, radius=0.5 * u.deg, catalog="HIP", frame="galactic")
         assert response is not None
         payload = vizier.core.Vizier.query_region_async(
-            self.target, radius=0.5 * u.deg, catalog="HIP",
+            scalar_skycoord, radius=0.5 * u.deg, catalog="HIP",
             frame="galactic", get_query_payload=True)
         assert "-c=G" in payload
 
@@ -58,9 +55,8 @@ class TestVizierRemote:
 
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
-        result = v.query_region(self.target,
-                                width="5d0m0s", height="3d0m0s",
-                                catalog=["NOMAD", "UCAC"])
+        result = v.query_region(
+            scalar_skycoord, width="5d0m0s", height="3d0m0s", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
 
     def test_vizier_column_restriction(self):
@@ -99,22 +95,18 @@ class TestVizierRemote:
         V = vizier.core.Vizier(
             columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
             keywords=['Radio', 'IR'], row_limit=5000)
-        C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg,
-                                 frame='galactic')
+        C = SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame="galactic")
 
         V.query_region(C, radius=2 * u.arcmin)
 
     def test_multicoord(self):
 
-        # Coordinate selection is entirely arbitrary
-        targets = commons.ICRSCoordGenerator(ra=[299.590, 299.90],
-                                             dec=[35.201, 35.201],
-                                             unit=(u.deg, u.deg))
         # Regression test: the columns of the default should never
         # be modified from default
         assert vizier.core.Vizier.columns == ['*']
+        # Coordinate selection is entirely arbitrary
         result = vizier.core.Vizier.query_region(
-            targets, radius=10 * u.arcsec, catalog=["HIP", "NOMAD", "UCAC"])
+            vector_skycoord, radius=10 * u.arcsec, catalog=["HIP", "NOMAD", "UCAC"])
 
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()
