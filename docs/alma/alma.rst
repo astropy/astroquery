@@ -401,12 +401,6 @@ kind of S/N to expect:
     >>> filelist = Alma.download_files(readmes)  # doctest: +IGNORE_OUTPUT
 
 
-Further Examples
-================
-There are some nice examples of using the ALMA query tool in conjunction with other astroquery
-tools in :doc:`../gallery`, especially :ref:`gallery-almaskyview`.
-
-
 Reference/API
 =============
 
