@@ -4,6 +4,7 @@ import re
 
 import pytest
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import numpy as np
 
@@ -14,13 +15,10 @@ from ...query import AstroQuery
 from ...exceptions import TableParseError
 from .test_simbad_remote import multicoords
 
-GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447,
-                                                 unit=(u.deg, u.deg))
-ICRS_COORDS = commons.ICRSCoordGenerator("05h35m17.3s -05h23m28s")
-FK4_COORDS = commons.FK4CoordGenerator(ra=84.90759, dec=-80.89403,
-                                       unit=(u.deg, u.deg))
-FK5_COORDS = commons.FK5CoordGenerator(ra=83.82207, dec=-80.86667,
-                                       unit=(u.deg, u.deg))
+GALACTIC_COORDS = SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg, frame="galactic")
+ICRS_COORDS = SkyCoord("05h35m17.3s -05h23m28s", frame="icrs")
+FK4_COORDS = SkyCoord(ra=84.90759 * u.deg, dec=-80.89403 * u.deg, frame="fk4")
+FK5_COORDS = SkyCoord(ra=83.82207 * u.deg, dec=-80.86667 * u.deg, frame="fk5")
 
 DATA_FILES = {
     'id': 'query_id.data',

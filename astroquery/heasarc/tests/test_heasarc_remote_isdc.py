@@ -6,8 +6,7 @@ from astropy.time import Time, TimeDelta
 import astropy.units as u
 
 from ...heasarc import Heasarc, Conf
-from ...utils import commons
-from .conftest import parametrization_local_save_remote, MockResponse
+from .conftest import MockResponse, parametrization_local_save_remote, skycoord_3C_273
 
 
 @parametrization_local_save_remote
@@ -191,11 +190,10 @@ class TestHeasarcISDC:
     def test_query_region_async(self):
         heasarc = Heasarc()
         mission = 'integral_rev3_scw'
-        c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
 
         with self.isdc_context:
-            response = heasarc.query_region_async(c, mission=mission,
-                                                  radius='1 degree')
+            response = heasarc.query_region_async(
+                skycoord_3C_273, mission=mission, radius="1 degree")
         assert response is not None
         assert isinstance(response, (requests.models.Response, MockResponse))
 
@@ -203,12 +201,8 @@ class TestHeasarcISDC:
         heasarc = Heasarc()
         mission = 'integral_rev3_scw'
 
-        # Define coordinates for '3c273' object
         with self.isdc_context:
-            c = commons.coord.SkyCoord(
-                    '12h29m06.70s +02d03m08.7s',
-                    frame='icrs'
-                )
-            table = heasarc.query_region(c, mission=mission, radius='1 degree')
+            table = heasarc.query_region(
+                skycoord_3C_273, mission=mission, radius="1 degree")
 
         assert len(table) >= 274

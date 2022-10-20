@@ -4,9 +4,8 @@ import pytest
 import requests
 
 from ...heasarc import Heasarc
-from ...utils import commons
 
-from .conftest import parametrization_local_save_remote, MockResponse
+from .conftest import MockResponse, parametrization_local_save_remote, skycoord_3C_273
 
 
 @parametrization_local_save_remote
@@ -84,9 +83,8 @@ class TestHeasarc:
     def test_query_region_async(self):
         heasarc = Heasarc()
         mission = 'rosmaster'
-        c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
-        response = heasarc.query_region_async(c, mission=mission,
-                                              radius='1 degree')
+        response = heasarc.query_region_async(
+            skycoord_3C_273, mission=mission, radius="1 degree")
         assert response is not None
         assert isinstance(response, (requests.models.Response, MockResponse))
 
@@ -94,8 +92,7 @@ class TestHeasarc:
         heasarc = Heasarc()
         mission = 'rosmaster'
 
-        # Define coordinates for '3c273' object
-        c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
-        table = heasarc.query_region(c, mission=mission, radius='1 degree')
+        table = heasarc.query_region(
+            skycoord_3C_273, mission=mission, radius="1 degree")
 
         assert len(table) == 63

@@ -3,16 +3,15 @@ import os.path
 import types
 
 import pytest
-from astropy import coordinates
+from astropy.coordinates import SkyCoord
+from astropy.coordinates.name_resolve import NameResolveError
 from astropy import units as u
 
-from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from ...skyview import SkyView
 
-objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
-                                                 dec=-59.6844306 * u.deg,
-                                                 frame='icrs'), }
+objcoords = {"Eta Carinae": SkyCoord(ra=161.264775 * u.deg, dec=-59.6844306 * u.deg,
+                                     frame="icrs")}
 
 
 @pytest.fixture
@@ -23,14 +22,12 @@ def patch_fromname(request):
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
 
-    def fromname(self, name):
+    def fromname(self, name, frame=None):
         if isinstance(name, str):
             return objcoords[name]
         else:
-            raise coordinates.name_resolve.NameResolveError
-    mp.setattr(commons.ICRSCoord,
-               'from_name',
-               types.MethodType(fromname, commons.ICRSCoord))
+            raise NameResolveError
+    mp.setattr(SkyCoord, "from_name", types.MethodType(fromname, SkyCoord))
 
 
 class MockResponseSkyView(MockResponse):

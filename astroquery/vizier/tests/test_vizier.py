@@ -3,12 +3,14 @@ import os
 import requests
 from numpy import testing as npt
 import pytest
+from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import astropy.units as u
 
 from ... import vizier
 from ...utils import commons
 from astroquery.utils.mocks import MockResponse
+from .conftest import scalar_skycoord, vector_skycoord
 
 
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
@@ -58,8 +60,7 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
 
 
 def parse_objname(obj):
-    d = {'AFGL 2591': commons.ICRSCoordGenerator(307.35388 * u.deg,
-                                                 40.18858 * u.deg)}
+    d = {"AFGL 2591": SkyCoord(307.35388 * u.deg, 40.18858 * u.deg, frame="icrs")}
     return d[obj]
 
 
@@ -119,19 +120,14 @@ def test_parse_result(filepath, objlen):
 
 
 def test_query_region_async(patch_post):
-    target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
-                                        unit=(u.deg, u.deg))
     response = vizier.core.Vizier.query_region_async(
-        target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
+        scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
 
 
 def test_query_region(patch_post):
-    target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
-                                        unit=(u.deg, u.deg))
-    result = vizier.core.Vizier.query_region(target,
-                                             radius=5 * u.deg,
-                                             catalog=["HIP", "NOMAD", "UCAC"])
+    result = vizier.core.Vizier.query_region(
+        scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
 
     assert isinstance(result, commons.TableList)
 
@@ -143,12 +139,8 @@ def test_query_regions(patch_post):
     for the multi-object query.  There is no test for parsing
     that return (yet - but see test_multicoord in remote_data)
     """
-    targets = commons.ICRSCoordGenerator(ra=[299.590, 299.90],
-                                         dec=[35.201, 35.201],
-                                         unit=(u.deg, u.deg))
-    vizier.core.Vizier.query_region(targets,
-                                    radius=5 * u.deg,
-                                    catalog=["HIP", "NOMAD", "UCAC"])
+    vizier.core.Vizier.query_region(
+        vector_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
 
 
 def test_query_object_async(patch_post):

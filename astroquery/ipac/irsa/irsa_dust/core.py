@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from astropy.coordinates import Angle, SkyCoord
+from astropy.coordinates.name_resolve import NameResolveError
 from astropy.table import Table, Column
 import astropy.units as u
-from astropy import coordinates
 
 from astroquery.ipac.irsa.irsa_dust import utils
 from astroquery.ipac.irsa.irsa_dust import conf
@@ -336,18 +338,18 @@ class IrsaDustClass(BaseQuery):
                 # If the coordinate is a resolvable name, pass that name
                 # directly to irsa_dust because it can handle it (and that
                 # changes the return value associated metadata)
-                C = commons.ICRSCoord.from_name(coordinate)
+                C = SkyCoord.from_name(coordinate, frame="icrs")
                 payload = {"locstr": coordinate}
-            except coordinates.name_resolve.NameResolveError:
+            except NameResolveError:
                 C = commons.parse_coordinates(coordinate).transform_to('fk5')
                 # check if this is resolvable?
                 payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
-        elif isinstance(coordinate, coordinates.SkyCoord):
+        elif isinstance(coordinate, SkyCoord):
             C = coordinate.transform_to('fk5')
             payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
         # check if radius is given with proper units
         if radius is not None:
-            reg_size = coordinates.Angle(radius).deg
+            reg_size = Angle(radius).deg
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"

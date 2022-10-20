@@ -4,7 +4,8 @@ import types
 import pytest
 
 import astropy.units as u
-from astropy import coordinates
+from astropy.coordinates import SkyCoord
+from astropy.coordinates.name_resolve import NameResolveError
 
 from astroquery.utils import commons
 
@@ -36,13 +37,9 @@ M31_URL_T = [
     'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits']
 
 
-galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083 * u.deg,
-                                         dec=41.26875 * u.deg,
-                                         frame='icrs'),
-             'm81': coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                         dec=69.065294722 * u.deg,
-                                         frame='icrs'),
-             }
+galcoords = {"m31": SkyCoord(ra=10.6847083 * u.deg, dec=41.26875 * u.deg, frame="icrs"),
+             "m81": SkyCoord(ra=148.888221083 * u.deg, dec=69.065294722 * u.deg,
+                             frame="icrs")}
 
 
 def format(coord):
@@ -63,14 +60,12 @@ def patch_request(request):
 def patch_fromname(request):
     mp = request.getfixturevalue("monkeypatch")
 
-    def fromname(self, name):
+    def fromname(self, name, frame=None):
         if isinstance(name, str):
             return galcoords[name]
         else:
-            raise coordinates.name_resolve.NameResolveError
-    mp.setattr(commons.ICRSCoord,
-               'from_name',
-               types.MethodType(fromname, commons.ICRSCoord))
+            raise NameResolveError
+    mp.setattr(SkyCoord, "from_name", types.MethodType(fromname, SkyCoord))
 
 
 class DustTestCase:
@@ -117,21 +112,17 @@ class TestDust(DustTestCase):
 # TODO : Add more examples. Add for "1 degree"-like parameters
     @pytest.mark.parametrize(
         ('coordinate', 'radius', 'expected_payload'),
-        [(galcoords["m81"], None, dict(locstr=format(galcoords['m81']))),
-         (galcoords["m31"], "5d0m", dict(locstr=format(galcoords['m31']),
-                                         regSize=5.0)),
-         (galcoords["m31"], 5 * u.deg, dict(locstr=format(galcoords['m31']),
-                                            regSize=5)),
-         ("m31", 5 * u.deg, dict(locstr='m31', regSize=5)),
-         (coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                               dec=69.065294722 * u.deg, frame='icrs'),
-          5 * u.deg,
-          {'locstr': format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                                 dec=69.065294722 * u.deg,
-                                                 frame='icrs')),
-           'regSize': 5}), ])
+        ((galcoords["m81"], None, {}),
+         (galcoords["m31"], "5d0m", {"regSize": 5.0}),
+         (galcoords["m31"], 5 * u.deg, {"regSize": 5}),
+         ("m31", 5 * u.deg, {"locstr": "m31", "regSize": 5}),
+         (galcoords["m81"], 5 * u.deg, {"regSize": 5})))
     def test_args_to_payload_instance_1(self, coordinate, radius,
                                         expected_payload, patch_fromname):
+        if isinstance(coordinate, str):
+            expected_payload["locstr"] = coordinate
+        else:
+            expected_payload["locstr"] = format(coordinate)
         payload = IrsaDust()._args_to_payload(coordinate, radius=radius)
         assert payload == expected_payload
 

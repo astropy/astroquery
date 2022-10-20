@@ -221,8 +221,7 @@ def test_query_region_async(monkeypatch, patch_get):
     assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
     response = ned.core.Ned.query_region_async(
-        commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447,
-                                       unit=(u.deg, u.deg)),
+        coord.SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg, frame="galactic"),
         get_query_payload=True)
     assert response['search_type'] == 'Near Position Search'
     npt.assert_approx_equal(
