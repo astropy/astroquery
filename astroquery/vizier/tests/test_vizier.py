@@ -125,6 +125,26 @@ def test_query_region_async(patch_post):
     assert response is not None
 
 
+@pytest.mark.parametrize(
+    "inner_r,region_str",
+    [(1 * u.deg, "-c.rd=1.0,5.0"), (60 * u.arcmin, "-c.rm=60.0,300.0")])
+@pytest.mark.parametrize("outer_r", (5 * u.deg, 300 * u.arcmin))
+def test_query_region_async_with_inner_radius(inner_r, outer_r, region_str):
+    query = vizier.VizierClass().query_region_async(
+        scalar_skycoord, radius=outer_r, inner_radius=inner_r, get_query_payload=True)
+    assert region_str in query.splitlines()
+
+
+@pytest.mark.parametrize(
+    "width,region_str",
+    [(1 * u.deg, "-c.bd=1.0x5.0"), (60 * u.arcmin, "-c.bm=60.0x300.0")])
+@pytest.mark.parametrize("height", (5 * u.deg, 300 * u.arcmin))
+def test_query_region_async_rectangle(width, height, region_str):
+    query = vizier.VizierClass().query_region_async(
+        scalar_skycoord, width=width, height=height, get_query_payload=True)
+    assert region_str in query.splitlines()
+
+
 def test_query_region(patch_post):
     result = vizier.core.Vizier.query_region(
         scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
