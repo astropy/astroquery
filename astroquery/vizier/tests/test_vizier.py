@@ -72,18 +72,16 @@ def patch_coords(request):
     return mp
 
 
-@pytest.mark.parametrize(('dim', 'expected_out'),
-                         [(5 * u.deg, ('d', 5)),
-                          (5 * u.arcmin, ('m', 5)),
-                          (5 * u.arcsec, ('s', 5)),
-                          (0.314 * u.rad, ('d', 18)),
-                          ('5d5m5.5s', ('d', 5.0846))
-                          ])
-def test_parse_angle(dim, expected_out):
-    actual_out = vizier.core._parse_angle(dim)
-    actual_unit, actual_value = actual_out
-    expected_unit, expected_value = expected_out
+@pytest.mark.parametrize("dim,expected_unit,expected_unit_str,expected_value",
+                         [(5 * u.deg, u.deg, "d", 5),
+                          (5 * u.arcmin, u.arcmin, "m", 5),
+                          (5 * u.arcsec, u.arcsec, "s", 5),
+                          (0.314 * u.rad, u.deg, "d", 18),
+                          ("5d5m5.5s", u.deg, "d", 5.0846)])
+def test_parse_angle(dim, expected_unit, expected_unit_str, expected_value):
+    actual_unit, actual_unit_str, actual_value = vizier.core._parse_angle(dim)
     assert actual_unit == expected_unit
+    assert actual_unit_str == expected_unit_str
     npt.assert_approx_equal(actual_value, expected_value, significant=2)
 
 
