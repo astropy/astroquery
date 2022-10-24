@@ -19,7 +19,6 @@ import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 from astropy.utils import deprecated
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery import version, log, cache_conf
 from astroquery.utils import system_tools

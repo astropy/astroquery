@@ -1,9 +1,7 @@
-import pytest
 import requests
 import os
 
 from time import sleep
-from pathlib import Path
 
 from astropy.config import paths
 
