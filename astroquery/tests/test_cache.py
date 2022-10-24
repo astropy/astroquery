@@ -8,7 +8,7 @@ from pathlib import Path
 from astropy.config import paths
 
 from astroquery.query import QueryWithLogin
-from astroquery import conf
+from astroquery import cache_conf
 
 URL1 = "http://fakeurl.edu"
 URL2 = "http://fakeurl.ac.uk"
@@ -33,7 +33,7 @@ def set_response(resp_text, resp_status=200):
     requests.Session.request = get_mockreturn
 
 
-class TestClass(QueryWithLogin):
+class CacheTestClass(QueryWithLogin):
     """Bare bones class for testing caching"""
 
     def test_func(self, requrl):
@@ -42,45 +42,40 @@ class TestClass(QueryWithLogin):
 
     def _login(self, username):
 
-        resp = self._request(method="GET", url=username)
-
-        if resp.content == "Penguin":
-            return True
-        else:
-            return False
+        return self._request(method="GET", url=username).content == "Penguin"
 
 
 def test_conf():
-    conf.reset()
+    cache_conf.reset()
 
-    default_timeout = conf.cache_timeout
-    default_active = conf.cache_active
+    default_timeout = cache_conf.cache_timeout
+    default_active = cache_conf.cache_active
 
     assert default_timeout == 604800
     assert default_active is True
 
-    with conf.set_temp("cache_timeout", 5):
-        assert conf.cache_timeout == 5
+    with cache_conf.set_temp("cache_timeout", 5):
+        assert cache_conf.cache_timeout == 5
 
-    with conf.set_temp("cache_active", False):
-        assert conf.cache_active is False
+    with cache_conf.set_temp("cache_active", False):
+        assert cache_conf.cache_active is False
 
-    assert conf.cache_timeout == default_timeout
-    assert conf.cache_active == default_active
+    assert cache_conf.cache_timeout == default_timeout
+    assert cache_conf.cache_active == default_active
 
-    conf.cache_timeout = 5
-    conf.cache_active = False
-    conf.reset()
+    cache_conf.cache_timeout = 5
+    cache_conf.cache_active = False
+    cache_conf.reset()
 
-    assert conf.cache_timeout == default_timeout
-    assert conf.cache_active == default_active
+    assert cache_conf.cache_timeout == default_timeout
+    assert cache_conf.cache_active == default_active
 
 
 def test_basic_caching():
-    conf.reset()
+    cache_conf.reset()
 
-    mytest = TestClass()
-    assert conf.cache_active
+    mytest = CacheTestClass()
+    assert cache_conf.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -108,35 +103,35 @@ def test_basic_caching():
     assert resp.content == TEXT2  # Now get new response
 
 
-def test_change_location(tmpdir):
-    conf.reset()
+def test_change_location(tmp_path):
+    cache_conf.reset()
 
-    mytest = TestClass()
+    mytest = CacheTestClass()
     default_cache_location = mytest.cache_location
 
     assert paths.get_cache_dir() in str(default_cache_location)
     assert "astroquery" in mytest.cache_location.parts
     assert mytest.name in mytest.cache_location.parts
 
-    new_loc = "new_dir"
+    new_loc = tmp_path.joinpath("new_dir")
     mytest.cache_location = new_loc
-    assert str(mytest.cache_location) == new_loc
+    assert mytest.cache_location == new_loc
 
     mytest.reset_cache_location()
     assert mytest.cache_location == default_cache_location
 
-    Path(new_loc).mkdir(parents=True, exist_ok=True)
+    new_loc.mkdir(parents=True, exist_ok=True)
     with paths.set_temp_cache(new_loc):
-        assert new_loc in mytest.cache_location.parts
+        assert str(new_loc) in str(mytest.cache_location)
         assert "astroquery" in mytest.cache_location.parts
         assert mytest.name in mytest.cache_location.parts
 
 
 def test_login():
-    conf.reset()
+    cache_conf.reset()
 
-    mytest = TestClass()
-    assert conf.cache_active
+    mytest = CacheTestClass()
+    assert cache_conf.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -154,15 +149,15 @@ def test_login():
 
 
 def test_timeout():
-    conf.reset()
+    cache_conf.reset()
 
-    mytest = TestClass()
-    assert conf.cache_active
+    mytest = CacheTestClass()
+    assert cache_conf.cache_active
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    conf.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily
+    cache_conf.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily
 
     set_response(TEXT1)  # setting the response
 
@@ -180,10 +175,10 @@ def test_timeout():
 
 
 def test_deactivate():
-    conf.reset()
+    cache_conf.reset()
 
-    mytest = TestClass()
-    conf.cache_active = False
+    mytest = CacheTestClass()
+    cache_conf.cache_active = False
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
@@ -200,10 +195,10 @@ def test_deactivate():
     assert resp.content == TEXT2
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    conf.reset()
-    assert conf.cache_active is True
+    cache_conf.reset()
+    assert cache_conf.cache_active is True
 
-    with conf.set_temp('cache_active', False):
+    with cache_conf.set_temp('cache_active', False):
         mytest.clear_cache()
         assert len(os.listdir(mytest.cache_location)) == 0
 
@@ -219,4 +214,4 @@ def test_deactivate():
         assert resp.content == TEXT2
         assert len(os.listdir(mytest.cache_location)) == 0
 
-    assert conf.cache_active is True
+    assert cache_conf.cache_active is True

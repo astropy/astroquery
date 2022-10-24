@@ -119,14 +119,14 @@ class AstroQuery:
             else:
                 current_time = datetime.utcnow()
                 cache_time = datetime.utcfromtimestamp(request_file.stat().st_mtime)
-                expired = ((current_time-cache_time) > timedelta(seconds=cache_timeout))
+                expired = current_time-cache_time > timedelta(seconds=cache_timeout)
             if not expired:
                 with open(request_file, "rb") as f:
                     response = pickle.load(f)
                 if not isinstance(response, requests.Response):
                     response = None
             else:
-                log.debug("Cache expired for {0}...".format(request_file))
+                log.debug(f"Cache expired for {request_file}...")
                 response = None
         except FileNotFoundError:
             response = None
@@ -251,7 +251,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
-                 files=None, save=False, savedir='', timeout=None, cache=True,
+                 files=None, save=False, savedir='', timeout=None, cache=None,
                  stream=False, auth=None, continuation=True, verify=True,
                  allow_redirects=True,
                  json=None, return_response_on_save=False):
@@ -311,7 +311,8 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        cache &= cache_conf.cache_active
+        if cache is None:  # Global caching not overridden
+            cache = cache_conf.cache_active
 
         if save:
             local_filename = url.split('/')[-1]
@@ -334,7 +335,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             query = AstroQuery(method, url, params=params, data=data, headers=headers,
                                files=files, timeout=timeout, json=json)
-            if (self.cache_location is None) or (not cache):
+            if not cache:
                 with cache_conf.set_temp("cache_active", False):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
@@ -488,10 +489,10 @@ class suspend_cache:
         self.original_cache_setting = cache_conf.cache_active
 
     def __enter__(self):
-        conf.cache_active = False
+        cache_conf.cache_active = False
 
     def __exit__(self, exc_type, exc_value, traceback):
-        conf.cache_active = self.original_cache_setting
+        cache_conf.cache_active = self.original_cache_setting
         return False
 
 
@@ -547,7 +548,7 @@ class QueryWithLogin(BaseQuery):
         pass
 
     def login(self, *args, **kwargs):
-        with conf.set_temp("cache_active", False):
+        with cache_conf.set_temp("cache_active", False):
             self._authenticated = self._login(*args, **kwargs)
         return self._authenticated
 
