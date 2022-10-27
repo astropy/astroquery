@@ -96,14 +96,16 @@ class RingNodeClass(BaseQuery):
         epoch : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
                 If str is provided then UTC is assumed.
                 If no epoch is provided, the current time is used.
-        location : array-like, or `~astropy.coordinates.EarthLocation`, optional
-            Observer's location as a
-            3-element array of Earth longitude, latitude, altitude, or
+        location : str, or array-like, or `~astropy.coordinates.EarthLocation`, optional
+            If str, named observeratory supported by the ring node, e.g. JWST.
+            If array-like, observer's location as a
+            3-element array of Earth longitude, latitude, altitude
+            that istantiates an
             `~astropy.coordinates.EarthLocation`.  Longitude and
             latitude should be anything that initializes an
             `~astropy.coordinates.Angle` object, and altitude should
             initialize an `~astropy.units.Quantity` object (with units
-            of length).  If ``None``, then the geocenter is used.
+            of length).  If ``None``, then the geofocus is used.
         neptune_arcmodel : float, optional. which ephemeris to assume for Neptune's ring arcs
             must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)
             has no effect if planet != 'Neptune'
@@ -158,9 +160,15 @@ class RingNodeClass(BaseQuery):
 
         if location is None:
             viewpoint = "observatory"
+            observatory = "Earth's center"
+            latitude, longitude, altitude = "", "", ""
+        elif isinstance(location, str):
+            viewpoint = "observatory"
+            observatory = location
             latitude, longitude, altitude = "", "", ""
         else:
             viewpoint = "latlon"
+            observatory = "Earth's center"
             if isinstance(location, EarthLocation):
                 loc = location.geodetic
                 longitude = loc[0].deg
@@ -194,7 +202,7 @@ class RingNodeClass(BaseQuery):
                 ("center_dec", ""),
                 ("center_star", ""),
                 ("viewpoint", viewpoint),
-                ("observatory", "Earth's center"),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
+                ("observatory", observatory),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
                 ("latitude", latitude),
                 ("longitude", longitude),
                 ("lon_dir", "east"),
@@ -255,6 +263,10 @@ class RingNodeClass(BaseQuery):
 
         soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text()
+        if "\n" in text:
+            text = text.replace("\r", "")
+        else:
+            text = text.replace("\r", "\n")
         textgroups = re.split("\n\n|\n \n", text)
         ringtable = None
         for group in textgroups:
