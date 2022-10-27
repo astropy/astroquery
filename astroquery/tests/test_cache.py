@@ -1,7 +1,8 @@
 import requests
 import os
 
-from time import sleep
+from time import mktime
+from datetime import datetime
 
 from astropy.config import paths
 
@@ -146,7 +147,7 @@ def test_login():
     assert not mytest.authenticated()  # Should not be accessing cache
 
 
-def test_timeout():
+def test_timeout(monkeypatch):
     cache_conf.reset()
 
     mytest = CacheTestClass()
@@ -155,21 +156,23 @@ def test_timeout():
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    cache_conf.cache_timeout = 2  # Set to 2 sec so we can reach timeout easily
-
     set_response(TEXT1)  # setting the response
 
     resp = mytest.test_func(URL1)  # should be cached
     assert resp.content == TEXT1
 
-    set_response(TEXT2)  # changing the respont
+    set_response(TEXT2)  # changing the response
 
     resp = mytest.test_func(URL1)  # should access cached value
     assert resp.content == TEXT1
 
-    sleep(2)  # run out cache time
+    # Changing the file date so the cache will consider it expired
+    cache_file = list(mytest.cache_location.iterdir())[0]
+    modTime = mktime(datetime(1970, 1, 1).timetuple())
+    os.utime(cache_file, (modTime, modTime))
+    
     resp = mytest.test_func(URL1)
-    assert resp.content == TEXT2  # no see the new response
+    assert resp.content == TEXT2  # now see the new response
 
 
 def test_deactivate():
