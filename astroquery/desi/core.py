@@ -8,7 +8,6 @@ import numpy as np
 import astropy.coordinates as coord
 
 from astropy import units as u
-from astropy.units import Quantity
 from astroquery.exceptions import NoResultsWarning
 from astroquery.query import BaseQuery
 from astroquery.utils import commons

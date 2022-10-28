@@ -20,7 +20,7 @@ DATA_FILES = {
     'dummy_hdu_list_fits': 'hdu_list_images.fits'
 }
 
-coords = commons.ICRSCoord('11h04m27s +38d12m32s')
+coords = coord.SkyCoord('11h04m27s +38d12m32s', frame='icrs')
 radius = coord.Angle(0.5, unit='arcmin')
 pixels = 60
 data_release = 9
@@ -96,9 +96,9 @@ def compare_result_data(result, data):
 
 def image_tester(images, filetype):
     assert type(images) == list
-    data = fits.open(data_path(DATA_FILES[filetype]))
-    assert images[0][0].header == data[0].header
-    assert np.array_equal(images[0][0].data, data[0].data)
+    with fits.open(data_path(DATA_FILES[filetype])) as data:
+        assert images[0][0].header == data[0].header
+        assert np.array_equal(images[0][0].data, data[0].data)
 
 
 def test_coords_query_region(patch_tap, coords=coords, radius=radius):
