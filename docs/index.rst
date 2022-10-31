@@ -99,6 +99,7 @@ and for running the tests:
 
 * `curl <https://curl.haxx.se/>`__
 * `pytest-astropy <https://github.com/astropy/pytest-astropy>`__
+* `pytest-rerunfailures <https://github.com/pytest-dev/pytest-rerunfailures>`__
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.alma` module:
