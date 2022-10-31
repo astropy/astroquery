@@ -26,6 +26,9 @@ esa.hubble
 - Refactored query_criteria to use ehst.archive table therefore making the query
   a lot faster. [#2524]
 
+- Update TAP url to avoid 301 HTTPError. [#2567]
+
+
 alma
 ^^^^
 
