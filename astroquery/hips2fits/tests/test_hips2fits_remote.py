@@ -4,6 +4,7 @@
 import pytest
 from astropy import wcs as astropy_wcs
 from astropy.io import fits
+from astropy.utils.exceptions import AstropyUserWarning
 import numpy as np
 from matplotlib.colors import Colormap
 
@@ -82,7 +83,7 @@ class TestHips2fitsRemote:
         assert isinstance(result, np.ndarray) and result.shape[2] == 3
 
     def test_bad_strech(self):
-        with pytest.raises(AttributeError):
+        with pytest.raises(AstropyUserWarning):
             hips2fits.query_with_wcs(
                 hips=self.hips,
                 wcs=self.w,
