@@ -22,7 +22,6 @@ generate a cone search service complying with the
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
 discovery and queries, whereas Astroquery has web service specific interfaces.
 
-Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
@@ -172,13 +171,6 @@ uncomment the relevant configuration item(s), and insert your desired value(s).
 
 Available Services
 ==================
-
-If you're new to Astroquery, a good place to start is the :doc:`gallery`:
-
-.. toctree::
-  :maxdepth: 1
-
-  gallery
 
 The following modules have been completed using a common API:
 
