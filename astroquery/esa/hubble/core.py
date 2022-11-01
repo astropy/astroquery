@@ -47,8 +47,8 @@ class ESAHubbleClass(BaseQuery):
         super().__init__()
 
         if tap_handler is None:
-            self._tap = TapPlus(url="http://hst.esac.esa.int"
-                                    "/tap-server/tap/")
+            self._tap = TapPlus(url="https://hst.esac.esa.int"
+                                    "/tap-server/tap")
         else:
             self._tap = tap_handler
 
