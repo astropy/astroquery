@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 Astroquery
 ==========
 
@@ -99,6 +97,7 @@ and for running the tests:
 
 * `curl <https://curl.haxx.se/>`__
 * `pytest-astropy <https://github.com/astropy/pytest-astropy>`__
+* `pytest-rerunfailures <https://github.com/pytest-dev/pytest-rerunfailures>`__
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.alma` module:
@@ -126,21 +125,19 @@ Using astroquery
 All astroquery modules are supposed to follow the same API.  In its simplest form, the API involves
 queries based on coordinates or object names.  Some simple examples, using SIMBAD:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
-    >>> result_table.pprint(show_unit=True)
-    MAIN_ID      RA         DEC     RA_PREC ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-              "h:m:s"     "d:m:s"           ...
-    ------- ----------- ----------- ------- ... -------- -------------- -------------------
-      M   1 05 34 31.94 +22 00 52.2       6 ...        C              R 2011A&A...533A..10L
-
-
+    >>> result_table.pprint()
+    MAIN_ID    RA      DEC    ... COO_WAVELENGTH COO_BIBCODE SCRIPT_NUMBER_ID
+            "h:m:s"  "d:m:s"  ...
+    ------- -------- -------- ... -------------- ----------- ----------------
+      M   1 05 34 32 +22 00.8 ...              R                            1
 
 All query tools allow coordinate-based queries:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astropy import coordinates
     >>> import astropy.units as u
@@ -149,13 +146,14 @@ All query tools allow coordinate-based queries:
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True, max_width=80, max_lines=5)
-      MAIN_ID         RA          DEC      ... COO_WAVELENGTH     COO_BIBCODE
-                   "h:m:s"      "d:m:s"    ...
-    ------------ ------------ ------------ ... -------------- -------------------
-           M  42   05 35 17.3    -05 23 28 ...                1981MNRAS.194..693L
-             ...          ...          ... ...            ...                 ...
-    V* V2114 Ori 05 35 01.671 -05 26 36.30 ...              I 2003yCat.2246....0C
-
+            MAIN_ID               RA      ...     COO_BIBCODE     SCRIPT_NUMBER_ID
+                               "h:m:s"    ...
+    ----------------------- ------------- ... ------------------- ----------------
+            NAME Ori Region   05 35 17.30 ...                                    1
+                        ...           ... ...                 ...              ...
+    2MASS J05353573-0525256 05 35 35.7755 ... 2020yCat.1350....0G                1
+               V* V2114 Ori 05 35 01.6720 ... 2020yCat.1350....0G                1
+    Length = 3273 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 
@@ -419,7 +417,7 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
 To debug astroquery, logging level can be configured with the following:
 
-.. code-block:: python
+.. doctest-skip::
 
     >>> from astroquery import log
     >>> log.setLevel(level)
