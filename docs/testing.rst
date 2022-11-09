@@ -29,7 +29,7 @@ requires a few methods that are defined locally in the test file for each module
 Monkeypatching
 ~~~~~~~~~~~~~~
 At a minimum, monkeypatching will require these changes:
-
+``
 .. code-block:: python
 
     class MockResponse(object):
@@ -117,4 +117,17 @@ Narrative documentation should also be tested, the ``doctest-remote-data`` direc
 to mark code snippets that relies on remote data access.
 
 If any of the examples include saving data files locally, use the ``testcleanup`` directive and the
-`~astroquery.utils.cleanup_saved_downloads` function at the end of the narrative documentation.
+`~astroquery.utils.cleanup_saved_downloads` function at the end of the
+narrative documentation.
+
+
+Running only the remote-data tests
+----------------------------------
+
+We should aim to have a reasonably complete test coverage for all the code using the
+actual servers (as opposed to mocked tests). To check the remote-data test
+coverage you can opt to run only those marked with ``remote_data``:
+
+.. code-block:: bash
+
+    pytest astroquery docs -m remote_data --remote-data=any --cov astroquery --cov-config=setup.cfg
