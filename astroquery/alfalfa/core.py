@@ -11,7 +11,7 @@ import numpy as np
 import numpy.ma as ma
 from astropy import units as u
 from astropy import coordinates as coord
-from ..utils import commons, prepend_docstr_nosections
+from ..utils import commons
 from ..query import BaseQuery
 
 __all__ = ['Alfalfa', 'AlfalfaClass']
