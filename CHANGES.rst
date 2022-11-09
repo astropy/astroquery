@@ -20,6 +20,7 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+
 esa.hubble
 ^^^^^^^^^^
 
@@ -159,6 +160,8 @@ Infrastructure, Utility and Other Changes and Additions
 - Removal of the non-functional ``nrao`` module as it was completely
   incompatible with the refactored upstream API. [#2546]
 
+- Removal of the non-functional ``noirlab`` module because the current module
+  is incompatible with the new upstream API. [#2579]
 
 
 0.4.6 (2022-03-22)
