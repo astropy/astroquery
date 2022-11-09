@@ -87,12 +87,12 @@ For example, a full table can be queried as follows:
     10156110  K07989.01              ...     LS+MCMC       0.0 297.00977,47.121021
 
 
-A list of accessible tables can be found in the `TAP_TABLES` attribute:
+A list of accessible tables can be found in the ``TAP_TABLES`` attribute:
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.TAP_TABLES # doctest: +IGNORE_OUTPUT
+    >>> NasaExoplanetArchive.TAP_TABLES
     ['superwasptimeseries',
     'kelttimeseries',
     'transitspec',
