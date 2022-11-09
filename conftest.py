@@ -8,8 +8,6 @@ def pytest_configure(config):
     config.option.astropy_header = True
 
     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
-    PYTEST_HEADER_MODULES['APLpy'] = 'aplpy'
-    PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
     PYTEST_HEADER_MODULES['regions'] = 'regions'
     PYTEST_HEADER_MODULES['pyVO'] = 'pyvo'
     PYTEST_HEADER_MODULES['mocpy'] = 'mocpy'
