@@ -29,7 +29,7 @@ requires a few methods that are defined locally in the test file for each module
 Monkeypatching
 ~~~~~~~~~~~~~~
 At a minimum, monkeypatching will require these changes:
-``
+
 .. code-block:: python
 
     class MockResponse(object):
@@ -126,8 +126,10 @@ Running only the remote-data tests
 
 We should aim to have a reasonably complete test coverage for all the code using the
 actual servers (as opposed to mocked tests). To check the remote-data test
-coverage you can opt to run only those marked with ``remote_data``:
+coverage you can opt to run only those marked with ``remote_data``. Do
+remember to change ``<module_you_want_to_test>`` to the module name you
+actually work on:
 
 .. code-block:: bash
 
-    pytest astroquery docs -m remote_data --remote-data=any --cov astroquery --cov-config=setup.cfg
+    pytest -P <module_you_want_to_test> -m remote_data --remote-data=any --cov astroquery/<module_you_want_to_test> --cov-config=setup.cfg
