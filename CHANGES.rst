@@ -20,6 +20,11 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+noirlab
+^^^^^^^
+
+- Removed because the current module is incompatible with the new upstream API. [#TODO]
+
 esa.hubble
 ^^^^^^^^^^
 
