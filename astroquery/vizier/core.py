@@ -426,39 +426,18 @@ class VizierClass(BaseQuery):
             raise TypeError("Coordinates must be one of: string, astropy "
                             "coordinates, or table containing coordinates!")
 
-        # decide whether box or radius
         if radius is not None:
-            # is radius a disk or an annulus?
             if inner_radius is None:
-                radius = coord.Angle(radius)
-                unit, value = _parse_angle(radius)
-                key = "-c.r" + unit
-                center[key] = value
+                _, unit_str, o_radius = _parse_angle(radius)
+                center["-c.r" + unit_str] = str(o_radius)
             else:
-                i_radius = coord.Angle(inner_radius)
-                o_radius = coord.Angle(radius)
-                if i_radius.unit != o_radius.unit:
-                    o_radius = o_radius.to(i_radius.unit)
-                i_unit, i_value = _parse_angle(i_radius)
-                o_unit, o_value = _parse_angle(o_radius)
-                key = "-c.r" + i_unit
-                center[key] = ",".join([str(i_value), str(o_value)])
+                unit, unit_str, i_radius = _parse_angle(inner_radius)
+                o_radius = coord.Angle(radius).to_value(unit)
+                center["-c.r" + unit_str] = f"{i_radius},{o_radius}"
         elif width is not None:
-            # is box a rectangle or square?
-            if height is None:
-                width = coord.Angle(width)
-                unit, value = _parse_angle(width)
-                key = "-c.b" + unit
-                center[key] = "x".join([str(value)] * 2)
-            else:
-                w_box = coord.Angle(width)
-                h_box = coord.Angle(height)
-                if w_box.unit != h_box.unit:
-                    h_box = h_box.to(w_box.unit)
-                w_unit, w_value = _parse_angle(w_box)
-                h_unit, h_value = _parse_angle(h_box)
-                key = "-c.b" + w_unit
-                center[key] = "x".join([str(w_value), str(h_value)])
+            unit, unit_str, w_box = _parse_angle(width)
+            h_box = w_box if height is None else coord.Angle(height).to_value(unit)
+            center["-c.b" + unit_str] = f"{w_box}x{h_box}"
         else:
             raise Exception(
                 "At least one of radius, width/height must be specified")
@@ -806,17 +785,15 @@ def _parse_angle(angle):
 
     Returns
     -------
-    (unit, value) : tuple
-        formatted for Vizier.
+    (unit, unit_str, value) : tuple
     """
     angle = coord.Angle(angle)
-    if angle.unit == u.arcsec:
-        unit, value = 's', angle.value
-    elif angle.unit == u.arcmin:
-        unit, value = 'm', angle.value
+    if angle.unit is u.arcsec:
+        return u.arcsec, "s", angle.value
+    elif angle.unit is u.arcmin:
+        return u.arcmin, "m", angle.value
     else:
-        unit, value = 'd', angle.to(u.deg).value
-    return unit, value
+        return u.deg, "d", angle.to_value(u.deg)
 
 
 class VizierKeyword(list):

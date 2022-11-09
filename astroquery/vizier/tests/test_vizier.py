@@ -72,18 +72,16 @@ def patch_coords(request):
     return mp
 
 
-@pytest.mark.parametrize(('dim', 'expected_out'),
-                         [(5 * u.deg, ('d', 5)),
-                          (5 * u.arcmin, ('m', 5)),
-                          (5 * u.arcsec, ('s', 5)),
-                          (0.314 * u.rad, ('d', 18)),
-                          ('5d5m5.5s', ('d', 5.0846))
-                          ])
-def test_parse_angle(dim, expected_out):
-    actual_out = vizier.core._parse_angle(dim)
-    actual_unit, actual_value = actual_out
-    expected_unit, expected_value = expected_out
+@pytest.mark.parametrize("dim,expected_unit,expected_unit_str,expected_value",
+                         [(5 * u.deg, u.deg, "d", 5),
+                          (5 * u.arcmin, u.arcmin, "m", 5),
+                          (5 * u.arcsec, u.arcsec, "s", 5),
+                          (0.314 * u.rad, u.deg, "d", 18),
+                          ("5d5m5.5s", u.deg, "d", 5.0846)])
+def test_parse_angle(dim, expected_unit, expected_unit_str, expected_value):
+    actual_unit, actual_unit_str, actual_value = vizier.core._parse_angle(dim)
     assert actual_unit == expected_unit
+    assert actual_unit_str == expected_unit_str
     npt.assert_approx_equal(actual_value, expected_value, significant=2)
 
 
@@ -123,6 +121,26 @@ def test_query_region_async(patch_post):
     response = vizier.core.Vizier.query_region_async(
         scalar_skycoord, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
+
+
+@pytest.mark.parametrize(
+    "inner_r,region_str",
+    [(1 * u.deg, "-c.rd=1.0,5.0"), (60 * u.arcmin, "-c.rm=60.0,300.0")])
+@pytest.mark.parametrize("outer_r", (5 * u.deg, 300 * u.arcmin))
+def test_query_region_async_with_inner_radius(inner_r, outer_r, region_str):
+    query = vizier.VizierClass().query_region_async(
+        scalar_skycoord, radius=outer_r, inner_radius=inner_r, get_query_payload=True)
+    assert region_str in query.splitlines()
+
+
+@pytest.mark.parametrize(
+    "width,region_str",
+    [(1 * u.deg, "-c.bd=1.0x5.0"), (60 * u.arcmin, "-c.bm=60.0x300.0")])
+@pytest.mark.parametrize("height", (5 * u.deg, 300 * u.arcmin))
+def test_query_region_async_rectangle(width, height, region_str):
+    query = vizier.VizierClass().query_region_async(
+        scalar_skycoord, width=width, height=height, get_query_payload=True)
+    assert region_str in query.splitlines()
 
 
 def test_query_region(patch_post):
