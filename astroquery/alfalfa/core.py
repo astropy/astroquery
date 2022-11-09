@@ -22,7 +22,6 @@ __doctest_skip__ = ['AlfalfaClass.query_region', 'Alfalfa.query_region']
 
 class AlfalfaClass(BaseQuery):
 
-    FITS_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
     CATALOG_PREFIX = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1.csv"
 
     PLACEHOLDER = -999999
