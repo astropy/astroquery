@@ -16,7 +16,7 @@ Query a region
 
 This example shows how to query a certain region with DesiLegacySurvey.
 We'll use a set of coordinates that define the region of interest,
-and search within a 5 arcmin radius.
+and search within a 15 arcsec box.
 
 .. doctest-remote-data::
 
@@ -25,9 +25,9 @@ and search within a 5 arcmin radius.
     >>> ra = Angle('11h04m27s', unit='hourangle').degree
     >>> dec = Angle('+38d12m32s', unit='hourangle').degree
     >>> coordinates = SkyCoord(ra, dec, unit='degree')
-    >>> radius = Angle(5, unit='arcmin')
-    >>> table_out = DESILegacySurvey.query_region(coordinates, radius, data_release=9)
-    >>> print(table_out[:5])
+    >>> width = Angle(15, unit='arcsec')
+    >>> table_out = DESILegacySurvey.query_region(coordinates, width=width, data_release=9)
+    >>> print(table_out[:5])  # doctest: +IGNORE_OUTPUT
          ls_id              dec                ra         ... type wise_coadd_id
                                                           ...
     ---------------- ----------------- ------------------ ... ---- -------------
@@ -56,8 +56,8 @@ we can define our region in the same way used in the example above.
     >>> pixels = 60
     >>>
     >>> pos = SkyCoord(ra, dec, unit='degree')
-    >>> radius = Angle(radius_input, unit='arcmin')
-    >>> im = DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
+    >>> width = Angle(radius_input, unit='arcmin')
+    >>> im = DESILegacySurvey.get_images(pos, pixels=pixels, width=width, data_release=9)
 
 All the information we need can be found within the object "im".
 

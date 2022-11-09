@@ -18,7 +18,7 @@ __all__ = ['DESILegacySurvey', 'DESILegacySurveyClass']
 
 class DESILegacySurveyClass(BaseQuery):
 
-    def query_region(self, coordinates, radius=0.5*u.arcmin, *, data_release=9):
+    def query_region(self, coordinates, *, width=0.5*u.arcmin, data_release=9):
         """
         Queries a region around the specified coordinates.
 
@@ -26,10 +26,10 @@ class DESILegacySurveyClass(BaseQuery):
         ----------
         coordinates : `~astropy.coordinates.SkyCoord`
             coordinates around which to query.
-        radius : `~astropy.units.Quantity`, optional
-            the radius of the region. If missing, set to default
+        width : `~astropy.units.Quantity`, optional
+            the width of the region. If missing, set to default
             value of 0.5 arcmin.
-        data_release: int
+        data_release : int
             the data release of the LegacySurvey to use.
 
         Returns
@@ -41,9 +41,9 @@ class DESILegacySurveyClass(BaseQuery):
         coordinates_transformed = coordinates.transform_to(coord.ICRS)
 
         qstr = (f"SELECT all * FROM ls_dr{data_release}.tractor WHERE "
-                f"dec<{(coordinates_transformed.dec + radius).to_value(u.deg)} and "
-                f"ra>{coordinates_transformed.ra.to_value(u.deg) - radius.to_value(u.deg) / np.cos(coordinates_transformed.dec)} and "
-                f"ra<{coordinates_transformed.ra.to_value(u.deg) + radius.to_value(u.deg) / np.cos(coordinates_transformed.dec)}")
+                f"dec<{(coordinates_transformed.dec + width).to_value(u.deg)} and "
+                f"ra>{coordinates_transformed.ra.to_value(u.deg) - width.to_value(u.deg) / np.cos(coordinates_transformed.dec)} and "
+                f"ra<{coordinates_transformed.ra.to_value(u.deg) + width.to_value(u.deg) / np.cos(coordinates_transformed.dec)}")
 
         tap_result = tap_service.run_sync(qstr)
         tap_result = tap_result.to_table()
@@ -53,32 +53,32 @@ class DESILegacySurveyClass(BaseQuery):
 
         return filtered_table
 
-    def get_images(self, position, pixels=None, radius=0.5*u.arcmin, *, data_release=9, show_progress=True, image_band='g'):
+    def get_images(self, position, *, pixels=None, width=0.5*u.arcmin, data_release=9, show_progress=True, image_band='g'):
         """
         Downloads the images for a certain region of interest.
 
         Parameters
-        -------
-        position: `astropy.coordinates`.
+        ----------
+        position : `astropy.coordinates`.
             coordinates around which we define our region of interest.
-        radius: `~astropy.units.Quantity`,  optional
-            the radius of our region of interest.
-        data_release: int, optional
+        width : `~astropy.units.Quantity`,  optional
+            the width of our region of interest.
+        data_release : int, optional
             the data release of the LegacySurvey to use.
-        show_progress: bool, optional
+        show_progress : bool, optional
             Whether to display a progress bar if the file is downloaded
             from a remote server.  Default is True.
-        image_band: str, optional
+        image_band : str, optional
             Default to 'g'
 
         Returns
         -------
-        list: A list of `~astropy.io.fits.HDUList` objects.
+        list : A list of `~astropy.io.fits.HDUList` objects.
         """
 
         position_transformed = position.transform_to(coord.ICRS)
 
-        image_size_arcsec = radius.arcsec
+        image_size_arcsec = width.arcsec
         pixsize = 2 * image_size_arcsec / pixels
 
         image_url = (f"{conf.legacysurvey_service_url}?"

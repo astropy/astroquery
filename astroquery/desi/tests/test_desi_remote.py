@@ -16,33 +16,26 @@ class TestLegacySurveyClass:
         dec = 38.209
         coordinates = SkyCoord(ra, dec, unit='degree')
 
-        radius = Angle(5, unit='arcmin')
+        width = Angle(15, unit='arcsec')
 
-        query1 = DESILegacySurvey.query_region(coordinates, radius=radius, data_release=9)
+        query1 = DESILegacySurvey.query_region(coordinates, width=width, data_release=9)
 
         assert isinstance(query1, Table)
 
-    @pytest.mark.parametrize("valid_inputs", [True, False])
-    def test_get_images(self, valid_inputs):
-
-        if valid_inputs:
-            ra = 166.1125
-            dec = 38.209
-            radius_input = 0.5
-            pixels = 60
-        else:
-            ra = 86.633212
-            dec = 22.01446
-            radius_input = 3
-            pixels = 1296000
-
+    @pytest.mark.parametrize(('ra', 'dec', 'width', 'pixels'),
+                             ((166.1125, 38.209, 0.5, 60),))
+    def test_get_images(self, ra, dec, width, pixels):
         pos = SkyCoord(ra, dec, unit='degree')
-        radius = Angle(radius_input, unit='arcmin')
+        width = Angle(width, unit='arcmin')
 
-        if valid_inputs:
-            query1 = DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
-            assert isinstance(query1, list)
-            assert isinstance(query1[0], HDUList)
-        else:
-            with pytest.raises(NoResultsWarning):
-                DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
+        query1 = DESILegacySurvey.get_images(pos, pixels=pixels, width=width, data_release=9)
+        assert isinstance(query1, list)
+        assert isinstance(query1[0], HDUList)
+
+    def test_noresults_warning(self):
+        # Using position with no coverage
+        pos = SkyCoord(86.633212, 22.01446, unit='degree')
+        width = Angle(3, unit='arcmin')
+
+        with pytest.warns(NoResultsWarning):
+            DESILegacySurvey.get_images(pos, width=width, pixels=100)

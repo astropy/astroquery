@@ -21,7 +21,7 @@ DATA_FILES = {
 }
 
 coords = coord.SkyCoord('11h04m27s +38d12m32s', frame='icrs')
-radius = coord.Angle(0.5, unit='arcmin')
+width = coord.Angle(0.5, unit='arcmin')
 pixels = 60
 data_release = 9
 emispheres_list = ['north', 'south']
@@ -101,8 +101,8 @@ def image_tester(images, filetype):
         assert np.array_equal(images[0][0].data, data[0].data)
 
 
-def test_coords_query_region(patch_tap, coords=coords, radius=radius):
-    result = desi.DESILegacySurvey.query_region(coords, radius)
+def test_coords_query_region(patch_tap):
+    result = desi.DESILegacySurvey.query_region(coords, width=width)
     data = Table.read(data_path(DATA_FILES['dummy_tap_table']),
                       format='ascii.csv', comment='#')
     data['objid'] = data['objid'].astype(np.int64)
@@ -110,6 +110,6 @@ def test_coords_query_region(patch_tap, coords=coords, radius=radius):
 
 
 def test_coords_get_images(patch_get_readable_fileobj, dr=data_release):
-    images_list = desi.DESILegacySurvey.get_images(coords, data_release=dr, radius=radius, pixels=pixels)
+    images_list = desi.DESILegacySurvey.get_images(coords, data_release=dr, width=width, pixels=pixels)
 
     image_tester(images_list, 'dummy_hdu_list_fits')
