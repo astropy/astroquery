@@ -15,9 +15,11 @@ Created on 30 jun. 2016
 
 """
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from astropy.table import Column
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -27,559 +29,322 @@ from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.units import Quantity
 import numpy as np
+from astroquery.utils import ASTROPY_LT_4_1
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
 from astroquery.utils.tap import taputils
 
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
+job_data = utils.read_file_content(Path(__file__).parent.joinpath("data", "job_1.vot"))
+
+skycoord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
 
-class TestTap:
+@pytest.fixture(scope="module")
+def column_attrs():
+    dtypes = {
+        "alpha": np.float64,
+        "delta": np.float64,
+        "source_id": object,
+        "table1_oid": np.int32
+    }
+    columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
+    if not ASTROPY_LT_4_1:
+        columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    return columns
 
-    def test_show_message(self):
-        connHandler = DummyConnHandler()
 
-        dummy_response = DummyResponse(200)
+@pytest.fixture(scope="module")
+def mock_querier():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=job_data)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    return GaiaClass(conn_handler, tapplus, show_server_messages=False)
 
-        message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
-        dummy_response.set_data(method='GET', body=message_text)
-        connHandler.set_default_response(dummy_response)
+@pytest.fixture(scope="module")
+def mock_querier_async():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    jobid = "12345"
 
-        # show_server_messages
-        tableRequest = 'notification?action=GetNotifications'
-        connHandler.set_response(tableRequest, dummy_response)
+    launch_response = DummyResponse(303)
+    launch_response_headers = [["location", "http://test:1111/tap/async/" + jobid]]
+    launch_response.set_data(method="POST", headers=launch_response_headers)
+    conn_handler.set_default_response(launch_response)
 
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        GaiaClass(connHandler, tapplus, show_server_messages=True)
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body="COMPLETED")
+    conn_handler.set_response("async/" + jobid + "/phase", phase_response)
 
-    def test_query_object(self):
-        conn_handler = DummyConnHandler()
-        # Launch response: we use default response because the query contains
-        # decimals
-        dummy_response = DummyResponse(200)
+    results_response = DummyResponse(200)
+    results_response.set_data(method="GET", body=job_data)
+    conn_handler.set_response("async/" + jobid + "/results/result", results_response)
 
-        message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
+    dict_tmp = {
+        "REQUEST": "doQuery",
+        "LANG": "ADQL",
+        "FORMAT": "votable",
+        "tapclient": TAP_CLIENT_ID,
+        "PHASE": "RUN",
+        "QUERY": (
+            "SELECT crossmatch_positional('schemaA','tableA','schemaB','tableB',1.0,"
+            "'results')FROM dual;"
+        )
+    }
+    sorted_key = taputils.taputil_create_sorted_dict_key(dict_tmp)
+    conn_handler.set_response("sync?" + sorted_key, launch_response)
 
-        dummy_response.set_data(method='GET', body=message_text)
-        conn_handler.set_default_response(dummy_response)
+    return GaiaClass(conn_handler, tapplus, show_server_messages=False)
 
-        # show_server_messages
-        tableRequest = 'notification?action=GetNotifications'
-        conn_handler.set_response(tableRequest, dummy_response)
 
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=True)
-        # Launch response: we use default response because the query contains
-        # decimals
-        response_launch_job = DummyResponse(200)
-        job_data_file = data_path('job_1.vot')
-        job_data = utils.read_file_content(job_data_file)
-        response_launch_job.set_data(method='POST', body=job_data)
-        # The query contains decimals: force default response
-        conn_handler.set_default_response(response_launch_job)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
-                      frame='icrs')
-        with pytest.raises(ValueError) as err:
-            tap.query_object(sc)
-        assert "Missing required argument: width" in err.value.args[0]
+def test_show_message():
+    connHandler = DummyConnHandler()
 
-        width = Quantity(12, u.deg)
+    dummy_response = DummyResponse(200)
 
-        with pytest.raises(ValueError) as err:
-            tap.query_object(sc, width=width)
-        assert "Missing required argument: height" in err.value.args[0]
+    message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
 
-        height = Quantity(10, u.deg)
-        table = tap.query_object(sc, width=width, height=height)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
-        # by radius
-        radius = Quantity(1, u.deg)
-        table = tap.query_object(sc, radius=radius)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+    dummy_response.set_data(method='GET', body=message_text)
+    connHandler.set_default_response(dummy_response)
 
-    def test_query_object_async(self):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        jobid = '12345'
-        # Launch response
-        response_launch_job = DummyResponse(303)
-        # list of list (httplib implementation for headers in response)
-        launch_response_headers = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
-        ]
-        response_launch_job.set_data(method='POST', headers=launch_response_headers)
-        conn_handler.set_default_response(response_launch_job)
-        # Phase response
-        response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET', body="COMPLETED")
-        req = "async/" + jobid + "/phase"
-        conn_handler.set_response(req, response_phase)
-        # Results response
-        response_results_job = DummyResponse(200)
-        job_data_file = data_path('job_1.vot')
-        job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET', body=job_data)
-        req = "async/" + jobid + "/results/result"
-        conn_handler.set_response(req, response_results_job)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
-                      frame='icrs')
-        width = Quantity(12, u.deg)
-        height = Quantity(10, u.deg)
-        table = tap.query_object_async(sc, width=width, height=height)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
-        # by radius
-        radius = Quantity(1, u.deg)
-        table = tap.query_object_async(sc, radius=radius)
-        assert len(table) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(table))
-        self.__check_results_column(table,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(table,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(table,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+    # show_server_messages
+    tableRequest = 'notification?action=GetNotifications'
+    connHandler.set_response(tableRequest, dummy_response)
 
-    def test_cone_search_sync(self):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        # Launch response: we use default response because the query contains
-        # decimals
-        response_launch_job = DummyResponse(200)
-        job_data_file = data_path('job_1.vot')
-        job_data = utils.read_file_content(job_data_file)
-        response_launch_job.set_data(method='POST', body=job_data)
-        ra = 19.0
-        dec = 20.0
-        sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
-        radius = Quantity(1.0, u.deg)
-        conn_handler.set_default_response(response_launch_job)
-        job = tap.cone_search(sc, radius)
-        assert job is not None, "Expected a valid job"
-        assert job.async_ is False, "Expected a synchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
-        # results
-        results = job.get_results()
-        assert len(results) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(results))
-        self.__check_results_column(results,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(results,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+    tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    GaiaClass(connHandler, tapplus, show_server_messages=True)
 
-    def test_cone_search_async(self):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        jobid = '12345'
-        # Launch response
-        response_launch_job = DummyResponse(303)
-        # list of list (httplib implementation for headers in response)
-        launch_response_headers = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
-        ]
-        response_launch_job.set_data(method='POST', headers=launch_response_headers)
-        ra = 19
-        dec = 20
-        sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
-        radius = Quantity(1.0, u.deg)
-        conn_handler.set_default_response(response_launch_job)
-        # Phase response
-        response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET', body="COMPLETED")
-        req = "async/" + jobid + "/phase"
-        conn_handler.set_response(req, response_phase)
-        # Results response
-        response_results_job = DummyResponse(200)
-        job_data_file = data_path('job_1.vot')
-        job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET', body=job_data)
-        req = "async/" + jobid + "/results/result"
-        conn_handler.set_response(req, response_results_job)
-        job = tap.cone_search_async(sc, radius)
-        assert job is not None, "Expected a valid job"
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
-        # results
-        results = job.get_results()
-        assert len(results) == 3, \
-            "Wrong job results (num rows). Expected: %d, found %d" % \
-            (3, len(results))
-        self.__check_results_column(results,
-                                    'alpha',
-                                    'alpha',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'delta',
-                                    'delta',
-                                    None,
-                                    np.float64)
-        self.__check_results_column(results,
-                                    'source_id',
-                                    'source_id',
-                                    None,
-                                    object)
-        self.__check_results_column(results,
-                                    'table1_oid',
-                                    'table1_oid',
-                                    None,
-                                    np.int32)
+def test_query_object(column_attrs, mock_querier):
+    with pytest.raises(ValueError) as err:
+        mock_querier.query_object(skycoord)
+    assert "Missing required argument: width" in err.value.args[0]
 
-        # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
-        # had no effect.
-        # The preceding tests should have used the default value.
-        assert 'gaiadr2.gaia_source' in job.parameters['query']
-        # Test changing the table name through conf.
-        conf.MAIN_GAIA_TABLE = 'name_from_conf'
-        job = tap.cone_search_async(sc, radius)
-        assert 'name_from_conf' in job.parameters['query']
+    width = 12 * u.deg
+
+    with pytest.raises(ValueError) as err:
+        mock_querier.query_object(skycoord, width=width)
+    assert "Missing required argument: height" in err.value.args[0]
+
+    table = mock_querier.query_object(skycoord, width=width, height=10 * u.deg)
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+    # by radius
+    table = mock_querier.query_object(skycoord, radius=1 * u.deg)
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+def test_query_object_async(column_attrs, mock_querier_async):
+    table = mock_querier_async.query_object_async(
+        skycoord, width=12 * u.deg, height=10 * u.deg
+    )
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+    # by radius
+    table = mock_querier_async.query_object_async(skycoord, radius=1 * u.deg)
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+def test_cone_search_sync(column_attrs, mock_querier):
+    job = mock_querier.cone_search(skycoord, 1 * u.deg)
+    assert job.async_ is False
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    # results
+    results = job.get_results()
+    assert len(results) == 3
+    for colname, attrs in column_attrs.items():
+        assert results[colname].attrs_equal(attrs)
+
+def test_cone_search_async(column_attrs, mock_querier_async):
+    radius = 1.0 * u.deg
+    job = mock_querier_async.cone_search_async(skycoord, radius)
+    assert job.async_ is True
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    # results
+    results = job.get_results()
+    assert len(results) == 3
+    for colname, attrs in column_attrs.items():
+        assert results[colname].attrs_equal(attrs)
+
+    # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
+    # had no effect.
+    # The preceding tests should have used the default value.
+    assert 'gaiadr2.gaia_source' in job.parameters['query']
+    with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
+        job = mock_querier_async.cone_search_async(skycoord, radius)
+        assert "name_from_conf" in job.parameters["query"]
         # Changing the value through the class should overrule conf.
-        tap.MAIN_GAIA_TABLE = 'name_from_class'
-        job = tap.cone_search_async(sc, radius)
-        assert 'name_from_class' in job.parameters['query']
-        # Cleanup.
-        conf.reset('MAIN_GAIA_TABLE')
+        mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
+        job = mock_querier_async.cone_search_async(skycoord, radius)
+        assert "name_from_class" in job.parameters["query"]
 
-    def __check_results_column(self, results, column_name, description, unit,
-                               data_type):
-        c = results[column_name]
-        assert c.description == description, \
-            "Wrong description for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, description, c.description)
-        assert c.unit == unit, \
-            "Wrong unit for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, unit, c.unit)
-        assert c.dtype == data_type, \
-            "Wrong dataType for results column '%s'. " % \
-            "Expected: '%s', found '%s'" % \
-            (column_name, data_type, c.dtype)
+def test_load_data():
+    dummy_handler = DummyTapHandler()
+    tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
 
-    def test_load_data(self):
-        dummy_handler = DummyTapHandler()
-        tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
+    ids = "1,2,3,4"
+    retrieval_type = "epoch_photometry"
+    verbose = True
+    output_file = os.path.abspath("output_file")
+    path_to_end_with = os.path.join("gaia", "test", "output_file")
+    if not output_file.endswith(path_to_end_with):
+        output_file = os.path.abspath(path_to_end_with)
 
-        ids = "1,2,3,4"
-        retrieval_type = "epoch_photometry"
-        valid_data = True
-        band = None
-        format = "votable"
-        verbose = True
-        data_structure = "INDIVIDUAL"
-        output_file = os.path.abspath("output_file")
-        path_to_end_with = os.path.join("gaia", "test", "output_file")
-        if not output_file.endswith(path_to_end_with):
-            output_file = os.path.abspath(path_to_end_with)
+    tap.load_data(ids=ids,
+                  retrieval_type=retrieval_type,
+                  valid_data=True,
+                  verbose=verbose,
+                  output_file=output_file)
 
-        params_dict = {}
-        params_dict['VALID_DATA'] = "true"
-        params_dict['ID'] = ids
-        params_dict['FORMAT'] = str(format)
-        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
-        params_dict['DATA_STRUCTURE'] = str(data_structure)
-        params_dict['USE_ZIP_ALWAYS'] = 'true'
-
-        tap.load_data(ids=ids,
-                      retrieval_type=retrieval_type,
-                      valid_data=valid_data,
-                      band=band,
-                      format=format,
-                      verbose=verbose,
-                      output_file=output_file)
-        parameters = {}
-        parameters['params_dict'] = params_dict
-        # Output file name contains a timestamp: cannot be verified
-        of = dummy_handler._DummyTapHandler__parameters['output_file']
-        parameters['output_file'] = of
-        parameters['verbose'] = verbose
-        dummy_handler.check_call('load_data', parameters)
-
-    def test_get_datalinks(self):
-        dummy_handler = DummyTapHandler()
-        tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
-        ids = ["1", "2", "3", "4"]
-        verbose = True
-        parameters = {}
-        parameters['ids'] = ids
-        parameters['verbose'] = verbose
-        tap.get_datalinks(ids, verbose)
-        dummy_handler.check_call('get_datalinks', parameters)
-
-    def test_xmatch(self):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        jobid = '12345'
-        # Launch response
-        response_launch_job = DummyResponse(303)
-        # list of list (httplib implementation for headers in response)
-        launch_response_headers = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
-        ]
-        response_launch_job.set_data(method='POST', headers=launch_response_headers)
-        conn_handler.set_default_response(response_launch_job)
-        # Phase response
-        response_phase = DummyResponse(200)
-        response_phase.set_data(method='GET', body="COMPLETED")
-        req = "async/" + jobid + "/phase"
-        conn_handler.set_response(req, response_phase)
-        # Results response
-        response_results_job = DummyResponse(200)
-        job_data_file = data_path('job_1.vot')
-        job_data = utils.read_file_content(job_data_file)
-        response_results_job.set_data(method='GET', body=job_data)
-        req = "async/" + jobid + "/results/result"
-        conn_handler.set_response(req, response_results_job)
-        query = ("SELECT crossmatch_positional(",
-                 "'schemaA','tableA','schemaB','tableB',1.0,'results')",
-                 "FROM dual;")
-        d_tmp = {"q": query}
-        d_tmp_encoded = conn_handler.url_encode(d_tmp)
-        p = d_tmp_encoded.find("=")
-        q = d_tmp_encoded[p + 1:]
-        dict_tmp = {
-            "REQUEST": "doQuery",
-            "LANG": "ADQL",
+    parameters = {
+        "params_dict": {
+            "VALID_DATA": "true",
+            "ID": ids,
             "FORMAT": "votable",
-            "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
-            "QUERY": str(q)}
-        sorted_key = taputils.taputil_create_sorted_dict_key(dict_tmp)
-        job_request = "sync?" + sorted_key
-        conn_handler.set_response(job_request, response_launch_job)
-        # check parameters
-        # missing table A
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a=None,
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name='results')
-        assert "Table name A argument is mandatory" in err.value.args[0]
-        # missing schema A
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='tableA',
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name='results')
-        assert "Not found schema name in full qualified table A: 'tableA'" \
-               in err.value.args[0]
-        # missing table B
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b=None,
-                            results_table_name='results')
-        assert "Table name B argument is mandatory" in err.value.args[0]
-        # missing schema B
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b='tableB',
-                            results_table_name='results')
-        assert "Not found schema name in full qualified table B: 'tableB'" \
-               in err.value.args[0]
-        # missing results table
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name=None)
-        assert "Results table name argument is mandatory" in err.value.args[0]
-        # wrong results table (with schema)
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name='schema.results')
-        assert "Please, do not specify schema for 'results_table_name'" \
-               in err.value.args[0]
-        # radius < 0.1
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name='results', radius=0.01)
-        assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
-               in err.value.args[0]
-        # radius > 10.0
-        with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                            full_qualified_table_name_b='schemaB.tableB',
-                            results_table_name='results', radius=10.1)
-        assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
-               in err.value.args[0]
-        # check default parameters
-        parameters = {}
-        query = "SELECT crossmatch_positional(\
-            'schemaA','tableA',\
-            'schemaB','tableB',\
-            1.0,\
-            'results')\
-            FROM dual;"
-        parameters['query'] = query
-        parameters['name'] = 'results'
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['background'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        job = tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                              full_qualified_table_name_b='schemaB.tableB',
-                              results_table_name='results')
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'COMPLETED', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('COMPLETED', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
-        job = tap.cross_match(
+            "RETRIEVAL_TYPE": retrieval_type,
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "USE_ZIP_ALWAYS": "true",
+        },
+        "output_file": dummy_handler._DummyTapHandler__parameters["output_file"],
+        "verbose": verbose,
+    }
+    dummy_handler.check_call('load_data', parameters)
+
+def test_get_datalinks():
+    dummy_handler = DummyTapHandler()
+    tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
+    ids = ["1", "2", "3", "4"]
+    verbose = True
+    tap.get_datalinks(ids, verbose)
+    dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": verbose})
+
+def test_xmatch(mock_querier_async):
+    # missing table A
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_b='schemaB.tableB',
+            results_table_name='results',
+        )
+    assert "Table name A argument is mandatory" in err.value.args[0]
+    # missing schema A
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='tableA',
+            full_qualified_table_name_b='schemaB.tableB',
+            results_table_name='results',
+        )
+    assert "Not found schema name in full qualified table A: 'tableA'" \
+           in err.value.args[0]
+    # missing table B
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='schemaA.tableA',
+            results_table_name='results',
+        )
+    assert "Table name B argument is mandatory" in err.value.args[0]
+    # missing schema B
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='schemaA.tableA',
+            full_qualified_table_name_b='tableB',
+            results_table_name='results',
+        )
+    assert "Not found schema name in full qualified table B: 'tableB'" \
+           in err.value.args[0]
+    # missing results table
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='schemaA.tableA',
+            full_qualified_table_name_b='schemaB.tableB',
+        )
+    assert "Results table name argument is mandatory" in err.value.args[0]
+    # wrong results table (with schema)
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='schemaA.tableA',
+            full_qualified_table_name_b='schemaB.tableB',
+            results_table_name='schema.results',
+        )
+    assert "Please, do not specify schema for 'results_table_name'" \
+           in err.value.args[0]
+    # radius < 0.1
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
             full_qualified_table_name_a='schemaA.tableA',
             full_qualified_table_name_b='schemaB.tableB',
             results_table_name='results',
-            background=True)
-        assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'EXECUTING', \
-            "Wrong job phase. Expected: %s, found %s" % \
-            ('EXECUTING', job.get_phase())
-        assert job.failed is False, "Wrong job status (set Failed = True)"
+            radius=0.01,
+        )
+    assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
+           in err.value.args[0]
+    # radius > 10.0
+    with pytest.raises(ValueError) as err:
+        mock_querier_async.cross_match(
+            full_qualified_table_name_a='schemaA.tableA',
+            full_qualified_table_name_b='schemaB.tableB',
+            results_table_name='results',
+            radius=10.1
+        )
+    assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
+           in err.value.args[0]
+    job = mock_querier_async.cross_match(
+        full_qualified_table_name_a='schemaA.tableA',
+        full_qualified_table_name_b='schemaB.tableB',
+        results_table_name='results',
+    )
+    assert job.async_ is True
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    job = mock_querier_async.cross_match(
+        full_qualified_table_name_a='schemaA.tableA',
+        full_qualified_table_name_b='schemaB.tableB',
+        results_table_name='results',
+        background=True,
+    )
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING"
+    assert job.failed is False
 
-    @patch.object(TapPlus, 'login')
-    def test_login(self, mock_login):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        tap.login("user", "password")
-        assert (mock_login.call_count == 2)
-        mock_login.side_effect = HTTPError("Login error")
-        tap.login("user", "password")
-        assert (mock_login.call_count == 3)
+@patch.object(TapPlus, 'login')
+def test_login(mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    tap.login("user", "password")
+    assert (mock_login.call_count == 2)
+    mock_login.side_effect = HTTPError("Login error")
+    tap.login("user", "password")
+    assert (mock_login.call_count == 3)
 
-    @patch.object(TapPlus, 'login_gui')
-    @patch.object(TapPlus, 'login')
-    def test_login_gui(self, mock_login_gui, mock_login):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        tap.login_gui()
-        assert (mock_login_gui.call_count == 1)
-        mock_login_gui.side_effect = HTTPError("Login error")
-        tap.login("user", "password")
-        assert (mock_login.call_count == 1)
+@patch.object(TapPlus, 'login_gui')
+@patch.object(TapPlus, 'login')
+def test_login_gui(mock_login_gui, mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    tap.login_gui()
+    assert (mock_login_gui.call_count == 1)
+    mock_login_gui.side_effect = HTTPError("Login error")
+    tap.login("user", "password")
+    assert (mock_login.call_count == 1)
 
-    @patch.object(TapPlus, 'logout')
-    def test_logout(self, mock_logout):
-        conn_handler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-        tap.logout()
-        assert (mock_logout.call_count == 2)
-        mock_logout.side_effect = HTTPError("Login error")
-        tap.logout()
-        assert (mock_logout.call_count == 3)
+@patch.object(TapPlus, 'logout')
+def test_logout(mock_logout):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    tap.logout()
+    assert (mock_logout.call_count == 2)
+    mock_logout.side_effect = HTTPError("Login error")
+    tap.logout()
+    assert (mock_logout.call_count == 3)
