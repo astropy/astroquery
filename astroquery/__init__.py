@@ -16,6 +16,7 @@ import os
 import logging
 
 from .logger import _init_log
+from astropy import config as _config
 
 __all__ = ["__version__", "__githash__", "__citation__", "__bibtex__", "test", "log"]
 
@@ -38,3 +39,23 @@ __citation__ = __bibtex__ = _get_bibtex()
 logging.addLevelName(5, "TRACE")
 log = logging.getLogger()
 log = _init_log()
+
+
+# Set up cache configuration
+class Cache_Conf(_config.ConfigNamespace):
+
+    cache_timeout = _config.ConfigItem(
+        604800,
+        ('Astroquery-wide cache timeout (seconds). Default is 1 week (604800). '
+         'Setting to None prevents the cache from expiring (not recommended).'),
+        cfgtype='integer'
+    )
+
+    cache_active = _config.ConfigItem(
+        True,
+        "Astroquery global cache usage, False turns off all caching.",
+        cfgtype='boolean'
+    )
+
+
+cache_conf = Cache_Conf()
