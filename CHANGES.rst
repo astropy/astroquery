@@ -20,6 +20,11 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+alfalfa
+^^^^^^^
+
+- Removal of the non-functional ``get_spectrym`` method as that service has
+  disappeared. [#2578]
 
 esa.hubble
 ^^^^^^^^^^

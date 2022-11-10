@@ -75,10 +75,3 @@ def test_alfalfa_catalog(patch_get, patch_get_readable_fileobj, coords=coords):
 def test_alfalfa_crossID(patch_get, patch_get_readable_fileobj, coords=coords):
     agc = ALFALFA.query_region(coords, optical_counterpart=True)
     assert agc == 100051
-
-
-def test_alfalfa_spectrum(patch_get, patch_get_readable_fileobj,
-                          coords=coords):
-    agc = ALFALFA.query_region(coords, optical_counterpart=True)
-    sp = ALFALFA.get_spectrum(agc)
-    assert len(sp) == 3

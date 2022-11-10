@@ -24,17 +24,8 @@ This retrieves the AGC number of the object closest to the supplied ra and dec
 argument above tells the crossID function to look for matches using the
 positions of the optical counterparts of HI detected sources (painstakingly
 determined by members of the ALFALFA team), rather than their radio centroids.
-The AGC number is an identification number for objects in the ALFALFA survey,
-and once we know it, we can download spectra (if they are available) easily,
 
-.. Remove the skip once #2403 is fixed
-.. .. doctest-remote-data::
-.. doctest-skip::
-
-    >>> sp = Alfalfa.get_spectrum(agc)
-
-This returns a `~astropy.io.fits.HDUList` object.  If we want to have a look at the
-entire ALFALFA catalog as a dictionary, we can do that too:
+If we want to have a look at the entire ALFALFA catalog as a dictionary, we can do that too:
 
 .. doctest-remote-data::
 
