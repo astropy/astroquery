@@ -195,17 +195,15 @@ Shown here are the cache properties, using Simbad as an example:
 
   >>> from astroquery import cache_conf
   >>> from astroquery.simbad import Simbad
-
+  ...
   >>> # Is the cache active?
   >>> print(cache_conf.cache_active)
   True
-
   >>> # Cache timout in seconds
   >>> print(cache_conf.cache_timeout)
   604800
-  
   >>> # Cache location
-  >>> print(Simbad.cache_location)
+  >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
   /Users/username/.astropy/cache/astroquery/Simbad
 
 

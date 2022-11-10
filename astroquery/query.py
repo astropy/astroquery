@@ -35,7 +35,7 @@ def to_cache(response, cache_file):
         for key in tuple(response.request.hooks.keys()):
             del response.request.hooks[key]
     with open(cache_file, "wb") as f:
-        pickle.dump(response, f)
+        pickle.dump(response, f, protocol=4)
 
 
 def _replace_none_iterable(iterable):
@@ -284,7 +284,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             somewhere other than `BaseQuery.cache_location`
         timeout : int
         cache : bool
-            Override global cache settings.
+            Optional, if specified, overrides global cache settings.
         verify : bool
             Verify the server's TLS certificate?
             (see http://docs.python-requests.org/en/master/_modules/requests/sessions/?highlight=verify)

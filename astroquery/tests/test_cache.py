@@ -167,12 +167,19 @@ def test_timeout(monkeypatch):
     assert resp.content == TEXT1
 
     # Changing the file date so the cache will consider it expired
-    cache_file = list(mytest.cache_location.iterdir())[0]
+    cache_file = next(mytest.cache_location.iterdir())
     modTime = mktime(datetime(1970, 1, 1).timetuple())
     os.utime(cache_file, (modTime, modTime))
-    
+
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # now see the new response
+
+    # Testing a cache timeout of "none"
+    cache_conf.cache_timeout = None
+    set_response(TEXT1)
+
+    resp = mytest.test_func(URL1)
+    assert resp.content == TEXT2 # cache is accessed
 
 
 def test_deactivate():

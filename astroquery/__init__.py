@@ -46,7 +46,8 @@ class Cache_Conf(_config.ConfigNamespace):
 
     cache_timeout = _config.ConfigItem(
         604800,
-        'Astroquery-wide cache timeout (seconds). Default is 1 week (604800).',
+        ('Astroquery-wide cache timeout (seconds). Default is 1 week (604800). '
+         'Setting to None prevents the cache from expiring (not recommended).'),
         cfgtype='integer'
     )
 
