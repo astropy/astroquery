@@ -87,7 +87,7 @@ The following packages are required for astroquery installation & use:
 * `numpy <http://www.numpy.org>`_ >= 1.16
 * `astropy <http://www.astropy.org>`__ (>=4)
 * `pyVO`_ (>=1.1)
-* `requests <http://docs.python-requests.org/en/latest/>`_
+* `requests <https://requests.readthedocs.io/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_

@@ -167,7 +167,7 @@ class hips2fitsClass(BaseQuery):
         * The center of projection in world coordinates (ra, dec)
         * The fov angle in world coordinates
         * The rotation angle of the projection
-        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/#supported-projections>`_ are supported:
+        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/supported_projections.html>`_ are supported:
 
         Parameters
         ----------
@@ -181,7 +181,7 @@ class hips2fitsClass(BaseQuery):
             Height in pixels of the output image.
         projection : str
             Name of the requested projection, eg: SIN, TAN, MOL, AIT, CAR, CEA, STG	Compulsory if wcs is not provided.
-            See `this page <https://docs.astropy.org/en/stable/wcs/#supported-projections>`_ for an exhaustive list.
+            See `this page <https://docs.astropy.org/en/stable/wcs/supported_projections.html>`_ for an exhaustive list.
         fov : `~astropy.coordinates.Angle`
             Size (FoV) of the cutout on the sky.
             This is the size of the largest dimension of the image.
