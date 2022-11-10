@@ -179,6 +179,7 @@ The following modules have been completed using a common API:
   cds/cds.rst
   linelists/cdms/cdms.rst
   dace/dace.rst
+  desi/desi.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
   esa/iso/iso.rst
