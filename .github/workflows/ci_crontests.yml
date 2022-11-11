@@ -43,6 +43,11 @@ jobs:
             toxargs: -v
             toxposargs: -v
 
+          - name: Documentation build with linkcheck
+            os: ubuntu-latest
+            python: '3.10'
+            toxenv: linkcheck
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3

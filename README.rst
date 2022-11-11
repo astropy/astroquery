@@ -45,7 +45,7 @@ Installation and Requirements
 Astroquery works with Python 3.7 or later.
 As an `astropy`_ affiliate, astroquery requires `astropy`_ version 4.0 or later.
 
-astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
+astroquery uses the `requests <https://requests.readthedocs.io/en/latest/>`_
 module to communicate with the internet.  `BeautifulSoup
 <http://www.crummy.com/software/BeautifulSoup/>`_ and `html5lib'
 <https://html5lib.readthedocs.io/en/latest/>`_ are needed for HTML parsing for
