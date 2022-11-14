@@ -11,25 +11,21 @@ import socket
 from io import BytesIO, StringIO
 from urllib.error import URLError
 
-import requests
-
 import astropy.units as u
 from collections import OrderedDict
-from astropy.utils import deprecated, minversion
+from astropy.utils import minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
 from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
 
 from ..exceptions import TimeoutError, InputWarning
-from .. import version
 
 
 CoordClasses = (SkyCoord, BaseCoordinateFrame)
 
 
-__all__ = ['send_request',
-           'parse_coordinates',
+__all__ = ['parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
@@ -45,62 +41,6 @@ ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1dev197')
 # Update the line above once 5.1 is released
 # ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
-
-
-@deprecated('0.4.4', alternative='astroquery.query.BaseQuery._request')
-def send_request(url, data, timeout, request_type='POST', headers={},
-                 **kwargs):
-    """
-    A utility function that post HTTP requests to remote server
-    and returns the HTTP response.
-
-    Parameters
-    ----------
-    url : str
-        The URL of the remote server
-    data : dict
-        A dictionary representing the payload to be posted via the HTTP request
-    timeout : int, quantity_like
-        Time limit for establishing successful connection with remote server
-    request_type : str
-        options are 'POST' (default) and 'GET'. Determines whether to perform
-        an HTTP POST or an HTTP GET request
-    headers : dict
-        POST or GET headers.  user-agent will be set to
-        astropy:astroquery.version
-
-    Returns
-    -------
-    response : `requests.Response`
-        Response object returned by the remote server
-    """
-    headers['User-Agent'] = ('astropy:astroquery.{vers}'
-                             .format(vers=version.version))
-
-    if hasattr(timeout, "unit"):
-        warnings.warn("Converting timeout to seconds and truncating "
-                      "to integer.", InputWarning)
-        timeout = int(timeout.to(u.s).value)
-
-    try:
-        if request_type == 'GET':
-            response = requests.get(url, params=data, timeout=timeout,
-                                    headers=headers, **kwargs)
-        elif request_type == 'POST':
-            response = requests.post(url, data=data, timeout=timeout,
-                                     headers=headers, **kwargs)
-        else:
-            raise ValueError("request_type must be either 'GET' or 'POST'.")
-
-        response.raise_for_status()
-
-        return response
-
-    except requests.exceptions.Timeout:
-        raise TimeoutError("Query timed out, time elapsed {time}s".
-                           format(time=timeout))
-    except requests.exceptions.RequestException as ex:
-        raise Exception("Query failed: {0}\n".format(ex))
 
 
 def radius_to_unit(radius, unit='degree'):

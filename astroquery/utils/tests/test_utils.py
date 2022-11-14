@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 import os
-import requests
 import pytest
 import tempfile
 import textwrap
@@ -14,7 +13,6 @@ import astropy.io.votable as votable
 import astropy.units as u
 from astropy.table import Table
 import astropy.utils.data as aud
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
@@ -77,68 +75,6 @@ def test_parse_coordinates_4():
     coordinates = "251.51 32.36"
     c = commons.parse_coordinates(coordinates)
     assert c.to_string() == coordinates
-
-
-def test_send_request_post(monkeypatch):
-    def mock_post(url, data, timeout, headers={}, status_code=200):
-        class SpecialMockResponse:
-
-            def __init__(self, url, data, headers, status_code):
-                self.url = url
-                self.data = data
-                self.headers = headers
-                self.status_code = status_code
-
-            def raise_for_status(self):
-                pass
-
-        return SpecialMockResponse(url, data, headers=headers,
-                                   status_code=status_code)
-    monkeypatch.setattr(requests, 'post', mock_post)
-
-    with pytest.warns(AstropyDeprecationWarning):
-        response = commons.send_request('https://github.com/astropy/astroquery',
-                                            data=dict(msg='ok'), timeout=30)
-    assert response.url == 'https://github.com/astropy/astroquery'
-    assert response.data == dict(msg='ok')
-    assert 'astroquery' in response.headers['User-Agent']
-    assert response.headers['User-Agent'].endswith("_testrun")
-
-
-def test_send_request_get(monkeypatch):
-    def mock_get(url, params, timeout, headers={}, status_code=200):
-        req = requests.Request(
-            'GET', url, params=params, headers=headers).prepare()
-        req.status_code = status_code
-        req.raise_for_status = lambda: None
-        return req
-    monkeypatch.setattr(requests, 'get', mock_get)
-    with pytest.warns(AstropyDeprecationWarning):
-        response = commons.send_request('https://github.com/astropy/astroquery',
-                                        dict(a='b'), 60, request_type='GET')
-    assert response.url == 'https://github.com/astropy/astroquery?a=b'
-
-
-def test_quantity_timeout(monkeypatch):
-    def mock_get(url, params, timeout, headers={}, status_code=200):
-        req = requests.Request(
-            'GET', url, params=params, headers=headers).prepare()
-        req.status_code = status_code
-        req.raise_for_status = lambda: None
-        return req
-    monkeypatch.setattr(requests, 'get', mock_get)
-    with pytest.warns(AstropyDeprecationWarning):
-        response = commons.send_request('https://github.com/astropy/astroquery',
-                                        dict(a='b'), 1 * u.min,
-                                        request_type='GET')
-    assert response.url == 'https://github.com/astropy/astroquery?a=b'
-
-
-def test_send_request_err():
-    with pytest.raises(ValueError):
-        with pytest.warns(AstropyDeprecationWarning):
-            commons.send_request('https://github.com/astropy/astroquery',
-                                 dict(a='b'), 60, request_type='PUT')
 
 
 col_1 = [1, 2, 3]
