@@ -82,20 +82,13 @@ def _compare_tables(table1, table2):
 
 @pytest.mark.remote_data
 def test_select():
-    payload = NasaExoplanetArchive.query_criteria(
-        "ps",
-        select=["hostname", "pl_name"],
-        where="hostname='Kepler-11'",
-        get_query_payload=True,
-    )
-    assert payload["select"] == "hostname,pl_name"
+    payload_sql = NasaExoplanetArchive.query_criteria("ps", select=["hostname", "pl_name"],
+                                                      where="hostname='Kepler-11'", get_query_payload=True)
+    assert "hostname,pl_name" in payload_sql
 
-    table1 = NasaExoplanetArchive.query_criteria(
-        "ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'"
-    )
-    table2 = NasaExoplanetArchive.query_criteria(
-        "ps", select="hostname,pl_name", where="hostname='Kepler-11'"
-    )
+    table1 = NasaExoplanetArchive.query_criteria("ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'")
+
+    table2 = NasaExoplanetArchive.query_criteria("ps", select="hostname,pl_name", where="hostname='Kepler-11'")
     _compare_tables(table1, table2)
 
 
@@ -132,15 +125,20 @@ def test_table_errors():
 
 @pytest.mark.remote_data
 def test_request_to_sql():
-    payload_dict = NasaExoplanetArchive.query_region(table="ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg, get_query_payload=True)
-    sql_str = NasaExoplanetArchive._request_to_sql(payload_dict)
-    assert sql_str == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
+    payload_sql = NasaExoplanetArchive.query_region("ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
+                                                    radius=1.0 * u.deg, get_query_payload=True)
 
-    payload_dict = NasaExoplanetArchive.query_criteria(table="ps", where="hostname like 'Kepler%'", order="hostname", get_query_payload=True)
-    assert "order by" in NasaExoplanetArchive._request_to_sql(payload_dict)
+    assert payload_sql == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
 
-    payload_dict = NasaExoplanetArchive.query_criteria(table="cumulative", where="pl_hostname like 'Kepler%'", order="pl_hostname", get_query_payload=True)
-    assert "pl_hostname or pl_name" in NasaExoplanetArchive._request_to_sql(payload_dict)
+    payload_sql = NasaExoplanetArchive.query_criteria(table="ps", where="hostname like 'Kepler%'",
+                                                      order="hostname", get_query_payload=True)
+
+    assert payload_sql == "select * from ps where hostname like 'Kepler%' order by hostname"
+
+    # "cumulative" table is not in TAP_TABLES, payload is sent directly as GET params
+    payload_dict = NasaExoplanetArchive.query_criteria(table="cumulative", where="pl_hostname like 'Kepler%'",
+                                                      order="pl_hostname", get_query_payload=True)
+    assert isinstance(payload_dict, dict)
 
 
 @pytest.mark.remote_data
