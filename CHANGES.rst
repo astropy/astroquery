@@ -168,6 +168,8 @@ Infrastructure, Utility and Other Changes and Additions
 - Removal of the non-functional ``noirlab`` module because the current module
   is incompatible with the new upstream API. [#2579]
 
+- Removed deprecated function ``utils.commons.send_request()``. [#2583]
+
 
 0.4.6 (2022-03-22)
 ==================
