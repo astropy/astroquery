@@ -173,15 +173,19 @@ Querying by other parameters
 As of version 0.3.4, you can also query other fields by keyword. For example,
 if you want to find all projects in a region with a particular PI, you could do:
 
-.. doctest-remote-data::
+.. Fix and remove skip with https://github.com/astropy/astroquery/issues/2584
+.. .. doctest-remote-data::
+.. doctest-skip::
 
-    >>> rslt = Alma.query_region('W51', radius=25*u.arcmin, pi_name='*Ginsburg*')
+    >>> Alma.query_region('W51', radius=25*u.arcmin, pi_name='*Ginsburg*')
 
 or if you wanted all projects by a given PI:
 
-.. doctest-remote-data::
+.. Fix and remove skip with https://github.com/astropy/astroquery/issues/2584
+.. .. doctest-remote-data::
+.. doctest-skip::
 
-   >>> rslt = Alma.query(payload=dict(pi_name='Ginsburg, Adam'))
+    >>> Alma.query(payload=dict(pi_name='Ginsburg, Adam'))
 
 The ''query_sia'' method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.  For example,
