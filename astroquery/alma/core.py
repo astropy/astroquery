@@ -380,11 +380,16 @@ class AlmaClass(QueryWithLogin):
             payload['science_observation'] = science
         if public is not None:
             payload['public_data'] = public
-        if get_query_payload:
-            return payload
 
         query = _gen_sql(payload)
+
+        if get_query_payload:
+            # Return the TAP query payload that goes out to the server rather
+            # than the unprocessed payload dict from the python side
+            return query
+
         result = self.query_tap(query, maxrec=maxrec)
+
         if result is not None:
             result = result.to_table()
         else:

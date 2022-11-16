@@ -538,7 +538,7 @@ def test_galactic_query():
     result = alma.query_region(SkyCoord(0*u.deg, 0*u.deg, frame='galactic'),
                                radius=1*u.deg, get_query_payload=True)
 
-    assert result['ra_dec'] == SkyCoord(0*u.deg, 0*u.deg, frame='galactic').icrs.to_string() + ", 1.0"
+    assert "'ICRS',266.405,-28.9362,1.0" in result
 
 
 def test_download_files():
