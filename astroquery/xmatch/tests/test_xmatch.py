@@ -7,7 +7,6 @@ from astropy.io import ascii
 from astropy.table import Table
 from astropy.units import arcsec
 
-from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from ...xmatch import XMatch
 
@@ -75,11 +74,6 @@ def test_xmatch_is_avail_table(monkeypatch):
 def test_xmatch_query_local(monkeypatch):
     xm = XMatch()
     monkeypatch.setattr(xm, '_request', request_mockreturn)
-    monkeypatch.setattr(
-        commons,
-        'send_request',
-        lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
-            request_mockreturn(request_type, url, data, **kwargs))
     with open(DATA_DIR / "posList.csv") as pos_list:
         response = xm.query_async(
             cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
@@ -96,11 +90,6 @@ def test_xmatch_query_local(monkeypatch):
 def test_xmatch_query_cat1_table_local(monkeypatch):
     xm = XMatch()
     monkeypatch.setattr(xm, '_request', request_mockreturn)
-    monkeypatch.setattr(
-        commons,
-        'send_request',
-        lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
-            request_mockreturn(request_type, url, data, **kwargs))
     with open(DATA_DIR / "posList.csv") as pos_list:
         input_table = Table.read(pos_list.readlines(),
                                  format='ascii.csv',
