@@ -69,6 +69,10 @@ class TestMOCServerRemote:
                         reason="requires MOCPy")
     @pytest.mark.parametrize('moc_order', [5, 10])
     def test_moc_order_param(self, moc_order, tmp_cwd):
+
+        # We need a long timeout for this
+        cds.TIMEOUT = 300
+
         moc_region = MOC.from_json({'0': [1]})
 
         result = cds.query_region(region=moc_region,

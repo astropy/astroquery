@@ -1,8 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
-import numpy as np
-
 from astropy.table import Table
 import astropy.units as u
 
@@ -24,7 +21,7 @@ class TestNist:
 
         # check that no javascript was left in the table
         # (regression test for 1355)
-        assert np.all(result['TP'] == 'T8637')
+        assert set(result['TP']) == set(['T8637', 'T7771'])
 
     def test_unescape_html(self):
         response = nist.core.Nist.query_async(4333 * u.AA, 4334 * u.AA, "V I")
