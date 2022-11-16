@@ -335,7 +335,7 @@ class AlmaClass(QueryWithLogin):
                                 payload=payload, **kwargs)
 
     def query_async(self, payload, *, public=True, science=True,
-                    legacy_columns=False, get_query_payload=None,
+                    legacy_columns=False, get_query_payload=False,
                     maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
