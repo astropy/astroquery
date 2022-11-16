@@ -13,7 +13,7 @@ def test_default_form_values():
     default_response = AtomicLineList._request(
         method="GET", url=AtomicLineList.FORM_URL,
         data={}, timeout=AtomicLineList.TIMEOUT)
-    bs = BeautifulSoup(default_response.text, 'html5')
+    bs = BeautifulSoup(default_response.text, 'html5lib')
     form = bs.find('form')
 
     default_form_values = AtomicLineList._get_default_form_values(form)

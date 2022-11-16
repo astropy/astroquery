@@ -5,6 +5,7 @@ import pytest
 
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils.exceptions import AstropyUserWarning
 
 from urllib.error import URLError
 
@@ -13,6 +14,7 @@ from ...exceptions import TimeoutError
 
 # DR11 is a quasi-internal data release that does not have SkyServer support.
 dr_list = (8, 9, 10, 12, 13, 14, 15, 16, 17)
+dr_warn_list = (8, 9)
 
 
 @pytest.mark.remote_data
@@ -47,7 +49,12 @@ class TestSDSSRemote:
 
     @pytest.mark.parametrize("dr", dr_list)
     def test_sdss_spectrum(self, dr):
-        xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
+        if dr in dr_warn_list:
+            with pytest.warns(AstropyUserWarning, match='Field info are not available for this data release'):
+                xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
+        else:
+            xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
+
         assert isinstance(xid, Table)
         sdss.SDSS.get_spectra(matches=xid, data_release=dr)
 
@@ -176,8 +183,13 @@ class TestSDSSRemote:
 
     @pytest.mark.parametrize("dr", dr_list)
     def test_query_crossid(self, dr):
-        query1 = sdss.SDSS.query_crossid(self.coords, data_release=dr)
-        query2 = sdss.SDSS.query_crossid([self.coords, self.coords], data_release=dr)
+        if dr in dr_warn_list:
+            with pytest.warns(AstropyUserWarning, match='Field info are not available for this data release'):
+                query1 = sdss.SDSS.query_crossid(self.coords, data_release=dr)
+                query2 = sdss.SDSS.query_crossid([self.coords, self.coords], data_release=dr)
+        else:
+            query1 = sdss.SDSS.query_crossid(self.coords, data_release=dr)
+            query2 = sdss.SDSS.query_crossid([self.coords, self.coords], data_release=dr)
         assert isinstance(query1, Table)
         assert query1['objID'][0] == 1237652943176138868
 
@@ -186,12 +198,17 @@ class TestSDSSRemote:
 
     @pytest.mark.parametrize("dr", dr_list)
     def test_spectro_query_crossid(self, dr):
-        query1 = sdss.SDSS.query_crossid(self.coords,
-                                         specobj_fields=['specObjID', 'z'],
-                                         data_release=dr, cache=False)
-        query2 = sdss.SDSS.query_crossid([self.coords, self.coords],
-                                         specobj_fields=['specObjID', 'z'],
-                                         data_release=dr, cache=False)
+        if dr in dr_warn_list:
+            with pytest.warns(AstropyUserWarning, match='Field info are not available for this data release'):
+                query1 = sdss.SDSS.query_crossid(self.coords, specobj_fields=['specObjID', 'z'],
+                                                 data_release=dr, cache=False)
+                query2 = sdss.SDSS.query_crossid([self.coords, self.coords], specobj_fields=['specObjID', 'z'],
+                                                 data_release=dr, cache=False)
+        else:
+            query1 = sdss.SDSS.query_crossid(self.coords, specobj_fields=['specObjID', 'z'],
+                                             data_release=dr, cache=False)
+            query2 = sdss.SDSS.query_crossid([self.coords, self.coords], specobj_fields=['specObjID', 'z'],
+                                             data_release=dr, cache=False)
         assert isinstance(query1, Table)
         assert query1['specObjID'][0] == 845594848269461504
 
