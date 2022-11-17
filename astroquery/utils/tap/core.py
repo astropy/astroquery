@@ -237,7 +237,7 @@ class Tap:
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False,
                    dump_to_file=False, upload_resource=None,
-                   upload_table_name=None):
+                   upload_table_name=None, maxrec=None):
         """Launches a synchronous job
 
         Parameters
@@ -260,6 +260,8 @@ class Tap:
         upload_table_name : str, optional, default None
             resource temporary table name associated to the uploaded resource.
             This argument is required if upload_resource is provided.
+        maxrec : int, optional, default None
+            maximum number of rows to return (TAP ``MAXREC`` parameter)
 
         Returns
         -------
@@ -274,19 +276,21 @@ class Tap:
             if upload_table_name is None:
                 raise ValueError("Table name is required when a resource " +
                                  "is uploaded")
-            response = self.__launchJobMultipart(query,
-                                                 upload_resource,
-                                                 upload_table_name,
-                                                 output_format,
-                                                 "sync",
-                                                 verbose,
-                                                 name)
+            response = self.__launchJobMultipart(query=query,
+                                                 uploadResource=upload_resource,
+                                                 uploadTableName=upload_table_name,
+                                                 outputFormat=output_format,
+                                                 context="sync",
+                                                 verbose=verbose,
+                                                 name=name,
+                                                 maxrec=maxrec)
         else:
-            response = self.__launchJob(query,
-                                        output_format,
-                                        "sync",
-                                        verbose,
-                                        name)
+            response = self.__launchJob(query=query,
+                                        outputFormat=output_format,
+                                        context="sync",
+                                        verbose=verbose,
+                                        name=name,
+                                        maxrec=maxrec)
         # handle redirection
         if response.status == 303:
             # redirection
@@ -353,7 +357,7 @@ class Tap:
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,
-                         autorun=True):
+                         autorun=True, maxrec=None):
         """Launches an asynchronous job
 
         Parameters
@@ -382,6 +386,8 @@ class Tap:
         autorun : boolean, optional, default True
             if 'True', sets 'phase' parameter to 'RUN',
             so the framework can start the job.
+        maxrec : int, optional, default None
+            maximum number of rows to return (TAP ``MAXREC`` parameter)
 
         Returns
         -------
@@ -404,14 +410,16 @@ class Tap:
                                                  "async",
                                                  verbose,
                                                  name,
-                                                 autorun)
+                                                 autorun,
+                                                 maxrec)
         else:
             response = self.__launchJob(query,
                                         output_format,
                                         "async",
                                         verbose,
                                         name,
-                                        autorun)
+                                        autorun,
+                                        maxrec)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   303,
@@ -571,7 +579,7 @@ class Tap:
 
     def __launchJobMultipart(self, query, uploadResource, uploadTableName,
                              outputFormat, context, verbose, name=None,
-                             autorun=True):
+                             autorun=True, maxrec=None):
         uploadValue = f"{uploadTableName},param:{uploadTableName}"
         args = {
             "REQUEST": "doQuery",
@@ -580,6 +588,8 @@ class Tap:
             "tapclient": str(TAP_CLIENT_ID),
             "QUERY": str(query),
             "UPLOAD": "" + str(uploadValue)}
+        if maxrec is not None:
+            args['MAXREC'] = maxrec
         if autorun is True:
             args['PHASE'] = 'RUN'
         if name is not None:
@@ -610,13 +620,15 @@ class Tap:
         return response
 
     def __launchJob(self, query, outputFormat, context, verbose, name=None,
-                    autorun=True):
+                    autorun=True, maxrec=None):
         args = {
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
             "QUERY": str(query)}
+        if maxrec is not None:
+            args['MAXREC'] = maxrec
         if autorun is True:
             args['PHASE'] = 'RUN'
         if name is not None:
