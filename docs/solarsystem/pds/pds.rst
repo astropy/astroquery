@@ -63,12 +63,14 @@ Outputs
 ---------
 ``bodytable`` is a `~astropy.table.QTable` containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
+
 .. doctest-remote-data::
 
 	>>> print(bodytable.columns)
 	<TableColumns names=('NAIF ID','Body','RA','Dec','RA (deg)','Dec (deg)','dRA','dDec','sub_obs_lon','sub_obs_lat','sub_sun_lon','sub_sun_lat','phase','distance')>
 
 ``ringtable`` is a `~astropy.table.QTable` containing ephemeris information on the individual rings in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
+
 
 .. doctest-remote-data::
 
@@ -93,7 +95,6 @@ Note that the behavior of ``ringtable`` changes depending on the planet you quer
 
 System-wide data are available as metadata in both ``bodytable`` and ``ringtable`` (if ``ringtable`` exists), e.g.:
 
-
 .. doctest-remote-data::
 
 	>>> systemtable = bodytable.meta
@@ -106,5 +107,3 @@ Reference/API
 
 .. automodapi:: astroquery.solarsystem.pds
     :no-inheritance-diagram:
-
-.. _NASA Planetary Data System's Ring Node System: https://pds-rings.seti.org/

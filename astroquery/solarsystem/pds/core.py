@@ -186,7 +186,6 @@ class RingNodeClass(BaseQuery):
             )
 
         # configure request_payload for ephemeris query
-
         request_payload = dict(
             [
                 ("abbrev", planet[:3]),
@@ -389,13 +388,13 @@ class RingNodeClass(BaseQuery):
 
             # Neptune ring arcs data
             elif group.startswith("Courage"):
-                lines = group.split(os.linesep)[:5] #requires explicit split by os.linesep because windows and macos handle this text block differently
+                lines = group.splitlines()
                 for i in range(len(lines)):
                     l = lines[i].split(":")
                     ring = l[0].split("longitude")[0].strip()
                     [min_angle, max_angle] = [
-                        float(s)
-                        for s in re.sub("[a-zA-Z]+", "", l[1]).split()
+                        float(s.strip())
+                        for s in re.sub("[a-zA-Z]+", "", l[1]).strip("()").split()
                     ]
                     if i == 0:
                         ringtable_names = ("ring", "min_angle", "max_angle")
