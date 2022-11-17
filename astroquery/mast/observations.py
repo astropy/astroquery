@@ -88,7 +88,7 @@ class ObservationsClass(MastQueryWithLogin):
         for facet in hist_data:
             if facet['text'] == "obs_collection":
                 mission_info = facet['ExtendedProperties']['histObj']
-                missions = list(mission_info.keys())
+                missions = sorted(mission_info)
                 missions.remove('hist')
                 return missions
 
