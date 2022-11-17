@@ -261,7 +261,7 @@ class Tap:
             resource temporary table name associated to the uploaded resource.
             This argument is required if upload_resource is provided.
         maxrec : int, optional, default None
-            maximum number of rows to return (TAP `MAXREC` parameter)
+            maximum number of rows to return (TAP ``MAXREC`` parameter)
 
         Returns
         -------
@@ -387,7 +387,7 @@ class Tap:
             if 'True', sets 'phase' parameter to 'RUN',
             so the framework can start the job.
         maxrec : int, optional, default None
-            maximum number of rows to return (TAP `MAXREC` parameter)
+            maximum number of rows to return (TAP ``MAXREC`` parameter)
 
         Returns
         -------
