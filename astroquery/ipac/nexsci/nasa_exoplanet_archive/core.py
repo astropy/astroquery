@@ -224,10 +224,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if "json" in criteria["format"].lower():
             raise InvalidQueryError("The 'json' format is not supported")
 
-        # Build the query (and return it if requested)
+        # Build the query
         request_payload = dict(table=table, **criteria)
-        if get_query_payload:
-            return request_payload
 
         # Use the default cache setting if one was not provided
         if cache is None:
@@ -237,11 +235,18 @@ class NasaExoplanetArchiveClass(BaseQuery):
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
+
+            if get_query_payload:
+                return tap_query
+
             try:
                 response = tap.search(query=tap_query, language='ADQL')  # Note that this returns a VOTable
             except Exception as err:
                 raise InvalidQueryError(str(err))
         else:
+            if get_query_payload:
+                return request_payload
+
             response = self._request(
                 "GET", self.URL_API, params=request_payload, timeout=self.TIMEOUT, cache=cache,
             )
