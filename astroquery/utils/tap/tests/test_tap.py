@@ -175,6 +175,7 @@ def test_launch_sync_job():
         tap.launch_job(query, maxrec=10)
 
     responseLaunchJob.set_status_code(200)
+
     job = tap.launch_job(query)
 
     assert job is not None
@@ -456,7 +457,7 @@ def test_abort_job():
     req = f"async?{sortedKey}"
     connHandler.set_response(req, responseLaunchJob)
 
-    job = tap.launch_job_async(query, autorun=False)
+    job = tap.launch_job_async(query, autorun=False, maxrec=10)
     assert job is not None
     assert job.get_phase() == 'PENDING'
     # abort job
