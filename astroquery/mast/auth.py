@@ -9,13 +9,12 @@ authenticating MAST users.
 
 import os
 import keyring
-import warnings
 
 from getpass import getpass
 
 from astroquery import log
 
-from ..exceptions import AuthenticationWarning
+from ..exceptions import LoginError
 
 from . import conf
 
@@ -82,10 +81,8 @@ class MastAuth:
         if not info["anon"]:
             log.info("MAST API token accepted, welcome {}".format(info["attrib"].get("display_name")))
         else:
-            warn_msg = ("MAST API token invalid!\n"
-                        "To make create a new API token visit to following link: " +
-                        self.AUTH_URL)
-            warnings.warn(warn_msg, AuthenticationWarning)
+            raise LoginError("MAST API token invalid!\n To create a new API token"
+                             "visit to following link: " + self.AUTH_URL)
 
         return not info["anon"]
 

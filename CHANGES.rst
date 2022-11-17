@@ -156,6 +156,13 @@ sdss
 - Optional keyword arguments are now keyword only. [#2477, #2532]
 
 
+mast
+^^^^
+
+- Changed warning to error for authentication failure. [#1874]
+
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
