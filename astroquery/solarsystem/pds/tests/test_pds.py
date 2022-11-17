@@ -63,30 +63,8 @@ def test_ephemeris_query_Uranus(patch_request):
     # check system table
     systemtable = bodytable.meta
     assert np.allclose(
-        [
-            -56.12233,
-            -56.13586,
-            -56.13586,
-            -56.01577,
-            0.10924,
-            354.11072,
-            354.12204,
-            2947896667.0,
-            3098568884.0,
-            10335.713263,
-        ],
-        [
-            systemtable["sub_sun_lat"].to(u.deg).value,
-            systemtable["sub_sun_lat_min"].to(u.deg).value,
-            systemtable["sub_sun_lat_max"].to(u.deg).value,
-            systemtable["opening_angle"].to(u.deg).value,
-            systemtable["phase_angle"].to(u.deg).value,
-            systemtable["sub_sun_lon"].to(u.deg).value,
-            systemtable["sub_obs_lon"].to(u.deg).value,
-            systemtable["d_sun"].to(u.km).value,
-            systemtable["d_obs"].to(u.km).value,
-            systemtable["light_time"].to(u.second).value,
-        ],
+        [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924, 354.11072, 354.12204, 2947896667.0, 3098568884.0, 10335.713263, ],
+        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
         rtol=1e-2,
     )
 
@@ -95,30 +73,8 @@ def test_ephemeris_query_Uranus(patch_request):
     assert mab["NAIF ID"] == 726
     assert mab["Body"] == "Mab"
     assert np.allclose(
-        [
-            42.011201,
-            15.801323,
-            5.368,
-            0.623,
-            223.976,
-            55.906,
-            223.969,
-            56.013,
-            0.10932,
-            3098.514,
-        ],
-        [
-            mab["RA (deg)"].to(u.deg).value,
-            mab["Dec (deg)"].to(u.deg).value,
-            mab["dRA"].to(u.arcsec).value,
-            mab["dDec"].to(u.arcsec).value,
-            mab["sub_obs_lon"].to(u.deg).value,
-            mab["sub_obs_lat"].to(u.deg).value,
-            mab["sub_sun_lon"].to(u.deg).value,
-            mab["sub_sun_lat"].to(u.deg).value,
-            mab["phase"].to(u.deg).value,
-            mab["distance"].to(u.km * 1e6).value,
-        ],
+        [42.011201, 15.801323, 5.368, 0.623, 223.976, 55.906, 223.969, 56.013, 0.10932, 3098.514, ],
+        [mab["RA (deg)"].to(u.deg).value, mab["Dec (deg)"].to(u.deg).value, mab["dRA"].to(u.arcsec).value, mab["dDec"].to(u.arcsec).value, mab["sub_obs_lon"].to(u.deg).value, mab["sub_obs_lat"].to(u.deg).value, mab["sub_sun_lon"].to(u.deg).value, mab["sub_sun_lat"].to(u.deg).value, mab["phase"].to(u.deg).value, mab["distance"].to(u.km * 1e6).value, ],
         rtol=1e-2,
     )
 
@@ -139,30 +95,8 @@ def test_ephemeris_query_Pluto(patch_request):
     systemtable = bodytable.meta
     # check system table
     assert np.allclose(
-        [
-            57.57737,
-             57.56961,
-            57.56961,
-            56.50534,
-            1.64048,
-            116.55873,
-            118.8369,
-            5142696000,
-            5114486810,
-            17060.091666,
-        ],
-        [
-            systemtable["sub_sun_lat"].to(u.deg).value,
-            systemtable["sub_sun_lat_min"].to(u.deg).value,
-            systemtable["sub_sun_lat_max"].to(u.deg).value,
-            systemtable["opening_angle"].to(u.deg).value,
-            systemtable["phase_angle"].to(u.deg).value,
-            systemtable["sub_sun_lon"].to(u.deg).value,
-            systemtable["sub_obs_lon"].to(u.deg).value,
-            systemtable["d_sun"].to(u.km).value,
-            systemtable["d_obs"].to(u.km).value,
-            systemtable["light_time"].to(u.second).value,
-        ],
+        [57.57737, 57.56961, 57.56961, 56.50534, 1.64048, 116.55873, 118.8369, 5142696000, 5114486810, 17060.091666, ],
+        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
         rtol=1e-2,
     )
 
@@ -171,30 +105,8 @@ def test_ephemeris_query_Pluto(patch_request):
     assert styx["NAIF ID"] == 905
     assert styx["Body"] == "Styx"
     assert np.allclose(
-        [
-            296.212477,
-            -22.93533,
-            -0.557,
-            -1.259,
-            350.443,
-            56.472,
-            352.72,
-            57.544,
-            1.64047,
-            5114.509238,
-        ],
-        [
-            styx["RA (deg)"].to(u.deg).value,
-            styx["Dec (deg)"].to(u.deg).value,
-            styx["dRA"].to(u.arcsec).value,
-            styx["dDec"].to(u.arcsec).value,
-            styx["sub_obs_lon"].to(u.deg).value,
-            styx["sub_obs_lat"].to(u.deg).value,
-            styx["sub_sun_lon"].to(u.deg).value,
-            styx["sub_sun_lat"].to(u.deg).value,
-            styx["phase"].to(u.deg).value,
-            styx["distance"].to(u.km * 1e6).value,
-        ],
+        [296.212477, -22.93533, -0.557, -1.259, 350.443, 56.472, 352.72, 57.544, 1.64047, 5114.509238, ],
+        [styx["RA (deg)"].to(u.deg).value, styx["Dec (deg)"].to(u.deg).value, styx["dRA"].to(u.arcsec).value, styx["dDec"].to(u.arcsec).value, styx["sub_obs_lon"].to(u.deg).value, styx["sub_obs_lat"].to(u.deg).value, styx["sub_sun_lon"].to(u.deg).value, styx["sub_sun_lat"].to(u.deg).value, styx["phase"].to(u.deg).value, styx["distance"].to(u.km * 1e6).value, ],
         rtol=1e-2,
     )
 
@@ -214,27 +126,10 @@ def test_ephemeris_query_Neptune(patch_request):
     )
 
     assert np.allclose(
-                    [63.81977,
-                     55.01978,
-                     44.21976,
-                     40.41978,
-                     26.41978,
-                     64.81977,
-                     59.11976,
-                     45.21976,
-                     43.41978,
-                     36.01978],
-                     [ringtable[ringtable.loc_indices["Courage"]]["min_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Liberte"]]["min_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Egalite A"]]["min_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Egalite B"]]["min_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Fraternite"]]["min_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Courage"]]["max_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Liberte"]]["max_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Egalite A"]]["max_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Egalite B"]]["max_angle"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["Fraternite"]]["max_angle"].to(u.deg).value,
-                      ], rtol=1e-3)
+                    [63.81977, 55.01978, 44.21976, 40.41978, 26.41978, 64.81977, 59.11976, 45.21976, 43.41978, 36.01978],
+                     [ringtable[ringtable.loc_indices["Courage"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Liberte"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite A"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite B"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Fraternite"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Courage"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Liberte"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite A"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite B"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Fraternite"]]["max_angle"].to(u.deg).value, ],
+                     rtol=1e-3
+                     )
 
 
 def test_ephemeris_query_Saturn(patch_request):
@@ -247,13 +142,10 @@ def test_ephemeris_query_Saturn(patch_request):
     )
 
     assert np.allclose(
-                    [249.23097,
-                     250.34081
-                     ],
-                     [
-                     ringtable[ringtable.loc_indices["F"]]["pericenter"].to(u.deg).value,
-                     ringtable[ringtable.loc_indices["F"]]["ascending node"].to(u.deg).value
-                     ], rtol=1e-3)
+                    [249.23097, 250.34081],
+                     [ringtable[ringtable.loc_indices["F"]]["pericenter"].to(u.deg).value, ringtable[ringtable.loc_indices["F"]]["ascending node"].to(u.deg).value],
+                     rtol=1e-3
+                     )
 
 
 def test_ephemeris_query_payload():

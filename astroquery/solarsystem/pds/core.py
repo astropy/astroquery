@@ -1,5 +1,6 @@
 # 1. standard library imports
 import re
+import os
 
 # 2. third party imports
 from astropy.time import Time
@@ -185,13 +186,13 @@ class RingNodeClass(BaseQuery):
             )
 
         # configure request_payload for ephemeris query
-        # thankfully, adding extra planet-specific keywords here does not break query for other planets
+
         request_payload = dict(
             [
                 ("abbrev", planet[:3]),
                 ("ephem", planet_defaults[planet]["ephem"]),
                 ("time", epoch.utc.iso[:16]),
-                ("fov", 10),  # next few are figure options, can be hardcoded and ignored
+                ("fov", 10),  # figure option - hardcode ok
                 ("fov_unit", planet.capitalize() + " radii"),
                 ("center", "body"),
                 ("center_body", planet.capitalize()),
@@ -202,7 +203,7 @@ class RingNodeClass(BaseQuery):
                 ("center_dec", ""),
                 ("center_star", ""),
                 ("viewpoint", viewpoint),
-                ("observatory", observatory),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
+                ("observatory", observatory),
                 ("latitude", latitude),
                 ("longitude", longitude),
                 ("lon_dir", "east"),
@@ -263,18 +264,15 @@ class RingNodeClass(BaseQuery):
 
         soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text()
-        if "\n" in text:
-            text = text.replace("\r", "")
-        else:
-            text = text.replace("\r", "\n")
-        textgroups = re.split("\n\n|\n \n", text)
+        # need regex because some blank lines have spacebar and some do not
+        textgroups = re.split(2*os.linesep+"|"+os.linesep+" "+os.linesep, text)
         ringtable = None
         for group in textgroups:
-            group = group.strip(", \n")
+            group = group.strip()
 
             # input parameters. only thing needed is epoch
             if group.startswith("Observation"):
-                epoch = group.split("\n")[0].split("e: ")[-1].strip(", \n")
+                epoch = group.splitlines()[0].split("e: ")[-1].strip()
 
             # minor body table part 1
             elif group.startswith("Body"):
@@ -292,7 +290,7 @@ class RingNodeClass(BaseQuery):
             # minor body table part 2
             elif group.startswith("Sub-"):
 
-                group = "\n".join(group.split("\n")[2:])  # removing two-row header entirely
+                group = os.linesep.join(group.splitlines()[2:])  # removing two-row header entirely
                 bodytable2_names = ("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance")
                 bodytable2_units = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
                 bodytable2 = table.QTable.read(group, format="ascii.fixed_width",
@@ -306,12 +304,12 @@ class RingNodeClass(BaseQuery):
 
             # ring plane data
             elif group.startswith("Ring s"):
-                lines = group.split("\n")
+                lines = group.splitlines()
                 for line in lines:
                     l = line.split(":")
                     if "Ring sub-solar latitude" in l[0]:
                         [sub_sun_lat, sub_sun_lat_min, sub_sun_lat_max] = [
-                            float(s.strip(", \n()")) for s in re.split(r"\(|to", l[1])
+                            float(s.strip("()")) for s in re.split(r"\(|to", l[1])
                         ]
                         systemtable = {
                             "sub_sun_lat": sub_sun_lat * u.deg,
@@ -321,22 +319,22 @@ class RingNodeClass(BaseQuery):
 
                     elif "Ring plane opening angle" in l[0]:
                         systemtable["opening_angle"] = (
-                            float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")) * u.deg
+                            float(re.sub("[a-zA-Z]+", "", l[1]).strip("()")) * u.deg
                         )
                     elif "Ring center phase angle" in l[0]:
-                        systemtable["phase_angle"] = float(l[1].strip(", \n")) * u.deg
+                        systemtable["phase_angle"] = float(l[1].strip()) * u.deg
                     elif "Sub-solar longitude" in l[0]:
                         systemtable["sub_sun_lon"] = (
-                            float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")) * u.deg
+                            float(re.sub("[a-zA-Z]+", "", l[1]).strip("()")) * u.deg
                         )
                     elif "Sub-observer longitude" in l[0]:
-                        systemtable["sub_obs_lon"] = float(l[1].strip(", \n")) * u.deg
+                        systemtable["sub_obs_lon"] = float(l[1].strip()) * u.deg
                     else:
                         pass
 
             # basic info about the planet
             elif group.startswith("Sun-planet"):
-                lines = group.split("\n")
+                lines = group.splitlines()
                 for line in lines:
                     l = line.split(":")
                     if "Sun-planet distance (AU)" in l[0]:
@@ -347,14 +345,14 @@ class RingNodeClass(BaseQuery):
                         pass
                     elif "Sun-planet distance (km)" in l[0]:
                         systemtable["d_sun"] = (
-                            float(l[1].split("x")[0].strip(", \n")) * 1e6 * u.km
+                            float(l[1].split("x")[0].strip()) * 1e6 * u.km
                         )
                     elif "Observer-planet distance (km)" in l[0]:
                         systemtable["d_obs"] = (
-                            float(l[1].split("x")[0].strip(", \n")) * 1e6 * u.km
+                            float(l[1].split("x")[0].strip()) * 1e6 * u.km
                         )
                     elif "Light travel time" in l[0]:
-                        systemtable["light_time"] = float(l[1].strip(", \n")) * u.second
+                        systemtable["light_time"] = float(l[1].strip()) * u.second
                     else:
                         pass
 
@@ -373,13 +371,13 @@ class RingNodeClass(BaseQuery):
 
             # Saturn F-ring data
             elif group.startswith("F Ring"):
-                lines = group.split("\n")
+                lines = group.splitlines()
                 for line in lines:
                     l = line.split(":")
                     if "F Ring pericenter" in l[0]:
-                        peri = float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()"))
+                        peri = float(re.sub("[a-zA-Z]+", "", l[1]).strip("()"))
                     elif "F Ring ascending node" in l[0]:
-                        ascn = float(l[1].strip(", \n"))
+                        ascn = float(l[1].strip())
                 ringtable_names = ("ring", "pericenter", "ascending node")
                 ringtable_units = [None, u.deg, u.deg]
                 ringtable = table.QTable(
@@ -391,13 +389,13 @@ class RingNodeClass(BaseQuery):
 
             # Neptune ring arcs data
             elif group.startswith("Courage"):
-                lines = group.split("\n")
+                lines = group.split(os.linesep)[:5] #requires explicit split by os.linesep because windows and macos handle this text block differently
                 for i in range(len(lines)):
                     l = lines[i].split(":")
-                    ring = l[0].split("longitude")[0].strip(", \n")
+                    ring = l[0].split("longitude")[0].strip()
                     [min_angle, max_angle] = [
-                        float(s.strip(", \n"))
-                        for s in re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()").split()
+                        float(s)
+                        for s in re.sub("[a-zA-Z]+", "", l[1]).split()
                     ]
                     if i == 0:
                         ringtable_names = ("ring", "min_angle", "max_angle")

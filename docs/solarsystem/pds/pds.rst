@@ -9,7 +9,8 @@ Overview
 
 
 The :class:`~astroquery.solarsystem.pds.RingNodeClass` provides an
-interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring Node System`_ hosted by SETI institute.
+interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring Node System <https://pds-rings.seti.org/>`_ hosted by SETI institute.
+
 
 Ephemeris
 -----------
@@ -18,14 +19,14 @@ In order to query information for a specific Solar System body, a
 ``RingNode`` object is instantiated and the :meth:`~astroquery.solarsystem.pds.RingNodeClass.ephemeris` method is called. The following example queries the
 ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
-.. code-block:: python 
+.. doctest-remote-data::
 
    >>> from astroquery.solarsystem.pds import RingNode
    >>> import astropy.units as u
    >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
    ...                 epoch='2024-05-08 22:39',
-   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m)) # doctest: +REMOTE_DATA
-   >>> print(ringtable) # doctest: +REMOTE_DATA
+   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))
+   >>> print(ringtable)
          ring  pericenter ascending node
                   deg          deg
        ------- ---------- --------------
@@ -42,11 +43,12 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 ``planet`` must be one of ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto'] (case-insensitive)
 
-.. code-block:: python 
+
+.. doctest-remote-data::
 
    >>> bodytable, ringtable = RingNode.ephemeris(planet='Venus',
    ...                 epoch='2024-05-08 22:39',
-   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m)) # doctest: +REMOTE_DATA
+   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))
    Traceback (most recent call last):
    ...
    ValueError: illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')
@@ -61,47 +63,42 @@ Outputs
 ---------
 ``bodytable`` is a `~astropy.table.QTable` containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
-.. code-block:: python 
+.. doctest-remote-data::
 
-	>>> print(bodytable.columns) # doctest: +REMOTE_DATA
+	>>> print(bodytable.columns)
 	<TableColumns names=('NAIF ID','Body','RA','Dec','RA (deg)','Dec (deg)','dRA','dDec','sub_obs_lon','sub_obs_lat','sub_sun_lon','sub_sun_lat','phase','distance')>
 
 ``ringtable`` is a `~astropy.table.QTable` containing ephemeris information on the individual rings in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-	>>> print(ringtable.columns) # doctest: +REMOTE_DATA
+	>>> print(ringtable.columns)
 	<TableColumns names=('ring','pericenter','ascending node')>
-	
+
 Note that the behavior of ``ringtable`` changes depending on the planet you query. For Uranus and Saturn the table columns are as above. For Jupiter, Mars, and Pluto, there are no individual named rings returned by the Ring Node, so ``ringtable`` returns None; ephemeris for the ring systems of these bodies is still contained in ``systemtable`` as usual. For Neptune, the ring table shows the minimum and maximum longitudes (from the ring plane ascending node) of the five ring arcs according to the orbital evolution assumed by ``neptune_arcmodel``, e.g.:
 
-.. code-block:: python 
 
-	>>> bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00') # doctest: +REMOTE_DATA
-	>>> print(ringtable) # doctest: +REMOTE_DATA
+.. doctest-remote-data::
+
+	>>> bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00')
+	>>> print(ringtable)
     	   ring    min_angle max_angle
-    	              deg       deg   
+    	              deg       deg
     	---------- --------- ---------
     	   Courage   53.4818   54.4818
     	   Liberte  44.68181  48.78178
     	 Egalite A  33.88179  34.88179
     	 Egalite B   30.0818   33.0818
     	Fraternite   16.0818  25.68181
-		
+
 System-wide data are available as metadata in both ``bodytable`` and ``ringtable`` (if ``ringtable`` exists), e.g.:
 
-.. code-block:: python 
 
-	>>> systemtable = bodytable.meta # doctest: +REMOTE_DATA
-	>>> print(systemtable.keys()) # doctest: +REMOTE_DATA
+.. doctest-remote-data::
+
+	>>> systemtable = bodytable.meta
+	>>> print(systemtable.keys())
 	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'epoch'])
-
-
-Acknowledgements
-================
-
-This submodule makes use of the NASA Planetary Data System's `Planetary Ring Node
-<https://pds-rings.seti.org/>`_ .
 
 
 Reference/API
@@ -111,6 +108,3 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _NASA Planetary Data System's Ring Node System: https://pds-rings.seti.org/
-.. _astropy Quantity: https://docs.astropy.org/en/stable/units/quantity.html
-.. _astropy table: http://docs.astropy.org/en/stable/table/index.html
-.. _astropy units: http://docs.astropy.org/en/stable/units/index.html
