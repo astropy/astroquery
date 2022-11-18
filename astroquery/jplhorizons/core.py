@@ -42,7 +42,7 @@ class HorizonsClass(BaseQuery):
                      "return a response object, and access the content with "
                      "``response.text``"))
 
-    def __init__(self, id=None, location=None, epochs=None,
+    def __init__(self, id=None, *, location=None, epochs=None,
                  id_type=None):
         """
         Initialize JPL query.
@@ -174,7 +174,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def ephemerides_async(self, airmass_lessthan=99,
+    def ephemerides_async(self, *, airmass_lessthan=99,
                           solar_elongation=(0, 180), max_hour_angle=0,
                           rate_cutoff=None,
                           skip_daylight=False,
@@ -657,7 +657,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def elements_async(self, get_query_payload=False,
+    def elements_async(self, *, get_query_payload=False,
                        refsystem='ICRF',
                        refplane='ecliptic',
                        tp_type='absolute',
@@ -881,7 +881,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def vectors_async(self, get_query_payload=False,
+    def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
                       refplane='ecliptic', aberrations='geometric',
