@@ -90,6 +90,8 @@ jplhorizons
 - Deprecate ``get_raw_response`` options in query methods.  The raw response may
   be retrieved from the _async() methods. [#2418]
 
+- Adding ``optional_setting`` kwarg to the ephemerides methods to allow
+  passing additional settings. [#1802]
 jplsbdb
 ^^^^^^^
 

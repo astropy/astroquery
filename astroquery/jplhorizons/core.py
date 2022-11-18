@@ -628,9 +628,6 @@ class HorizonsClass(BaseQuery):
 
         # inject optional settings if provided
         if optional_settings:
-            assert isinstance(
-                optional_settings, dict
-            ), "optional_settings should be a dict"
             for key, value in optional_settings.items():
                 request_payload[key] = value
 

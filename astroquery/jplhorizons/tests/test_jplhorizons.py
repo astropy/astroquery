@@ -197,10 +197,8 @@ def test_ephemerides_query_payload_with_optional_settings():
                                        'stop': '2080-02-01',
                                        'step': '3h'})
 
-    optional_settings = {
-        "R_T_S_ONLY": "TVH",
-        "TIME_DIGITS": "SECONDS",
-    }
+    optional_settings = {"R_T_S_ONLY": "TVH", "TIME_DIGITS": "SECONDS"}
+
     res = obj.ephemerides(airmass_lessthan=1.2, skip_daylight=True,
                           closest_apparition=True,
                           max_hour_angle=10,
@@ -209,8 +207,8 @@ def test_ephemerides_query_payload_with_optional_settings():
                           optional_settings=optional_settings)
 
     assert res == OrderedDict([
-        ('batch', 1),
-        ('TABLE_TYPE', 'OBSERVER'),
+        ('format', 'text'),
+        ('EPHEM_TYPE', 'OBSERVER'),
         ('QUANTITIES', "'1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,"
                        "18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,"
                        "33,34,35,36,37,38,39,40,41,42,43'"),
@@ -221,7 +219,7 @@ def test_ephemerides_query_payload_with_optional_settings():
         ('CAL_FORMAT', 'BOTH'),
         ('ANG_FORMAT', 'DEG'),
         ('APPARENT', 'AIRLESS'),
-        ('REF_SYSTEM', 'J2000'),
+        ('REF_SYSTEM', 'ICRF'),
         ('EXTRA_PREC', 'NO'),
         ('CENTER', "'290'"),
         ('START_TIME', '"2080-01-01"'),
