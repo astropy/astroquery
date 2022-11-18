@@ -206,31 +206,6 @@ Directory Structure::
             return dict
 
 
-
-
-Parallel Queries
-----------------
-For multiple parallel queries logged in to the same object, you could do:
-
-.. code-block:: python
-
-    from astroquery.module import QueryClass
-
-    QC = QueryClass(login_information)
-
-    results = parallel_map(QC.query_object, ['m31', 'm51', 'm17'],
-                           radius=['1"', '1"', '1"'])
-
-    results = [QC.query_object_async(obj, radius=r)
-               for obj,r in zip(['m31', 'm51', 'm17'], ['1"', '1"', '1"'])]
-
-Here ``parallel_map()`` is a parallel implementation of some map function.
-
-.. TODO::
-
-    Include a ``parallel_map`` function in ``astroquery.utils``
-
-
 Exceptions
 ----------
 
