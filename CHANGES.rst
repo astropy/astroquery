@@ -182,6 +182,9 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed deprecated function ``utils.commons.send_request()``. [#2583]
 
+- Removed deprecated function ``utils.download_list_of_fitsfiles()``. [#2594]
+
+
 
 0.4.6 (2022-03-22)
 ==================

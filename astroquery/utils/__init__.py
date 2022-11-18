@@ -4,7 +4,6 @@ Common non-package specific utility
 functions that will ultimately be merged into `astropy.utils`.
 """
 from .progressbar import chunk_report, chunk_read
-from .download_file_list import download_list_of_fitsfiles
 from .class_or_instance import class_or_instance
 from .commons import (parse_coordinates, TableList, suppress_vo_warnings,
                       validate_email, ASTROPY_LT_4_1, ASTROPY_LT_4_3, ASTROPY_LT_5_0,
@@ -15,7 +14,6 @@ from .cleanup_downloads import cleanup_saved_downloads
 
 
 __all__ = ['chunk_report', 'chunk_read',
-           'download_list_of_fitsfiles',
            'class_or_instance',
            'parse_coordinates',
            'TableList',
