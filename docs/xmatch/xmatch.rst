@@ -21,21 +21,33 @@ has the following content::
     306.01575,33.86756
     322.493,12.16703
 
+.. testsetup::
+
+   >>> with open('pos_list.csv', 'w') as f:    # doctest: +IGNORE_OUTPUT
+   ...    f.write("""ra,dec
+   ... 267.22029,-20.35869
+   ... 274.83971,-25.42714
+   ... 275.92229,-30.36572
+   ... 283.26621,-8.70756
+   ... 306.01575,33.86756
+   ... 322.493,12.16703""")
+
 Next, the xMatch service will be used to find cross matches between the
 uploaded file and a VizieR catalogue.  The parameters ``cat1`` and ``cat2``
 define the catalogues where one of them may point to a local file (in this
 example, the CSV file is stored in
-``'/tmp/pos_list.csv'``). ``max_distance`` denotes the maximum distance in
+``'pos_list.csv'``). ``max_distance`` denotes the maximum distance in
 arcsec to look for counterparts; it is used here to limit the number of rows
 in the resulting table for demonstration purposes.  Finally, ``colRa1`` and
 ``colDec1`` are used to denote the column names in the input file.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astropy import units as u
-    >>> from astroquery.xmatch import XMatch   # doctest: +IGNORE_OUTPUT
-    >>> table = XMatch.query(cat1=open('/tmp/pos_list.csv'),
+    >>> from astroquery.xmatch import XMatch
+    >>> from astropy.table import Table
+    >>> input_table = Table.read('pos_list.csv')
+    >>> table = XMatch.query(cat1=input_table,
     ...                      cat2='vizier:II/246/out',
     ...                      max_distance=5 * u.arcsec, colRA1='ra',
     ...                      colDec1='dec')
@@ -55,6 +67,13 @@ in the resulting table for demonstration purposes.  Finally, ``colRa1`` and
     1.178542 306.01575  33.86756 20240382+3352021 ... AAA 222   0 2450948.9708
     0.853178   322.493  12.16703 21295836+1210007 ... EEA 222   0 2451080.6935
      4.50395   322.493  12.16703 21295861+1210023 ... EEE 222   0 2451080.6935
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['pos_list.csv'])
+
 
 Reference/API
 =============
