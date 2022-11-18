@@ -42,7 +42,7 @@ class HorizonsClass(BaseQuery):
                      "return a response object, and access the content with "
                      "``response.text``"))
 
-    def __init__(self, id=None, location=None, epochs=None,
+    def __init__(self, id=None, *, location=None, epochs=None,
                  id_type=None):
         """
         Initialize JPL query.
@@ -174,7 +174,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def ephemerides_async(self, airmass_lessthan=99,
+    def ephemerides_async(self, *, airmass_lessthan=99,
                           solar_elongation=(0, 180), max_hour_angle=0,
                           rate_cutoff=None,
                           skip_daylight=False,
@@ -182,6 +182,7 @@ class HorizonsClass(BaseQuery):
                           refsystem='ICRF',
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
+                          optional_settings=None,
                           get_query_payload=False,
                           get_raw_response=False, cache=True,
                           extra_precision=False):
@@ -487,6 +488,11 @@ class HorizonsClass(BaseQuery):
             <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
             default: all quantities
 
+        optional_settings: dict, optional
+            key-value based dictionary to inject some additional optional settings
+            See `Optional observer-table settings" <https://ssd.jpl.nasa.gov/horizons.cgi?s_tset=1>`_;
+            default: empty optional setting
+
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request parameters as
             a dict, default: False
@@ -620,6 +626,11 @@ class HorizonsClass(BaseQuery):
         else:
             request_payload['SKIP_DAYLT'] = 'NO'
 
+        # inject optional settings if provided
+        if optional_settings:
+            for key, value in optional_settings.items():
+                request_payload[key] = value
+
         self.query_type = 'ephemerides'
 
         # return request_payload if desired
@@ -646,7 +657,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def elements_async(self, get_query_payload=False,
+    def elements_async(self, *, get_query_payload=False,
                        refsystem='ICRF',
                        refplane='ecliptic',
                        tp_type='absolute',
@@ -870,7 +881,7 @@ class HorizonsClass(BaseQuery):
 
     @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
                                  alternative="async methods")
-    def vectors_async(self, get_query_payload=False,
+    def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
                       refplane='ecliptic', aberrations='geometric',
