@@ -22,7 +22,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.gaia`.
     """
 
-    MAIN_GAIA_TABLE = _config.ConfigItem("gaiadr2.gaia_source",
+    MAIN_GAIA_TABLE = _config.ConfigItem("gaiadr3.gaia_source",
                                          "GAIA source data table")
     MAIN_GAIA_TABLE_RA = _config.ConfigItem("ra",
                                             "Name of RA parameter in table")
