@@ -78,7 +78,7 @@ This query searches for all the objects contained in an arbitrary rectangular pr
 It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example::
 
   >>> from astroquery.gaia import Gaia
-  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Select early Data Release 2
+  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Select Data Release 2
   >>> Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"  # Reselect Data Release 3, default
 
 The following example searches for all the sources contained in an squared region of side = 0.1
