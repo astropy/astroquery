@@ -415,8 +415,10 @@ splatalogue
 vizier
 ^^^^^^
 
-- It is now possible to specify 'galatic' centers in region queries to
+- It is now possible to specify 'galactic' centers in region queries to
   have box queries oriented along the galactic axes. [#2152]
+
+- Add 'datalink' column (link to FITS) when present. [#1455]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -1063,9 +1065,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Added a new ``astroquery.__citation__`` and ``astroquery.__bibtex__``
   attributes which give a citation for astroquery in bibtex format. [#1391]
-- VIZIER: Support using the output values of ``find_catalog`` in
-  ``get_catalog``. [#603]
-- Vizier: Add 'datalink' column (link to FITS) when present. [#1455]
+
 
 
 0.3.9 (2018-12-06)
