@@ -130,6 +130,9 @@ class TestESAHubble:
         ehst.get_postcard(observation_id="X0MC5101T",
                           filename=Path(tmp_path, "X0MC5101T.vot"),
                           verbose=True)
+        ehst.get_postcard(observation_id="X0MC5101T",
+                          filename=Path(tmp_path, "X0MC5101T.vot"), resolution=1024,
+                          verbose=True)
 
     @patch.object(ESAHubbleClass, 'cone_search')
     @patch.object(ESAHubbleClass, '_query_tap_target')
