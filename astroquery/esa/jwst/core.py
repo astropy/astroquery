@@ -8,6 +8,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+
 import binascii
 import gzip
 import os
@@ -60,7 +61,7 @@ class JwstClass(BaseQuery):
     def __init__(self, *, tap_plus_handler=None, data_handler=None, show_messages=True):
         if tap_plus_handler is None:
             self.__jwsttap = TapPlus(url=conf.JWST_TAP_SERVER,
-                                     data_context='data')
+                                     data_context='data', client_id='ASTROQUERY')
         else:
             self.__jwsttap = tap_plus_handler
 
@@ -887,7 +888,7 @@ class JwstClass(BaseQuery):
 
         params_dict = {}
         params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
-        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
         self.__check_product_input(artifact_id=artifact_id,
                                    file_name=file_name)
@@ -981,7 +982,7 @@ class JwstClass(BaseQuery):
 
         params_dict = {}
         params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
-        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
         plane_ids = self._get_associated_planes(plane_ids=plane_ids,
                                                 cal_level=cal_level,

@@ -50,7 +50,7 @@ class TestData:
         parameters = {}
         params_dict = {}
         params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
-        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
         params_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = params_dict
         parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_uncal.fits'
