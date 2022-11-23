@@ -1,27 +1,29 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
 ======================
 eHST Astroquery Module
 ======================
 
-
-@author: Javier Duran
-@contact: javier.duran@sciops.esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Aug. 2018
-
-
 """
+
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
-from astroquery.utils.tap.core import TapPlus
+
+from requests.exceptions import ConnectionError
+
+from astroquery.exceptions import RemoteServiceError
+from astroquery.utils.tap import TapPlus
+from astroquery.utils import commons
 from astroquery.query import BaseQuery
 import shutil
+import json
+from urllib.parse import urlencode
+import warnings
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from . import conf
 from astroquery import log
@@ -33,24 +35,20 @@ class ESAHubbleClass(BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
-
-    data_url = conf.DATA_ACTION
-    metadata_url = conf.METADATA_ACTION
-    target_url = conf.TARGET_ACTION
     TIMEOUT = conf.TIMEOUT
     calibration_levels = {"AUXILIARY": 0, "RAW": 1, "CALIBRATED": 2,
                           "PRODUCT": 3}
-    product_types = ["PRODUCT", "SCIENCE_PRODUCT", "POSTCARD"]
+    product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL" or "AUXILIARY"]
     copying_string = "Copying file to {0}..."
 
-    def __init__(self, tap_handler=None):
-        super().__init__()
-
+    def __init__(self, *, tap_handler=None, show_messages=True):
         if tap_handler is None:
-            self._tap = TapPlus(url="https://hst.esac.esa.int"
-                                    "/tap-server/tap")
+            self._tap = TapPlus(url=conf.EHST_TAP_SERVER,
+                                data_context='data', client_id="ASTROQUERY")
         else:
             self._tap = tap_handler
+        if show_messages:
+            self.get_status_messages()
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, verbose=False, product_type=None):
@@ -78,39 +76,43 @@ class ESAHubbleClass(BaseQuery):
             flag to display information about the process
         product_type : string
             type of product retrieval, optional
-            PRODUCT, SCIENCE_PRODUCT or POSTCARD
+            SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY
 
         Returns
         -------
         None. It downloads the observation indicated
         """
 
-        params = {"OBSERVATION_ID": observation_id,
-                  "USERNAME": "ehst-astroquery"}
-        url = self.data_url + "?OBSERVATION_ID=" + observation_id
-        url += "&USERNAME=" + "ehst-astroquery"
+        params = {"OBSERVATIONID": observation_id,
+                  "TAPCLIENT": "ASTROQUERY",
+                  "RETRIEVAL_TYPE": "OBSERVATION"}
 
         if filename is None:
             filename = observation_id + ".tar"
 
         if calibration_level:
-            params["CALIBRATION_LEVEL"] = calibration_level
-            url += "&CALIBRATION_LEVEL=" + calibration_level
+            params["CALIBRATIONLEVEL"] = calibration_level
 
+        # Product type check to ensure backwards compatibility
+        product_type = self.__set_product_type(product_type)
         if product_type:
             self.__validate_product_type(product_type)
-            params["RETRIEVAL_TYPE"] = product_type
-            filename = self._get_product_filename(product_type, filename)
-            url += "&RETRIEVAL_TYPE=" + params["RETRIEVAL_TYPE"]
+            params["PRODUCTTYPE"] = product_type
 
-        response = self._request('GET', self.data_url, save=True, cache=True,
-                                 params=params)
+        filename = self._get_product_filename(product_type, filename)
+        response = self._tap.load_data(params, filename, verbose=verbose)
 
-        if verbose:
-            log.info(url)
-            log.info(self.copying_string.format(filename))
+        return filename
 
-        shutil.move(response, filename)
+    def __set_product_type(self, product_type):
+        if product_type:
+            if 'SCIENCE_PRODUCT' in product_type:
+                return 'SCIENCE'
+            elif 'PRODUCT' in product_type:
+                return None
+            elif 'POSTCARD' in product_type:
+                return 'PREVIEW'
+        return product_type
 
     def get_member_observations(self, observation_id):
         """
@@ -159,7 +161,7 @@ class ESAHubbleClass(BaseQuery):
             oids = self._select_related_members(observation_id)
         elif 'HST' in observation_type:
             query = f"select observation_id from ehst.observation where obs_type='HAP Simple' and members like '%{observation_id}%'"
-            job = self.query_hst_tap(query=query)
+            job = self.query_tap(query=query)
             oids = job["observation_id"].pformat(show_name=False)
         else:
             raise ValueError("Invalid observation id")
@@ -184,7 +186,7 @@ class ESAHubbleClass(BaseQuery):
             raise ValueError("Please input an observation id")
 
         query = f"select obs_type from ehst.observation where observation_id='{observation_id}'"
-        job = self.query_hst_tap(query=query)
+        job = self.query_tap(query=query)
         if any(job["obs_type"]):
             obs_type = self._get_decoded_string(string=job["obs_type"][0])
         else:
@@ -193,13 +195,13 @@ class ESAHubbleClass(BaseQuery):
 
     def _select_related_members(self, observation_id):
         query = f"select members from ehst.observation where observation_id='{observation_id}'"
-        job = self.query_hst_tap(query=query)
+        job = self.query_tap(query=query)
         oids = self._get_decoded_string(string=job["members"][0]).replace("caom:HST/", "").split(" ")
         return oids
 
     def _select_related_composite(self, observation_id):
         query = f"select observation_id from ehst.observation where members like '%{observation_id}%'"
-        job = self.query_hst_tap(query=query)
+        job = self.query_tap(query=query)
         oids = job["observation_id"].pformat(show_name=False)
         return oids
 
@@ -210,14 +212,16 @@ class ESAHubbleClass(BaseQuery):
     def _get_product_filename(self, product_type, filename):
         if (product_type == "PRODUCT"):
             return filename
-        elif (product_type == "SCIENCE_PRODUCT"):
+        elif (product_type == "SCIENCE"):
             log.info("This is a SCIENCE_PRODUCT, the filename will be "
                      f"renamed to {filename}.fits.gz")
             return f"{filename}.fits.gz"
-        else:
+        elif (product_type == "THUMBNAIL" or product_type == "PREVIEW"):
             log.info("This is a POSTCARD, the filename will be "
                      f"renamed to {filename}.jpg")
             return f"{filename}.jpg"
+
+        return filename
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -240,20 +244,15 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        params = {"ARTIFACT_ID": artifact_id, "USERNAME": "ehst-astroquery"}
-        response = self._request('GET', self.data_url, save=True, cache=True,
-                                 params=params)
+        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": artifact_id, "TAPCLIENT": "ASTROQUERY"}
         if filename is None:
             filename = artifact_id
 
-        if verbose:
-            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id +
-                     "&USERNAME=ehst-astroquery")
-            log.info(self.copying_string.format(filename))
+        self._tap.load_data(params, filename, verbose=verbose)
 
-        shutil.move(response, filename)
+        return filename
 
-    def get_postcard(self, observation_id, calibration_level="RAW",
+    def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
         """
         Download postcards from EHST
@@ -284,28 +283,30 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation postcard indicated
         """
 
-        params = {"RETRIEVAL_TYPE": "POSTCARD",
-                  "OBSERVATION_ID": observation_id,
-                  "CALIBRATION_LEVEL": calibration_level,
-                  "RESOLUTION": resolution,
-                  "USERNAME": "ehst-astroquery"}
+        params = {"RETRIEVAL_TYPE": "OBSERVATION",
+                  "OBSERVATIONID": observation_id,
+                  "PRODUCTTYPE": "PREVIEW",
+                  "TAPCLIENT": "ASTROQUERY"}
+        if calibration_level:
+            params["CALIBRATIONLEVEL"] = calibration_level
 
-        response = self._request('GET', self.data_url, save=True, cache=True,
-                                 params=params)
+        if resolution:
+            params["PRODUCTTYPE"] = self.__get_product_type_by_resolution(resolution)
 
         if filename is None:
             filename = observation_id
 
-        if verbose:
-            log.info(self.data_url +
-                     "&".join(["?RETRIEVAL_TYPE=POSTCARD",
-                               "OBSERVATION_ID=" + observation_id,
-                               "CALIBRATION_LEVEL=" + calibration_level,
-                               "RESOLUTION=" + str(resolution),
-                               "USERNAME=ehst-astroquery"]))
-            log.info(self.copying_string.format(filename))
+        self._tap.load_data(params, filename, verbose=verbose)
 
-        shutil.move(response, filename)
+        return filename
+
+    def __get_product_type_by_resolution(self, resolution):
+        if resolution == 256:
+            return 'THUMBNAIL'
+        elif resolution == 1024:
+            return 'PREVIEW'
+        else:
+            raise ValueError("Resolution must be 256 or 1024")
 
     def cone_search(self, coordinates, radius, filename=None,
                     output_format='votable', cache=True,
@@ -370,10 +371,10 @@ class ESAHubbleClass(BaseQuery):
 
         if verbose:
             log.info(query)
-        table = self.query_hst_tap(query=query, async_job=async_job,
-                                   output_file=filename,
-                                   output_format=output_format,
-                                   verbose=verbose)
+        table = self.query_tap(query=query, async_job=async_job,
+                              output_file=filename,
+                              output_format=output_format,
+                              verbose=verbose)
         return table
 
     def cone_search_criteria(self, radius, target=None,
@@ -482,7 +483,7 @@ class ESAHubbleClass(BaseQuery):
         if verbose:
             log.info(query)
 
-        table = self.query_hst_tap(query=query, async_job=async_job,
+        table = self.query_tap(query=query, async_job=async_job,
                                    output_file=filename,
                                    output_format=output_format,
                                    verbose=verbose)
@@ -491,17 +492,21 @@ class ESAHubbleClass(BaseQuery):
     def _query_tap_target(self, target):
         try:
             params = {"TARGET_NAME": target,
-                      "RESOLVER_TYPE": "SN",
-                      "FORMAT": "json"}
-            target_response = self._request('GET',
-                                            self.target_url,
-                                            cache=True,
-                                            params=params)
-            target_result = target_response.json()['data'][0]
-            ra = target_result['RA_DEGREES']
-            dec = target_result['DEC_DEGREES']
+                      "RESOLVER_TYPE": "ALL",
+                      "FORMAT": "json",
+                      "TAPCLIENT": "ASTROQUERY"}
+
+            subContext = conf.EHST_TARGET_ACTION
+            connHandler = self._tap._TapPlus__getconnhandler()
+            data = connHandler.url_encode(params)
+            target_response = connHandler.execute_secure(subContext, data, True)
+            for line in target_response:
+                target_result = json.loads(line.decode("utf-8"))
+                if target_result['objects']:
+                    ra = target_result['objects'][0]['raDegrees']
+                    dec = target_result['objects'][0]['decDegrees']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
-        except KeyError:
+        except (ValueError, KeyError):
             raise ValueError("This target cannot be resolved")
 
     def query_metadata(self, output_format='votable', verbose=False):
@@ -541,6 +546,43 @@ class ESAHubbleClass(BaseQuery):
 
         return table
 
+    def query_tap(self, query, async_job=False, output_file=None,
+                  output_format="votable", verbose=False):
+        """Launches a synchronous or asynchronous job to query the HST tap
+
+                Parameters
+                ----------
+                query : str, mandatory
+                    query (adql) to be executed
+                async_job : bool, optional, default 'False'
+                    executes the query (job) in asynchronous/synchronous mode (default
+                    synchronous)
+                output_file : str, optional, default None
+                    file name where the results are saved if dumpToFile is True.
+                    If this parameter is not provided, the jobid is used instead
+                output_format : str, optional, default 'votable'
+                    results format
+                verbose : bool, optional, default 'False'
+                    flag to display information about the process
+
+                Returns
+                -------
+                A table object
+                """
+        if async_job:
+            job = self._tap.launch_job_async(query=query,
+                                             output_file=output_file,
+                                             output_format=output_format,
+                                             verbose=verbose,
+                                             dump_to_file=output_file is not None)
+        else:
+            job = self._tap.launch_job(query=query, output_file=output_file,
+                                       output_format=output_format,
+                                       verbose=verbose,
+                                       dump_to_file=output_file is not None)
+        table = job.get_results()
+        return table
+
     def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the HST tap
@@ -564,19 +606,12 @@ class ESAHubbleClass(BaseQuery):
         -------
         A table object
         """
-        if async_job:
-            job = self._tap.launch_job_async(query=query,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=output_file is not None)
-        else:
-            job = self._tap.launch_job(query=query, output_file=output_file,
-                                       output_format=output_format,
-                                       verbose=verbose,
-                                       dump_to_file=output_file is not None)
-        table = job.get_results()
-        return table
+        warnings.warn(
+            "Use of query_hst_tap method is no longer supported. Please use"
+            " query_tap method instead, with the same arguments.",
+            AstropyDeprecationWarning)
+        self.query_tap(query=query, async_job=False, output_file=None,
+                       output_format="votable", verbose=False)
 
     def query_criteria(self, calibration_level=None,
                        data_product_type=None, intent=None,
@@ -661,10 +696,10 @@ class ESAHubbleClass(BaseQuery):
             log.info(query)
         if get_query:
             return query
-        table = self.query_hst_tap(query=query, async_job=async_job,
-                                   output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose)
+        table = self.query_tap(query=query, async_job=async_job,
+                               output_file=output_file,
+                               output_format=output_format,
+                               verbose=verbose)
         return table
 
     def __get_calibration_level(self, calibration_level):
@@ -716,6 +751,22 @@ class ESAHubbleClass(BaseQuery):
             return table_names
         else:
             return tables
+
+    def get_status_messages(self):
+        """Retrieve the messages to inform users about
+        the status of eHST TAP
+        """
+
+        try:
+            subContext = conf.EHST_MESSAGES
+            connHandler = self._tap._TapPlus__getconnhandler()
+            response = connHandler.execute_tapget(subContext, False)
+            if response.status == 200:
+                for line in response:
+                    string_message = line.decode("utf-8")
+                    print(string_message[string_message.index('=')+1:])
+        except OSError:
+            print("Status messages could not be retrieved")
 
     def get_columns(self, table_name, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service

@@ -1,16 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Javier Duran
-@contact: javier.duran@sciops.esa.int
+======================
+eHST Dummy Tap Handler
+======================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 30 Aug. 2018
-
-
 """
+
 from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.model.job import Job
 
@@ -71,3 +69,9 @@ class DummyHubbleTapHandler:
         table = TapTableMeta()
         table.name = "table"
         return [table]
+
+    def load_data(self, params_dict, output_file=None, verbose=False):
+        self.__invokedMethod = 'load_data'
+        self._parameters['params_dict'] = params_dict
+        self._parameters['output_file'] = output_file
+        self._parameters['verbose'] = verbose

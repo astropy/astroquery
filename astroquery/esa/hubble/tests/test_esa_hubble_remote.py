@@ -1,16 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Javier Espinosa
-@contact: javier.espinosa@sciops.esa.int
+=================
+eHST Remote Tests
+=================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Jan. 2021
-
-
 """
+
 import tempfile
 
 import os
@@ -19,6 +17,7 @@ import pytest
 from astroquery.esa.hubble import ESAHubble
 from astropy import coordinates
 import random
+from astropy.table import Table
 
 esa_hubble = ESAHubble()
 
@@ -40,26 +39,26 @@ def remove_last_job():
 
 @pytest.mark.remote_data
 class TestEsaHubbleRemoteData:
-    obs_query = "select top 2050 o.observation_id from ehst.observation o"
+    obs_query = "select top 2050 a.observation_id from ehst.archive a"
 
-    top_obs_query = "select top 100 o.observation_id from ehst.observation o"
+    top_obs_query = "select top 100 a.observation_id from ehst.archive a"
 
-    hst_query = "select top 50 o.observation_id from ehst.observation " \
-                "o where o.collection='HST'"
+    hst_query = "select top 50 a.observation_id from ehst.archive " \
+                "a where a.collection='HST'"
 
     top_artifact_query = "select top 50 a.artifact_id, a.observation_id " \
                          " from ehst.artifact a"
 
     temp_folder = create_temp_folder()
 
-    def test_query_hst_tap_async(self):
-        result = esa_hubble.query_hst_tap(self.top_obs_query, async_job=True)
+    def test_query_tap_async(self):
+        result = esa_hubble.query_tap(self.top_obs_query, async_job=True)
         assert len(result) > 10
         assert "observation_id" in result.keys()
         remove_last_job()
 
     def test_download_product(self):
-        result = esa_hubble.query_hst_tap(self.hst_query)
+        result = esa_hubble.query_tap(self.hst_query)
         observation_id = random.choice(result['observation_id'])
         temp_file = self.temp_folder.name + "/" + observation_id + ".tar"
         esa_hubble.download_product(observation_id=observation_id,
@@ -67,7 +66,7 @@ class TestEsaHubbleRemoteData:
         assert os.path.exists(temp_file)
 
     def test_get_artifact(self):
-        result = esa_hubble.query_hst_tap(self.top_artifact_query)
+        result = esa_hubble.query_tap(self.top_artifact_query)
         assert "artifact_id" in result.keys()
         artifact_id = random.choice(result["artifact_id"])
         temp_file = self.temp_folder.name + "/" + artifact_id + ".gz"
@@ -78,7 +77,9 @@ class TestEsaHubbleRemoteData:
         esa_hubble = ESAHubble()
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         temp_file = self.temp_folder.name + "/cone_search_m31_5.vot"
-        table = esa_hubble.cone_search(c, 7, temp_file, verbose=True)
+        compressed_temp_file = self.temp_folder.name + "/cone_search_m31_5.vot.gz"
+        # open & extracting the file
+        table = esa_hubble.cone_search(c, 7, compressed_temp_file, verbose=True)
         assert 'observation_id' in table.columns
         assert len(table) > 0
         remove_last_job()
@@ -115,6 +116,6 @@ class TestEsaHubbleRemoteData:
         assert result == ['hst_16316_71_acs_sbc_f150lp_jec071i9']
 
     def test_query_target(self):
-        temp_file = self.temp_folder.name + "/" + "m31_query.xml"
-        table = esa_hubble.query_target(name="m3", filename=temp_file)
+        compressed_temp_file = self.temp_folder.name + "/" + "m31_query.xml.gz"
+        table = esa_hubble.query_target(name="m3", filename=compressed_temp_file)
         assert 'observation_id' in table.columns
