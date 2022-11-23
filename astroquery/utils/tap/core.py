@@ -34,7 +34,7 @@ import tempfile
 __all__ = ['Tap', 'TapPlus']
 
 VERSION = "20200428.1"
-TAP_CLIENT_ID = f"aqtappy-{VERSION}"
+TAP_CLIENT_ID = f"aqtappy1-{VERSION}"
 
 
 class Tap:
@@ -745,7 +745,8 @@ class TapPlus(Tap):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 verbose=False):
+                 verbose=False,
+                 client_id=None):
         """Constructor
 
         Parameters
@@ -791,11 +792,18 @@ class TapPlus(Tap):
                                       connhandler=connhandler,
                                       verbose=verbose)
         self.__internalInit()
+        self.__set_client_id(client_id=client_id)
 
     def __internalInit(self):
         self.__user = None
         self.__pwd = None
         self.__isLoggedIn = False
+
+    @staticmethod
+    def __set_client_id(client_id):
+        if client_id:
+            global TAP_CLIENT_ID
+            TAP_CLIENT_ID = client_id
 
     def load_tables(self, only_names=False, include_shared_tables=False,
                     verbose=False):
