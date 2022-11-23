@@ -13,15 +13,9 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
 
-from requests.exceptions import ConnectionError
-
-from astroquery.exceptions import RemoteServiceError
 from astroquery.utils.tap import TapPlus
-from astroquery.utils import commons
 from astroquery.query import BaseQuery
-import shutil
 import json
-from urllib.parse import urlencode
 import warnings
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
@@ -100,7 +94,7 @@ class ESAHubbleClass(BaseQuery):
             params["PRODUCTTYPE"] = product_type
 
         filename = self._get_product_filename(product_type, filename)
-        response = self._tap.load_data(params, filename, verbose=verbose)
+        self._tap.load_data(params, filename, verbose=verbose)
 
         return filename
 

@@ -17,7 +17,6 @@ import pytest
 from astroquery.esa.hubble import ESAHubble
 from astropy import coordinates
 import random
-from astropy.table import Table
 
 esa_hubble = ESAHubble()
 
@@ -76,7 +75,6 @@ class TestEsaHubbleRemoteData:
     def test_cone_search(self):
         esa_hubble = ESAHubble()
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-        temp_file = self.temp_folder.name + "/cone_search_m31_5.vot"
         compressed_temp_file = self.temp_folder.name + "/cone_search_m31_5.vot.gz"
         # open & extracting the file
         table = esa_hubble.cone_search(c, 7, compressed_temp_file, verbose=True)
