@@ -32,7 +32,7 @@ from astropy.coordinates.sky_coordinate import SkyCoord
 import numpy as np
 from astroquery.utils import ASTROPY_LT_4_1
 from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
+from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap import taputils
 
 
@@ -89,7 +89,7 @@ def mock_querier_async():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
-        "tapclient": TAP_CLIENT_ID,
+        "tapclient": tapplus.tap_client_id,
         "PHASE": "RUN",
         "QUERY": (
             "SELECT crossmatch_positional('schemaA','tableA','schemaB','tableB',1.0,"
