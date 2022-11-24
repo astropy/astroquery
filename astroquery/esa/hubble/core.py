@@ -45,7 +45,6 @@ class ESAHubbleClass(BaseQuery):
         if show_messages:
             self.get_status_messages()
 
-
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, verbose=False, product_type=None):
         """

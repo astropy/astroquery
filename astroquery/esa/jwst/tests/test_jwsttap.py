@@ -924,7 +924,7 @@ class TestTap:
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0] or\
+        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0] or
                'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:

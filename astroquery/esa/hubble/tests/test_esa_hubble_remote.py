@@ -12,7 +12,6 @@ European Space Agency (ESA)
 import tempfile
 
 import os
-from unittest.mock import patch, MagicMock
 
 import pytest
 from astroquery.esa.hubble import ESAHubble

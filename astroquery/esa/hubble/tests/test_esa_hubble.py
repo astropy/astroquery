@@ -23,7 +23,6 @@ from requests.models import Response
 
 from astroquery.esa.hubble import ESAHubbleClass
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
-from astroquery.utils.tap.conn.tapconn import ConnectionHandler
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 
@@ -635,5 +634,5 @@ class TestESAHubble:
     def test_show_messages(self, mock_conn, mock_res):
         mock_res.status = 400
         mock_conn.getresponse = MagicMock(return_value=mock_res)
-        ehst = ESAHubbleClass()
+        ESAHubbleClass()
         mock_res.assert_called()
