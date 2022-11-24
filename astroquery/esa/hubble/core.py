@@ -18,6 +18,7 @@ from astroquery.query import BaseQuery
 import json
 import warnings
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from astropy.utils.decorators import deprecated
 
 from . import conf
 from astroquery import log
@@ -43,6 +44,7 @@ class ESAHubbleClass(BaseQuery):
             self._tap = tap_handler
         if show_messages:
             self.get_status_messages()
+
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, verbose=False, product_type=None):
@@ -71,11 +73,20 @@ class ESAHubbleClass(BaseQuery):
         product_type : string
             type of product retrieval, optional
             SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY
+            ------------
+            Deprecation Warning: PRODUCT, SCIENCE_PRODUCT or POSTCARD
+            are no longer supported.
+            ------------
 
         Returns
         -------
         None. It downloads the observation indicated
         """
+        if product_type and product_type in ['PRODUCT', 'SCIENCE_PRODUCT', 'POSTCARD']:
+            warnings.warn(
+                "PRODUCT, SCIENCE_PRODUCT or POSTCARD product types are no longer supported. "
+                "Please use SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY instead.",
+                AstropyDeprecationWarning)
 
         params = {"OBSERVATIONID": observation_id,
                   "TAPCLIENT": "ASTROQUERY",
@@ -217,7 +228,7 @@ class ESAHubbleClass(BaseQuery):
 
         return filename
 
-    def get_artifact(self, artifact_id, filename=None, verbose=False):
+    def get_artifact(self, artifact_id, *, filename=None, verbose=False):
         """
         Download artifacts from EHST. Artifact is a single Hubble product file.
 
@@ -302,7 +313,7 @@ class ESAHubbleClass(BaseQuery):
         else:
             raise ValueError("Resolution must be 256 or 1024")
 
-    def cone_search(self, coordinates, radius, filename=None,
+    def cone_search(self, coordinates, radius, *, filename=None,
                     output_format='votable', cache=True,
                     async_job=False, verbose=False):
         """
@@ -371,7 +382,7 @@ class ESAHubbleClass(BaseQuery):
                               verbose=verbose)
         return table
 
-    def cone_search_criteria(self, radius, target=None,
+    def cone_search_criteria(self, radius, *, target=None,
                              coordinates=None,
                              calibration_level=None,
                              data_product_type=None,
@@ -503,7 +514,7 @@ class ESAHubbleClass(BaseQuery):
         except (ValueError, KeyError):
             raise ValueError("This target cannot be resolved")
 
-    def query_metadata(self, output_format='votable', verbose=False):
+    def query_metadata(self, *, output_format='votable', verbose=False):
         return
 
     def query_target(self, name, *, filename=None, output_format='votable',
@@ -540,7 +551,7 @@ class ESAHubbleClass(BaseQuery):
 
         return table
 
-    def query_tap(self, query, async_job=False, output_file=None,
+    def query_tap(self, query, *, async_job=False, output_file=None,
                   output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the HST tap
 
@@ -577,7 +588,10 @@ class ESAHubbleClass(BaseQuery):
         table = job.get_results()
         return table
 
-    def query_hst_tap(self, query, async_job=False, output_file=None,
+    @deprecated(since="0.4.7", message=("Use of query_hst_tap method is no longer supported. "
+                "Please use query_tap method instead, with the same arguments."),
+                alternative="query_tap")
+    def query_hst_tap(self, query, *, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the HST tap
 
@@ -607,7 +621,7 @@ class ESAHubbleClass(BaseQuery):
         self.query_tap(query=query, async_job=False, output_file=None,
                        output_format="votable", verbose=False)
 
-    def query_criteria(self, calibration_level=None,
+    def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,
                        obs_collection=None, instrument_name=None,
                        filters=None, async_job=True, output_file=None,
@@ -720,7 +734,7 @@ class ESAHubbleClass(BaseQuery):
             raise ValueError("One of the lists is empty or there are "
                              "elements that are not strings")
 
-    def get_tables(self, only_names=True, verbose=False):
+    def get_tables(self, *, only_names=True, verbose=False):
         """Get the available table in EHST TAP service
 
         Parameters
@@ -762,7 +776,7 @@ class ESAHubbleClass(BaseQuery):
         except OSError:
             print("Status messages could not be retrieved")
 
-    def get_columns(self, table_name, only_names=True, verbose=False):
+    def get_columns(self, table_name, *, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
 
         Parameters

@@ -12,6 +12,7 @@ European Space Agency (ESA)
 import tempfile
 
 import os
+from unittest.mock import patch, MagicMock
 
 import pytest
 from astroquery.esa.hubble import ESAHubble
@@ -51,13 +52,13 @@ class TestEsaHubbleRemoteData:
     temp_folder = create_temp_folder()
 
     def test_query_tap_async(self):
-        result = esa_hubble.query_tap(self.top_obs_query, async_job=True)
+        result = esa_hubble.query_tap(query=self.top_obs_query, async_job=True)
         assert len(result) > 10
         assert "observation_id" in result.keys()
         remove_last_job()
 
     def test_download_product(self):
-        result = esa_hubble.query_tap(self.hst_query)
+        result = esa_hubble.query_tap(query=self.hst_query)
         observation_id = random.choice(result['observation_id'])
         temp_file = self.temp_folder.name + "/" + observation_id + ".tar"
         esa_hubble.download_product(observation_id=observation_id,
@@ -65,11 +66,11 @@ class TestEsaHubbleRemoteData:
         assert os.path.exists(temp_file)
 
     def test_get_artifact(self):
-        result = esa_hubble.query_tap(self.top_artifact_query)
+        result = esa_hubble.query_tap(query=self.top_artifact_query)
         assert "artifact_id" in result.keys()
         artifact_id = random.choice(result["artifact_id"])
         temp_file = self.temp_folder.name + "/" + artifact_id + ".gz"
-        esa_hubble.get_artifact(artifact_id, temp_file)
+        esa_hubble.get_artifact(artifact_id=artifact_id, filename=temp_file)
         assert os.path.exists(temp_file)
 
     def test_cone_search(self):
@@ -77,7 +78,7 @@ class TestEsaHubbleRemoteData:
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         compressed_temp_file = self.temp_folder.name + "/cone_search_m31_5.vot.gz"
         # open & extracting the file
-        table = esa_hubble.cone_search(c, 7, compressed_temp_file, verbose=True)
+        table = esa_hubble.cone_search(coordinates=c, radius=7, filename=compressed_temp_file, verbose=True)
         assert 'observation_id' in table.columns
         assert len(table) > 0
         remove_last_job()
@@ -90,27 +91,27 @@ class TestEsaHubbleRemoteData:
 
     def test_hst_simple_to_hst_composite(self):
         esa_hubble = ESAHubble()
-        result = esa_hubble.get_member_observations('jdrz0cjxq')
+        result = esa_hubble.get_member_observations(observation_id='jdrz0cjxq')
         assert result == ['jdrz0c010']
 
     def test_hap_composite_to_hap_simple(self):
         esa_hubble = ESAHubble()
-        result = esa_hubble.get_member_observations('hst_15446_4v_acs_wfc_f606w_jdrz4v')
+        result = esa_hubble.get_member_observations(observation_id='hst_15446_4v_acs_wfc_f606w_jdrz4v')
         assert result == ['hst_15446_4v_acs_wfc_f606w_jdrz4vkv', 'hst_15446_4v_acs_wfc_f606w_jdrz4vkw']
 
     def test_hap_simple_to_hap_composite(self):
         esa_hubble = ESAHubble()
-        result = esa_hubble.get_member_observations('hst_16316_71_acs_sbc_f150lp_jec071i9')
+        result = esa_hubble.get_member_observations(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
         assert result == [' hst_16316_71_acs_sbc_total_jec071', 'hst_16316_71_acs_sbc_f150lp_jec071']
 
     def test_hap_simple_to_hst_simple(self):
         esa_hubble = ESAHubble()
-        result = esa_hubble.get_hap_hst_link('hst_16316_71_acs_sbc_f150lp_jec071i9')
+        result = esa_hubble.get_hap_hst_link(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
         assert result == ['jec071i9q']
 
     def test_hst_simple_to_hap_simple(self):
         esa_hubble = ESAHubble()
-        result = esa_hubble.get_hap_hst_link('jec071i9q')
+        result = esa_hubble.get_hap_hst_link(observation_id='jec071i9q')
         assert result == ['hst_16316_71_acs_sbc_f150lp_jec071i9']
 
     def test_query_target(self):

@@ -23,6 +23,8 @@ from requests.models import Response
 
 from astroquery.esa.hubble import ESAHubbleClass
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
+from astroquery.utils.tap.conn.tapconn import ConnectionHandler
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 
 def data_path(filename):
@@ -49,10 +51,10 @@ def ehst_request(request):
     return mp
 
 
-def get_cone_mockreturn(method, request, url, params, *args, **kwargs):
+def get_cone_mockreturn(params, *args, **kwargs):
     file = data_path('cone_search_m31_5.vot')
-    if 'OBSERVATION_ID' in params:
-        file = params['OBSERVATION_ID'] + ".vot"
+    if 'OBSERVATION_ID' in kwargs:
+        file = kwargs['OBSERVATION_ID'] + ".vot"
     response = data_path(file)
     shutil.copy(response + '.test', response)
     return response
@@ -104,7 +106,7 @@ class TestESAHubble:
 
     def test_download_product_by_product_type(self, tmp_path):
         parameters = {'observation_id': "J6FL25S4Q",
-                      'product_type': "SCIENCE_PRODUCT",
+                      'product_type': "SCIENCE",
                       'filename': Path(tmp_path, "J6FL25S4Q.vot.test"),
                       'verbose': True}
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
@@ -112,13 +114,13 @@ class TestESAHubble:
                               product_type=parameters['product_type'],
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
-        parameters['product_type'] = "PRODUCT"
+        parameters['product_type'] = "SCIENCE"
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         ehst.download_product(observation_id=parameters['observation_id'],
                               product_type=parameters['product_type'],
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
-        parameters['product_type'] = "POSTCARD"
+        parameters['product_type'] = "PREVIEW"
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         ehst.download_product(observation_id=parameters['observation_id'],
                               product_type=parameters['product_type'],
@@ -158,11 +160,11 @@ class TestESAHubble:
             response = Response()
             response._content = target_obj
             ehst._request = MagicMock(return_value=response)
-            ehst.cone_search(parameters['coordinates'],
-                             parameters['radius'],
-                             parameters['filename'],
-                             parameters['output_format'],
-                             parameters['cache'])
+            ehst.cone_search(coordinates=parameters['coordinates'],
+                             radius=parameters['radius'],
+                             filename=parameters['filename'],
+                             output_format=parameters['output_format'],
+                             cache=parameters['cache'])
             DummyHubbleTapHandler("cone_search", parameters)
 
     def test_cone_search_coords(self):
@@ -183,13 +185,13 @@ class TestESAHubble:
                       'verbose': True}
 
         ehst = ESAHubbleClass(tap_handler=dummyTapHandler, show_messages=False)
-        ehst.cone_search(parameters['coordinates'],
-                         parameters['radius'],
-                         parameters['filename'],
-                         parameters['output_format'],
-                         parameters['async_job'],
-                         parameters['cache'],
-                         parameters['verbose'])
+        ehst.cone_search(coordinates=parameters['coordinates'],
+                         radius=parameters['radius'],
+                         filename=parameters['filename'],
+                         output_format=parameters['output_format'],
+                         async_job=parameters['async_job'],
+                         cache=parameters['cache'],
+                         verbose=parameters['verbose'])
         with pytest.raises(ValueError) as err:
             ehst._getCoordInput(1234)
         assert "Coordinates must be either a string or " \
@@ -207,9 +209,11 @@ class TestESAHubble:
                        'verbose': False}
 
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        ehst.query_tap(parameters['query'], parameters['async_job'],
-                           parameters['output_file'],
-                           parameters['output_format'], parameters['verbose'])
+        ehst.query_tap(query=parameters['query'],
+                       async_job=parameters['async_job'],
+                       output_file=parameters['output_file'],
+                       output_format=parameters['output_format'],
+                       verbose=parameters['verbose'])
         self.get_dummy_tap_handler().check_call("launch_job", parameters2)
 
     def test_get_tables(self):
@@ -218,12 +222,12 @@ class TestESAHubble:
 
         DummyHubbleTapHandler("get_tables", parameters)
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        ehst.get_tables(True, True)
+        ehst.get_tables(only_names=True, verbose=True)
 
     def test_get_artifact(self, tmp_path):
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         path = Path(tmp_path, "w0ji0v01t_c2f.fits.gz")
-        ehst.get_artifact(path)
+        ehst.get_artifact(artifact_id=path)
 
     def test_get_columns(self):
         parameters = {'table_name': "table",
@@ -232,7 +236,7 @@ class TestESAHubble:
 
         dummyTapHandler = DummyHubbleTapHandler("get_columns", parameters)
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        ehst.get_columns("table", True, True)
+        ehst.get_columns(table_name="table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters)
 
     def test_query_criteria(self):
@@ -248,17 +252,17 @@ class TestESAHubble:
                        'verbose': True,
                        'get_query': True}
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        test_query = ehst.query_criteria(parameters1['calibration_level'],
-                                         parameters1['data_product_type'],
-                                         parameters1['intent'],
-                                         parameters1['obs_collection'],
-                                         parameters1['instrument_name'],
-                                         parameters1['filters'],
-                                         parameters1['async_job'],
-                                         parameters1['output_file'],
-                                         parameters1['output_format'],
-                                         parameters1['verbose'],
-                                         parameters1['get_query'])
+        test_query = ehst.query_criteria(calibration_level=parameters1['calibration_level'],
+                                         data_product_type=parameters1['data_product_type'],
+                                         intent=parameters1['intent'],
+                                         obs_collection=parameters1['obs_collection'],
+                                         instrument_name=parameters1['instrument_name'],
+                                         filters=parameters1['filters'],
+                                         async_job=parameters1['async_job'],
+                                         output_file=parameters1['output_file'],
+                                         output_format=parameters1['output_format'],
+                                         verbose=parameters1['verbose'],
+                                         get_query=parameters1['get_query'])
         parameters2 = {'query': test_query,
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -289,17 +293,17 @@ class TestESAHubble:
                        'verbose': True,
                        'get_query': True}
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        test_query = ehst.query_criteria(parameters1['calibration_level'],
-                                         parameters1['data_product_type'],
-                                         parameters1['intent'],
-                                         parameters1['obs_collection'],
-                                         parameters1['instrument_name'],
-                                         parameters1['filters'],
-                                         parameters1['async_job'],
-                                         parameters1['output_file'],
-                                         parameters1['output_format'],
-                                         parameters1['verbose'],
-                                         parameters1['get_query'])
+        test_query = ehst.query_criteria(calibration_level=parameters1['calibration_level'],
+                                         data_product_type=parameters1['data_product_type'],
+                                         intent=parameters1['intent'],
+                                         obs_collection=parameters1['obs_collection'],
+                                         instrument_name=parameters1['instrument_name'],
+                                         filters=parameters1['filters'],
+                                         async_job=parameters1['async_job'],
+                                         output_file=parameters1['output_file'],
+                                         output_format=parameters1['output_format'],
+                                         verbose=parameters1['verbose'],
+                                         get_query=parameters1['get_query'])
         parameters2 = {'query': test_query,
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -318,17 +322,17 @@ class TestESAHubble:
         dummy_tap_handler.check_call("launch_job", parameters3)
         parameters1['calibration_level'] = 4
         with pytest.raises(KeyError) as err:
-            ehst.query_criteria(parameters1['calibration_level'],
-                                parameters1['data_product_type'],
-                                parameters1['intent'],
-                                parameters1['obs_collection'],
-                                parameters1['instrument_name'],
-                                parameters1['filters'],
-                                parameters1['async_job'],
-                                parameters1['output_file'],
-                                parameters1['output_format'],
-                                parameters1['verbose'],
-                                parameters1['get_query'])
+            ehst.query_criteria(calibration_level=parameters1['calibration_level'],
+                                data_product_type=parameters1['data_product_type'],
+                                intent=parameters1['intent'],
+                                obs_collection=parameters1['obs_collection'],
+                                instrument_name=parameters1['instrument_name'],
+                                filters=parameters1['filters'],
+                                async_job=parameters1['async_job'],
+                                output_file=parameters1['output_file'],
+                                output_format=parameters1['output_format'],
+                                verbose=parameters1['verbose'],
+                                get_query=parameters1['get_query'])
         assert "Calibration level must be between 0 and 3" in err.value.args[0]
 
     def test_cone_search_criteria(self):
@@ -471,7 +475,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst._select_related_composite(dummy_obs_id)
+        oids = ehst._select_related_composite(observation_id=dummy_obs_id)
         assert oids == ['x', 'y']
 
     @patch.object(ESAHubbleClass, 'query_tap')
@@ -483,7 +487,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst._select_related_members(dummy_obs_id)
+        oids = ehst._select_related_members(observation_id=dummy_obs_id)
         assert oids == ['test']
 
     @patch.object(ESAHubbleClass, 'query_tap')
@@ -495,14 +499,14 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst.get_observation_type(dummy_obs_id)
+        oids = ehst.get_observation_type(observation_id=dummy_obs_id)
         assert oids == 'HST Test'
 
     def test_get_observation_type_obs_id_none_valueerror(self):
         with pytest.raises(ValueError):
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             dummy_obs_id = None
-            ehst.get_observation_type(dummy_obs_id)
+            ehst.get_observation_type(observation_id=dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'query_tap')
     def test_get_observation_type_invalid_obs_id_valueerror(self, mock_query):
@@ -514,7 +518,7 @@ class TestESAHubble:
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             mock_query.return_value = data_table
             dummy_obs_id = '1234'
-            ehst.get_observation_type(dummy_obs_id)
+            ehst.get_observation_type(observation_id=dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'query_tap')
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -527,7 +531,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst.get_hap_hst_link(dummy_obs_id)
+        oids = ehst.get_hap_hst_link(observation_id=dummy_obs_id)
         assert oids == ['1234']
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -537,7 +541,7 @@ class TestESAHubble:
         mock_observation_type.return_value = "HAP"
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         dummy_obs_id = "1234"
-        oids = ehst.get_hap_hst_link(dummy_obs_id)
+        oids = ehst.get_hap_hst_link(observation_id=dummy_obs_id)
         assert oids == 'test'
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -546,7 +550,7 @@ class TestESAHubble:
             mock_observation_type.return_value = "valueerror"
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             dummy_obs_id = "1234"
-            ehst.get_hap_hst_link(dummy_obs_id)
+            ehst.get_hap_hst_link(observation_id=dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
     def test_get_hap_hst_link_compositeerror(self, mock_observation_type):
@@ -554,7 +558,7 @@ class TestESAHubble:
             mock_observation_type.return_value = "HAP Composite"
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             dummy_obs_id = "1234"
-            ehst.get_hap_hst_link(dummy_obs_id)
+            ehst.get_hap_hst_link(observation_id=dummy_obs_id)
 
     @patch.object(ESAHubbleClass, '_select_related_members')
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -563,7 +567,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_select_related_members.return_value = 'test'
         dummy_obs_id = "1234"
-        oids = ehst.get_member_observations(dummy_obs_id)
+        oids = ehst.get_member_observations(observation_id=dummy_obs_id)
         assert oids == 'test'
 
     @patch.object(ESAHubbleClass, '_select_related_composite')
@@ -573,7 +577,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         mock_select_related_composite.return_value = 'test'
         dummy_obs_id = "1234"
-        oids = ehst.get_member_observations(dummy_obs_id)
+        oids = ehst.get_member_observations(observation_id=dummy_obs_id)
         assert oids == 'test'
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -582,7 +586,7 @@ class TestESAHubble:
             mock_observation_type.return_value = "valueerror"
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             dummy_obs_id = "1234"
-            ehst.get_member_observations(dummy_obs_id)
+            ehst.get_member_observations(observation_id=dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'query_criteria')
     @patch.object(ESAHubbleClass, '_query_tap_target')
@@ -610,3 +614,26 @@ class TestESAHubble:
         with pytest.raises(TypeError):
             ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
             ehst.cone_search_criteria(coordinates="00h42m44.51s +41d16m08.45s", target="m11", radius=1)
+
+    def test_query_hst_tap(self):
+        parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
+                      'async_job': False,
+                      'output_file': "test2.vot",
+                      'output_format': "votable",
+                      'verbose': False}
+
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        with pytest.warns(AstropyDeprecationWarning):
+            ehst.query_hst_tap(query=parameters['query'],
+                               async_job=parameters['async_job'],
+                               output_file=parameters['output_file'],
+                               output_format=parameters['output_format'],
+                               verbose=parameters['verbose'])
+
+    @patch("http.client.HTTPSConnection")
+    @patch("http.client.HTTPResponse")
+    def test_show_messages(self, mock_conn, mock_res):
+        mock_res.status = 400
+        mock_conn.getresponse = MagicMock(return_value=mock_res)
+        ehst = ESAHubbleClass()
+        mock_res.assert_called()

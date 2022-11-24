@@ -23,13 +23,26 @@ data, all HST data in the EHST are identical to those in MAST.
 Examples
 ========
 
+It is highly recommended checking the status of eHST TAP before executing this module. To do this:
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.get_status_messages()
+
+This method will retrieve the same warning messages shown in eHST Science Archive with information about
+service degradation.
+
 --------------------------
 1. Getting Hubble products
 --------------------------
 
 This function allows the user to download products based on their observation ID (mandatory) and
-a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (PRODUCT,
-SCIENCE_PRODUCT or POSTCARD).
+a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY).
+
+Deprecation Warning: product types PRODUCT, SCIENCE_PRODUCT or POSTCARD are no longer supported. Please modify your scripts accordingly.
+
 
 This will download all files for the raw calibration level of the observation 'j6fl25s4q' and it will store them in a tar called
 'raw_data_for_j6fl25s4q.tar'.
@@ -48,7 +61,7 @@ This will download the science files associated to the observation 'j6fl25s4q' a
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="j6fl25s4q", product_type="SCIENCE_PRODUCT",
+  >>> esahubble.download_product(observation_id="j6fl25s4q", product_type="SCIENCE",
   ...                            filename="science_data_for_j6fl25s4q.fits")   # doctest: +IGNORE_OUTPUT
 
 This third case will download the science files associated to the observation 'j6fl25s4q' in raw calibration level and it will store them in a file called
@@ -59,7 +72,7 @@ This third case will download the science files associated to the observation 'j
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
-  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE_PRODUCT")   # doctest: +IGNORE_OUTPUT
+  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE")   # doctest: +IGNORE_OUTPUT
 
 ---------------------------
 2. Getting Hubble postcards
@@ -88,7 +101,7 @@ Note: Artifact is a single Hubble product file.
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.get_artifact("w0ji0v01t_c2f.fits")
+  >>> esahubble.get_artifact(artifact_id="w0ji0v01t_c2f.fits")
 
 This will download the compressed artifact
 'w0ji0v01t_c2f.fits.gz'. 'w0ji0v01t_c2f.fits' is the name of the Hubble
@@ -104,7 +117,7 @@ The query_target function queries the name of the target as given by the propose
 
   >>> from astroquery.esa.hubble import ESAHubble 
   >>> esahubble = ESAHubble()
-  >>> table = esahubble.query_target("m31", filename="m31_query.xml.gz")  # doctest: +IGNORE_OUTPUT
+  >>> table = esahubble.query_target(name="m31", filename="m31_query.xml.gz")  # doctest: +IGNORE_OUTPUT
 
 This will retrieve a table with the output of the query.
 It will also download a file storing all metadata for all observations
@@ -265,15 +278,15 @@ As has been mentioned, these parameters are optional and it is not necessary to 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT',
-  ...                                       async_job = False,
-  ...                                       output_file = 'output3.vot.gz')
+  ...                                    async_job = False,
+  ...                                    output_file = 'output3.vot.gz')
   >>> result2 = esahubble.query_criteria(data_product_type = 'image',
-  ...                                       intent='SCIENCE',
-  ...                                       async_job = False,
-  ...                                       output_file = 'output4.vot.gz')
+  ...                                    intent='SCIENCE',
+  ...                                    async_job = False,
+  ...                                    output_file = 'output4.vot.gz')
   >>> result3 = esahubble.query_criteria(data_product_type = 'timeseries',
-  ...                                       async_job = False,
-  ...                                       output_file = 'output5.vot.gz')
+  ...                                    async_job = False,
+  ...                                    output_file = 'output5.vot.gz')
 
 If no criteria are specified to limit the selection, this function will retrieve all the observations.
 
@@ -319,7 +332,7 @@ This last example will provide the ADQL query based on the criteria defined by t
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-  >>> table = esahubble.cone_search(c, 7, "cone_search_m31_5.vot.gz")
+  >>> table = esahubble.cone_search(coordinates=c, radius=7, filename="cone_search_m31_5.vot.gz")
 
 This will perform a cone search with radius 7 arcmins. The result of the
 query will be returned and stored in the votable file
@@ -431,8 +444,7 @@ Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
-  INFO: Query finished. [astroquery.utils.tap.core]
+  >>> result = esahubble.query_tap(query="select top 10 * from hsc.hubble_sc", output_file="test.vot.gz") # doctest: +IGNORE_OUTPUT
 
 This will execute an ADQL query to download the first 10 sources in the
 Hubble Source Catalog (HSC) version 2.1 (format default: compressed
@@ -440,6 +452,15 @@ votable). The result of the query will be stored in the file
 'test.vot.gz'. The result of this query can be viewed by doing
 result.get_results() or printing it by doing print(result).
 
+To access the same information shown in eHST Science Archive:
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_tap(query="select top 10 * from ehst.archive", output_file="archive.vot.gz") # doctest: +IGNORE_OUTPUT
+
+
+Deprecation Warning: this method was previously named as query_hst_tap. Please modify your scripts accordingly.
 
 ------------------------------------------------------
 9. Getting related members of HAP and HST observations
@@ -454,7 +475,7 @@ method returns the simple observations that make it up.
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.get_member_observations("jdrz0c010")
+  >>> result = esahubble.get_member_observations(observation_id="jdrz0c010")
   >>> print(result)
   ['jdrz0cjxq', 'jdrz0cjyq']
 
@@ -470,7 +491,7 @@ returns the corresponding HAP or HST observation
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.get_hap_hst_link("hst_16316_71_acs_sbc_f150lp_jec071i9")
+  >>> result = esahubble.get_hap_hst_link(observation_id="hst_16316_71_acs_sbc_f150lp_jec071i9")
   >>> print(result)
   ['jec071i9q']
 
