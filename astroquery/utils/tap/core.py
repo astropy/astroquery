@@ -34,7 +34,6 @@ import tempfile
 __all__ = ['Tap', 'TapPlus']
 
 VERSION = "20200428.1"
-TAP_CLIENT_ID = f"aqtappy1-{VERSION}"
 
 
 class Tap:
@@ -138,6 +137,7 @@ class Tap:
 
     def __internalInit(self):
         self.__connHandler = None
+        self.tap_client_id = f"aqtappy1-{VERSION}"
 
     def load_tables(self, verbose=False):
         """Loads all public tables
@@ -585,7 +585,7 @@ class Tap:
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
-            "tapclient": str(TAP_CLIENT_ID),
+            "tapclient": str(self.tap_client_id),
             "QUERY": str(query),
             "UPLOAD": "" + str(uploadValue)}
         if maxrec is not None:
@@ -625,7 +625,7 @@ class Tap:
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
-            "tapclient": str(TAP_CLIENT_ID),
+            "tapclient": str(self.tap_client_id),
             "QUERY": str(query)}
         if maxrec is not None:
             args['MAXREC'] = maxrec
@@ -799,11 +799,9 @@ class TapPlus(Tap):
         self.__pwd = None
         self.__isLoggedIn = False
 
-    @staticmethod
-    def __set_client_id(client_id):
+    def __set_client_id(self, client_id):
         if client_id:
-            global TAP_CLIENT_ID
-            TAP_CLIENT_ID = client_id
+            self.tap_client_id = client_id
 
     def load_tables(self, only_names=False, include_shared_tables=False,
                     verbose=False):

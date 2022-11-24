@@ -587,9 +587,7 @@ class ESAHubbleClass(BaseQuery):
         table = job.get_results()
         return table
 
-    @deprecated(since="0.4.7", message=("Use of query_hst_tap method is no longer supported. "
-                "Please use query_tap method instead, with the same arguments."),
-                alternative="query_tap")
+    @deprecated(since="0.4.7", alternative="query_tap")
     def query_hst_tap(self, query, *, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the HST tap
@@ -613,10 +611,6 @@ class ESAHubbleClass(BaseQuery):
         -------
         A table object
         """
-        warnings.warn(
-            "Use of query_hst_tap method is no longer supported. Please use"
-            " query_tap method instead, with the same arguments.",
-            AstropyDeprecationWarning)
         self.query_tap(query=query, async_job=False, output_file=None,
                        output_format="votable", verbose=False)
 
