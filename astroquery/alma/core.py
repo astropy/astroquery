@@ -579,11 +579,7 @@ class AlmaClass(QueryWithLogin):
                         datalink_service_def_dict[adhoc_service.ID] = adhoc_service
 
             temp = res.to_table()
-            if commons.ASTROPY_LT_4_1:
-                # very annoying
-                for col in [x for x in temp.colnames
-                            if x not in ['content_length', 'readable']]:
-                    temp[col] = temp[col].astype(str)
+
             result = temp if result is None else vstack([result, temp])
             to_delete = []
             for index, rr in enumerate(result):
@@ -1214,10 +1210,8 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(
             "select distinct proposal_abstract from "
             "ivoa.obscore where proposal_id='{}'".format(projectid))
-        if commons.ASTROPY_LT_4_1:
-            return [result[0]['proposal_abstract'].astype(str)]
-        else:
-            return [result[0]['proposal_abstract']]
+
+        return [result[0]['proposal_abstract']]
 
 
 Alma = AlmaClass()

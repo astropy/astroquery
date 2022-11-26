@@ -10,7 +10,6 @@ import numpy as np
 
 from ... import simbad
 from astroquery.utils.mocks import MockResponse
-from ...utils import commons
 from ...query import AstroQuery
 from ...exceptions import TableParseError
 from .test_simbad_remote import multicoords
@@ -440,6 +439,6 @@ def test_regression_issue388():
         response.content = f.read()
     parsed_table = simbad.Simbad._parse_result(response,
                                                simbad.core.SimbadVOTableResult)
-    truth = b'M   1' if commons.ASTROPY_LT_4_1 else 'M   1'
+    truth = 'M   1'
     assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1

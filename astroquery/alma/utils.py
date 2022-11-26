@@ -5,7 +5,6 @@ import string
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-from astroquery.utils.commons import ASTROPY_LT_4_1
 
 __all__ = ['parse_frequency_support', 'footprint_to_reg', 'approximate_primary_beam_sizes']
 
@@ -48,8 +47,7 @@ def footprint_to_reg(footprint):
     -28.694332 266.521332 -28.699778'
     Some of them have *additional* polygons
     """
-    if ASTROPY_LT_4_1:
-        footprint = footprint.decode('utf-8')
+
     if footprint[:7] != 'Polygon' and footprint[:6] != 'Circle':
         raise ValueError("Unrecognized footprint type")
 

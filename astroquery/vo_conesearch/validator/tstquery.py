@@ -18,16 +18,12 @@ from astropy.table import Table
 from astropy.utils.data import get_readable_fileobj
 from astropy.utils.exceptions import AstropyUserWarning
 
-# LOCAL
-from astroquery.utils.commons import ASTROPY_LT_4_1
 
 __all__ = ['parse_cs']
 
 
 def parse_cs(ivoid, cap_index=1):
     """Return test query pars as dict for given IVO ID and capability index."""
-    if isinstance(ivoid, bytes):  # ASTROPY_LT_4_1
-        ivoid = ivoid.decode('ascii')
 
     # Production server.
     url = ("https://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&"
@@ -53,20 +49,10 @@ def parse_cs(ivoid, cap_index=1):
     if not urls_failed:
         try:
             xpath = t_query['detail_xpath']
-            if ASTROPY_LT_4_1:
-                ra = float(
-                    t_query[xpath == b'/capability/testQuery/ra']['detail_value'])
-                dec = float(
-                    t_query[xpath == b'/capability/testQuery/dec']['detail_value'])
-                sr = float(
-                    t_query[xpath == b'/capability/testQuery/sr']['detail_value'])
-            else:
-                ra = float(
-                    t_query[xpath == '/capability/testQuery/ra']['detail_value'])
-                dec = float(
-                    t_query[xpath == '/capability/testQuery/dec']['detail_value'])
-                sr = float(
-                    t_query[xpath == '/capability/testQuery/sr']['detail_value'])
+
+            ra = float(t_query[xpath == '/capability/testQuery/ra']['detail_value'])
+            dec = float(t_query[xpath == '/capability/testQuery/dec']['detail_value'])
+            sr = float(t_query[xpath == '/capability/testQuery/sr']['detail_value'])
 
             # Handle big SR returning too big a table for some queries, causing
             # tests to fail due to timeout.
