@@ -126,6 +126,13 @@ simbad
   radius as a string in ``query_region()`` and ``query_region_async()``.
   [#2494]
 
+skyview
+^^^^^^^
+
+- Fix bug for ``radius`` parameter to not behave as diameter. [#2601]
+
+- Optional keyword arguments are now keyword only. [#2601]
+
 svo_fps
 ^^^^^^^
 
