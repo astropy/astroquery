@@ -172,7 +172,8 @@ class SkyViewClass(BaseQuery):
         gridlabels : bool
             annotate the grid with coordinates positions if True
         radius : `~astropy.units.Quantity` or None
-            The radius of the specified field.  Overrides width and height.
+            The angular radius of the specified field.
+            Overrides the ``width`` and ``height`` parameters.
         width : `~astropy.units.Quantity` or None
             The width of the specified field.  Must be specified
             with ``height``.
@@ -251,7 +252,7 @@ class SkyViewClass(BaseQuery):
         self._validate_surveys(survey)
 
         if radius is not None:
-            size_deg = str(radius.to(u.deg).value)
+            size_deg = str(radius.to(u.deg).value * 2)
         elif width and height:
             size_deg = "{0},{1}".format(width.to(u.deg).value,
                                         height.to(u.deg).value)
