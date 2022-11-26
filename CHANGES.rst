@@ -189,7 +189,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed deprecated function ``utils.download_list_of_fitsfiles()``. [#2594]
 
-- Versions of astropy <4.1 are no longer supported. [#2602]
+- Versions of astropy <4.2.1 and numpy <1.18 are no longer supported. [#2602]
 
 
 
