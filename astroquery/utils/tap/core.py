@@ -34,7 +34,6 @@ import tempfile
 __all__ = ['Tap', 'TapPlus']
 
 VERSION = "20200428.1"
-TAP_CLIENT_ID = f"aqtappy-{VERSION}"
 
 
 class Tap:
@@ -138,6 +137,7 @@ class Tap:
 
     def __internalInit(self):
         self.__connHandler = None
+        self.tap_client_id = f"aqtappy1-{VERSION}"
 
     def load_tables(self, verbose=False):
         """Loads all public tables
@@ -585,7 +585,7 @@ class Tap:
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
-            "tapclient": str(TAP_CLIENT_ID),
+            "tapclient": str(self.tap_client_id),
             "QUERY": str(query),
             "UPLOAD": "" + str(uploadValue)}
         if maxrec is not None:
@@ -625,7 +625,7 @@ class Tap:
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
-            "tapclient": str(TAP_CLIENT_ID),
+            "tapclient": str(self.tap_client_id),
             "QUERY": str(query)}
         if maxrec is not None:
             args['MAXREC'] = maxrec
@@ -745,7 +745,8 @@ class TapPlus(Tap):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 verbose=False):
+                 verbose=False,
+                 client_id=None):
         """Constructor
 
         Parameters
@@ -791,11 +792,16 @@ class TapPlus(Tap):
                                       connhandler=connhandler,
                                       verbose=verbose)
         self.__internalInit()
+        self.__set_client_id(client_id=client_id)
 
     def __internalInit(self):
         self.__user = None
         self.__pwd = None
         self.__isLoggedIn = False
+
+    def __set_client_id(self, client_id):
+        if client_id:
+            self.tap_client_id = client_id
 
     def load_tables(self, only_names=False, include_shared_tables=False,
                     verbose=False):

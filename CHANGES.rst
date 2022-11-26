@@ -16,6 +16,12 @@ hsa
 
 - New module to access ESA Herschel mission. [#2122]
 
+esa.hubble
+^^^^^^^^^^
+
+- Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [#2567][#2597]
+- Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
+- Optional parameters in all methods are kwargs keyword only. [#2597]
 
 Service fixes and enhancements
 ------------------------------
@@ -31,9 +37,8 @@ esa.hubble
 
 - Refactored query_criteria to use ehst.archive table therefore making the query
   a lot faster. [#2524]
-
-- Update TAP url to avoid 301 HTTPError. [#2567]
-
+- Method query_hst_tap has been deprecated and is replaced with query_tap, with the same arguments. [#2597]
+- Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [#2597]
 
 alma
 ^^^^

@@ -19,6 +19,7 @@ from astropy import units
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Table
 from astropy.units import Quantity
+from astroquery.exceptions import TableParseError
 
 from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
@@ -594,7 +595,7 @@ class TestTap:
 
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
-        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['TAPCLIENT'] = 'ASTROQUERY'
         param_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = param_dict
 
@@ -618,7 +619,7 @@ class TestTap:
 
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
-        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['TAPCLIENT'] = 'ASTROQUERY'
         param_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = param_dict
 
@@ -682,7 +683,7 @@ class TestTap:
 
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
-        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['TAPCLIENT'] = 'ASTROQUERY'
         param_dict['planeid'] = planeids
         param_dict['calibrationlevel'] = 'ALL'
         parameters['params_dict'] = param_dict
@@ -889,13 +890,14 @@ class TestTap:
         ned = Ned()
         vizier = Vizier()
         # Testing default parameters
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="M1", target_resolver="")
         assert "This target resolver is not allowed" in err.value.args[0]
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target("TEST")
-        assert "This target name cannot be determined with this resolver: ALL" in err.value.args[0]
-        with pytest.raises(ValueError) as err:
+        assert ("This target name cannot be determined with this resolver: ALL" in err.value.args[0] or
+                'Failed to parse' in err.value.args[0])
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="M1", target_resolver="ALL")
         assert err.value.args[0] in ["This target name cannot be determined "
                                      "with this resolver: ALL", "Missing "
@@ -913,20 +915,23 @@ class TestTap:
         vizier.query_object = MagicMock(return_value=vizier_table)
 
         # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
-        assert 'This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
+        assert ('This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0] or
+                'Failed to parse' in err.value.args[0])
 
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
-        assert 'This target name cannot be determined with this resolver: NED' in err.value.args[0]
+        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0] or
+               'Failed to parse' in err.value.args[0])
 
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
-        assert 'This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
+        assert ('This target name cannot be determined with this resolver: VIZIER' in err.value.args[0] or
+                'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()

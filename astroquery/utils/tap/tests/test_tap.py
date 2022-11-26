@@ -23,7 +23,7 @@ from astroquery.utils.tap.model.tapcolumn import TapColumn
 
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
+from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 
@@ -164,7 +164,7 @@ def test_launch_sync_job():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": str(q)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -228,7 +228,7 @@ def test_launch_sync_job_redirect():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": str(q)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -310,7 +310,7 @@ def test_launch_async_job():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -393,7 +393,7 @@ def test_start_job():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
     req = f"async?{sortedKey}"
@@ -451,7 +451,7 @@ def test_abort_job():
         "LANG": "ADQL",
         "FORMAT": "votable",
         "MAXREC": 10,
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
     req = f"async?{sortedKey}"
@@ -485,7 +485,7 @@ def test_job_parameters():
         "LANG": "ADQL",
         "FORMAT": "votable",
         "MAXREC": 10,
-        "tapclient": str(TAP_CLIENT_ID),
+        "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
     req = f"async?{sortedKey}"

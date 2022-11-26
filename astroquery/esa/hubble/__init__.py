@@ -1,34 +1,29 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Javier Duran
-@contact: javier.duran@sciops.esa.int
+==========
+eHST Init
+==========
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Aug. 2018
-
 """
 
 from astropy import config as _config
+from astropy.config import paths
+import os
 
 
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.esa.hubble`.
     """
-    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
-                                     "ehst-sl-server/servlet/data-action",
-                                     "Main url for retriving hst files")
-    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
-                                         "ehst-sl-server/servlet/"
-                                         "metadata-action",
-                                         "Main url for retriving hst metadata")
-    TARGET_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
-                                       "ehst-sl-server/servlet/"
-                                       "targetresolver-action",
-                                       "Main url for solving targets")
+    EHST_TAP_SERVER = _config.ConfigItem("https://hst.esac.esa.int/tap-server/tap", "eHST TAP Server")
+    EHST_TARGET_ACTION = _config.ConfigItem("servlet/target-resolver?", "eHST Target Resolver")
+    EHST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "eHST Messages")
     TIMEOUT = 60
+
+    cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/ehst', )
 
 
 conf = Conf()

@@ -97,13 +97,14 @@ provided by this service, see section 'Getting Tables Details'.
   '80000203.tar'
   >>> tar = tarfile.open("80000203.tar")
   >>> tar.list()    # doctest: +IGNORE_OUTPUT
-  -rw-r--r-- idaops/0       1094 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//pich80000203.gif 
-  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10480000203.tar 
-  -rw-r--r-- idaops/0      14400 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//psph80000203.fits 
-  -rw-r--r-- idaops/0       5599 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//ppch80000203.gif 
-  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10180000203.tar 
+  -rw-r--r-- idaops/0       1094 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//pich80000203.gif
+  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10480000203.tar
+  -rw-r--r-- idaops/0      14400 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//psph80000203.fits
+  -rw-r--r-- idaops/0       5599 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//ppch80000203.gif
+  -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10180000203.tar
   >>> tar.extract("././ISO1659972236/EXTRAKON//psph80000203.fits")  # doctest: +SKIP
   >>> tar.extractall()
+  >>> tar.close()
 
 'download_data' method invokes the data download of files from the ISO Data Archive, using the
 observation identifier (TDT) as input. There are different product levels:
@@ -134,8 +135,8 @@ we can loop on the observations to download the best products (DEFAULT_DATA_SET)
   ...                               "ida.observations WHERE " +
   ...                               "revno=800 and aotname like 'S%' and target != ''")
   >>> print(table)   # doctest: +IGNORE_OUTPUT
-    tdt    revno aotname      ra        dec   
-                              h         deg   
+    tdt    revno aotname      ra        dec
+                              h         deg
   -------- ----- ------- ------------ --------
   80002247   800    S07   2.428012666 62.09789
   80002014   800    S02   0.901055333 73.08528
@@ -211,7 +212,7 @@ This will show the available tables in ISO TAP service in the ISO Data Archive.
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.iso import ISO 
+  >>> from astroquery.esa.iso import ISO
   >>> ISO.get_columns('ida.observations')
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
@@ -369,7 +370,7 @@ And spectra can be displayed by using the following code:
   ...                            'RETRIEVAL_TYPE=STANDALONE&obsno=580020010',
   ...                            '58002102.fits')   # doctest: +IGNORE_OUTPUT
   ('58002102.fits', <http.client.HTTPMessage object at 0x11a6a3fd0>)
-  >>> # Opening the spectral fits file using astropy modules  
+  >>> # Opening the spectral fits file using astropy modules
   >>> quantity_support()
   <astropy.visualization.units.quantity_support.<locals>.MplQuantityConverter object at 0x11c1a9d60>
   >>> f = fits.open('58002102.fits')

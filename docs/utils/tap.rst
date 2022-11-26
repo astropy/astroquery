@@ -768,7 +768,7 @@ new columns names. Here is an example:
 
     >>> from astroquery.gaia import Gaia, GaiaClass
     >>> from astroquery.utils.tap.model.tapcolumn import TapColumn
-    >>> from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
+    >>> from astroquery.utils.tap.core import TapPlus
     >>> from astroquery.utils.tap import taputils
     >>> gaia = GaiaClass(gaia_tap_server='https://gea.esac.esa.int/', gaia_data_server='https://gea.esac.esa.int/')
     >>> gaia.login()
