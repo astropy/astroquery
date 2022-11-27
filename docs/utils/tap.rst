@@ -2,6 +2,15 @@
 
 .. _astroquery.utils.tap:
 
+.. Warning::
+   This module is for internal astroquery use only with the purpose to
+   support the modules developed and maintained by ESA (``astroquery.gaia``,
+   ``astroquery.esasky``, and modules within ``astroquery.esa``).
+   If you need a TAP implementation, especially to access non-ESA services,
+   we recommend to use `pyVO <https://pyvo.readthedocs.io/en/latest/>`__ instead.
+   Our intention is to merge the functionalities and remove TAP/TAP+ from astroquery.
+
+
 *********************************
 TAP/TAP+ (`astroquery.utils.tap`)
 *********************************
@@ -452,7 +461,7 @@ If you do not provide any parameters at all, a prompt will ask for user name and
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> User: user
-  >>> Password: pwd (not visible) 
+  >>> Password: pwd (not visible)
 
 
 To perform a logout
@@ -549,7 +558,7 @@ Now, you can query your table as follows:
 Now, you can query your table as follows:
 
 .. code-block:: python
-  
+
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = gaia.launch_job(query=query)
@@ -566,13 +575,13 @@ Now, you can query your table as follows:
   >>> gaia.login()
   >>> j1 = gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
   >>> job = gaia.upload_table_from_job(j1)
-  
+
   Created table 't1539932994481O' from job: '1539932994481O'.
 
 Now, you can query your table as follows:
 
 .. code-block:: python
-  
+
   >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = gaia.launch_job(query=query)
@@ -599,7 +608,7 @@ Now, you can query your table as follows:
 Now, you can query your table as follows:
 
 .. code-block:: python
-  
+
   >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = gaia.launch_job(query=query)
@@ -615,9 +624,9 @@ Now, you can query your table as follows:
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
   >>> job = gaia.delete_user_table("table_test_from_file")
-  
+
   Table 'table_test_from_file' deleted.
-  
+
 2.4. Updating metadata of table in user space
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -637,7 +646,7 @@ values for 'utype' and 'ucd' are free text
 value for 'flags' can be 'Ra', 'Dec', 'Mag', 'Flux' and 'PK'
 value for 'indexed' is a boolean indicating if the column is indexed
 
-It is possible to specify a list of those changes for them to be applied at once. 
+It is possible to specify a list of those changes for them to be applied at once.
 This is done by putting each of the changes in a list. See example below.
 
 .. code-block:: python
@@ -646,11 +655,11 @@ This is done by putting each of the changes in a list. See example below.
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
   >>> gaia.update_user_table(table_name="user_<user_login_name>.my_table", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
-  
+
   Retrieving table 'user_<user_login_name>.my_table'
   Parsing table 'user_<user_login_name>.my_table'...
   Done.
-  Table 'user_<user_login_name>.my_table' updated.                                                          
+  Table 'user_<user_login_name>.my_table' updated.
 
 2.5. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
@@ -733,7 +742,7 @@ TAP+ services may provide a data access entry point.
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> params_dict = {}
   >>> params_dict['VALID_DATA'] = "true"
-  >>> params_dict['ID'] = "1000103304040175360" 
+  >>> params_dict['ID'] = "1000103304040175360"
   >>> params_dict['FORMAT'] = "votable"
   >>> params_dict['RETRIEVAL_TYPE'] = "epoch_photometry"
   >>> gaia.load_data(params_dict=params_dict, output_file="results.vot")
@@ -741,7 +750,7 @@ TAP+ services may provide a data access entry point.
 You may download data into memory:
 
 .. code-block:: python
-  
+
   >>> results = gaia.load_data(params_dict=params_dict)
 
 
@@ -751,7 +760,7 @@ You may download data into memory:
 This service provides links to data:
 
 .. code-block:: python
-  
+
   >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> ids="1000103304040175360,1000117258390464896"
