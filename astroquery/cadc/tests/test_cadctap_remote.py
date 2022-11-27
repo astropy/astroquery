@@ -13,11 +13,18 @@ from datetime import datetime
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy import units as u
+import warnings
 
 from astroquery.cadc import Cadc
 from astroquery.utils.commons import parse_coordinates, FileContainer
 
 from pyvo.auth import authsession
+
+try:
+    # workaround for https://github.com/astropy/astroquery/issues/2523 to support bs4<4.11
+    from bs4.builder import XMLParsedAsHTMLWarning
+except ImportError:
+    XMLParsedAsHTMLWarning = None
 
 # Skip the very slow tests to avoid timeout errors
 skip_slow = True
@@ -51,7 +58,13 @@ class TestCadcClass:
         # do some manipulation of the results. Below it's filtering out based
         # on target name but other manipulations are possible.
         assert len(result) > 0
-        urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'])
+
+        # Remove this filter when https://github.com/astropy/astroquery/issues/2523 is fixed
+        with warnings.catch_warnings():
+            if XMLParsedAsHTMLWarning:
+                warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+            urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'])
+
         assert len(urls) > 0
         # urls are a subset of the results that match target_name==Nr3491_1
         assert len(result) >= len(urls)
@@ -185,7 +198,13 @@ class TestCadcClass:
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
         radius = 0.005*u.deg
-        images = cadc.get_images(coords, radius, collection='CFHT')
+
+        # Remove this filter when https://github.com/astropy/astroquery/issues/2523 is fixed
+        with warnings.catch_warnings():
+            if XMLParsedAsHTMLWarning:
+                warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+            images = cadc.get_images(coords, radius, collection='CFHT')
+
         assert images is not None
 
         for image in images:
@@ -228,7 +247,12 @@ class TestCadcClass:
         cadc = Cadc()
         coords = '01h45m07.5s +23d18m00s'
         radius = '0.05 deg'
-        readable_objs = cadc.get_images_async(coords, radius, collection="CFHT")
+
+        # Remove this filter when https://github.com/astropy/astroquery/issues/2523 is fixed
+        with warnings.catch_warnings():
+            if XMLParsedAsHTMLWarning:
+                warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+            readable_objs = cadc.get_images_async(coords, radius, collection="CFHT")
         assert readable_objs is not None
         for obj in readable_objs:
             assert isinstance(obj, FileContainer)
