@@ -155,6 +155,12 @@ svo_fps
 - The default wavelength range used by ``get_filter_index()`` was far too
   large. The user must now always specify both upper and lower limits. [#2509]
 
+xmatch
+^^^^^^
+
+- The reason for the query errors, as parsed from the returned VOTable is now
+  exposed as part of the traceback. [#2608]
+
 gaia
 ^^^^
 
