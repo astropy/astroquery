@@ -49,9 +49,10 @@ class TestVizierRemote:
         assert "-c=G" in payload
 
     def test_query_Vizier_instance(self):
-        v = vizier.core.Vizier(
-            columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
-            column_filters={"Vmag": ">10"}, keywords=["optical", "xry"])
+        with pytest.warns(UserWarning, match="xry : No such keyword"):
+            v = vizier.core.Vizier(
+                columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
+                column_filters={"Vmag": ">10"}, keywords=["optical", "xry"])
 
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
@@ -64,7 +65,7 @@ class TestVizierRemote:
         # catalogs include Bmag's
         v = vizier.core.Vizier(
             columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
-            column_filters={"Vmag": ">10"}, keywords=["optical", "xry"])
+            column_filters={"Vmag": ">10"}, keywords=["optical", "X-ray"])
 
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         for table in result:
@@ -97,7 +98,8 @@ class TestVizierRemote:
             keywords=['Radio', 'IR'], row_limit=5000)
         C = SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame="galactic")
 
-        V.query_region(C, radius=2 * u.arcmin)
+        with pytest.warns(UserWarning, match="VOTABLE parsing raised exception"):
+            V.query_region(C, radius=2 * u.arcmin)
 
     def test_multicoord(self):
 
@@ -133,3 +135,10 @@ class TestVizierRemote:
         assert len(result) >= 628
         # important part: we're testing that UCD is parsed and some catalogs are ruled out
         assert len(ucdresult) < len(result)
+
+    def test_asu_tsv_return_type(self):
+        V = vizier.core.Vizier()
+        result = V.query_object("HD 226868", catalog=["NOMAD", "UCAC"], return_type='asu-tsv', cache=False)
+
+        assert isinstance(result, list)
+        assert len(result) == 3

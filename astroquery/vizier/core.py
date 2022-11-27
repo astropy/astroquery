@@ -45,7 +45,7 @@ class VizierClass(BaseQuery):
         schema.Or([_str_schema], _str_schema, None),
         error="catalog must be a list of strings or a single string")
 
-    def __init__(self, columns=["*"], column_filters={}, catalog=None,
+    def __init__(self, *, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
                  vizier_server=conf.server, row_limit=conf.row_limit):
         """
@@ -178,7 +178,7 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
+    def find_catalogs(self, keywords, *, include_obsolete=False, verbose=False,
                       max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
@@ -244,7 +244,7 @@ class VizierClass(BaseQuery):
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False, return_type='votable',
+    def get_catalogs_async(self, catalog, *, verbose=False, return_type='votable',
                            get_query_payload=False):
         """
         Query the Vizier service for a specific catalog
@@ -677,7 +677,7 @@ class VizierClass(BaseQuery):
         """
         if response.content[:5] == b'<?xml':
             try:
-                return parse_vizier_votable(
+                return _parse_vizier_votable(
                     response.content, verbose=verbose, invalid=invalid,
                     get_catalog_names=get_catalog_names)
             except Exception as ex:
@@ -691,7 +691,7 @@ class VizierClass(BaseQuery):
                                       "self.parsed_result.\n Exception: " +
                                       str(self.table_parse_error))
         elif response.content[:5] == b'#\n#  ':
-            return parse_vizier_tsvfile(response.content, verbose=verbose)
+            return _parse_vizier_tsvfile(response.content, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':
             return fits.open(BytesIO(response.content),
                              ignore_missing_end=True)
@@ -710,19 +710,19 @@ class VizierClass(BaseQuery):
         return self._valid_keyword_dict
 
 
-def parse_vizier_tsvfile(data, *, verbose=False):
+def _parse_vizier_tsvfile(data, *, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
     Tables.
 
     Parameters
     ----------
-    data : ascii str
-        An ascii string containing the vizier-formatted list of tables
+    data : response content bytes
+       Bytes containing the vizier-formatted list of tables
     """
 
     # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
-    split_indices = [m.start() for m in re.finditer('\n\n#', data)]
+    split_indices = [m.start() for m in re.finditer(b'\n\n#', data)]
     # we want to slice out chunks of the file each time
     split_limits = zip(split_indices[:-1], split_indices[1:])
     tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
@@ -731,8 +731,8 @@ def parse_vizier_tsvfile(data, *, verbose=False):
     return tables
 
 
-def parse_vizier_votable(data, *, verbose=False, invalid='warn',
-                         get_catalog_names=False):
+def _parse_vizier_votable(data, *, verbose=False, invalid='warn',
+                          get_catalog_names=False):
     """
     Given a votable as string, parse it into dict or tables
     """
