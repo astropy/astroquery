@@ -186,6 +186,12 @@ mast
 - Changed warning to error for authentication failure. [#1874]
 
 
+xmatch
+^^^^^^
+
+- Minor internal change to use VOTable as the response format that include
+  units, too. [#1375]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

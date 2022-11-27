@@ -2,11 +2,10 @@
 
 from io import StringIO, BytesIO
 
-from astropy.io import ascii, votable
+from astropy.io import votable
 import astropy.units as u
 from astropy.table import Table
 from requests import HTTPError
-
 
 from astroquery.query import BaseQuery
 from astroquery.exceptions import InvalidQueryError
@@ -77,7 +76,9 @@ class XMatchClass(BaseQuery):
                                     **kwargs)
         if get_query_payload:
             return response
-        return self._parse_text(response.text)
+
+        content = BytesIO(response.content)
+        return Table.read(content, format='votable', use_names_over_ids=True)
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
@@ -92,12 +93,11 @@ class XMatchClass(BaseQuery):
         if max_distance > 180 * u.arcsec:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
-        payload = {
-            'request': 'xmatch',
-            'distMaxArcsec': max_distance.to(u.arcsec).value,
-            'RESPONSEFORMAT': 'csv',
-            **kwargs
-        }
+        payload = {'request': 'xmatch',
+                   'distMaxArcsec': max_distance.to(u.arcsec).value,
+                   'RESPONSEFORMAT': 'votable',
+                   **kwargs}
+
         kwargs = {}
 
         self._prepare_sending_table(1, payload, kwargs, cat1, colRA1, colDec1)
@@ -189,23 +189,6 @@ class XMatchClass(BaseQuery):
 
         content = response.text
         return content.splitlines()
-
-    def _parse_text(self, text):
-        """
-        Parse a CSV text file that has potentially duplicated header names
-        """
-        header = text.split("\n")[0]
-        colnames = header.split(",")
-        for column in colnames:
-            if colnames.count(column) > 1:
-                counter = 1
-                while colnames.count(column) > 0:
-                    colnames[colnames.index(column)] = column + "_{counter}".format(counter=counter)
-                    counter += 1
-        new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
-        result = ascii.read(new_text, format='csv', fast_reader=False)
-
-        return result
 
 
 XMatch = XMatchClass()
