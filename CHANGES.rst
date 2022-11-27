@@ -135,6 +135,7 @@ simbad
 - It is now possible to specify multiple coordinates together with a single
   radius as a string in ``query_region()`` and ``query_region_async()``.
   [#2494]
+- Optional keyword arguments are now keyword only. [#2609]
 
 skyview
 ^^^^^^^
