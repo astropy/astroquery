@@ -133,3 +133,10 @@ class TestVizierRemote:
         assert len(result) >= 628
         # important part: we're testing that UCD is parsed and some catalogs are ruled out
         assert len(ucdresult) < len(result)
+
+    def test_asu_tsv_return_type(self):
+        V = vizier.core.Vizier()
+        result = V.query_object("HD 226868", catalog=["NOMAD", "UCAC"], return_type='asu-tsv', cache=False)
+
+        assert isinstance(result, list)
+        assert len(result) == 3

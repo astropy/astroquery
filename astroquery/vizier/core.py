@@ -717,12 +717,12 @@ def parse_vizier_tsvfile(data, *, verbose=False):
 
     Parameters
     ----------
-    data : ascii str
-        An ascii string containing the vizier-formatted list of tables
+    data : response content bytes
+       Bytes containing the vizier-formatted list of tables
     """
 
     # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
-    split_indices = [m.start() for m in re.finditer('\n\n#', data)]
+    split_indices = [m.start() for m in re.finditer(b'\n\n#', data)]
     # we want to slice out chunks of the file each time
     split_limits = zip(split_indices[:-1], split_indices[1:])
     tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
