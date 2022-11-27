@@ -500,7 +500,7 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_object(self, object_name, wildcard=False, verbose=False,
+    def query_object(self, object_name, *, wildcard=False, verbose=False,
                      get_query_payload=False):
         """
         Queries Simbad for the given object and returns the result as a
@@ -531,7 +531,7 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadVOTableResult,
                                   verbose=verbose)
 
-    def query_object_async(self, object_name, wildcard=False, cache=True,
+    def query_object_async(self, object_name, *, wildcard=False, cache=True,
                            get_query_payload=False):
 
         """
@@ -564,7 +564,7 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_objects(self, object_names, wildcard=False, verbose=False,
+    def query_objects(self, object_names, *, wildcard=False, verbose=False,
                       get_query_payload=False):
         """
         Queries Simbad for the specified list of objects and returns the
@@ -590,7 +590,7 @@ class SimbadClass(SimbadBaseQuery):
         return self.query_object('\n'.join(object_names), wildcard=wildcard,
                                  get_query_payload=get_query_payload)
 
-    def query_objects_async(self, object_names, wildcard=False, cache=True,
+    def query_objects_async(self, object_names, *, wildcard=False, cache=True,
                             get_query_payload=False):
         """
         Same as `query_objects`, but only collects the response from the
@@ -616,7 +616,7 @@ class SimbadClass(SimbadBaseQuery):
                                        wildcard=wildcard, cache=cache,
                                        get_query_payload=get_query_payload)
 
-    def query_region_async(self, coordinates, radius=2*u.arcmin,
+    def query_region_async(self, coordinates, radius=2*u.arcmin, *,
                            equinox=2000.0, epoch='J2000', cache=True,
                            get_query_payload=False):
         """
@@ -627,9 +627,8 @@ class SimbadClass(SimbadBaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             the identifier or coordinates around which to query.
-        radius : str or `~astropy.units.Quantity`, optional
-            the radius of the region. If missing, set to default
-            value of 2 arcmin.
+        radius : str or `~astropy.units.Quantity`
+            the radius of the region.  Defaults to 2 arcmin.
         equinox : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
@@ -650,9 +649,6 @@ class SimbadClass(SimbadBaseQuery):
         epoch = validate_epoch(epoch)
 
         base_query_str = "query coo {ra} {dec} radius={rad} frame={frame} equi={equinox}"
-
-        if radius is None:
-            radius = 2*u.arcmin
 
         header = self._get_query_header()
         footer = self._get_query_footer()
@@ -698,7 +694,7 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_catalog(self, catalog, verbose=False, cache=True,
+    def query_catalog(self, catalog, *, verbose=False, cache=True,
                       get_query_payload=False):
         """
         Queries a whole catalog.
@@ -727,7 +723,7 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadVOTableResult,
                                   verbose=verbose)
 
-    def query_catalog_async(self, catalog, cache=True, get_query_payload=False):
+    def query_catalog_async(self, catalog, *, cache=True, get_query_payload=False):
         """
         Serves the same function as `query_catalog`, but
         only collects the response from the Simbad server and returns.
@@ -755,7 +751,7 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_bibobj(self, bibcode, verbose=False, get_query_payload=False):
+    def query_bibobj(self, bibcode, *, verbose=False, get_query_payload=False):
         """
         Query all the objects that are contained in the article specified by
         the bibcode, and return results as a `~astropy.table.Table`.
@@ -781,7 +777,7 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadVOTableResult,
                                   verbose=verbose)
 
-    def query_bibobj_async(self, bibcode, cache=True, get_query_payload=False):
+    def query_bibobj_async(self, bibcode, *, cache=True, get_query_payload=False):
         """
         Serves the same function as `query_bibobj`, but only collects the
         response from the Simbad server and returns.
@@ -809,7 +805,7 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_bibcode(self, bibcode, wildcard=False, verbose=False,
+    def query_bibcode(self, bibcode, *, wildcard=False, verbose=False,
                       cache=True, get_query_payload=False):
         """
         Queries the references corresponding to a given bibcode, and returns
@@ -843,7 +839,7 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadBibcodeResult,
                                   verbose=verbose)
 
-    def query_bibcode_async(self, bibcode, wildcard=False, cache=True,
+    def query_bibcode_async(self, bibcode, *, wildcard=False, cache=True,
                             get_query_payload=False):
         """
         Serves the same function as `query_bibcode`, but
@@ -878,7 +874,7 @@ class SimbadClass(SimbadBaseQuery):
 
         return response
 
-    def query_objectids(self, object_name, verbose=False, cache=True,
+    def query_objectids(self, object_name, *, verbose=False, cache=True,
                         get_query_payload=False):
         """
         Query Simbad with an object name, and return a table of all
@@ -906,7 +902,7 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadObjectIDsResult,
                                   verbose=verbose)
 
-    def query_objectids_async(self, object_name, cache=True,
+    def query_objectids_async(self, object_name, *, cache=True,
                               get_query_payload=False):
         """
         Serves the same function as `query_objectids`, but
