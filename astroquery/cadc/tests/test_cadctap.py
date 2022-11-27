@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 =============
-CadcClass TAP plus
+CadcClass TAP
 =============
 
 """
@@ -20,12 +20,19 @@ from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy import units as u
 import pytest
 import requests
+import warnings
 
 from pyvo.auth import securitymethods
 from astroquery.cadc import Cadc, conf
 import astroquery.cadc.core as cadc_core
 
 from unittest.mock import Mock, patch, PropertyMock
+
+try:
+    # workaround for https://github.com/astropy/astroquery/issues/2523 to support bs4<4.11
+    from bs4.builder import XMLParsedAsHTMLWarning
+except ImportError:
+    XMLParsedAsHTMLWarning = None
 
 
 def data_path(filename):
@@ -191,9 +198,14 @@ def test_get_access_url():
     with patch.object(cadc_core.requests, 'get', get):
         cadc_core.get_access_url.caps = {}
         assert 'http://my.org/mytap' == cadc_core.get_access_url('mytap')
-        assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/tables' == \
-            cadc_core.get_access_url('mytap',
-                                     'ivo://ivoa.net/std/VOSI#tables-1.1')
+
+        # Remove this filter when https://github.com/astropy/astroquery/issues/2523 is fixed
+        with warnings.catch_warnings():
+            if XMLParsedAsHTMLWarning:
+                warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+
+            assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/tables' == \
+                cadc_core.get_access_url('mytap', 'ivo://ivoa.net/std/VOSI#tables-1.1')
 
 
 @patch('astroquery.cadc.core.get_access_url',
