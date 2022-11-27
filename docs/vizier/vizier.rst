@@ -230,7 +230,6 @@ on the Vizier class.
 
     >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
-
     WARNING: xry : No such keyword [astroquery.vizier.core]
 
 Note that whenever an unknown keyword is specified, a warning is emitted and
