@@ -272,7 +272,7 @@ class VizierClass(BaseQuery):
 
         return response
 
-    def query_object_async(self, object_name, catalog=None, radius=None,
+    def query_object_async(self, object_name, *, catalog=None, radius=None,
                            coordinate_frame=None, get_query_payload=False,
                            return_type='votable', cache=True):
         """
@@ -323,7 +323,7 @@ class VizierClass(BaseQuery):
             data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_region_async(self, coordinates, radius=None, inner_radius=None,
+    def query_region_async(self, coordinates, *, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
                            get_query_payload=False, cache=True,
                            return_type='votable', column_filters={},
@@ -331,6 +331,8 @@ class VizierClass(BaseQuery):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
+
+        At least one of ``radius`` or ``width`` must be specified.
 
         Parameters
         ----------
@@ -454,7 +456,7 @@ class VizierClass(BaseQuery):
             data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_constraints_async(self, catalog=None, return_type='votable',
+    def query_constraints_async(self, *, catalog=None, return_type='votable',
                                 cache=True, get_query_payload=False,
                                 **kwargs):
         """
@@ -641,7 +643,7 @@ class VizierClass(BaseQuery):
         # merge result
         return "\n".join(script)
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False,
+    def _parse_result(self, response, *, get_catalog_names=False, verbose=False,
                       invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
@@ -708,7 +710,7 @@ class VizierClass(BaseQuery):
         return self._valid_keyword_dict
 
 
-def parse_vizier_tsvfile(data, verbose=False):
+def parse_vizier_tsvfile(data, *, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
     Tables.
@@ -729,7 +731,7 @@ def parse_vizier_tsvfile(data, verbose=False):
     return tables
 
 
-def parse_vizier_votable(data, verbose=False, invalid='warn',
+def parse_vizier_votable(data, *, verbose=False, invalid='warn',
                          get_catalog_names=False):
     """
     Given a votable as string, parse it into dict or tables
