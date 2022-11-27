@@ -645,6 +645,10 @@ class SimbadClass(SimbadBaseQuery):
              Response of the query from the server.
         """
 
+        if radius is None:
+            # this message is specifically for deprecated use of 'None' to mean 'Default'
+            raise ValueError("Radius must be specified as an angle-equivalent quantity, not None")
+
         equinox = validate_equinox(equinox)
         epoch = validate_epoch(epoch)
 
