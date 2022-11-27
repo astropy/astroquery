@@ -45,7 +45,7 @@ class VizierClass(BaseQuery):
         schema.Or([_str_schema], _str_schema, None),
         error="catalog must be a list of strings or a single string")
 
-    def __init__(self, columns=["*"], column_filters={}, catalog=None,
+    def __init__(self, *, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
                  vizier_server=conf.server, row_limit=conf.row_limit):
         """
@@ -178,7 +178,7 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
+    def find_catalogs(self, keywords, *, include_obsolete=False, verbose=False,
                       max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
@@ -244,7 +244,7 @@ class VizierClass(BaseQuery):
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False, return_type='votable',
+    def get_catalogs_async(self, catalog, *, verbose=False, return_type='votable',
                            get_query_payload=False):
         """
         Query the Vizier service for a specific catalog
