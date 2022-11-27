@@ -643,7 +643,7 @@ class VizierClass(BaseQuery):
         # merge result
         return "\n".join(script)
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False,
+    def _parse_result(self, response, *, get_catalog_names=False, verbose=False,
                       invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
@@ -710,7 +710,7 @@ class VizierClass(BaseQuery):
         return self._valid_keyword_dict
 
 
-def parse_vizier_tsvfile(data, verbose=False):
+def parse_vizier_tsvfile(data, *, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
     Tables.
@@ -731,7 +731,7 @@ def parse_vizier_tsvfile(data, verbose=False):
     return tables
 
 
-def parse_vizier_votable(data, verbose=False, invalid='warn',
+def parse_vizier_votable(data, *, verbose=False, invalid='warn',
                          get_catalog_names=False):
     """
     Given a votable as string, parse it into dict or tables
