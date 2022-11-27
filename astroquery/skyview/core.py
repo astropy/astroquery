@@ -85,7 +85,7 @@ class SkyViewClass(BaseQuery):
         response.raise_for_status()
         return response
 
-    def get_images(self, position, survey, coordinates=None, projection=None,
+    def get_images(self, position, survey, *, coordinates=None, projection=None,
                    pixels=None, scaling=None, sampler=None, resolver=None,
                    deedger=None, lut=None, grid=None, gridlabels=None,
                    radius=None, height=None, width=None, cache=True,
@@ -172,7 +172,8 @@ class SkyViewClass(BaseQuery):
         gridlabels : bool
             annotate the grid with coordinates positions if True
         radius : `~astropy.units.Quantity` or None
-            The radius of the specified field.  Overrides width and height.
+            The angular radius of the specified field.
+            Overrides the ``width`` and ``height`` parameters.
         width : `~astropy.units.Quantity` or None
             The width of the specified field.  Must be specified
             with ``height``.
@@ -197,18 +198,16 @@ class SkyViewClass(BaseQuery):
         A list of `~astropy.io.fits.HDUList` objects.
 
         """
-        readable_objects = self.get_images_async(position, survey, coordinates,
-                                                 projection, pixels, scaling,
-                                                 sampler, resolver, deedger,
-                                                 lut, grid, gridlabels,
-                                                 radius=radius, height=height,
-                                                 width=width,
-                                                 cache=cache,
-                                                 show_progress=show_progress)
+        readable_objects = self.get_images_async(position, survey, coordinates=coordinates,
+                                                 projection=projection, pixels=pixels, scaling=scaling,
+                                                 sampler=sampler, resolver=resolver, deedger=deedger,
+                                                 lut=lut, grid=grid, gridlabels=gridlabels,
+                                                 radius=radius, height=height, width=width,
+                                                 cache=cache, show_progress=show_progress)
         return [obj.get_fits() for obj in readable_objects]
 
     @prepend_docstr_nosections(get_images.__doc__)
-    def get_images_async(self, position, survey, coordinates=None,
+    def get_images_async(self, position, survey, *, coordinates=None,
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
                          grid=None, gridlabels=None, radius=None, height=None,
@@ -218,10 +217,10 @@ class SkyViewClass(BaseQuery):
         -------
         A list of context-managers that yield readable file-like objects
         """
-        image_urls = self.get_image_list(position, survey, coordinates,
-                                         projection, pixels, scaling, sampler,
-                                         resolver, deedger, lut, grid,
-                                         gridlabels, radius=radius,
+        image_urls = self.get_image_list(position, survey, coordinates=coordinates,
+                                         projection=projection, pixels=pixels, scaling=scaling, sampler=sampler,
+                                         resolver=resolver, deedger=deedger, lut=lut, grid=grid,
+                                         gridlabels=gridlabels, radius=radius,
                                          height=height, width=width,
                                          cache=cache)
         return [commons.FileContainer(url, encoding='binary',
@@ -229,7 +228,7 @@ class SkyViewClass(BaseQuery):
                 for url in image_urls]
 
     @prepend_docstr_nosections(get_images.__doc__, sections=['Returns', 'Examples'])
-    def get_image_list(self, position, survey, coordinates=None,
+    def get_image_list(self, position, survey, *, coordinates=None,
                        projection=None, pixels=None, scaling=None,
                        sampler=None, resolver=None, deedger=None, lut=None,
                        grid=None, gridlabels=None, radius=None, width=None,
@@ -251,7 +250,7 @@ class SkyViewClass(BaseQuery):
         self._validate_surveys(survey)
 
         if radius is not None:
-            size_deg = str(radius.to(u.deg).value)
+            size_deg = str(radius.to(u.deg).value * 2)
         elif width and height:
             size_deg = "{0},{1}".format(width.to(u.deg).value,
                                         height.to(u.deg).value)
