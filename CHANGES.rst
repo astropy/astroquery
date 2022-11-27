@@ -435,6 +435,7 @@ vizier
 
 - It is now possible to specify 'galatic' centers in region queries to
   have box queries oriented along the galactic axes. [#2152]
+- Optional keyword arguments are now keyword only. [#2610]
 
 
 Infrastructure, Utility and Other Changes and Additions
