@@ -5,10 +5,10 @@ import sys
 import pytest
 import requests
 from requests import ReadTimeout
+from numpy.testing import assert_allclose
 
 from astropy.table import Table
 from astropy.units import arcsec, arcmin
-from astropy.io import ascii
 
 from astropy.coordinates import SkyCoord
 
@@ -37,12 +37,15 @@ def test_is_xmatch_up():
 def remote_table(tmp_path_factory):
     # this can be used to check that the API is still functional & doing as expected
     infile = DATA_DIR / "posList.csv"
-    outfile = tmp_path_factory.mktemp("remote_data") / "http_result.csv"
-    os.system("curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv "
+    outfile = tmp_path_factory.mktemp("remote_data") / "http_result.vot"
+    os.system("curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=votable "
               "-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  "
               "http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}".
               format(outfile, infile))
-    return ascii.read(outfile, format="csv", fast_reader=False)
+    remote_table = Table.read(outfile, format="votable")
+    remote_table.rename_column('_2MASS', '2MASS')
+
+    return remote_table
 
 
 @pytest.mark.remote_data
@@ -83,7 +86,11 @@ class TestXMatch:
             'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
         assert len(table) == 11
 
-        assert all(table == remote_table)
+        for col in table.colnames:
+            if remote_table[col].dtype.kind == 'U':
+                assert all(table[col] == remote_table[col])
+            else:
+                assert_allclose(table[col], remote_table[col])
 
     def test_xmatch_query_astropy_table(self, xmatch, remote_table):
         input_table = Table.read(DATA_DIR / "posList.csv", format="ascii.csv")
@@ -99,8 +106,11 @@ class TestXMatch:
             'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
             'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
         assert len(table) == 11
-
-        assert all(table == remote_table)
+        for col in table.colnames:
+            if remote_table[col].dtype.kind == 'U':
+                assert all(table[col] == remote_table[col])
+            else:
+                assert_allclose(table[col], remote_table[col])
 
     @pytest.mark.skipif('regions' not in sys.modules,
                         reason="requires astropy-regions")

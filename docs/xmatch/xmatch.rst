@@ -55,6 +55,7 @@ in the resulting table for demonstration purposes.  Finally, ``colRa1`` and
     <class 'astropy.table.table.Table'>
     >>> print(table)
     angDist      ra       dec         2MASS       ... Qfl Rfl  X   MeasureJD
+     arcsec                                       ...                  d
     -------- --------- --------- ---------------- ... --- --- --- ------------
     1.352044 267.22029 -20.35869 17485281-2021323 ... EEU 226   2 2450950.8609
     1.578188 267.22029 -20.35869 17485288-2021328 ... UUB 662   2 2450950.8609
