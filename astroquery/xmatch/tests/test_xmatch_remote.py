@@ -17,6 +17,7 @@ try:
 except ImportError:
     pass
 
+from astroquery.exceptions import InvalidQueryError
 from ...xmatch import XMatch
 
 
@@ -111,3 +112,13 @@ class TestXMatch:
         except ReadTimeout:
             pytest.xfail("xmatch query timed out.")
         assert len(table) == 185
+
+    def test_xmatch_invalid_query(self, xmatch):
+        input_table = Table.read(DATA_DIR / "posList.csv", format="ascii.csv")
+        # columns in input table and kwargs are not matching
+
+        with pytest.raises(InvalidQueryError) as err:
+            xmatch.query(input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
+                colRA1='ra', colDec1='DEC')
+
+            assert 'Column name "DEC" not found in table metadata' in str(err)

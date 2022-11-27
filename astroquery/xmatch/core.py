@@ -1,15 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from io import StringIO
+from io import StringIO, BytesIO
 
-from astropy.io import ascii
+from astropy.io import ascii, votable
 import astropy.units as u
 from astropy.table import Table
+from requests import HTTPError
+
+
+from astroquery.query import BaseQuery
+from astroquery.exceptions import InvalidQueryError
+from astroquery.utils import url_helpers, prepend_docstr_nosections, async_to_sync
 
 from . import conf
-from ..query import BaseQuery
-from ..utils import url_helpers, prepend_docstr_nosections, async_to_sync
-
 try:
     from regions import CircleSkyRegion
 except ImportError:
@@ -106,7 +109,12 @@ class XMatchClass(BaseQuery):
 
         response = self._request(method='POST', url=self.URL, data=payload,
                                  timeout=self.TIMEOUT, cache=cache, **kwargs)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except HTTPError as err:
+            error_votable = votable.parse(BytesIO(response.content))
+            error_reason = error_votable.get_info_by_id('QUERY_STATUS').content
+            raise InvalidQueryError(error_reason) from err
 
         return response
 
