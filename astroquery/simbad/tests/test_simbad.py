@@ -234,10 +234,10 @@ def test_query_catalog(patch_post):
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, None, 2000.0, 'J2000'),
+                         [(ICRS_COORDS, 2*u.arcmin, 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
                           (FK4_COORDS, '5d0m0s', 2000.0, 'J2000'),
-                          (FK5_COORDS, None, 2000.0, 'J2000'),
+                          (FK5_COORDS, 2*u.arcmin, 2000.0, 'J2000'),
                           (multicoords, 0.5*u.arcsec, 2000.0, 'J2000'),
                           (multicoords, "0.5s", 2000.0, 'J2000'),
                           ])
@@ -253,10 +253,10 @@ def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, None, 2000.0, 'J2000'),
+                         [(ICRS_COORDS, 2*u.arcmin, 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
                           (FK4_COORDS, '5d0m0s', 2000.0, 'J2000'),
-                          (FK5_COORDS, None, 2000.0, 'J2000')
+                          (FK5_COORDS, 2*u.arcmin, 2000.0, 'J2000')
                           ])
 def test_query_region(patch_post, coordinates, radius, equinox, epoch):
     result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
