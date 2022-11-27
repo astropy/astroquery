@@ -677,7 +677,7 @@ class VizierClass(BaseQuery):
         """
         if response.content[:5] == b'<?xml':
             try:
-                return parse_vizier_votable(
+                return _parse_vizier_votable(
                     response.content, verbose=verbose, invalid=invalid,
                     get_catalog_names=get_catalog_names)
             except Exception as ex:
@@ -691,7 +691,7 @@ class VizierClass(BaseQuery):
                                       "self.parsed_result.\n Exception: " +
                                       str(self.table_parse_error))
         elif response.content[:5] == b'#\n#  ':
-            return parse_vizier_tsvfile(response.content, verbose=verbose)
+            return _parse_vizier_tsvfile(response.content, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':
             return fits.open(BytesIO(response.content),
                              ignore_missing_end=True)
@@ -710,7 +710,7 @@ class VizierClass(BaseQuery):
         return self._valid_keyword_dict
 
 
-def parse_vizier_tsvfile(data, *, verbose=False):
+def _parse_vizier_tsvfile(data, *, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
     Tables.
@@ -731,8 +731,8 @@ def parse_vizier_tsvfile(data, *, verbose=False):
     return tables
 
 
-def parse_vizier_votable(data, *, verbose=False, invalid='warn',
-                         get_catalog_names=False):
+def _parse_vizier_votable(data, *, verbose=False, invalid='warn',
+                          get_catalog_names=False):
     """
     Given a votable as string, parse it into dict or tables
     """
