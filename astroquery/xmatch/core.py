@@ -77,7 +77,8 @@ class XMatchClass(BaseQuery):
         if get_query_payload:
             return response
 
-        return Table.read(BytesIO(response.content), format='votable', use_names_over_ids=True)
+        content = BytesIO(response.content)
+        return Table.read(content, format='votable', use_names_over_ids=True)
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
