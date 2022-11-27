@@ -332,7 +332,7 @@ class VizierClass(BaseQuery):
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
 
-        At least one of `radius` or `width` must be specified.
+        At least one of ``radius`` or ``width`` must be specified.
 
         Parameters
         ----------
