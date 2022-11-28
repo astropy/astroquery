@@ -1120,6 +1120,62 @@ To list the available deep field surveys at a particular location there is `~ast
    ['candels_gn_60mas', 'candels_gn_30mas', 'goods_north']
 
 
+HAPCut
+======
+
+
+HAPCut for MAST allows users to request cutouts from various Hubble Advance Products (HAPs). The cutouts can
+be returned as fits files (image files are not currently supported). This tool can be accessed in
+Astroquery by using the Hapcut class. Documentation for the supported HAPCut API can be found here:
+https://mast.stsci.edu/hapcut/
+
+
+Cutouts
+-------
+
+The `~astroquery.mast.HapcutClass.get_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and returns the cutout FITS file(s) as a list of `~astropy.io.fits.HDUList` objects.
+
+If the given coordinate appears in more than one product, a FITS file will be produced for each.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Hapcut
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> cutout_coord = SkyCoord(351.347812, 28.497808, unit="deg")
+   >>> hdulist = Hapcut.get_cutouts(coordinates=cutout_coord, size=5)
+   >>> hdulist[0].info()    # doctest: +IGNORE_OUTPUT
+   Filename: <class '_io.BytesIO'>
+   No.    Name      Ver    Type      Cards   Dimensions   Format
+   0  PRIMARY       1 PrimaryHDU     754   ()      
+   1  SCI           1 ImageHDU       102   (5, 5)   float32   
+   2  WHT           1 ImageHDU        56   (5, 5)   float32
+
+
+The `~astroquery.mast.HapcutClass.download_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and downloads the cutout fits file(s) as fits files.
+
+If the given coordinate appears in more than one product, a cutout will be produced for each.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Hapcut
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> cutout_coord = SkyCoord(351.347812, 28.497808, unit="deg")
+   >>> manifest = Hapcut.download_cutouts(coordinates=cutout_coord, size=[50, 100])    # doctest: +IGNORE_OUTPUT
+   Downloading URL https://mast.stsci.edu/hapcut/api/v0.1/astrocut?ra=351.347812&dec=28.497808&x=100&y=50&units=px to ./hapcut_20221130112710.zip ... [Done]
+   Inflating...
+   ...
+   >>> print(manifest)    # doctest: +IGNORE_OUTPUT
+                                 Local Path                                   
+   ---------------------------------------------------------------------------------
+   ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w_coarse.fits
+   ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f606w.fits
+   ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f814w.fits
+
+
 Accessing Proprietary Data
 ==========================
 
