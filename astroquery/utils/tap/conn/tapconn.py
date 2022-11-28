@@ -28,6 +28,7 @@ from urllib.parse import urlencode
 
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
+from astroquery import version
 
 import requests
 
@@ -124,7 +125,8 @@ class TapConn:
         self.__tapContext = None
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
-            "Accept": "text/plain"
+            "Accept": "text/plain",
+            "User-Agent": "astroquery/{vers}".format(vers=version.version),
             }
         self.__getHeaders = {}
         self.__cookie = None
