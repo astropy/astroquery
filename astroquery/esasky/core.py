@@ -11,6 +11,7 @@ from zipfile import ZipFile
 from pathlib import Path
 
 from astropy.io import fits
+from astropy.utils.console import ProgressBar
 from astroquery import log
 import astropy.units
 from requests import HTTPError
@@ -639,10 +640,10 @@ class ESASkyClass(BaseQuery):
                     self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache,
                         json, verbose=verbose))
 
-        if all([maps[mission].count(None) == len(maps[mission])
+        if len(map_query_result) > 0 and all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
             log.info("No maps got downloaded, check errors above.")
-        elif len(map_query_result) > 0:
+        elif len(maps) > 0:
             log.info("Maps available at {}".format(os.path.abspath(download_dir)))
         else:
             log.info("No maps found.")
@@ -1461,8 +1462,9 @@ class ESASkyClass(BaseQuery):
         if len(maps_table[url_key]) > 0:
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
-            log.info("Starting download of {} data. ({} files)".format(
-                mission, len(maps_table[url_key])))
+            log.info("Starting download of {} data. ({} files)".format(mission, len(maps_table[url_key])))
+            progress_bar = ProgressBar(len(maps_table[url_key]))
+
             for index in range(len(maps_table)):
                 product_url = maps_table[url_key][index]
                 if isinstance(product_url, bytes):
@@ -1476,8 +1478,7 @@ class ESASkyClass(BaseQuery):
                         maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
                     if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
-                log.info("Downloading Observation ID: {} from {}"
-                         .format(observation_id, product_url))
+                log.debug("Downloading Observation ID: {} from {}".format(observation_id, product_url))
                 sys.stdout.flush()
                 directory_path = mission_directory
                 if mission.lower() == self.__HERSCHEL_STRING:
@@ -1489,7 +1490,6 @@ class ESASkyClass(BaseQuery):
                             maps[key] = self._get_herschel_spectra(product_url, directory_path, cache, verbose=verbose)
                         else:
                             maps.append(self._get_herschel_map(product_url, directory_path, cache, verbose=verbose))
-                        log.info("[Done]")
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
                         if is_spectra:
@@ -1534,16 +1534,15 @@ class ESASkyClass(BaseQuery):
                                     fits_file.flush()
                                     maps.append(
                                         self._open_fits(os.path.join(directory_path, file_name), verbose=verbose))
-                        log.info("[Done]")
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
                         maps.append(None)
 
+                    progress_bar.update(index + 1)
+
             if None in maps:
                 log.error("Some downloads were unsuccessful, please check "
                           "the warnings for more details")
-
-            log.info("Downloading of {} data complete.".format(mission))
 
         return maps
 
@@ -1773,7 +1772,7 @@ class ESASkyClass(BaseQuery):
         if data_type in self._NUMBER_DATA_TYPES:
             valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
             if not valid_ids:
-                log.info("Could not construct query for mission {}. Database column type is a number, "
+                raise ValueError("Could not construct query for mission {}. Database column type is a number, "
                          "while none of the input id's could be interpreted as numbers.".format(json['mission']))
                 return ""
 
