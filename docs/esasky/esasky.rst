@@ -27,10 +27,11 @@ If you know the names of all the available catalogs you can use :meth:`~astroque
     >>> from astroquery.esasky import ESASky
     >>> catalog_list = ESASky.list_catalogs()
     >>> print(catalog_list)
-    ['LAMOST', 'AllWise', 'AKARI-IRC-SC', 'TwoMASS', 'INTEGRAL', 'CHANDRA-SC2', 'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM',
-    'XMM-SLEW', 'Tycho-2', 'Gaia-eDR3', 'Hipparcos-2', 'HSC', 'Herschel-HPPSC-070', 'Herschel-HPPSC-100',
-    'Herschel-HPPSC-160', 'Herschel-SPSC-250', 'Herschel-SPSC-350', 'Herschel-SPSC-500', 'Planck-PGCC',
-    'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ2']
+    ['LAMOST_LRS', 'LAMOST_MRS', 'AllWise', 'Spitzer', 'AKARI-IRC-SC', 'TwoMASS', 'INTEGRAL', 'CHANDRA-SC2',
+    'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 'Gaia-DR3', 'Hipparcos-2',
+    'HSC', 'Herschel-HPPSC-070', 'Herschel-HPPSC-100', 'Herschel-HPPSC-160', 'Herschel-SPSC-250', 'Herschel-SPSC-350',
+    'Herschel-SPSC-500', 'Planck-PGCC', 'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ2',
+    'Icecube', 'Fermi_4FGL-DR2', 'Fermi_3FHL', 'Fermi_4LAC-DR2', '2WHSP', '2RXS', 'OU_Blazars']
 
 Get the available maps mission names
 ------------------------------------
@@ -42,7 +43,7 @@ If you know the names of all the available maps missions you can use :meth:`~ast
     >>> maps_list = ESASky.list_maps()
     >>> print(maps_list)
     ['INTEGRAL', 'XMM', 'Chandra', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'ISO-IR',
-    'Herschel', 'AKARI', 'Spitzer', 'ALMA']
+    'Herschel', 'AKARI', 'JWST-MID-IR', 'JWST-NEAR-IR', 'Spitzer', 'ALMA']
 
 Get the available spectra mission names
 ---------------------------------------
@@ -53,7 +54,8 @@ If you know the names of all the available spectra you can use :meth:`~astroquer
 
     >>> spectra_list = ESASky.list_spectra()
     >>> print(spectra_list)
-    ['XMM-NEWTON', 'Chandra', 'IUE', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'ISO-IR', 'Herschel', 'LAMOST']
+    ['XMM-NEWTON', 'Chandra', 'IUE', 'HST-UV', 'HST-OPTICAL', 'JWST-MID-IR', 'JWST-NEAR-IR', 'HST-IR', 'ISO-IR',
+    'Herschel', 'LAMOST_LRS', 'LAMOST_MRS', 'CHEOPS']
 
 Get the available SSO mission names
 -----------------------------------
@@ -107,15 +109,15 @@ To see the result:
 
     >>> print(result)
     TableList with 9 tables:
-        '0:ALLWISE' with 13 column(s) and 1 row(s)
-        '1:TWOMASS' with 9 column(s) and 3 row(s)
+        '0:ALLWISE' with 25 column(s) and 1 row(s)
+        '1:TWOMASS' with 14 column(s) and 3 row(s)
         '2:CHANDRA-SC2' with 41 column(s) and 9 row(s)
-        '3:XMM-EPIC-STACK' with 13 column(s) and 1 row(s)
-        '4:XMM-EPIC' with 14 column(s) and 11 row(s)
-        '5:XMM-OM' with 11 column(s) and 5 row(s)
-        '6:HSC' with 9 column(s) and 230 row(s)
-        '7:HERSCHEL-HPPSC-070' with 15 column(s) and 1 row(s)
-        '8:HERSCHEL-HPPSC-100' with 15 column(s) and 1 row(s)
+        '3:XMM-EPIC-STACK' with 347 column(s) and 1 row(s)
+        '4:XMM-EPIC' with 223 column(s) and 12 row(s)
+        '5:XMM-OM' with 122 column(s) and 5 row(s)
+        '6:HSC' with 27 column(s) and 230 row(s)
+        '7:HERSCHEL-HPPSC-070' with 21 column(s) and 1 row(s)
+        '8:HERSCHEL-HPPSC-100' with 21 column(s) and 1 row(s)
 
 All the results are returned as a `~astroquery.utils.TableList` object. This is a container for `~astropy.table.Table`
 objects. It is basically an extension to `~collections.OrderedDict` for storing a `~astropy.table.Table` against its
@@ -197,24 +199,26 @@ To see the result:
 
     >>> print(result)
     TableList with 18 tables:
-        '0:LAMOST' with 21 column(s) and 41 row(s)
-        '1:ALLWISE' with 13 column(s) and 1762 row(s)
-        '2:AKARI-IRC-SC' with 13 column(s) and 1 row(s)
-        '3:TWOMASS' with 9 column(s) and 188 row(s)
-        '4:CHANDRA-SC2' with 41 column(s) and 430 row(s)
-        '5:XMM-EPIC-STACK' with 13 column(s) and 214 row(s)
-        '6:XMM-EPIC' with 14 column(s) and 823 row(s)
-        '7:XMM-OM' with 11 column(s) and 4849 row(s)
-        '8:XMM-SLEW' with 9 column(s) and 2 row(s)
-        '9:GAIA-EDR3' with 20 column(s) and 932 row(s)
-        '10:HSC' with 9 column(s) and 10000 row(s)
-        '11:HERSCHEL-HPPSC-070' with 15 column(s) and 93 row(s)
-        '12:HERSCHEL-HPPSC-100' with 15 column(s) and 122 row(s)
-        '13:HERSCHEL-HPPSC-160' with 15 column(s) and 93 row(s)
-        '14:HERSCHEL-SPSC-250' with 16 column(s) and 59 row(s)
-        '15:HERSCHEL-SPSC-350' with 16 column(s) and 24 row(s)
-        '16:HERSCHEL-SPSC-500' with 16 column(s) and 7 row(s)
-        '17:PLANCK-PCCS2-HFI' with 8 column(s) and 8 row(s)
+        '0:LAMOST_LRS' with 43 column(s) and 37 row(s)
+        '1:ALLWISE' with 25 column(s) and 1762 row(s)
+        '2:SPITZER' with 146 column(s) and 1082 row(s)
+        '3:AKARI-IRC-SC' with 29 column(s) and 1 row(s)
+        '4:TWOMASS' with 14 column(s) and 188 row(s)
+        '5:CHANDRA-SC2' with 41 column(s) and 430 row(s)
+        '6:XMM-EPIC-STACK' with 347 column(s) and 225 row(s)
+        '7:XMM-EPIC' with 223 column(s) and 941 row(s)
+        '8:XMM-OM' with 122 column(s) and 4849 row(s)
+        '9:XMM-SLEW' with 106 column(s) and 2 row(s)
+        '10:GAIA-DR3' with 153 column(s) and 932 row(s)
+        '11:HSC' with 27 column(s) and 10000 row(s)
+        '12:HERSCHEL-HPPSC-070' with 21 column(s) and 93 row(s)
+        '13:HERSCHEL-HPPSC-100' with 21 column(s) and 122 row(s)
+        '14:HERSCHEL-HPPSC-160' with 21 column(s) and 93 row(s)
+        '15:HERSCHEL-SPSC-250' with 36 column(s) and 59 row(s)
+        '16:HERSCHEL-SPSC-350' with 36 column(s) and 24 row(s)
+        '17:HERSCHEL-SPSC-500' with 36 column(s) and 7 row(s)
+        '18:PLANCK-PCCS2-HFI' with 9 column(s) and 8 row(s)
+        '19:2RXS' with 306 column(s) and 2 row(s)
 
 You can use, :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` and
 :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` with the same parameters. To execute the same command as above
@@ -259,16 +263,17 @@ HDUList is the value.
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
-    Starting download of HERSCHEL data. (25 files)
-    Downloading Observation ID: 1342188589 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8618001&DATA_RETRIEVAL_ORIGIN=UI [Done]
-    Downloading Observation ID: 1342188328 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8637833&DATA_RETRIEVAL_ORIGIN=UI
+    >>> images = ESASky.get_images(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])
+
+    Starting download of HERSCHEL data. (6 files)
+    Downloading Observation ID: 1342220557 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628906&DATA_RETRIEVAL_ORIGIN=UI [Done]
+    Downloading Observation ID: 1342221178 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628962&DATA_RETRIEVAL_ORIGIN=UI
     ...
 
     >>> print(images)
     {
     'HERSCHEL': [{'70': [HDUList], '160': HDUList}, {'70': HDUList, '160': HDUList}, ...],
-    'ISO' : [HDUList, HDUList, HDUList, HDUList, ...]
+    'ISO-IR' : [HDUList, HDUList, HDUList, HDUList, ...]
     ...
     }
 
@@ -277,16 +282,11 @@ parameter observation_id instead of target and position.
 
 .. code-block:: python
 
-    >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
+    >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")
+    >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
 
 Note that the fits files also are stored to disk. By default they are saved to the working directory but the location
 can be chosen by the download_dir parameter:
-
-.. code-block:: python
-
-    >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")
-    >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
 
 Get maps
 --------
@@ -297,15 +297,15 @@ position, radius and missions.
 
 .. code-block:: python
 
-    >>> table_list = ESASky.query_region_maps(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'])
+    >>> table_list = ESASky.query_region_maps(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])
     >>> images = ESASky.get_maps(query_table_list=table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images(position="m51", radius="20 arcmin", missions=['Herschel', 'ISO-IR'],
-    ...                            download_dir="/home/user/esasky")
+    >>> images = ESASky.get_images(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'],
+                                   download_dir="/home/user/esasky")
 
 
 Get spectra
@@ -320,15 +320,16 @@ The methods returns a `dict` to separate the different missions. All mission exc
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> spectra = ESASky.get_spectra(position="m51", radius="20 arcmin", missions=['Herschel', 'XMM-NEWTON'])
+    >>> spectra = ESASky.get_spectra(position="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
+                                     missions=['Herschel', 'XMM-NEWTON'])
     >>> spectra = ESASky.get_spectra(observation_ids=["02101201", "z1ax0102t"], missions=["ISO-IR", "HST-UV"])
 
 or
 
 .. code-block:: python
 
-    >>> table_list = ESASky.query_region_spectra(position="m51", radius="20 arcmin",
-    ...                                          missions=['Herschel', 'XMM-NEWTON'])
+    >>> table_list = ESASky.query_region_spectra(position="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
+                                                 missions=['Herschel', 'XMM-NEWTON'])
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")
 
 The return value is structured in a dictionary like this:
@@ -336,10 +337,9 @@ The return value is structured in a dictionary like this:
 .. code-block:: python
 
     dict: {
-    'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
-        '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
+    'HERSCHEL': {'1342244919': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
+        '1342243607': {'SSW+SLW' : {'SPSS' : HDUList},
         ...},
-    'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
     'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
     ...
     }
@@ -349,12 +349,12 @@ Here is another example for Herschel, since it is a bit special:
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> result = ESASky.query_region_spectra(position='M51', radius='1arcmin', missions=['HERSCHEL'])
+    >>> result = ESASky.query_region_spectra(position='[SMB88] 6327', radius='1 arcmin', missions=['HERSCHEL'])
     >>> herschel_result = result['HERSCHEL']
     >>> herschel_result['observation_id', 'target_name', 'instrument', 'observing_mode_name', 'band', 'duration'].pprint()
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=[('HERSCHEL', herschel_result)], download_dir='Spectra_new')
-    >>> spectra['HERSCHEL']['1342211195']['red'].keys()
-    >>> spectra['HERSCHEL']['1342211195']['red']['HPSTBRRS'].info()
+    >>> spectra['HERSCHEL']['1342249066']['SSW+SLW'].keys()
+    >>> spectra['HERSCHEL']['1342249066']['SSW+SLW']['SPSS'].info()
 
 Solar System Object Crossmatch
 ------------------------------
@@ -423,7 +423,7 @@ Or download everything on an SSO by something like this:
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> images=ESASky.get_images_sso(sso_name="ganymede")
+    >>> images=ESASky.get_images_sso(sso_name="2017 RN65")
 
 
 This module also offers access to IMCCE's SsODNet resolver, which allows you to find solar and extra solar system
