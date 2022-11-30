@@ -597,19 +597,12 @@ class VOSDatabase(VOSBase):
                     cur_title = arr['res_title']
                     title_counter[cur_title] += 1  # Starts with 1
 
-                    if isinstance(cur_title, bytes):  # ASTROPY_LT_4_1
-                        cur_key = title_fmt.format(cur_title.decode('utf-8'),
-                                                   title_counter[cur_title])
-                    else:
-                        cur_key = title_fmt.format(cur_title,
-                                                   title_counter[cur_title])
+                    cur_key = title_fmt.format(cur_title, title_counter[cur_title])
 
                 # Special handling of title and access URL,
                 # otherwise no change.
                 if field == 'access_url':
                     s = unescape_all(arr['access_url'])
-                    if isinstance(s, bytes):  # ASTROPY_LT_4_1
-                        s = s.decode('utf-8')
                     cur_cat['url'] = s
                 elif field == 'res_title':
                     cur_cat['title'] = arr[field]

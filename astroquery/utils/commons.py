@@ -29,12 +29,10 @@ __all__ = ['parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
-           'ASTROPY_LT_4_1',
            'ASTROPY_LT_4_3',
            'ASTROPY_LT_5_0',
            'ASTROPY_LT_5_1']
 
-ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
 

@@ -218,7 +218,7 @@ def test_get_data_urls():
         class CapsResponse:
             def __init__(self):
                 self.status_code = 200
-                self.content = b''
+                self.content = ''
 
             def raise_for_status(self):
                 pass
@@ -298,7 +298,7 @@ def test_get_image_list():
         class CapsResponse:
             def __init__(self):
                 self.status_code = 200
-                self.content = b''
+                self.content = ''
 
             def raise_for_status(self):
                 pass
@@ -320,13 +320,13 @@ def test_get_image_list():
 
     service_def1 = Mock()
     service_def1.access_url = \
-        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
+        'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
     service_def1.input_params = [Params(name='ID', value=uri),
                                  Params(name='RUNID', value=run_id)]
 
     service_def2 = Mock()
     service_def2.access_url = \
-        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
+        'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
     service_def2.input_params = [Params(name='ID', value=uri),
                                  Params(name='RUNID', value=run_id)]
 

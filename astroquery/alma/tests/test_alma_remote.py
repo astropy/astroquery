@@ -17,7 +17,6 @@ except ImportError:
     pass
 
 from astroquery.exceptions import CorruptDataWarning
-from astroquery.utils.commons import ASTROPY_LT_4_1
 from .. import Alma
 
 # ALMA tests involving staging take too long, leading to travis timeouts
@@ -283,14 +282,10 @@ class TestAlma:
         content_length_column_name = 'content_length'
 
         uids = np.unique(m83_data['Member ous id'])
-        if ASTROPY_LT_4_1:
-            assert b'uid://A001/X11f/X30' in uids
-            X30 = (m83_data['Member ous id'] == b'uid://A001/X11f/X30')
-            X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        else:
-            assert 'uid://A001/X11f/X30' in uids
-            X30 = (m83_data['Member ous id'] == 'uid://A001/X11f/X30')
-            X31 = (m83_data['Member ous id'] == 'uid://A002/X3216af/X31')
+
+        assert 'uid://A001/X11f/X30' in uids
+        X30 = (m83_data['Member ous id'] == 'uid://A001/X11f/X30')
+        X31 = (m83_data['Member ous id'] == 'uid://A002/X3216af/X31')
 
         assert X30.sum() == 4  # Jul 13, 2020
         assert X31.sum() == 4  # Jul 13, 2020
