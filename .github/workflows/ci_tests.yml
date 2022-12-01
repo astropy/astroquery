@@ -35,10 +35,10 @@ jobs:
             python: 3.x
             toxenv: codestyle
 
-          - name: oldest dependencies
+          - name: oldest version for all dependencies
             os: ubuntu-latest
             python: 3.7
-            toxenv: py37-test-oldestdeps
+            toxenv: py37-test-oldestdeps-alldeps
             toxargs: -v
 
           - name: Python 3.8 with all optional dependencies (MacOS X)
