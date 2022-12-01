@@ -158,7 +158,7 @@ below:
     >>> url_list = casda.cutout(subset[:1], coordinates=centre, radius=14*u.arcmin)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
-An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position, velocity, and range
+An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position and velocity range
 is shown below:
 
 .. doctest-skip::
