@@ -249,7 +249,6 @@ To load only a table (TAP+ capability):
 
   >>> from astroquery.gaia import Gaia
   >>> gaiadr2_table = Gaia.load_table('gaiadr2.gaia_source')
-  Retrieving table 'gaiadr2.gaia_source'
   >>> print(gaiadr2_table)
   TAP Table name: gaiadr2.gaiadr2.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the

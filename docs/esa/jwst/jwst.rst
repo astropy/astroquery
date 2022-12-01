@@ -369,7 +369,6 @@ To load only a table (TAP+ capability)
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
-  Retrieving table 'jwst.main'
   >>> print(table)
   TAP Table name: jwst.jwst.main
   Description:
@@ -382,7 +381,6 @@ Once a table is loaded, columns can be inspected
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
-  Retrieving table 'jwst.main'
   >>> print(*(column.name for column in table.columns), sep="\n")
     "public"
     algorithm_name
@@ -418,7 +416,7 @@ Query without saving results in a file:
   >>>
   >>> print(job)  # doctest: +IGNORE_OUTPUT
   <Table length=100>
-        name       dtype 
+        name       dtype
   ---------------- ------
    instrument_name object
        proposal_id object
@@ -433,7 +431,7 @@ Query without saving results in a file:
   >>> result  # doctest: +IGNORE_OUTPUT
   <Table length=100>
   instrument_name proposal_id calibrationlevel dataproducttype
-       object        object        int32            object    
+       object        object        int32            object
   --------------- ----------- ---------------- ---------------
               FGS        1014                3           image
               FGS        1014                3           image
