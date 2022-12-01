@@ -14,6 +14,7 @@ at the `OAC API Github Repository <https://github.com/astrocatalogs/OACAPI>`_
 
 Primary Methods
 ===============
+
 There are two primary methods for submitting API queries. The first is query_object
 which can be used to search the OAC based on an event name. Multiple events can
 be retrieved by submitting a list of event names.
@@ -21,7 +22,6 @@ be retrieved by submitting a list of event names.
 The default behavior returns a top-level list of all available metadata for the
 queried event(s).
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.oac import OAC
@@ -30,24 +30,22 @@ queried event(s).
 The query can be further refined by using the available QUANTITY and ATTRIBUTE
 options. For example, to retrieve the light curve for an object:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> photometry = OAC.query_object("GW170817", quantity="photometry",
-    ...                                  attribute=["time", "magnitude",
-    ...                                             "e_magnitude", "band",
-    ...                                             "instrument"])
+    ...                               attribute=["time", "magnitude",
+    ...                                          "e_magnitude", "band",
+    ...                                          "instrument"])
 
 The results of a query can be further refined by using the ARGUMENT option
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> photometry = OAC.query_object("GW170817", quantity="photometry",
-    ...                                  attribute=["time", "magnitude",
-    ...                                             "e_magnitude", "band",
-    ...                                             "instrument"],
-    ...                                  argument=["band=i"])
+    ...                               attribute=["time", "magnitude",
+    ...                                          "e_magnitude", "band",
+    ...                                          "instrument"],
+    ...                               argument=["band=i"])
 
 The second method available is query_region which performs a cone or box
 search for a given set of coordinates. Coordinates can be submitted as an Astropy
@@ -57,7 +55,6 @@ a single set of coordinates.
 
 For this example, we first establish coordinates and search parameters:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> import astropy.coordinates as coord
@@ -73,27 +70,22 @@ For this example, we first establish coordinates and search parameters:
 
 An example cone search:
 
-.. code-block:: python
 .. doctest-remote-data::
 
-    >>> photometry = OAC.query_region(coordinates=test_coords,
-    ...                                  radius=test_radius,
-    ...                                  quantity="photometry",
-    ...                                  attribute=["time", "magnitude",
-    ...                                             "e_magnitude", "band",
-    ...                                             "instrument"])
+    >>> photometry = OAC.query_region(coordinates=test_coords, radius=test_radius,
+    ...                               quantity="photometry",
+    ...                               attribute=["time", "magnitude",
+    ...                                          "e_magnitude", "band", "instrument"])
 
 An example box search:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> photometry = OAC.query_region(coordinates=test_coords,
-    ...                                  width=test_width, height=test_height,
-    ...                                  quantity="photometry",
-    ...                                  attribute=["time", "magnitude",
-    ...                                             "e_magnitude", "band",
-    ...                                             "instrument"])
+    ...                               width=test_width, height=test_height,
+    ...                               quantity="photometry",
+    ...                               attribute=["time", "magnitude",
+    ...                                          "e_magnitude", "band", "instrument"])
 
 As with the query_object method, searches using query_region can be refined
 using the QUANTITY, ATTRIBUTE, and ARGUMENT options. The complete list of
@@ -105,13 +97,13 @@ data_format option.
 
 Tailored Methods
 ================
+
 There are three tailed search methods available to users to facilitate quick
 retrieval of common data products.
 
 The method get_photometry is designed to quickly return the photometry for a
 given event or list of events.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.oac import OAC
@@ -122,9 +114,9 @@ query_object. More complex queries should use the base query_object method.
 
 For example, to retrieve only R-band photometry:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")  # doctest: +REMOTE_DATA
+    >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")
 
 The output is an Astropy table.
 
@@ -132,7 +124,6 @@ The method get_single_spectrum is designed to retrieve a single spectrum for a
 single object at a specified time. The time should be given in MJD, but does
 not have to be exact. The query will return the spectrum that is closest in time.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.oac import OAC
@@ -144,7 +135,6 @@ The output is an Astropy table.
 The method get_spectra is designed to return all available spectra for an event
 or list of events.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.oac import OAC
