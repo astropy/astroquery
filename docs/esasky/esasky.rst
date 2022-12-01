@@ -1,5 +1,12 @@
 .. _astroquery.esasky:
 
+.. testsetup::
+
+   >>> # Dealing with the openfile warnings here, globally rather than in the snippets below.
+   >>> import warnings
+   >>> warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed file")
+
+
 ************************************
 ESASky Queries (`astroquery.esasky`)
 ************************************
@@ -257,11 +264,10 @@ HDUList is the value.
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])   # doctest: +IGNORE_WARNINGS
-
-    Starting download of HERSCHEL data. (6 files)
-    Downloading Observation ID: 1342220557 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628906&DATA_RETRIEVAL_ORIGIN=UI [Done]
-    Downloading Observation ID: 1342221178 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628962&DATA_RETRIEVAL_ORIGIN=UI
+    >>> images = ESASky.get_images(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])   # doctest: +IGNORE_OUTPUT
+    INFO: Starting download of HERSCHEL data. (6 files)
+    INFO: Downloading Observation ID: 1342220557 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628906&DATA_RETRIEVAL_ORIGIN=UI [Done]
+    INFO: Downloading Observation ID: 1342221178 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8628962&DATA_RETRIEVAL_ORIGIN=UI
     ...
     >>> print(images)   # doctest: +IGNORE_OUTPUT
     {
@@ -275,8 +281,10 @@ parameter observation_id instead of target and position.
 
 .. doctest-remote-data::
 
-    >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")   # doctest: +IGNORE_WARNINGS
     >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
+    INFO: Starting download of SUZAKU data. (1 files) [astroquery.esasky.core]
+    INFO: Starting download of ISO-IR data. (1 files) [astroquery.esasky.core]
+    ...
 
 Note that the fits files also are stored to disk. By default they are saved to the working directory but the location
 can be chosen by the download_dir parameter.
@@ -300,7 +308,7 @@ This example is equivalent to:
 .. doctest-remote-data::
 
     >>> images = ESASky.get_images(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'],
-                                   download_dir="/home/user/esasky")  # doctest: +SKIP
+    ...                            download_dir="/home/user/esasky")  # doctest: +SKIP
 
 
 Get spectra
@@ -313,21 +321,23 @@ There are also two methods to download spectra: :meth:`astroquery.esasky.ESASkyC
 The methods returns a `dict` to separate the different missions. All mission except Herschel returns a list of
 `~astropy.io.fits.HDUList`. Herschel returns a three-level dictionary.
 
-.. TODO: Skipping for now as it keeps timinig out. Needs fixing
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
     >>> spectra = ESASky.get_spectra(position="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
-                                     missions=['Herschel', 'XMM-NEWTON'])
+    ...                              missions=['Herschel', 'XMM-NEWTON'])  # doctest: +IGNORE_OUTPUT
     >>> spectra = ESASky.get_spectra(observation_ids=["02101201", "z1ax0102t"], missions=["ISO-IR", "HST-UV"])
+    INFO: Starting download of ISO-IR data. (1 files) [astroquery.esasky.core]
+    INFO: Starting download of HST-UV data. (1 files) [astroquery.esasky.core]
+    ...
 
 or
 
 .. doctest-remote-data::
 
     >>> table_list = ESASky.query_region_spectra(position="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
-                                                 missions=['Herschel', 'XMM-NEWTON'])
-    >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")
+    ...                                          missions=['Herschel', 'XMM-NEWTON'])
+    >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")  # doctest: +SKIP
     dict: {
     'HERSCHEL': {'1342244919': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
         '1342243607': {'SSW+SLW' : {'SPSS' : HDUList},
@@ -344,9 +354,25 @@ Here is another example for Herschel, since it is a bit special:
     >>> result = ESASky.query_region_spectra(position='[SMB88] 6327', radius='1 arcmin', missions=['HERSCHEL'])
     >>> herschel_result = result['HERSCHEL']
     >>> herschel_result['observation_id', 'target_name', 'instrument', 'observing_mode_name', 'band', 'duration'].pprint()
-    >>> spectra = ESASky.get_spectra_from_table(query_table_list=[('HERSCHEL', herschel_result)], download_dir='Spectra_new')
+    observation_id     target_name      instrument ...      band      duration
+                                                   ...                seconds
+    -------------- -------------------- ---------- ... -------------- --------
+        1342249066 HATLAS-NGP-NA.V1.144      SPIRE ... 191-671 micron  13752.0
+    >>>
+    >>> spectra = ESASky.get_spectra_from_table(query_table_list=[('HERSCHEL', herschel_result)], download_dir='Spectra_new')  # doctest: +IGNORE_OUTPUT
     >>> spectra['HERSCHEL']['1342249066']['SSW+SLW'].keys()
+    dict_keys(['SPSS'])
     >>> spectra['HERSCHEL']['1342249066']['SSW+SLW']['SPSS'].info()
+    Filename: Spectra_new/HERSCHEL/...
+    No.    Name      Ver    Type      Cards   Dimensions   Format
+      0  PRIMARY       1 PrimaryHDU     404   ()
+      1  0000          1 ImageHDU        58   ()
+      2  SLWB2         1 BinTableHDU     90   1905R x 5C   [1D, 1D, 1D, 1J, 1J]
+      3  SLWB3         1 BinTableHDU     90   1905R x 5C   [1D, 1D, 1D, 1J, 1J]
+      4  SLWC2         1 BinTableHDU     90   1905R x 5C   [1D, 1D, 1D, 1J, 1J]
+      5  SLWC3         1 BinTableHDU     90   1905R x 5C   [1D, 1D, 1D, 1J, 1J]
+      6  SLWC4         1 BinTableHDU     90   1905R x 5C   [1D, 1D, 1D, 1J, 1J]
+      ...
 
 
 Solar System Object Crossmatch
@@ -370,8 +396,10 @@ type of the desired object. For example:
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> ESASky.query_sso(sso_name="503")
-    INFO: Found 4 SSO's with name: 503.
+    >>> ESASky.query_sso(sso_name="503")  # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ...
+    ValueError: Found 4 SSO's with name: 503.
     Try narrowing your search by typing a more specific sso_name.
     You can also narrow your search by specifying the sso_type.
     Allowed values are ALL, ASTEROID, COMET, SATELLITE, PLANET, DWARF_PLANET, SPACECRAFT, SPACEJUNK, EXOPLANET, STAR.
@@ -388,7 +416,9 @@ In this case, you can specify the sso_type
 
     >>> from astroquery.esasky import ESASky
     >>> ESASky.query_sso(sso_name="503", sso_type="SATELLITE")
-
+    TableList with 2 tables:
+            '0:HST' with 45 column(s) and 618 row(s)
+	    '1:XMM' with 45 column(s) and 33 row(s)
 
 You can see the available missions with:
 
@@ -396,7 +426,7 @@ You can see the available missions with:
 
     >>> from astroquery.esasky import ESASky
     >>> ESASky.list_sso()
-
+    ['Herschel', 'HST', 'XMM', 'XMM-OM']
 
 Other parameters and the return value are structured in the same manner as the other query methods.
 
@@ -411,6 +441,8 @@ are the same. You can for example, download a table list just like in get_maps b
     >>> table_list_from_query_maps=ESASky.query_sso(sso_name="ganymede", missions="XMM")
     >>> table_list_from_query_maps['XMM'].remove_rows(list(range(0, 32)))
     >>> images=ESASky.get_images_sso(table_list=table_list_from_query_maps)
+    INFO: Starting download of XMM data. (1 files) [astroquery.esasky.core]
+    ...
 
 Or download everything on an SSO by something like this:
 
@@ -418,7 +450,10 @@ Or download everything on an SSO by something like this:
 
     >>> from astroquery.esasky import ESASky
     >>> images=ESASky.get_images_sso(sso_name="2017 RN65")
-
+    INFO: Starting download of HERSCHEL data. (1 files) [astroquery.esasky.core]
+    INFO: Starting download of HST data. (1 files) [astroquery.esasky.core]
+    INFO: Starting download of XMM data. (1 files) [astroquery.esasky.core]
+    ...
 
 This module also offers access to IMCCE's SsODNet resolver, which allows you to find solar and extra solar system
 objects with a given name. Here you can see all matches and there aliases and types. You can use this method to help you
@@ -428,6 +463,13 @@ specify which SSO you are after. Use :meth:`astroquery.esasky.ESASkyClass.find_s
 
     >>> from astroquery.esasky import ESASky
     >>> list_of_matches=ESASky.find_sso(sso_name="Io")
+
+
+
+.. testcleanup::
+
+   >>> from astroquery.utils import cleanup_saved_downloads
+   >>> cleanup_saved_downloads(['Spectra_new'])
 
 
 Reference/API
