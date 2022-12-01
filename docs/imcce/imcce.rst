@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.imcce:
 
 ******************************************************************************************************************************************
@@ -17,7 +15,7 @@ IMCCE provides a number of Solar System-related services, two of which are curre
 * `Miriade <http://vo.imcce.fr/webservices/miriade/>`_: ephemerides service
 
 Use cases for both services are detailed below.
-  
+
 
 SkyBot - Solar System Body Identification Service
 =================================================
@@ -31,7 +29,7 @@ Cone Search
 A simple cone search for Solar System objects in a circular field
 looks like this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> from astroquery.imcce import Skybot
    >>> from astropy.coordinates import SkyCoord
@@ -39,19 +37,29 @@ looks like this:
    >>> import astropy.units as u
    >>> field = SkyCoord(0*u.deg, 0*u.deg)
    >>> epoch = Time('2019-05-29 21:42', format='iso')
-   >>> Skybot.cone_search(field, 5*u.arcmin, epoch)  # doctest: +SKIP
-   <QTable length=2>
-   Number    Name            RA         ...      vy          vz       epoch
-			    deg         ...    AU / d      AU / d       d
-   int64    str10         float64       ...   float64     float64    float64
-   ------ ---------- ------------------ ... ----------- ----------- ---------
-   516566  2007 DH36           0.005535 ... 0.008556458 0.002875929 2458630.0
-   163149 2002 CV106 359.98691791666664 ... 0.009078103  0.00267749 2458630.0
+   >>> Skybot.cone_search(field, 5*u.arcmin, epoch)
+    <QTable length=12>
+    Number    Name             RA          ...      vy          vz       epoch
+                              deg          ...    AU / d      AU / d       d
+    int64    str10          float64        ...   float64     float64    float64
+    ------ ---------- -------------------- ... ----------- ----------- ---------
+        --         --                  0.0 ... 0.002324846 0.000311389 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --         --                  0.0 ...         ———         ——— 2458630.0
+        --  2012 BO42 0.019414999999999998 ... 0.009345668 0.005003011 2458630.0
+    516566  2007 DH36 0.005546249999999999 ...  0.00855646 0.002875928 2458630.0
+        --  2019 SS82    359.9931945833333 ... 0.009809784 0.004636687 2458630.0
+    163149 2002 CV106   359.98692374999996 ... 0.009078104  0.00267749 2458630.0
 
 `~astroquery.imcce.SkybotClass.cone_search` produces a
 `~astropy.table.QTable` object with the properties of all Solar System
-bodies that are present in the cone at the given epoch. 
-   
+bodies that are present in the cone at the given epoch.
+
 The required input arguments for
 `~astroquery.imcce.SkybotClass.cone_search` are the center coordinates
 of the cone, its radius, as well as the epoch of the
@@ -141,17 +149,17 @@ The *Miriade* service enable the query of Solar System object ephemerides.
 The most minimalistic `~astroquery.imcce.MiriadeClass.get_ephemerides`
 query looks like this:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-   >>> from astroquery.miriade import Miriade
-   >>> Miriade.get_ephemerides('Ceres')
-   <Table masked=True length=1>
-    target        epoch                 RA        ...  DEC_rate   delta_rate 
-		    d                  deg        ... arcs / min    km / s   
-   bytes20       float64             float64      ...  float64     float64   
-   ------- -------------------- ----------------- ... ---------- ------------
-     Ceres    2458519.315165116 242.1874308333333 ...   -0.14926  -20.9668673
-   
+   >>> from astroquery.imcce import Miriade
+   >>> Miriade.get_ephemerides('Ceres')  # doctest: +IGNORE_OUTPUT
+   <Table length=1>
+   target        epoch                 RA         ...   DEC_rate    delta_rate
+                   d                  deg         ... arcsec / min    km / s
+   str20        float64             float64       ...   float64      float64
+   ------ -------------------- ------------------ ... ------------ ------------
+    Ceres   2459914.7406457304 178.71843708333333 ...     -0.18976  -21.5458636
+
 This query will return ephemerides for asteroid Ceres, for the current
 epoch, and for a geocentric location. The query output is formatted as
 a `~astropy.table.Table`.
@@ -180,31 +188,38 @@ which means that only a single epoch ``epoch`` will be queried.
 Consider the following example, which queries ephemerides for asteroid
 Pallas over an entire year with a time step of 1 day:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-   >>> from astroquery.miriade import Miriade
+   >>> from astroquery.imcce import Miriade
    >>> Miriade.get_ephemerides('Pallas', epoch='2019-01-01',
-   >>>                         epoch_step='1d', epoch_nsteps=365) # doctest: +SKIP
-   <Table masked=True length=365>
-    target        epoch                 RA         ...  DEC_rate   delta_rate 
-		    d                  deg         ... arcs / min    km / s   
-   bytes20       float64             float64       ...  float64     float64   
-   ------- -------------------- ------------------ ... ---------- ------------
-    Pallas            2458484.5  200.5865645833333 ...    0.15854  -19.3678422
-    Pallas            2458485.5 200.92699458333328 ...    0.16727  -19.4137907
-    Pallas            2458486.5 201.26416541666663 ...    0.17613  -19.4552649
-    Pallas            2458487.5 201.59800958333332 ...    0.18511  -19.4921113
-    Pallas            2458488.5  201.9284608333333 ...    0.19421  -19.5241972
-    Pallas            2458489.5 202.25545124999996 ...    0.20344  -19.5514101
-       ...                  ...                ... ...        ...          ...
-    Pallas            2458843.5  261.1308308333333 ...   0.025007   -2.2916737
-    Pallas            2458844.5  261.5084158333333 ...   0.029542   -2.5107013
-    Pallas            2458845.5 261.88534958333327 ...   0.034077   -2.7290895
-    Pallas            2458846.5        262.2616025 ...   0.038612   -2.9467393
-    Pallas            2458847.5  262.6371470833333 ...   0.043144   -3.1635784
-    Pallas            2458848.5         263.011955 ...   0.047672   -3.3795565
+   ...                         epoch_step='1d', epoch_nsteps=365)
+    <Table length=365>
+    target        epoch                 RA         ...   DEC_rate    delta_rate
+                    d                  deg         ... arcsec / min    km / s
+    str20        float64             float64       ...   float64      float64
+    ------ -------------------- ------------------ ... ------------ ------------
+    Pallas            2458484.5 200.58650791666665 ...      0.15854  -19.3678463
+    Pallas            2458485.5 200.92693791666662 ...      0.16727  -19.4137948
+    Pallas            2458486.5 201.26410874999996 ...      0.17613   -19.455269
+    Pallas            2458487.5 201.59795291666666 ...      0.18511  -19.4921153
+    Pallas            2458488.5 201.92840374999994 ...      0.19421  -19.5242013
+    Pallas            2458489.5 202.25539416666663 ...      0.20344  -19.5514142
+    Pallas            2458490.5 202.57885791666664 ...      0.21278  -19.5736602
+    Pallas            2458491.5  202.8987283333333 ...      0.22224  -19.5908624
+    Pallas            2458492.5 203.21493999999996 ...      0.23181  -19.6029579
+       ...                  ...                ... ...          ...          ...
+    Pallas            2458839.5 259.61455249999995 ...    0.0069182   -1.4120216
+    Pallas            2458840.5         259.994445 ...     0.011429    -1.632143
+    Pallas            2458841.5         260.373805 ...     0.015948   -1.8522401
+    Pallas            2458842.5 260.75260374999993 ...     0.020475   -2.0721425
+    Pallas            2458843.5 261.13081041666663 ...     0.025007   -2.2916831
+    Pallas            2458844.5 261.50839541666664 ...     0.029542   -2.5107109
+    Pallas            2458845.5  261.8853291666666 ...     0.034077   -2.7290991
+    Pallas            2458846.5  262.2615820833333 ...     0.038612   -2.9467491
+    Pallas            2458847.5 262.63712666666663 ...     0.043144   -3.1635884
+    Pallas            2458848.5  263.0119345833333 ...     0.047672   -3.3795666
 
-    
+
 The observer location is defined through the ``location`` keyword,
 expecting a string containing the official IAU observatory code, a
 spacecraft name, or a set of coordinates (see the `Miriade manual
@@ -306,8 +321,8 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | ``vz_h``         | Z heliocentric vel. vector (au/d, float)      |
   +------------------+-----------------------------------------------+
-   
-   
+
+
 3. Local coordinates:
 
   +------------------+-----------------------------------------------+
@@ -454,8 +469,7 @@ results:
   ecliptical coordinates
 * ``elements``: switch to MPCORB ephemerides instead of ASTORB
 * ``radial_velocity``: provides additional information on target's radial
-  velocity  
-
+  velocity
 
 
 
@@ -483,10 +497,9 @@ Please consider the following notes from IMCCE:
 The development of this submodule is funded through NASA PDART Grant
 No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
 
-     
+
 Reference/API
 =============
 
 .. automodapi:: astroquery.imcce
     :no-inheritance-diagram:
-
