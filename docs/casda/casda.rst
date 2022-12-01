@@ -158,7 +158,7 @@ below:
     >>> url_list = casda.cutout(subset[:1], coordinates=centre, radius=14*u.arcmin)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
-An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position and velocity
+An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position, velocity, and range
 is shown below:
 
 .. doctest-skip::
@@ -176,8 +176,8 @@ is shown below:
     >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, radius=9*u.arcmin, band=freq)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
-An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position within a
-specified channel is shown below:
+An example script to download a 3D cutout of a spectral channel range from the WALLABY Pre-Pilot Eridanus cube 
+is shown below:
 
 .. doctest-skip::
 
@@ -189,8 +189,8 @@ specified channel is shown below:
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
     >>> eridanus_cube = public_data[public_data['filename'] == 'Eridanus_full_image_V3.fits']
-    >>> channel = channel(5, 10)
-    >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, channel)
+    >>> channel = (5, 10)
+    >>> url_list = casda.cutout(eridanus_cube, channel=channel)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
 
