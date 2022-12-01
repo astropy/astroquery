@@ -176,6 +176,23 @@ is shown below:
     >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, radius=9*u.arcmin, band=freq)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
+An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position within a
+specified channel is shown below:
+
+.. doctest-skip::
+
+    >>> from astropy import coordinates, units as u, wcs
+    >>> from astroquery.casda import Casda
+    >>> centre = coordinates.SkyCoord.from_name('NGC 1371')
+    >>> casda = Casda()
+    >>> casda.login(username='email@somewhere.edu.au')
+    >>> result = Casda.query_region(centre, radius=30*u.arcmin)
+    >>> public_data = Casda.filter_out_unreleased(result)
+    >>> eridanus_cube = public_data[public_data['filename'] == 'Eridanus_full_image_V3.fits']
+    >>> channel = channel(5, 10)
+    >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, channel)
+    >>> filelist = casda.download_files(url_list, savedir='/tmp')
+
 
 Reference/API
 =============
