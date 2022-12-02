@@ -20,6 +20,7 @@ import time
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
+from astropy.logger import log
 import requests
 
 
@@ -274,7 +275,7 @@ class Job:
         else:
             if not self.async_:
                 # sync: cannot access server again
-                print("No results to save")
+                log.info("No results to save")
             else:
                 # Async
                 self.wait_for_job_end(verbose)
@@ -316,7 +317,7 @@ class Job:
         lphase = None
         # execute job if not running
         if self._phase == 'PENDING':
-            print("Job in PENDING phase, sending phase=RUN request.")
+            log.info("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
             except Exception as ex:
