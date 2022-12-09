@@ -233,6 +233,18 @@ class HeasarcClass(BaseQuery):
 
         return Table_read(data, hdu=1)
 
+    def _blank_table_fallback(self, data):
+        """
+        In late 2022, we started seeing examples where the null result came
+        back as a FITS file with an ImageHDU and no BinTableHDU.
+        """
+        with fits.open(data) as fh:
+            comments = fh[1].header['COMMENT']
+        emptytable = Table()
+        emptytable.meta['COMMENT'] = comments
+        warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+        return emptytable
+
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
@@ -258,6 +270,9 @@ class HeasarcClass(BaseQuery):
                 return self._fallback(response.text)
             except Exception:
                 return self._old_w3query_fallback(response.content)
+        except AttributeError:
+            return self._blank_table_fallback(data)
+
 
     def _args_to_payload(self, **kwargs):
         """
