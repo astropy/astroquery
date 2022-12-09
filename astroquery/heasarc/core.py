@@ -262,6 +262,10 @@ class HeasarcClass(BaseQuery):
             warnings.warn(NoResultsWarning("No matching rows were found in the query."))
             return Table()
 
+        if "XTENSION= 'IMAGE   '" in response.text:
+            data = BytesIO(response.content)
+            return self._blank_table_fallback(data)
+
         try:
             data = BytesIO(response.content)
             return Table_read(data, hdu=1)
@@ -270,8 +274,6 @@ class HeasarcClass(BaseQuery):
                 return self._fallback(response.text)
             except Exception:
                 return self._old_w3query_fallback(response.content)
-        except AttributeError:
-            return self._blank_table_fallback(data)
 
 
     def _args_to_payload(self, **kwargs):
