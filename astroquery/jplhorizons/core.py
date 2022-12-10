@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from typing import Mapping
 
 # 1. standard library imports
-from numpy import nan
-from numpy import isnan
-from numpy import ndarray
 from collections import OrderedDict
+from typing import Mapping
 import warnings
 
 # 2. third party imports
@@ -15,6 +12,9 @@ from astropy.io import ascii
 from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated_renamed_argument, deprecated_attribute
+from numpy import nan
+from numpy import isnan
+from numpy import ndarray
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
