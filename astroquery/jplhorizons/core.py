@@ -51,8 +51,16 @@ class HorizonsClass(BaseQuery):
         Parameters
         ----------
 
-        id : str, required
-            Name, number, or designation of the object to be queried.
+        id : str or dict, required
+            Name, number, or designation of target object. Uses the same codes
+            as JPL Horizons. Arbitrary topocentric coordinates can be added
+            in a dict. The dict has to be of the form
+            {``'lon'``: longitude in deg (East positive, West
+            negative), ``'lat'``: latitude in deg (North positive, South
+            negative), ``'elevation'``: elevation in km above the reference
+            ellipsoid, [``'body'``: Horizons body ID of the central body;
+            optional; if this value is not provided it is assumed that this
+            location is on Earth]}.
 
         location : str or dict, optional
             Observer's location for ephemerides queries or center body name for
@@ -108,11 +116,16 @@ class HorizonsClass(BaseQuery):
         """
 
         super().__init__()
-        self.id = id if not isinstance(id, Mapping) else dict(id)
-        self.location = (
-            location if not isinstance(location, Mapping) else dict(location)
-        )
-
+        # check & format coordinate dictionaries for id and location; simply
+        # treat other values as given
+        if isinstance(id, Mapping):
+            self.id = self._prep_loc_dict(dict(id), "id")
+        else:
+            self.id = id
+        if isinstance(location, Mapping):
+            self.location = self._prep_loc_dict(dict(location), "location")
+        else:
+            self.location = location
         # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
             if isinstance(epochs, (list, tuple, ndarray)):
@@ -541,13 +554,6 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            if {'lat', 'lon', 'elevation'} - set(self.id.keys()) != set():
-                raise ValueError(
-                    "dict values for 'id' must contain 'lat', 'lon', "
-                    "'elevation' (and optionally 'body')"
-                )
-            if 'body' not in self.id:
-                self.id['body'] = 399
             commandline = (
                 f"g:{self.id['lon']},{self.id['lat']},"
                 f"{self.id['elevation']}@{self.id['body']}"
@@ -595,16 +601,6 @@ class HorizonsClass(BaseQuery):
             ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
-            if (
-                {'lat', 'lon', 'elevation'} - set(self.location.keys())
-            ) != set():
-                raise ValueError(
-                    "dict values for 'location' must contain 'lat', 'lon', "
-                    "'elevation' (and optionally 'body')"
-                )
-
-            if 'body' not in self.location:
-                self.location['body'] = '399'
             request_payload['CENTER'] = 'coord@{:s}'.format(
                 str(self.location['body']))
             request_payload['COORD_TYPE'] = 'GEODETIC'
@@ -1150,6 +1146,16 @@ class HorizonsClass(BaseQuery):
         return response
 
     # ---------------------------------- parser functions
+    @staticmethod
+    def _prep_loc_dict(loc_dict, attr_name):
+        if {'lat', 'lon', 'elevation'} - set(loc_dict.keys()) != set():
+            raise ValueError(
+                f"dict values for '{attr_name}' must contain 'lat', 'lon', "
+                "'elevation' (and optionally 'body')"
+            )
+        if 'body' not in loc_dict:
+            loc_dict['body'] = 399
+        return loc_dict
 
     def _parse_result(self, response, verbose=None):
         """
