@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
+from typing import Mapping
 
 # 1. standard library imports
 from numpy import nan
@@ -108,8 +108,10 @@ class HorizonsClass(BaseQuery):
         """
 
         super().__init__()
-        self.id = id
-        self.location = location
+        self.id = id if not isinstance(id, Mapping) else dict(id)
+        self.location = (
+            location if not isinstance(location, Mapping) else dict(location)
+        )
 
         # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
@@ -538,13 +540,26 @@ class HorizonsClass(BaseQuery):
         # check for required information
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
+        elif isinstance(self.id, dict):
+            if {'lat', 'lon', 'elevation'} - set(self.id.keys()) != set():
+                raise ValueError(
+                    "dict values for 'id' must contain 'lat', 'lon', "
+                    "'elevation' (and optionally 'body')"
+                )
+            if 'body' not in self.id:
+                self.id['body'] = 399
+            commandline = (
+                f"g:{self.id['lon']},{self.id['lat']},"
+                f"{self.id['elevation']}@{self.id['body']}"
+            )
+        else:
+            commandline = str(self.id)
         if self.location is None:
             self.location = '500@399'
         if self.epochs is None:
             self.epochs = Time.now().jd
-
         # assemble commandline based on self.id_type
-        commandline = str(self.id)
+
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
             commandline = ({'designation': 'DES=',
@@ -580,10 +595,13 @@ class HorizonsClass(BaseQuery):
             ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
-            if ('lon' not in self.location or 'lat' not in self.location or
-                    'elevation' not in self.location):
-                raise ValueError(("'location' must contain lon, lat, "
-                                  "elevation"))
+            if (
+                {'lat', 'lon', 'elevation'} - set(self.location.keys())
+            ) != set():
+                raise ValueError(
+                    "dict values for 'location' must contain 'lat', 'lon', "
+                    "'elevation' (and optionally 'body')"
+                )
 
             if 'body' not in self.location:
                 self.location['body'] = '399'
@@ -1181,14 +1199,23 @@ class HorizonsClass(BaseQuery):
         H, G = nan, nan
         M1, M2, k1, k2, phcof = nan, nan, nan, nan, nan
         headerline = []
+        centername = ''
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
             if (self.query_type == 'ephemerides' and
                     "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
-                headerline[3] = 'flags'
+                if 'Earth' in centername:
+                    headerline[3] = 'lunar_presence'
+                else:
+                    headerline[3] = 'interfering_body'
                 headerline[-1] = '_dump'
+                if (
+                    isinstance(self.id, dict) or str(self.id).startswith('g:')
+                ):
+                    headerline[4] = 'nearside_flag'
+                    headerline[5] = 'illumination_flag'
             # read in elements header line
             elif (self.query_type == 'elements' and
                   "JDTDB," in line):
@@ -1208,6 +1235,9 @@ class HorizonsClass(BaseQuery):
             # read in targetname
             if "Target body name" in line:
                 targetname = line[18:50].strip()
+            # read in center body name
+            if "Center body name" in line:
+                centername = line[18:50].strip()
             # read in H and G (if available)
             if "rotational period in hours)" in line:
                 HGline = src[idx + 2].split('=')
