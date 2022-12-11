@@ -1170,7 +1170,7 @@ class HorizonsClass(BaseQuery):
             "CENTER": f"coord@{loc_dict['body']}",
             "COORD_TYPE": "GEODETIC",
             "SITE_COORD": ",".join(
-                str(float(loc_dict[k])) for k in ['lat', 'lon', 'elevation']
+                str(float(loc_dict[k])) for k in ['lon', 'lat', 'elevation']
             )
         }
         loc_dict["SITE_COORD"] = f"'{loc_dict['SITE_COORD']}'"
