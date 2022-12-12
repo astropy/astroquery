@@ -65,10 +65,10 @@ class TestConeSearch:
         self.verbose = False
 
     def test_cat_listing(self):
-        assert (conesearch.list_catalogs() ==
-                ['BROKEN', 'USNO ACT', 'USNO NOMAD', 'USNO-A2', 'USNO-B1'])
-        assert (conesearch.list_catalogs(pattern='usno*a') ==
-                ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
+        assert (conesearch.list_catalogs()
+                == ['BROKEN', 'USNO ACT', 'USNO NOMAD', 'USNO-A2', 'USNO-B1'])
+        assert (conesearch.list_catalogs(pattern='usno*a')
+                == ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
 
     def test_no_result_classic(self):
         with pytest.warns(NoResultsWarning, match='returned 0 result'):

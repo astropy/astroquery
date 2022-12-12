@@ -1004,7 +1004,7 @@ class ESASkyClass(BaseQuery):
         --------
         query_ids_spectra(observation_ids=['0001730501', '0011420101'], missions='XMM-NEWTON')
         query_ids_spectra(observation_ids='0001730501')
-        query_ids_spectra(observation_ids=['0001730501', '0011420101', '1342246640'], missions=['XMM-NEWTON', 'Herschel'])
+        query_ids_spectra(observation_ids=['0001730501', '1342246640'], missions=['XMM-NEWTON', 'Herschel'])
         """
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
         sanitized_missions = self._sanitize_input_spectra(missions)
@@ -1146,8 +1146,10 @@ class ESASkyClass(BaseQuery):
         --------
         get_images(position="m101", radius="14'", missions="all")
 
-        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel", "Spitzer", "HST-UV", "HST-OPTICAL"]
-        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q", "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
+        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
+                    "Spitzer", "HST-UV", "HST-OPTICAL"]
+        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q",
+                           "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
         get_images(observation_ids=observation_ids, missions=missions)
         """
         if position is None and observation_ids is None:
@@ -1242,7 +1244,7 @@ class ESASkyClass(BaseQuery):
         get_spectra(position="m101", radius="14'", missions=["HST-IR", "XMM-NEWTON", "HERSCHEL"])
 
         missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
-        observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq", "1342253595", "z1ax0102t", "oeik2s020"]
+        observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq", "1342253595", "oeik2s020"]
         get_spectra(observation_ids=observation_ids, missions=missions)
 
         """
@@ -1772,8 +1774,8 @@ class ESASkyClass(BaseQuery):
         if data_type in self._NUMBER_DATA_TYPES:
             valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
             if not valid_ids:
-                raise ValueError("Could not construct query for mission {}. Database column type is a number, "
-                         "while none of the input id's could be interpreted as numbers.".format(json['mission']))
+                raise ValueError(f"Could not construct query for mission {json['mission']}. Database column type is "
+                                 "a number, while none of the input id's could be interpreted as numbers.")
                 return ""
 
         observation_ids_query_list = ", ".join(repr(id) for id in valid_ids)

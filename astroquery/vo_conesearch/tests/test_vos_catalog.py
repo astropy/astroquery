@@ -105,8 +105,8 @@ class TestDatabase:
 
         for k, v in foo_iter:
             assert k == 'foo'
-            assert (v._tree == foo_cat._tree ==
-                    {'title': 'bar', 'url': 'bar.foo'})
+            assert (v._tree == foo_cat._tree
+                    == {'title': 'bar', 'url': 'bar.foo'})
 
         with pytest.raises(MissingCatalog):
             method1('foofoo')

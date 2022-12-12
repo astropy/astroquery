@@ -86,7 +86,8 @@ class CatalogsClass(MastQueryWithLogin):
             E.g. when using a slow internet connection.
         page : int, optional
             Default None.
-            Can be used to override the default behavior of all results being returned to obtain a specific page of results.
+            Can be used to override the default behavior of all results being returned to obtain a
+            specific page of results.
         **kwargs
             Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]

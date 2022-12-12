@@ -179,9 +179,9 @@ def test_gen_array_sql():
     # string arrays should be OR'd together
     common_select = "select * from ivoa.obscore WHERE "
     test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
-    assert _gen_sql({"spatial_resolution": "<0.1",
-                     "science_keyword": test_keywords}) == common_select + \
-        "spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' OR science_keyword='Disks around high-mass stars')"
+    assert (_gen_sql({"spatial_resolution": "<0.1", "science_keyword": test_keywords})
+            == common_select + ("spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' "
+                                "OR science_keyword='Disks around high-mass stars')"))
 
 
 def test_gen_datetime_sql():
@@ -198,12 +198,9 @@ def test_gen_datetime_sql():
 
 def test_gen_spec_res_sql():
     common_select = 'select * from ivoa.obscore WHERE '
-    assert _gen_sql({'spectral_resolution': 70}) == common_select + \
-        "em_resolution=20985472.06"
-    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + \
-        "em_resolution>=20985472.06"
-    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + \
-        "em_resolution<=20985472.06"
+    assert _gen_sql({'spectral_resolution': 70}) == common_select + "em_resolution=20985472.06"
+    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + "em_resolution>=20985472.06"
+    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + "em_resolution<=20985472.06"
     assert _gen_sql({'spectral_resolution': '(70 .. 80)'}) == common_select + \
         "(23983396.64<=em_resolution AND em_resolution<=20985472.06)"
     assert _gen_sql({'spectral_resolution': '(70|80)'}) == common_select + \
@@ -471,7 +468,9 @@ def _mocked_datalink_sync(*args, **kwargs):
                                       'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
         adhoc_service_1_param2 = type(
             '', (object, ), {
-                'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
+                'ID': 'accessURL',
+                'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'}
+        )()
         adhoc_service_1 = type(
             '', (object, ), {
                 'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'params': [
@@ -481,7 +480,9 @@ def _mocked_datalink_sync(*args, **kwargs):
                                       'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
         adhoc_service_2_param2 = type(
             '', (object, ), {
-                'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+                'ID': 'accessURL',
+                'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'}
+        )()
         adhoc_service_2 = type(
             '', (object, ), {
                 'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'params': [

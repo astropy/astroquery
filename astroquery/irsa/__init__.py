@@ -7,4 +7,4 @@ warnings.warn("the ``irsa`` module has been moved to astroquery.ipac.irsa, "
 from astroquery.ipac.irsa import Irsa, IrsaClass, Conf, conf
 
 
-__all__ = ['Irsa', 'IrsaClass', 'Conf', 'conf',]
+__all__ = ['Irsa', 'IrsaClass', 'Conf', 'conf', ]

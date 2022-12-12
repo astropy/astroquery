@@ -411,25 +411,17 @@ def test_get_observations_target_parsing(patch_get):
     result = mpc.core.MPC.get_observations(345678, get_query_payload=True)
     assert result['object_type'] == 'M' and result['number'] == '345678'
 
-    result = mpc.core.MPC.get_observations('1998 QS55',
-                                           get_query_payload=True)
-    assert (result['object_type'] == 'M' and
-            result['designation'] == '1998 QS55')
+    result = mpc.core.MPC.get_observations('1998 QS55', get_query_payload=True)
+    assert result['object_type'] == 'M' and result['designation'] == '1998 QS55'
 
-    result = mpc.core.MPC.get_observations('P/2010 WK',
-                                           get_query_payload=True)
-    assert (result['object_type'] == 'P' and
-            result['designation'] == 'P/2010 WK')
+    result = mpc.core.MPC.get_observations('P/2010 WK', get_query_payload=True)
+    assert result['object_type'] == 'P' and result['designation'] == 'P/2010 WK'
 
-    result = mpc.core.MPC.get_observations('C/2013 US10',
-                                           get_query_payload=True)
-    assert (result['object_type'] == 'C' and
-            result['designation'] == 'C/2013 US10')
+    result = mpc.core.MPC.get_observations('C/2013 US10', get_query_payload=True)
+    assert result['object_type'] == 'C' and result['designation'] == 'C/2013 US10'
 
-    result = mpc.core.MPC.get_observations('C/2008 FK75',
-                                           get_query_payload=True)
-    assert (result['object_type'] == 'C' and
-            result['designation'] == 'C/2008 FK75')
+    result = mpc.core.MPC.get_observations('C/2008 FK75', get_query_payload=True)
+    assert result['object_type'] == 'C' and result['designation'] == 'C/2008 FK75'
 
     result = mpc.core.MPC.get_observations('1P', get_query_payload=True)
     assert result['object_type'] == 'P' and result['number'] == '1'
@@ -439,14 +431,12 @@ def test_get_observations_target_parsing(patch_get):
     result = mpc.core.MPC.get_observations('C/2008 FK75',
                                            id_type='comet designation',
                                            get_query_payload=True)
-    assert (result['object_type'] == 'C' and
-            result['designation'] == 'C/2008 FK75')
+    assert result['object_type'] == 'C' and result['designation'] == 'C/2008 FK75'
 
     result = mpc.core.MPC.get_observations('P/2010 WK',
                                            id_type='comet designation',
                                            get_query_payload=True)
-    assert (result['object_type'] == 'P' and
-            result['designation'] == 'P/2010 WK')
+    assert result['object_type'] == 'P' and result['designation'] == 'P/2010 WK'
 
     result = mpc.core.MPC.get_observations('1P',
                                            id_type='comet number',
@@ -461,8 +451,7 @@ def test_get_observations_target_parsing(patch_get):
     result = mpc.core.MPC.get_observations('1998 QS55',
                                            id_type='asteroid designation',
                                            get_query_payload=True)
-    assert (result['object_type'] == 'M' and
-            result['designation'] == '1998 QS55')
+    assert result['object_type'] == 'M' and result['designation'] == '1998 QS55'
 
     with pytest.raises(ValueError):
         result = mpc.core.MPC.get_observations(
@@ -475,9 +464,8 @@ def test_get_observations_target_parsing(patch_get):
     # this should technically not work, but the server allows it
     result = mpc.core.MPC.get_observations(
         '1998 QS55', id_type='asteroid number', get_query_payload=True)
-    assert (result['object_type'] == 'M' and result['number'] == '1998 QS55')
+    assert result['object_type'] == 'M' and result['number'] == '1998 QS55'
 
     result = mpc.core.MPC.get_observations(
         '1P', id_type='comet designation', get_query_payload=True)
-    assert (result['object_type'] == 'P' and
-            result['designation'] == '1P')
+    assert result['object_type'] == 'P' and result['designation'] == '1P'

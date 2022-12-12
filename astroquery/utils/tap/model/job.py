@@ -331,8 +331,7 @@ class Job:
             lphase = responseData.upper().strip()
             if verbose:
                 print(f"Job {self.jobid} status: {lphase}")
-            if ("PENDING" != lphase and "QUEUED" != lphase and
-                    "EXECUTING" != lphase):
+            if ("PENDING" != lphase and "QUEUED" != lphase and "EXECUTING" != lphase):
                 break
             # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
             # HELD, SUSPENDED, ARCHIVED:
@@ -372,9 +371,7 @@ class Job:
     def __handle_redirect_if_required(self, resultsResponse, verbose=False):
         # Thanks @emeraldTree24
         numberOfRedirects = 0
-        while ((resultsResponse.status == 303 or
-                resultsResponse.status == 302) and
-                numberOfRedirects < 20):
+        while ((resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20):
             joblocation = self.connHandler.\
                 find_header(resultsResponse.getheaders(), "location")
             if verbose:
@@ -404,9 +401,7 @@ class Job:
         if verbose:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
-        if (resultsResponse.status != 200 and
-                resultsResponse.status != 303 and
-                resultsResponse.status != 302):
+        if (resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302):
             errMsg = taputils.get_http_response_error(resultsResponse)
             print(resultsResponse.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
@@ -416,14 +411,11 @@ class Job:
                 location = self.connHandler.\
                     find_header(resultsResponse.getheaders(), "location")
                 if location is None:
-                    raise requests.exceptions.HTTPError("No location found " +
-                                                        "after redirection " +
-                                                        "was received (303)")
+                    raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
                 if verbose:
                     print(f"Redirect to {location}")
                 # load
-                relativeLocation = self.__extract_relative_location(location,
-                                                                    self.jobid)
+                relativeLocation = self.__extract_relative_location(location, self.jobid)
                 relativeLocationSubContext = f"async/{self.jobid}/{relativeLocation}"
                 response = self.connHandler.\
                     execute_tapget(relativeLocationSubContext)
@@ -444,9 +436,7 @@ class Job:
         """Returns whether the job is finished (ERROR, ABORTED, COMPLETED) or not
 
         """
-        if (self._phase == 'ERROR' or
-                self._phase == 'ABORTED' or
-                self._phase == 'COMPLETED'):
+        if (self._phase == 'ERROR' or self._phase == 'ABORTED' or self._phase == 'COMPLETED'):
             return True
         else:
             return False

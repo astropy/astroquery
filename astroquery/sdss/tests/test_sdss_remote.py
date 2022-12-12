@@ -61,10 +61,8 @@ class TestSDSSRemote:
     def test_sdss_spectrum_plate_mjd_fiber(self):
         """These plates are only available in recent data releases.
         """
-        sdss.SDSS.get_spectra(plate=9403, mjd=58018, fiberID=485,
-                                   data_release=16)
-        sdss.SDSS.get_spectra(plate=10909, mjd=58280, fiberID=485,
-                                   data_release=16)
+        sdss.SDSS.get_spectra(plate=9403, mjd=58018, fiberID=485, data_release=16)
+        sdss.SDSS.get_spectra(plate=10909, mjd=58280, fiberID=485, data_release=16)
 
     def test_sdss_spectrum_mjd(self):
         sdss.SDSS.get_spectra(plate=2345, fiberID=572)

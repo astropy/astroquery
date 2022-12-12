@@ -148,6 +148,7 @@ class RunTimePredictor:
     [(2, 4), (3, 9), (5, 25)]
 
     """
+
     def __init__(self, func, *args, **kwargs):
         self._funcname = func.__name__
         self._pfunc = partial(func, *args, **kwargs)
@@ -350,13 +351,11 @@ class RunTimePredictor:
         # Fitted data
         if self._fit_func is not None:
             x_est = list(self._cache_est.keys())
-            y_est = (np.array(list(self._cache_est.values())) *
-                     u.second).to_value(cur_u)
+            y_est = (np.array(list(self._cache_est.values())) * u.second).to_value(cur_u)
             ax.scatter(x_est, y_est, marker='o', c='r', label='Predicted')
 
             x_fit = np.array(sorted(x_arr + x_est))
-            y_fit = (self._fit_func(x_fit**self._power) *
-                     u.second).to_value(cur_u)
+            y_fit = (self._fit_func(x_fit**self._power) * u.second).to_value(cur_u)
             ax.plot(x_fit, y_fit, 'b--', label='Fit')
 
         ax.set_xscale(xscale)

@@ -26,9 +26,9 @@ class MockResponse:
         self.status_code = status_code
 
     def iter_lines(self):
-        c = self.content.split(b"\n")
-        for l in c:
-            yield l
+        content = self.content.split(b"\n")
+        for line in content:
+            yield line
 
     def raise_for_status(self):
         pass

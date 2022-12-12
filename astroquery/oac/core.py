@@ -191,11 +191,8 @@ class OACClass(BaseQuery):
 
         # Check that coordinate object is a valid astropy coordinate object
         # Criteria/Code from ../sdss/core.py
-        if (not isinstance(coordinates, list)
-            and not isinstance(coordinates, Column)
-            and not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
-
+        if (not isinstance(coordinates, list) and not isinstance(coordinates, Column)
+                and not (isinstance(coordinates, commons.CoordClasses) and not coordinates.isscalar)):
             request_payload['ra'] = coordinates.ra.deg
             request_payload['dec'] = coordinates.dec.deg
 

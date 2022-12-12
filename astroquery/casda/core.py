@@ -98,7 +98,8 @@ class CasdaClass(QueryWithLogin):
     def query_region_async(self, coordinates, radius=1*u.arcmin, height=None, width=None,
                            get_query_payload=False, cache=True):
         """
-        Queries a region around the specified coordinates. Either a radius or both a height and a width must be provided.
+        Queries a region around the specified coordinates. Either a radius or both a height and a width
+        must be provided.
 
         Parameters
         ----------

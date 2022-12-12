@@ -140,8 +140,7 @@ class Schema:
                     new[nkey] = nvalue
                 elif skey is not None:
                     if x is not None:
-                        raise SchemaError([f'key {key!r} is required'] +
-                                          x.autos, [e] + x.errors)
+                        raise SchemaError([f'key {key!r} is required'] + x.autos, [e] + x.errors)
                     else:
                         raise SchemaError(f'key {skey!r} is required', e)
             coverage = set(k for k in coverage if type(k) is not Optional)

@@ -924,8 +924,7 @@ class CosmoSimClass(QueryWithLogin):
                 info_list += ([self.db_dict[proj][key]
                               if isinstance(self.db_dict[proj][key], str)
                               else ""
-                              for key in self.db_dict[proj].keys()] +
-                              ['-' * tmp2_largest])
+                              for key in self.db_dict[proj].keys()] + ['-' * tmp2_largest])
             t['Projects'] = proj_list
             t['Project Items'] = attr_list
             t['Information'] = info_list
@@ -963,8 +962,7 @@ class CosmoSimClass(QueryWithLogin):
                               "the `{0}` db.".format(db))
                     return
 
-            t['Projects'] = (['--> @ {}:'.format(db)]
-                             + ['' for i in range(size2 - 1)])
+            t['Projects'] = (['--> @ {}:'.format(db)] + ['' for i in range(size2 - 1)])
             t['Project Items'] = (
                 ['--> @ {}:'.format(key)
                  if (isinstance(self.db_dict[db][key], dict)
@@ -972,11 +970,10 @@ class CosmoSimClass(QueryWithLogin):
                           == len(list(self.db_dict[db]['tables'].keys()))))
                  else '@ {}'.format(key)
                  if (isinstance(self.db_dict[db][key], dict)
-                     and (len(list(self.db_dict[db][key].keys())) !=
-                          len(self.db_dict[db]['tables'].keys())))
+                     and (len(list(self.db_dict[db][key].keys()))
+                          != len(self.db_dict[db]['tables'].keys())))
                  else str(key)
-                 for key in self.db_dict[db].keys()] +
-                ['' for i in range(size2 - size1)])
+                 for key in self.db_dict[db].keys()] + ['' for i in range(size2 - size1)])
             # if only db is specified
             if not table:
                 if not col:
@@ -994,14 +991,11 @@ class CosmoSimClass(QueryWithLogin):
                               if key != table], key=len))
                 t['Tables'] = (
                     ['--> @ {}:'.format(i)
-                     if (i == table
-                         and isinstance(self.db_dict[db]['tables'][i], dict))
+                     if (i == table and isinstance(self.db_dict[db]['tables'][i], dict))
                      else '@ {}'.format(i)
-                     if (i != table
-                         and isinstance(self.db_dict[db]['tables'][i], dict))
+                     if (i != table and isinstance(self.db_dict[db]['tables'][i], dict))
                      else str(i)
-                     for i in reordered] +
-                    ['' for j in range(size2 - len(reordered))])
+                     for i in reordered] + ['' for j in range(size2 - len(reordered))])
 
                 # if column has been specified
                 if col:
@@ -1012,8 +1006,7 @@ class CosmoSimClass(QueryWithLogin):
                         + ['' for j in range(size2 - len(tblcols_dict))])
                     col_dict = (self.db_dict[db]['tables'][table]
                                 ['columns'].keys())
-                    reordered = ([str(col)]
-                                 + [i for i in col_dict if i != col])
+                    reordered = ([str(col)] + [i for i in col_dict if i != col])
 
                     temp_columns = []
 
@@ -1031,14 +1024,12 @@ class CosmoSimClass(QueryWithLogin):
 
                     if len(col_dict) < size2:
                         size_diff = size2 - len(col_dict)
-                        t['Columns'] = (temp_columns
-                                        + ['' for j in range(size_diff)])
+                        t['Columns'] = (temp_columns + ['' for j in range(size_diff)])
 
                         colinfo_dict = col_dict = columns[col]
                         t['Col. Info'] = (
                             ['{} : {}'.format(i, colinfo_dict[i])
-                             for i in colinfo_dict.keys()] +
-                            ['' for j in range(size2 - len(colinfo_dict))])
+                             for i in colinfo_dict.keys()] + ['' for j in range(size2 - len(colinfo_dict))])
                     else:
                         t['Columns'] = temp_columns
 
@@ -1053,20 +1044,17 @@ class CosmoSimClass(QueryWithLogin):
                         tmp_table = self.db_dict[db]['tables'][table]
                         t['Table Items'] = (
                             ['@ {}'.format(i) if isinstance(tmp_table[i], dict)
-                             else '{}:'.format(i) for i in tblcols_dict]
-                            + ['' for i in range(size_diff)])
+                             else '{}:'.format(i) for i in tblcols_dict] + ['' for i in range(size_diff)])
                         t['Table Info'] = (
                             [str(tmp_table[i])
                              if not isinstance(tmp_table[i], dict)
-                             else '' for i in tblcols_dict]
-                            + ['' for i in range(size_diff)])
+                             else '' for i in tblcols_dict] + ['' for i in range(size_diff)])
                         if len(col_dict) < size2:
                             t['Columns'] = (
                                 ['@ {}'.format(i)
                                  if isinstance(tmp_table['columns'][i], dict)
                                  else str(i)
-                                 for i in reordered] +
-                                ['' for i in range(size2 - len(col_dict))])
+                                 for i in reordered] + ['' for i in range(size2 - len(col_dict))])
                         else:
                             t['Columns'] = reordered
                     else:

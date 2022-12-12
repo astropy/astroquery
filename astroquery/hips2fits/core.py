@@ -39,9 +39,11 @@ class hips2fitsClass(BaseQuery):
 
     This package implements two methods:
 
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
+    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy
+    ``wcs.WCS``.
         See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
+    * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image
+    pixel size, the center of projection, the type of projection and the field of view.
         See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
     """
@@ -51,9 +53,11 @@ class hips2fitsClass(BaseQuery):
     def __init__(self, *args):
         super().__init__()
 
-    def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
+    def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
+                       get_query_payload=False, verbose=False):
         """
-        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ with a astropy WCS.
+        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ with an
+        astropy WCS.
 
         Parameters
         ----------
@@ -67,7 +71,8 @@ class hips2fitsClass(BaseQuery):
         format : str, optional
             Format of the output image.
             Allowed values are fits (default), jpg and png
-            In case of jpg or png format, scaling of the pixels value can be controlled with parameters ``min_cut``, ``max_cut`` and ``stretch``
+            In case of jpg or png format, scaling of the pixels value can be controlled with parameters ``min_cut``,
+            ``max_cut`` and ``stretch``
         min_cut : float, optional
             Minimal value considered for contrast adjustment normalization.
             Only applicable to jpg/png output formats.
@@ -83,7 +88,7 @@ class hips2fitsClass(BaseQuery):
         cmap : `~matplotlib.colors.Colormap` or str, optional
             Name of the color map.
             Only applicable to jpg/png output formats.
-            Any `colormap supported by Matplotlib <https://matplotlib.org/3.1.1/gallery/color/colormap_reference.html>`_ can be specified.
+            Any `colormap supported by Matplotlib can be specified.
             Default value is Greys_r (grayscale)
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the parsed response.
@@ -130,7 +135,8 @@ class hips2fitsClass(BaseQuery):
         >>> im = plt.imshow(result)
         >>> plt.show(im)
         """
-        response = self.query_with_wcs_async(get_query_payload, hips=hips, wcs=wcs, format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
+        response = self.query_with_wcs_async(get_query_payload, hips=hips, wcs=wcs, format=format,
+                                             min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
             return response
@@ -158,7 +164,9 @@ class hips2fitsClass(BaseQuery):
 
         return response
 
-    def query(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg), format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
+    def query(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg),
+              format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
+              get_query_payload=False, verbose=False):
         """
         Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_.
 
@@ -167,7 +175,9 @@ class hips2fitsClass(BaseQuery):
         * The center of projection in world coordinates (ra, dec)
         * The fov angle in world coordinates
         * The rotation angle of the projection
-        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/supported_projections.html>`_ are supported:
+        * The name of the projection.
+
+        All `astropy projections <https://docs.astropy.org/en/stable/wcs/supported_projections.html>`_ are supported.
 
         Parameters
         ----------
@@ -180,7 +190,8 @@ class hips2fitsClass(BaseQuery):
         height : int
             Height in pixels of the output image.
         projection : str
-            Name of the requested projection, eg: SIN, TAN, MOL, AIT, CAR, CEA, STG	Compulsory if wcs is not provided.
+            Name of the requested projection, eg: SIN, TAN, MOL, AIT, CAR, CEA, STG
+            Compulsory if wcs is not provided.
             See `this page <https://docs.astropy.org/en/stable/wcs/supported_projections.html>`_ for an exhaustive list.
         fov : `~astropy.coordinates.Angle`
             Size (FoV) of the cutout on the sky.
@@ -199,7 +210,8 @@ class hips2fitsClass(BaseQuery):
         format : str, optional
             Format of the output image.
             Allowed values are fits (default), jpg and png
-            In case of jpg or png format, scaling of the pixels value can be controlled with parameters ``min_cut``, ``max_cut`` and ``stretch``
+            In case of jpg or png format, scaling of the pixels value can be controlled with parameters ``min_cut``,
+            ``max_cut`` and ``stretch``
         min_cut : float, optional
             Minimal value considered for contrast adjustment normalization.
             Only applicable to jpg/png output formats.
@@ -215,7 +227,7 @@ class hips2fitsClass(BaseQuery):
         cmap : `~matplotlib.colors.Colormap` or str, optional
             Name of the color map.
             Only applicable to jpg/png output formats.
-            Any `colormap supported by Matplotlib <https://matplotlib.org/3.1.1/gallery/color/colormap_reference.html>`_ can be specified.
+            Any `colormap supported by Matplotlib can be specified.
             Default value is Greys_r (grayscale)
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the parsed response.
@@ -253,7 +265,9 @@ class hips2fitsClass(BaseQuery):
         >>> plt.show(im)
         """
 
-        response = self.query_async(get_query_payload, hips=hips, width=width, height=height, projection=projection, ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle, format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
+        response = self.query_async(get_query_payload, hips=hips, width=width, height=height, projection=projection,
+                                    ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle,
+                                    format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
             return response
@@ -337,7 +351,7 @@ class hips2fitsClass(BaseQuery):
             header_str = json.dumps(header_json)
             payload.update({'wcs': header_str})
         else:
-        # The user called query
+            # The user called query
             payload.update({
                 'width': kwargs.pop("width"),
                 'height': kwargs.pop("height"),

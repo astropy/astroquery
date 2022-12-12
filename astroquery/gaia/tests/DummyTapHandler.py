@@ -42,9 +42,8 @@ class DummyTapHandler:
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+str(method) +
-                            "' not invoked. (Invoked method is '" +
-                            str(self.__invokedMethod)+"')")
+            raise Exception(f"Method '{method}' not invoked. (Invoked method is "
+                            f"{self.__invokedMethod}')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
@@ -64,16 +63,11 @@ class DummyTapHandler:
                 # check value
                 if self.__parameters[key] != parameters[key]:
                     k = self.__parameters[key]
-                    raise Exception("Wrong '{}' parameter value for "
-                                    "method '{}'. Found: '{}'. "
-                                    "Expected: '{}'".format(
-                                                            method_name,
-                                                            key,
-                                                            k,
-                                                            parameters[key]))
+                    raise Exception(f"Wrong '{method_name}' parameter value for "
+                                    f"method '{key}'. Found: '{k}'. "
+                                    f"Expected: '{parameters[key]}'")
             else:
-                raise Exception("Parameter '{}' not found for method '{}'".
-                                format(str(key), method_name))
+                raise Exception(f"Parameter '{key}' not found for method '{method_name}'")
         return False
 
     def load_tables(self, only_names=False, include_shared_tables=False,

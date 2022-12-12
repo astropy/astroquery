@@ -16,8 +16,7 @@ def prepend_docstr_nosections(doc, sections=['Returns', ]):
     list of sections provided (by default "Returns" only).
     """
     def dec(fn):
-        fn.__doc__ = ("\n".join(remove_sections(doc, sections)) +
-                      textwrap.dedent(fn.__doc__))
+        fn.__doc__ = ("\n".join(remove_sections(doc, sections)) + textwrap.dedent(fn.__doc__))
         return fn
     return dec
 

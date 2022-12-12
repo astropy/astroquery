@@ -32,10 +32,9 @@ def reload_votable_fields_json():
             else:
                 text2 = cols[1].getText()
             # ignore blank entries & headers
-            if (text2.strip() != '' and not
-                (smallest_child.name == 'font' and
-                 'size' in smallest_child.attrs
-                 and smallest_child.attrs['size'] == '+2')):
+            if (text2.strip() != ''
+                and not (smallest_child.name == 'font' and 'size' in smallest_child.attrs
+                         and smallest_child.attrs['size'] == '+2')):
                 outd[text1.strip()] = text2.strip()
 
     with open('data/votable_fields_dict.json', 'w') as f:

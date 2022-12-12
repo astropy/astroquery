@@ -781,8 +781,7 @@ class EsoClass(QueryWithLogin):
                     root = BeautifulSoup(data_download_form.content,
                                          'html5lib')
                     state = root.select('span[id=requestState]')[0].text
-                    log.info("{0:20.0f}s elapsed"
-                          .format(time.time() - t0), end='\r')
+                    log.info("{0:20.0f}s elapsed".format(time.time() - t0), end='\r')
                     sys.stdout.flush()
                 if state == 'ERROR':
                     raise RemoteServiceError("There was a remote service "

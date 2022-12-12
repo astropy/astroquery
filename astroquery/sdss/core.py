@@ -70,7 +70,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` of coordinates
+        coordinates : str or `astropy.coordinates` object or (list or `~astropy.table.Column`) of coordinates
             The target(s) around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
@@ -142,10 +142,8 @@ class SDSSClass(BaseQuery):
         if radius > self.MAX_CROSSID_RADIUS.value:
             raise ValueError(f"radius must be less than {self.MAX_CROSSID_RADIUS}.")
 
-        if (not isinstance(coordinates, list)
-            and not isinstance(coordinates, Column)
-            and not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
+        if (not isinstance(coordinates, list) and not isinstance(coordinates, Column)
+                and not (isinstance(coordinates, commons.CoordClasses) and not coordinates.isscalar)):
             coordinates = [coordinates]
         if obj_names is None:
             obj_names = [f'obj_{i:d}' for i in range(len(coordinates))]
@@ -156,7 +154,8 @@ class SDSSClass(BaseQuery):
             data = "ra dec \n"
             data_format = '{ra} {dec}'
         else:
-            data = "name ra dec \n"  # SDSS's own examples default to 'name'.  'obj_id' is too easy to confuse with 'objID'
+            # SDSS's own examples default to 'name'.  'obj_id' is too easy to confuse with 'objID'
+            data = "name ra dec \n"
             data_format = '{obj} {ra} {dec}'
         data += " \n ".join([data_format.format(obj=obj_names[i],
                                                 ra=coordinates[i].ra.deg,
@@ -208,7 +207,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` of coordinates
+        coordinates : str or `astropy.coordinates` object or (list or `~astropy.table.Column`) of coordinates
             The target(s) around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
@@ -965,7 +964,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of coordinates or `~astropy.table.Column` or coordinates
+        coordinates : str or `astropy.coordinates` object or (list or `~astropy.table.Column`) or coordinates
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
             appropriate `astropy.coordinates` object. ICRS coordinates may also

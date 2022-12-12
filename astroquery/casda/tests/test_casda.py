@@ -557,9 +557,12 @@ def test_args_to_payload_combined(patch_get):
 
 
 def test_download_file(patch_get):
-    urls = ['https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
-            'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
-            'https://ingest.pawsey.org.au/casda-prd-as110-01/dc52217/primary_images/RACS-DR1_0000%2B18A.fits?security=stuff']
+    urls = [
+        'https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
+        'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
+        'https://ingest.pawsey.org.au/casda-prd-as110-01/dc52217/primary_images/RACS-DR1_0000%2B18A.fits?security=stuff'
+    ]
+
     casda = Casda()
     fake_login(casda, USERNAME, PASSWORD)
 

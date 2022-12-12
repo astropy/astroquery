@@ -128,13 +128,14 @@ class TesscutClass(MastQueryWithLogin):
             NOTE: If moving_target is supplied, this argument is ignored.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+            (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         moving_target : bool, optional
-            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+            Indicate whether the object is a moving target or not. Default is set to False, in other words,
+            not a moving target.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         mt_type : str, optional
@@ -154,12 +155,13 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError(
-                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. "
+                                        "Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError(
-                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the "
+                                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
+                                        "of a moving target such as an asteroid or comet.")
 
             params = {"obj_id": objectname}
 
@@ -237,13 +239,14 @@ class TesscutClass(MastQueryWithLogin):
             Set inflate to false to stop before the inflate step.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+            (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         moving_target : str, optional
-            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+            Indicate whether the object is a moving target or not. Default is set to False, in other words,
+            not a moving target.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         mt_type : str, optional
@@ -262,12 +265,13 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError(
-                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. "
+                                        "Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError(
-                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the "
+                                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
+                                        "of a moving target such as an asteroid or comet.")
 
             astrocut_request = f"moving_target/astrocut?obj_id={objectname}"
             if mt_type:
@@ -343,13 +347,14 @@ class TesscutClass(MastQueryWithLogin):
             from all available sectors on which the coordinate appears will be returned.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+            (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         moving_target : str, optional
-            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+            Indicate whether the object is a moving target or not. Default is set to False, in other words,
+            not a moving target.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
         mt_type : str, optional
@@ -375,12 +380,13 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError(
-                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. "
+                                        "Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError(
-                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the "
+                                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
+                                        "of a moving target such as an asteroid or comet.")
 
             param_dict["obj_id"] = objectname
 
@@ -649,7 +655,7 @@ Zcut = ZcutClass()
 class HapcutClass(MastQueryWithLogin):
     """
     MAST Hubble Advanced Product (HAP) cutout query class.
-    
+
     Class for accessing HAP image cutouts.
     """
 
@@ -788,7 +794,7 @@ class HapcutClass(MastQueryWithLogin):
                 return []
             else:
                 raise
-        
+
         # Open all the contained fits files:
         # Since we cannot seek on a compressed zip file,
         # we have to read the data, wrap it in another BytesIO object,

@@ -164,7 +164,8 @@ class ESAHubbleClass(BaseQuery):
         elif 'HAP' in observation_type:
             oids = self._select_related_members(observation_id)
         elif 'HST' in observation_type:
-            query = f"select observation_id from ehst.observation where obs_type='HAP Simple' and members like '%{observation_id}%'"
+            query = ("select observation_id from ehst.observation where obs_type='HAP Simple' "
+                     f"and members like '%{observation_id}%'")
             job = self.query_tap(query=query)
             oids = job["observation_id"].pformat(show_name=False)
         else:

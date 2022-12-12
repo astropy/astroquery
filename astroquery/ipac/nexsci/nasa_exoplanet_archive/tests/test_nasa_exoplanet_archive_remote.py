@@ -125,10 +125,10 @@ def test_table_errors():
 
 @pytest.mark.remote_data
 def test_request_to_sql():
-    payload_sql = NasaExoplanetArchive.query_region("ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
-                                                    radius=1.0 * u.deg, get_query_payload=True)
+    payload = NasaExoplanetArchive.query_region("ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
+                                                radius=1.0 * u.deg, get_query_payload=True)
 
-    assert payload_sql == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
+    assert payload == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
 
     payload_sql = NasaExoplanetArchive.query_criteria(table="ps", where="hostname like 'Kepler%'",
                                                       order="hostname", get_query_payload=True)
