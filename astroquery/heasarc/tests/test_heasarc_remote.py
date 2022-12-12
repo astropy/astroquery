@@ -7,6 +7,11 @@ from ...heasarc import Heasarc
 
 from .conftest import MockResponse, parametrization_local_save_remote, skycoord_3C_273
 
+from astroquery.exceptions import NoResultsWarning
+
+from astropy.coordinates import SkyCoord
+from astropy import units as u
+
 
 @parametrization_local_save_remote
 class TestHeasarc:
@@ -96,3 +101,23 @@ class TestHeasarc:
             skycoord_3C_273, mission=mission, radius="1 degree")
 
         assert len(table) == 63
+
+    def test_query_region_nohits(self):
+        """
+        Regression test for #2560: HEASARC returns a FITS file as a null result
+        """
+        heasarc = Heasarc()
+
+        with pytest.warns(NoResultsWarning, match='No matching rows were found in the query.'):
+            # This was an example coordinate that returned nothing
+            # Since Fermi is still active, it is possible that sometime in the
+            # future an event will occur here.
+            table = heasarc.query_region(
+                    SkyCoord(0.28136*u.deg, -0.09789*u.deg, frame='fk5'),
+                    mission='fermilpsc', radius=0.1*u.deg)
+
+        assert len(table) == 0
+        # this is to check that the header comments got parsed correctly
+        # I'm not certain that they will always be returned in the same order,
+        # so it may be necessary in the future to change this part of the test
+        assert 'heasarc_fermilpsc' in table.meta['COMMENT'][0]
