@@ -178,7 +178,7 @@ def test_cone_search_async(column_attrs, mock_querier_async):
     # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
     # had no effect.
     # The preceding tests should have used the default value.
-    assert 'gaiadr2.gaia_source' in job.parameters['query']
+    assert 'gaiadr3.gaia_source' in job.parameters['query']
     with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
         job = mock_querier_async.cone_search_async(skycoord, radius)
         assert "name_from_conf" in job.parameters["query"]

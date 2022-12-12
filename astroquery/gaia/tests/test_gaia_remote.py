@@ -32,7 +32,7 @@ def test_query_object_row_limit():
     Gaia.ROW_LIMIT = -1
     r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
 
-    assert len(r) == 176
+    assert len(r) == 184
 
 
 @pytest.mark.remote_data
@@ -55,4 +55,4 @@ def test_cone_search_row_limit():
     j = Gaia.cone_search_async(coord, radius)
     r = j.get_results()
 
-    assert len(r) == 1188
+    assert len(r) == 1218

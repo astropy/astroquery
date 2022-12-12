@@ -75,11 +75,11 @@ Examples
 
 This query searches for all the objects contained in an arbitrary rectangular projection of the sky.
 
-It is possible to choose which data release to query, by default the Gaia DR2 catalogue is used. For example::
+It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example::
 
   >>> from astroquery.gaia import Gaia
-  >>> Gaia.MAIN_GAIA_TABLE = "gaiaedr3.gaia_source" # Select early Data Release 3
-  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Reselect Data Release 2, default
+  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Select Data Release 2
+  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"  # Reselect Data Release 3, default
 
 The following example searches for all the sources contained in an squared region of side = 0.1
 degrees around an specific point in RA/Dec coordinates.
@@ -96,19 +96,18 @@ degrees around an specific point in RA/Dec coordinates.
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=130)
-           dist             solution_id     ...                                     datalink_url
-                                            ...
-  --------------------- ------------------- ... -----------------------------------------------------------------------------------
-  0.0026034636994048854 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814214528
-  0.0038518741347606357 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090339113063296
-    0.00454542650096783 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814217600
-                    ...                 ... ...                                                                                 ...
-   0.020307185970548904 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636089514478069888
-   0.020454730686780127 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636066940131244288
-   0.020802655215768254 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636067141990822272
-   0.021615117161838747 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090369173963776
+           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_upper libname_gspphot
+                                                                   ...                mag
+  --------------------- ------------------- ---------------------------- ... ---------------------- ---------------
+  0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --
+  0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --
+  0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --
+                   ...                 ...                          ... ...                    ...             ...
+   0.019751317240143573 1636148068921376768 Gaia DR3 6636090407832546944 ...                 0.1176           MARCS
+   0.019916769172899054 1636148068921376768 Gaia DR3 6636066940132132352 ...                     --
+   0.019967388048343956 1636148068921376768 Gaia DR3 6636089514478677504 ...                     --
+   0.020149893249057697 1636148068921376768 Gaia DR3 6636066871411763968 ...                 0.0197         PHOENIX
   Length = 50 rows
-
 
 Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To change the default behaviour set this appropriately.
 
@@ -118,17 +117,17 @@ Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To cha
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_width=140)
-           dist             solution_id     ...                                     datalink_url
-                                            ...
-  --------------------- ------------------- ... -----------------------------------------------------------------------------------
-  0.0026034636994048854 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814214528
-  0.0038518741347606357 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090339113063296
-    0.00454542650096783 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814217600
-   0.005613919443965546 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636089583198816640
-   0.005846434715822121 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814218752
-   0.006209042666371929 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814213632
-   0.007469463683838576 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090339112308864
-   0.008202004514524316 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636089583198816512
+           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
+                                                                   ...        mag                    mag
+  --------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------
+  0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --
+  0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --                     --
+  0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --                     --
+   0.004422603920589843 1636148068921376768 Gaia DR3 6636090339112213760 ...                     --                     --
+   0.004545515007418226 1636148068921376768 Gaia DR3 6636090334814217600 ...                 0.0007                 0.0079           MARCS
+    0.00561391998241014 1636148068921376768 Gaia DR3 6636089583198816640 ...                 0.0064                 0.0385           MARCS
+   0.005845777923125324 1636148068921376768 Gaia DR3 6636090334814218752 ...                     --                     --
+   0.006210490970134131 1636148068921376768 Gaia DR3 6636090334814213632 ...                     --                     --
 
 To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
 
@@ -138,17 +137,17 @@ To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=140)
-           dist             solution_id     ...                                     datalink_url
-                                            ...
-  --------------------- ------------------- ... -----------------------------------------------------------------------------------
-  0.0026034636994048854 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814214528
-  0.0038518741347606357 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090339113063296
-    0.00454542650096783 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636090334814217600
-                    ...                 ... ...                                                                                 ...
-    0.05121063325107872 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636065840618481024
-   0.051957226883925664 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6636093637644158592
-    0.05320916763883812 1635721458409799680 ... https://gea.esac.esa.int/data-server/datalink/links?ID=Gaia+DR2+6633086847005369088
-  Length = 176 rows
+           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
+                                                                   ...        mag                    mag
+  --------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------
+  0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --
+  0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --                     --
+  0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --                     --
+                  ...                ...                        ... ...                    ...                    ...             ...
+    0.05121116044832183 1636148068921376768 Gaia DR3 6636065840618481024 ...                     --                     --
+   0.051956798257063855 1636148068921376768 Gaia DR3 6636093637644158592 ...                     --                     --
+    0.05321040019668312 1636148068921376768 Gaia DR3 6633086847005369088 ...                 0.0003                 0.0043           MARCS
+  Length = 184 rows
 
 
 1.2. Cone search
@@ -171,29 +170,17 @@ radius argument.
   >>> r = j.get_results()
   >>> r.pprint()
       solution_id             DESIGNATION          ...          dist
-                                                   ...
+                                                 ...
   ------------------- ---------------------------- ... ---------------------
-  1635721458409799680 Gaia DR2 6636090334814214528 ... 0.0026034636994048854
-  1635721458409799680 Gaia DR2 6636090339113063296 ... 0.0038518741347606357
-  1635721458409799680 Gaia DR2 6636090334814217600 ...   0.00454542650096783
-  1635721458409799680 Gaia DR2 6636089583198816640 ...  0.005613919443965546
-  1635721458409799680 Gaia DR2 6636090334814218752 ...  0.005846434715822121
-  1635721458409799680 Gaia DR2 6636090334814213632 ...  0.006209042666371929
-  1635721458409799680 Gaia DR2 6636090339112308864 ...  0.007469463683838576
-  1635721458409799680 Gaia DR2 6636089583198816512 ...  0.008202004514524316
-  1635721458409799680 Gaia DR2 6636089583198817664 ...  0.008338509690874027
-  1635721458409799680 Gaia DR2 6636089578899968384 ...  0.008406677772258921
-                  ...                          ... ...                   ...
-  1635721458409799680 Gaia DR2 6636089510180765312 ...   0.01943176697471851
-  1635721458409799680 Gaia DR2 6636066871411763712 ...  0.019464719601172412
-  1635721458409799680 Gaia DR2 6636089514475519232 ...  0.019467068628703368
-  1635721458409799680 Gaia DR2 6636090407832546944 ...  0.019752561500226976
-  1635721458409799680 Gaia DR2 6636066940132132352 ...   0.01991656886177004
-  1635721458409799680 Gaia DR2 6636066871411763968 ...  0.020149589233310516
-  1635721458409799680 Gaia DR2 6636089514478069888 ...  0.020307185970548904
-  1635721458409799680 Gaia DR2 6636066940131244288 ...  0.020454730686780127
-  1635721458409799680 Gaia DR2 6636067141990822272 ...  0.020802655215768254
-  1635721458409799680 Gaia DR2 6636090369173963776 ...  0.021615117161838747
+  1636148068921376768 Gaia DR3 6636090334814214528 ... 0.0026043272506261527
+  1636148068921376768 Gaia DR3 6636090339112400000 ... 0.0033616678530916998
+  1636148068921376768 Gaia DR3 6636090339113063296 ... 0.0038498801828703495
+  1636148068921376768 Gaia DR3 6636090339112213760 ...  0.004422603920589843
+                           ... ...                   ...
+  1636148068921376768 Gaia DR3 6636090407832546944 ...  0.019751317240143573
+  1636148068921376768 Gaia DR3 6636066940132132352 ...  0.019916769172899054
+  1636148068921376768 Gaia DR3 6636089514478677504 ...  0.019967388048343956
+  1636148068921376768 Gaia DR3 6636066871411763968 ...  0.020149893249057697
   Length = 50 rows
 
 
@@ -248,22 +235,18 @@ To load only a table (TAP+ capability):
 .. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
-  >>> gaiadr2_table = Gaia.load_table('gaiadr2.gaia_source')
-  >>> print(gaiadr2_table)
-  TAP Table name: gaiadr2.gaiadr2.gaia_source
-  Description: This table has an entry for every Gaia observed source as listed in the
-  Main Database accumulating catalogue version from which the catalogue
-  release has been generated. It contains the basic source parameters,
-  that is only final data (no epoch data) and no spectra (neither final
-  nor epoch).
-  Num. columns: 95
+  >>> gaiadr3_table = Gaia.load_table('gaiadr3.gaia_source')
+  >>> print(gaiadr3_table)
+  TAP Table name: gaiadr3.gaiadr3.gaia_source
+  Description: This table has an entry for every Gaia observed source as published with this data release. It contains the basic source parameters, in their final state as processed by the Gaia Data Processing and Analysis Consortium from the raw data coming from the spacecraft. The table is complemented with others containing information specific to certain kinds of objects (e.g.~Solar--system objects, non--single stars, variables etc.) and value--added processing (e.g.~astrophysical parameters etc.). Further array data types (spectra, epoch measurements) are presented separately via Datalink resources.
+  Num. columns: 152
 
 
 Once a table is loaded, its columns can be inspected:
 
 .. doctest-remote-data::
 
-  >>> for column in gaiadr2_table.columns:
+  >>> for column in gaiadr3_table.columns:
   ...   print(column.name)
   solution_id
   designation
@@ -298,37 +281,36 @@ Query without saving results in a file:
 .. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
-  >>>
   >>> job = Gaia.launch_job("select top 100 "
   ...                       "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
-  ...                       "matched_observations,duplicated_source,phot_variable_flag "
-  ...                       "from gaiadr2.gaia_source order by source_id")
+  ...                       "matched_transits,duplicated_source,phot_variable_flag "
+  ...                       "from gaiadr3.gaia_source order by source_id")
   >>> r = job.get_results()
   >>> print(r['ra_dec_corr'])
-   ra_dec_corr
-  -------------
-    0.022670548
-     0.06490505
-     0.11690165
-    0.042778816
-    0.095711425
-     0.56088775
-  -0.0028029205
-     0.11152559
-      0.6039746
-     0.06599529
-            ...
-      0.1803336
-    0.089540906
-     0.23512067
-       0.066183
-    -0.29090926
-     0.21693705
-      0.1531835
-     0.14783339
-     0.32718197
-    -0.05562011
-    0.008669683
+  ra_dec_corr
+  ------------
+    0.12293493
+    0.16325329
+     0.1152631
+    0.03106277
+   0.090631574
+    0.25799984
+    0.15041357
+    0.15176746
+    0.19033876
+    0.18675442
+           ...
+    0.03700819
+  -0.047490653
+    0.18519369
+    0.11701631
+    0.14461127
+    0.05615686
+    0.26646927
+  -0.019807748
+    0.81679803
+   -0.07291612
+   -0.12864673
   Length = 100 rows
 
 Query saving results in a file (you may use 'output_format' to specified the results data format,
@@ -339,11 +321,11 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job("select top 100 "
   ...                       "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
-  ...                       "matched_observations,duplicated_source,phot_variable_flag "
-  ...                       "from gaiadr2.gaia_source order by source_id",
+  ...                       "matched_transits,duplicated_source,phot_variable_flag "
+  ...                       "from gaiadr3.gaia_source order by source_id",
   ...                       dump_to_file=True, output_format='votable')
   >>> print(job.outputFile)
-  1592474300458O-result.vot.gz
+  1668863838419O-result.vot.gz
   >>> r = job.get_results()
   >>> print(r['solution_id'])
     solution_id
@@ -361,10 +343,20 @@ Note: you can inspect the status of the job by typing:
 .. doctest-skip::
 
   >>> print(job)
+  <Table length=100>
+          name          dtype  unit                     description
+  -------------------- ------- ---- ---------------------------------------------------
+           solution_id   int64                                      Solution Identifier
+             ref_epoch float64   yr                                     Reference epoch
+           ra_dec_corr float32      Correlation between right ascension and declination
+  astrometric_n_obs_al   int32                          Total number of observations AL
+  matched_observations   int16            Amount of observations matched to this source
+     duplicated_source    bool                            Source with duplicate sources
+    phot_variable_flag  object                             Photometric variability flag
   Jobid: None
   Phase: COMPLETED
   Owner: None
-  Output file: 1592474300458O-result.vot.gz
+  Output file: 1668864127567O-result.vot.gz
   Results: None
 
 
@@ -412,17 +404,17 @@ Query without saving results in a file:
 .. doctest-remote-data::
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job_async("select top 100 designation,ra,dec "
-  ...                             "from gaiadr2.gaia_source order by source_id")
+  ...                             "from gaiadr3.gaia_source order by source_id")
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = job.get_results()
   >>> print(r)
        DESIGNATION               ra                 dec
                                 deg                 deg
   ---------------------- ------------------ --------------------
-     Gaia DR2 4295806720 44.996153684159594 0.005615806210679649
-    Gaia DR2 34361129088 45.004316164207644 0.021045032689712983
-    Gaia DR2 38655544960   45.0049742449841 0.019877000365797714
-   Gaia DR2 309238066432  44.99503703932583  0.03815183599451371
+     Gaia DR3 4295806720  44.99615537864534 0.005615226341865997
+    Gaia DR3 34361129088  45.00432028915398 0.021047763781174733
+    Gaia DR3 38655544960 45.004978371745516 0.019879675701858644
+   Gaia DR3 309238066432  44.99503714416301  0.03815169755425531
                 ...
   Length = 100 rows
 
@@ -433,9 +425,8 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job_async("select top 100 ra, dec "
-  ...                             "from gaiadr2.gaia_source order by source_id",
+  ...                             "from gaiadr3.gaia_source order by source_id",
   ...                             dump_to_file=True, output_format='votable')
-  Saving results to: 1611860482314O-result.vot.gz
   >>> print(job)
   Jobid: 1611860482314O
   Phase: COMPLETED
@@ -536,14 +527,14 @@ To obtain a list of the tables shared to a user type the following::
   >>> for table in (tables):
   ...   print(table.get_qualified_name())
   external.external.apassdr9
+  external.external.gaiadr2_astrophysical_parameters
   external.external.gaiadr2_geometric_distance
   external.external.gaiaedr3_distance
-  external.external.galex_ais
     ...     ...       ...
-  gaiadr2.gaiadr2.vari_time_series_statistics
-  gaiadr2.gaiadr2.panstarrs1_original_valid
-  gaiadr2.gaiadr2.gaia_source
-  gaiadr2.gaiadr2.ruwe
+  tap_schema.tap_schema.key_columns
+  tap_schema.tap_schema.keys
+  tap_schema.tap_schema.schemas
+  tap_schema.tap_schema.tables
 
 2.3. Uploading table to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -656,7 +647,7 @@ table named: user_<your_login_name>.'t'<job_id>::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
+  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr3.gaia_source")
   >>> job = Gaia.upload_table_from_job(j1)
   Created table 't1539932994481O' from job: '1539932994481O'.
 
@@ -766,14 +757,14 @@ The following example uploads a table and then, the table is used in a cross mat
   >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
   >>> xmatch_table_name = 'xmatch_table'
   >>> Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name,
-  ...                  full_qualified_table_name_b='gaiadr2.gaia_source',
+  ...                  full_qualified_table_name_b='gaiadr3.gaia_source',
   ...                  results_table_name=xmatch_table_name, radius=1.0)
 
 
 Once you have your cross match finished, you can obtain the results::
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = ('SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.gaia_source AS a, '
+  >>> query = ('SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr3.gaia_source AS a, '
   ...          'full_qualified_table_name+' AS b, '
   ...          'xmatch_table+' AS c '
   ...          'WHERE (c.gaia_source_source_id = a.source_id AND '

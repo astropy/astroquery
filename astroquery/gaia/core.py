@@ -173,7 +173,7 @@ class GaiaClass(TapPlus):
         ids : str list, mandatory
             list of identifiers
         data_release: str, optional, default None
-            data release from which data should be taken. E.g. 'Gaia DR2'
+            data release from which data should be taken. E.g. 'Gaia DR3'
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
@@ -187,8 +187,8 @@ class GaiaClass(TapPlus):
             row per sourceId
         retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
-            For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
-            'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
+            For GAIA DR3, possible values are ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
+            'MCMC_GSPPHOT' or 'MCMC_MSC']
         valid_data : bool, optional, default False
             By default, the epoch photometry service returns all available data, including
             data rows where flux is null and/or the rejected_by_photometry flag is set to True.

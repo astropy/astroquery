@@ -174,6 +174,8 @@ gaia
   With this change the epoch photometry service returns all data associated
   to a given source. [#2376]
 
+- Default Gaia catalog updated to DR3. [#2596]
+
 sdss
 ^^^^
 
