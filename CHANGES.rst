@@ -81,6 +81,11 @@ casda
 - Use the standard ``login`` method for authenticating, which supports the system
   keyring [#2386]
 
+heasarc
+^^^^^^^
+
+- Fix issue 2560 in which blank tables raised exceptions [#2624]
+
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

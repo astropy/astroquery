@@ -2,7 +2,6 @@
 
 import pytest
 import requests
-import warnings
 
 from ...heasarc import Heasarc
 
@@ -109,11 +108,16 @@ class TestHeasarc:
         """
         heasarc = Heasarc()
 
-        with warnings.catch_warnings(record=True) as warn:
         with pytest.warns(NoResultsWarning, match='No matching rows were found in the query.'):
+            # This was an example coordinate that returned nothing
+            # Since Fermi is still active, it is possible that sometime in the
+            # future an event will occur here.
             table = heasarc.query_region(
                     SkyCoord(0.28136*u.deg, -0.09789*u.deg, frame='fk5'),
                     mission='fermilpsc', radius=0.1*u.deg)
 
         assert len(table) == 0
-        assert 'heasarc_fermigbrst' in table.meta['COMMENT'][0]
+        # this is to check that the header comments got parsed correctly
+        # I'm not certain that they will always be returned in the same order,
+        # so it may be necessary in the future to change this part of the test
+        assert 'heasarc_fermilpsc' in table.meta['COMMENT'][0]
