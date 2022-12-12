@@ -7,14 +7,14 @@ import warnings
 
 # 2. third party imports
 from requests.exceptions import HTTPError
+from numpy import nan
+from numpy import isnan
+from numpy import ndarray
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated_renamed_argument, deprecated_attribute
-from numpy import nan
-from numpy import isnan
-from numpy import ndarray
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -601,9 +601,7 @@ class HorizonsClass(BaseQuery):
             ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
-            request_payload = dict(
-                **request_payload, **self._location_to_params(self.location)
-            )
+            request_payload = dict(**request_payload, **self._location_to_params(self.location))
         else:
             request_payload['CENTER'] = "'" + str(self.location) + "'"
 
@@ -1047,10 +1045,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = (
-                f"g:{self.id['lon']},{self.id['lat']},"
-                f"{self.id['elevation']}@{self.id['body']}"
-            )
+            commandline = f"g:{self.id['lon']},{self.id['lat']},{self.id['elevation']}@{self.id['body']}"
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -1075,12 +1070,7 @@ class HorizonsClass(BaseQuery):
                 commandline += ' CAP{:s};'.format(closest_apparition)
             if no_fragments:
                 commandline += ' NOFRAG;'
-        #
-        # if isinstance(self.location, dict):
-        #     raise ValueError(('cannot use topographic position in state'
-        #                       'vectors query'))
-
-        # configure request_payload for ephemerides query
+        # configure request_payload for vectors query
         request_payload = OrderedDict([
             ('format', 'text'),
             ('EPHEM_TYPE', 'VECTORS'),
@@ -1236,9 +1226,7 @@ class HorizonsClass(BaseQuery):
                 else:
                     headerline[3] = 'interfering_body'
                 headerline[-1] = '_dump'
-                if (
-                    isinstance(self.id, dict) or str(self.id).startswith('g:')
-                ):
+                if isinstance(self.id, dict) or str(self.id).startswith('g:'):
                     headerline[4] = 'nearside_flag'
                     headerline[5] = 'illumination_flag'
             # read in elements header line
