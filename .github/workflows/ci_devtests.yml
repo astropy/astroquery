@@ -32,8 +32,8 @@ jobs:
         include:
           - name: dev dependencies with all dependencies with coverage
             os: ubuntu-latest
-            python: '3.10'
-            toxenv: py310-test-alldeps-devdeps-cov
+            python: '3.11'
+            toxenv: py311-test-alldeps-devdeps-cov
             toxargs: -v
 
     steps:
