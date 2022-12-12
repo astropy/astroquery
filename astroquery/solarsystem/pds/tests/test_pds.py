@@ -3,6 +3,8 @@ import os
 import numpy as np
 
 import astropy.units as u
+from astropy.table import QTable
+
 from ....query import AstroQuery
 
 from astroquery.utils.mocks import MockResponse
@@ -62,21 +64,27 @@ def test_ephemeris_query_Uranus(patch_request):
     )
     # check system table
     systemtable = bodytable.meta
+    assert isinstance(systemtable, dict)
+
     assert np.allclose(
         [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924, 354.11072, 354.12204, 2947896667.0, 3098568884.0, 10335.713263, ],
         [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
         rtol=1e-2,
     )
 
-    # check a moon in body table
-    mab = bodytable[bodytable.loc_indices["Mab"]]
+    expected_mab = """
+NAIF ID,Body, RA,Dec,RA (deg),Dec (deg),dRA,dDec,sub_obs_lon,sub_obs_lat,sub_sun_lon,sub_sun_lat,phase,distance
+726,Mab,2h 48m 02.6883s,15d 48m 04.764s,42.011201,15.801323,5.368,0.6233,223.976,55.906,223.969,56.013,0.10932,3098.514
+    """
+    expected_mab = QTable.read(expected_mab, format='ascii.csv',
+                               units=[None] * 4 + ['deg'] * 2 + ['arcsec'] * 2 + ['deg'] * 5 + ['Gm'])
+
+    # check the moon Mab in body table. Slicing to make sure we get a 1 long QTable instead of a Row
+    mab = bodytable[16:17]
+
     assert mab["NAIF ID"] == 726
     assert mab["Body"] == "Mab"
-    assert np.allclose(
-        [42.011201, 15.801323, 5.368, 0.623, 223.976, 55.906, 223.969, 56.013, 0.10932, 3098.514, ],
-        [mab["RA (deg)"].to(u.deg).value, mab["Dec (deg)"].to(u.deg).value, mab["dRA"].to(u.arcsec).value, mab["dDec"].to(u.arcsec).value, mab["sub_obs_lon"].to(u.deg).value, mab["sub_obs_lat"].to(u.deg).value, mab["sub_sun_lon"].to(u.deg).value, mab["sub_sun_lat"].to(u.deg).value, mab["phase"].to(u.deg).value, mab["distance"].to(u.km * 1e6).value, ],
-        rtol=1e-2,
-    )
+    assert expected_mab.values_equal(mab)
 
     # check a ring in ringtable
     beta = ringtable[ringtable.loc_indices["Beta"]]
@@ -110,7 +118,6 @@ def test_ephemeris_query_Pluto(patch_request):
         rtol=1e-2,
     )
 
-    # check ringtable is None
     assert ringtable is None
 
 
@@ -125,11 +132,16 @@ def test_ephemeris_query_Neptune(patch_request):
         neptune_arcmodel=2
     )
 
-    assert np.allclose(
-                    [63.81977, 55.01978, 44.21976, 40.41978, 26.41978, 64.81977, 59.11976, 45.21976, 43.41978, 36.01978],
-                     [ringtable[ringtable.loc_indices["Courage"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Liberte"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite A"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite B"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Fraternite"]]["min_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Courage"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Liberte"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite A"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Egalite B"]]["max_angle"].to(u.deg).value, ringtable[ringtable.loc_indices["Fraternite"]]["max_angle"].to(u.deg).value, ],
-                     rtol=1e-3
-                     )
+    expected = """ring,min_angle,max_angle
+Courage,63.81977,64.81977
+Liberte,55.01978,59.11976
+Egalite A,44.21976,45.21976
+Egalite B,40.41978,43.41978
+Fraternite,26.41978,36.01978
+    """
+    expected = QTable.read(expected, format='ascii.csv', units=(None, 'deg', 'deg'))
+
+    assert (expected == ringtable).all()
 
 
 def test_ephemeris_query_Saturn(patch_request):
@@ -141,11 +153,12 @@ def test_ephemeris_query_Saturn(patch_request):
         epoch="2021-10-07 07:25",
     )
 
-    assert np.allclose(
-                    [249.23097, 250.34081],
-                     [ringtable[ringtable.loc_indices["F"]]["pericenter"].to(u.deg).value, ringtable[ringtable.loc_indices["F"]]["ascending node"].to(u.deg).value],
-                     rtol=1e-3
-                     )
+    expected = """ring,pericenter,ascending node
+F,249.23097,250.34081
+    """
+
+    expected = QTable.read(expected, format='ascii.csv', units=(None, 'deg', 'deg'))
+    assert (expected == ringtable).all()
 
 
 def test_ephemeris_query_payload():
@@ -213,7 +226,4 @@ def test_ephemeris_query_payload():
 def test_bad_query_raise():
 
     with pytest.raises(ValueError):
-        bodytable, ringtable = pds.RingNode.ephemeris(
-            planet="Venus",
-            epoch="2021-10-07 07:25",
-            )
+        bodytable, ringtable = pds.RingNode.ephemeris(planet="Venus", epoch="2021-10-07 07:25")

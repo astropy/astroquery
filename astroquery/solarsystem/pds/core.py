@@ -4,7 +4,7 @@ import os
 
 # 2. third party imports
 from astropy.time import Time
-from astropy import table
+from astropy.table import QTable, join
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from bs4 import BeautifulSoup
@@ -93,7 +93,8 @@ class RingNodeClass(BaseQuery):
 
         Parameters
         ----------
-        planet : str, required. one of Mars, Jupiter, Saturn, Uranus, Neptune, or Pluto
+        planet : str
+            One of "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", or "Pluto".
         epoch : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
                 If str is provided then UTC is assumed.
                 If no epoch is provided, the current time is used.
@@ -107,8 +108,9 @@ class RingNodeClass(BaseQuery):
             `~astropy.coordinates.Angle` object, and altitude should
             initialize an `~astropy.units.Quantity` object (with units
             of length).  If ``None``, then the geofocus is used.
-        neptune_arcmodel : float, optional. which ephemeris to assume for Neptune's ring arcs
-            must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)
+        neptune_arcmodel : int, optional.
+            which ephemeris to assume for Neptune's ring arcs
+            Must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)
             has no effect if planet != 'Neptune'
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request parameters as
@@ -147,10 +149,9 @@ class RingNodeClass(BaseQuery):
         """
 
         planet = planet.lower()
-        if planet not in ["mars", "jupiter", "saturn", "uranus", "neptune", "pluto", ]:
-            raise ValueError(
-                "illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')"
-            )
+        if planet not in planet_defaults:
+            raise ValueError("illegal value for 'planet' parameter "
+                             "(must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')")
 
         if isinstance(epoch, (int, float)):
             epoch = Time(epoch, format='jd')
@@ -174,13 +175,13 @@ class RingNodeClass(BaseQuery):
                 loc = location.geodetic
                 longitude = loc[0].deg
                 latitude = loc[1].deg
-                altitude = loc[2].to(u.m).value
+                altitude = loc[2].to_value(u.m)
             elif hasattr(location, "__iter__"):
                 longitude = Angle(location[0]).deg
                 latitude = Angle(location[1]).deg
-                altitude = u.Quantity(location[2]).to("m").value
+                altitude = u.Quantity(location[2]).to_value(u.m)
 
-        if int(neptune_arcmodel) not in [1, 2, 3]:
+        if neptune_arcmodel not in [1, 2, 3]:
             raise ValueError(
                 f"Illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)"
             )
@@ -209,7 +210,7 @@ class RingNodeClass(BaseQuery):
                 ("altitude", altitude),
                 ("moons", planet_defaults[planet]["moons"]),
                 ("rings", planet_defaults[planet]["rings"]),
-                ("arcmodel", neptune_arcmodels[int(neptune_arcmodel)]),
+                ("arcmodel", neptune_arcmodels[neptune_arcmodel]),
                 ("extra_ra", ""),  # figure options below this line, can all be hardcoded and ignored
                 ("extra_ra_type", "hours"),
                 ("extra_dec", ""),
@@ -251,15 +252,9 @@ class RingNodeClass(BaseQuery):
 
         Returns
         -------
-        bodytable : `astropy.QTable`
-        ringtable : `astropy.QTable`
+        bodytable : `~astropy.table.QTable`
+        ringtable : `~astropy.table.QTable`
         """
-        try:
-            self._last_query.remove_cache_file(self.cache_location)
-        except FileNotFoundError:
-            # this is allowed: if `cache` was set to False, this
-            # won't be needed
-            pass
 
         soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text()
@@ -278,13 +273,11 @@ class RingNodeClass(BaseQuery):
                 group = "NAIF " + group  # fixing lack of header for NAIF ID
                 bodytable_names = ("NAIF ID", "Body", "RA", "Dec", "RA (deg)", "Dec (deg)", "dRA", "dDec")
                 bodytable_units = [None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]
-                bodytable = table.QTable.read(group, format="ascii.fixed_width",
+                bodytable = QTable.read(group, format="ascii.fixed_width",
                                         col_starts=(0, 4, 18, 35, 54, 68, 80, 91),
                                         col_ends=(4, 18, 35, 54, 68, 80, 91, 102),
-                                        names=bodytable_names)
-                                        # units=(bodytable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
-                for name, unit in zip(bodytable_names, bodytable_units):
-                    bodytable[name].unit = unit
+                                        names=bodytable_names,
+                                        units=(bodytable_units))
 
             # minor body table part 2
             elif group.startswith("Sub-"):
@@ -292,23 +285,20 @@ class RingNodeClass(BaseQuery):
                 group = os.linesep.join(group.splitlines()[2:])  # removing two-row header entirely
                 bodytable2_names = ("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance")
                 bodytable2_units = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
-                bodytable2 = table.QTable.read(group, format="ascii.fixed_width",
-                                        col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
-                                        col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
-                                        names=bodytable2_names,
-                                        data_start=0)
-                                        # units=(bodytable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
-                for name, unit in zip(bodytable2_names, bodytable2_units):
-                    bodytable2[name].unit = unit
+                bodytable2 = QTable.read(group, format="ascii.fixed_width",
+                                         col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
+                                         col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
+                                         names=bodytable2_names,
+                                         data_start=0,
+                                         units=(bodytable2_units))
 
             # ring plane data
             elif group.startswith("Ring s"):
-                lines = group.splitlines()
-                for line in lines:
-                    l = line.split(":")
-                    if "Ring sub-solar latitude" in l[0]:
-                        [sub_sun_lat, sub_sun_lat_min, sub_sun_lat_max] = [
-                            float(s.strip("()")) for s in re.split(r"\(|to", l[1])
+                for line in group.splitlines():
+                    lines = line.split(":")
+                    if "Ring sub-solar latitude" in lines[0]:
+                        sub_sun_lat, sub_sun_lat_min, sub_sun_lat_max = [
+                            float(s.strip("()")) for s in re.split(r"\(|to", lines[1])
                         ]
                         systemtable = {
                             "sub_sun_lat": sub_sun_lat * u.deg,
@@ -316,100 +306,83 @@ class RingNodeClass(BaseQuery):
                             "sub_sun_lat_max": sub_sun_lat_min * u.deg,
                         }
 
-                    elif "Ring plane opening angle" in l[0]:
+                    elif "Ring plane opening angle" in lines[0]:
                         systemtable["opening_angle"] = (
-                            float(re.sub("[a-zA-Z]+", "", l[1]).strip("()")) * u.deg
+                            float(re.sub("[a-zA-Z]+", "", lines[1]).strip("()")) * u.deg
                         )
-                    elif "Ring center phase angle" in l[0]:
-                        systemtable["phase_angle"] = float(l[1].strip()) * u.deg
-                    elif "Sub-solar longitude" in l[0]:
+                    elif "Ring center phase angle" in lines[0]:
+                        systemtable["phase_angle"] = float(lines[1].strip()) * u.deg
+                    elif "Sub-solar longitude" in lines[0]:
                         systemtable["sub_sun_lon"] = (
-                            float(re.sub("[a-zA-Z]+", "", l[1]).strip("()")) * u.deg
+                            float(re.sub("[a-zA-Z]+", "", lines[1]).strip("()")) * u.deg
                         )
-                    elif "Sub-observer longitude" in l[0]:
-                        systemtable["sub_obs_lon"] = float(l[1].strip()) * u.deg
-                    else:
-                        pass
+                    elif "Sub-observer longitude" in lines[0]:
+                        systemtable["sub_obs_lon"] = float(lines[1].strip()) * u.deg
 
             # basic info about the planet
             elif group.startswith("Sun-planet"):
-                lines = group.splitlines()
-                for line in lines:
-                    l = line.split(":")
-                    if "Sun-planet distance (AU)" in l[0]:
+                for line in group.splitlines():
+                    lines = line.split(":")
+                    if "Sun-planet distance (AU)" in lines[0]:
                         # this is redundant with sun distance in km
                         pass
-                    elif "Observer-planet distance (AU)" in l[0]:
+                    elif "Observer-planet distance (AU)" in lines[0]:
                         # this is redundant with observer distance in km
                         pass
-                    elif "Sun-planet distance (km)" in l[0]:
+                    elif "Sun-planet distance (km)" in lines[0]:
                         systemtable["d_sun"] = (
-                            float(l[1].split("x")[0].strip()) * 1e6 * u.km
+                            float(lines[1].split("x")[0].strip()) * 1e6 * u.km
                         )
-                    elif "Observer-planet distance (km)" in l[0]:
+                    elif "Observer-planet distance (km)" in lines[0]:
                         systemtable["d_obs"] = (
-                            float(l[1].split("x")[0].strip()) * 1e6 * u.km
+                            float(lines[1].split("x")[0].strip()) * 1e6 * u.km
                         )
-                    elif "Light travel time" in l[0]:
-                        systemtable["light_time"] = float(l[1].strip()) * u.second
-                    else:
-                        pass
+                    elif "Light travel time" in lines[0]:
+                        systemtable["light_time"] = float(lines[1].strip()) * u.second
 
             # --------- below this line, planet-specific info ------------
             # Uranus individual rings data
             elif group.startswith("Ring    "):
                 ringtable_names = ("ring", "pericenter", "ascending node")
                 ringtable_units = [None, u.deg, u.deg]
-                ringtable = table.QTable.read("     " + group, format="ascii.fixed_width",
-                    col_starts=(5, 18, 29),
-                    col_ends=(18, 29, 36),
-                    names=ringtable_names)
-                    # units=(ringtable_units)) # this much cleaner way of adding units is supported in later versions but not in 3.7
-                for name, unit in zip(ringtable_names, ringtable_units):
-                    ringtable[name].unit = unit
+                ringtable = QTable.read("     " + group, format="ascii.fixed_width",
+                                        col_starts=(5, 18, 29),
+                                        col_ends=(18, 29, 36),
+                                        names=ringtable_names,
+                                        units=(ringtable_units))
 
             # Saturn F-ring data
             elif group.startswith("F Ring"):
-                lines = group.splitlines()
-                for line in lines:
-                    l = line.split(":")
-                    if "F Ring pericenter" in l[0]:
-                        peri = float(re.sub("[a-zA-Z]+", "", l[1]).strip("()"))
-                    elif "F Ring ascending node" in l[0]:
-                        ascn = float(l[1].strip())
+                for line in group.splitlines():
+                    lines = line.split(":")
+                    if "F Ring pericenter" in lines[0]:
+                        peri = float(re.sub("[a-zA-Z]+", "", lines[1]).strip("()"))
+                    elif "F Ring ascending node" in lines[0]:
+                        ascn = float(lines[1].strip())
                 ringtable_names = ("ring", "pericenter", "ascending node")
                 ringtable_units = [None, u.deg, u.deg]
-                ringtable = table.QTable(
-                    [["F"], [peri], [ascn]],
-                    names=ringtable_names)
-                    # units=(ringtable_units) # this much cleaner way of adding units is supported in later versions but not in 3.7
-                for name, unit in zip(ringtable_names, ringtable_units):
-                    ringtable[name].unit = unit
+                ringtable = QTable([["F"], [peri], [ascn]],
+                                   names=ringtable_names,
+                                   units=(ringtable_units))
 
             # Neptune ring arcs data
             elif group.startswith("Courage"):
-                lines = group.splitlines()
-                for i in range(len(lines)):
-                    l = lines[i].split(":")
-                    ring = l[0].split("longitude")[0].strip()
+                for i, line in enumerate(group.splitlines()):
+                    lines = line.split(":")
+                    ring = lines[0].split("longitude")[0].strip()
                     [min_angle, max_angle] = [
                         float(s.strip())
-                        for s in re.sub("[a-zA-Z]+", "", l[1]).strip("()").split()
+                        for s in re.sub("[a-zA-Z]+", "", lines[1]).strip("()").split()
                     ]
                     if i == 0:
                         ringtable_names = ("ring", "min_angle", "max_angle")
                         ringtable_units = [None, u.deg, u.deg]
-                        ringtable = table.QTable(
-                            [[ring], [min_angle], [max_angle]],
-                            names=ringtable_names)
-                        for name, unit in zip(ringtable_names, ringtable_units):
-                            ringtable[name].unit = unit
-                            # units=(ringtable_units) # this much cleaner way of adding units is supported in later versions but not in 3.7
+                        ringtable = QTable([[ring], [min_angle], [max_angle]],
+                                           names=ringtable_names,
+                                           units=ringtable_units)
                     else:
                         ringtable.add_row([ring, min_angle*u.deg, max_angle*u.deg])
 
-            else:
-                pass
 
         # do some cleanup from the parsing job
         # and make system-wide parameters metadata of bodytable and ringtable
@@ -418,7 +391,7 @@ class RingNodeClass(BaseQuery):
             ringtable.add_index("ring")
             ringtable.meta = systemtable
 
-        bodytable = table.join(bodytable, bodytable2)  # concatenate minor body table
+        bodytable = join(bodytable, bodytable2)  # concatenate minor body table
         bodytable.add_index("Body")
         bodytable.meta = systemtable
 
