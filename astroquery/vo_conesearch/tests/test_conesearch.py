@@ -49,6 +49,7 @@ class TestConeSearch:
         At the time this was written, ``pedantic=True`` will
         not yield any successful search.
     """
+
     def setup_class(self):
         # If this link is broken, use the next in database that works
         self.url = ('http://vizier.unistra.fr/viz-bin/votable/-A?-out.all&'
@@ -232,6 +233,7 @@ class TestErrorResponse:
 
     Also see https://github.com/astropy/astropy/issues/1001
     """
+
     def setup_class(self):
         self.datadir = 'data'
         self.pedantic = False

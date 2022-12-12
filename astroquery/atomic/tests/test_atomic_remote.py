@@ -52,17 +52,17 @@ def test_query_with_wavelength_params():
         cache=False)
     assert isinstance(result, Table)
     assert result.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT',
-                              'CONFIGURATION', 'TERM', 'J J', 'A_ki',
-                              'LEVEL ENERGY  CM 1']
-    assert np.all(result['LAMBDA VAC ANG'] ==
-                  np.array([196.8874, 197.7992, 199.0122]))
+                               'CONFIGURATION', 'TERM', 'J J', 'A_ki',
+                               'LEVEL ENERGY  CM 1']
+    assert np.all(result['LAMBDA VAC ANG']
+                  == np.array([196.8874, 197.7992, 199.0122]))
     assert np.all(result['SPECTRUM'] == np.array(['C IV', 'C IV', 'C IV']))
     assert np.all(result['TT'] == np.array(['E1', 'E1', 'E1']))
     assert np.all(result['TERM'] == np.array(['2S-2Po', '2S-2Po', '2S-2Po']))
     assert np.all(result['J J'] == np.array(['1/2-*', '1/2-*', '1/2-*']))
-    assert np.all(result['LEVEL ENERGY  CM 1'] ==
-                  np.array(['0.00 -   507904.40', '0.00 -   505563.30',
-                            '0.00 -   502481.80']))
+    assert np.all(result['LEVEL ENERGY  CM 1']
+                  == np.array(['0.00 -   507904.40', '0.00 -   505563.30',
+                               '0.00 -   502481.80']))
 
 
 def test_empty_result_set():
@@ -79,5 +79,5 @@ def test_lower_upper_ranges():
         element_spectrum='Ne III', cache=False)
     assert isinstance(result, Table)
 
-    assert np.all(result['LAMBDA VAC ANG'] ==
-                  np.array([1814.73, 3968.91, 4013.14]))
+    assert np.all(result['LAMBDA VAC ANG']
+                  == np.array([1814.73, 3968.91, 4013.14]))

@@ -252,9 +252,9 @@ class HeasarcClass(BaseQuery):
 
         if "BATCH_RETRIEVAL_MSG ERROR:" in response.text:
             raise InvalidQueryError("One or more inputs is not recognized by HEASARC. "
-                             "Check that the object name is in GRB, SIMBAD+Sesame, or "
-                             "NED format and that the mission name is as listed in "
-                             "query_mission_list().")
+                                    "Check that the object name is in GRB, SIMBAD+Sesame, or "
+                                    "NED format and that the mission name is as listed in "
+                                    "query_mission_list().")
         elif "Software error:" in response.text:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))

@@ -99,8 +99,8 @@ def parse_coordinates(coordinates):
                           "appropriate astropy.coordinates object.", InputWarning)
             raise u.UnitsError
         except ValueError as err:
-            if ((ASTROPY_LT_5_0 and isinstance(err.args[1], u.UnitsError)) or
-                (not ASTROPY_LT_5_0 and isinstance(err.__context__, u.UnitsError))):
+            if ((ASTROPY_LT_5_0 and isinstance(err.args[1], u.UnitsError))
+                    or (not ASTROPY_LT_5_0 and isinstance(err.__context__, u.UnitsError))):
                 try:
                     c = SkyCoord(coordinates, unit="deg", frame="icrs")
                     warnings.warn("Coordinate string is being interpreted as an "

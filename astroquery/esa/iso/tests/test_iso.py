@@ -19,9 +19,9 @@ class TestISO:
 
     def get_dummy_tap_handler(self):
         parameters = {'query': "select top 10 * from ida.observations",
-                       'output_file': "test2.vot",
-                       'output_format': "votable",
-                       'verbose': False}
+                      'output_file': "test2.vot",
+                      'output_format': "votable",
+                      'verbose': False}
         dummyTapHandler = DummyISOTapHandler("launch_job", parameters)
         return dummyTapHandler
 
@@ -89,7 +89,7 @@ class TestISO:
 
     def test_get_tables(self):
         parameters = {'only_names': True,
-                       'verbose': True}
+                      'verbose': True}
 
         dummyTapHandler = DummyISOTapHandler("get_tables", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())
@@ -98,8 +98,8 @@ class TestISO:
 
     def test_get_columns(self):
         parameters = {'table_name': "table",
-                       'only_names': True,
-                       'verbose': True}
+                      'only_names': True,
+                      'verbose': True}
 
         dummyTapHandler = DummyISOTapHandler("get_columns", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())
@@ -108,7 +108,7 @@ class TestISO:
 
     def test_get_tables_onlynames_false(self):
         parameters = {'only_names': False,
-                       'verbose': True}
+                      'verbose': True}
 
         DummyISOTapHandler("get_tables", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())
@@ -116,8 +116,8 @@ class TestISO:
 
     def test_get_columns_onlynames_false(self):
         parameters = {'table_name': "table",
-                       'only_names': False,
-                       'verbose': True}
+                      'only_names': False,
+                      'verbose': True}
 
         DummyISOTapHandler("get_columns", parameters)
         ida = ISOClass(self.get_dummy_tap_handler())

@@ -85,19 +85,19 @@ def test_observations_query_criteria_radius_defaults(patch_get):
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
                                                 observation_type='BIAS')
     global saved_request
-    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
-    assert('/sr=' not in saved_request['args'][1])
+    assert (saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert ('/sr=' not in saved_request['args'][1])
     saved_request = None
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
                                                 observation_type='BIAS', coordinates=coords)
     assert len(result) > 0
-    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
-    assert('/sr=0.300000d' in saved_request['args'][1])
+    assert (saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert ('/sr=0.300000d' in saved_request['args'][1])
     saved_request = None
     gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
                                        observation_type='BIAS', objectname='m101')
-    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
-    assert('/sr=0.300000d' in saved_request['args'][1])
+    assert (saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert ('/sr=0.300000d' in saved_request['args'][1])
 
 
 def test_observations_query_raw(patch_get):
@@ -156,7 +156,7 @@ eng_fail_tests = [
     ('Usable', True, False),
     ('Undefind', True, False),
     ('Fail', True, False),
-    ]
+]
 
 
 @pytest.mark.parametrize("test_arg", eng_fail_tests)
@@ -169,5 +169,5 @@ def test_url_helper_eng_fail(test_arg):
     kwargs = {}
     url = urlh.build_url(*args, **kwargs)
     urlsplit = url.split('/')
-    assert(('notengineering' in urlsplit) == should_have_noteng)
-    assert(('NotFail' in urlsplit) == should_have_notfail)
+    assert (('notengineering' in urlsplit) == should_have_noteng)
+    assert (('NotFail' in urlsplit) == should_have_notfail)

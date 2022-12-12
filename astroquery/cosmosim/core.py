@@ -91,8 +91,8 @@ class CosmoSimClass(QueryWithLogin):
                                       cache=False)
         if authenticated.status_code == 200:
             warnings.warn("Authentication successful!")
-        elif (authenticated.status_code == 401 or
-              authenticated.status_code == 403):
+        elif (authenticated.status_code == 401
+              or authenticated.status_code == 403):
             warnings.warn("Authentication failed!")
         elif authenticated.status_code == 503:
             warnings.warn("Service Temporarily Unavailable...")
@@ -100,8 +100,8 @@ class CosmoSimClass(QueryWithLogin):
         # Generating dictionary of existing tables
         self._existing_tables()
 
-        if (authenticated.status_code == 200 and
-                password_from_keyring is None and store_password):
+        if (authenticated.status_code == 200
+                and password_from_keyring is None and store_password):
             keyring.set_password("astroquery:www.cosmosim.org",
                                  self.username, self.password)
 
@@ -128,8 +128,8 @@ class CosmoSimClass(QueryWithLogin):
         -------
         """
 
-        if (hasattr(self, 'username') and hasattr(self, 'password') and
-                hasattr(self, 'session')):
+        if (hasattr(self, 'username') and hasattr(self, 'password')
+                and hasattr(self, 'session')):
             if deletepw is True:
                 try:
                     keyring.delete_password("astroquery:www.cosmosim.org",
@@ -151,8 +151,8 @@ class CosmoSimClass(QueryWithLogin):
         Public function which checks the status of a user login attempt.
         """
 
-        if (hasattr(self, 'username') and hasattr(self, 'password') and
-                hasattr(self, 'session')):
+        if (hasattr(self, 'username') and hasattr(self, 'password')
+                and hasattr(self, 'session')):
             authenticated = self._request('POST', CosmoSim.QUERY_URL,
                                           auth=(self.username, self.password),
                                           cache=False)
@@ -365,8 +365,8 @@ class CosmoSimClass(QueryWithLogin):
                 else:
                     matching_tables = [[self.table_dict[i]
                                         for i in self.table_dict.keys()
-                                        if self.table_dict[i] == miter and
-                                        self.job_dict[i] in phase][0]
+                                        if self.table_dict[i] == miter
+                                        and self.job_dict[i] in phase][0]
                                        for miter in matching_tables]
             self._existing_tables()  # creates a fresh up-to-date table_dict
 
@@ -904,16 +904,16 @@ class CosmoSimClass(QueryWithLogin):
             tmp2_largest = 0
             for proj in projects:
                 size = len((self.db_dict['{0}'.format(proj)].keys()))
-                proj_list += (['@ {}'.format(proj)] +
-                              ['' for i in range(size - 1)] +
-                              ['-' * (largest + 2)])
+                proj_list += (['@ {}'.format(proj)]
+                              + ['' for i in range(size - 1)]
+                              + ['-' * (largest + 2)])
                 tmp_largest = max([len(str(key))
                                    for key in self.db_dict[proj].keys()])
                 attr_list += (['@ {}'.format(key)
                               if isinstance(self.db_dict[proj][key], dict)
                               else '{}:'.format(key)
-                              for key in self.db_dict[proj].keys()] +
-                              ['-' * (tmp_largest + 2)])
+                              for key in self.db_dict[proj].keys()]
+                              + ['-' * (tmp_largest + 2)])
                 tmpinfosize = max([len(self.db_dict[proj][key])
                                    if isinstance(self.db_dict[proj][key], str)
                                    else 0
@@ -953,7 +953,7 @@ class CosmoSimClass(QueryWithLogin):
                             size2 = max(size2, len(list(self.db_dict[db]['tables']
                                                    [table]['columns']
                                                    [col].keys())))
-                        except(KeyError, NameError):
+                        except (KeyError, NameError):
                             log.error("Must first specify a valid column "
                                       "of the `{0}` table within the `{1}`"
                                       " db".format(table, db))
@@ -963,17 +963,17 @@ class CosmoSimClass(QueryWithLogin):
                               "the `{0}` db.".format(db))
                     return
 
-            t['Projects'] = (['--> @ {}:'.format(db)] +
-                             ['' for i in range(size2 - 1)])
+            t['Projects'] = (['--> @ {}:'.format(db)]
+                             + ['' for i in range(size2 - 1)])
             t['Project Items'] = (
                 ['--> @ {}:'.format(key)
-                 if (isinstance(self.db_dict[db][key], dict) and
-                     (len(list(self.db_dict[db][key].keys())) ==
-                      len(list(self.db_dict[db]['tables'].keys()))))
+                 if (isinstance(self.db_dict[db][key], dict)
+                     and (len(list(self.db_dict[db][key].keys()))
+                          == len(list(self.db_dict[db]['tables'].keys()))))
                  else '@ {}'.format(key)
-                 if (isinstance(self.db_dict[db][key], dict) and
-                     (len(list(self.db_dict[db][key].keys())) !=
-                      len(self.db_dict[db]['tables'].keys())))
+                 if (isinstance(self.db_dict[db][key], dict)
+                     and (len(list(self.db_dict[db][key].keys())) !=
+                          len(self.db_dict[db]['tables'].keys())))
                  else str(key)
                  for key in self.db_dict[db].keys()] +
                 ['' for i in range(size2 - size1)])
@@ -989,16 +989,16 @@ class CosmoSimClass(QueryWithLogin):
             # if table has been specified
             else:
                 reordered = (
-                    [str(table)] +
-                    sorted([key for key in self.db_dict[db]['tables'].keys()
-                            if key != table], key=len))
+                    [str(table)]
+                    + sorted([key for key in self.db_dict[db]['tables'].keys()
+                              if key != table], key=len))
                 t['Tables'] = (
                     ['--> @ {}:'.format(i)
-                     if (i == table and
-                         isinstance(self.db_dict[db]['tables'][i], dict))
+                     if (i == table
+                         and isinstance(self.db_dict[db]['tables'][i], dict))
                      else '@ {}'.format(i)
-                     if (i != table and
-                         isinstance(self.db_dict[db]['tables'][i], dict))
+                     if (i != table
+                         and isinstance(self.db_dict[db]['tables'][i], dict))
                      else str(i)
                      for i in reordered] +
                     ['' for j in range(size2 - len(reordered))])
@@ -1007,13 +1007,13 @@ class CosmoSimClass(QueryWithLogin):
                 if col:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
                     t['Table Items'] = (
-                        ['--> @ columns:'] +
-                        [i for i in tblcols_dict if i != 'columns'] +
-                        ['' for j in range(size2 - len(tblcols_dict))])
+                        ['--> @ columns:']
+                        + [i for i in tblcols_dict if i != 'columns']
+                        + ['' for j in range(size2 - len(tblcols_dict))])
                     col_dict = (self.db_dict[db]['tables'][table]
                                 ['columns'].keys())
-                    reordered = ([str(col)] +
-                                 [i for i in col_dict if i != col])
+                    reordered = ([str(col)]
+                                 + [i for i in col_dict if i != col])
 
                     temp_columns = []
 
@@ -1031,8 +1031,8 @@ class CosmoSimClass(QueryWithLogin):
 
                     if len(col_dict) < size2:
                         size_diff = size2 - len(col_dict)
-                        t['Columns'] = (temp_columns +
-                                        ['' for j in range(size_diff)])
+                        t['Columns'] = (temp_columns
+                                        + ['' for j in range(size_diff)])
 
                         colinfo_dict = col_dict = columns[col]
                         t['Col. Info'] = (
@@ -1053,13 +1053,13 @@ class CosmoSimClass(QueryWithLogin):
                         tmp_table = self.db_dict[db]['tables'][table]
                         t['Table Items'] = (
                             ['@ {}'.format(i) if isinstance(tmp_table[i], dict)
-                             else '{}:'.format(i) for i in tblcols_dict] +
-                            ['' for i in range(size_diff)])
+                             else '{}:'.format(i) for i in tblcols_dict]
+                            + ['' for i in range(size_diff)])
                         t['Table Info'] = (
                             [str(tmp_table[i])
                              if not isinstance(tmp_table[i], dict)
-                             else '' for i in tblcols_dict] +
-                            ['' for i in range(size_diff)])
+                             else '' for i in tblcols_dict]
+                            + ['' for i in range(size_diff)])
                         if len(col_dict) < size2:
                             t['Columns'] = (
                                 ['@ {}'.format(i)

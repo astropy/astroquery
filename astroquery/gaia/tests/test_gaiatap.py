@@ -103,6 +103,7 @@ def test_show_message():
     tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
     GaiaClass(connHandler, tapplus, show_server_messages=True)
 
+
 def test_query_object(column_attrs, mock_querier):
     with pytest.raises(ValueError) as err:
         mock_querier.query_object(skycoord)
@@ -124,6 +125,7 @@ def test_query_object(column_attrs, mock_querier):
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
+
 def test_query_object_async(column_attrs, mock_querier_async):
     table = mock_querier_async.query_object_async(
         skycoord, width=12 * u.deg, height=10 * u.deg
@@ -137,6 +139,7 @@ def test_query_object_async(column_attrs, mock_querier_async):
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
+
 def test_cone_search_sync(column_attrs, mock_querier):
     job = mock_querier.cone_search(skycoord, 1 * u.deg)
     assert job.async_ is False
@@ -147,6 +150,7 @@ def test_cone_search_sync(column_attrs, mock_querier):
     assert len(results) == 3
     for colname, attrs in column_attrs.items():
         assert results[colname].attrs_equal(attrs)
+
 
 def test_cone_search_async(column_attrs, mock_querier_async):
     radius = 1.0 * u.deg
@@ -171,6 +175,7 @@ def test_cone_search_async(column_attrs, mock_querier_async):
         mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
         job = mock_querier_async.cone_search_async(skycoord, radius)
         assert "name_from_class" in job.parameters["query"]
+
 
 def test_load_data():
     dummy_handler = DummyTapHandler()
@@ -204,6 +209,7 @@ def test_load_data():
     }
     dummy_handler.check_call('load_data', parameters)
 
+
 def test_get_datalinks():
     dummy_handler = DummyTapHandler()
     tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
@@ -211,6 +217,7 @@ def test_get_datalinks():
     verbose = True
     tap.get_datalinks(ids, verbose)
     dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": verbose})
+
 
 def test_xmatch(mock_querier_async):
     # missing table A
@@ -299,6 +306,7 @@ def test_xmatch(mock_querier_async):
     assert job.get_phase() == "EXECUTING"
     assert job.failed is False
 
+
 @patch.object(TapPlus, 'login')
 def test_login(mock_login):
     conn_handler = DummyConnHandler()
@@ -309,6 +317,7 @@ def test_login(mock_login):
     mock_login.side_effect = HTTPError("Login error")
     tap.login("user", "password")
     assert (mock_login.call_count == 3)
+
 
 @patch.object(TapPlus, 'login_gui')
 @patch.object(TapPlus, 'login')
@@ -321,6 +330,7 @@ def test_login_gui(mock_login_gui, mock_login):
     mock_login_gui.side_effect = HTTPError("Login error")
     tap.login("user", "password")
     assert (mock_login.call_count == 1)
+
 
 @patch.object(TapPlus, 'logout')
 def test_logout(mock_logout):

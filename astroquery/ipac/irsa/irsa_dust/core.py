@@ -552,8 +552,8 @@ class SingleDustResult:
         table : `~astropy.table.Table`
             table containing the data from the query response
         """
-        columns = (self._location_section.columns + self._ext_section.columns +
-                   self._em_section.columns + self._temp_section.columns)
+        columns = (self._location_section.columns + self._ext_section.columns
+                   + self._em_section.columns + self._temp_section.columns)
         table = Table(data=columns)
 
         values = self.values()

@@ -30,8 +30,8 @@ class MastAuth:
     def __init__(self, session, token=None):
 
         self.SESSION_INFO_URL = conf.server + "/whoami"
-        self.AUTH_URL = (conf.server.replace("mast", "auth.mast") +
-                         "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
+        self.AUTH_URL = (conf.server.replace("mast", "auth.mast")
+                         + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
 
         self.session = session
 

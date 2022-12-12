@@ -533,7 +533,6 @@ class AlmaClass(QueryWithLogin):
 
     def get_data_info(self, uids, *, expand_tarfiles=False,
                       with_auxiliary=True, with_rawdata=True):
-
         """
         Return information about the data associated with ALMA uid(s)
 
@@ -729,7 +728,7 @@ class AlmaClass(QueryWithLogin):
                                  " next file".format(url=file_link))
                         continue
                     else:
-                        raise(ex)
+                        raise (ex)
 
             try:
                 filename = re.search("filename=(.*)",
@@ -781,7 +780,7 @@ class AlmaClass(QueryWithLogin):
                                  " next file".format(url=file_link))
                         continue
                     else:
-                        raise(ex)
+                        raise (ex)
                 elif ex.response.status_code == 403:
                     log.error("Access denied to {url}".format(url=file_link))
                     if 'dataPortal' in file_link and 'sso' not in file_link:

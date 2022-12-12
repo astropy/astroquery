@@ -44,7 +44,7 @@ def _prepare_service_request_string(json_obj):
     """
 
     # Append cache breaker
-    if not 'cacheBreaker' in json_obj:
+    if 'cacheBreaker' not in json_obj:
         json_obj['cacheBreaker'] = str(uuid.uuid4())
     request_string = json.dumps(json_obj)
     return 'request={}'.format(urlencode(request_string))
@@ -350,10 +350,10 @@ class PortalAPI(BaseQuery):
                    "Accept": "text/plain"}
 
         mashup_request = {'service': service,
-                         'params': params,
-                         'format': 'json',
-                         'pagesize': pagesize,
-                         'page': page}
+                          'params': params,
+                          'format': 'json',
+                          'pagesize': pagesize,
+                          'page': page}
 
         for prop, value in kwargs.items():
             mashup_request[prop] = value
@@ -421,15 +421,15 @@ class PortalAPI(BaseQuery):
             if colType == "continuous":
                 if len(value) < 2:
                     warning_string = "{} is continuous, ".format(colname) + \
-                                    "and filters based on min and max values.\n" + \
-                                    "Not enough values provided, skipping..."
+                        "and filters based on min and max values.\n" + \
+                        "Not enough values provided, skipping..."
                     warnings.warn(warning_string, InputWarning)
                     continue
                 elif len(value) > 2:
                     warning_string = "{} is continuous, ".format(colname) + \
-                                    "and filters based on min and max values.\n" + \
-                                    "Too many values provided, the first two will be " + \
-                                    "assumed to be the min and max values."
+                        "and filters based on min and max values.\n" + \
+                        "Too many values provided, the first two will be " + \
+                        "assumed to be the min and max values."
                     warnings.warn(warning_string, InputWarning)
             else:  # coltype is discrete, all values should be represented as strings, even if numerical
                 value = [str(x) for x in value]
@@ -440,8 +440,8 @@ class PortalAPI(BaseQuery):
                     if ('*' in val) or ('%' in val):
                         if free_text:  # free_text is already set cannot set again
                             warning_string = ("Only one wildcarded value may be used per filter, "
-                                             "all others must be exact.\n"
-                                             "Skipping {}...".format(val))
+                                              "all others must be exact.\n"
+                                              "Skipping {}...".format(val))
                             warnings.warn(warning_string, InputWarning)
                         else:
                             free_text = val.replace('*', '%')

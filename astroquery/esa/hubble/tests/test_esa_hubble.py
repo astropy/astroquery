@@ -217,7 +217,7 @@ class TestESAHubble:
 
     def test_get_tables(self):
         parameters = {'only_names': True,
-                       'verbose': True}
+                      'verbose': True}
 
         DummyHubbleTapHandler("get_tables", parameters)
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
@@ -230,8 +230,8 @@ class TestESAHubble:
 
     def test_get_columns(self):
         parameters = {'table_name': "table",
-                       'only_names': True,
-                       'verbose': True}
+                      'only_names': True,
+                      'verbose': True}
 
         dummyTapHandler = DummyHubbleTapHandler("get_columns", parameters)
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)

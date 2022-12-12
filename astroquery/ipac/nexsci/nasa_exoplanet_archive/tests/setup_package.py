@@ -6,4 +6,4 @@ import os
 
 def get_package_data():
     return {"astroquery.ipac.nexsci.nasa_exoplanet_archive.tests": [os.path.join("data", "*.json"),
-                                                        os.path.join("data", "*.txt")]}
+                                                                    os.path.join("data", "*.txt")]}

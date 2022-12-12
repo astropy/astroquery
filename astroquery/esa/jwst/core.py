@@ -778,7 +778,7 @@ class JwstClass(BaseQuery):
             job.get_results().reverse()
             max_cal_level = job.get_results()["calibrationlevel"][0]
             for row in job.get_results():
-                if(row["calibrationlevel"] == max_cal_level):
+                if (row["calibrationlevel"] == max_cal_level):
                     planeids.append(
                         JwstClass.get_decoded_string(row["planeid"]))
             return planeids, max_cal_level
@@ -898,8 +898,8 @@ class JwstClass(BaseQuery):
                 output_file_name = self._query_get_product(artifact_id=artifact_id)
                 err_msg = str(artifact_id)
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for artifact_id ' +
-                                 artifact_id + ': %s' % str(exx))
+                raise ValueError('Cannot retrieve product for artifact_id '
+                                 + artifact_id + ': %s' % str(exx))
         else:
             output_file_name = str(file_name)
             err_msg = str(file_name)
@@ -911,16 +911,16 @@ class JwstClass(BaseQuery):
                 params_dict['ARTIFACTID'] = (self._query_get_product(
                                              file_name=file_name))
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for file_name ' +
-                                 file_name + ': %s' % str(exx))
+                raise ValueError('Cannot retrieve product for file_name '
+                                 + file_name + ': %s' % str(exx))
 
         try:
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_name)
         except Exception as exx:
             log.info("error")
-            raise ValueError('Error retrieving product for ' +
-                             err_msg + ': %s' % str(exx))
+            raise ValueError('Error retrieving product for '
+                             + err_msg + ': %s' % str(exx))
         return output_file_name
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
@@ -1002,8 +1002,8 @@ class JwstClass(BaseQuery):
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_full_path)
         except Exception as exx:
-            raise ValueError('Cannot retrieve products for observation ' +
-                             observation_id + ': %s' % str(exx))
+            raise ValueError('Cannot retrieve products for observation '
+                             + observation_id + ': %s' % str(exx))
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path,
@@ -1074,9 +1074,9 @@ class JwstClass(BaseQuery):
                                     max_cal_level, product_type):
         if cal_level is not None:
             self.__validate_cal_level(cal_level=cal_level)
-            if(cal_level == max_cal_level or cal_level == 2):
+            if (cal_level == max_cal_level or cal_level == 2):
                 param_dict['calibrationlevel'] = 'SELECTED'
-            elif(cal_level == 1):
+            elif (cal_level == 1):
                 param_dict['calibrationlevel'] = 'LEVEL1ONLY'
             else:
                 param_dict['calibrationlevel'] = cal_level
@@ -1109,8 +1109,8 @@ class JwstClass(BaseQuery):
 
     def __get_observationid_condition(self, *, value=None):
         condition = ""
-        if(value is not None):
-            if(not isinstance(value, str)):
+        if (value is not None):
+            if (not isinstance(value, str)):
                 raise ValueError("observation_id must be string")
             else:
                 condition = " AND observationid LIKE '"+value.lower()+"' "
@@ -1118,12 +1118,12 @@ class JwstClass(BaseQuery):
 
     def __get_callevel_condition(self, cal_level):
         condition = ""
-        if(cal_level is not None):
-            if(isinstance(cal_level, str) and cal_level == 'Top'):
+        if (cal_level is not None):
+            if (isinstance(cal_level, str) and cal_level == 'Top'):
                 condition = " AND max_cal_level=calibrationlevel "
-            elif(isinstance(cal_level, int)):
+            elif (isinstance(cal_level, int)):
                 condition = " AND calibrationlevel=" +\
-                                        str(cal_level)+" "
+                    str(cal_level)+" "
             else:
                 raise ValueError("cal_level must be either "
                                  "'Top' or an integer")
@@ -1131,20 +1131,20 @@ class JwstClass(BaseQuery):
 
     def __get_public_condition(self, only_public):
         condition = ""
-        if(not isinstance(only_public, bool)):
+        if (not isinstance(only_public, bool)):
             raise ValueError("only_public must be boolean")
-        elif(only_public is True):
+        elif (only_public is True):
             condition = " AND public='true' "
         return condition
 
     def __get_plane_dataproducttype_condition(self, *, prod_type=None):
         condition = ""
-        if(prod_type is not None):
-            if(not isinstance(prod_type, str)):
+        if (prod_type is not None):
+            if (not isinstance(prod_type, str)):
                 raise ValueError("prod_type must be string")
-            elif(str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
-                raise ValueError("prod_type must be one of: " +
-                                 str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
+            elif (str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
+                raise ValueError("prod_type must be one of: "
+                                 + str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
             else:
                 condition = " AND dataproducttype LIKE '"+prod_type.lower() + \
                     "' "
@@ -1152,20 +1152,20 @@ class JwstClass(BaseQuery):
 
     def __get_instrument_name_condition(self, *, value=None):
         condition = ""
-        if(value is not None):
-            if(not isinstance(value, str)):
+        if (value is not None):
+            if (not isinstance(value, str)):
                 raise ValueError("instrument_name must be string")
-            elif(str(value).upper() not in self.INSTRUMENT_NAMES):
-                raise ValueError("instrument_name must be one of: " +
-                                 str(', '.join(self.INSTRUMENT_NAMES)))
+            elif (str(value).upper() not in self.INSTRUMENT_NAMES):
+                raise ValueError("instrument_name must be one of: "
+                                 + str(', '.join(self.INSTRUMENT_NAMES)))
             else:
                 condition = " AND instrument_name LIKE '"+value.upper()+"' "
         return condition
 
     def __get_filter_name_condition(self, *, value=None):
         condition = ""
-        if(value is not None):
-            if(not isinstance(value, str)):
+        if (value is not None):
+            if (not isinstance(value, str)):
                 raise ValueError("filter_name must be string")
 
             else:
@@ -1174,8 +1174,8 @@ class JwstClass(BaseQuery):
 
     def __get_proposal_id_condition(self, *, value=None):
         condition = ""
-        if(value is not None):
-            if(not isinstance(value, str)):
+        if (value is not None):
+            if (not isinstance(value, str)):
                 raise ValueError("proposal_id must be string")
 
             else:
@@ -1184,12 +1184,12 @@ class JwstClass(BaseQuery):
 
     def __get_artifact_producttype_condition(self, *, product_type=None):
         condition = ""
-        if(product_type is not None):
-            if(not isinstance(product_type, str)):
+        if (product_type is not None):
+            if (not isinstance(product_type, str)):
                 raise ValueError("product_type must be string")
-            elif(product_type not in self.ARTIFACT_PRODUCT_TYPES):
-                raise ValueError("product_type must be one of: " +
-                                 str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
+            elif (product_type not in self.ARTIFACT_PRODUCT_TYPES):
+                raise ValueError("product_type must be one of: "
+                                 + str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
             else:
                 condition = " AND producttype LIKE '"+product_type+"'"
         return condition

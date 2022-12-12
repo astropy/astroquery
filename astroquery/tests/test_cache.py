@@ -179,7 +179,7 @@ def test_timeout(monkeypatch):
     set_response(TEXT1)
 
     resp = mytest.test_func(URL1)
-    assert resp.content == TEXT2 # cache is accessed
+    assert resp.content == TEXT2  # cache is accessed
 
 
 def test_deactivate():

@@ -25,6 +25,7 @@ __doctest_skip__ = ['*']
 
 class TestConeSearchResults:
     """Inspection of ``TestConeSearchValidation`` results."""
+
     def setup_class(self):
         self.datadir = 'data'
         test_vos_path = get_pkg_data_path(self.datadir) + os.sep

@@ -79,7 +79,7 @@ class CasdaClass(QueryWithLogin):
         log.info("Authenticating {0} on CASDA ...".format(username))
         auth = (username, password)
         login_response = self._request("GET", self._login_url, auth=auth,
-                                        timeout=self.TIMEOUT, cache=False)
+                                       timeout=self.TIMEOUT, cache=False)
         authenticated = login_response.status_code == 200
 
         if authenticated:
@@ -248,7 +248,7 @@ class CasdaClass(QueryWithLogin):
             access_url = row['access_url']
             if access_url:
                 response = self._request('GET', access_url, auth=self._auth,
-                                        timeout=self.TIMEOUT, cache=False)
+                                         timeout=self.TIMEOUT, cache=False)
                 response.raise_for_status()
                 service_url, id_token = self._parse_datalink_for_service_and_id(response, service_name)
                 if id_token:
@@ -357,7 +357,7 @@ class CasdaClass(QueryWithLogin):
         job_url = self._create_job(table, 'cutout_service', verbose)
 
         cutout_spec = self._args_to_payload(radius=radius, coordinates=coordinates, height=height, width=width,
-               band=band, channel=channel, verbose=verbose)
+                                            band=band, channel=channel, verbose=verbose)
 
         if not cutout_spec:
             raise ValueError("Please provide cutout parameters such as coordinates, band or channel.")

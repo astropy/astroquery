@@ -327,8 +327,8 @@ class AtomicLineListClass(BaseQuery):
                 continue
             # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
-            if (elem.get('type') == 'checkbox' and
-                    elem.get('checked') in ["", "checked"]):
+            if (elem.get('type') == 'checkbox'
+                    and elem.get('checked') in ["", "checked"]):
                 value = elem.get('value', 'on')
             # radio buttons and simple input fields
             if elem.get('type') == 'radio' and\

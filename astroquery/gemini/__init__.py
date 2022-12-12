@@ -9,11 +9,11 @@ class Conf(_config.ConfigNamespace):
     server = _config.ConfigItem(
         ['https://archive.gemini.edu', ],
         'Name of the Gemini server to use.'
-        )
+    )
     timeout = _config.ConfigItem(
         30,
         'Time limit for connecting to Gemini server.'
-        )
+    )
 
 
 conf = Conf()

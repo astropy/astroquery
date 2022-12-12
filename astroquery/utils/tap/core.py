@@ -1685,17 +1685,17 @@ class TapPlus(Tap):
             if change is None:
                 raise ValueError("None of the changes can be null")
             if len(change) != 3:  # [column_name, field_name, value]
-                raise ValueError("All of the changes must have three " +
-                                 "elements: [column_name, field_name, value]")
+                raise ValueError("All of the changes must have three "
+                                 + "elements: [column_name, field_name, value]")
             index = 0
             for value in change:
                 if value is None:
-                    raise ValueError("None of the values for the changes " +
-                                     "can be null")
-                if (index == 1 and value != 'utype' and value != 'ucd' and
-                        value != 'flags' and value != 'indexed'):
-                    raise ValueError("Position 2 of all changes must be " +
-                                     "'utype', 'ucd', 'flags' or 'indexed'")
+                    raise ValueError("None of the values for the changes "
+                                     + "can be null")
+                if (index == 1 and value != 'utype' and value != 'ucd'
+                        and value != 'flags' and value != 'indexed'):
+                    raise ValueError("Position 2 of all changes must be "
+                                     + "'utype', 'ucd', 'flags' or 'indexed'")
                 index = index + 1
 
         table = self.load_table(table=table_name, verbose=verbose)
@@ -1725,10 +1725,10 @@ class TapPlus(Tap):
 
         # check whether both (Ra/Dec) are present
         # or both are None
-        if ((new_ra_column is not None and new_dec_column is None) or
-                (new_ra_column is None and new_dec_column is not None)):
-            raise ValueError("Both Ra and Dec must be specified when " +
-                             "updating one of them.")
+        if ((new_ra_column is not None and new_dec_column is None)
+                or (new_ra_column is None and new_dec_column is not None)):
+            raise ValueError("Both Ra and Dec must be specified when "
+                             + "updating one of them.")
 
         args = TapPlus.get_table_update_arguments(table_name, columns,
                                                   list_of_changes)
@@ -1810,10 +1810,10 @@ class TapPlus(Tap):
             flags = 'PK'
         else:
             flags = None
-        indexed = (str(column.flag) == 'indexed' or
-                   str(flags) == 'Ra' or
-                   str(flags) == 'Dec' or
-                   str(flags) == 'PK')
+        indexed = (str(column.flag) == 'indexed'
+                   or str(flags) == 'Ra'
+                   or str(flags) == 'Dec'
+                   or str(flags) == 'PK')
         ucd = str(column.ucd)
         utype = str(column.utype)
         return column_name, flags, indexed, ucd, utype

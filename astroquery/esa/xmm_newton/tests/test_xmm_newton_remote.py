@@ -80,15 +80,15 @@ class TestXMMNewtonRemote:
                 "P0405320501PNS001IMAGE_5000.FTZ",
                 "P0405320501PNU001IMAGE_5000.FTZ",
                 "P0405320501PNX001IMAGE_5000.FTZ"
-                ]
-            }
+            ]
+        }
     }
 
     def get_dummy_tap_handler(self):
         parameters = {'query': "select top 10 * from v_public_observations",
-                       'output_file': "test2.vot",
-                       'output_format': "votable",
-                       'verbose': False}
+                      'output_file': "test2.vot",
+                      'output_format': "votable",
+                      'verbose': False}
         dummyTapHandler = DummyXMMNewtonTapHandler("launch_job", parameters)
         return dummyTapHandler
 
@@ -101,7 +101,7 @@ class TestXMMNewtonRemote:
                             os.makedirs(os.path.join(ob_name, ftype))
                         except OSError as exc:
                             if exc.errno == errno.EEXIST and \
-                              os.path.isdir(os.path.join(ob_name, ftype)):
+                                    os.path.isdir(os.path.join(ob_name, ftype)):
                                 pass
                             else:
                                 raise
@@ -161,7 +161,7 @@ class TestXMMNewtonRemote:
         slew_source_column = "slew_source_cat_equatorial_spoint"
         xsa = XMMNewtonClass(TapPlus(url=tap_url))
         epic_source, cat_4xmm, stack_4xmm, slew_source = xsa.get_epic_metadata(target_name=target_name,
-                                                                                radius=radius)
+                                                                               radius=radius)
         c = SkyCoord.from_name(target_name, parse=True)
         query = ("select * from {} "
                  "where 1=contains({}, circle('ICRS', {}, {}, {}));")

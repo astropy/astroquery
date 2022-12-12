@@ -55,8 +55,8 @@ def _json_to_table(json_obj, data_key='data'):
             [(idx, x['name'], x[type_key].lower(), None) for idx, x in enumerate(json_obj['info'])]:
 
         # making type adjustments
-        if (col_type == "char" or col_type == "string" or 'varchar' in col_type or col_type == "null" or
-            col_type == 'datetime'):
+        if (col_type == "char" or col_type == "string" or 'varchar' in col_type or col_type == "null"
+                or col_type == 'datetime'):
             col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
         elif col_type == "boolean" or col_type == "binary":
@@ -334,7 +334,7 @@ class ServiceAPI(BaseQuery):
             else:
                 if isinstance(value, list):
                     # A composed list of multiple filters for a single column
-                        # Extract each filter value in list
+                    # Extract each filter value in list
                     for filter_value in value:
                         # Determine if tuple with filter decorator
                         if isinstance(filter_value, tuple):

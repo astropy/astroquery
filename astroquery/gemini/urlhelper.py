@@ -17,7 +17,7 @@ def handle_keyword_arg(url, key, value):
 
 def handle_radius(url, key, radius):
     """ Handler function for radius keyword with smart conversion to a degrees value """
-    assert(key == "radius")
+    assert (key == "radius")
     if isinstance(radius, (int, float)):
         radius = radius * units.deg
     radius = astropy.coordinates.Angle(radius)
@@ -28,7 +28,7 @@ def handle_radius(url, key, radius):
 
 def handle_coordinates(url, key, coordinates):
     """ Handler function for coordinates """
-    assert(key == "coordinates")
+    assert (key == "coordinates")
     coordinates = commons.parse_coordinates(coordinates)
     if coordinates is not None:
         return "%s/ra=%f/dec=%f" % (url, coordinates.ra.deg, coordinates.dec.deg)
@@ -54,7 +54,7 @@ class URLHelper:
         if server is None:
             self.server = "https://archive.gemini.edu"
         elif not server.lower().startswith("http:") \
-            and not server.lower().startswith("https:"):
+                and not server.lower().startswith("https:"):
             self.server = "https://%s" % server
         else:
             self.server = server

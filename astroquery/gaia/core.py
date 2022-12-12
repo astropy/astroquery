@@ -302,8 +302,7 @@ class GaiaClass(TapPlus):
         # for key, value in files.items():
         # print("Product =", key)
 
-        items = [key for key in files.keys()]
-        items.sort()
+        items = sorted([key for key in files.keys()])
         for item in items:
             # print(f'* {item}')
             if verbose:

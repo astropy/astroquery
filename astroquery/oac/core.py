@@ -191,10 +191,10 @@ class OACClass(BaseQuery):
 
         # Check that coordinate object is a valid astropy coordinate object
         # Criteria/Code from ../sdss/core.py
-        if (not isinstance(coordinates, list) and
-            not isinstance(coordinates, Column) and
-            not (isinstance(coordinates, commons.CoordClasses) and
-                 not coordinates.isscalar)):
+        if (not isinstance(coordinates, list)
+            and not isinstance(coordinates, Column)
+            and not (isinstance(coordinates, commons.CoordClasses) and
+                     not coordinates.isscalar)):
 
             request_payload['ra'] = coordinates.ra.deg
             request_payload['dec'] = coordinates.dec.deg
@@ -424,8 +424,8 @@ class OACClass(BaseQuery):
                 else:
                     request_payload[arg] = True
 
-        if ((data_format.lower() == 'csv') or
-                (data_format.lower() == 'json')):
+        if ((data_format.lower() == 'csv')
+                or (data_format.lower() == 'json')):
             request_payload['format'] = data_format.lower()
         else:
             raise ValueError("The format must be either csv or JSON.")
@@ -453,7 +453,7 @@ class OACClass(BaseQuery):
 
             if (len(columns) != len(test_row)):
                 log.info("The API did not return a valid CSV output! \n"
-                      "Outputing JSON-compliant dictionary instead.")
+                         "Outputing JSON-compliant dictionary instead.")
 
                 output = json.loads(raw_output)
                 return output
@@ -485,7 +485,7 @@ class OACClass(BaseQuery):
 
         if response.status_code != 200:
             raise AttributeError("ERROR: The web service returned error code: %s" %
-                response.status_code)
+                                 response.status_code)
 
         if 'message' in response.text:
             raise KeyError("ERROR: API Server returned the following error:\n{}".format(response.text))

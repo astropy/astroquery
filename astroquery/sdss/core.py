@@ -142,16 +142,16 @@ class SDSSClass(BaseQuery):
         if radius > self.MAX_CROSSID_RADIUS.value:
             raise ValueError(f"radius must be less than {self.MAX_CROSSID_RADIUS}.")
 
-        if (not isinstance(coordinates, list) and
-            not isinstance(coordinates, Column) and
-            not (isinstance(coordinates, commons.CoordClasses) and
-                 not coordinates.isscalar)):
+        if (not isinstance(coordinates, list)
+            and not isinstance(coordinates, Column)
+            and not (isinstance(coordinates, commons.CoordClasses) and
+                     not coordinates.isscalar)):
             coordinates = [coordinates]
         if obj_names is None:
             obj_names = [f'obj_{i:d}' for i in range(len(coordinates))]
         elif len(obj_names) != len(coordinates):
             raise ValueError("Number of coordinates and obj_names should "
-                         "be equal")
+                             "be equal")
         if region:
             data = "ra dec \n"
             data_format = '{ra} {dec}'
@@ -887,7 +887,7 @@ class SDSSClass(BaseQuery):
             indices = list(np.arange(33))
         else:
             indices = self.AVAILABLE_TEMPLATES[kind]
-            if type(indices) is not list:
+            if not isinstance(indices, list):
                 indices = [indices]
 
         results = []
@@ -1067,7 +1067,7 @@ class SDSSClass(BaseQuery):
             else:
                 for sql_field in fields:
                     if (sql_field in photoobj_all
-                        or sql_field.lower() in photoobj_all):
+                            or sql_field.lower() in photoobj_all):
                         q_select_field.append(f'p.{sql_field}')
                     elif (sql_field in specobj_all
                           or sql_field.lower() in specobj_all):

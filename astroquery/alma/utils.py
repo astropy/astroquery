@@ -30,8 +30,8 @@ def parse_frequency_support(frequency_support_str):
 
     freq_ranges = [(float(sup[0]),
                     float(sup[1].split(',')[0].strip(string.ascii_letters))) *
-                   u.Unit(sup[1].split(',')[0].strip(string.punctuation +
-                                                     string.digits))
+                   u.Unit(sup[1].split(',')[0].strip(string.punctuation
+                                                     + string.digits))
                    for i in supports for sup in [i.strip('[] ').split('..'), ]]
     return u.Quantity(freq_ranges)
 
@@ -95,7 +95,7 @@ def approximate_primary_beam_sizes(frequency_support_str,
         as :math:`R = 1.22 \lambda/D`
     """
     freq_ranges = parse_frequency_support(frequency_support_str)
-    beam_sizes = [(first_null * fr.mean().to(u.m, u.spectral()) /
-                   (dish_diameter)).to(u.arcsec, u.dimensionless_angles())
+    beam_sizes = [(first_null * fr.mean().to(u.m, u.spectral())
+                   / (dish_diameter)).to(u.arcsec, u.dimensionless_angles())
                   for fr in freq_ranges]
     return u.Quantity(beam_sizes)

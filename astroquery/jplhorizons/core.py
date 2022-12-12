@@ -131,9 +131,9 @@ class HorizonsClass(BaseQuery):
             if isinstance(epochs, (list, tuple, ndarray)):
                 pass
             elif isinstance(epochs, dict):
-                if not ('start' in epochs and
-                        'stop' in epochs and
-                        'step' in epochs):
+                if not ('start' in epochs
+                        and 'stop' in epochs
+                        and 'step' in epochs):
                     raise ValueError('time range ({:s}) requires start, stop, '
                                      'and step'.format(str(epochs)))
             else:
@@ -589,8 +589,8 @@ class HorizonsClass(BaseQuery):
             ('EPHEM_TYPE', 'OBSERVER'),
             ('QUANTITIES', "'"+str(quantities)+"'"),
             ('COMMAND', '"' + commandline + '"'),
-            ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
-                             str(solar_elongation[1]) + '"')),
+            ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + ","
+                             + str(solar_elongation[1]) + '"')),
             ('LHA_CUTOFF', (str(max_hour_angle))),
             ('CSV_FORMAT', ('YES')),
             ('CAL_FORMAT', ('BOTH')),
@@ -613,10 +613,10 @@ class HorizonsClass(BaseQuery):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
                                                   self.epochs])
         elif isinstance(self.epochs, dict):
-            if ('start' not in self.epochs or 'stop' not in self.epochs or
-                    'step' not in self.epochs):
-                raise ValueError("'epochs' must contain start, " +
-                                 "stop, step")
+            if ('start' not in self.epochs or 'stop' not in self.epochs
+                    or 'step' not in self.epochs):
+                raise ValueError("'epochs' must contain start, "
+                                 + "stop, step")
             request_payload['START_TIME'] = (
                 '"'+self.epochs['start'].replace("'", '')+'"')
             request_payload['STOP_TIME'] = (
@@ -850,8 +850,8 @@ class HorizonsClass(BaseQuery):
                                                   epoch in
                                                   self.epochs])
         elif isinstance(self.epochs, dict):
-            if ('start' not in self.epochs or 'stop' not in self.epochs or
-                    'step' not in self.epochs):
+            if ('start' not in self.epochs or 'stop' not in self.epochs
+                    or 'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, "
                                  "stop, step")
             request_payload['START_TIME'] = (
@@ -1101,10 +1101,10 @@ class HorizonsClass(BaseQuery):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
                                                   self.epochs])
         elif isinstance(self.epochs, dict):
-            if ('start' not in self.epochs or 'stop' not in self.epochs or
-                    'step' not in self.epochs):
-                raise ValueError("'epochs' must contain start, " +
-                                 "stop, step")
+            if ('start' not in self.epochs or 'stop' not in self.epochs
+                    or 'step' not in self.epochs):
+                raise ValueError("'epochs' must contain start, "
+                                 + "stop, step")
             request_payload['START_TIME'] = (
                 '"'+self.epochs['start'].replace("'", '')+'"')
             request_payload['STOP_TIME'] = (
@@ -1217,8 +1217,8 @@ class HorizonsClass(BaseQuery):
         centername = ''
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
-            if (self.query_type == 'ephemerides' and
-                    "Date__(UT)__HR:MN" in line):
+            if (self.query_type == 'ephemerides'
+                    and "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
                 headerline[3] = "lunar_presence" if "Earth" in centername else "interfering_body"
@@ -1227,13 +1227,13 @@ class HorizonsClass(BaseQuery):
                     headerline[4] = 'nearside_flag'
                     headerline[5] = 'illumination_flag'
             # read in elements header line
-            elif (self.query_type == 'elements' and
-                  "JDTDB," in line):
+            elif (self.query_type == 'elements'
+                  and "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
             # read in vectors header line
-            elif (self.query_type == 'vectors' and
-                  "JDTDB," in line):
+            elif (self.query_type == 'vectors'
+                  and "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
             # identify end of data block
@@ -1278,20 +1278,20 @@ class HorizonsClass(BaseQuery):
                 except ValueError:
                     phcof = nan
             # catch unambiguous names
-            if (("Multiple major-bodies match string" in line or
-                 "Matching small-bodies:" in line) and
+            if (("Multiple major-bodies match string" in line
+                 or "Matching small-bodies:" in line) and
                     ("No matches found" not in src[idx + 1])):
                 for i in range(idx + 2, len(src), 1):
-                    if (('To SELECT, enter record' in src[i]) or
-                            ('make unique selection.' in src[i])):
+                    if (('To SELECT, enter record' in src[i])
+                            or ('make unique selection.' in src[i])):
                         end_idx = i
                         break
                 raise ValueError(('Ambiguous target name; provide '
                                   'unique id:\n%s' %
                                   '\n'.join(src[idx + 2:end_idx])))
             # catch unknown target
-            if ("Matching small-bodies" in line and
-                    "No matches found" in src[idx + 1]):
+            if ("Matching small-bodies" in line
+                    and "No matches found" in src[idx + 1]):
                 raise ValueError(('Unknown target ({:s}). Maybe try '
                                   'different id_type?').format(self.id))
             # catch any unavailability of ephemeris data
@@ -1316,8 +1316,8 @@ class HorizonsClass(BaseQuery):
         if headerline == []:
             err_msg = "".join(src[data_start_idx:data_end_idx])
             if len(err_msg) > 0:
-                raise ValueError('Query failed with error message:\n' +
-                                 err_msg)
+                raise ValueError('Query failed with error message:\n'
+                                 + err_msg)
             else:
                 raise ValueError(('Query failed without known error message; '
                                   'received the following response:\n'

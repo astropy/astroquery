@@ -205,7 +205,8 @@ def test_query_object():
         assert table == "pscomppars"
         assert select == "pl_name,disc_year,discoverymethod,ra,dec"
         result = PropertyMock()
-        result = {'pl_name': 'K2-18 b', 'disc_year': 2015, 'discoverymethod': 'Transit', 'ra': [172.560141] * u.deg, 'dec': [7.5878315] * u.deg}
+        result = {'pl_name': 'K2-18 b', 'disc_year': 2015, 'discoverymethod': 'Transit',
+                  'ra': [172.560141] * u.deg, 'dec': [7.5878315] * u.deg}
 
         return result
     nasa_exoplanet_archive.query_object = mock_run_query
@@ -239,7 +240,8 @@ def test_query_region():
 def test_query_criteria():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
 
-    def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
+    def mock_run_query(table="ps", select='pl_name,discoverymethod,dec',
+                       where="discoverymethod like 'Microlensing' and dec > 0"):
         assert table == "ps"
         assert select == "pl_name,discoverymethod,dec"
         assert where == "discoverymethod like 'Microlensing' and dec > 0"

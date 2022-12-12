@@ -638,10 +638,10 @@ class ESASkyClass(BaseQuery):
             if query_mission.lower() in sanitized_missions:
                 maps[query_mission] = (
                     self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache,
-                        json, verbose=verbose))
+                                               json, verbose=verbose))
 
         if len(map_query_result) > 0 and all([maps[mission].count(None) == len(maps[mission])
-                for mission in maps]):
+                                              for mission in maps]):
             log.info("No maps got downloaded, check errors above.")
         elif len(maps) > 0:
             log.info("Maps available at {}".format(os.path.abspath(download_dir)))
@@ -1080,7 +1080,7 @@ class ESASkyClass(BaseQuery):
             if query_mission.lower() in sanitized_missions:
                 maps[query_mission] = (
                     self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
-                        cache, json, verbose=verbose))
+                                               cache, json, verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
@@ -1175,7 +1175,7 @@ class ESASkyClass(BaseQuery):
         for query_mission in map_query_result.keys():
             maps[query_mission] = (
                 self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache, json,
-                    verbose=verbose))
+                                           verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
@@ -1265,7 +1265,7 @@ class ESASkyClass(BaseQuery):
         for query_mission in spectra_query_result.keys():
             spectra[query_mission] = (
                 self._get_maps_for_mission(spectra_query_result[query_mission], query_mission, download_dir, cache,
-                    json, is_spectra=True, verbose=verbose))
+                                           json, is_spectra=True, verbose=verbose))
 
         if len(spectra_query_result) > 0:
             log.info("Spectra available at {}".format(os.path.abspath(download_dir)))
@@ -1333,8 +1333,8 @@ class ESASkyClass(BaseQuery):
 
             if query_mission.lower() in sanitized_missions:
                 spectra[query_mission] = (
-                self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
-                    cache, json, is_spectra=True, verbose=verbose))
+                    self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
+                                               cache, json, is_spectra=True, verbose=verbose))
 
         if len(sanitized_query_table_list) > 0:
             log.info("Spectra available at {}.".format(os.path.abspath(download_dir)))
@@ -1650,8 +1650,8 @@ class ESASkyClass(BaseQuery):
         if content_disposition is None:
             return ""
         filename_string = "filename="
-        start_index = (content_disposition.index(filename_string) +
-                       len(filename_string))
+        start_index = (content_disposition.index(filename_string)
+                       + len(filename_string))
         if content_disposition[start_index] == '\"':
             start_index += 1
 
@@ -1660,7 +1660,7 @@ class ESASkyClass(BaseQuery):
             return content_disposition[start_index: end_index]
         elif self.__FITS_STRING in content_disposition[start_index:].lower():
             end_index = (
-                    content_disposition.lower().index(self.__FITS_STRING, start_index + 1) + len(self.__FITS_STRING))
+                content_disposition.lower().index(self.__FITS_STRING, start_index + 1) + len(self.__FITS_STRING))
             return content_disposition[start_index: end_index]
         elif self.__FTZ_STRING in content_disposition[start_index:].upper():
             end_index = (content_disposition.upper().index(self.__FTZ_STRING, start_index + 1) + len(self.__FTZ_STRING))
@@ -1723,8 +1723,8 @@ class ESASkyClass(BaseQuery):
             if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
                                format(ra, dec, commons.radius_to_unit(
-                    self.__MIN_RADIUS_CATALOG_STRING,
-                    unit='deg')))
+                                   self.__MIN_RADIUS_CATALOG_STRING,
+                                   unit='deg')))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
                                format(tap_ra_column, tap_dec_column,

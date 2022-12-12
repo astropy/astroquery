@@ -223,8 +223,8 @@ class BesanconClass(BaseQuery):
         """
         if email is None and hasattr(self, 'email'):
             email = self.email
-        if (email is None or not isinstance(email, str) or
-                not commons.validate_email(email)):
+        if (email is None or not isinstance(email, str)
+                or not commons.validate_email(email)):
             raise ValueError("Must specify a valid e-mail address.")
 
         # create a new keyword dict based on inputs + defaults
@@ -274,8 +274,8 @@ class BesanconClass(BaseQuery):
         # convert all array elements to arrays
         for dummy in range(2):  # deal with nested lists
             for k, v in list(request_data.items()):
-                if (isinstance(v, list) or
-                        (isinstance(v, tuple) and len(v) > 1)):
+                if (isinstance(v, list)
+                        or (isinstance(v, tuple) and len(v) > 1)):
                     if k in request_data:
                         del request_data[k]
                     for index, val in enumerate(v):

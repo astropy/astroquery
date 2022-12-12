@@ -154,10 +154,12 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError(
+                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError(
+                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
 
             params = {"obj_id": objectname}
 
@@ -260,10 +262,12 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError(
+                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError(
+                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
 
             astrocut_request = f"moving_target/astrocut?obj_id={objectname}"
             if mt_type:
@@ -371,10 +375,12 @@ class TesscutClass(MastQueryWithLogin):
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
-                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+                raise InvalidQueryError(
+                    "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
-                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+                raise InvalidQueryError(
+                    "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
 
             param_dict["obj_id"] = objectname
 
@@ -531,10 +537,10 @@ class ZcutClass(MastQueryWithLogin):
 
         path = os.path.join(path, '')
         astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
-                                                                        coordinates.dec.deg,
-                                                                        size_dict["y"],
-                                                                        size_dict["x"],
-                                                                        size_dict["units"])
+                                                                    coordinates.dec.deg,
+                                                                    size_dict["y"],
+                                                                    size_dict["x"],
+                                                                    size_dict["units"])
 
         if survey:
             astrocut_request += "&survey={}".format(survey)

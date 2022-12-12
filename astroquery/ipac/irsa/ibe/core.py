@@ -205,15 +205,15 @@ class IbeClass(BaseQuery):
         intersect = intersect.upper()
         if intersect not in ('COVERS', 'ENCLOSED', 'CENTER', 'OVERLAPS'):
             raise InvalidQueryError(
-                "Invalid value for `intersects` " +
-                "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')")
+                "Invalid value for `intersects` "
+                + "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')")
 
         if action not in ('sia', 'data', 'search'):
             raise InvalidQueryError("Valid actions are: sia, data, search.")
         if action == 'data':
             raise NotImplementedError(
-                "The action='data' option is a placeholder for future " +
-                "functionality.")
+                "The action='data' option is a placeholder for future "
+                + "functionality.")
 
         args = {
             'INTERSECT': intersect
@@ -243,11 +243,11 @@ class IbeClass(BaseQuery):
             args['columns'] = ','.join(columns)
 
         url = "{URL}{action}/{mission}/{dataset}/{table}".format(
-                URL=self.URL,
-                action=action,
-                mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
-                table=table or self.TABLE)
+            URL=self.URL,
+            action=action,
+            mission=mission or self.MISSION,
+            dataset=dataset or self.DATASET,
+            table=table or self.TABLE)
 
         return self._request('GET', url, args, timeout=self.TIMEOUT)
 
@@ -384,10 +384,10 @@ class IbeClass(BaseQuery):
         """
 
         url = "{URL}docs/{mission}/{dataset}/{table}".format(
-                URL=self.URL,
-                mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
-                table=table or self.TABLE)
+            URL=self.URL,
+            mission=mission or self.MISSION,
+            dataset=dataset or self.DATASET,
+            table=table or self.TABLE)
 
         return webbrowser.open(url)
 
@@ -411,10 +411,10 @@ class IbeClass(BaseQuery):
         """
 
         url = "{URL}search/{mission}/{dataset}/{table}".format(
-                URL=self.URL,
-                mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
-                table=table or self.TABLE)
+            URL=self.URL,
+            mission=mission or self.MISSION,
+            dataset=dataset or self.DATASET,
+            table=table or self.TABLE)
 
         response = self._request(
             'GET', url, {'FORMAT': 'METADATA'}, timeout=self.TIMEOUT)

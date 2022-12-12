@@ -53,7 +53,6 @@ class TapConn:
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None):
-
         """Constructor
 
         Parameters
@@ -127,7 +126,7 @@ class TapConn:
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain",
             "User-Agent": "astroquery/{vers}".format(vers=version.version),
-            }
+        }
         self.__getHeaders = {}
         self.__cookie = None
         self.__currentStatus = 0
@@ -138,8 +137,8 @@ class TapConn:
 
     def __get_data_context(self, encodedData=None):
         if self.__dataContext is None:
-            raise ValueError("data_context must be specified at TAP object " +
-                             "creation for this action to be performed")
+            raise ValueError("data_context must be specified at TAP object "
+                             + "creation for this action to be performed")
         if encodedData is not None:
             return f"{self.__dataContext}?{encodedData}"
         else:
@@ -147,9 +146,9 @@ class TapConn:
 
     def __get_datalink_context(self, subContext, encodedData=None):
         if self.__datalinkContext is None:
-            raise ValueError("datalink_context must be specified at TAP " +
-                             "object creation for this action to be " +
-                             "performed")
+            raise ValueError("datalink_context must be specified at TAP "
+                             + "object creation for this action to be "
+                             + "performed")
         if encodedData is not None:
             return f"{self.__datalinkContext}/{subContext}?{encodedData}"
 
@@ -158,16 +157,16 @@ class TapConn:
 
     def __get_upload_context(self):
         if self.__uploadContext is None:
-            raise ValueError("upload_context must be specified at TAP " +
-                             "object creation for this action to be " +
-                             "performed")
+            raise ValueError("upload_context must be specified at TAP "
+                             + "object creation for this action to be "
+                             + "performed")
         return self.__uploadContext
 
     def __get_table_edit_context(self):
         if self.__tableEditContext is None:
-            raise ValueError("table_edit_context must be specified at TAP " +
-                             "object creation for this action to be " +
-                             "performed")
+            raise ValueError("table_edit_context must be specified at TAP "
+                             + "object creation for this action to be "
+                             + "performed")
         return self.__tableEditContext
 
     def __get_server_context(self, subContext):

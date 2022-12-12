@@ -48,7 +48,8 @@ def filename_for_request(url, params, output=False):
     fileid = fileid_for_request(url, params)
 
     filename = data_path(fileid, output=output)
-    log.debug(f'constructed filename {filename} for request: ' + json.dumps(dict(url=url, params=params), sort_keys=True, indent=4))
+    log.debug(f'constructed filename {filename} for request: '
+              + json.dumps(dict(url=url, params=params), sort_keys=True, indent=4))
 
     return filename
 

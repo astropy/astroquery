@@ -31,14 +31,14 @@ def patch_get(request):
 
 
 def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
-    if ('WavelengthEff_min' in params and
-        (params['WavelengthEff_min'] == TEST_LAMBDA and
-         params['WavelengthEff_max'] == TEST_LAMBDA+100)):
+    if ('WavelengthEff_min' in params
+        and (params['WavelengthEff_min'] == TEST_LAMBDA and
+             params['WavelengthEff_max'] == TEST_LAMBDA+100)):
         filename = data_path(DATA_FILES['filter_index'])
     elif 'ID' in params and params['ID'] == TEST_FILTER_ID:
         filename = data_path(DATA_FILES['filter_index'])
-    elif 'Facility' in params and (params['Facility'] == TEST_FACILITY and
-                                   params['Instrument'] == TEST_INSTRUMENT):
+    elif 'Facility' in params and (params['Facility'] == TEST_FACILITY
+                                   and params['Instrument'] == TEST_INSTRUMENT):
         filename = data_path(DATA_FILES['filter_list'])
     else:
         raise NotImplementedError("Test type not implemented")

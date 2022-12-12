@@ -137,7 +137,7 @@ def test_request_to_sql():
 
     # "cumulative" table is not in TAP_TABLES, payload is sent directly as GET params
     payload_dict = NasaExoplanetArchive.query_criteria(table="cumulative", where="pl_hostname like 'Kepler%'",
-                                                      order="pl_hostname", get_query_payload=True)
+                                                       order="pl_hostname", get_query_payload=True)
     assert isinstance(payload_dict, dict)
 
 
