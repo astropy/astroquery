@@ -12,11 +12,11 @@ European Space Agency (ESA)
 import tempfile
 
 import os
+import numpy as np
 
 import pytest
 from astroquery.esa.hubble import ESAHubble
 from astropy import coordinates
-import random
 
 esa_hubble = ESAHubble()
 
@@ -58,7 +58,7 @@ class TestEsaHubbleRemoteData:
 
     def test_download_product(self):
         result = esa_hubble.query_tap(query=self.hst_query)
-        observation_id = random.choice(result['observation_id'])
+        observation_id = np.random.choice((result['observation_id']))
         temp_file = self.temp_folder.name + "/" + observation_id + ".tar"
         esa_hubble.download_product(observation_id=observation_id,
                                     filename=temp_file)
@@ -67,7 +67,7 @@ class TestEsaHubbleRemoteData:
     def test_get_artifact(self):
         result = esa_hubble.query_tap(query=self.top_artifact_query)
         assert "artifact_id" in result.keys()
-        artifact_id = random.choice(result["artifact_id"])
+        artifact_id = np.random.choice(result["artifact_id"])
         temp_file = self.temp_folder.name + "/" + artifact_id + ".gz"
         esa_hubble.get_artifact(artifact_id=artifact_id, filename=temp_file)
         assert os.path.exists(temp_file)
