@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
 import pytest
 
 from astropy import coordinates
@@ -9,26 +8,28 @@ from astropy.table import Table
 
 try:
     from mocpy import MOC
+    HAS_MOCPY = True
 except ImportError:
-    pass
+    HAS_MOCPY = False
 
 try:
     from regions import CircleSkyRegion
+    HAS_REGIONS = True
 except ImportError:
-    pass
+    HAS_REGIONS = False
 
 from ..core import cds
 
 
 @pytest.mark.remote_data
+@pytest.mark.skipif(not HAS_MOCPY, reason='mocpy is required')
 class TestMOCServerRemote:
     """
     Tests requiring regions
     """
 
     # test of MAXREC payload
-    @pytest.mark.skipif('regions' not in sys.modules,
-                        reason="requires astropy-regions")
+    @pytest.mark.skipif(not HAS_REGIONS, reason='regions is required')
     @pytest.mark.parametrize('max_rec', [3, 10, 25, 100])
     def test_max_rec_param(self, max_rec):
         center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
@@ -42,8 +43,7 @@ class TestMOCServerRemote:
         assert max_rec == len(result)
 
     # test of field_l when retrieving dataset records
-    @pytest.mark.skipif('regions' not in sys.modules,
-                        reason="requires astropy-regions")
+    @pytest.mark.skipif(not HAS_REGIONS, reason='regions is required')
     @pytest.mark.parametrize('field_l', [['ID'],
                                          ['ID', 'moc_sky_fraction'],
                                          ['data_ucd', 'vizier_popularity', 'ID'],
@@ -65,8 +65,6 @@ class TestMOCServerRemote:
     """
 
     # test of moc_order payload
-    @pytest.mark.skipif('mocpy' not in sys.modules,
-                        reason="requires MOCPy")
     @pytest.mark.parametrize('moc_order', [5, 10])
     def test_moc_order_param(self, moc_order, tmp_cwd):
 
