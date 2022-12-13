@@ -100,6 +100,9 @@ jplhorizons
 
 - Optional keyword arguments are now keyword only. [#1802]
 
+- Topocentric coordinates can now be specified for both center and target in observer
+  and vector queries. [#2625]
+
 jplsbdb
 ^^^^^^^
 

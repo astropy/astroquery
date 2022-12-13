@@ -40,26 +40,60 @@ In order to query information for a specific Solar System body, a
    >>> print(obj)
    JPLHorizons instance "Ceres"; location=568, epochs=[2458133.33546], id_type=None
 
-``id`` refers to the target identifier and is mandatory; the exact
-string will be used in the query to the Horizons system.
+``id`` refers to the target object and is mandatory. ````str`` and ``int`` values
+are valid for all query types. ``Mapping`` (e.g. ``dict``) values are valid for
+observer (``ephemerides``) and vectors queries only. ``str`` or ``int`` values will be
+passed directly to Horizons. See the description of the ``id_type`` argument below
+for how Horizons interprets these values. See the paragraph below the description
+of the ``location`` argument for valid ``dict`` formatting.
 
-``location`` means either the observer's location (e.g., Horizons ephemerides
-query) or the body relative to which orbital elements are provided (e.g.,
-Horizons orbital elements or vectors query); the same codes as `used by Horizons
-<https://ssd.jpl.nasa.gov/horizons/manual.html#center>`_ are used here, which
-includes `MPC Observatory codes`_. The default is ``location=None``, which uses
-a geocentric location for ephemerides queries and the Sun as central body for
-orbital elements and state vector queries. User-defined topocentric locations
-for ephemerides queries can be provided, too, in the form of a dictionary. The
-dictionary has to be formatted as follows: {``'lon'``: longitude in degrees
-(East positive, West negative), ``'lat'``: latitude in degrees (North positive,
-South negative), ``'elevation'``: elevation in km above the reference
-ellipsoid}. In addition, ``'body'`` can be set to the Horizons body ID of the
-central body if different from Earth; by default, it is assumed that this
-location is on Earth if it has not been specifically set. The following example
-uses the coordinates of the `Statue of Liberty
+``location`` refers to the coordinate center for the ephemeris, which has
+slightly different physical interpretations depending on the query type:
+    * observer (``ephemerides``) queries: observer location
+    * vectors queries: coordinate origin for vectors
+    * elements queries: relative body for orbital elements
+``str`` and ``int`` values are valid for all query types. ``Mapping``
+(e.g. ``dict``) values are valid for observer (``ephemerides``) and vectors queries only. ``str`` or ``int``
+arguments will be passed directly to Horizons. See `this section of the Horizons
+manual<https://ssd.jpl.nasa.gov/horizons/manual.html#center>`_ for how Horizons
+interprets coordinate center codes; also note that, unlike ``id``, these include
+(most) `MPC Observatory codes<https://en.wikipedia.org/wiki/List_of_observatory_codes>`_.
+See below for valid ``dict`` formatting. The default is ``location=None``,
+which uses Earth body center for observer queries and Sun body center for orbital
+elements and vectors queries.
+
+``dict``-like arguments to ``id`` or ``location`` define a topocentric location
+relative to a major body. Note that this is not possible for elements queries,
+and will only work for bodies with defined rotation models (Horizons does not
+have rotation models for many small or recently-discovered natural satellites).
+The dictionary has to be formatted as follows: {``'lon'``: longitude in degrees,
+``'lat'``: latitude in degrees (North positive, South negative), ``'elevation'``:
+elevation in km above the reference ellipsoid, ``body``: Horizons ID of center body,
+optional; default Earth}.
+
+Horizons always interprets longitude values as eastward. However, there are two
+major gotchas in this:
+1. For most prograde rotators, which is to say most major bodies, Horizons
+interprets west-longitude as positive and east-longitude as negative. However, values
+must still be entered in east-longitude, which means they must be negative; Horizons
+will raise an error if given any positive longitude value for such bodies. Instead enter
+the west-longitude - 360. For instance, a site on Mars (id code 499) at 30 degrees
+longitude, 30 degrees latitude, 0 km elevation should be specified as
+``{'body': 499, 'elevation': 0, 'lon': -330, 'lat': 30}``.
+2. This does not apply to the Earth, Moon, and Sun. Although they are prograde,
+Horizons interprets east-longitude as positive and west-longitude as negative for these
+bodies.
+
+Here is a complete list of retrograde major bodies in Horizons:  Venus (299), Arial (701),
+Umbriel (702), Titania (703), Oberon (704), Miranda (705), Cordelia (706), Ophelia (707),
+Bianca (708), Cressida (709), Desdemona (710), Juliet (711), Portia (712), Rosalind (713),
+Belinda (714), Puck (715), Uranus (799), Triton (801). All other major bodies are prograde.
+
+Two examples of usage for specified topocentric coordinates follow.
+
+1. This observer (``ephemerides``) query uses the coordinates of the `Statue of Liberty
 <https://www.google.com/maps/place/Statue+of+Liberty+National+Monument/@40.6892534,-74.0466891,17z/data=!3m1!4b1!4m5!3m4!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004>`_
-as the observer's location:
+as the observer's location, and Ceres as the target:
 
 .. doctest-remote-data::
 
@@ -72,6 +106,24 @@ as the observer's location:
     >>> print(obj)
     JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093}, epochs=[2458133.33546], id_type=None
 
+2. Specifying topocentric coordinates for both location and observer is often
+useful when performing geometric calculations for artificial satellites without
+completely-specified ephemeris data. For instance, published reduced data for the
+lunar satellite Chang'e-2 include orbital height and lat/lon. Although there is no published
+ephemeris for Chang'e-2, Horizons (combined with the fact that Chang'e-2 looked nadir),
+can be used to compute vectors from Chang'e-2 to specific points on the lunar surface.
+Here is an example of using ``jplhorizons`` to find the distance from Chang'e-2
+at a particular point in time to the center of the crater Double:
+
+.. doctest-remote-data::
+
+    >>> ce_2 = {'lon': 23.522, 'lat': 0.637, 'elevation': 181.2, 'body': 301}
+    >>> double = {'lon': 23.47, 'lat': 0.67, 'elevation': 0, 'body': 301}
+    >>> obj = Horizons(id=double, location=ce_2, epochs=2454483.84247)
+    >>> vecs = obj.vectors()
+    >>> distance_km = (vecs['x'] ** 2 + vecs['y'] ** 2 + vecs['z'] ** 2) ** 0.5 * 1.496e8
+    >>> print(round(distance_km.value.data[0], 3))
+    181.213
 
 ``epochs`` is either a scalar or list of Julian dates (floats or strings) in the
 case of discrete epochs, or, in the case of a range of epochs, a dictionary that
