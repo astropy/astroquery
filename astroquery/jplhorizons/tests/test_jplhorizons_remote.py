@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import random
-
 from numpy.ma import is_masked
 import numpy as np
 import pytest
@@ -415,27 +413,11 @@ class TestHorizonsClass:
         black-box test for observer and vectors queries with geodetic
         coordinates. checks spatial sensibility.
         """
-        phobos = {
-            'body': 401,
-            'lon': random.randint(-150, -1),
-            'lat': random.randint(-80, 80),
-            'elevation': 0
-        }
-        deimos = {
-            'body': 402,
-            'lon': random.randint(-150, -1),
-            'lat': random.randint(-80, 80),
-            'elevation': 0
-        }
-        epochs = [random.randint(int(2.3e6), int(2.5e6))]
-        deimos_phobos = jplhorizons.Horizons(
-            phobos, location=deimos, epochs=epochs
-        )
-        phobos_deimos = jplhorizons.Horizons(
-            deimos, location=phobos, epochs=epochs
-        )
-        pd_eph = phobos_deimos.ephemerides()
-        dp_eph = deimos_phobos.ephemerides()
+        phobos = {'body': 401, 'lon': -30, 'lat': -20, 'elevation': 0}
+        deimos = {'body': 402, 'lon': -10, 'lat': -40, 'elevation': 0}
+        deimos_phobos = jplhorizons.Horizons(phobos, location=deimos, epochs=2.4e6)
+        phobos_deimos = jplhorizons.Horizons(deimos, location=phobos, epochs=2.4e6)
+        pd_eph, dp_eph = phobos_deimos.ephemerides(), deimos_phobos.ephemerides()
         dp_xyz = spherical_to_cartesian(
             dp_eph['delta'], dp_eph['DEC'], dp_eph['RA']
         )
@@ -446,7 +428,7 @@ class TestHorizonsClass:
         eph_offset = (sum([off ** 2 for off in elementwise]) ** 0.5).to(u.km)
         # horizons can do better than this, but we'd have to go to a little
         # more trouble than is necessary for a software test...
-        assert eph_offset < 10 * u.km
+        assert np.isclose(eph_offset.value, 2.558895)
         # ...and vectors queries are really what you're meant to use for
         # this sort of thing.
         pd_vec, dp_vec = phobos_deimos.vectors(), deimos_phobos.vectors()
@@ -456,4 +438,4 @@ class TestHorizonsClass:
                 + dp_vec.as_array(names=('x', 'y', 'z')).view('f8')
             ) ** 2
         )
-        assert (vec_offset * u.au.to(u.km)) < 1
+        assert np.isclose(vec_offset, 0)
