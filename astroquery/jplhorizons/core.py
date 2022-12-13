@@ -1221,7 +1221,7 @@ class HorizonsClass(BaseQuery):
                     "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
-                    headerline[3] = "lunar_presence" if "Earth" in centername else "interfering_body"
+                headerline[3] = "lunar_presence" if "Earth" in centername else "interfering_body"
                 headerline[-1] = '_dump'
                 if isinstance(self.id, dict) or str(self.id).startswith('g:'):
                     headerline[4] = 'nearside_flag'
