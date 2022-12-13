@@ -49,18 +49,17 @@ of the ``location`` argument for valid ``dict`` formatting.
 
 ``location`` refers to the coordinate center for the ephemeris, which has
 slightly different physical interpretations depending on the query type:
-    * observer (``ephemerides``) queries: observer location
-    * vectors queries: coordinate origin for vectors
-    * elements queries: relative body for orbital elements
+observer (``ephemerides``) queries: observer location
+vectors queries: coordinate origin for vectors
+elements queries: relative body for orbital elements
+
 ``str`` and ``int`` values are valid for all query types. ``Mapping``
 (e.g. ``dict``) values are valid for observer (``ephemerides``) and vectors queries only. ``str`` or ``int``
 arguments will be passed directly to Horizons. See `this section of the Horizons
-manual<https://ssd.jpl.nasa.gov/horizons/manual.html#center>`_ for how Horizons
-interprets coordinate center codes; also note that, unlike ``id``, these include
-(most) `MPC Observatory codes<https://en.wikipedia.org/wiki/List_of_observatory_codes>`_.
-See below for valid ``dict`` formatting. The default is ``location=None``,
-which uses Earth body center for observer queries and Sun body center for orbital
-elements and vectors queries.
+manual`_ for how Horizons interprets coordinate center codes; also note that,
+unlike ``id``, these include (most) `MPC Observatory codes`_. See below for valid
+``dict`` formatting. The default is ``location=None``, which uses Earth body center
+for observer queries, and Sun body center for orbital elements and vectors queries.
 
 ``dict``-like arguments to ``id`` or ``location`` define a topocentric location
 relative to a major body. Note that this is not possible for elements queries,
@@ -661,3 +660,4 @@ Reference/API
 .. _astropy units: http://docs.astropy.org/en/stable/units/index.html
 .. _Definition of Observer Table Quantities: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table
 .. _Horizons documentation: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table
+.. _this section of the Horizons manual: <https://ssd.jpl.nasa.gov/horizons/manual.html#center>
