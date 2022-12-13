@@ -121,7 +121,7 @@ at a particular point in time to the center of the crater Double:
     >>> obj = Horizons(id=double, location=ce_2, epochs=2454483.84247)
     >>> vecs = obj.vectors()
     >>> distance_km = (vecs['x'] ** 2 + vecs['y'] ** 2 + vecs['z'] ** 2) ** 0.5 * 1.496e8
-    >>> print(round(distance_km.value.data[0], 3))
+    >>> print(f"{distance_km.value.data[0]:.3f}")
     181.213
 
 ``epochs`` is either a scalar or list of Julian dates (floats or strings) in the

@@ -1045,7 +1045,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = f"g:{self.id['lon']},{self.id['lat']},{self.id['elevation']}@{self.id['body']}"
+            commandline = "g:{lon},{lat},{elevation}@{body}".format(**self.id)
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -1144,7 +1144,7 @@ class HorizonsClass(BaseQuery):
     @staticmethod
     def _prep_loc_dict(loc_dict, attr_name):
         """prepare coord specification dict for 'location' or 'id'"""
-        if {'lat', 'lon', 'elevation'} - set(loc_dict.keys()) != set():
+        if {'lat', 'lon', 'elevation'} - loc_dict.keys():
             raise ValueError(
                 f"dict values for '{attr_name}' must contain 'lat', 'lon', "
                 "'elevation' (and optionally 'body')"
@@ -1221,10 +1221,7 @@ class HorizonsClass(BaseQuery):
                     "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
-                if 'Earth' in centername:
-                    headerline[3] = 'lunar_presence'
-                else:
-                    headerline[3] = 'interfering_body'
+                    headerline[3] = "lunar_presence" if "Earth" in centername else "interfering_body"
                 headerline[-1] = '_dump'
                 if isinstance(self.id, dict) or str(self.id).startswith('g:'):
                     headerline[4] = 'nearside_flag'
