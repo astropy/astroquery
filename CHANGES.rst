@@ -149,6 +149,10 @@ skyview
 
 - Optional keyword arguments are now keyword only. [#2601]
 
+- It is now possible to apply changes through the configuration system at
+  runtime. However, if the corresponding class or instance variables have been
+  specified then they still take precedence. [#2292]
+
 svo_fps
 ^^^^^^^
 
