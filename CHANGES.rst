@@ -128,6 +128,9 @@ mast
 - Add a ``flat`` option to ``Observation.download_products()`` to turn off the
   automatic creation and organizing of products into subdirectories. [#2511]
 
+- Expanding ``Cutouts`` functionality to support making Hubble Advanced Product (HAP)
+  cutouts via HAPCut. [#2613]
+
 oac
 ^^^
 

@@ -1088,3 +1088,76 @@ class TestMast:
         assert isinstance(cutout_list, list)
         assert len(cutout_list) == 1
         assert isinstance(cutout_list[0], fits.HDUList)
+
+    ###################
+    # HapcutClass tests #
+    ###################
+
+    def test_hapcut_download_cutouts(self, tmpdir):
+        
+        # Test 1: Simple API call with expected results
+        coord = SkyCoord(351.347812, 28.497808, unit="deg")
+
+        cutout_table = mast.Hapcut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        for row in cutout_table:
+            assert os.path.isfile(row['Local Path'])
+            if 'fits' in os.path.basename(row['Local Path']):
+                assert fits.getdata(row['Local Path']).shape == (5, 5)
+
+        # Test 2: Make input size a list
+        cutout_table = mast.Hapcut.download_cutouts(coordinates=coord, size=[2, 3], path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        for row in cutout_table:
+            assert os.path.isfile(row['Local Path'])
+            if 'fits' in os.path.basename(row['Local Path']):
+                assert fits.getdata(row['Local Path']).shape == (3, 2)
+
+        # Test 3: Specify unit for input size
+        cutout_table = mast.Hapcut.download_cutouts(coordinates=coord, size=5*u.arcsec, path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        for row in cutout_table:
+            assert os.path.isfile(row['Local Path'])
+
+        # Test 4: Intentional API call with no results
+        bad_coord = SkyCoord(102.7, 70.50, unit="deg")
+        with pytest.warns(NoResultsWarning, match='Missing HAP files for input target. Cutout not performed.'):
+            cutout_table = mast.Hapcut.download_cutouts(coordinates=bad_coord, size=5, path=str(tmpdir))
+            assert isinstance(cutout_table, Table)
+            assert len(cutout_table) == 0
+
+    def test_hapcut_get_cutouts(self):
+
+        # Test 1: Simple API call with expected results
+        coord = SkyCoord(351.347812, 28.497808, unit="deg")
+
+        cutout_list = mast.Hapcut.get_cutouts(coordinates=coord)
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) >= 1
+        assert isinstance(cutout_list[0], fits.HDUList)
+        assert cutout_list[0][1].data.shape == (5, 5)
+
+        # Test 2: Make input size a list
+        cutout_list = mast.Hapcut.get_cutouts(coordinates=coord, size=[2, 3])
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) >= 1
+        assert isinstance(cutout_list[0], fits.HDUList)
+        assert cutout_list[0][1].data.shape == (3, 2)
+
+        # Test 3: Specify unit for input size
+        cutout_list = mast.Hapcut.get_cutouts(coordinates=coord, size=5*u.arcsec)
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) >= 1
+        assert isinstance(cutout_list[0], fits.HDUList)
+        assert cutout_list[0][1].data.shape == (42, 42)
+
+        # Test 4: Intentional API call with no results
+        bad_coord = SkyCoord(102.7, 70.50, unit="deg")
+
+        with pytest.warns(NoResultsWarning, match='Missing HAP files for input target. Cutout not performed.'):
+            cutout_list = mast.Hapcut.get_cutouts(coordinates=bad_coord)
+            assert isinstance(cutout_list, list)
+            assert len(cutout_list) == 0
