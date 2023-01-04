@@ -32,7 +32,6 @@ from astropy.coordinates.sky_coordinate import SkyCoord
 import numpy as np
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus
-from astroquery.utils.tap import taputils
 
 
 job_data = utils.read_file_content(Path(__file__).parent.joinpath("data", "job_1.vot"))
@@ -83,20 +82,6 @@ def mock_querier_async():
     results_response = DummyResponse(200)
     results_response.set_data(method="GET", body=job_data)
     conn_handler.set_response("async/" + jobid + "/results/result", results_response)
-
-    dict_tmp = {
-        "REQUEST": "doQuery",
-        "LANG": "ADQL",
-        "FORMAT": "votable",
-        "tapclient": tapplus.tap_client_id,
-        "PHASE": "RUN",
-        "QUERY": (
-            "SELECT crossmatch_positional('schemaA','tableA','schemaB','tableB',1.0,"
-            "'results')FROM dual;"
-        )
-    }
-    sorted_key = taputils.taputil_create_sorted_dict_key(dict_tmp)
-    conn_handler.set_response("sync?" + sorted_key, launch_response)
 
     return GaiaClass(conn_handler, tapplus, show_server_messages=False)
 
