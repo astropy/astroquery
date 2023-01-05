@@ -256,11 +256,12 @@ class RingNodeClass(BaseQuery):
         ringtable : `~astropy.table.QTable`
         """
 
-        soup = BeautifulSoup(response.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html5lib")
         text = soup.get_text()
         # need regex because some blank lines have spacebar and some do not
-        textgroups = re.split(2*os.linesep+"|"+os.linesep+" "+os.linesep, text)
+        textgroups = re.split("\n\n|\n \n", text.strip())
         ringtable = None
+
         for group in textgroups:
             group = group.strip()
 
@@ -382,7 +383,6 @@ class RingNodeClass(BaseQuery):
                                            units=ringtable_units)
                     else:
                         ringtable.add_row([ring, min_angle*u.deg, max_angle*u.deg])
-
 
         # do some cleanup from the parsing job
         # and make system-wide parameters metadata of bodytable and ringtable
