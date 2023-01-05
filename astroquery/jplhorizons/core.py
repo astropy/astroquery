@@ -1,15 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 # 1. standard library imports
-from numpy import nan
-from numpy import isnan
-from numpy import ndarray
 from collections import OrderedDict
+from typing import Mapping
 import warnings
 
 # 2. third party imports
 from requests.exceptions import HTTPError
+from numpy import nan
+from numpy import isnan
+from numpy import ndarray
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
@@ -51,8 +51,16 @@ class HorizonsClass(BaseQuery):
         Parameters
         ----------
 
-        id : str, required
-            Name, number, or designation of the object to be queried.
+        id : str or dict, required
+            Name, number, or designation of target object. Uses the same codes
+            as JPL Horizons. Arbitrary topocentric coordinates can be added
+            in a dict. The dict has to be of the form
+            {``'lon'``: longitude in deg (East positive, West
+            negative), ``'lat'``: latitude in deg (North positive, South
+            negative), ``'elevation'``: elevation in km above the reference
+            ellipsoid, [``'body'``: Horizons body ID of the central body;
+            optional; if this value is not provided it is assumed that this
+            location is on Earth]}.
 
         location : str or dict, optional
             Observer's location for ephemerides queries or center body name for
@@ -108,9 +116,16 @@ class HorizonsClass(BaseQuery):
         """
 
         super().__init__()
-        self.id = id
-        self.location = location
-
+        # check & format coordinate dictionaries for id and location; simply
+        # treat other values as given
+        if isinstance(id, Mapping):
+            self.id = self._prep_loc_dict(dict(id), "id")
+        else:
+            self.id = id
+        if isinstance(location, Mapping):
+            self.location = self._prep_loc_dict(dict(location), "location")
+        else:
+            self.location = location
         # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
             if isinstance(epochs, (list, tuple, ndarray)):
@@ -535,16 +550,22 @@ class HorizonsClass(BaseQuery):
 
         URL = conf.horizons_server
 
-        # check for required information
+        # check for required information and assemble commanddline stub
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
+        elif isinstance(self.id, dict):
+            commandline = (
+                f"g:{self.id['lon']},{self.id['lat']},"
+                f"{self.id['elevation']}@{self.id['body']}"
+            )
+        else:
+            commandline = str(self.id)
         if self.location is None:
             self.location = '500@399'
         if self.epochs is None:
             self.epochs = Time.now().jd
+        # expand commandline based on self.id_type
 
-        # assemble commandline based on self.id_type
-        commandline = str(self.id)
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
             commandline = ({'designation': 'DES=',
@@ -580,19 +601,7 @@ class HorizonsClass(BaseQuery):
             ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
-            if ('lon' not in self.location or 'lat' not in self.location or
-                    'elevation' not in self.location):
-                raise ValueError(("'location' must contain lon, lat, "
-                                  "elevation"))
-
-            if 'body' not in self.location:
-                self.location['body'] = '399'
-            request_payload['CENTER'] = 'coord@{:s}'.format(
-                str(self.location['body']))
-            request_payload['COORD_TYPE'] = 'GEODETIC'
-            request_payload['SITE_COORD'] = "'{:f},{:f},{:f}'".format(
-                self.location['lon'], self.location['lat'],
-                self.location['elevation'])
+            request_payload = dict(**request_payload, **self._location_to_params(self.location))
         else:
             request_payload['CENTER'] = "'" + str(self.location) + "'"
 
@@ -1032,17 +1041,18 @@ class HorizonsClass(BaseQuery):
 
         URL = conf.horizons_server
 
-        # check for required information
+        # check for required information and assemble commandline stub
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
+        elif isinstance(self.id, dict):
+            commandline = "g:{lon},{lat},{elevation}@{body}".format(**self.id)
+        else:
+            commandline = str(self.id)
         if self.location is None:
             self.location = '500@10'
         if self.epochs is None:
             self.epochs = Time.now().jd
-
-        # assemble commandline based on self.id_type
-        commandline = str(self.id)
-
+        # expand commandline based on self.id_type
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
             commandline = ({'designation': 'DES=',
@@ -1060,18 +1070,12 @@ class HorizonsClass(BaseQuery):
                 commandline += ' CAP{:s};'.format(closest_apparition)
             if no_fragments:
                 commandline += ' NOFRAG;'
-
-        if isinstance(self.location, dict):
-            raise ValueError(('cannot use topographic position in state'
-                              'vectors query'))
-
-        # configure request_payload for ephemerides query
+        # configure request_payload for vectors query
         request_payload = OrderedDict([
             ('format', 'text'),
             ('EPHEM_TYPE', 'VECTORS'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
-            ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
             ('REF_PLANE', {'ecliptic': 'ECLIPTIC',
                            'earth': 'FRAME',
@@ -1086,7 +1090,12 @@ class HorizonsClass(BaseQuery):
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
-
+        if isinstance(self.location, dict):
+            request_payload = dict(
+                **request_payload, **self._location_to_params(self.location)
+            )
+        else:
+            request_payload['CENTER'] = "'" + str(self.location) + "'"
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
@@ -1132,6 +1141,30 @@ class HorizonsClass(BaseQuery):
         return response
 
     # ---------------------------------- parser functions
+    @staticmethod
+    def _prep_loc_dict(loc_dict, attr_name):
+        """prepare coord specification dict for 'location' or 'id'"""
+        if {'lat', 'lon', 'elevation'} - loc_dict.keys():
+            raise ValueError(
+                f"dict values for '{attr_name}' must contain 'lat', 'lon', "
+                "'elevation' (and optionally 'body')"
+            )
+        if 'body' not in loc_dict:
+            loc_dict['body'] = 399
+        return loc_dict
+
+    @staticmethod
+    def _location_to_params(loc_dict):
+        """translate a 'location' dict to a dict of request parameters"""
+        loc_dict = {
+            "CENTER": f"coord@{loc_dict['body']}",
+            "COORD_TYPE": "GEODETIC",
+            "SITE_COORD": ",".join(
+                str(float(loc_dict[k])) for k in ['lon', 'lat', 'elevation']
+            )
+        }
+        loc_dict["SITE_COORD"] = f"'{loc_dict['SITE_COORD']}'"
+        return loc_dict
 
     def _parse_result(self, response, verbose=None):
         """
@@ -1181,14 +1214,18 @@ class HorizonsClass(BaseQuery):
         H, G = nan, nan
         M1, M2, k1, k2, phcof = nan, nan, nan, nan, nan
         headerline = []
+        centername = ''
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
             if (self.query_type == 'ephemerides' and
                     "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
-                headerline[3] = 'flags'
+                headerline[3] = "lunar_presence" if "Earth" in centername else "interfering_body"
                 headerline[-1] = '_dump'
+                if isinstance(self.id, dict) or str(self.id).startswith('g:'):
+                    headerline[4] = 'nearside_flag'
+                    headerline[5] = 'illumination_flag'
             # read in elements header line
             elif (self.query_type == 'elements' and
                   "JDTDB," in line):
@@ -1208,6 +1245,9 @@ class HorizonsClass(BaseQuery):
             # read in targetname
             if "Target body name" in line:
                 targetname = line[18:50].strip()
+            # read in center body name
+            if "Center body name" in line:
+                centername = line[18:50].strip()
             # read in H and G (if available)
             if "rotational period in hours)" in line:
                 HGline = src[idx + 2].split('=')

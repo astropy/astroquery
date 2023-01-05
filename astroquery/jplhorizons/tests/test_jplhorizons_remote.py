@@ -1,10 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
-import pytest
 from numpy.ma import is_masked
+import numpy as np
+import pytest
 
+from astropy.coordinates import spherical_to_cartesian
 from astropy.tests.helper import assert_quantity_allclose
+import astropy.units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ... import jplhorizons
@@ -23,7 +25,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "1 Ceres (A801 AA)"
         assert res['datetime_str'] == "2000-Jan-01 00:00:00.000"
         assert res['solar_presence'] == ""
-        assert res['flags'] == ""
+        assert res['lunar_presence'] == ""
         assert res['elongFlag'] == '/L'
         assert res['airmass'] == 999
 
@@ -75,7 +77,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "1P/Halley"
         assert res['datetime_str'] == "2080-Jan-11 09:00"
         assert res['solar_presence'] == ""
-        assert res['flags'] == "m"
+        assert res['lunar_presence'] == "m"
         assert res['elongFlag'] == '/L'
 
         for value in ['H', 'G']:
@@ -98,7 +100,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "73P/Schwassmann-Wachmann 3"
         assert res['datetime_str'] == "2080-Jan-01 00:00"
         assert res['solar_presence'] == "*"
-        assert res['flags'] == "m"
+        assert res['lunar_presence'] == "m"
         assert res['elongFlag'] == '/L'
 
         for value in ['H', 'G']:
@@ -123,7 +125,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "167P/CINEOS"
         assert res['datetime_str'] == "2080-Jan-01 00:00"
         assert res['solar_presence'] == "*"
-        assert res['flags'] == "m"
+        assert res['lunar_presence'] == "m"
         assert res['elongFlag'] == '/T'
 
         for value in ['H', 'G', 'M1', 'k1']:
@@ -150,7 +152,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "12P/Pons-Brooks"
         assert res['datetime_str'] == "2080-Jan-01 00:00"
         assert res['solar_presence'] == "*"
-        assert res['flags'] == "m"
+        assert res['lunar_presence'] == "m"
         assert res['elongFlag'] == '/L'
 
         for value in ['H', 'G', 'phasecoeff']:
@@ -405,3 +407,35 @@ class TestHorizonsClass:
         vec_highprec = obj.ephemerides(extra_precision=True)
 
         assert (vec_simple['RA'][0]-vec_highprec['RA'][0]) > 1e-7
+
+    def test_geodetic_queries(self):
+        """
+        black-box test for observer and vectors queries with geodetic
+        coordinates. checks spatial sensibility.
+        """
+        phobos = {'body': 401, 'lon': -30, 'lat': -20, 'elevation': 0}
+        deimos = {'body': 402, 'lon': -10, 'lat': -40, 'elevation': 0}
+        deimos_phobos = jplhorizons.Horizons(phobos, location=deimos, epochs=2.4e6)
+        phobos_deimos = jplhorizons.Horizons(deimos, location=phobos, epochs=2.4e6)
+        pd_eph, dp_eph = phobos_deimos.ephemerides(), deimos_phobos.ephemerides()
+        dp_xyz = spherical_to_cartesian(
+            dp_eph['delta'], dp_eph['DEC'], dp_eph['RA']
+        )
+        pd_xyz = spherical_to_cartesian(
+            pd_eph['delta'], pd_eph['DEC'], pd_eph['RA']
+        )
+        elementwise = [(dp_el + pd_el) for dp_el, pd_el in zip(dp_xyz, pd_xyz)]
+        eph_offset = (sum([off ** 2 for off in elementwise]) ** 0.5).to(u.km)
+        # horizons can do better than this, but we'd have to go to a little
+        # more trouble than is necessary for a software test...
+        assert np.isclose(eph_offset.value, 2.558895)
+        # ...and vectors queries are really what you're meant to use for
+        # this sort of thing.
+        pd_vec, dp_vec = phobos_deimos.vectors(), deimos_phobos.vectors()
+        vec_offset = np.sum(
+            (
+                pd_vec.as_array(names=('x', 'y', 'z')).view('f8')
+                + dp_vec.as_array(names=('x', 'y', 'z')).view('f8')
+            ) ** 2
+        )
+        assert np.isclose(vec_offset, 0)
