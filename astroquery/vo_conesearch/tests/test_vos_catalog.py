@@ -30,6 +30,7 @@ DB_FILE = get_pkg_data_filename(os.path.join('data', 'basic.json'))
 
 class TestCatalog:
     """Test VOSCatalog class."""
+
     def setup_class(self):
         self.cat = VOSCatalog.create(
             'foo', 'bar.foo', description='test', my_num=100)
@@ -73,6 +74,7 @@ def test_db_illegal_catalog():
 
 class TestDatabase:
     """Test VOSDatabase class."""
+
     def setup_class(self):
         """Use ``from_json()`` method to init."""
         self.db = VOSDatabase.from_json(DB_FILE)
@@ -103,8 +105,8 @@ class TestDatabase:
 
         for k, v in foo_iter:
             assert k == 'foo'
-            assert (v._tree == foo_cat._tree ==
-                    {'title': 'bar', 'url': 'bar.foo'})
+            assert (v._tree == foo_cat._tree
+                    == {'title': 'bar', 'url': 'bar.foo'})
 
         with pytest.raises(MissingCatalog):
             method1('foofoo')

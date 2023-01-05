@@ -615,8 +615,8 @@ class EsoClass(QueryWithLogin):
 
             # trying to detect the failing authentication:
             # - content type should not be html
-            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8' and
-                    resp.url.startswith('https://www.eso.org/sso/login')):
+            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8'
+                    and resp.url.startswith('https://www.eso.org/sso/login')):
                 if trials == 1:
                     log.warning("Session expired, trying to re-authenticate")
                     self.login()
@@ -704,7 +704,7 @@ class EsoClass(QueryWithLogin):
         if request_id is None:
             log.info("Checking availability of datasets to download...")
             valid_datasets = [self.verify_data_exists(ds)
-                          for ds in datasets_to_download]
+                              for ds in datasets_to_download]
         else:
             # Assume all valid if a request_id was provided
             valid_datasets = [(ds, True) for ds in datasets_to_download]
@@ -725,7 +725,7 @@ class EsoClass(QueryWithLogin):
                 if request_id is None:
                     log.info("Contacting retrieval server...")
                     retrieve_data_form = self._request("GET", url,
-                                                        cache=False)
+                                                       cache=False)
                     retrieve_data_form.raise_for_status()
                     log.info("Staging request...")
                     inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
@@ -740,7 +740,7 @@ class EsoClass(QueryWithLogin):
                     login_button = root.select('input[value=LOGIN]')
                     if login_button:
                         raise LoginError("Not logged in. "
-                                    "You must be logged in to download data.")
+                                         "You must be logged in to download data.")
                     inputs = {}
                     if with_calib != 'none':
                         inputs['requestCommand'] = calib_options[with_calib]
@@ -762,9 +762,9 @@ class EsoClass(QueryWithLogin):
                     if ('Request Handler - Error' in _content):
                         # Likely a problem with the request_url
                         msg = (f"The form at {request_url} returned an error."
-                                " See your recent requests at "
-                                "https://dataportal.eso.org/rh/requests/"
-                                f"{self.USERNAME}/recentRequests")
+                               " See your recent requests at "
+                               "https://dataportal.eso.org/rh/requests/"
+                               f"{self.USERNAME}/recentRequests")
 
                         raise RemoteServiceError(msg)
 
@@ -781,8 +781,7 @@ class EsoClass(QueryWithLogin):
                     root = BeautifulSoup(data_download_form.content,
                                          'html5lib')
                     state = root.select('span[id=requestState]')[0].text
-                    log.info("{0:20.0f}s elapsed"
-                          .format(time.time() - t0), end='\r')
+                    log.info("{0:20.0f}s elapsed".format(time.time() - t0), end='\r')
                     sys.stdout.flush()
                 if state == 'ERROR':
                     raise RemoteServiceError("There was a remote service "
@@ -831,8 +830,8 @@ class EsoClass(QueryWithLogin):
                              if fileId in filteredIds]
             else:
                 fileIds = root.select('input[name=fileId]')
-                fileLinks = ["http://dataportal.eso.org/dataPortal" +
-                             fileId.attrs['value'].split()[1]
+                fileLinks = ["http://dataportal.eso.org/dataPortal"
+                             + fileId.attrs['value'].split()[1]
                              for fileId in fileIds]
 
             nfiles = len(fileLinks)

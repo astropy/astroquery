@@ -30,8 +30,8 @@ class DummyDataHandler:
             return
         else:
             raise ValueError(f"Method '+{str(method)} "
-                             f"' not invoked. (Invoked method is '" +
-                             f"{str(self.__invokedMethod)}')")
+                             f"' not invoked. (Invoked method is '"
+                             + f"{str(self.__invokedMethod)}')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:

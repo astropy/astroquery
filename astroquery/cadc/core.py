@@ -454,7 +454,7 @@ class CadcClass(BaseQuery):
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url,
                                urlencode({'ID': pid_sublist}, True)),
-                               session=self.cadcdatalink._session)
+                session=self.cadcdatalink._session)
             for service_def in datalink.bysemantics('#cutout'):
                 access_url = service_def.access_url
 

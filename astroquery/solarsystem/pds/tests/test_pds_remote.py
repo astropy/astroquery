@@ -17,8 +17,13 @@ class TestRingNodeClass:
         # check system table
         systemtable = bodytable.meta
         assert np.allclose(
-            [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924, 354.11072, 354.12204, 2947896667.0, 3098568884.0, 10335.713263, ],
-            [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
+            [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924, 354.11072, 354.12204,
+             2947896667.0, 3098568884.0, 10335.713263, ],
+            [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value,
+             systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value,
+             systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value,
+             systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value,
+             systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
             rtol=1e-2,
         )
 
@@ -28,7 +33,10 @@ class TestRingNodeClass:
         assert mab["Body"] == "Mab"
         assert np.allclose(
             [42.011201, 15.801323, 5.368, 0.623, 223.976, 55.906, 223.969, 56.013, 0.10932, 3098.514, ],
-            [mab["RA (deg)"].to(u.deg).value, mab["Dec (deg)"].to(u.deg).value, mab["dRA"].to(u.arcsec).value, mab["dDec"].to(u.arcsec).value, mab["sub_obs_lon"].to(u.deg).value, mab["sub_obs_lat"].to(u.deg).value, mab["sub_sun_lon"].to(u.deg).value, mab["sub_sun_lat"].to(u.deg).value, mab["phase"].to(u.deg).value, mab["distance"].to(u.km * 1e6).value, ],
+            [mab["RA (deg)"].to(u.deg).value, mab["Dec (deg)"].to(u.deg).value, mab["dRA"].to(u.arcsec).value,
+             mab["dDec"].to(u.arcsec).value, mab["sub_obs_lon"].to(u.deg).value,
+             mab["sub_obs_lat"].to(u.deg).value, mab["sub_sun_lon"].to(u.deg).value, mab["sub_sun_lat"].to(u.deg).value,
+             mab["phase"].to(u.deg).value, mab["distance"].to(u.km * 1e6).value, ],
             rtol=1e-2,
         )
 

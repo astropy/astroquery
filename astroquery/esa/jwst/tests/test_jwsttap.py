@@ -65,7 +65,7 @@ def associated_planes_request(request):
 
 
 def get_product_mock(params, *args, **kwargs):
-    if('file_name' in kwargs and kwargs.get('file_name') == 'file_name_id'):
+    if ('file_name' in kwargs and kwargs.get('file_name') == 'file_name_id'):
         return "00000000-0000-0000-8740-65e2827c9895"
     else:
         return "jw00617023001_02102_00001_nrcb4_uncal.fits"
@@ -259,7 +259,7 @@ class TestTap:
             tap.query_region(sc, width=width, height=height, observation_id=1)
         assert "observation_id must be string" in err.value.args[0]
 
-        assert(isinstance(tap.query_region(sc, width=width, height=height, observation_id="observation"), Table))
+        assert (isinstance(tap.query_region(sc, width=width, height=height, observation_id="observation"), Table))
         # raise ValueError
 
         # Test cal_level argument
@@ -895,8 +895,8 @@ class TestTap:
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target("TEST")
-        assert ("This target name cannot be determined with this resolver: ALL" in err.value.args[0] or
-                'Failed to parse' in err.value.args[0])
+        assert ("This target name cannot be determined with this resolver: ALL" in err.value.args[0]
+                or 'Failed to parse' in err.value.args[0])
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="M1", target_resolver="ALL")
         assert err.value.args[0] in ["This target name cannot be determined "
@@ -918,20 +918,20 @@ class TestTap:
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0] or
-                'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
+                or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0] or
-               'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0]
+                or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: VIZIER' in err.value.args[0] or
-                'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
+                or 'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()

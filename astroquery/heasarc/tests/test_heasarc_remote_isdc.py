@@ -15,8 +15,8 @@ class TestHeasarcISDC:
     @property
     def isdc_context(self):
         return Conf.server.set_temp(
-                'https://www.isdc.unige.ch/browse/w3query.pl'
-                )
+            'https://www.isdc.unige.ch/browse/w3query.pl'
+        )
 
     def test_custom_args(self):
         object_name = 'Crab'
@@ -26,14 +26,14 @@ class TestHeasarcISDC:
 
         with self.isdc_context:
             table = heasarc.query_object(
-                        object_name,
-                        mission=mission,
-                        radius='1 degree',
-                        time="2020-09-01 .. 2020-12-01",
-                        resultmax=10,
-                        good_isgri=">1000",
-                        cache=False
-                    )
+                object_name,
+                mission=mission,
+                radius='1 degree',
+                time="2020-09-01 .. 2020-12-01",
+                resultmax=10,
+                good_isgri=">1000",
+                cache=False
+            )
         assert len(table) > 0
 
     def test_filter_custom_args(self):
@@ -51,7 +51,7 @@ class TestHeasarcISDC:
                     time="2020-09-01 .. 2020-12-01",
                     resultmax=10,
                     very_good_isgri=">1000",
-                    )
+                )
 
     def test_basic_time(self):
         object_name = 'Crab'
@@ -60,12 +60,12 @@ class TestHeasarcISDC:
 
         def Q(mission):
             return heasarc.query_object(
-                        object_name,
-                        mission=mission,
-                        radius='1 degree',
-                        time="2020-09-01 .. 2020-12-01",
-                        resultmax=10000
-                   )
+                object_name,
+                mission=mission,
+                radius='1 degree',
+                time="2020-09-01 .. 2020-12-01",
+                resultmax=10000
+            )
 
         with self.isdc_context:
             table_isdc = Q('integral_rev3_scw')
@@ -85,16 +85,16 @@ class TestHeasarcISDC:
 
         month_ago = (Time.now() - TimeDelta(30 * u.day)).isot[:10]
         today = Time.now().isot[:10]
-        T = month_ago + " .. " +  today
+        T = month_ago + " .. " + today
 
         def Q(mission):
             return heasarc.query_object(
-                       object_name,
-                       mission=mission,
-                       time=T,
-                       resultmax=10000,
-                       radius='1000 deg'
-                   )
+                object_name,
+                mission=mission,
+                time=T,
+                resultmax=10000,
+                radius='1000 deg'
+            )
 
         with self.isdc_context:
             table_isdc = Q('integral_rev3_scw')
@@ -113,20 +113,20 @@ class TestHeasarcISDC:
 
         with self.isdc_context:
             table_isdc = heasarc.query_object(
-                            object_name,
-                            mission='integral_rev3_scw',
-                            time=T,
-                            resultmax=10000,
-                            radius='1000 deg'
-                         )
+                object_name,
+                mission='integral_rev3_scw',
+                time=T,
+                resultmax=10000,
+                radius='1000 deg'
+            )
 
         table_heasarc = heasarc.query_object(
-                            object_name,
-                            mission='intscw',
-                            time=T,
-                            resultmax=10000,
-                            radius='1000 deg'
-                        )
+            object_name,
+            mission='intscw',
+            time=T,
+            resultmax=10000,
+            radius='1000 deg'
+        )
 
         assert len(table_isdc) == len(table_heasarc) == 1
 
@@ -145,10 +145,10 @@ class TestHeasarcISDC:
 
         with self.isdc_context:
             table = heasarc.query_object(
-                        object_name,
-                        mission=mission,
-                        radius='1 degree'
-                    )
+                object_name,
+                mission=mission,
+                radius='1 degree'
+            )
 
         assert len(table) >= 274
 

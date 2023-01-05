@@ -88,22 +88,19 @@ def test_job_phase():
     job.set_phase("COMPLETED")
     try:
         job.set_phase("RUN")
-        pytest.fail("Exception expected. " +
-                  "Phase cannot be changed for a finished job")
+        pytest.fail("Exception expected. Phase cannot be changed for a finished job")
     except ValueError:
         # ok
         pass
     try:
         job.start()
-        pytest.fail("Exception expected. " +
-                  "A job in 'COMPLETE' phase cannot be started")
+        pytest.fail("Exception expected. A job in 'COMPLETE' phase cannot be started")
     except ValueError:
         # ok
         pass
     try:
         job.abort()
-        pytest.fail("Exception expected. " +
-                  "A job in 'COMPLETE' phase cannot be aborted")
+        pytest.fail("Exception expected. A job in 'COMPLETE' phase cannot be aborted")
     except ValueError:
         # ok
         pass

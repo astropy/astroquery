@@ -35,8 +35,8 @@ class SkyViewClass(BaseQuery):
                 continue
             # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
-            if (elem.get('type') == 'checkbox' and
-                    elem.get('checked') in ["", "checked"]):
+            if (elem.get('type') == 'checkbox'
+                    and elem.get('checked') in ["", "checked"]):
                 value = elem.get('value', 'on')
                 res.append((elem.get('name'), value))
             # radio buttons and simple input fields

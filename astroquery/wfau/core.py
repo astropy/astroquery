@@ -871,12 +871,10 @@ def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,
     """
 
     band = clean_band
-    mask = ((wfau_catalog[band + 'ERRBITS'] <= maxerrbits) *
-            (wfau_catalog[band + 'ERRBITS'] >= minerrbits) *
-            ((wfau_catalog['PRIORSEC'] == wfau_catalog['FRAMESETID']) +
-             (wfau_catalog['PRIORSEC'] == 0)) *
-            (wfau_catalog[band + 'PPERRBITS'] < maxpperrbits)
-            )
+    mask = ((wfau_catalog[band + 'ERRBITS'] <= maxerrbits) * (wfau_catalog[band + 'ERRBITS'] >= minerrbits)
+            * ((wfau_catalog['PRIORSEC'] == wfau_catalog['FRAMESETID'])
+               + (wfau_catalog['PRIORSEC'] == 0)) * (wfau_catalog[band + 'PPERRBITS'] < maxpperrbits))
+
     if band + 'CLASS' in wfau_catalog.colnames:
         mask *= (wfau_catalog[band + 'CLASS'] != badclass)
     elif 'mergedClass' in wfau_catalog.colnames:
@@ -898,8 +896,7 @@ def _parse_dimension(dim):
     dim_in_min : float
         The value of the radius in arcminutes.
     """
-    if (isinstance(dim, u.Quantity) and
-            dim.unit in u.deg.find_equivalent_units()):
+    if (isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units()):
         dim_in_min = dim.to(u.arcmin).value
     # otherwise must be an Angle or be specified in hours...
     else:

@@ -243,7 +243,9 @@ def get_suitable_output_file(conn_handler, async_job, output_file, headers,
 
 
 def get_suitable_output_file_name_for_current_output_format(output_file, output_format):
-    """ renames the name given for the output_file if the results for current_output format are returned compressed by default
+    """
+    Renames the name given for the output_file if the results for current_output
+    format are returned compressed by default
     and the name selected by the user does not contain the correct extension.
 
     output_file : str, optional, default None

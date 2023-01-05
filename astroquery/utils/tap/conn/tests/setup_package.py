@@ -15,6 +15,7 @@ Created on 30 jun. 2016
 
 """
 
+
 def get_pakcage_data():
     paths = []
     return {'astroquery.utils.tap.conn.tests': paths}

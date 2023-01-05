@@ -33,8 +33,8 @@ class TestSBDBClass:
         sbdb = SBDB.query('Apophis', id_type='search',
                           close_approach=True)
 
-        assert (sbdb['ca_data']['jd'].shape[0] > 0 and
-                len(sbdb['ca_data']['jd'].shape) == 1)
+        assert (sbdb['ca_data']['jd'].shape[0] > 0
+                and len(sbdb['ca_data']['jd'].shape) == 1)
 
     def test_units(self):
         sbdb = SBDB.query('Apophis', id_type='search',

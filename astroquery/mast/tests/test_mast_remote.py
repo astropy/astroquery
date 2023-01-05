@@ -391,7 +391,8 @@ class TestMast:
         # get a product list
         product = mast.Observations.get_product_list(test_obs_id)[24]
 
-        assert len(product) > 0, f'No product found for OBSID {test_obs_id}. Unable to move forward with getting URIs from the cloud.'
+        assert len(product) > 0, (f'No product found for OBSID {test_obs_id}. '
+                                  'Unable to move forward with getting URIs from the cloud.')
 
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
@@ -407,7 +408,8 @@ class TestMast:
         # get a product list
         products = mast.Observations.get_product_list(test_obs_id)[24:]
 
-        assert len(products) > 0, f'No products found for OBSID {test_obs_id}. Unable to move forward with getting URIs from the cloud.'
+        assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
+                                   'Unable to move forward with getting URIs from the cloud.')
 
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
@@ -804,7 +806,9 @@ class TestMast:
         assert sector_table['camera'][0] == 1
         assert sector_table['ccd'][0] == 1
 
-        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_noname = ("Please specify the object name or ID (as understood by the "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
+                        "of a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
         error_name_coord = "Only one of objectname and coordinates may be specified."
@@ -886,7 +890,9 @@ class TestMast:
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_noname = ("Please specify the object name or ID (as understood by the "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of "
+                        "a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
         error_name_coord = "Only one of objectname and coordinates may be specified."
@@ -905,13 +911,13 @@ class TestMast:
 
         with pytest.raises(InvalidQueryError) as error_msg:
             mast.Tesscut.download_cutouts(objectname=moving_target_name,
-                                     coordinates=coord)
+                                          coordinates=coord)
         assert error_name_coord in str(error_msg.value)
 
         with pytest.raises(InvalidQueryError) as error_msg:
             mast.Tesscut.download_cutouts(objectname=moving_target_name,
-                                     coordinates=coord,
-                                     moving_target=True)
+                                          coordinates=coord,
+                                          moving_target=True)
         assert error_mt_coord in str(error_msg.value)
 
     def test_tesscut_get_cutouts(self, tmpdir):
@@ -945,14 +951,16 @@ class TestMast:
         moving_target_name = 'Eleonora'
 
         cutout_hdus_list = mast.Tesscut.get_cutouts(objectname=moving_target_name,
-                                moving_target=True,
-                                sector=6,
-                                size=5)
+                                                    moving_target=True,
+                                                    sector=6,
+                                                    size=5)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_noname = ("Please specify the object name or ID (as understood by the "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of "
+                        "a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
         error_name_coord = "Only one of objectname and coordinates may be specified."
@@ -1033,7 +1041,8 @@ class TestMast:
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, units='5*u.arcsec', cutout_format="png", path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(
+            coordinates=coord, size=5, units='5*u.arcsec', cutout_format="png", path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".png"
@@ -1049,14 +1058,16 @@ class TestMast:
             assert isinstance(cutout_table, Table)
             assert len(cutout_table) == 0
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='goods_north', cutout_format="jpg", path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(
+            coordinates=coord, survey='goods_north', cutout_format="jpg", path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) == 4
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
+        cutout_table = mast.Zcut.download_cutouts(
+            coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
@@ -1094,7 +1105,7 @@ class TestMast:
     ###################
 
     def test_hapcut_download_cutouts(self, tmpdir):
-        
+
         # Test 1: Simple API call with expected results
         coord = SkyCoord(351.347812, 28.497808, unit="deg")
 

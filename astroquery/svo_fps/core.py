@@ -16,7 +16,7 @@ __all__ = ['SvoFpsClass', 'SvoFps']
 # Valid query parameters taken from
 # http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
 _params_with_range = {"WavelengthRef", "WavelengthMean", "WavelengthEff",
-                     "WavelengthMin", "WavelengthMax", "WidthEff", "FWHM"}
+                      "WavelengthMin", "WavelengthMax", "WidthEff", "FWHM"}
 QUERY_PARAMETERS = _params_with_range.copy()
 for suffix in ("_min", "_max"):
     QUERY_PARAMETERS.update(param + suffix for param in _params_with_range)
@@ -64,7 +64,7 @@ class SvoFpsClass(BaseQuery):
                 f"parameter{'s' if len(bad_params) > 1 else ''} "
                 f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
                 f"invalid. For a description of valid query parameters see "
-                 "http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
+                "http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
             )
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,

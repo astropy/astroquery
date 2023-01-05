@@ -48,7 +48,8 @@ def filename_for_request(url, params, output=False):
     fileid = fileid_for_request(url, params)
 
     filename = data_path(fileid, output=output)
-    log.debug(f'constructed filename {filename} for request: ' + json.dumps(dict(url=url, params=params), sort_keys=True, indent=4))
+    log.debug(f'constructed filename {filename} for request: '
+              + json.dumps(dict(url=url, params=params), sort_keys=True, indent=4))
 
     return filename
 
@@ -92,7 +93,8 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
 @pytest.fixture(autouse=True)
 def patch_get(request):
     """
-    If the mode is not remote, patch `requests.Session` to either return saved local data or run save data new local data
+    If the mode is not remote, patch `requests.Session` to either return saved local data
+    or run save data new local data
     """
     mode = request.param
     mp = request.getfixturevalue("monkeypatch")

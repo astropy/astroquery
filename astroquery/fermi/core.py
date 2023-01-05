@@ -138,7 +138,7 @@ class GetFermilatDatafile:
 
         elapsed_time = 0
 
-        while not(page_loaded):
+        while not (page_loaded):
             page_loaded = fitsfile_urls = self._check_page()
             if page_loaded:
                 # don't wait an extra N minutes for success

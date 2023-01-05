@@ -126,7 +126,7 @@ def test_parse_result():
 
     with pytest.raises(TableParseError, match=expected_exception):
         sb._parse_result(MockResponseSimbad('query error '),
-                simbad.core.SimbadVOTableResult)
+                         simbad.core.SimbadVOTableResult)
 
     assert isinstance(sb.last_response.text, str)
     assert isinstance(sb.last_response.content, bytes)
@@ -318,8 +318,8 @@ def test_query_object_async(patch_post, object_name, wildcard):
 def test_query_object(patch_post, object_name, wildcard):
     payload = simbad.core.Simbad.query_object(
         object_name, wildcard=wildcard, get_query_payload=True)
-    expected_payload = {'script': '\nvotable {main_id,coordinates}\nvotable' +
-                        ' open\nquery id {} {}  \nvotable close'.
+    expected_payload = {'script': '\nvotable {main_id,coordinates}\nvotable'
+                        + ' open\nquery id {} {}  \nvotable close'.
                         format('wildcard' if wildcard else '', object_name)}
     assert payload == expected_payload
     result1 = simbad.core.Simbad.query_object(object_name,
@@ -345,14 +345,14 @@ def test_get_field_description():
 def test_votable_fields():
     sb = simbad.core.Simbad()
     sb.add_votable_fields('rot', 'z_value', 'velocity')
-    assert (set(sb.get_votable_fields()) ==
-            set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
+    assert (set(sb.get_votable_fields())
+            == set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
     try:
         sb.add_votable_fields('velocity')
     except KeyError:
         pass  # this is the expected response
-    assert (set(sb.get_votable_fields()) ==
-            set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
+    assert (set(sb.get_votable_fields())
+            == set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
     sb.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(sb.get_votable_fields()) == set(['z_value', 'velocity'])
     # Warning is expected as we removed the 'coordinates' field above:
@@ -363,8 +363,8 @@ def test_votable_fields():
         sb.remove_votable_fields('z_value', 'velocity')
     assert set(sb.get_votable_fields()) == set(['main_id', 'coordinates'])
     sb.add_votable_fields('rot', 'z_value', 'velocity')
-    assert (set(sb.get_votable_fields()) ==
-            set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
+    assert (set(sb.get_votable_fields())
+            == set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
     sb.reset_votable_fields()
     assert set(sb.get_votable_fields()) == set(['main_id', 'coordinates'])
 
@@ -424,9 +424,9 @@ def test_regression_votablesettings2():
     sb.add_votable_fields('fluxdata(J)')
     sb.add_votable_fields('fluxdata(H)')
     sb.add_votable_fields('fluxdata(K)')
-    assert (sb.get_votable_fields() ==
-            ['main_id', 'coordinates',
-             'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)'])
+    assert (sb.get_votable_fields()
+            == ['main_id', 'coordinates',
+                'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)'])
     sb.remove_votable_fields('fluxdata', strip_params=True)
     assert sb.get_votable_fields() == ['main_id', 'coordinates']
 

@@ -93,7 +93,7 @@ def test_ephemerides_query(patch_request):
 
     assert_quantity_allclose(
         [2451544.5, 188.70280, 9.09829, 34.40955, -2.68359, 8.459, 6.999,
-        96.17083, 161.3828, 10.4528, 2.551099027865, 0.1744491, 2.26315121010004,
+         96.17083, 161.3828, 10.4528, 2.551099027865, 0.1744491, 2.26315121010004,
          -21.9390512, 18.82205467, 95.3996, 22.5698, 292.551, 296.850,
          184.3426241, 11.7996517, 289.864335, 71.545654, 0.0, 0.0],
         [res['datetime_jd'],
@@ -227,8 +227,8 @@ def test_ephemerides_query_payload_with_optional_settings():
         ('STEP_SIZE', '"3h"'),
         ('AIRMASS', '1.2'),
         ('SKIP_DAYLT', 'YES')
-        ] + list(optional_settings.items()),
-        )
+    ] + list(optional_settings.items()),
+    )
 
 
 def test_elements_query_payload():
@@ -257,20 +257,20 @@ def test_vectors_query_payload():
                                epochs=2451544.5).vectors(
                                    get_query_payload=True)
     assert res == OrderedDict([
-                ('format', 'text'),
-                ('EPHEM_TYPE', 'VECTORS'),
-                ('OUT_UNITS', 'AU-D'),
-                ('COMMAND', '"Ceres"'),
-                ('CSV_FORMAT', '"YES"'),
-                ('REF_PLANE', 'ECLIPTIC'),
-                ('REF_SYSTEM', 'ICRF'),
-                ('TP_TYPE', 'ABSOLUTE'),
-                ('VEC_LABELS', 'YES'),
-                ('VEC_CORR', '"NONE"'),
-                ('VEC_DELTA_T', 'NO'),
-                ('OBJ_DATA', 'YES'),
-                ('CENTER', "'500@10'"),
-                ('TLIST', '2451544.5')])
+        ('format', 'text'),
+        ('EPHEM_TYPE', 'VECTORS'),
+        ('OUT_UNITS', 'AU-D'),
+        ('COMMAND', '"Ceres"'),
+        ('CSV_FORMAT', '"YES"'),
+        ('REF_PLANE', 'ECLIPTIC'),
+        ('REF_SYSTEM', 'ICRF'),
+        ('TP_TYPE', 'ABSOLUTE'),
+        ('VEC_LABELS', 'YES'),
+        ('VEC_CORR', '"NONE"'),
+        ('VEC_DELTA_T', 'NO'),
+        ('OBJ_DATA', 'YES'),
+        ('CENTER', "'500@10'"),
+        ('TLIST', '2451544.5')])
 
 
 def test_no_H(patch_request):

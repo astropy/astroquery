@@ -548,7 +548,8 @@ def test_big_download_regression(alma):
 @pytest.mark.remote_data
 def test_download_html_file(alma, tmp_path):
     alma.cache_location = tmp_path
-    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
+    result = alma.download_files(
+        ['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
     assert result
 
 
@@ -557,10 +558,13 @@ def test_verify_html_file(alma, caplog, tmp_path):
     alma.cache_location = tmp_path
 
     # download the file
-    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
+    result = alma.download_files(
+        ['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)])
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
 
-    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
+    result = alma.download_files(
+        ['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)],
+        verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
     local_filepath = Path(result[0])
     expected_file_length = local_filepath.stat().st_size
@@ -573,8 +577,11 @@ def test_verify_html_file(alma, caplog, tmp_path):
     caplog.clear()
     new_file_length = expected_file_length + 10
     with pytest.warns(expected_warning=CorruptDataWarning,
-                      match=f"Found cached file {local_filepath} with size {new_file_length} > expected size {expected_file_length}.  The download is likely corrupted."):
-        result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
+                      match=(f"Found cached file {local_filepath} with size {new_file_length} > expected size "
+                             f"{expected_file_length}.  The download is likely corrupted.")):
+        result = alma.download_files(
+            ['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)],
+            verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
 
     # manipulate the file: make it small
@@ -582,7 +589,10 @@ def test_verify_html_file(alma, caplog, tmp_path):
         fh.write(b"Empty Text")
 
     caplog.clear()
-    result = alma.download_files(['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)], verify_only=True)
+    result = alma.download_files(
+        ['https://{}/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'.format(download_hostname)],
+        verify_only=True)
     assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
     existing_file_length = 10
-    assert f"Found cached file {local_filepath} with size {existing_file_length} < expected size {expected_file_length}.  The download should be continued." in caplog.text
+    assert (f"Found cached file {local_filepath} with size {existing_file_length} < expected size "
+            f"{expected_file_length}.  The download should be continued.") in caplog.text

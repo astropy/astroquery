@@ -98,8 +98,7 @@ class Number:
             if self.errorplus == self.errorminus:
                 tempstr += " +/-" + str(self.errorplus)
             else:
-                tempstr += (" +" + str(self.errorplus) + " -" +
-                            str(self.errorminus))
+                tempstr += (" +" + str(self.errorplus) + " -" + str(self.errorminus))
         if hasattr(self, "upperlimit") and self.upperlimit is not None:
             tempstr += "<" + str(self.upperlimit)
         elif hasattr(self, "lowerlimit") and self.lowerlimit is not None:

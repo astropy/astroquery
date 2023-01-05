@@ -179,9 +179,9 @@ def test_gen_array_sql():
     # string arrays should be OR'd together
     common_select = "select * from ivoa.obscore WHERE "
     test_keywords = ["High-mass star formation", "Disks around high-mass stars"]
-    assert _gen_sql({"spatial_resolution": "<0.1",
-        "science_keyword": test_keywords}) == common_select + \
-            "spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' OR science_keyword='Disks around high-mass stars')"
+    assert (_gen_sql({"spatial_resolution": "<0.1", "science_keyword": test_keywords})
+            == common_select + ("spatial_resolution<=0.1 AND (science_keyword='High-mass star formation' "
+                                "OR science_keyword='Disks around high-mass stars')"))
 
 
 def test_gen_datetime_sql():
@@ -198,12 +198,9 @@ def test_gen_datetime_sql():
 
 def test_gen_spec_res_sql():
     common_select = 'select * from ivoa.obscore WHERE '
-    assert _gen_sql({'spectral_resolution': 70}) == common_select + \
-        "em_resolution=20985472.06"
-    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + \
-        "em_resolution>=20985472.06"
-    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + \
-        "em_resolution<=20985472.06"
+    assert _gen_sql({'spectral_resolution': 70}) == common_select + "em_resolution=20985472.06"
+    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + "em_resolution>=20985472.06"
+    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + "em_resolution<=20985472.06"
     assert _gen_sql({'spectral_resolution': '(70 .. 80)'}) == common_select + \
         "(23983396.64<=em_resolution AND em_resolution<=20985472.06)"
     assert _gen_sql({'spectral_resolution': '(70|80)'}) == common_select + \
@@ -403,9 +400,9 @@ def test_tap():
 
 @pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu'),
-                            ('https://almascience.eso.org'),
-                            ('https://almascience.nao.ac.jp')
+                             ('https://almascience.nrao.edu'),
+                             ('https://almascience.eso.org'),
+                             ('https://almascience.nao.ac.jp')
                          ])
 def test_tap_url(data_archive_url):
     _test_tap_url(data_archive_url)
@@ -420,9 +417,9 @@ def _test_tap_url(data_archive_url):
 
 @pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu'),
-                            ('https://almascience.eso.org'),
-                            ('https://almascience.nao.ac.jp')
+                             ('https://almascience.nrao.edu'),
+                             ('https://almascience.eso.org'),
+                             ('https://almascience.nao.ac.jp')
                          ])
 def test_sia_url(data_archive_url):
     _test_sia_url(data_archive_url)
@@ -437,9 +434,9 @@ def _test_sia_url(data_archive_url):
 
 @pytest.mark.parametrize('data_archive_url',
                          [
-                            ('https://almascience.nrao.edu'),
-                            ('https://almascience.eso.org'),
-                            ('https://almascience.nao.ac.jp')
+                             ('https://almascience.nrao.edu'),
+                             ('https://almascience.eso.org'),
+                             ('https://almascience.nao.ac.jp')
                          ])
 def test_datalink_url(data_archive_url):
     _test_datalink_url(data_archive_url)
@@ -467,13 +464,29 @@ def test_get_data_info():
 # This method will be used by the mock in test_get_data_info_expand_tarfiles to replace requests.get
 def _mocked_datalink_sync(*args, **kwargs):
     class MockResponse:
-        adhoc_service_1_param1 = type('', (object, ), {'ID': 'standardID', 'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
-        adhoc_service_1_param2 = type('', (object, ), {'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
-        adhoc_service_1 = type('', (object, ), {'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'params': [adhoc_service_1_param1, adhoc_service_1_param2]})()
+        adhoc_service_1_param1 = type('', (object, ), {'ID': 'standardID',
+                                      'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
+        adhoc_service_1_param2 = type(
+            '', (object, ), {
+                'ID': 'accessURL',
+                'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'}
+        )()
+        adhoc_service_1 = type(
+            '', (object, ), {
+                'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'params': [
+                    adhoc_service_1_param1, adhoc_service_1_param2]})()
 
-        adhoc_service_2_param1 = type('', (object, ), {'ID': 'standardID', 'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
-        adhoc_service_2_param2 = type('', (object, ), {'ID': 'accessURL', 'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
-        adhoc_service_2 = type('', (object, ), {'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'params': [adhoc_service_1_param1, adhoc_service_1_param2]})()
+        adhoc_service_2_param1 = type('', (object, ), {'ID': 'standardID',
+                                      'value': 'ivo://ivoa.net/std/DataLink#links-1.0'})()
+        adhoc_service_2_param2 = type(
+            '', (object, ), {
+                'ID': 'accessURL',
+                'value': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'}
+        )()
+        adhoc_service_2 = type(
+            '', (object, ), {
+                'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'params': [
+                    adhoc_service_1_param1, adhoc_service_1_param2]})()
 
         adhoc_services = {
             'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar': adhoc_service_1,

@@ -368,9 +368,9 @@ def parse_lamda_lines(data):
     coll_tables = {collider_ids[collider]: None for collider in collrates}
     for collider in collrates:
         collname = collider_ids[collider]
-        coll_table_names = (['Transition', 'Upper', 'Lower'] +
-                            ['C_ij(T={0:d})'.format(tem) for tem in
-                             meta_coll[collname]["temperatures"]])
+        coll_table_names = (['Transition', 'Upper', 'Lower']
+                            + ['C_ij(T={0:d})'.format(tem) for tem in
+                               meta_coll[collname]["temperatures"]])
         coll_table_columns = [table.Column(name=name, data=data)
                               for name, data in zip(coll_table_names,
                                                     zip(*collrates[collider]))]

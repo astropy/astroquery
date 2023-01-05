@@ -49,6 +49,7 @@ class TestConeSearch:
         At the time this was written, ``pedantic=True`` will
         not yield any successful search.
     """
+
     def setup_class(self):
         # If this link is broken, use the next in database that works
         self.url = ('http://vizier.unistra.fr/viz-bin/votable/-A?-out.all&'
@@ -64,10 +65,10 @@ class TestConeSearch:
         self.verbose = False
 
     def test_cat_listing(self):
-        assert (conesearch.list_catalogs() ==
-                ['BROKEN', 'USNO ACT', 'USNO NOMAD', 'USNO-A2', 'USNO-B1'])
-        assert (conesearch.list_catalogs(pattern='usno*a') ==
-                ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
+        assert (conesearch.list_catalogs()
+                == ['BROKEN', 'USNO ACT', 'USNO NOMAD', 'USNO-A2', 'USNO-B1'])
+        assert (conesearch.list_catalogs(pattern='usno*a')
+                == ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
 
     def test_no_result_classic(self):
         with pytest.warns(NoResultsWarning, match='returned 0 result'):
@@ -232,6 +233,7 @@ class TestErrorResponse:
 
     Also see https://github.com/astropy/astropy/issues/1001
     """
+
     def setup_class(self):
         self.datadir = 'data'
         self.pedantic = False

@@ -107,8 +107,8 @@ class MagpisClass(BaseQuery):
             The HTTP response returned from the service
         """
         if survey not in self.surveys:
-            raise InvalidQueryError("Survey must be one of " +
-                                    (",".join(self.list_surveys())))
+            raise InvalidQueryError("Survey must be one of "
+                                    + (",".join(self.list_surveys())))
         request_payload = self._args_to_payload(
             coordinates, image_size=image_size, survey=survey)
         if get_query_payload:

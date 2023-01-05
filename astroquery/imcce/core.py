@@ -593,9 +593,9 @@ class SkybotClass(BaseQuery):
                            '-loc': str(location),
                            '-filter': position_error.arcsec,
                            '-objFilter':
-                           str(int(find_asteroids)) +
-                           str(int(find_planets)) +
-                           str(int(find_comets)),
+                           str(int(find_asteroids))
+                           + str(int(find_planets))
+                           + str(int(find_comets)),
                            '-refsys': 'EQJ2000',
                            '-output': 'all',
                            '-mime': 'text'}

@@ -86,7 +86,8 @@ class CatalogsClass(MastQueryWithLogin):
             E.g. when using a slow internet connection.
         page : int, optional
             Default None.
-            Can be used to override the default behavior of all results being returned to obtain a specific page of results.
+            Can be used to override the default behavior of all results being returned to obtain a
+            specific page of results.
         **kwargs
             Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
@@ -289,7 +290,7 @@ class CatalogsClass(MastQueryWithLogin):
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
                 filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                     service, **criteria)
+                                                                    service, **criteria)
                 params["columns"] = "*"
             elif catalog.lower() == "ctl":
                 service = "Mast.Catalogs.Filtered.Ctl"
@@ -297,20 +298,20 @@ class CatalogsClass(MastQueryWithLogin):
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
                 filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                     service, **criteria)
+                                                                    service, **criteria)
                 params["columns"] = "*"
             elif catalog.lower() == "diskdetective":
                 service = "Mast.Catalogs.Filtered.DiskDetective"
                 if coordinates or objectname:
                     service += ".Position"
                 filters = self._current_connection.build_filter_set("Mast.Catalogs.Dd.Cone",
-                                                                     service, **criteria)
+                                                                    service, **criteria)
             else:
                 raise InvalidQueryError("Criteria query not available for {}".format(catalog))
 
             if not filters:
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
-            params["filters"] =  filters
+            params["filters"] = filters
 
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
@@ -421,11 +422,11 @@ class CatalogsClass(MastQueryWithLogin):
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
                     url_list.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={0}'
-                                   .format(spec['DatasetName']))
+                                    .format(spec['DatasetName']))
 
                 else:
                     url_list.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={0}'
-                                   .format(spec['DatasetName']) + '.fits')
+                                    .format(spec['DatasetName']) + '.fits')
 
                 path_list.append(download_file + "/HSC/" + spec['DatasetName'] + '.fits')
 
@@ -456,7 +457,7 @@ class CatalogsClass(MastQueryWithLogin):
                 url = bundler_response['url']
             else:
                 missing_files = [x for x in bundler_response['statusList'].keys()
-                                if bundler_response['statusList'][x] != 'COMPLETE']
+                                 if bundler_response['statusList'][x] != 'COMPLETE']
                 if len(missing_files):
                     msg = "{} files could not be added to the curl script".format(len(missing_files))
                     url = ",".join(missing_files)

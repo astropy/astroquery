@@ -36,8 +36,8 @@ class MPCClass(BaseQuery):
     MPC_PASSWORD = 'mpc!!ws'
 
     MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
-    OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server +
-                             '/iau/lists/ObsCodes.html')
+    OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server
+                             + '/iau/lists/ObsCodes.html')
 
     MPCOBS_URL = conf.mpcdb_server
 
@@ -1216,8 +1216,8 @@ class MPCClass(BaseQuery):
                 ident = data['pdesig'][0]
                 if isinstance(ident, np.ma.masked_array) and ident.mask:
                     ident = ''
-                elif (len(ident) < 7 and ident[:4].isdigit() and
-                        ident[4:6].isalpha()):
+                elif (len(ident) < 7 and ident[:4].isdigit()
+                        and ident[4:6].isalpha()):
                     ident = ident[:4]+' '+ident[4:6]
                 # Palomar Survey
                 elif 'PLS' in ident:
@@ -1230,8 +1230,8 @@ class MPCClass(BaseQuery):
                 elif 'T3S' in ident:
                     ident = ident[3:] + " T-3"
                 # standard MPC packed 7-digit designation
-                elif (ident[0].isalpha() and ident[1:3].isdigit() and
-                      ident[-1].isalpha() and ident[-2].isdigit()):
+                elif (ident[0].isalpha() and ident[1:3].isdigit()
+                      and ident[-1].isalpha() and ident[-2].isdigit()):
                     yr = str(conf.pkd.find(ident[0]))+ident[1:3]
                     let = ident[3]+ident[-1]
                     num = str(conf.pkd.find(ident[4]))+ident[5]

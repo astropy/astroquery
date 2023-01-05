@@ -91,8 +91,7 @@ class XMatchClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if max_distance > 180 * u.arcsec:
-            raise ValueError(
-                'max_distance argument must not be greater than 180')
+            raise ValueError('max_distance argument must not be greater than 180')
         payload = {'request': 'xmatch',
                    'distMaxArcsec': max_distance.to(u.arcsec).value,
                    'RESPONSEFORMAT': 'votable',
@@ -139,8 +138,7 @@ class XMatchClass(BaseQuery):
 
         if not self.is_table_available(cat):
             if ((colRA is None) or (colDec is None)):
-                raise ValueError('Specify the name of the RA/Dec columns in' +
-                                 ' the input table.')
+                raise ValueError('Specify the name of the RA/Dec columns in the input table.')
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA{0}'.format(cat_index)] = colRA

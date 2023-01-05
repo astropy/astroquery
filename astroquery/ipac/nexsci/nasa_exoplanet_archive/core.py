@@ -20,8 +20,7 @@ from astropy.table import QTable
 from astropy.utils.exceptions import AstropyWarning
 
 # Import astroquery utilities
-from astroquery.exceptions import (InputWarning, InvalidQueryError, NoResultsWarning,
-                          RemoteServiceError)
+from astroquery.exceptions import InputWarning, InvalidQueryError, NoResultsWarning, RemoteServiceError
 from astroquery.query import BaseQuery
 from astroquery.utils import async_to_sync, commons
 from astroquery.utils.class_or_instance import class_or_instance
@@ -406,7 +405,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
             if resolved_name == system_name and n_stars > 1:
                 aliases = data['system']['system_info']['alias_set']['aliases']
             # Asked for planet
-            elif len(resolved_name_split) > 1 and len(resolved_name_split[-1]) == 1 and resolved_name_split[-1].isalpha() and resolved_name_split[-1].islower():
+            elif (len(resolved_name_split) > 1 and len(resolved_name_split[-1]) == 1
+                  and resolved_name_split[-1].isalpha() and resolved_name_split[-1].islower()):
                 aliases = data['system']['objects']['planet_set']['planets'][resolved_name]['alias_set']['aliases']
             # Asked for star
             else:

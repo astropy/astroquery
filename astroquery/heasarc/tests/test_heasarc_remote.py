@@ -112,9 +112,8 @@ class TestHeasarc:
             # This was an example coordinate that returned nothing
             # Since Fermi is still active, it is possible that sometime in the
             # future an event will occur here.
-            table = heasarc.query_region(
-                    SkyCoord(0.28136*u.deg, -0.09789*u.deg, frame='fk5'),
-                    mission='fermilpsc', radius=0.1*u.deg)
+            table = heasarc.query_region(SkyCoord(0.28136*u.deg, -0.09789*u.deg, frame='fk5'),
+                                         mission='fermilpsc', radius=0.1*u.deg)
 
         assert len(table) == 0
         # this is to check that the header comments got parsed correctly

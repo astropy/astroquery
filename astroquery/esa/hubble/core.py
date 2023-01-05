@@ -164,7 +164,8 @@ class ESAHubbleClass(BaseQuery):
         elif 'HAP' in observation_type:
             oids = self._select_related_members(observation_id)
         elif 'HST' in observation_type:
-            query = f"select observation_id from ehst.observation where obs_type='HAP Simple' and members like '%{observation_id}%'"
+            query = ("select observation_id from ehst.observation where obs_type='HAP Simple' "
+                     f"and members like '%{observation_id}%'")
             job = self.query_tap(query=query)
             oids = job["observation_id"].pformat(show_name=False)
         else:
@@ -346,7 +347,7 @@ class ESAHubbleClass(BaseQuery):
         astropy.table.Table with the result of the cone_search
         """
         coord = self._getCoordInput(coordinates)
-        if type(radius) == int or type(radius) == float:
+        if isinstance(radius, int) or isinstance(radius, float):
             radius_in_grades = Angle(radius, units.arcmin).deg
         else:
             radius_in_grades = radius.to(units.deg).value
@@ -376,9 +377,9 @@ class ESAHubbleClass(BaseQuery):
         if verbose:
             log.info(query)
         table = self.query_tap(query=query, async_job=async_job,
-                              output_file=filename,
-                              output_format=output_format,
-                              verbose=verbose)
+                               output_file=filename,
+                               output_format=output_format,
+                               verbose=verbose)
         return table
 
     def cone_search_criteria(self, radius, *, target=None,
@@ -476,7 +477,7 @@ class ESAHubbleClass(BaseQuery):
         ra = coord.ra.deg
         dec = coord.dec.deg
 
-        if type(radius) == int or type(radius) == float:
+        if isinstance(radius, int) or isinstance(radius, float):
             radius_in_grades = Angle(radius, units.arcmin).deg
         else:
             radius_in_grades = radius.to(units.deg).value
@@ -488,9 +489,9 @@ class ESAHubbleClass(BaseQuery):
             log.info(query)
 
         table = self.query_tap(query=query, async_job=async_job,
-                                   output_file=filename,
-                                   output_format=output_format,
-                                   verbose=verbose)
+                               output_file=filename,
+                               output_format=output_format,
+                               verbose=verbose)
         return table
 
     def _query_tap_target(self, target):
@@ -808,10 +809,10 @@ class ESAHubbleClass(BaseQuery):
             return columns
 
     def _getCoordInput(self, value):
-        if not (isinstance(value, str) or
-                isinstance(value, SkyCoord)):
-            raise ValueError("Coordinates" +
-                             " must be either a string or astropy.coordinates")
+        if not (isinstance(value, str)
+                or isinstance(value, SkyCoord)):
+            raise ValueError("Coordinates"
+                             + " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             return SkyCoord(value)
         else:

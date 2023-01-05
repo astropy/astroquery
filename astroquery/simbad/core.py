@@ -82,8 +82,8 @@ def strip_field(field, keep_filters=False):
     """
     if '(' in field:
         root = field[:field.find('(')]
-        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist') or
-                not keep_filters):
+        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
+                or not keep_filters):
             return root
 
     # the overall else (default option)
@@ -225,6 +225,7 @@ class SimbadBaseQuery(BaseQuery):
     in a "connection refused" error (error 61) instead of a more typical "error
     8" that you would get from not having an internet connection at all.
     """
+
     def _request(self, *args, **kwargs):
         try:
             response = super()._request(*args, **kwargs)
@@ -533,7 +534,6 @@ class SimbadClass(SimbadBaseQuery):
 
     def query_object_async(self, object_name, *, wildcard=False, cache=True,
                            get_query_payload=False):
-
         """
         Serves the same function as `query_object`, but
         only collects the response from the Simbad server and returns.

@@ -87,7 +87,7 @@ class RingNodeClass(BaseQuery):
         return "PDSRingNode instance"
 
     def ephemeris_async(self, planet, *, epoch=None, location=None, neptune_arcmodel=3,
-                            get_query_payload=False, cache=True):
+                        get_query_payload=False, cache=True):
         """
         send query to Planetary Ring Node server
 
@@ -182,9 +182,8 @@ class RingNodeClass(BaseQuery):
                 altitude = u.Quantity(location[2]).to_value(u.m)
 
         if neptune_arcmodel not in [1, 2, 3]:
-            raise ValueError(
-                f"Illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)"
-            )
+            raise ValueError(f"illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 "
+                             "(see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details).")
 
         # configure request_payload for ephemeris query
         request_payload = dict(
@@ -284,7 +283,9 @@ class RingNodeClass(BaseQuery):
             elif group.startswith("Sub-"):
 
                 group = os.linesep.join(group.splitlines()[2:])  # removing two-row header entirely
-                bodytable2_names = ("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance")
+                bodytable2_names = ("NAIF ID", "Body",
+                                    "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat",
+                                    "phase", "distance")
                 bodytable2_units = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
                 bodytable2 = QTable.read(group, format="ascii.fixed_width",
                                          col_starts=(0, 4, 18, 28, 37, 49, 57, 71),

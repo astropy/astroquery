@@ -46,8 +46,8 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
     avals = lamda_tables[1]
     enlevs = lamda_tables[2]
 
-    aval = avals[(avals['Upper'] == transition_upper) &
-                 (avals['Lower'] == transition_lower)]['EinsteinA'][0]
+    aval = avals[(avals['Upper'] == transition_upper)
+                 & (avals['Lower'] == transition_lower)]['EinsteinA'][0]
 
     temperature_re = re.compile(r"C_ij\(T=([0-9]*)\)")
     crate_temperatures = np.array(
@@ -75,10 +75,9 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
             low, high = (crate_temperatures[nearest - 1],
                          crate_temperatures[nearest])
         crates_ji_all = {coll:
-                         (cr['C_ij(T={0})'.format(high)] -
-                          cr['C_ij(T={0})'.format(low)]) *
-                         (temperature - low) / (high - low) +
-                         cr['C_ij(T={0})'.format(low)]
+                         (cr['C_ij(T={0})'.format(high)] - cr['C_ij(T={0})'.format(low)])
+                         * (temperature - low) / (high - low)
+                         + cr['C_ij(T={0})'.format(low)]
                          for coll, cr in crates.items()}
 
     transition_indices_ji = {
@@ -101,18 +100,18 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
         energy_j = enlevs['Energy'][crates_ind['Lower'] - 1] * u.cm ** -1
         # Shirley 2015 eqn 4:
         crates_ij[coll] = (
-            crates_ji_all[coll][transition_indices_ij[coll]] *
-            degeneracies_i / degeneracies_j.astype('float') *
-            np.exp((-energy_i - energy_j).to(u.erg, u.spectral()) /
-                   (constants.k_B * temperature * u.K)))
+            crates_ji_all[coll][transition_indices_ij[coll]]
+            * degeneracies_i / degeneracies_j.astype('float')
+            * np.exp((-energy_i - energy_j).to(u.erg, u.spectral())
+                     / (constants.k_B * temperature * u.K)))
 
     crates_tot_percollider = {
-        coll: (np.sum(crates_ij[coll]) + np.sum(crates_ji[coll])) *
-        u.cm ** 3 / u.s for coll in crates}
+        coll: (np.sum(crates_ij[coll]) + np.sum(crates_ji[coll]))
+        * u.cm ** 3 / u.s for coll in crates}
 
     if 'OH2' in crates:
-        crates_tot = (fortho * crates_tot_percollider['OH2'] +
-                      (1 - fortho) * crates_tot_percollider['PH2'])
+        crates_tot = (fortho * crates_tot_percollider['OH2']
+                      + (1 - fortho) * crates_tot_percollider['PH2'])
     elif 'PH2' in crates:
         crates_tot = crates_tot_percollider['PH2']
     elif 'H2' in crates:

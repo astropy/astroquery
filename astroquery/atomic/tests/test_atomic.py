@@ -59,8 +59,8 @@ def test_transitions():
     assert isinstance(Transition.M1, MultiTransition)
     assert len(Transition.IC | Transition.M1) == 2
     # associativity
-    assert ((Transition.IC | Transition.M1) | Transition.E1 ==
-            Transition.IC | (Transition.M1 | Transition.E1))
+    assert ((Transition.IC | Transition.M1) | Transition.E1
+            == Transition.IC | (Transition.M1 | Transition.E1))
     # commutativity
     assert Transition.IC | Transition.M1 == Transition.M1 | Transition.IC
     assert str((Transition.IC | Transition.M1)) == 'IC,M1'

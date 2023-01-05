@@ -188,19 +188,19 @@ class HeasarcClass(BaseQuery):
     def _old_w3query_fallback(self, content):
         # old w3query (such as that used in ISDC) return very strange fits, with all ints
 
-        f = fits.open(BytesIO(content))
+        fits_content = fits.open(BytesIO(content))
 
-        for c in f[1].columns:
-            if c.disp is not None:
-                c.format = c.disp
+        for col in fits_content[1].columns:
+            if col.disp is not None:
+                col.format = col.disp
             else:
-                c.format = str(c.format).replace("I", "A")
+                col.format = str(col.format).replace("I", "A")
 
-        I = BytesIO()
-        f.writeto(I)
-        I.seek(0)
+        tmp_out = BytesIO()
+        fits_content.writeto(tmp_out)
+        tmp_out.seek(0)
 
-        return Table_read(I)
+        return Table_read(tmp_out)
 
     def _fallback(self, text):
         """
@@ -252,9 +252,9 @@ class HeasarcClass(BaseQuery):
 
         if "BATCH_RETRIEVAL_MSG ERROR:" in response.text:
             raise InvalidQueryError("One or more inputs is not recognized by HEASARC. "
-                             "Check that the object name is in GRB, SIMBAD+Sesame, or "
-                             "NED format and that the mission name is as listed in "
-                             "query_mission_list().")
+                                    "Check that the object name is in GRB, SIMBAD+Sesame, or "
+                                    "NED format and that the mission name is as listed in "
+                                    "query_mission_list().")
         elif "Software error:" in response.text:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
@@ -274,7 +274,6 @@ class HeasarcClass(BaseQuery):
                 return self._fallback(response.text)
             except Exception:
                 return self._old_w3query_fallback(response.content)
-
 
     def _args_to_payload(self, **kwargs):
         """
@@ -323,7 +322,8 @@ class HeasarcClass(BaseQuery):
         action : str, optional
             Type of action to be taken (defaults to 'Query')
         """
-        # User-facing parameters are lower case, while parameters as passed to the HEASARC service are capitalized according to the HEASARC requirements.
+        # User-facing parameters are lower case, while parameters as passed to the
+        # HEASARC service are capitalized according to the HEASARC requirements.
         # The necessary transformations are done in this function.
 
         # Define the basic query for this object
@@ -401,10 +401,7 @@ class HeasarcClass(BaseQuery):
                 if k.lower() in mission_fields:
                     request_payload['bparam_' + k.lower()] = v
                 else:
-                    raise ValueError("unknown parameter '{}' provided, must be one of {!s}".format(
-                                      k,
-                                      mission_fields,
-                                    ))
+                    raise ValueError(f"unknown parameter '{k}' provided, must be one of {mission_fields}")
 
         return request_payload
 

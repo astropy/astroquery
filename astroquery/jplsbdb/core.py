@@ -199,8 +199,8 @@ class SBDBClass(BaseQuery):
             raise ValueError('Server response not readable.')
 
         # check for query problems
-        if 'code' in src and not (src['code'] == '200' or
-                                  src['code'] == '300'):
+        if 'code' in src and not (src['code'] == '200'
+                                  or src['code'] == '300'):
             raise ValueError(src['message'] + ' ({:s})'.format(src['code']))
 
         src = self._process_data(src)
@@ -230,8 +230,8 @@ class SBDBClass(BaseQuery):
                     continue
 
                 # turn data objects into dictionary
-                elif ('name' in val[0] and 'sigma' in val[0] and
-                        'value' in val[0] and 'units' in val[0]):
+                elif ('name' in val[0] and 'sigma' in val[0]
+                        and 'value' in val[0] and 'units' in val[0]):
 
                     res[key] = self._process_data_element(val)
 
@@ -292,10 +292,10 @@ class SBDBClass(BaseQuery):
 
                                 for i in range(len(val)):
                                     # try to process list of dictionaries
-                                    if (isinstance(val[i][field], list) and
-                                            len(val[i][field]) > 0 and
-                                            isinstance(val[i][field][0],
-                                                       dict)):
+                                    if (isinstance(val[i][field], list)
+                                            and len(val[i][field]) > 0
+                                            and isinstance(val[i][field][0],
+                                                           dict)):
                                         res[key][field][i] = \
                                             self._process_data_element(
                                             val[i][field])
@@ -353,8 +353,8 @@ class SBDBClass(BaseQuery):
                 else:
                     eldict[q['name']] = q['value']
                 if q['sigma'] is not None:
-                    eldict[q['name']+'_sig'] = (float(q['sigma']) *
-                                                unit)
+                    eldict[q['name']+'_sig'] = (float(q['sigma'])
+                                                * unit)
                 else:
                     eldict[q['name']+'_sig'] = q['sigma']
             except ValueError:

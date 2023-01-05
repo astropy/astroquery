@@ -149,13 +149,13 @@ class ObservationsClass(MastQueryWithLogin):
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
-                                                            self._caom_filtered_position,
-                                                            **criteria)
+                                                                          self._caom_filtered_position,
+                                                                          **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
-                                                            self._caom_filtered,
-                                                            **criteria)
+                                                                          self._caom_filtered,
+                                                                          **criteria)
 
         # handle position info (if any)
         position = None
@@ -778,8 +778,10 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         if self._cloud_connection is None:
-            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                                     'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
+            raise RemoteServiceError(
+                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
+                'See MAST Labs documentation for an example: '
+                'https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
         # Remove duplicate products
         data_products = self._remove_duplicate_products(data_products)
@@ -813,8 +815,10 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         if self._cloud_connection is None:
-            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                                     'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
+            raise RemoteServiceError(
+                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
+                'See MAST Labs documentation for an example: '
+                'https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
@@ -839,7 +843,7 @@ class ObservationsClass(MastQueryWithLogin):
         number_unique = len(unique_products)
         if number_unique < number:
             log.info(f"{number - number_unique} of {number} products were duplicates. "
-                          f"Only downloading {number_unique} unique product(s).")
+                     f"Only downloading {number_unique} unique product(s).")
 
         return unique_products
 

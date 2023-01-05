@@ -275,8 +275,7 @@ class Tap:
             print(f"Launched query: '{query}'")
         if upload_resource is not None:
             if upload_table_name is None:
-                raise ValueError("Table name is required when a resource " +
-                                 "is uploaded")
+                raise ValueError("Table name is required when a resource is uploaded")
             response = self.__launchJobMultipart(query=query,
                                                  uploadResource=upload_resource,
                                                  uploadTableName=upload_table_name,
@@ -983,8 +982,7 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or table_name is None:
-            raise ValueError("Both 'group_name' and 'table_name' " +
-                             "must be specified")
+            raise ValueError("Both 'group_name' and 'table_name' must be specified")
         if description is None:
             description = ""
         group = self.load_group(group_name, verbose)
@@ -1024,8 +1022,7 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or table_name is None:
-            raise ValueError("Both 'group_name' and 'table_name' " +
-                             "must be specified")
+            raise ValueError("Both 'group_name' and 'table_name' must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' not found.")
@@ -1138,8 +1135,7 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or user_id is None:
-            raise ValueError("Both 'group_name' and 'user_id' " +
-                             "must be specified")
+            raise ValueError("Both 'group_name' and 'user_id' must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' doesn't exist")
@@ -1188,8 +1184,7 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or user_id is None:
-            raise ValueError("Both 'group_name' and 'user_id' " +
-                             "must be specified")
+            raise ValueError("Both 'group_name' and 'user_id' must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' doesn't exist")
@@ -1685,17 +1680,13 @@ class TapPlus(Tap):
             if change is None:
                 raise ValueError("None of the changes can be null")
             if len(change) != 3:  # [column_name, field_name, value]
-                raise ValueError("All of the changes must have three " +
-                                 "elements: [column_name, field_name, value]")
+                raise ValueError("All of the changes must have three elements: [column_name, field_name, value]")
             index = 0
             for value in change:
                 if value is None:
-                    raise ValueError("None of the values for the changes " +
-                                     "can be null")
-                if (index == 1 and value != 'utype' and value != 'ucd' and
-                        value != 'flags' and value != 'indexed'):
-                    raise ValueError("Position 2 of all changes must be " +
-                                     "'utype', 'ucd', 'flags' or 'indexed'")
+                    raise ValueError("None of the values for the changes can be null")
+                if (index == 1 and value != 'utype' and value != 'ucd' and value != 'flags' and value != 'indexed'):
+                    raise ValueError("Position 2 of all changes must be 'utype', 'ucd', 'flags' or 'indexed'")
                 index = index + 1
 
         table = self.load_table(table=table_name, verbose=verbose)
@@ -1725,10 +1716,9 @@ class TapPlus(Tap):
 
         # check whether both (Ra/Dec) are present
         # or both are None
-        if ((new_ra_column is not None and new_dec_column is None) or
-                (new_ra_column is None and new_dec_column is not None)):
-            raise ValueError("Both Ra and Dec must be specified when " +
-                             "updating one of them.")
+        if ((new_ra_column is not None and new_dec_column is None)
+                or (new_ra_column is None and new_dec_column is not None)):
+            raise ValueError("Both Ra and Dec must be specified when updating one of them.")
 
         args = TapPlus.get_table_update_arguments(table_name, columns,
                                                   list_of_changes)
@@ -1810,10 +1800,10 @@ class TapPlus(Tap):
             flags = 'PK'
         else:
             flags = None
-        indexed = (str(column.flag) == 'indexed' or
-                   str(flags) == 'Ra' or
-                   str(flags) == 'Dec' or
-                   str(flags) == 'PK')
+        indexed = (str(column.flag) == 'indexed'
+                   or str(flags) == 'Ra'
+                   or str(flags) == 'Dec'
+                   or str(flags) == 'PK')
         ucd = str(column.ucd)
         utype = str(column.utype)
         return column_name, flags, indexed, ucd, utype

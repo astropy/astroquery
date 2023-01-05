@@ -330,8 +330,7 @@ class TestDust(DustTestCase):
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
                                        timeout=IrsaDust.TIMEOUT,
                                        show_progress=True):
-        return(commons.FileContainer(self.data(EXT_TBL),
-                                     show_progress=show_progress))
+        return commons.FileContainer(self.data(EXT_TBL), show_progress=show_progress)
 
     def get_image_list_mockreturn(
         self, coordinate, radius=None, image_type=None,

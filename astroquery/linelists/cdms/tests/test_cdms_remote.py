@@ -66,16 +66,16 @@ def test_molecule_with_parens():
 
     MC = np.ma.core.MaskedConstant()
 
-    for col, val in zip(tbl[0].colnames,
-                        (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66, 506, 303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', False)):
+    for col, val in zip(tbl[0].colnames, (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66,
+                        506, 303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', False)):
         if val is MC:
             assert tbl[0][col].mask
         else:
             assert tbl[0][col] == val
 
     # this test row includes degeneracy = 1225, which covers one of the weird letter-is-number parser cases
-    for col, val in zip(tbl[16].colnames,
-                        (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66, 506, 303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', False),):
+    for col, val in zip(tbl[16].colnames, (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66,
+                        506, 303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', False),):
         if val is MC:
             assert tbl[16][col].mask
         else:

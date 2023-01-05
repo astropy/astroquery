@@ -67,8 +67,13 @@ def test_ephemeris_query_Uranus(patch_request):
     assert isinstance(systemtable, dict)
 
     assert np.allclose(
-        [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924, 354.11072, 354.12204, 2947896667.0, 3098568884.0, 10335.713263, ],
-        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
+        [-56.12233, -56.13586, -56.13586, -56.01577, 0.10924,
+         354.11072, 354.12204, 2947896667.0, 3098568884.0, 10335.713263, ],
+        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value,
+         systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value,
+         systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value,
+         systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value,
+         systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
         rtol=1e-2,
     )
 
@@ -104,7 +109,11 @@ def test_ephemeris_query_Pluto(patch_request):
     # check system table
     assert np.allclose(
         [57.57737, 57.56961, 57.56961, 56.50534, 1.64048, 116.55873, 118.8369, 5142696000, 5114486810, 17060.091666, ],
-        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value, systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value, systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value, systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value, systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
+        [systemtable["sub_sun_lat"].to(u.deg).value, systemtable["sub_sun_lat_min"].to(u.deg).value,
+         systemtable["sub_sun_lat_max"].to(u.deg).value, systemtable["opening_angle"].to(u.deg).value,
+         systemtable["phase_angle"].to(u.deg).value, systemtable["sub_sun_lon"].to(u.deg).value,
+         systemtable["sub_obs_lon"].to(u.deg).value, systemtable["d_sun"].to(u.km).value,
+         systemtable["d_obs"].to(u.km).value, systemtable["light_time"].to(u.second).value, ],
         rtol=1e-2,
     )
 
@@ -114,7 +123,10 @@ def test_ephemeris_query_Pluto(patch_request):
     assert styx["Body"] == "Styx"
     assert np.allclose(
         [296.212477, -22.93533, -0.557, -1.259, 350.443, 56.472, 352.72, 57.544, 1.64047, 5114.509238, ],
-        [styx["RA (deg)"].to(u.deg).value, styx["Dec (deg)"].to(u.deg).value, styx["dRA"].to(u.arcsec).value, styx["dDec"].to(u.arcsec).value, styx["sub_obs_lon"].to(u.deg).value, styx["sub_obs_lat"].to(u.deg).value, styx["sub_sun_lon"].to(u.deg).value, styx["sub_sun_lat"].to(u.deg).value, styx["phase"].to(u.deg).value, styx["distance"].to(u.km * 1e6).value, ],
+        [styx["RA (deg)"].to(u.deg).value, styx["Dec (deg)"].to(u.deg).value, styx["dRA"].to(u.arcsec).value,
+         styx["dDec"].to(u.arcsec).value, styx["sub_obs_lon"].to(u.deg).value, styx["sub_obs_lat"].to(u.deg).value,
+         styx["sub_sun_lon"].to(u.deg).value, styx["sub_sun_lat"].to(u.deg).value, styx["phase"].to(u.deg).value,
+         styx["distance"].to(u.km * 1e6).value, ],
         rtol=1e-2,
     )
 

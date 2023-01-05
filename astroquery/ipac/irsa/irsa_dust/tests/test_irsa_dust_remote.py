@@ -44,17 +44,13 @@ class DustTestCase:
 class TestDust(DustTestCase):
 
     def test_xml_ok(self):
-        response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
-            "?locstr=m31")
+        response = requests.get(irsa_dust.core.IrsaDust.DUST_SERVICE_URL + "?locstr=m31")
         data = response.text
         xml_tree = irsa_dust.utils.xml(data)
         assert xml_tree is not None
 
     def test_xml_err(self):
-        response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
-            "?locstr=100")
+        response = requests.get(irsa_dust.core.IrsaDust.DUST_SERVICE_URL + "?locstr=100")
         data = response.text
         with pytest.raises(Exception):
             irsa_dust.utils.xml(data)
@@ -66,9 +62,7 @@ class TestDust(DustTestCase):
                               ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_tails):
-        response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
-            "?locstr=m31")
+        response = requests.get(irsa_dust.core.IrsaDust.DUST_SERVICE_URL + "?locstr=m31")
         data = response.text
         url_list = irsa_dust.core.IrsaDust().extract_image_urls(
             data, image_type=image_type)
@@ -82,9 +76,7 @@ class TestDust(DustTestCase):
                               ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_class(self, image_type, expected_tails):
-        response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
-            "?locstr=m31")
+        response = requests.get(irsa_dust.core.IrsaDust.DUST_SERVICE_URL + "?locstr=m31")
         data = response.text
         url_list = irsa_dust.core.IrsaDust.extract_image_urls(
             data, image_type=image_type)

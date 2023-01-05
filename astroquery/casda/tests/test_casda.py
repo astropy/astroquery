@@ -66,7 +66,7 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
             pos_parts = data['POS'].split(' ')
             assert len(pos_parts) == 4
             self.completed_job_key = 'cutout_{}_{:.4f}_{:.4f}_{:.4f}'.format(pos_parts[0], float(pos_parts[1]),
-                float(pos_parts[2]), float(pos_parts[3]))
+                                                                             float(pos_parts[2]), float(pos_parts[3]))
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('111-000-111-000') and method == 'GET':
             key = "RUN_JOB" if self.first_job_pass else self.completed_job_key
@@ -366,7 +366,7 @@ def test_cutout_no_args(patch_get):
     fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
     with pytest.raises(ValueError,
-            match=r"Please provide cutout parameters such as coordinates, band or channel\."):
+                       match=r"Please provide cutout parameters such as coordinates, band or channel\."):
         with pytest.warns(W50, match="Invalid unit string 'pixels'"):
             casda.cutout(table)
 
@@ -557,9 +557,12 @@ def test_args_to_payload_combined(patch_get):
 
 
 def test_download_file(patch_get):
-    urls = ['https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
-            'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
-            'https://ingest.pawsey.org.au/casda-prd-as110-01/dc52217/primary_images/RACS-DR1_0000%2B18A.fits?security=stuff']
+    urls = [
+        'https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
+        'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
+        'https://ingest.pawsey.org.au/casda-prd-as110-01/dc52217/primary_images/RACS-DR1_0000%2B18A.fits?security=stuff'
+    ]
+
     casda = Casda()
     fake_login(casda, USERNAME, PASSWORD)
 

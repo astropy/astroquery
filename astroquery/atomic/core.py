@@ -29,7 +29,8 @@ class AtomicLineListClass(BaseQuery):
         super().__init__()
         self.__default_form_values = None
 
-    def query_object(self, *, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
+    def query_object(self, *, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None,
+                     element_spectrum=None,
                      minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
                      upper_level_energy_range=None, nmax=None, multiplet=None, transitions=None,
                      show_fine_structure=None, show_auto_ionizing_transitions=None,
@@ -327,8 +328,8 @@ class AtomicLineListClass(BaseQuery):
                 continue
             # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
-            if (elem.get('type') == 'checkbox' and
-                    elem.get('checked') in ["", "checked"]):
+            if (elem.get('type') == 'checkbox'
+                    and elem.get('checked') in ["", "checked"]):
                 value = elem.get('value', 'on')
             # radio buttons and simple input fields
             if elem.get('type') == 'radio' and\

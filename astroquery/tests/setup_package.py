@@ -3,4 +3,4 @@
 
 def get_package_data():
     return {
-         'astroquery.tests': ['coveragerc']}
+        'astroquery.tests': ['coveragerc']}

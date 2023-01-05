@@ -129,6 +129,6 @@ class TestXMatch:
 
         with pytest.raises(InvalidQueryError) as err:
             xmatch.query(input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
-                colRA1='ra', colDec1='DEC')
+                         colRA1='ra', colDec1='DEC')
 
             assert 'Column name "DEC" not found in table metadata' in str(err)

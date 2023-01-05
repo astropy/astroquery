@@ -698,7 +698,8 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Testing catch for multiple designators'
-    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+    error_str = ("Only one of moving_target and coordinates may be specified. "
+                 "Please remove coordinates if using moving_target and objectname.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
@@ -742,7 +743,8 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Testing catch for multiple designators'
-    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+    error_str = ("Only one of moving_target and coordinates may be specified. "
+                 "Please remove coordinates if using moving_target and objectname.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Tesscut.download_cutouts(objectname="Eleonora",
@@ -776,7 +778,8 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Testing catch for multiple designators'
-    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+    error_str = ("Only one of moving_target and coordinates may be specified. "
+                 "Please remove coordinates if using moving_target and objectname.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Tesscut.get_cutouts(objectname="Eleonora",

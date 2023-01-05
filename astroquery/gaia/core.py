@@ -177,8 +177,8 @@ class GaiaClass(TapPlus):
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
-            'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped in a single
-            bundle, even if only one source/file is considered
+            'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped
+            in a single bundle, even if only one source/file is considered
             'COMBINED' means products are provided in a single file concatenating the data of all sourceIds together.
             How this is organised depends on the chosen format
             'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
@@ -256,8 +256,7 @@ class GaiaClass(TapPlus):
 
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
-                raise ValueError("Invalid band value '%s' (Valid values: " +
-                                 "'G', 'BP' and 'RP)" % band)
+                raise ValueError(f"Invalid band value '{band}' (Valid values: 'G', 'BP' and 'RP)")
             else:
                 params_dict['BAND'] = band
         if isinstance(ids, str):
@@ -302,8 +301,7 @@ class GaiaClass(TapPlus):
         # for key, value in files.items():
         # print("Product =", key)
 
-        items = [key for key in files.keys()]
-        items.sort()
+        items = sorted([key for key in files.keys()])
         for item in items:
             # print(f'* {item}')
             if verbose:

@@ -27,7 +27,8 @@ def _get_bibtex():
 
     with open(citation_file, 'r') as citation:
         refs = citation.read().split('@ARTICLE')[1:]
-        if len(refs) == 0: return ''
+        if len(refs) == 0:
+            return ''
         bibtexreference = "@ARTICLE{0}".format(refs[0])
     return bibtexreference
 

@@ -588,7 +588,7 @@ class VizierClass(BaseQuery):
             columns_out.remove(column)
 
         if columns_out and not columns_all:
-                body['-out'] = ','.join(columns_out)
+            body['-out'] = ','.join(columns_out)
 
         if columns_calc:
             body['-out.add'] = ','.join(columns_calc)
@@ -624,8 +624,8 @@ class VizierClass(BaseQuery):
 
         # create final script starting with keywords
         script = []
-        if (not isinstance(self.keywords, property) and
-                self.keywords is not None):
+        if (not isinstance(self.keywords, property)
+                and self.keywords is not None):
             script += [str(self.keywords)]
         # add all items that are not lists
         for key, val in body.items():
@@ -688,8 +688,8 @@ class VizierClass(BaseQuery):
                                       "self.response, and the error in "
                                       "self.table_parse_error. The attempted "
                                       "parsed result is in "
-                                      "self.parsed_result.\n Exception: " +
-                                      str(self.table_parse_error))
+                                      "self.parsed_result.\n Exception: "
+                                      + str(self.table_parse_error))
         elif response.content[:5] == b'#\n#  ':
             return _parse_vizier_tsvfile(response.content, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':
