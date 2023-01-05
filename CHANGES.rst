@@ -23,6 +23,12 @@ esa.hubble
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
 - Optional parameters in all methods are kwargs keyword only. [#2597]
 
+solarsystem.pds
+^^^^^^^^^^^^^^^
+
+- New module to access the Planetary Data System's Ring Node System. [#2358]
+
+
 Service fixes and enhancements
 ------------------------------
 

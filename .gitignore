@@ -20,6 +20,7 @@ MANIFEST
 pip-wheel-metadata
 .hypothesis
 doctests.py
+coverage.xml
 
 # Sphinx
 _build
