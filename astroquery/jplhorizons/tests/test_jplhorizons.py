@@ -257,20 +257,20 @@ def test_vectors_query_payload():
                                epochs=2451544.5).vectors(
                                    get_query_payload=True)
     assert res == OrderedDict([
-                ('format', 'text'),
-                ('EPHEM_TYPE', 'VECTORS'),
-                ('OUT_UNITS', 'AU-D'),
-                ('COMMAND', '"Ceres"'),
-                ('CSV_FORMAT', '"YES"'),
-                ('REF_PLANE', 'ECLIPTIC'),
-                ('REF_SYSTEM', 'ICRF'),
-                ('TP_TYPE', 'ABSOLUTE'),
-                ('VEC_LABELS', 'YES'),
-                ('VEC_CORR', '"NONE"'),
-                ('VEC_DELTA_T', 'NO'),
-                ('OBJ_DATA', 'YES'),
-                ('CENTER', "'500@10'"),
-                ('TLIST', '2451544.5')])
+        ('format', 'text'),
+        ('EPHEM_TYPE', 'VECTORS'),
+        ('OUT_UNITS', 'AU-D'),
+        ('COMMAND', '"Ceres"'),
+        ('CSV_FORMAT', '"YES"'),
+        ('REF_PLANE', 'ECLIPTIC'),
+        ('REF_SYSTEM', 'ICRF'),
+        ('TP_TYPE', 'ABSOLUTE'),
+        ('VEC_LABELS', 'YES'),
+        ('VEC_CORR', '"NONE"'),
+        ('VEC_DELTA_T', 'NO'),
+        ('OBJ_DATA', 'YES'),
+        ('CENTER', "'500@10'"),
+        ('TLIST', '2451544.5')])
 
 
 def test_no_H(patch_request):

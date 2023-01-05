@@ -1105,7 +1105,7 @@ class TestMast:
     ###################
 
     def test_hapcut_download_cutouts(self, tmpdir):
-        
+
         # Test 1: Simple API call with expected results
         coord = SkyCoord(351.347812, 28.497808, unit="deg")
 

@@ -309,7 +309,9 @@ class TesscutClass(MastQueryWithLogin):
             localpath_table['Local Path'] = [zipfile_path]
             return localpath_table
 
-        if verbose: print("Inflating...")
+        if verbose:
+            print("Inflating...")
+
         # unzipping the zipfile
         zip_ref = zipfile.ZipFile(zipfile_path, 'r')
         cutout_files = zip_ref.namelist()
@@ -573,7 +575,9 @@ class ZcutClass(MastQueryWithLogin):
             localpath_table['Local Path'] = [zipfile_path]
             return localpath_table
 
-        if verbose: print("Inflating...")
+        if verbose:
+            print("Inflating...")
+
         # unzipping the zipfile
         zip_ref = zipfile.ZipFile(zipfile_path, 'r')
         cutout_files = zip_ref.namelist()
@@ -731,7 +735,9 @@ class HapcutClass(MastQueryWithLogin):
             localpath_table['Local Path'] = [zipfile_path]
             return localpath_table
 
-        if verbose: print("Inflating...")
+        if verbose:
+            print("Inflating...")
+
         # unzipping the zipfile
         zip_ref = zipfile.ZipFile(zipfile_path, 'r')
         cutout_files = zip_ref.namelist()
@@ -741,7 +747,6 @@ class HapcutClass(MastQueryWithLogin):
 
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
-
 
     def get_cutouts(self, coordinates, *, size=5):
         """
