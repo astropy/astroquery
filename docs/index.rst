@@ -401,6 +401,7 @@ above categories. Those services are here:
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   nasa_ads/nasa_ads.rst
+  solarsystem/neodys/neodys.rst
   utils/tap.rst
 
 
