@@ -1146,11 +1146,12 @@ class ESASkyClass(BaseQuery):
         --------
         get_images(position="m101", radius="14'", missions="all")
 
-        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
+        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel", \
                     "Spitzer", "HST-UV", "HST-OPTICAL"]
-        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q",
+        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q", \
                            "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
         get_images(observation_ids=observation_ids, missions=missions)
+
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")

@@ -39,12 +39,14 @@ class hips2fitsClass(BaseQuery):
 
     This package implements two methods:
 
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy
-    ``wcs.WCS``.
-        See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image
-    pixel size, the center of projection, the type of projection and the field of view.
-        See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+    * `~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an
+      astropy `~astropy.wcs.WCS`.
+      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+
+    * `~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output
+      image pixel size, the center of projection, the type of projection and the field of view.
+      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+
 
     """
     server = conf.server
@@ -88,7 +90,7 @@ class hips2fitsClass(BaseQuery):
         cmap : `~matplotlib.colors.Colormap` or str, optional
             Name of the color map.
             Only applicable to jpg/png output formats.
-            Any `colormap supported by Matplotlib can be specified.
+            Any colormap supported by Matplotlib can be specified.
             Default value is Greys_r (grayscale)
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the parsed response.
@@ -134,6 +136,7 @@ class hips2fitsClass(BaseQuery):
         ... )
         >>> im = plt.imshow(result)
         >>> plt.show(im)
+
         """
         response = self.query_with_wcs_async(get_query_payload, hips=hips, wcs=wcs, format=format,
                                              min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
@@ -227,7 +230,7 @@ class hips2fitsClass(BaseQuery):
         cmap : `~matplotlib.colors.Colormap` or str, optional
             Name of the color map.
             Only applicable to jpg/png output formats.
-            Any `colormap supported by Matplotlib can be specified.
+            Any colormap supported by Matplotlib can be specified.
             Default value is Greys_r (grayscale)
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the parsed response.
