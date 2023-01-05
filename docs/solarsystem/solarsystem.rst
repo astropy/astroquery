@@ -19,7 +19,9 @@ The currently available service providers and services are:
   imcce/imcce.rst
   jpl/jpl.rst
   mpc/mpc.rst
+  neodys/neodys.rst
   pds/pds.rst
+
 
 
 Reference/API

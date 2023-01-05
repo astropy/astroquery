@@ -1,6 +1,6 @@
 import pytest
 
-from astroquery.neodys import NEODyS
+from astroquery.solarsystem.neodys import NEODyS
 
 
 @pytest.mark.remote_data

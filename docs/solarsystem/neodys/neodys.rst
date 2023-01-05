@@ -1,8 +1,8 @@
 .. _astroquery.neodys:
 
-************************************
-NEODyS Queries (`astroquery.neodys`)
-************************************
+************************************************
+NEODyS Queries (`astroquery.solarsystem.neodys`)
+************************************************
 
 Getting started
 ===============
@@ -16,7 +16,7 @@ object to be retrieved. Here is a basic example:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.neodys import NEODyS
+    >>> from astroquery.solarsystem.neodys import NEODyS
     >>> result = NEODyS.query_object("1982YA")
     >>> print(result)
     {'Equinoctial State Vector': [3.6501814973859177, 0.55510840531515, 0.412442615432626, -0.316403600209491, -0.005615261288851, 7.4974723045741],
@@ -49,7 +49,7 @@ Here's an example with these optional parameters:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.neodys import NEODyS
+    >>> from astroquery.solarsystem.neodys import NEODyS
     >>> results = NEODyS.query_object("1982YA", orbital_element_type="ke", epoch_near_present=1)
     >>> print(results)
     {'Keplerian State Vector': [3.64669, 0.691945, 35.165, 268.935, 144.408, 283.498],
@@ -75,5 +75,5 @@ Here's an example with these optional parameters:
 Reference/API
 =============
 
-.. automodapi:: astroquery.neodys
+.. automodapi:: astroquery.solarsystem.neodys
     :no-inheritance-diagram:

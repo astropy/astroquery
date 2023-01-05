@@ -1,5 +1,5 @@
 from . import conf
-from ..query import BaseQuery
+from astroquery.query import BaseQuery
 
 
 __all__ = ['NEODyS', 'NEODySClass']

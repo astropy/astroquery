@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from astroquery.utils.mocks import MockResponse
-from astroquery.neodys import NEODySClass, NEODyS
+from astroquery.solarsystem.neodys import NEODySClass, NEODyS
 
 DATA_FILE = '2018vp1_eq0.txt'
 

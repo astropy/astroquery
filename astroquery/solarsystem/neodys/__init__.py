@@ -13,7 +13,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.neodys`.
+    Configuration parameters for `astroquery.solarsystem.neodys`.
     """
     server = _config.ConfigItem(
         ['https://newton.spacedys.com/~neodys2/epoch/'],
