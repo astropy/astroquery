@@ -1,6 +1,6 @@
 """
 NEODyS Query Tool
----------------
+-----------------
 
 :Author: B612 Foundation
 

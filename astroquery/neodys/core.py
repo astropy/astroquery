@@ -1,4 +1,3 @@
-import requests
 from . import conf
 from ..query import BaseQuery
 
@@ -10,9 +9,6 @@ class NEODySClass(BaseQuery):
 
     NEODYS_URL = conf.server
     TIMEOUT = conf.timeout
-
-    def __init__(self):
-        super(NEODySClass, self).__init__()
 
     def query_object(self, object_id, orbital_element_type="eq", epoch_near_present=0):
         """
@@ -70,7 +66,6 @@ class NEODySClass(BaseQuery):
 
         COV = []
         COR = []
-        NOR = []
 
         if orbital_element_type != 'ke' and orbital_element_type != 'eq':
             raise ValueError("OrbitElementType must be ke or eq")
