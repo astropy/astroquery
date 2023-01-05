@@ -190,7 +190,7 @@ class TestXMMNewtonRemote:
                                                radius))
         assert report_diff_values(slew_source, table)
 
-    def test_download_proprietary_data_incorrect_credentials(self):
+    def test_download_proprietary_data_incorrect_credentials(self, tmp_cwd):
         parameters = {'observation_id': "0762470101",
                       'prop': 'True',
                       'credentials_file': "astroquery/esa/xmm_newton/tests/data/dummy_config.ini",
@@ -204,7 +204,7 @@ class TestXMMNewtonRemote:
         with pytest.raises(LoginError):
             xsa.download_data(**parameters)
 
-    def test_download_proprietary_data_without_credentials(self):
+    def test_download_proprietary_data_without_credentials(self, tmp_cwd):
         parameters = {'observation_id': "0883780101",
                       'level': "PPS",
                       'name': 'OBSMLI',
