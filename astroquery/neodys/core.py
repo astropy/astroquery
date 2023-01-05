@@ -10,7 +10,7 @@ class NEODySClass(BaseQuery):
     NEODYS_URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_object(self, object_id, orbital_element_type="eq", epoch_near_present=0):
+    def query_object(self, object_id, *, orbital_element_type="eq", epoch_near_present=0):
         """
         Parameters
         ----------
