@@ -1,5 +1,6 @@
 import requests
 import os
+import pytest
 
 from time import mktime
 from datetime import datetime
@@ -14,6 +15,10 @@ URL2 = "http://fakeurl.ac.uk"
 
 TEXT1 = "Penguin"
 TEXT2 = "Walrus"
+
+pytest.skip(reason='request function mocking is buggy here, skipping tests until '
+            'https://github.com/astropy/astroquery/issues/2632 is resolved',
+            allow_module_level=True)
 
 
 def set_response(resp_text, resp_status=200):
