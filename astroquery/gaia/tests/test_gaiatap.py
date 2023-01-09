@@ -30,11 +30,10 @@ from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
 import numpy as np
-from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus
 
 
-job_data = utils.read_file_content(Path(__file__).parent.joinpath("data", "job_1.vot"))
+job_data = (Path(__file__).with_name("data") / "job_1.vot").read_text()
 
 skycoord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
