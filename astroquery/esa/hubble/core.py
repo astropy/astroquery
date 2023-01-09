@@ -8,6 +8,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+from urllib.parse import urlencode
 
 from astropy import units
 from astropy.coordinates import SkyCoord
@@ -503,7 +504,7 @@ class ESAHubbleClass(BaseQuery):
 
             subContext = conf.EHST_TARGET_ACTION
             connHandler = self._tap._TapPlus__getconnhandler()
-            data = connHandler.url_encode(params)
+            data = urlencode(params)
             target_response = connHandler.execute_secure(subContext, data, True)
             for line in target_response:
                 target_result = json.loads(line.decode("utf-8"))

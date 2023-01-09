@@ -14,6 +14,7 @@ Created on 30 jun. 2016
 """
 import os
 from unittest.mock import patch
+from urllib.parse import quote_plus, urlencode
 
 import numpy as np
 import pytest
@@ -156,17 +157,13 @@ def test_launch_sync_job():
     jobData = utils.read_file_content(jobDataFile)
     responseLaunchJob.set_data(method='POST', body=jobData)
     query = 'select top 5 * from table'
-    dTmp = {"q": query}
-    dTmpEncoded = connHandler.url_encode(dTmp)
-    p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
-        "QUERY": str(q)}
+        "QUERY": quote_plus(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
     jobRequest = f"sync?{sortedKey}"
     connHandler.set_response(jobRequest, responseLaunchJob)
@@ -220,17 +217,13 @@ def test_launch_sync_job_redirect():
     ]
     responseLaunchJob.set_data(method='POST')
     query = 'select top 5 * from table'
-    dTmp = {"q": query}
-    dTmpEncoded = connHandler.url_encode(dTmp)
-    p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
-        "QUERY": str(q)}
+        "QUERY": quote_plus(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
     jobRequest = f"sync?{sortedKey}"
     connHandler.set_response(jobRequest, responseLaunchJob)
@@ -844,9 +837,7 @@ def test_rename_table():
         "new_table_name": newTableName,
         "table_name": tableName,
     }
-    data = connHandler.url_encode(dictArgs)
-    req = f"TableTool?{data}"
-    connHandler.set_response(req, responseRenameTable)
+    connHandler.set_response(f"TableTool?{urlencode(dictArgs)}", responseRenameTable)
     tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
 
 

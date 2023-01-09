@@ -16,8 +16,6 @@ Created on 30 jun. 2016
 """
 from astroquery.utils.tap import taputils
 
-from urllib.parse import urlencode
-
 import requests
 
 
@@ -146,9 +144,6 @@ class DummyConnHandler:
             raise requests.exceptions.HTTPError(errMsg)
         else:
             return isError
-
-    def url_encode(self, data):
-        return urlencode(data)
 
     def get_suitable_extension(self, headers):
         return self.fileExt
