@@ -78,35 +78,30 @@ def test_load_tables_parameters():
 
     # empty request
     tap.load_tables()
-    request = connHandler.get_last_request()
-    assert request == tableRequest
+    assert connHandler.request == tableRequest
 
     # flag only_names=false & share_accessible=false: equals to
     # empty request
     tap.load_tables(only_names=False, include_shared_tables=False)
-    request = connHandler.get_last_request()
-    assert request == tableRequest
+    assert connHandler.request == tableRequest
 
     # flag only_names
     tableRequest = "tables?only_tables=true"
     connHandler.set_response(tableRequest, responseLoadTable)
     tap.load_tables(only_names=True)
-    request = connHandler.get_last_request()
-    assert request == tableRequest
+    assert connHandler.request == tableRequest
 
     # flag share_accessible=true
     tableRequest = "tables?share_accessible=true"
     connHandler.set_response(tableRequest, responseLoadTable)
     tap.load_tables(include_shared_tables=True)
-    request = connHandler.get_last_request()
-    assert request == tableRequest
+    assert connHandler.request == tableRequest
 
     # flag only_names=true & share_accessible=true
     tableRequest = "tables?only_tables=true&share_accessible=true"
     connHandler.set_response(tableRequest, responseLoadTable)
     tap.load_tables(only_names=True, include_shared_tables=True)
-    request = connHandler.get_last_request()
-    assert request == tableRequest
+    assert connHandler.request == tableRequest
 
 
 def test_load_table():

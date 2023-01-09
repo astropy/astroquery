@@ -27,8 +27,6 @@ class DummyConnHandler:
         self.fileExt = ".ext"
         self.defaultResponse = None
         self.responses = {}
-        self.errorFileOutput = None
-        self.errorReceivedResponse = None
         self.contentType = None
         self.verbose = None
         self.query = None
@@ -39,21 +37,6 @@ class DummyConnHandler:
 
     def get_default_response(self):
         return self.defaultResponse
-
-    def get_last_request(self):
-        return self.request
-
-    def get_last_data(self):
-        return self.data
-
-    def get_last_query(self):
-        return self.query
-
-    def get_error_file_output(self):
-        return self.errorFileOutput
-
-    def get_error_received_response(self):
-        return self.errorReceivedResponse
 
     def set_response(self, request, response):
         self.responses[str(request)] = response
@@ -100,8 +83,6 @@ class DummyConnHandler:
         return self.__get_response(self.request)
 
     def dump_to_file(self, fileOutput, response):
-        self.errorFileOutput = fileOutput
-        self.errorReceivedResponse = response
         print(f"DummyConnHandler - dump to file: file: '{fileOutput}', \
         response status: {response.status}, response msg: {response.reason}")
 
@@ -147,9 +128,6 @@ class DummyConnHandler:
 
     def get_suitable_extension(self, headers):
         return self.fileExt
-
-    def set_suitable_extension(self, ext):
-        self.fileExt = ext
 
     def get_suitable_extension_by_format(self, output_format):
         return self.fileExt
