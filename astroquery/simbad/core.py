@@ -19,7 +19,7 @@ import astropy.io.votable as votable
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons, async_to_sync
-from astroquery.exceptions import TableParseError, LargeQueryWarning
+from astroquery.exceptions import TableParseError, LargeQueryWarning, BadRowWarning
 from . import conf
 
 
@@ -135,7 +135,9 @@ class SimbadResult:
             warnings.warn("Warning: The script line number %i raised "
                           "an error (recorded in the `errors` attribute "
                           "of the result table): %s" %
-                          (error.line, error.msg))
+                          (error.line, error.msg),
+                          BadRowWarning
+                         )
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
