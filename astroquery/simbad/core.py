@@ -137,7 +137,7 @@ class SimbadResult:
                           "of the result table): %s" %
                           (error.line, error.msg),
                           BadRowWarning
-                         )
+                          )
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
