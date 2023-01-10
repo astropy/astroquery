@@ -183,29 +183,33 @@ class TestSimbad:
     def test_null_response(self, temp_dir, function):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        assert (simbad.__getattribute__(function)('idonotexist')
-                is None)
+        with pytest.warns(BadRowWarning):
+            assert (simbad.__getattribute__(function)('idonotexist')
+                    is None)
 
     # Special case of null test: list of nonexistent parameters
     def test_query_objects_null(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        assert simbad.query_objects(['idonotexist', 'idonotexisteither']) is None
+        with pytest.warns(BadRowWarning):
+            assert simbad.query_objects(['idonotexist', 'idonotexisteither']) is None
 
     # Special case of null test: zero-sized region
     def test_query_region_null(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius="0d",
-                                     equinox=2000.0, epoch='J2000')
+        with pytest.warns(BadRowWarning):
+            result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius="0d",
+                                         equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case of null test: very small region
     def test_query_small_region_null(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
-                                     equinox=2000.0, epoch='J2000')
+        with pytest.warns(BadRowWarning):
+            result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
+                                         equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case : zero-sized region with one object
