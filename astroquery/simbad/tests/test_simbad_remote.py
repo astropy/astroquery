@@ -13,7 +13,7 @@ from astroquery.simbad.core import SimbadVOTableResult
 
 
 # M42 coordinates
-ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
+ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
 ICRS_COORDS_SgrB2 = SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
 multicoords = SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
