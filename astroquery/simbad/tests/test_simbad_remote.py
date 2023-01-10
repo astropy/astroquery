@@ -10,6 +10,7 @@ from astroquery.utils.mocks import MockResponse
 from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
+from astroquery.exceptions import BadRowWarning
 
 
 # M42 coordinates
@@ -148,7 +149,8 @@ class TestSimbad:
         assert len(result) == 2
         assert len(result.errors) == 0
 
-        result = simbad.query_objects(['M32', 'M81', 'gHer'])
+        with pytest.warns(BadRowWarning):
+            result = simbad.query_objects(['M32', 'M81', 'gHer'])
         # 'gHer' is not a valid Simbad identifier - it should be 'g Her' to
         # get the star
         assert len(result) == 2
