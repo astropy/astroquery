@@ -19,7 +19,7 @@ import astropy.io.votable as votable
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons, async_to_sync
-from astroquery.exceptions import TableParseError, LargeQueryWarning, BadRowWarning
+from astroquery.exceptions import TableParseError, LargeQueryWarning, BlankResponseWarning
 from . import conf
 
 
@@ -136,7 +136,7 @@ class SimbadResult:
                           "an error (recorded in the `errors` attribute "
                           "of the result table): %s" %
                           (error.line, error.msg),
-                          BadRowWarning
+                          BlankResponseWarning
                           )
 
     def __get_section(self, section_name):

@@ -114,7 +114,7 @@ class EmptyResponseError(ValueError):
     pass
 
 
-class BadRowWarning(AstropyWarning):
+class BlankResponseWarning(AstropyWarning):
     """
     Astroquery warning to be raised if one or more rows in a table are bad, but
     not all rows are.
