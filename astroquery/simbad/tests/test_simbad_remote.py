@@ -101,6 +101,7 @@ class TestSimbad:
         simbad = Simbad()
         # TODO: rewise once ROW_LIMIT is working
         simbad.TIMEOUT = 100
+        simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         response = simbad.query_region_async(
             ICRS_COORDS_M42, radius=2 * u.deg, equinox=2000.0, epoch='J2000')
