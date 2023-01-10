@@ -99,8 +99,6 @@ class TestSimbad:
 
     def test_query_region_async(self, temp_dir):
         simbad = Simbad()
-        # TODO: rewise once ROW_LIMIT is working
-        simbad.TIMEOUT = 100
         simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         response = simbad.query_region_async(
@@ -117,8 +115,8 @@ class TestSimbad:
 
     def test_query_region(self, temp_dir):
         simbad = Simbad()
-        # TODO: rewise once ROW_LIMIT is working
         simbad.TIMEOUT = 100
+        simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         result = simbad.query_region(ICRS_COORDS_M42, radius=2 * u.deg,
                                      equinox=2000.0, epoch='J2000')
