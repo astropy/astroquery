@@ -940,11 +940,8 @@ class SimbadClass(SimbadBaseQuery):
         # if get_raw is set then don't fetch as votable
         if get_raw:
             return ""
-        if self.ROW_LIMIT > 0:
-            RL = "set limit " + str(self.ROW_LIMIT) + "\n"
-        else:
-            RL = ""
-        return RL+"votable {" + ','.join(self.get_votable_fields()) + "}\nvotable open"
+        row_limit = f"set limit {self.ROW_LIMIT}\n" if self.ROW_LIMIT > 0 else ""
+        return f"{row_limit}votable {{{','.join(self.get_votable_fields())}}}\nvotable open"
 
     def _get_query_footer(self, get_raw=False):
         return "" if get_raw else "votable close"
