@@ -111,7 +111,7 @@ class TestSimbad:
         simbad = Simbad()
         simbad.cache_location = temp_dir
         response1 = simbad.query_region_async(multicoords, radius=radius)
-        assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-80%3A52%3A00+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'   # noqa
+        assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-5%3A23%3A28+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'   # noqa
 
     def test_query_region(self, temp_dir):
         simbad = Simbad()
