@@ -16,25 +16,25 @@ URL2 = "http://fakeurl.ac.uk"
 TEXT1 = "Penguin"
 TEXT2 = "Walrus"
 
-pytest.skip(reason='request function mocking is buggy here, skipping tests until '
-            'https://github.com/astropy/astroquery/issues/2632 is resolved',
-            allow_module_level=True)
+
+def _create_response(response_text):
+    mock_response = requests.Response()
+    mock_response._content = response_text
+    mock_response.request = requests.PreparedRequest()
+    mock_response.status_code = 200
+    return mock_response
 
 
-def set_response(resp_text, resp_status=200):
-    """Function that allows us to set a specific mock response for cache testing"""
+@pytest.fixture
+def changing_mocked_response(monkeypatch):
+    """Provide responses that can change after being queried once."""
+    first_responses = {URL1: _create_response(TEXT1), "ceb": _create_response(TEXT1)}
+    default_response = _create_response(TEXT2)
 
-    def get_mockreturn(url, *args, **kwargs):
-        """Generate a mock return to a requests call"""
+    def get_mockreturn(*args, **kwargs):
+        return first_responses.pop(args[2], default_response)
 
-        myresp = requests.Response()
-        myresp._content = resp_text
-        myresp.request = requests.PreparedRequest()
-        myresp.status_code = resp_status
-
-        return myresp
-
-    requests.Session.request = get_mockreturn
+    monkeypatch.setattr(requests.Session, "request", get_mockreturn)
 
 
 class CacheTestClass(QueryWithLogin):
@@ -75,7 +75,7 @@ def test_conf():
     assert cache_conf.cache_active == default_active
 
 
-def test_basic_caching():
+def test_basic_caching(changing_mocked_response):
     cache_conf.reset()
 
     mytest = CacheTestClass()
@@ -84,13 +84,9 @@ def test_basic_caching():
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    set_response(TEXT1)
-
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
     assert len(os.listdir(mytest.cache_location)) == 1
-
-    set_response(TEXT2)
 
     resp = mytest.test_func(URL2)  # query that has not been cached
     assert resp.content == TEXT2
@@ -131,7 +127,7 @@ def test_change_location(tmp_path):
         assert mytest.name in mytest.cache_location.parts
 
 
-def test_login():
+def test_login(changing_mocked_response):
     cache_conf.reset()
 
     mytest = CacheTestClass()
@@ -139,20 +135,16 @@ def test_login():
 
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
-
-    set_response(TEXT1)  # Text 1 is set as the approved password
 
     mytest.login("ceb")
     assert mytest.authenticated()
     assert len(os.listdir(mytest.cache_location)) == 0  # request should not be cached
 
-    set_response(TEXT2)  # Text 2 is not the approved password
-
     mytest.login("ceb")
     assert not mytest.authenticated()  # Should not be accessing cache
 
 
-def test_timeout(monkeypatch):
+def test_timeout(changing_mocked_response, monkeypatch):
     cache_conf.reset()
 
     mytest = CacheTestClass()
@@ -161,12 +153,8 @@ def test_timeout(monkeypatch):
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    set_response(TEXT1)  # setting the response
-
     resp = mytest.test_func(URL1)  # should be cached
     assert resp.content == TEXT1
-
-    set_response(TEXT2)  # changing the response
 
     resp = mytest.test_func(URL1)  # should access cached value
     assert resp.content == TEXT1
@@ -181,13 +169,14 @@ def test_timeout(monkeypatch):
 
     # Testing a cache timeout of "none"
     cache_conf.cache_timeout = None
-    set_response(TEXT1)
+    # Ensure response can only come from cache.
+    monkeypatch.delattr(requests.Session, "request")
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # cache is accessed
 
 
-def test_deactivate():
+def test_deactivate_directly(changing_mocked_response):
     cache_conf.reset()
 
     mytest = CacheTestClass()
@@ -196,13 +185,9 @@ def test_deactivate():
     mytest.clear_cache()
     assert len(os.listdir(mytest.cache_location)) == 0
 
-    set_response(TEXT1)
-
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT1
     assert len(os.listdir(mytest.cache_location)) == 0
-
-    set_response(TEXT2)
 
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2
@@ -211,17 +196,16 @@ def test_deactivate():
     cache_conf.reset()
     assert cache_conf.cache_active is True
 
+
+def test_deactivate_with_set_temp(changing_mocked_response):
+    mytest = CacheTestClass()
     with cache_conf.set_temp('cache_active', False):
         mytest.clear_cache()
         assert len(os.listdir(mytest.cache_location)) == 0
 
-        set_response(TEXT1)
-
         resp = mytest.test_func(URL1)
         assert resp.content == TEXT1
         assert len(os.listdir(mytest.cache_location)) == 0
-
-        set_response(TEXT2)
 
         resp = mytest.test_func(URL1)
         assert resp.content == TEXT2
