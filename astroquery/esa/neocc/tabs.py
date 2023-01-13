@@ -481,7 +481,7 @@ class CloseApproaches:
             df_close_appr = pd.DataFrame()
         else:
             # Read data as csv
-            df_close_appr = pd.read_csv(df_impacts_d,
+            df_close_appr = pd.read_csv(df_impacts_d, skiprows=[0],
                                         delim_whitespace=True)
             # Convert Date column to datetime format
             # Create auxilary columns
