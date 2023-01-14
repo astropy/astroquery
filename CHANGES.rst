@@ -158,6 +158,11 @@ simbad
   radius as a string in ``query_region()`` and ``query_region_async()``.
   [#2494]
 - Optional keyword arguments are now keyword only. [#2609]
+- ``ROW_LIMIT`` is now respected when running region queries; previously, it
+  was ignored for region queries but respected for all others.  A new warning,
+  ``BlankResponseWarning``, is introduced for use when one or more query terms result
+  in a blank or missing row; previously, only a generic warning was issued.
+  [#2637]
 
 skyview
 ^^^^^^^

@@ -10,10 +10,11 @@ from astroquery.utils.mocks import MockResponse
 from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
+from astroquery.exceptions import BlankResponseWarning
 
 
 # M42 coordinates
-ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
+ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
 ICRS_COORDS_SgrB2 = SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
 multicoords = SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
@@ -99,8 +100,7 @@ class TestSimbad:
 
     def test_query_region_async(self, temp_dir):
         simbad = Simbad()
-        # TODO: rewise once ROW_LIMIT is working
-        simbad.TIMEOUT = 100
+        simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         response = simbad.query_region_async(
             ICRS_COORDS_M42, radius=2 * u.deg, equinox=2000.0, epoch='J2000')
@@ -112,12 +112,12 @@ class TestSimbad:
         simbad = Simbad()
         simbad.cache_location = temp_dir
         response1 = simbad.query_region_async(multicoords, radius=radius)
-        assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-80%3A52%3A00+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'   # noqa
+        assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-5%3A23%3A28+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'   # noqa
 
     def test_query_region(self, temp_dir):
         simbad = Simbad()
-        # TODO: rewise once ROW_LIMIT is working
         simbad.TIMEOUT = 100
+        simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         result = simbad.query_region(ICRS_COORDS_M42, radius=2 * u.deg,
                                      equinox=2000.0, epoch='J2000')
@@ -149,7 +149,8 @@ class TestSimbad:
         assert len(result) == 2
         assert len(result.errors) == 0
 
-        result = simbad.query_objects(['M32', 'M81', 'gHer'])
+        with pytest.warns(BlankResponseWarning):
+            result = simbad.query_objects(['M32', 'M81', 'gHer'])
         # 'gHer' is not a valid Simbad identifier - it should be 'g Her' to
         # get the star
         assert len(result) == 2
@@ -182,29 +183,25 @@ class TestSimbad:
     def test_null_response(self, temp_dir, function):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        assert (simbad.__getattribute__(function)('idonotexist')
-                is None)
+        with pytest.warns(BlankResponseWarning):
+            assert (simbad.__getattribute__(function)('idonotexist')
+                    is None)
 
     # Special case of null test: list of nonexistent parameters
     def test_query_objects_null(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        assert simbad.query_objects(['idonotexist', 'idonotexisteither']) is None
+        with pytest.warns(BlankResponseWarning):
+            assert simbad.query_objects(['idonotexist', 'idonotexisteither']) is None
 
-    # Special case of null test: zero-sized region
-    def test_query_region_null(self, temp_dir):
+    # Special case of null test: zero-size and very small region
+    @pytest.mark.parametrize('radius', ["0d", 1.0*u.marcsec])
+    def test_query_region_null(self, temp_dir, radius):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius="0d",
-                                     equinox=2000.0, epoch='J2000')
-        assert result is None
-
-    # Special case of null test: very small region
-    def test_query_small_region_null(self, temp_dir):
-        simbad = Simbad()
-        simbad.cache_location = temp_dir
-        result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
-                                     equinox=2000.0, epoch='J2000')
+        with pytest.warns(BlankResponseWarning):
+            result = simbad.query_region(SkyCoord("00h01m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
+                                         equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case : zero-sized region with one object
