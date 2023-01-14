@@ -9,7 +9,7 @@ __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
            'TableParseError', 'LoginError', 'ResolverError',
            'NoResultsWarning', 'LargeQueryWarning', 'InputWarning',
            'AuthenticationWarning', 'MaxResultsWarning', 'CorruptDataWarning',
-           'BadRowWarning']
+           'BlankResponseWarning']
 
 
 class TimeoutError(Exception):
