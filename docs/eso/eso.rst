@@ -110,7 +110,7 @@ list of available instrument-specific queries can be obtained with the
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     >>> eso.list_instruments()
-    ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir',
+    ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam', 'eris', 'hawki', 'isaac', 'naco', 'visir',
      'vircam', 'apex', 'giraffe', 'uves', 'xshooter', 'espresso', 'muse', 'crires',
      'kmos', 'sinfoni', 'amber', 'gravity', 'matisse', 'midi', 'pionier', 'wlgsu']
 

@@ -10,7 +10,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'gravity', u'espresso', u'wlgsu', u'matisse']
+                   u'gravity', u'espresso', u'wlgsu', u'matisse', u'eris']
 
 # Some tests take too long, leading to travis timeouts
 # TODO: make this a configuration item
