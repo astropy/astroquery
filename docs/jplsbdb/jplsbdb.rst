@@ -156,7 +156,7 @@ item:
 .. code-block:: python
 
    >>> sbdb['orbit']['moid_jup']   # doctest: +REMOTE_DATA
-   <Quantity 0.433 AU>
+   <Quantity 0.431 AU>
 
 Note that many of the items in the output dictionary are associated
 with `~astropy.units` which can be readily used for
@@ -167,7 +167,7 @@ orbit intersection distance of the target with respect to Jupiter
 .. code-block:: python
 
    >>> print(sbdb['orbit']['moid_jup'].to('km'))    # doctest: +REMOTE_DATA
-   64775878.01309999 km
+   64476682.271699995 km
 
 The vast majority of parameter names are identical to those used in
 the `SBDB API documentation

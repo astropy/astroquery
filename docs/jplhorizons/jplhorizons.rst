@@ -103,7 +103,7 @@ as the observer's location, and Ceres as the target:
     ...                location=statue_of_liberty,
     ...                epochs=2458133.33546)
     >>> print(obj)
-    JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093}, epochs=[2458133.33546], id_type=None
+    JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093, 'body': 399}, epochs=[2458133.33546], id_type=None
 
 2. Specifying topocentric coordinates for both location and observer is often
 useful when performing geometric calculations for artificial satellites without
@@ -217,7 +217,7 @@ The following fields are available for each ephemerides query:
 .. code-block:: python
 
    >>> print(eph.columns)  # doctest: +REMOTE_DATA
-   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
+   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','lunar_presence','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
 
 The values in these columns are the same as those defined in the Horizons
 `Definition of Observer Table Quantities`_; names have been simplified in a few
@@ -319,27 +319,13 @@ epochs:
    targetname    datetime_jd    ...        range              range_rate
       ---             d         ...          AU                 AU / d
    ---------- ----------------- ... ------------------- ---------------------
-   (2012 TC4)         2458027.5 ... 0.04293321045723708 -0.004080187126604792
-   (2012 TC4) 2458027.506944444 ... 0.04290487481710865 -0.004080407273252692
-   (2012 TC4) 2458027.513888889 ... 0.04287653910612422 -0.004080207483923752
-   (2012 TC4) 2458027.520833333 ...  0.0428482062406034 -0.004079587864060769
-   (2012 TC4) 2458027.527777778 ... 0.04281987913334339 -0.004078549323373959
-   (2012 TC4) 2458027.534722222 ... 0.04279156068803435 -0.004077093574441023
-   (2012 TC4) 2458027.541666667 ... 0.04276325379369329 -0.004075223129766587
-   (2012 TC4) 2458027.548611111 ... 0.04273496131912425 -0.004072941297304715
-   (2012 TC4) 2458027.555555556 ... 0.04270668610741549 -0.004070252174450395
-   (2012 TC4)      2458027.5625 ...  0.0426784309704801 -0.004067160640508755
+   (2012 TC4)         2458027.5 ... 0.04293321034545636 -0.004080187115743425
+   (2012 TC4) 2458027.506944444 ... 0.04290487470540343 -0.004080407262389858
+   (2012 TC4) 2458027.513888889 ... 0.04287653899449449 -0.004080207473059529
           ...               ... ...                 ...                   ...
-   (2012 TC4)      2458028.4375 ... 0.03933332716437921 -0.004044964554003867
-   (2012 TC4) 2458028.444444444 ... 0.03930522397865518 -0.004048688817385818
-   (2012 TC4) 2458028.451388889 ...  0.0392770962740423 -0.004052024827670154
-   (2012 TC4) 2458028.458333333 ... 0.03924894677018282 -0.004054965958107465
-   (2012 TC4) 2458028.465277778 ...  0.0392207782301315 -0.004057506335500518
-   (2012 TC4) 2458028.472222222 ... 0.03919259345507763  -0.00405964085173645
-   (2012 TC4) 2458028.479166667 ... 0.03916439527899811 -0.004061365173873995
-   (2012 TC4) 2458028.486111111 ...  0.0391361865632416 -0.004062675752763805
-   (2012 TC4) 2458028.493055556 ... 0.03910797019106256 -0.004063569830183882
-   (2012 TC4)         2458028.5 ...  0.0390797490621057 -0.004064045444472773
+   (2012 TC4) 2458028.486111111 ... 0.03913618646225701 -0.004062675741730004
+   (2012 TC4) 2458028.493055556 ...  0.0391079700901548 -0.004063569819149637
+   (2012 TC4)         2458028.5 ... 0.03907974896127458 -0.004064045433438098
    Length = 145 rows
 
 
@@ -418,7 +404,7 @@ We can get at list of all the columns in this table with:
 .. code-block:: python
 
    >>> print(eph.columns)     # doctest: +REMOTE_DATA
-   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
+   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','lunar_presence','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
 
 
 We can address each column individually by indexing it using its name as
