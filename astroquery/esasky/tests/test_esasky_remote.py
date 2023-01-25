@@ -112,8 +112,8 @@ class TestESASky:
 
     @pytest.mark.bigdata
     @pytest.mark.parametrize("mission", ['XMM', 'Chandra', 'XMM-OM-OPTICAL',
-                                         'ISO-IR', 'Herschel', 'JWST_Mid-IR',
-                                         'JWST_Near-IR', 'Spitzer'])
+                                         'ISO-IR', 'Herschel', 'JWST-MID-IR',
+                                         'JWST-NEAR-IR', 'Spitzer'])
     def test_esasky_get_images(self, tmp_path, mission):
         ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
 
@@ -161,9 +161,9 @@ class TestESASky:
                                          "HST-OPTICAL", "ISO-IR", "Herschel"])
     def test_esasky_get_spectra(self, tmp_path, mission):
         # Not all missions are tested here:
-        # - HST-IR, JWST_Mid-IR and CHEOPS have no data
+        # - HST-IR, JWST-MID-IR and CHEOPS have no data
         # - LAMOST does not support download
-        # - JWST_Near-IR returns a zip file with many fits files in it, unsupported
+        # - JWST-NEAR-IR returns a zip file with many fits files in it, unsupported
         ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
 
         assert Path(tmp_path, mission).exists()
