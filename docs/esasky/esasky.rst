@@ -36,7 +36,8 @@ If you know the names of all the available catalogs you can use :meth:`~astroque
     'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 'Gaia-DR3', 'Hipparcos-2', 'HSC',
     'Herschel-HPPSC-070', 'Herschel-HPPSC-100', 'Herschel-HPPSC-160', 'Herschel-SPSC-250', 'Herschel-SPSC-350',
     'Herschel-SPSC-500', 'Planck-PGCC', 'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ2',
-    'Icecube', 'Fermi_4FGL-DR2', 'Fermi_3FHL', 'Fermi_4LAC-DR2', '2WHSP', '2RXS', 'OU_Blazars']
+    'Icecube', 'Fermi_4FGL-DR2', 'Fermi_3FHL', 'Fermi_4LAC-DR2', '2WHSP', '2RXS', 'OU_Blazars',
+    'eROSITA-eFEDS-hard', 'eROSITA-eFEDS-main', 'eROSITA-etaCha-hard', 'eROSITA-etaCha-main']
 
 Get the available maps mission names
 ------------------------------------
@@ -48,7 +49,7 @@ If you know the names of all the available maps missions you can use :meth:`~ast
     >>> maps_list = ESASky.list_maps()
     >>> print(maps_list)
     ['INTEGRAL', 'XMM', 'Chandra', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR',
-    'ISO-IR', 'Herschel', 'AKARI', 'JWST-MID-IR', 'JWST-NEAR-IR', 'Spitzer', 'ALMA']
+    'ISO-IR', 'Herschel', 'AKARI', 'JWST-MID-IR', 'JWST-NEAR-IR', 'Spitzer', 'ALMA', 'eROSITA']
 
 Get the available spectra mission names
 ---------------------------------------

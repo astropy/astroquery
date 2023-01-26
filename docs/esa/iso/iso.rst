@@ -1,8 +1,8 @@
 .. _astroquery.esa.iso:
 
-****************************************
+**************************************
 ESA ISO Archive (`astroquery.esa.iso`)
-****************************************
+**************************************
 The Infrared Space Observatory (ISO) was a space telescope for infrared light designed and
 operated by the European Space Agency (ESA), in cooperation with ISAS (now part of JAXA) and NASA.
 The ISO was designed to study infrared light at wavelengths of 2.5 to 240 micrometres and operated
@@ -20,9 +20,9 @@ ESA experts at ESAC.
 Examples
 ========
 
-------------------------------
+--------------------
 1. Querying ISO data
-------------------------------
+--------------------
 
 .. doctest-remote-data::
 
@@ -79,9 +79,9 @@ print(table).
 Once we have the observations identifiers (TDT) we can invoke the data download. To discover the tables
 provided by this service, see section 'Getting Tables Details'.
 
-------------------------------
+-------------------
 2. Getting ISO data
-------------------------------
+-------------------
 
 .. doctest-remote-data::
 
@@ -153,33 +153,27 @@ we can loop on the observations to download the best products (DEFAULT_DATA_SET)
   INFO: http://nida.esac.esa.int/...
 
 
--------------------------------
-2. Getting ISO postcards
--------------------------------
+------------------------
+3. Getting ISO postcards
+------------------------
+
+This will download the ISO postcard for the observation '80001538' and it will stored in a PNG called
+'postcard.png'.
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.iso import ISO
-  >>> from IPython.display import Image
-  >>> from IPython.core.display import HTML
-  >>>
   >>> ISO.get_postcard('80001538', filename="postcard")   # doctest: +IGNORE_OUTPUT
   Downloading URL http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=POSTCARD&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80001538 to /Users...
-  >>> Image(filename = "postcard.png", width=400, height=100)
-  <IPython.core.display.Image object>
-
 
 .. figure:: images/campostcard.png
    :scale: 100%
    :alt: Postcard image for observation 80001538
 
-   The resulting plot from the example above
-
-This will download the ISO postcard for the observation '80001538' and it will stored in a PNG called
-'postcard.png'. Then, we display the postcard inside the python interface.
+   The postcard downloaded in the example above
 
 ------------------------------------------
-3. Getting ISO Tables Details through TAP
+4. Getting ISO Tables Details through TAP
 ------------------------------------------
 
 .. doctest-remote-data::
@@ -207,7 +201,7 @@ This will download the ISO postcard for the observation '80001538' and it will s
 This will show the available tables in ISO TAP service in the ISO Data Archive.
 
 -------------------------------------
-4. Getting columns details of ISO TAP
+5. Getting columns details of ISO TAP
 -------------------------------------
 
 .. doctest-remote-data::
@@ -231,9 +225,9 @@ This will show the column details of the table 'ida.observations' in ISO TAP ser
 in the ISO Data Archive.
 
 
--------------------------------------
-4. Working with ISO VO tables
--------------------------------------
+-----------------------------
+6. Working with ISO VO tables
+-----------------------------
 
 ISO provides Virtual Observatory compatible products and tables. Three different VO
 compatible tables are provided:
@@ -298,9 +292,10 @@ Same can be done to discover images M31 images:
   ISO CAM01 Image Target: M31_LW6 10.68375 41.26945 http://nida.esac.esa.int/nida-sl-tap/data?RETRIEVAL_TYPE=STANDALONE&obsno=583023050
   ISO CAM01 Image Target: M31_LW3 10.68375 41.26945 http://nida.esac.esa.int/nida-sl-tap/data?RETRIEVAL_TYPE=STANDALONE&obsno=583027030
 
--------------------------------------
-4. Working with ISO VO products
--------------------------------------
+-------------------------------
+7. Working with ISO VO products
+-------------------------------
+
 Either by invocation of the URL provided in every row of previous section or using the STANDALONE retrieval level, VO compatible products can be open using python astropy FITS module.
 
 Images can be displayed by using the following code:

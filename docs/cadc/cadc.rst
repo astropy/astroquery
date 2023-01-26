@@ -41,7 +41,7 @@ these collections:
     TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
     UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical', 'Infrared']}
     VGPS : {'Description': 'The VGPS collection at the CADC', 'Bands': ['Radio']}
-    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['', 'Radio']}
+    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['Radio']}
     WALLABY : {'Description': 'The WALLABY collection at the CADC', 'Bands': ['Radio']}
     XMM : {'Description': 'The XMM collection at the CADC', 'Bands': ['Optical', 'UV', 'X-ray']}
 
@@ -51,7 +51,7 @@ region or by name. The following example queries CADC for Canada
 France Hawaii Telescope (CFHT) data for a given region and resolves
 the URLs for downloading the corresponding data.
 
-
+.. Remove IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2523 is fixed
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -73,7 +73,7 @@ the URLs for downloading the corresponding data.
     caom:CFHT/2583703        2583703 ... 2021-02-26T10:37:42.355
     caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
     caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
-    >>> urls = cadc.get_data_urls(result)
+    >>> urls = cadc.get_data_urls(result)  # doctest: +IGNORE_WARNINGS
     >>> for url in urls:
     ...     print(url)   #doctest: +IGNORE_OUTPUT
     ...
@@ -92,14 +92,14 @@ the results on the name of the target (as an example - any other
 filtering possible) and resolves the URLs for both the primary and
 auxiliary data (in this case preview files)
 
-
+.. Remove IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2523 is fixed
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s')
     >>> urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
-    ...                           include_auxiliaries=True)
+    ...                           include_auxiliaries=True)  # doctest: +IGNORE_WARNINGS
     >>> for url in urls:
     ...    print(url)  # doctest: +IGNORE_OUTPUT
     ...
@@ -136,7 +136,7 @@ the CADC metadata.
 If only a subsection of the FITS file is needed, CADC can query an
 area and resolve the cutout of a result.
 
-
+.. Remove IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2523 is fixed
 .. doctest-remote-data::
 
     >>> from astropy import units as u
@@ -144,7 +144,7 @@ area and resolve the cutout of a result.
     >>> cadc = Cadc()
     >>> coords = '01h45m07.5s +23d18m00s'
     >>> radius = 0.01*u.deg
-    >>> images = cadc.get_images(coords, radius, collection='CFHT')
+    >>> images = cadc.get_images(coords, radius, collection='CFHT')  # doctest: +IGNORE_WARNINGS
     >>> images  # doctest: +IGNORE_OUTPUT
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805a06ef0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805b23b38>]
@@ -153,7 +153,7 @@ area and resolve the cutout of a result.
 Alternatively, if the query result is large and data does not need to be
 in memory, lazy access to the downloaded FITS file can be used.
 
-
+.. Remove IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2523 is fixed
 .. doctest-remote-data::
 
     >>> from astropy import units as u
@@ -162,7 +162,7 @@ in memory, lazy access to the downloaded FITS file can be used.
     >>> cadc = Cadc()
     >>> coords = SkyCoord(10, 20, unit='deg')
     >>> radius = 0.01*u.deg
-    >>> readable_objs = cadc.get_images_async(coords, radius, collection='CFHT')
+    >>> readable_objs = cadc.get_images_async(coords, radius, collection='CFHT')  # doctest: +IGNORE_WARNINGS
     >>> readable_objs  # doctest: +IGNORE_OUTPUT
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234132o.fits.fz&RUNID=pot39nwwtaht03wc&POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451168112
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&RUNID=pot39nwwtaht03wc&POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451142576
@@ -181,7 +181,7 @@ are needed, the result table can be passed into the
 `~astroquery.cadc.CadcClass.get_image_list` function, along with the
 cutout coordinates and radius.
 
-
+.. Remove IGNORE_WARNINGS once https://github.com/astropy/astroquery/issues/2523 is fixed
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -191,7 +191,7 @@ cutout coordinates and radius.
     >>> radius = 0.1*u.deg
     >>> results = cadc.query_region(coords, radius, collection='CFHT')
     >>> filtered_results = results[results['time_exposure'] > 120.0]
-    >>> image_list = cadc.get_image_list(filtered_results, coords, radius)
+    >>> image_list = cadc.get_image_list(filtered_results, coords, radius)  # doctest: +IGNORE_WARNINGS
     >>> print(image_list)   # doctest: +IGNORE_OUTPUT
     ['https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278o.fits.fz&RUNID=dbuswaj4zwruzi92&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
     'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278p.fits.fz&RUNID=dbuswaj4zwruzi92&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',

@@ -9,31 +9,33 @@ from astroquery import mpc
 @pytest.mark.remote_data
 class TestMPC:
 
-    @pytest.mark.parametrize('type, name', [
+    @pytest.mark.parametrize('target_type, name', [
         ('asteroid', 'ceres'),
         ('asteroid', 'eros'),
-        ('asteroid', 'vesta')])
-    def test_query_object_valid_object_by_name(self, type, name):
-        response = mpc.MPC.query_object_async(target_type=type, name=name)
+        ('asteroid', 'vesta'),
+        ('asteroid', 'pallas'),
+        ('asteroid', 'piszkesteto')])
+    def test_query_object_valid_object_by_name(self, target_type, name):
+        # Keep all 3 of the objects in the tests, too that used to cause issue
+        # https://github.com/astropy/astroquery/issues/2531
+        response = mpc.MPC.query_object_async(target_type=target_type, name=name)
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 1
         assert response.json()[0]['name'].lower() == name
 
-    @pytest.mark.parametrize('type, number', [
+    @pytest.mark.parametrize('target_type, number', [
         ('comet', '103P')])
-    def test_query_object_valid_object_by_number(self, type, number):
-        response = mpc.MPC.query_object_async(
-            target_type=type, number=number)
+    def test_query_object_valid_object_by_number(self, target_type, number):
+        response = mpc.MPC.query_object_async(target_type=target_type, number=number)
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 1
         assert str(response.json()[0]['number']) + \
             response.json()[0]['object_type'] == number
 
-    @pytest.mark.parametrize('type, designation', [
+    @pytest.mark.parametrize('target_type, designation', [
         ('comet', 'C/2012 S1')])
-    def test_query_object_valid_object_by_designation(self, type, designation):
-        response = mpc.MPC.query_object_async(
-            target_type=type, designation=designation)
+    def test_query_object_valid_object_by_designation(self, target_type, designation):
+        response = mpc.MPC.query_object_async(target_type=target_type, designation=designation)
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 1
         assert response.json()[0]['designation'].lower() == designation.lower()
