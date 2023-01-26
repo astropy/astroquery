@@ -160,7 +160,7 @@ It is also possible to select time range:
                            NAME                           RA     DEC   ... ISSUE_FLAG             SEARCH_OFFSET_           
                                                          deg     deg   ...                                                 
     -------------------------------------------------- -------- ------ ... ---------- -------------------------------------
-    3C273                                              187.2473 2.0362 ...          0 2.077 (187.2779220931,2.0523864229)\n
+    3C273                                              187.2473 2.0362 ...          0 2.077 (187.2779220936,2.0523864234)\n
 
 
 Getting list of available missions
@@ -241,9 +241,9 @@ mission table.
 Using alternative HEASARC servers
 ---------------------------------
 
-It is possible to set alternative locations for HEASARC server. One such location
+It is possible to set alternative locations for HEASARC servers. One such location
 is hosted by `INTEGRAL Science Data Center <https://www.isdc.unige.ch/>`_, and has further
-tables listing most recent INTEGRAL data.
+tables listing the most recent INTEGRAL data.
 
 .. doctest-remote-data::
 
@@ -261,18 +261,28 @@ tables listing most recent INTEGRAL data.
     INTEGRAL-REV3      integral_rev3_scw                       SCW - Science Window Data
     >>>
     >>> table = heasarc.query_object('Crab', mission='integral_rev3_scw',
-    ...                              radius='361 degree', time="2021-02-01 .. 2030-12-01",
+    ...                              radius='361 degree', time="2022-12-01 .. 2022-12-31",
     ...                              sortvar='START_DATE', resultmax=100000)
     >>> table.pprint()
-       SCW_ID    SCW_VER SCW_TYPE    RA_X    ... GOOD_OMC   DSIZE   _SEARCH_OFFSET
-                                             ...
-    ------------ ------- -------- ---------- ... -------- --------- --------------
-    232600870020 001     POINTING  48.302208 ...      370  20242432       2004.207
-    232600870031 001     SLEW      47.182667 ...        0   1380352       2328.123
-    232600880010 001     POINTING  46.372791 ...        0   1572864       2730.070
-    232600880021 001     SLEW      46.357828 ...        0    917504       2729.667
-    232600890010 001     POINTING  46.323544 ...        0   2244608       2728.770
-    ...
+       SCW_ID    SCW_VER SCW_TYPE ... GOOD_OMC   DSIZE     SEARCH_OFFSET_ 
+    ------------ ------- -------- ... -------- --------- -----------------
+    258300400010 001     POINTING ...        0 123494400 5199.027 (CRAB)\n
+    258400320021 001     SLEW     ...        0   5799936 5082.095 (CRAB)\n
+    258400260021 001     SLEW     ...        0   5791744 5104.388 (CRAB)\n
+    258400350010 001     POINTING ...        0 123146240 5167.027 (CRAB)\n
+    258700350021 001     SLEW     ...        0   5750784 5120.836 (CRAB)\n
+    258400330010 001     POINTING ...        0 123179008 5067.991 (CRAB)\n
+    258400260010 001     POINTING ...        0 123371520 5093.007 (CRAB)\n
+             ...     ...      ... ...      ...       ...               ...
+    258400270021 001     SLEW     ...        0 126386176 5114.308 (CRAB)\n
+    258400270010 001     POINTING ...        0   1200128 5113.839 (CRAB)\n
+    258700360010 001     POINTING ...        0 122130432 5136.165 (CRAB)\n
+    258200770010 001     POINTING ...        0   1490944 4184.684 (CRAB)\n
+    258200770021 001     SLEW     ...        0    962560 4184.587 (CRAB)\n
+    258200780010 001     POINTING ...        0   1585152 4184.378 (CRAB)\n
+    258700340021 001     SLEW     ...        0   5779456 5181.635 (CRAB)\n
+    Length = 1601 rows
+
 
 Reference/API
 =============
