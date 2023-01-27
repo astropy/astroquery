@@ -1,45 +1,9 @@
-# -*- coding: utf-8 -*-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Main module from ESA NEOCC library. This module contains the two main
 methods of the library: *query_list* and *query_object*. The information
 is obtained from ESA Near-Earth Object Coordination Centre's (NEOCC) web
 portal: https://neo.ssa.esa.int/.
-
-* Project: NEOCC portal Python interface
-* Property: European Space Agency (ESA)
-* Developed by: Elecnor Deimos
-* Author: C. Álvaro Arroyo Parejo
-* Issue: 2.1.0
-* Date: 01-03-2021
-* Purpose: Main module which gets NEAs data from https://neo.ssa.esa.int/
-* Module: core.py
-* History:
-
-========   ===========   ============================================
-Version    Date          Change History
-========   ===========   ============================================
-1.0        26-02-2021    Initial version
-1.1        26-03-2021    Adding new docstrings
-1.2        17-05-2021    Adding new docstrings for *help*
-                         property in dataframes and *<tab>*
-                         specification for obtaining attributes.\n
-                         For orbit properties *orbit_elements*
-                         changes to *orbital_elements*.\n
-                         Adding impacted objects lists.\n
-                         Minor typos changes.
-1.3        16-06-2021    Renamed module from *neocc* to *core*.\n
-                         Adding class type as for astroquery
-                         implementation.\n
-                         Define methods as static.\n
-1.3.1      29-06-2021    No changes
-1.4.0      29-10-2021    Adding new docstrings.\n
-                         Change method for obtaining physical
-                         properties
-2.0.0      21-01-2022    Prepare module for Astroquery integration
-2.1.0      01-03-2022    Remove *parse* dependency
-
-© Copyright [European Space Agency][2022]
-All rights reserved
 """
 
 import time
@@ -50,6 +14,7 @@ from astroquery.utils import async_to_sync
 from astroquery.esa.neocc import lists, tabs
 
 __all__ = ['neocc', 'ESAneoccClass']
+
 
 @async_to_sync
 class ESAneoccClass(BaseQuery):
@@ -89,13 +54,13 @@ class ESAneoccClass(BaseQuery):
 
         Returns
         -------
-        neocc_lst : *pandas.Series* or *pandas.DataFrame*
-            Data Frame which contains the information of the requested list
+        neocc_lst : `~astropy.table.Table`
+            Astropy Table which contains the data of the requested list.
 
         Examples
         --------
         **NEA list, Updated NEA list, Monthly computation date:** The output
-        of this list is a *pandas.Series* which contains the list of all NEAs
+        of this list is a `~astropy.table.Table` which contains the list of all NEAs
         currently considered in the NEOCC system.
 
         >>> from astroquery.esa.neocc import neocc
@@ -120,7 +85,7 @@ class ESAneoccClass(BaseQuery):
         >>> list_data[4]
         '1221 Amor'
 
-        **Other lists:**  The output of this list is a *pandas.DataFrame* which
+        **Other lists:**  The output of this list is a `~astropy.table.Table` which
         contains the information of the requested list.
 
         >>> from astroquery.esa.neocc import neocc
@@ -192,7 +157,7 @@ class ESAneoccClass(BaseQuery):
 
             return neocc_list
 
-        except ConnectionError: # pragma: no cover
+        except ConnectionError:  # pragma: no cover
             print('Initial attempt to obtain list failed. Reattempting...')
             # Wait 5 seconds
             time.sleep(5)
@@ -439,12 +404,13 @@ class ESAneoccClass(BaseQuery):
         tab_list = ['impacts', 'close_approaches', 'observations',
                     'physical_properties', 'orbit_properties',
                     'ephemerides', 'summary']
+
         # Check the input of the method if tab is not in the list
         # print and error and show the valid names
         if tab not in tab_list:
             raise KeyError('Please introduce a valid tab name. '
-                        'valid tabs names are: ' +\
-                            ', '.join([str(elem) for elem in tab_list]))
+                           'valid tabs names are: '
+                           ', '.join([str(elem) for elem in tab_list]))
         # Depending on the tab selected the information will be requested
         # following different methods. Create "switch" for each case:
 
@@ -458,7 +424,7 @@ class ESAneoccClass(BaseQuery):
             try:
                 # Get object data
                 data_obj = tabs.get_object_data(url)
-            except ConnectionError: # pragma: no cover
+            except ConnectionError:  # pragma: no cover
                 print('Initial attempt to obtain object data failed. '
                     'Reattempting...')
                 # Wait 5 seconds
@@ -466,24 +432,19 @@ class ESAneoccClass(BaseQuery):
                 # Get object data
                 data_obj = tabs.get_object_data(url)
 
+            resp_str = data_obj.decode('utf-8')
+
+            # TODO: check data here
+
             if tab == 'impacts':
-                # Create empty object with class Impacts
-                neocc_obj = tabs.Impacts()
-                # Parse the requested data using Impacts parser
-                neocc_obj._impacts_parser(data_obj)
+                neocc_obj = tabs.parse_impacts(resp_str)
             elif tab == 'close_approaches':
-                # Parse the requested data using Close Approaches parser
-                neocc_obj = tabs.CloseApproaches.clo_appr_parser(data_obj)
+                neocc_obj = tabs.parse_close_aproach(resp_str)
             elif tab == 'observations':
-                # Create empty object
-                neocc_obj = tabs.AsteroidObservations()
-                # Get object with attributes from data
-                neocc_obj._ast_obs_parser(data_obj)
+                neocc_obj = tabs.parse_observations(resp_str)
             elif tab == 'physical_properties':
-                # Create empty object with class Physical properties
-                neocc_obj = tabs.PhysicalProperties()
-                # Parse the requested data using Physical properties parser
-                neocc_obj._phys_prop_parser(data_obj)
+                neocc_obj = tabs.parse_physical_properties(resp_str)
+                
         # Orbit properties
         elif tab == 'orbit_properties':
             # Raise error if no elements are provided
@@ -505,7 +466,7 @@ class ESAneoccClass(BaseQuery):
             try:
                 # Get object data
                 data_obj = tabs.get_object_data(url)
-            except ConnectionError: # pragma: no cover
+            except ConnectionError:  # pragma: no cover
                 print('Initial attempt to obtain object data failed. '
                     'Reattempting...')
                 # Wait 5 seconds
@@ -513,17 +474,8 @@ class ESAneoccClass(BaseQuery):
                 # Get object data
                 data_obj = tabs.get_object_data(url)
 
-            # Assign orbit properties depending on the elements requested
-            if kwargs['orbital_elements'] == "keplerian":
-                # Create empty object with class Orbit properties
-                neocc_obj = tabs.KeplerianOrbitProperties()
-                # Parse the requested data using Orbit properties parser
-                neocc_obj._orb_kep_prop_parser(data_obj)
-            elif kwargs['orbital_elements'] == "equinoctial":
-                # Create empty object with class Orbit properties
-                neocc_obj = tabs.EquinoctialOrbitProperties()
-                # Parse the requested data using Orbit properties parser
-                neocc_obj._orb_equi_prop_parser(data_obj)
+            resp_str = data_obj.decode('utf-8')
+            neocc_obj = tabs.parse_orbital_properties(resp_str)
 
         # Ephemerides
         elif tab == 'ephemerides':
@@ -536,21 +488,22 @@ class ESAneoccClass(BaseQuery):
             # Check if any kwargs is missing
             for element in args_dict:
                 if element not in kwargs:
-                    raise KeyError ('Please specify ' + args_dict[element]
-                                    + ' for ephemerides')
+                    raise KeyError(f'Please specify {args_dict[element]} for ephemerides.')
 
-            # Create empty object with class Ephemerides
-            neocc_obj = tabs.Ephemerides()
-            # Parse the requested data using Ephemerides parser
-            neocc_obj._ephem_parser(name, observatory=kwargs['observatory'],
+            resp_str = tabs.get_ephemerides_data(name, observatory=kwargs['observatory'],
                                 start=kwargs['start'], stop=kwargs['stop'],
                                 step=kwargs['step'],
                                 step_unit=kwargs['step_unit'])
+            neocc_obj = tabs.parse_ephemerides(resp_str)
+
         elif tab == 'summary':
+            resp_str = tabs.get_summary_data(name)
+            
+            neocc_obj = tabs.parse_summary(resp_str)
             # Create empty object with class Summary
-            neocc_obj = tabs.Summary()
+            #neocc_obj = tabs.Summary()
             # Parse the requested data using Summary parser
-            neocc_obj._summary_parser(name)
+            #neocc_obj._summary_parser(name)
 
         return neocc_obj
 
