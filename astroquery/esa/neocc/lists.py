@@ -13,6 +13,7 @@ from astropy.table import Table, Column
 from astropy.time import Time, TimeDelta
 
 from astroquery.esa.neocc import conf
+from astroquery.esa.neocc.utils import convert_time
 
 # Import BASE URL and TIMEOUT
 API_URL = conf.API_URL
@@ -87,8 +88,8 @@ def get_list_data(url, list_name):
 
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataDrame*
-        Data frame which contains the data of the requested list.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table which contains the data of the requested list.
     """
 
     # Get data from URL
@@ -113,8 +114,8 @@ def parse_list(list_name, data_string):
 
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with data from the list parsed.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table which contains the data of the requested list.
     """
 
     # Parse data for each type of list
@@ -156,8 +157,8 @@ def parse_nea(resp_str):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with NEA list data parsed.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table with NEA list data parsed.
     """
 
     resp_str = resp_str.replace('#', '')
@@ -174,8 +175,8 @@ def parse_risk(resp_str):
 
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with risk list data parsed.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table with risk list data parsed.
     """
 
     neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width")
@@ -216,8 +217,8 @@ def parse_clo(resp_str):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with close approaches list data parsed.
+   neocc_lst : `~astropy.table.Table`
+        Astropy Table with close approaches list data parsed.
     """
 
     neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width", 
@@ -250,8 +251,8 @@ def parse_pri(resp_str):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with priority list data parsed.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table with priority list data parsed.
     """
 
     neocc_lst = Table.read(resp_str, data_start=1, format="ascii.no_header", 
@@ -281,14 +282,12 @@ def parse_encounter(resp_str):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.Series* or *pandas.DataFrame*
-        Data frame with close encounter list data parsed.
+    neocc_lst : `~astropy.table.Table`
+        Astropy Table with close encounter list data parsed.
     """
 
     neocc_lst = Table.read(resp_str, header_start=1, data_start=3, format="ascii.fixed_width")
-
-    day, tme = np.array([x.split(".") for x in neocc_lst['Date']]).swapaxes(0,1)
-    neocc_lst['Date'] = Time.strptime(day, '%Y/%m/%d') + TimeDelta(tme.astype(int)/1e5, format="jd")
+    neocc_lst['Date'] = convert_time(neocc_lst['Date'], conversion_string='%Y/%m/%d')
 
     neocc_lst.meta = {'Name/design': 'designator of the NEA',
                       'Planet': 'planet or massive asteroid is involved in the close approach',
@@ -338,8 +337,8 @@ def parse_neo_catalogue(resp_str):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.DataFrame*
-        Data frame with catalogues of NEAs list data parsed.
+   neocc_lst : `~astropy.table.Table`
+        Astropy Table  with catalogues of NEAs list data parsed.
     """
 
     neocc_lst = Table.read(resp_str, data_start=6, format="ascii.no_header", 
