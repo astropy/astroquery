@@ -151,6 +151,12 @@ oac
 - Fix bug in parsing events that contain html tags (e.g. in their alias
   field). [#2423]
 
+sdss
+^^^^
+
+- Switching to https to avoid issues originating in relying on server side
+  redirects. [#2654]
+
 simbad
 ^^^^^^
 

@@ -123,25 +123,25 @@ dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
 # interfaces are supported for DR11."
 def url_tester(data_release):
     if data_release < 10:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
     if data_release == 10:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
 def url_tester_crossid(data_release):
     if data_release < 10:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
     if data_release == 10:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
+        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
