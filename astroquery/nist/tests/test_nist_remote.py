@@ -24,7 +24,7 @@ class TestNist:
         assert set(result['TP']) == set(['T8637', 'T7771'])
 
     def test_unescape_html(self):
-        response = nist.core.Nist.query_async(4333 * u.AA, 4334 * u.AA, "V I")
+        response = nist.core.Nist.query_async(4333 * u.AA, 4334 * u.AA, linename="V I")
         assert '&dagger;' in response.text
         # check that Unicode characters have been properly unescaped from their
         # raw HTML code equivalents during parsing
