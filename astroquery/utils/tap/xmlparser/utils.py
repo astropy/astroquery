@@ -53,13 +53,6 @@ def get_suitable_astropy_format(output_format):
     return output_format
 
 
-def read_file_content(file_path):
-    file_handler = open(file_path, 'r')
-    file_content = file_handler.read()
-    file_handler.close()
-    return file_content
-
-
 def modify_unrecognized_table_units(table):
     """Modifies the units of an input table column in place
     """

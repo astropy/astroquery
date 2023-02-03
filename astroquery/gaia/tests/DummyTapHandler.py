@@ -14,8 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-from urllib.parse import urlencode
-
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
 
@@ -320,6 +318,3 @@ class DummyTapHandler:
         self.__invokedMethod = 'is_valid_user'
         self.__parameters['user_id'] = user_id
         self.__parameters['verbose'] = verbose
-
-    def url_encode(self, data):
-        return urlencode(data)

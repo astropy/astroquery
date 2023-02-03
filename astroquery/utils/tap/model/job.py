@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 
 import time
+from urllib.parse import urlencode
 
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
@@ -110,12 +111,9 @@ class Job:
     def __change_phase(self, phase, verbose=False):
         if self._phase == 'PENDING':
             context = f"async/{self.jobid}/phase"
-            args = {
-                "PHASE": str(phase)}
-            data = self.connHandler.url_encode(args)
-            response = self.connHandler.execute_tappost(subcontext=context,
-                                                        data=data,
-                                                        verbose=verbose)
+            response = self.connHandler.execute_tappost(
+                subcontext=context, data=urlencode({"PHASE": phase}), verbose=verbose
+            )
             if verbose:
                 print(response.status, response.reason)
                 print(response.getheaders())
@@ -150,11 +148,8 @@ class Job:
         if self._phase == 'PENDING':
             # send post parameter/value
             context = f"async/{self.jobid}"
-            args = {
-                name: str(value)}
-            data = self.connHandler.url_encode(args)
             response = self.connHandler.execute_tappost(subcontext=context,
-                                                        data=data,
+                                                        data=urlencode({name: value}),
                                                         verbose=verbose)
             if verbose:
                 print(response.status, response.reason)

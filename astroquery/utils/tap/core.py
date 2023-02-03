@@ -13,6 +13,8 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 1 jun. 2021 by mhsarmiento
 """
+from urllib.parse import urlencode
+
 from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
 from astroquery.utils.tap.xmlparser.tableSaxParser import TableSaxParser
@@ -554,7 +556,7 @@ class Tap:
         return jobs
 
     def __appendData(self, args):
-        data = self.__connHandler.url_encode(args)
+        data = urlencode(args)
         result = ""
         firtsTime = True
         for k in data:
@@ -633,9 +635,8 @@ class Tap:
             args['PHASE'] = 'RUN'
         if name is not None:
             args['jobname'] = name
-        data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_tappost(subcontext=context,
-                                                      data=data,
+                                                      data=urlencode(args),
                                                       verbose=verbose)
         if verbose:
             print(response.status, response.reason)
@@ -847,7 +848,7 @@ class TapPlus(Tap):
         connHandler = self.__getconnhandler()
         if not isinstance(params_dict, dict):
             raise ValueError("Parameters dictionary expected")
-        data = connHandler.url_encode(params_dict)
+        data = urlencode(params_dict)
         if verbose:
             print(f"Data request: {data}")
         response = connHandler.execute_datapost(data=data, verbose=verbose)
@@ -1371,8 +1372,7 @@ class TapPlus(Tap):
             "username": usr,
             "password": pwd}
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_secure(subContext, data, verbose)
+        response = connHandler.execute_secure(subContext, urlencode(args), verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1568,8 +1568,7 @@ class TapPlus(Tap):
                 "DELETE": "TRUE",
                 "FORCE_REMOVAL": "FALSE"}
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_upload(data, verbose=verbose)
+        response = connHandler.execute_upload(urlencode(args), verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1620,8 +1619,7 @@ class TapPlus(Tap):
                 args = self.get_args_4_rename_table(table_name, table_name, new_column_names_dict)
 
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_table_tool(data, verbose=verbose)
+        response = connHandler.execute_table_tool(urlencode(args), verbose=verbose)
 
         if verbose:
             print(response.status, response.reason)
@@ -1724,8 +1722,7 @@ class TapPlus(Tap):
                                                   list_of_changes)
 
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_table_edit(data, verbose=verbose)
+        response = connHandler.execute_table_edit(urlencode(args), verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1897,8 +1894,7 @@ class TapPlus(Tap):
             "DEC": str(dec_column_name),
         }
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_table_edit(data, verbose=verbose)
+        response = connHandler.execute_table_edit(urlencode(args), verbose=verbose)
         isError = connHandler.check_launch_response_status(response,
                                                            verbose,
                                                            200)
@@ -1995,10 +1991,8 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         subContext = "logout"
-        args = {}
         connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_secure(subContext, data)
+        response = connHandler.execute_secure(subContext, "")
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())

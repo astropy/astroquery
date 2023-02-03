@@ -16,6 +16,7 @@ import shutil
 import tarfile
 import zipfile
 from datetime import datetime
+from urllib.parse import urlencode
 
 from astropy import log
 from astropy import units
@@ -667,9 +668,8 @@ class JwstClass(BaseQuery):
             MAST token to have access to propietary data
         """
         subContext = conf.JWST_TOKEN
-        args = {"token": token}
+        data = urlencode({"token": token})
         connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        data = connHandler.url_encode(args)
         response = connHandler.execute_secure(subContext, data, True)
         if response.status == 403:
             print("ERROR: MAST tokens cannot be assigned or requested by anonymous users")

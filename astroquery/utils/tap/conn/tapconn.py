@@ -24,8 +24,6 @@ except ImportError:
 import mimetypes
 import time
 
-from urllib.parse import urlencode
-
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 from astroquery import version
@@ -473,16 +471,6 @@ class TapConn:
         The current (latest) HTTP(s) response reason
         """
         return self.__currentReason
-
-    def url_encode(self, data):
-        """Encodes the provided dictionary
-
-        Parameters
-        ----------
-        data : dictionary, mandatory
-            dictionary to be encoded
-        """
-        return urlencode(data)
 
     def find_header(self, headers, key):
         """Searches for the specified keyword

@@ -14,18 +14,13 @@ Created on 30 jun. 2016
 
 
 """
-import os
+from pathlib import Path
+
 import pytest
 
 from astroquery.utils.tap.model.job import Job
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.xmlparser import utils
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
 
 
 def test_job_basic():
@@ -53,9 +48,9 @@ def test_job_get_results(capsys, tmpdir):
 
     responseCheckPhase.set_status_code(200)
     responseGetData = DummyResponse(500)
-    jobContentFileName = data_path('result_1.vot')
-    jobContent = utils.read_file_content(jobContentFileName)
-    responseGetData.set_data(method='GET', body=jobContent)
+    responseGetData.set_data(
+        method="GET",
+        body=(Path(__file__).with_name("data") / "result_1.vot").read_text())
     dataRequest = f"async/{jobid}/results/result"
     connHandler.set_response(dataRequest, responseGetData)
 

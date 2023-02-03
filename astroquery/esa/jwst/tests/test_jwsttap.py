@@ -10,6 +10,7 @@ European Space Agency (ESA)
 """
 import os
 import shutil
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import astropy.units as u
@@ -28,10 +29,12 @@ from astroquery.simbad import Simbad
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
-from astroquery.utils.tap.xmlparser import utils
 from astroquery.vizier import Vizier
 
 from astroquery.esa.jwst import conf
+
+
+JOB_DATA = (Path(__file__).with_name("data") / "job_1.vot").read_text()
 
 
 def data_path(filename):
@@ -234,9 +237,7 @@ class TestTap:
         # Launch response: we use default response because the
         # query contains decimals
         responseLaunchJob = DummyResponse(200)
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseLaunchJob.set_data(method='POST', body=jobData)
+        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
         # The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
@@ -379,9 +380,7 @@ class TestTap:
         connHandler.set_response(req, responsePhase)
         # Results response
         responseResultsJob = DummyResponse(200)
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET', body=jobData)
+        responseResultsJob.set_data(method='GET', body=JOB_DATA)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
@@ -442,9 +441,7 @@ class TestTap:
         # Launch response: we use default response because the
         # query contains decimals
         responseLaunchJob = DummyResponse(200)
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseLaunchJob.set_data(method='POST', body=jobData)
+        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
         ra = 19.0
         dec = 20.0
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
@@ -544,9 +541,7 @@ class TestTap:
         connHandler.set_response(req, responsePhase)
         # Results response
         responseResultsJob = DummyResponse(200)
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET', body=jobData)
+        responseResultsJob.set_data(method='GET', body=JOB_DATA)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         job = tap.cone_search(sc, radius, async_job=True)
