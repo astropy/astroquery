@@ -34,7 +34,7 @@ class NvasClass(BaseQuery):
         "D": (110, 170),
     }
 
-    def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
+    def get_images(self, coordinates, *, radius=0.25 * u.arcmin, max_rms=10000,
                    band="all", get_uvfits=False, verbose=True,
                    get_query_payload=False, show_progress=True):
         """
@@ -82,7 +82,7 @@ class NvasClass(BaseQuery):
 
         return filelist
 
-    def get_images_async(self, coordinates, radius=0.25 * u.arcmin,
+    def get_images_async(self, coordinates, *, radius=0.25 * u.arcmin,
                          max_rms=10000, band="all", get_uvfits=False,
                          verbose=True, get_query_payload=False,
                          show_progress=True):
@@ -136,7 +136,7 @@ class NvasClass(BaseQuery):
                                       show_progress=show_progress)
                 for U in image_urls]
 
-    def get_image_list(self, coordinates, radius=0.25 * u.arcmin,
+    def get_image_list(self, coordinates, *, radius=0.25 * u.arcmin,
                        max_rms=10000, band="all", get_uvfits=False,
                        get_query_payload=False):
         """
@@ -191,7 +191,7 @@ class NvasClass(BaseQuery):
                                              get_uvfits=get_uvfits)
         return image_urls
 
-    def extract_image_urls(self, html_in, get_uvfits=False):
+    def extract_image_urls(self, html_in, *, get_uvfits=False):
         """
         Helper function that uses regexps to extract the image urls from the
         given HTML.
