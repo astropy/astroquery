@@ -69,7 +69,7 @@ or 'vac+air'. Here is an example with all these parameters.
 .. doctest-remote-data::
 
     >>> from astroquery.nist import Nist
-    >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, 'H I',
+    >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, linename='H I',
     ...                    energy_level_unit='eV', output_order='wavelength',
     ...                    wavelength_type='vacuum')
     >>> print(table)
