@@ -11,7 +11,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.sdss`.
     """
     skyserver_baseurl = _config.ConfigItem(
-        'http://skyserver.sdss.org',
+        'https://skyserver.sdss.org',
         'Base URL for catalog-related queries like SQL and Cross-ID.')
     sas_baseurl = _config.ConfigItem(
         'https://data.sdss.org/sas',
