@@ -145,6 +145,11 @@ mast
 - Expanding ``Cutouts`` functionality to support making Hubble Advanced Product (HAP)
   cutouts via HAPCut. [#2613]
 
+nist
+^^^^
+
+- Optional parameters in all methods are kwargs keyword only. [#2655]
+
 oac
 ^^^
 

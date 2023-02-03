@@ -125,7 +125,7 @@ class NistClass(BaseQuery):
         return request_payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def query_async(self, minwav, maxwav, linename="H I",
+    def query_async(self, minwav, maxwav, *, linename="H I",
                     energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
         """
@@ -145,7 +145,7 @@ class NistClass(BaseQuery):
                                  timeout=Nist.TIMEOUT)
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parses the results from the HTTP response to `astropy.table.Table`.
 
