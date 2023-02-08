@@ -317,20 +317,23 @@ are provided.
 +-------------------+------------------+-------+------------------------------+
 
 """
+import io
 import re
 
 from bs4 import BeautifulSoup
 
+from astropy.io import votable
 from astropy.table import Table, Column
 
-import astroquery as aq
 from astroquery import log
+from astroquery.query import BaseQuery
+from astroquery.utils import class_or_instance
 from astroquery.exceptions import RemoteServiceError, NoResultsWarning
 
 from . import conf
 
 
-class MOSTClass(aq.query.BaseQuery):
+class MOSTClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
@@ -500,11 +503,6 @@ class MOSTClass(aq.query.BaseQuery):
                 f"`mpc_input` or `manual_input`, got {input_type} instead."
             )
 
-        # We're not supporting parsing anything else except full output atm
-        output_mode = params.get("output_mode", False)
-        if not output_mode or output_mode != "Full":
-            raise ValueError("Only `Full` output mode is currently supported.")
-
     def _parse_full_regular_response(self, response, withTarballs=False):
         """
         Parses the response when output type is set to `Regular` or `Full`.
@@ -531,8 +529,8 @@ class MOSTClass(aq.query.BaseQuery):
             tarball archives of the fits and region images.
         """
         retdict = {}
-        html = BeautifulSoup(response.content)
-        download_tags = html.find_all("a", text=re.compile(".*Download.*"))
+        html = BeautifulSoup(response.content, "html5lib")
+        download_tags = html.find_all("a", string=re.compile(".*Download.*"))
 
         # this is "Download Results Table (above)"
         results_response = self._request("GET", download_tags[0]["href"])
@@ -594,7 +592,7 @@ class MOSTClass(aq.query.BaseQuery):
         if qparams["output_mode"] in ("Brief", "Gator"):
             return Table.read(response.text, format="ipac")
         elif qparams["output_mode"] == "VOTable":
-            return aio.votable.parse(response.content)
+            return votable.parse(io.BytesIO(response.content))
         else:
             return self._parse_full_regular_response(response, qparams["fits_region_files"])
 

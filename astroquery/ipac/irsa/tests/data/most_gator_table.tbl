@@ -1,0 +1,22 @@
+\output_url = "https://irsa.ipac.caltech.edu/workspace/TMP_XIBNAd_17194/MOST/pid12682"
+\catalog = "wise_merge"
+\user_input_begin_time = "2014-05-01"
+\user_input_end_time = "2014-05-30"
+\object_name = "12 Victoria (A850 RA)"
+\element_epoch = "56778.0000   (2014-May-01 00:00:00.0000)"
+\eccentricity = " 0.221364531529095"
+\inclination = " 8.368662061690546"
+\argument_perihelion = "69.552208865051483"
+\ascending_node = "235.490911873760894"
+\semimajor_axis  =  " 2.333774627713947"
+\mean_anomaly = "349.752560575505981"
+\magnitude_parameters = " 7.34  0.00" 
+\job_time_stamp = "Wed Feb  8 14:43:58 2023"
+|            mjd|scan_id|frame_num|          ra|        dec|
+|         double|   char|      int|      double|     double|
+  56798.29927097  49025b       143   330.347004   -2.774481 
+  56806.45842962  49273b       134   333.539704   -0.779309 
+  56806.59009666  49277b       135   333.589056   -0.747249 
+  56806.72163647  49281b       134   333.638285   -0.715250 
+  56806.85330360  49285b       135   333.687494   -0.683205 
+  56806.98484347  49289b       134   333.736580   -0.651221 

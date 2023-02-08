@@ -44,8 +44,8 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-from .core import MOST, MOSTClass
+from .core import Most, MOSTClass
 
-__all__ = ['MOST', 'MOSTClass',
+__all__ = ['Most', 'MOSTClass',
            'Conf', 'conf',
            ]
