@@ -150,6 +150,11 @@ nist
 
 - Optional parameters in all methods are kwargs keyword only. [#2655]
 
+nvas
+^^^^
+
+- Made NVAS optional kwargs keyword only. [#2656]
+
 oac
 ^^^
 
