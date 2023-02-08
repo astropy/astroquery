@@ -19,7 +19,13 @@ from astroquery import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
-from pyvo.dal.sia2 import SIA_PARAMETERS_DESC
+
+try:
+    from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
+except ImportError:
+    # Can be removed once min version of pyvo is 1.5
+    from pyvo.dal.sia2 import SIA_PARAMETERS_DESC as SIA2_PARAMETERS_DESC
+    from pyvo.dal.sia2 import SIAService as SIA2Service
 
 from ..exceptions import LoginError
 from ..utils import commons
@@ -243,7 +249,7 @@ class AlmaClass(QueryWithLogin):
     @property
     def sia(self):
         if not self._sia:
-            self._sia = pyvo.dal.sia2.SIAService(baseurl=self.sia_url)
+            self._sia = SIA2Service(baseurl=self.sia_url)
         return self._sia
 
     @property
@@ -434,7 +440,7 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        Results in `pyvo.dal.SIAResults` format.
+        Results in ``pyvo.dal.sia2.SIA2Results`` format.
         result.table in Astropy table format
         """
         return self.sia.search(
@@ -458,11 +464,11 @@ class AlmaClass(QueryWithLogin):
             maxrec=maxrec,
             **kwargs)
 
-    # SIA_PARAMETERS_DESC contains links that Sphinx can't resolve.
+    # SIA2_PARAMETERS_DESC contains links that Sphinx can't resolve.
     for var in ('POLARIZATION_STATES', 'CALIBRATION_LEVELS'):
-        SIA_PARAMETERS_DESC = SIA_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
-                                                          f'pyvo.dam.obscore.{var}')
-    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA_PARAMETERS_DESC)
+        SIA2_PARAMETERS_DESC = SIA2_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
+                                                            f'pyvo.dam.obscore.{var}')
+    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
     def query_tap(self, query, maxrec=None):
         """
@@ -498,11 +504,11 @@ class AlmaClass(QueryWithLogin):
 
     # update method pydocs
     query_region_async.__doc__ = query_region_async.__doc__.replace(
-        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
+        '_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
     query_object_async.__doc__ = query_object_async.__doc__.replace(
-        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
+        '_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
     query_async.__doc__ = query_async.__doc__.replace(
-        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
+        '_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
     def _get_dataarchive_url(self):
         """
