@@ -260,7 +260,7 @@ are provided.
 | output_mode       | always required  | str   | Output mode.                 |
 +-------------------+------------------+-------+------------------------------+
 | ephem_step        | always required  | float | Ephemeris step size, days.   |
-|                   |                  |       | Default `conf.               |
+|                   |                  |       | Default `conf`.              |
 +-------------------+------------------+-------+------------------------------+
 | obs_begin         | always optional  | str   | In 'YYYY-MM-DD` format, the  |
 |                   |                  | None  | date prior to which results  |
