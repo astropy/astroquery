@@ -36,6 +36,7 @@ class OACClass(BaseQuery):
 
     def query_object_async(self,
                            event,
+                           *,
                            quantity=None,
                            attribute=None,
                            argument=None,
@@ -107,7 +108,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def query_region_async(self, coordinates,
+    def query_region_async(self, coordinates, *,
                            radius=None,
                            height=None, width=None,
                            quantity=None,
@@ -261,7 +262,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry_async(self, event, argument=None, cache=True):
+    def get_photometry_async(self, event, *, argument=None, cache=True):
         """
         Retrieve all photometry for specified event(s).
 
@@ -308,7 +309,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_single_spectrum_async(self, event, time, cache=True):
+    def get_single_spectrum_async(self, event, time, *, cache=True):
         """
         Retrieve a single spectrum at a specified time for given event.
 
@@ -346,7 +347,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_spectra_async(self, event, cache=True):
+    def get_spectra_async(self, event, *, cache=True):
         """
         Retrieve all spectra for a specified event.
 
@@ -476,7 +477,7 @@ class OACClass(BaseQuery):
 
         return output
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
 
