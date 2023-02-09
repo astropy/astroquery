@@ -27,7 +27,7 @@ class SBDBClass(BaseQuery):
     # actual query uri
     _uri = None
 
-    def query_async(self, targetid, id_type='search',
+    def query_async(self, targetid, *, id_type='search',
                     neo_only=False,
                     alternate_id=False,
                     full_precision=False,
@@ -181,7 +181,7 @@ class SBDBClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         internal wrapper to parse queries
 
@@ -372,7 +372,7 @@ class SBDBClass(BaseQuery):
 
         return eldict
 
-    def schematic(self, d, _prepend='+--'):
+    def schematic(self, d, *, _prepend='+--'):
         """
         Formats the provided dictionary ``d`` into a human-readable tree
         structure schematic. In order to display the structure
