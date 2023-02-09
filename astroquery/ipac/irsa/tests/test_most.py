@@ -4,13 +4,10 @@ import io
 import os
 import pytest
 
-#from astropy.coordinates import SkyCoord
-#from astropy.table import Table
-#import astropy.units as u
 from astropy.io import votable
 from astropy.table import Table
 from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.irsa.most import Most, conf
+from astroquery.ipac.irsa.most import Most
 from astropy.utils.diff import report_diff_values
 
 
@@ -120,7 +117,7 @@ def test_validation(patch_get):
         output_mode="Brief",
         input_type="mpc_input",
         obj_type="Asteroid",
-        mpc_data="K10N010+2010+08+16.1477+1.494525+0.533798+153.4910+113.2118+12.8762+20100621+17.0+4.0+P/2010+N1+(WISE)+MPC+75712"
+        mpc_data="K10N010+2010+08+16.1477+1.494525+0.533798+153.4910+113.2118+12.8762+20100621+17.0+4.0+P/2010+N1+(WISE)+MPC+75712"  # noqa: E501
     )
 
 

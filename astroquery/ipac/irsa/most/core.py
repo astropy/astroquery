@@ -55,38 +55,39 @@ The service accepts several different output modes:
 The :meth:`~astroquery.ipac.irsa.most.MostClass.query` method will return
 different objects depending on the specified output mode.
 
-===========          ===============
+===================  =========================================================
 Output mode          Returned object
-===========          ===============
+===================  =========================================================
 `Regular` or `Full`  Dictionary containing `results`, `metadata` and `region`.
                      keys, optionally additionally `fits_tarball` and
                      `region_tarball`.
 `Brief` or `Gator`   :class:`astropy.table.Table` object.
 `VOTable`            :class:`astropy.io.VOTable` object.
-==========           ===============
+===================  =========================================================
 
 In `Regular` or `Full` output mode, the returned dictionary's key `results`
 maps to the table titled "Images with a Matched Object Position", which
 contains the following columns:
 
-======         ============
+============   ===============================================================
 Column 	       Description
-======         ===========
+============   ===============================================================
 Image_ID       A unique identifier for the image data, not necessarily the
                image file name.
 date_obs       Date (UTC) of the observation.
 time_obs       Time (UTC) of the midpoint of the observation.
 mjd_obs        Modified Julian Date (days) of the midpoint of the observation.
-ra_obs         Ephemeris prediction of the object's right ascension (deg, J2000).
-dec_obs        Ephemeris prediction of the object's declination (deg, J2000).
+ra_obs         Ephemeris of the object's right ascension (deg, J2000).
+dec_obs        Ephemeris of the object's declination (deg, J2000).
 sun_dist       Heliocentric distance of the object (AU).
 geo_dist       Geocentric distance of the object (AU).
-dist_ctr       Projected distance of the object from the center of the image (deg).
+dist_ctr       Projected distance  from the center of the image (deg).
 phase          Sun-Object-earth angle (deg).
 vmag           Estimate of visual magnitude (from Horizons).
 image_url      Links to download or view the data.
 postcard_url   ??? usually ``null``
 region_file    Markers for the moving object in DS9 "region" format.
+============   ===============================================================
 
 The table contained under `metadata` key, when in `Regular` or `Full` mode
 contains the following columns:
@@ -94,14 +95,14 @@ contains the following columns:
 +---------------------+-------------------------------------------------------+
 | Column              | Description                                           |
 +=====================+=======================================================+
-| **General**                                                                 |
+|                     **General**                                             |
 +---------------------+-------------------------------------------------------+
 | ra1, dec1,          | Right ascension and declination of the 4 corners of   |
 | ra2, dec2, etc.     | the image (deg, J2000)                                |
 +---------------------+-------------------------------------------------------+
 | match               | match = 1 indicates a matched image (added by MOST)   |
 +---------------------+-------------------------------------------------------+
-| **WISE/NEOWISE**                                                            |
+|                     **WISE/NEOWISE**                                        |
 +---------------------+-------------------------------------------------------+
 | crpix1, crpix2      | Center of image (pixels)                              |
 +---------------------+-------------------------------------------------------+
@@ -132,7 +133,7 @@ contains the following columns:
 | image_set           | image_set=4 for 4band, 3 for 3band, 2 for 2band, and  |
 |                     | 6, 7 etc. for NEOWISE-R year 1, 2 etc.                |
 +---------------------+-------------------------------------------------------+
-| **2MASS**                                                                   |
+|                     **2MASS**                                               |
 +---------------------+-------------------------------------------------------+
 | ordate              | UT date of reference (start of nightly operations)    |
 +---------------------+-------------------------------------------------------+
@@ -150,7 +151,7 @@ contains the following columns:
 +---------------------+-------------------------------------------------------+
 | ds                  | ds=full for 2mass                                     |
 +---------------------+-------------------------------------------------------+
-| **PTF**                                                                     |
+|                     **PTF**                                                 |
 +---------------------+-------------------------------------------------------+
 | obsdate             | Observation UT date/time YYYY-MM-DD HH:MM:SS.SSS      |
 +---------------------+-------------------------------------------------------+
@@ -166,7 +167,7 @@ contains the following columns:
 +---------------------+-------------------------------------------------------+
 | pfilename           | Processed-image filename                              |
 +---------------------+-------------------------------------------------------+
-| **ZTF**                                                                     |
+|                     **ZTF**                                                 |
 +---------------------+-------------------------------------------------------+
 | obsdate             | Observation UT date/time YYYY-MM-DD HH:MM:SS.SSS      |
 +---------------------+-------------------------------------------------------+
@@ -194,7 +195,7 @@ contains the following columns:
 +---------------------+-------------------------------------------------------+
 | imgtypecode         | Single letter image type code                         |
 +---------------------+-------------------------------------------------------+
-| **Spitzer**                                                                 |
+|                     **Spitzer**                                             |
 +---------------------+-------------------------------------------------------+
 | reqkey              | Spitzer Astronomical Observation Request number       |
 +---------------------+-------------------------------------------------------+
@@ -228,14 +229,15 @@ is retrieved as a :class:`~astropy.table.Table` object and in `VOTable` as an
 `Gator` mode returns :class:`~astropy.table.Table` containing the following
 columns:
 
-======         ============
+=========      =====================================
 Column 	       Description
-======         ===========
+=========      =====================================
 mjd            Modified Julian Date of observation
 scan_id        Scan ID
 frame_num      Frame number
 ra             Right Ascension of the object (J2000)
 dec            Declination of the object (J2000)
+=========      =====================================
 
 I guess? It's not clearly documented if these are RA DEC of images or objects
 
@@ -246,18 +248,16 @@ Depending on the selected `input_mode` the required and optional parameters
 differ. Certain parameters are always required and for some reasonable defaults
 are provided.
 
-+-------------------+------------------+------+-------------------------------+
-| Parameter         | Required         | Type | Note                          |
-+===================+==================+==========+===========================+
++-------------------+------------------+-------+------------------------------+
+| Parameter         | Required         | Type  | Note                         |
++===================+==================+=======+==============================+
 | catalog           | always required  | str   | Catalog. By default          |
 |                   |                  |       | `conf.catalog`. See          |
 |                   |                  |       | `self.list_catalogs`.        |
 +-------------------+------------------+-------+------------------------------+
 | input_type        | always required  | str   | Input mode.                  |
-|                   |                  |       |                              |
-+-------------------+----------------- +-------+------------------------------+
++-------------------+------------------+-------+------------------------------+
 | output_mode       | always required  | str   | Output mode.                 |
-|                   |                  |       |                              |
 +-------------------+------------------+-------+------------------------------+
 | ephem_step        | always required  | float | Ephemeris step size, days.   |
 |                   |                  |       | Default `conf.               |
@@ -323,12 +323,10 @@ import re
 from bs4 import BeautifulSoup
 
 from astropy.io import votable
-from astropy.table import Table, Column
+from astropy.table import Table
 
-from astroquery import log
 from astroquery.query import BaseQuery
 from astroquery.utils import class_or_instance
-from astroquery.exceptions import RemoteServiceError, NoResultsWarning
 
 from . import conf
 
@@ -461,7 +459,7 @@ class MOSTClass(BaseQuery):
 
         # This seemingly can be whatever
         if not params.get("body_designation", False):
-                params["body_designation"] = "Test"+params["obj_type"]
+            params["body_designation"] = "Test"+params["obj_type"]
 
     def _validate_input(self, params):
         """
