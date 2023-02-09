@@ -45,7 +45,7 @@ class LamdaClass(BaseQuery):
         self.moldict_path = os.path.join(self.cache_location,
                                          "molecules.json")
 
-    def _get_molfile(self, mol, cache=True, timeout=None):
+    def _get_molfile(self, mol, *, cache=True, timeout=None):
         """
         """
         if mol not in self.molecule_dict:
@@ -65,7 +65,7 @@ class LamdaClass(BaseQuery):
         with open(outfilename, 'w') as f:
             f.write(molreq.text)
 
-    def query(self, mol, return_datafile=False, cache=True, timeout=None):
+    def query(self, mol, *, return_datafile=False, cache=True, timeout=None):
         """
         Query the LAMDA database.
 
@@ -107,7 +107,7 @@ class LamdaClass(BaseQuery):
         tables = parse_lamda_lines(datafile)
         return tables
 
-    def get_molecules(self, cache=True):
+    def get_molecules(self, *, cache=True):
         """
         Scrape the list of valid molecules
         """
@@ -152,7 +152,7 @@ class LamdaClass(BaseQuery):
 
         return self._molecule_dict
 
-    def _find_datfiles(self, url, base_url, raise_for_status=False):
+    def _find_datfiles(self, url, base_url, *, raise_for_status=False):
 
         myurl = _absurl_from_url(url, base_url)
         if 'http' not in myurl:
