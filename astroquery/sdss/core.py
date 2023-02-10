@@ -363,10 +363,8 @@ class SDSSClass(BaseQuery):
             else:
                 sql_query = sql_query.replace(' ON p.objID = x.objID ORDER BY x.up_id', '')
 
-            if (not isinstance(coordinates, list) and
-                not isinstance(coordinates, Column) and
-                not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
+            if (not isinstance(coordinates, (list, Column, commons.CoordClasses))
+                and not coordinates.isscalar):
                 coordinates = [coordinates]
             rectangles = list()
             for n, target in enumerate(coordinates):
@@ -375,9 +373,13 @@ class SDSSClass(BaseQuery):
 
                 ra = target.ra.degree
                 dec = target.dec.degree
-                dra = coord.Angle(width).to('degree').value / 2.0
-                ddec = coord.Angle(height).to('degree').value / 2.0
-                rectangles.append('((p.ra BETWEEN {0:g} AND {1:g}) AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(ra - dra, ra + dra, dec - ddec, dec + ddec))
+                dra = Angle(width).to('degree').value / 2.0
+                ddec = Angle(height).to('degree').value / 2.0
+                rectangles.append('((p.ra BETWEEN {0:g} AND {1:g}) '
+                                  'AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(ra - dra,
+                                                                                ra + dra,
+                                                                                dec - ddec,
+                                                                                dec + ddec))
             rect = ' OR '.join(rectangles)
             if 'WHERE' in sql_query:
                 sql_query += f' AND ({rect})'
