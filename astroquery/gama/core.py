@@ -57,7 +57,7 @@ class GAMAClass(BaseQuery):
 
         return payload
 
-    def _parse_result(self, result, verbose=False, **kwargs):
+    def _parse_result(self, result, *, verbose=False, **kwargs):
         """
         Use get_gama_datafile to download a result URL
         """
