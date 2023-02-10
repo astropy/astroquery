@@ -164,7 +164,7 @@ def image_tester(images, filetype):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum(patch_request, patch_get_readable_fileobj, dr,
                        coords=coords):
-    xid = sdss.SDSS.query_region(coords, data_release=dr, spectro=True)
+    xid = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), data_release=dr, spectro=True)
     url_tester_crossid(dr)
     sp = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
     image_tester(sp, 'spectra')
@@ -213,7 +213,7 @@ def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_from_query_region(patch_request, patch_get_readable_fileobj,
                                       dr, coords=coords):
-    xid = sdss.SDSS.query_region(coords, data_release=dr)
+    xid = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), data_release=dr)
     url_tester_crossid(dr)
     # TODO test what img is
     img = sdss.SDSS.get_images(matches=xid)
@@ -273,7 +273,7 @@ def test_sdss_photoobj(patch_request, dr):
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_list_coordinates(patch_request, dr):
-    xid = sdss.SDSS.query_region(coords_list, data_release=dr)
+    xid = sdss.SDSS.query_region(coords_list, radius=Angle('2 arcsec'), data_release=dr)
 
     with warnings.catch_warnings():
         if sys.platform.startswith('win'):
@@ -290,7 +290,7 @@ def test_list_coordinates(patch_request, dr):
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates(patch_request, dr):
-    xid = sdss.SDSS.query_region(coords_column, data_release=dr)
+    xid = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'), data_release=dr)
 
     with warnings.catch_warnings():
         if sys.platform.startswith('win'):
@@ -307,7 +307,7 @@ def test_column_coordinates(patch_request, dr):
 
 def test_query_timeout(patch_request_slow, coord=coords):
     with pytest.raises(TimeoutError):
-        sdss.SDSS.query_region(coords, timeout=1)
+        sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), timeout=1)
 
 
 def test_spectra_timeout(patch_request, patch_get_readable_fileobj_slow):
@@ -387,7 +387,7 @@ def test_list_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_list, radius=Angle('3 arcsec'),
+    query_payload = sdss.SDSS.query_region(coords_list, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -401,7 +401,7 @@ def test_column_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -417,7 +417,7 @@ def test_column_coordinates_region_spectro_payload(patch_request, dr):
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
                                            spectro=True,
                                            get_query_payload=True,
                                            data_release=dr)
@@ -432,7 +432,7 @@ def test_column_coordinates_region_payload_custom_fields(patch_request, dr):
               "p.r, p.psfMag_r "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            fields=['r', 'psfMag_r'],
                                            data_release=dr)
@@ -579,10 +579,10 @@ def test_field_help_region(patch_request):
     assert isinstance(valid_field, dict)
     assert 'photoobj_all' in valid_field
 
-    existing_p_field = sdss.SDSS.query_region(coords,
+    existing_p_field = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'),
                                               field_help='psfMag_r')
 
-    existing_s_field = sdss.SDSS.query_region(coords,
+    existing_s_field = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'),
                                               field_help='spectroSynFlux_r')
 
     with pytest.warns(UserWarning, match="nonexist isn't a valid 'photobj_field' or 'specobj_field'"):
