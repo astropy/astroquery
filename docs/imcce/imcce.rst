@@ -38,7 +38,7 @@ looks like this:
    >>> field = SkyCoord(0*u.deg, 0*u.deg)
    >>> epoch = Time('2019-05-29 21:42', format='iso')
    >>> results = Skybot.cone_search(field, 5*u.arcmin, epoch)
-   >>> results.pprint(max_width=80)
+   >>> results.pprint(max_width=80)  # doctest: +IGNORE_OUTPUT
     Number    Name             RA          ...      vy          vz       epoch  
                               deg          ...    AU / d      AU / d       d    
     ------ ---------- -------------------- ... ----------- ----------- ---------
