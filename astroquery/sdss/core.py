@@ -315,7 +315,7 @@ class SDSSClass(BaseQuery):
         2.02344772021 14.8398201105 1237653651835781243 1904   301      3   163
         """
         if radius is None and width is None:
-            ValueError("One or the other of radius or width must be selected!")
+            raise ValueError("One or the other of radius or width must be selected!")
         if radius is not None and width is not None:
             raise ValueError("One or the other of radius or width must be selected!")
 
