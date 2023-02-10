@@ -79,7 +79,7 @@ def test_get_transmission_data(patch_get):
 
 
 def test_get_filter_list(patch_get):
-    table = SvoFps.get_filter_list(TEST_FACILITY, TEST_INSTRUMENT)
+    table = SvoFps.get_filter_list(TEST_FACILITY, instrument=TEST_INSTRUMENT)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
 

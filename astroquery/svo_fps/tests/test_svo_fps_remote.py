@@ -26,7 +26,7 @@ class TestSvoFpsClass:
     @pytest.mark.parametrize('test_facility, test_instrument',
                              [('HST', 'WFPC2'), ('Keck', None)])
     def test_get_filter_list(self, test_facility, test_instrument):
-        table = SvoFps.get_filter_list(test_facility, test_instrument)
+        table = SvoFps.get_filter_list(test_facility, instrument=test_instrument)
         # Check if column for Filter ID (named 'filterID') exists in table
         assert 'filterID' in table.colnames
 
