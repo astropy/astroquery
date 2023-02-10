@@ -363,8 +363,7 @@ class SDSSClass(BaseQuery):
             else:
                 sql_query = sql_query.replace(' ON p.objID = x.objID ORDER BY x.up_id', '')
 
-            if (not isinstance(coordinates, (list, Column, commons.CoordClasses))
-                and not coordinates.isscalar):
+            if (not isinstance(coordinates, (list, Column, commons.CoordClasses)) and not coordinates.isscalar):
                 coordinates = [coordinates]
             rectangles = list()
             for n, target in enumerate(coordinates):
