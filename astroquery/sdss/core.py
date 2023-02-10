@@ -66,6 +66,8 @@ class SDSSClass(BaseQuery):
 
         This query returns the nearest `primary object`_.
 
+        Note that there is a server-side limit of 3 arcmin on `radius`.
+
         .. _`primary object`: https://www.sdss.org/dr17/help/glossary/#surveyprimary
 
         Parameters
@@ -129,6 +131,13 @@ class SDSSClass(BaseQuery):
         result : `~astropy.table.Table`
             The result of the query as a `~astropy.table.Table` object.
 
+        Raises
+        ------
+        TypeError
+            If the `radius` keyword could not be parsed as an angle.
+        ValueError
+            If the `radius` exceeds 3 arcmin, or if the sizes of
+            `coordinates` and `obj_names` do not match.
         """
 
         if isinstance(radius, Angle):
@@ -193,16 +202,27 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_region_async(self, coordinates, *, radius=2. * u.arcsec, timeout=TIMEOUT,
+    def query_region_async(self, coordinates, *, radius=None,
+                           width=None, height=None, timeout=TIMEOUT,
                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
-        """
-        Used to query a circular region (a "cone search") around given coordinates.
+        """Used to query a region around given coordinates. Either `radius` or
+        `width` must be specified.
 
-        This function is equivalent to the object cross-ID (`query_crossid`),
-        with slightly different parameters. It returns all objects within the
-        search radius; this could potentially include duplicate observations
+        When called with keyword `radius`, a radial or "cone" search is
+        performed, centered on each of the given coordinates. In this mode, internally,
+        this function is equivalent to the object cross-ID (`query_crossid`),
+        with slightly different parameters.  Note that in this mode there is a server-side
+        limit of 3 arcmin on `radius`.
+
+        When called with keyword `width`, and optionally a different `height`,
+        a rectangular search is performed, centered on each of the given
+        coordinates. In this mode, internally, this function is equivalent to
+        a general SQL query (`query_sql`).
+
+        In both radial and rectangular modes, this function returns all objects
+        within the search area; this could potentially include duplicate observations
         of the same object.
 
         Parameters
@@ -221,8 +241,17 @@ class SDSSClass(BaseQuery):
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 2 arcsec.
+            `astropy.units` may also be used.
             The maximum allowed value is 3 arcmin.
+        width : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used.
+        height : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. If not specified, it will be
+            set to the same value as `width`.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
@@ -256,6 +285,19 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
+        Raises
+        ------
+        TypeError
+            If the `radius`, `width` or `height` keywords could not be parsed as an angle.
+        ValueError
+            If both `radius` and `width or set, or if the `radius` exceeds 3 arcmin,
+            or if the sizes of `coordinates` and `obj_names` do not match.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -270,23 +312,83 @@ class SDSSClass(BaseQuery):
         2.02344596595 14.8398237229 1237652943176138867 1739   301      3   315
         2.02344596303 14.8398237521 1237652943176138868 1739   301      3   315
         2.02344772021 14.8398201105 1237653651835781243 1904   301      3   163
-
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         """
-        request_payload, files = self.query_crossid_async(coordinates=coordinates,
-                                                          radius=radius, fields=fields,
-                                                          photoobj_fields=photoobj_fields,
-                                                          specobj_fields=specobj_fields,
-                                                          obj_names=obj_names,
-                                                          spectro=spectro,
-                                                          region=True,
-                                                          field_help=field_help,
-                                                          get_query_payload=True,
-                                                          data_release=data_release)
+        if radius is not None and width is not None:
+            raise ValueError("One or the other of radius or width must be selected!")
+
+        if radius is not None:
+            request_payload, files = self.query_crossid_async(coordinates=coordinates,
+                                                              radius=radius, fields=fields,
+                                                              photoobj_fields=photoobj_fields,
+                                                              specobj_fields=specobj_fields,
+                                                              obj_names=obj_names,
+                                                              spectro=spectro,
+                                                              region=True,
+                                                              field_help=field_help,
+                                                              get_query_payload=True,
+                                                              data_release=data_release)
+
+        if width is not None:
+            if isinstance(width, Angle):
+                width = width.to_value(u.arcmin)
+            else:
+                try:
+                    width = Angle(width).to_value(u.arcmin)
+                except ValueError:
+                    raise TypeError("width should be either Quantity or "
+                                    "convertible to float.")
+            if height is None:
+                height = width
+            else:
+                if isinstance(height, Angle):
+                    height = height.to_value(u.arcmin)
+                else:
+                    try:
+                        height = Angle(height).to_value(u.arcmin)
+                    except ValueError:
+                        raise TypeError("height should be either Quantity or "
+                                        "convertible to float.")
+
+            dummy_payload = self._args_to_payload(coordinates=coordinates,
+                                                  fields=fields,
+                                                  spectro=spectro, region=True,
+                                                  photoobj_fields=photoobj_fields,
+                                                  specobj_fields=specobj_fields, field_help=field_help,
+                                                  data_release=data_release)
+
+            sql_query = dummy_payload['uquery'].replace('#upload u JOIN #x x ON x.up_id = u.up_id JOIN ', '')
+
+            if 'SpecObjAll' in dummy_payload['uquery']:
+                sql_query = sql_query.replace('ON p.objID = x.objID ', '').replace(' ORDER BY x.up_id', '')
+            else:
+                sql_query = sql_query.replace(' ON p.objID = x.objID ORDER BY x.up_id', '')
+
+            if (not isinstance(coordinates, list) and
+                not isinstance(coordinates, Column) and
+                not (isinstance(coordinates, commons.CoordClasses) and
+                     not coordinates.isscalar)):
+                coordinates = [coordinates]
+            rectangles = list()
+            for n, target in enumerate(coordinates):
+                # Query for a rectangle
+                target = commons.parse_coordinates(target).transform_to('fk5')
+
+                ra = target.ra.degree
+                dec = target.dec.degree
+                dra = coord.Angle(width).to('degree').value / 2.0
+                ddec = coord.Angle(height).to('degree').value / 2.0
+                rectangles.append('((p.ra BETWEEN {0:g} AND {1:g}) AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(ra - dra, ra + dra, dec - ddec, dec + ddec))
+            rect = ' OR '.join(rectangles)
+            if 'WHERE' in sql_query:
+                sql_query += f' AND ({rect})'
+            else:
+                sql_query += f' WHERE ({rect})'
+
+            return self.query_sql_async(sql_query, timeout=timeout,
+                                        data_release=data_release,
+                                        cache=cache,
+                                        field_help=field_help,
+                                        get_query_payload=get_query_payload)
 
         if get_query_payload or field_help:
             return request_payload
@@ -335,6 +437,11 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as an `~astropy.table.Table` object.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -348,12 +455,6 @@ class SDSSClass(BaseQuery):
         47.1604269095 5.48241410994  2340 53733     332 2634697104106219520
         48.6634992214 6.69459110287  2340 53733     553 2634757852123654144
         48.0759195428 6.18757403485  2340 53733     506 2634744932862027776
-
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object.
-
         """
 
         if plate is None and mjd is None and fiberID is None:
@@ -415,6 +516,11 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -427,12 +533,6 @@ class SDSSClass(BaseQuery):
         22.2574304026 8.43175488904 1237670017262485671 5714   301      6    21
         23.3724928784 8.32576993103 1237670017262944491 5714   301      6    28
         25.4801226435 8.27642390025 1237670017263927330 5714   301      6    43
-
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         """
 
         if run is None and camcol is None and field is None:
@@ -477,6 +577,11 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -497,12 +602,6 @@ class SDSSClass(BaseQuery):
         0.3000027 156.25024 7.6586271 1237658425162858683
         0.3000027 256.99461 25.566255 1237661387086693265
          0.300003 175.65125  34.37548 1237665128003731630
-
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         """
 
         request_payload = dict(cmd=self.__sanitize_query(sql_query),
@@ -510,7 +609,7 @@ class SDSSClass(BaseQuery):
         if data_release > 11:
             request_payload['searchtool'] = 'SQL'
 
-        if kwargs.get('get_query_payload'):
+        if kwargs.get('get_query_payload') or kwargs.get('field_help'):
             return request_payload
 
         url = self._get_query_url(data_release)
@@ -870,16 +969,15 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
+        Returns
+        -------
+        list : List of `~astropy.io.fits.HDUList` objects.
+
         Examples
         --------
         >>> qso = SDSS.get_spectral_template(kind='qso')
         >>> Astar = SDSS.get_spectral_template(kind='star_A')
         >>> Fstar = SDSS.get_spectral_template(kind='star_F')
-
-        Returns
-        -------
-        list : List of `~astropy.io.fits.HDUList` objects.
-
         """
 
         if kind == 'all':
