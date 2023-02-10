@@ -61,7 +61,7 @@ class TemplateClass(BaseQuery):
         return result
     """
 
-    def query_object_async(self, object_name, get_query_payload=False,
+    def query_object_async(self, object_name, *, get_query_payload=False,
                            cache=True):
         """
         This method is for services that can parse object names. Otherwise
@@ -140,7 +140,7 @@ class TemplateClass(BaseQuery):
     # actual HTTP request and returns the HTTP response
 
     def query_region_async(self, coordinates, radius, height, width,
-                           get_query_payload=False, cache=True):
+                           *, get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates.
 
@@ -187,7 +187,7 @@ class TemplateClass(BaseQuery):
     # This should parse the raw HTTP response and return it as
     # an `astropy.table.Table`. Below is the skeleton:
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
@@ -253,7 +253,7 @@ class TemplateClass(BaseQuery):
         return [obj.get_fits() for obj in readable_objs]
 
     @prepend_docstr_nosections(get_images.__doc__)
-    def get_images_async(self, coordinates, radius, get_query_payload=False):
+    def get_images_async(self, coordinates, radius, *, get_query_payload=False):
         """
         Returns
         -------
@@ -275,7 +275,7 @@ class TemplateClass(BaseQuery):
     # links for the images as a list
 
     @prepend_docstr_nosections(get_images.__doc__)
-    def get_image_list(self, coordinates, radius, get_query_payload=False,
+    def get_image_list(self, coordinates, radius, *, get_query_payload=False,
                        cache=True):
         """
         Returns
