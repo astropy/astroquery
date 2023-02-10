@@ -314,10 +314,14 @@ class SDSSClass(BaseQuery):
         2.02344596303 14.8398237521 1237652943176138868 1739   301      3   315
         2.02344772021 14.8398201105 1237653651835781243 1904   301      3   163
         """
+        # Allow field_help requests to pass without requiring a radius or width.
+        if field_help and radius is None and width is None:
+            radius = 2.0 * u.arcsec
+
         if radius is None and width is None:
-            raise ValueError("One or the other of radius or width must be selected!")
+            raise ValueError("Either radius or width must be selected!")
         if radius is not None and width is not None:
-            raise ValueError("One or the other of radius or width must be selected!")
+            raise ValueError("Either radius or width must be selected!")
 
         if radius is not None:
             request_payload, files = self.query_crossid_async(coordinates=coordinates,
