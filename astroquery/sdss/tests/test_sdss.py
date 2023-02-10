@@ -387,7 +387,7 @@ def test_list_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_list,
+    query_payload = sdss.SDSS.query_region(coords_list, radius=Angle('3 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -401,7 +401,7 @@ def test_column_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -417,7 +417,8 @@ def test_column_coordinates_region_spectro_payload(patch_request, dr):
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column, spectro=True,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
+                                           spectro=True,
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -431,7 +432,7 @@ def test_column_coordinates_region_payload_custom_fields(patch_request, dr):
               "p.r, p.psfMag_r "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('3 arcsec'),
                                            get_query_payload=True,
                                            fields=['r', 'psfMag_r'],
                                            data_release=dr)
