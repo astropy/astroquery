@@ -106,7 +106,8 @@ class TesscutClass(MastQueryWithLogin):
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
 
-    def get_sectors(self, *, coordinates=None, radius=0*u.deg, objectname=None, moving_target=False, mt_type=None):
+    def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', objectname=None,
+                    moving_target=False, mt_type=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -126,6 +127,14 @@ class TesscutClass(MastQueryWithLogin):
             `astropy.units` may also be used.
 
             NOTE: If moving_target is supplied, this argument is ignored.
+        product : str
+            Default is 'SPOC'.
+            The product whose sectors will be returned. Options are: 'SPOC' or 'TICA', for the Science Processing
+            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,
+            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC
+            counterparts, but are not available for sectors 1-26.
+
+            NOTE: TICA is currently not available for moving targets.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
@@ -152,6 +161,11 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
+            # The Moving Targets service is currently only available for SPOC
+            if product.upper() != "SPOC":
+                product = "SPOC"
+                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
@@ -163,7 +177,7 @@ class TesscutClass(MastQueryWithLogin):
                                         "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
                                         "of a moving target such as an asteroid or comet.")
 
-            params = {"obj_id": objectname}
+            params = {"product": product.upper(), "obj_id": objectname}
 
             # Add optional parameter is present
             if mt_type:
@@ -179,9 +193,14 @@ class TesscutClass(MastQueryWithLogin):
             # If radius is just a number we assume degrees
             radius = Angle(radius, u.deg)
 
+            # Making sure input product is either SPOC or TICA
+            if product.upper() not in ['TICA', 'SPOC']:
+                raise InvalidQueryError("Input product must either be SPOC or TICA.")
+
             params = {"ra": coordinates.ra.deg,
                       "dec": coordinates.dec.deg,
-                      "radius": radius.deg}
+                      "radius": radius.deg,
+                      "product": product.upper()}
 
             response = self._service_api_connection.service_request_async("sector", params)
 
@@ -204,8 +223,8 @@ class TesscutClass(MastQueryWithLogin):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, *, coordinates=None, size=5, sector=None, path=".", inflate=True,
-                         objectname=None, moving_target=False, mt_type=None, verbose=False):
+    def download_cutouts(self, *, coordinates=None, size=5, sector=None, product='SPOC', path=".",
+                         inflate=True, objectname=None, moving_target=False, mt_type=None, verbose=False):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -228,6 +247,14 @@ class TesscutClass(MastQueryWithLogin):
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
             from all available sectors on which the coordinate appears will be returned.
+        product : str
+            Default is 'SPOC'.
+            The product that the cutouts will be made out of. Options are: 'SPOC' or 'TICA', for the Science Processing
+            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,
+            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC
+            counterparts, but are not available for sectors 1-26.
+
+            NOTE: TICA is currently not available for moving targets.
         path : str
             Optional.
             The directory in which the cutouts will be saved.
@@ -262,6 +289,11 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
+            # The Moving Targets service is currently only available for SPOC
+            if product.upper() != "SPOC":
+                product = "SPOC"
+                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
@@ -273,7 +305,7 @@ class TesscutClass(MastQueryWithLogin):
                                         "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
                                         "of a moving target such as an asteroid or comet.")
 
-            astrocut_request = f"moving_target/astrocut?obj_id={objectname}"
+            astrocut_request = f"moving_target/astrocut?obj_id={objectname}&product={product.upper()}"
             if mt_type:
                 astrocut_request += f"&obj_type={mt_type}"
 
@@ -287,6 +319,12 @@ class TesscutClass(MastQueryWithLogin):
         # Adding the arguments that are common between moving/still astrocut requests
         size_dict = _parse_cutout_size(size)
         astrocut_request += f"&y={size_dict['y']}&x={size_dict['x']}&units={size_dict['units']}"
+
+        # Making sure input product is either SPOC or TICA,
+        # and adding the argument to the request URL
+        if product.upper() not in ['TICA', 'SPOC']:
+            raise InvalidQueryError("Input product must either be SPOC or TICA.")
+        astrocut_request += f"&product={product.upper()}"
 
         if sector:
             astrocut_request += "&sector={}".format(sector)
@@ -322,7 +360,7 @@ class TesscutClass(MastQueryWithLogin):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, *, coordinates=None, size=5, sector=None,
+    def get_cutouts(self, *, coordinates=None, size=5, product='SPOC', sector=None,
                     objectname=None, moving_target=False, mt_type=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
@@ -343,6 +381,14 @@ class TesscutClass(MastQueryWithLogin):
             ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
             units of pixels. `~astropy.units.Quantity` objects must be in pixel or
             angular units.
+        product : str
+            Default is 'SPOC'.
+            The product that the cutouts will be made out of. Options are: 'SPOC' or 'TICA', for the Science Processing
+            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,
+            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC
+            counterparts, but are not available for sectors 1-26.
+
+            NOTE: TICA is currently not available for moving targets.
         sector : int
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
@@ -379,6 +425,13 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
+            # The Moving Targets service is currently only available for SPOC
+            if product.upper() != "SPOC":
+                product = "SPOC"
+                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+
+            param_dict['product'] = product.upper()
+
             # Check that objectname has been passed in and coordinates
             # is not
             if coordinates:
@@ -399,6 +452,12 @@ class TesscutClass(MastQueryWithLogin):
             response = self._service_api_connection.service_request_async("mt_astrocut", param_dict)
 
         else:
+
+            # Making sure input product is either SPOC or TICA, then add the `product` param
+            if product.upper() not in ['TICA', 'SPOC']:
+                raise InvalidQueryError("Input product must either be SPOC or TICA.")
+
+            param_dict['product'] = product.upper()
 
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates, objectname)
