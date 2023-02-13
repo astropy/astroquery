@@ -10,6 +10,7 @@ from io import BytesIO
 from zipfile import ZipFile
 from pathlib import Path
 
+from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.utils.console import ProgressBar
 from astroquery import log
@@ -50,7 +51,7 @@ class ESASkyClass(BaseQuery):
     __ACCESS_URL_STRING = "access_url"
     __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
-    __MIN_RADIUS_CATALOG_STRING = "5 arcsec"
+    __MIN_RADIUS_CATALOG_DEG = Angle(5*astropy.units.arcsec).to_value(astropy.units.deg)
 
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
@@ -1708,7 +1709,7 @@ class ESASkyClass(BaseQuery):
     def _build_region_query(self, coordinates, radius, row_limit, json):
         ra = coordinates.transform_to('icrs').ra.deg
         dec = coordinates.transform_to('icrs').dec.deg
-        radius_deg = commons.radius_to_unit(radius, unit='deg')
+        radius_deg = Angle(radius).to_value(astropy.units.deg)
 
         select_query = "SELECT "
         if row_limit > 0:
@@ -1725,17 +1726,13 @@ class ESASkyClass(BaseQuery):
         if radius_deg == 0:
             if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
-                               format(ra, dec, commons.radius_to_unit(
-                                   self.__MIN_RADIUS_CATALOG_STRING,
-                                   unit='deg')))
+                               format(ra, dec, self.__MIN_RADIUS_CATALOG_DEG))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
                                format(tap_ra_column, tap_dec_column,
                                       ra,
                                       dec,
-                                      commons.radius_to_unit(
-                                          self.__MIN_RADIUS_CATALOG_STRING,
-                                          unit='deg')))
+                                      self.__MIN_RADIUS_CATALOG_DEG))
         else:
             if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".

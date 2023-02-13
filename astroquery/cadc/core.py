@@ -20,6 +20,7 @@ from ..utils import async_to_sync, commons
 from ..query import BaseQuery
 from bs4 import BeautifulSoup
 from astropy import units as u
+from astropy.coordinates import Angle
 import pyvo
 from pyvo.auth import authsession
 
@@ -432,7 +433,7 @@ class CadcClass(BaseQuery):
             raise AttributeError('Missing query_result argument')
 
         parsed_coordinates = commons.parse_coordinates(coordinates).fk5
-        radius_deg = commons.radius_to_unit(radius, unit='degree')
+        radius_deg = Angle(radius).to_value(u.deg)
         ra = parsed_coordinates.ra.degree
         dec = parsed_coordinates.dec.degree
         cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius_deg)}
@@ -708,7 +709,7 @@ class CadcClass(BaseQuery):
         # and force the coordinates to FK5 (assuming FK5/ICRS are
         # interchangeable) since RA/Dec are used below
         coordinates = commons.parse_coordinates(kwargs['coordinates']).fk5
-        radius_deg = commons.radius_to_unit(kwargs['radius'], unit='degree')
+        radius_deg = Angle(kwargs["radius"]).to_value(u.deg)
         payload = {format: 'VOTable'}
         payload['query'] = \
             "SELECT * from caom2.Observation o join caom2.Plane p " \

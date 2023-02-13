@@ -20,6 +20,7 @@ import shutil
 from collections.abc import Iterable
 
 from astropy import units
+from astropy.coordinates import Angle
 from astropy.units import Quantity
 from astropy.io import votable
 from astropy.io import fits
@@ -544,8 +545,7 @@ class GaiaClass(TapPlus):
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
         if radius is not None:
-            radiusQuantity = self.__getQuantityInput(radius, "radius")
-            radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
+            radiusDeg = Angle(self.__getQuantityInput(radius, "radius")).to_value(u.deg)
 
         if columns:
             columns = ','.join(map(str, columns))
