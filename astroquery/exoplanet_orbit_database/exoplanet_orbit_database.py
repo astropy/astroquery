@@ -37,7 +37,7 @@ class ExoplanetOrbitDatabaseClass:
 
         return self._param_units
 
-    def get_table(self, cache=True, show_progress=True, table_path=None):
+    def get_table(self, *, cache=True, show_progress=True, table_path=None):
         """
         Download (and optionally cache) the `Exoplanet Orbit Database planets
         table <http://www.exoplanets.org>`_.
@@ -91,7 +91,7 @@ class ExoplanetOrbitDatabaseClass:
 
         return self._table
 
-    def query_planet(self, planet_name, table_path=None):
+    def query_planet(self, planet_name, *, table_path=None):
         """
         Get table of exoplanet properties.
 
