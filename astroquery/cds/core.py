@@ -56,7 +56,7 @@ class CdsClass(BaseQuery):
         self.path_moc_file = None
         self.return_moc = False
 
-    def query_region(self, region=None, get_query_payload=False, verbose=False, **kwargs):
+    def query_region(self, *, region=None, get_query_payload=False, verbose=False, **kwargs):
         """
         Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
 
@@ -123,11 +123,11 @@ class CdsClass(BaseQuery):
         if get_query_payload:
             return response
 
-        result = self._parse_result(response, verbose)
+        result = self._parse_result(response, verbose=verbose)
 
         return result
 
-    def find_datasets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
+    def find_datasets(self, meta_data, *, get_query_payload=False, verbose=False, **kwargs):
         """
         Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ to retrieve the data-sets based on their
         meta data values. This method does not need any region argument but it requires an expression on the meta datas.
@@ -179,11 +179,11 @@ class CdsClass(BaseQuery):
         if get_query_payload:
             return response
 
-        result = self._parse_result(response, verbose)
+        result = self._parse_result(response, verbose=verbose)
 
         return result
 
-    def query_region_async(self, get_query_payload=False, **kwargs):
+    def query_region_async(self, *, get_query_payload=False, **kwargs):
         """
         Serves the same purpose as :meth:`~astroquery.cds.CdsClass.query_region` but only returns the HTTP response
         rather than the parsed result.
@@ -309,7 +309,7 @@ class CdsClass(BaseQuery):
 
         return request_payload
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parsing of the response returned by the MOCServer.
 
