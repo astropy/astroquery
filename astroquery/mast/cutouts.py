@@ -163,8 +163,7 @@ class TesscutClass(MastQueryWithLogin):
 
             # The Moving Targets service is currently only available for SPOC
             if product.upper() != "SPOC":
-                product = "SPOC"
-                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+                raise InvalidQueryError("Only SPOC is available for moving targets queries.")
 
             # Check that objectname has been passed in and coordinates
             # is not
@@ -291,8 +290,7 @@ class TesscutClass(MastQueryWithLogin):
 
             # The Moving Targets service is currently only available for SPOC
             if product.upper() != "SPOC":
-                product = "SPOC"
-                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+                raise InvalidQueryError("Only SPOC is available for moving targets queries.")
 
             # Check that objectname has been passed in and coordinates
             # is not
@@ -427,8 +425,7 @@ class TesscutClass(MastQueryWithLogin):
 
             # The Moving Targets service is currently only available for SPOC
             if product.upper() != "SPOC":
-                product = "SPOC"
-                warnings.warn("Only SPOC is available for moving targets queries. Defaulting to SPOC.", InputWarning)
+                raise InvalidQueryError("Only SPOC is available for moving targets queries.")
 
             param_dict['product'] = product.upper()
 

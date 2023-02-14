@@ -910,7 +910,7 @@ Cutouts
 
 The `~astroquery.mast.TesscutClass.get_cutouts` function takes a product type
 ("TICA" or "SPOC", but defaults to "SPOC"), coordinate, object name (e.g. "M104" or "TIC 32449963"),
-or moving target (e.g. "Eleonora") and cutout size (in pixels or an angular quantity)
+or moving target (e.g. "Eleonora") and cutout size (in pixels or an angular quantity, default is 5 pixels)
 and returns the cutout target pixel file(s) as a list of `~astropy.io.fits.HDUList` objects.
 
 If the given coordinate/object location appears in more than one TESS sector a target pixel
@@ -921,7 +921,7 @@ Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
-Note that the `product` argument will default to request for SPOC cutouts when 
+Note that the product argument will default to request for SPOC cutouts when 
 not explicitly called for TICA.
 
 .. doctest-remote-data::
@@ -930,7 +930,7 @@ not explicitly called for TICA.
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=5)
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord)
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -940,7 +940,7 @@ not explicitly called for TICA.
 
 For users with time-sensitive targets who would like cutouts from the latest observations, 
 we recommend requesting for the TICA product. Using the same target from the example above, 
-let's request for the TICA cutouts:
+this example shows a request for TICA cutouts:
 
 .. doctest-remote-data::
 
@@ -948,18 +948,18 @@ let's request for the TICA cutouts:
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=5, product='tica')
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, product='tica')
    >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
    'TICA'
 
-The following example will request SPOC cutouts using the `objectname` argument, rather
+The following example will request SPOC cutouts using the objectname argument, rather
 than a set of coordinates.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963", size=5)
+   >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963")
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -990,7 +990,7 @@ simply with either the objectname or coordinates.
      1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
-Note that the moving targets functionality does not currently support TICA, so the `product`
+Note that the moving targets functionality does not currently support TICA, so the product
 parameter will always default to SPOC.
 
 .. doctest-remote-data::
@@ -1025,7 +1025,7 @@ pixel file will be produced for each one.
    ./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits
 
 The query from the example above defaults to downloading cutouts from SPOC. The following example is a query for
-the same target from above, but with the `products` argument passed as TICA to explicitly request for TICA cutouts,
+the same target from above, but with the product argument passed as TICA to explicitly request for TICA cutouts,
 and because the TICA products are not available for sectors 1-26, we request cutouts from sector 27 rather than sector 9.
 
 .. doctest-remote-data::
@@ -1080,7 +1080,7 @@ but are now available for sector 61.
    tica-s0034-1-2     34      1   2
    tica-s0061-1-2     61      1   2
 
-The following example will request SPOC cutouts using the `objectname` argument, rather
+The following example will request SPOC cutouts using the objectname argument, rather
 than a set of coordinates.
 
 .. doctest-remote-data::
