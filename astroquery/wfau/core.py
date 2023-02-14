@@ -36,7 +36,7 @@ class BaseWFAUClass(QueryWithLogin):
     CROSSID_URL = BASE_URL + "CrossID"
     TIMEOUT = ""
 
-    def __init__(self, username=None, password=None, community=None,
+    def __init__(self, *, username=None, password=None, community=None,
                  database='', programme_id='all'):
         """
         The BaseWFAUClass __init__ is meant to be overwritten
@@ -108,7 +108,7 @@ class BaseWFAUClass(QueryWithLogin):
             request_payload['dec'] = C.b.degree
         return request_payload
 
-    def _verify_programme_id(self, pid, query_type='catalog'):
+    def _verify_programme_id(self, pid, *, query_type='catalog'):
         """
         Verify the programme ID is valid for the query being executed.
 
@@ -152,7 +152,7 @@ class BaseWFAUClass(QueryWithLogin):
         elif system.lower() in ('j', 'j2000', 'celestical', 'radec'):
             return 'J'
 
-    def get_images(self, coordinates, waveband='all', frame_type='stack',
+    def get_images(self, coordinates, *, waveband='all', frame_type='stack',
                    image_width=1 * u.arcmin, image_height=None, radius=None,
                    database=None, programme_id=None,
                    verbose=True, get_query_payload=False,
@@ -212,7 +212,7 @@ class BaseWFAUClass(QueryWithLogin):
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_images_async(self, coordinates, waveband='all', frame_type='stack',
+    def get_images_async(self, coordinates, *, waveband='all', frame_type='stack',
                          image_width=1 * u.arcmin, image_height=None,
                          radius=None, database=None,
                          programme_id=None, verbose=True,
@@ -290,7 +290,7 @@ class BaseWFAUClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    def get_image_list(self, coordinates, waveband='all', frame_type='stack',
+    def get_image_list(self, coordinates, *, waveband='all', frame_type='stack',
                        image_width=1 * u.arcmin, image_height=None,
                        radius=None, database=None,
                        programme_id=None, get_query_payload=False):
@@ -433,7 +433,7 @@ class BaseWFAUClass(QueryWithLogin):
         links = ahref.findall(html_in)
         return links
 
-    def query_region(self, coordinates, radius=1 * u.arcmin,
+    def query_region(self, coordinates, *, radius=1 * u.arcmin,
                      programme_id=None, database=None,
                      verbose=False, get_query_payload=False, system='J2000',
                      attributes=['default'], constraints=''):
@@ -502,7 +502,7 @@ class BaseWFAUClass(QueryWithLogin):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    def query_region_async(self, coordinates, radius=1 * u.arcmin,
+    def query_region_async(self, coordinates, *, radius=1 * u.arcmin,
                            programme_id=None,
                            database=None, get_query_payload=False,
                            system='J2000', attributes=['default'],
@@ -584,7 +584,7 @@ class BaseWFAUClass(QueryWithLogin):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parses the raw HTTP response and returns it as a
         `~astropy.table.Table`.
@@ -630,7 +630,7 @@ class BaseWFAUClass(QueryWithLogin):
                                   "and the error in self.table_parse_error.  "
                                   "Exception: " + str(self.table_parse_error))
 
-    def list_catalogs(self, style='short'):
+    def list_catalogs(self, *, style='short'):
         """
         Returns a list of available catalogs in WFAU.
         These can be used as ``programme_id`` in queries.
@@ -700,7 +700,7 @@ class BaseWFAUClass(QueryWithLogin):
                                      timeout=self.TIMEOUT)
         return response
 
-    def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
+    def _check_page(self, url, keyword, *, wait_time=1, max_attempts=30):
         page_loaded = False
         while not page_loaded and max_attempts > 0:
             if self.logged_in():
@@ -722,7 +722,7 @@ class BaseWFAUClass(QueryWithLogin):
             raise TimeoutError("Page did not load.")
         return response
 
-    def query_cross_id_async(self, coordinates, radius=1*u.arcsec,
+    def query_cross_id_async(self, coordinates, *, radius=1*u.arcsec,
                              programme_id=None, database=None, table="source",
                              constraints="", attributes='default',
                              pairing='all', system='J2000',
@@ -847,7 +847,7 @@ class BaseWFAUClass(QueryWithLogin):
         return result
 
 
-def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,
+def clean_catalog(wfau_catalog, *, clean_band='K_1', badclass=-9999,
                   maxerrbits=41, minerrbits=0, maxpperrbits=60):
     """
     Attempt to remove 'bad' entries in a catalog.
