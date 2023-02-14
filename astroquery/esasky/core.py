@@ -10,11 +10,11 @@ from io import BytesIO
 from zipfile import ZipFile
 from pathlib import Path
 
+from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.utils.console import ProgressBar
 from astroquery import log
-import astropy.units
 from requests import HTTPError
 from requests import ConnectionError
 
@@ -51,7 +51,7 @@ class ESASkyClass(BaseQuery):
     __ACCESS_URL_STRING = "access_url"
     __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
-    __MIN_RADIUS_CATALOG_DEG = Angle(5*astropy.units.arcsec).to_value(astropy.units.deg)
+    __MIN_RADIUS_CATALOG_DEG = Angle(5 * u.arcsec).to_value(u.deg)
 
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
@@ -114,7 +114,7 @@ class ESASkyClass(BaseQuery):
         if not verbose:
             with warnings.catch_warnings():
                 commons.suppress_vo_warnings()
-                warnings.filterwarnings("ignore", category=astropy.units.core.UnitsWarning)
+                warnings.filterwarnings("ignore", category=u.UnitsWarning)
                 job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
                                            verbose=False, dump_to_file=output_file is not None)
         else:
@@ -1347,8 +1347,7 @@ class ESASkyClass(BaseQuery):
         return spectra
 
     def _sanitize_input_radius(self, radius):
-        if (isinstance(radius, str) or isinstance(radius,
-                                                  astropy.units.Quantity)):
+        if isinstance(radius, (str, u.Quantity)):
             return radius
         else:
             raise ValueError("Radius must be either a string or "
@@ -1554,7 +1553,7 @@ class ESASkyClass(BaseQuery):
         if verbose:
             return fits.open(path)
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=astropy.io.fits.verify.VerifyWarning)
+            warnings.filterwarnings("ignore", category=fits.verify.VerifyWarning)
             return fits.open(path)
 
     def _ends_with_fits_like_extentsion(self, name):
@@ -1709,7 +1708,7 @@ class ESASkyClass(BaseQuery):
     def _build_region_query(self, coordinates, radius, row_limit, json):
         ra = coordinates.transform_to('icrs').ra.deg
         dec = coordinates.transform_to('icrs').dec.deg
-        radius_deg = Angle(radius).to_value(astropy.units.deg)
+        radius_deg = Angle(radius).to_value(u.deg)
 
         select_query = "SELECT "
         if row_limit > 0:
