@@ -86,11 +86,11 @@ class BesanconClass(BaseQuery):
     # sample file name:  1340900648.230224.resu
     result_re = re.compile(r"[0-9]{10}\.[0-9]{6}\.resu")
 
-    def __init__(self, email=None):
+    def __init__(self, *, email=None):
         super().__init__()
         self.email = email
 
-    def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
+    def get_besancon_model_file(self, filename, *, verbose=True, timeout=5.0):
         """
         Download a Besancon model from the website.
 
@@ -145,7 +145,7 @@ class BesanconClass(BaseQuery):
 
         return parse_besancon_model_string(results)
 
-    def _parse_result(self, response, verbose=False, retrieve_file=True):
+    def _parse_result(self, response, *, verbose=False, retrieve_file=True):
         """
         retrieve_file : bool
             If True, will try to retrieve the file every 30s until it shows up.
@@ -174,7 +174,7 @@ class BesanconClass(BaseQuery):
         else:
             return filename
 
-    def _parse_args(self, glon, glat, email, smallfield=True, extinction=0.7,
+    def _parse_args(self, glon, glat, email, *, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
                     absmag_limits=(-7, 20), mag_limits=copy.copy(mag_limits),
                     colors_limits=copy.copy(colors_limits),
