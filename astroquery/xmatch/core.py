@@ -24,7 +24,7 @@ class XMatchClass(BaseQuery):
     URL = conf.url
     TIMEOUT = conf.timeout
 
-    def query(self, cat1, cat2, max_distance,
+    def query(self, cat1, cat2, max_distance, *,
               colRA1=None, colDec1=None, colRA2=None, colDec2=None,
               area='allsky', cache=True, get_query_payload=False, **kwargs):
         """
@@ -70,8 +70,8 @@ class XMatchClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
-                                    colRA2, colDec2, area=area, cache=cache,
+        response = self.query_async(cat1, cat2, max_distance, colRA1=colRA1, colDec1=colDec1,
+                                    colRA2=colRA2, colDec2=colDec2, area=area, cache=cache,
                                     get_query_payload=get_query_payload,
                                     **kwargs)
         if get_query_payload:
@@ -81,7 +81,7 @@ class XMatchClass(BaseQuery):
         return Table.read(content, format='votable', use_names_over_ids=True)
 
     @prepend_docstr_nosections("\n" + query.__doc__)
-    def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
+    def query_async(self, cat1, cat2, max_distance, *, colRA1=None, colDec1=None,
                     colRA2=None, colDec2=None, area='allsky', cache=True,
                     get_query_payload=False, **kwargs):
         """
@@ -173,7 +173,7 @@ class XMatchClass(BaseQuery):
 
         return table_id in self.get_available_tables()
 
-    def get_available_tables(self, cache=True):
+    def get_available_tables(self, *, cache=True):
         """Get the list of the VizieR tables which are available in the
         xMatch service and return them as a list of strings.
 
