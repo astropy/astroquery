@@ -17,7 +17,7 @@ from astropy.utils import minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
-from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
+from astropy.coordinates import BaseCoordinateFrame, SkyCoord
 
 from ..exceptions import TimeoutError, InputWarning
 
@@ -37,30 +37,6 @@ ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
 
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
-
-
-def radius_to_unit(radius, unit='degree'):
-    """
-    Helper function: Parse a radius, then return its value in degrees
-
-    Parameters
-    ----------
-    radius : str or `~astropy.units.Quantity`
-        The radius of a region
-
-    Returns
-    -------
-    Floating point scalar value of radius in degrees
-    """
-    rad = Angle(radius)
-
-    if isinstance(unit, str):
-        if hasattr(rad, unit):
-            return getattr(rad, unit)
-        elif hasattr(rad, f"{unit}s"):
-            return getattr(rad, f"{unit}s")
-
-    return rad.to(unit).value
 
 
 def parse_coordinates(coordinates):

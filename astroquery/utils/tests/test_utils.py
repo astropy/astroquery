@@ -438,11 +438,3 @@ def test_filecontainer_get(patch_getreadablefileobj):
 def test_is_coordinate(coordinates, expected):
     out = commons._is_coordinate(coordinates)
     assert out == expected
-
-
-@pytest.mark.parametrize(('radius'),
-                         [0.01*u.deg, '0.01 deg', 0.01*u.arcmin]
-                         )
-def test_radius_to_unit(radius):
-    c = commons.radius_to_unit(radius)
-    assert c is not None

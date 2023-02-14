@@ -20,7 +20,7 @@ from urllib.parse import urlencode
 
 from astropy import log
 from astropy import units
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import Angle, SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
 from requests.exceptions import ConnectionError
@@ -438,7 +438,7 @@ class JwstClass(BaseQuery):
 
         if radius is not None:
             radius_quantity = self.__get_quantity_input(value=radius, msg="radius")
-            radius_deg = commons.radius_to_unit(radius_quantity, unit='deg')
+            radius_deg = Angle(radius_quantity).to_value(units.deg)
 
         query = (f"SELECT DISTANCE(POINT('ICRS',"
                  f"{str(conf.JWST_MAIN_TABLE_RA)},"
