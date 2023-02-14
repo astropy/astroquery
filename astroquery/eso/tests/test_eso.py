@@ -85,7 +85,7 @@ def test_vvv(monkeypatch):
     monkeypatch.setattr(eso, '_request', eso_request)
     eso.cache_location = DATA_DIR
 
-    result_s = eso.query_surveys('VVV',
+    result_s = eso.query_surveys(surveys='VVV',
                                  coord1=266.41681662, coord2=-29.00782497,
                                  box='01 00 00',
                                  )

@@ -48,7 +48,7 @@ class EsoClass(QueryWithLogin):
         self._survey_list = None
         self.username = None
 
-    def _activate_form(self, response, form_index=0, form_id=None, inputs={},
+    def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
         """
         Parameters
@@ -191,7 +191,7 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, username=None, store_password=False,
+    def _login(self, *, username=None, store_password=False,
                reenter_password=False):
         """
         Login to the ESO User Portal.
@@ -257,7 +257,7 @@ class EsoClass(QueryWithLogin):
             keyring.set_password("astroquery:www.eso.org", username, password)
         return authenticated
 
-    def list_instruments(self, cache=True):
+    def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
@@ -280,7 +280,7 @@ class EsoClass(QueryWithLogin):
                         self._instrument_list.append(instrument)
         return self._instrument_list
 
-    def list_surveys(self, cache=True):
+    def list_surveys(self, *, cache=True):
         """ List all the available surveys (phase 3) in the ESO archive.
 
         Returns
@@ -311,7 +311,7 @@ class EsoClass(QueryWithLogin):
                         self._survey_list.append(survey)
         return self._survey_list
 
-    def query_surveys(self, surveys='', cache=True,
+    def query_surveys(self, *, surveys='', cache=True,
                       help=False, open_form=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
@@ -369,7 +369,7 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
-    def query_main(self, column_filters={}, columns=[],
+    def query_main(self, *, column_filters={}, columns=[],
                    open_form=False, help=False, cache=True, **kwargs):
         """
         Query raw data contained in the ESO archive.
@@ -403,7 +403,7 @@ class EsoClass(QueryWithLogin):
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
-    def query_instrument(self, instrument, column_filters={}, columns=[],
+    def query_instrument(self, instrument, *, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
         """
         Query instrument-specific raw data contained in the ESO archive.
@@ -441,7 +441,7 @@ class EsoClass(QueryWithLogin):
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
-    def _query(self, url, column_filters={}, columns=[],
+    def _query(self, url, *, column_filters={}, columns=[],
                open_form=False, help=False, cache=True, **kwargs):
 
         table = None
@@ -486,7 +486,7 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
-    def get_headers(self, product_ids, cache=True):
+    def get_headers(self, product_ids, *, cache=True):
         """
         Get the headers associated to a list of data product IDs
 
@@ -557,7 +557,7 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def _check_existing_files(self, datasets, continuation=False,
+    def _check_existing_files(self, datasets, *, continuation=False,
                               destination=None):
         """Detect already downloaded datasets."""
 
@@ -628,7 +628,7 @@ class EsoClass(QueryWithLogin):
 
         return resp
 
-    def retrieve_data(self, datasets, continuation=False, destination=None,
+    def retrieve_data(self, datasets, *, continuation=False, destination=None,
                       with_calib='none', request_all_objects=False,
                       unzip=True, request_id=None):
         """
@@ -891,7 +891,7 @@ class EsoClass(QueryWithLogin):
 
         return 'No data returned' not in content
 
-    def query_apex_quicklooks(self, project_id=None, help=False,
+    def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
@@ -900,7 +900,7 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> tbl = Eso.query_apex_quicklooks('093.C-0144')
+        >>> tbl = Eso.query_apex_quicklooks(project_id='093.C-0144')
         >>> files = Eso.retrieve_data(tbl['Product ID'])
         """
 
@@ -944,7 +944,7 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-    def _print_query_help(self, url, cache=True):
+    def _print_query_help(self, url, *, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
@@ -1006,7 +1006,7 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    def _print_surveys_help(self, url, cache=True):
+    def _print_surveys_help(self, url, *, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
