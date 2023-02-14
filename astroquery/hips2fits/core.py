@@ -55,8 +55,8 @@ class hips2fitsClass(BaseQuery):
     def __init__(self, *args):
         super().__init__()
 
-    def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
-                       get_query_payload=False, verbose=False):
+    def query_with_wcs(self, hips, wcs, *, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear",
+                       cmap="Greys_r", get_query_payload=False, verbose=False):
         """
         Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ with an
         astropy WCS.
@@ -138,7 +138,7 @@ class hips2fitsClass(BaseQuery):
         >>> plt.show(im)
 
         """
-        response = self.query_with_wcs_async(get_query_payload, hips=hips, wcs=wcs, format=format,
+        response = self.query_with_wcs_async(get_query_payload=get_query_payload, hips=hips, wcs=wcs, format=format,
                                              min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
@@ -148,7 +148,7 @@ class hips2fitsClass(BaseQuery):
         return result
 
     @class_or_instance
-    def query_with_wcs_async(self, get_query_payload=False, **kwargs):
+    def query_with_wcs_async(self, *, get_query_payload=False, **kwargs):
         request_payload = self._args_to_payload(**kwargs)
 
         # primarily for debug purposes, but also useful if you want to send
@@ -167,8 +167,9 @@ class hips2fitsClass(BaseQuery):
 
         return response
 
-    def query(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg),
-              format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
+    def query(self, hips, width, height, projection, ra, dec, fov, *,
+              coordsys="icrs", rotation_angle=Angle(0 * u.deg), format="fits",
+              min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
               get_query_payload=False, verbose=False):
         """
         Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_.
@@ -268,9 +269,10 @@ class hips2fitsClass(BaseQuery):
         >>> plt.show(im)
         """
 
-        response = self.query_async(get_query_payload, hips=hips, width=width, height=height, projection=projection,
-                                    ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle,
-                                    format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
+        response = self.query_async(get_query_payload=get_query_payload, hips=hips, width=width, height=height,
+                                    projection=projection, ra=ra, dec=dec, fov=fov, coordsys=coordsys,
+                                    rotation_angle=rotation_angle, format=format, min_cut=min_cut,
+                                    max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
             return response
@@ -279,7 +281,7 @@ class hips2fitsClass(BaseQuery):
         return result
 
     @class_or_instance
-    def query_async(self, get_query_payload=False, **kwargs):
+    def query_async(self, *, get_query_payload=False, **kwargs):
         request_payload = self._args_to_payload(**kwargs)
 
         # primarily for debug purposes, but also useful if you want to send
