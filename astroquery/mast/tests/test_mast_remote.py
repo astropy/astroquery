@@ -759,42 +759,36 @@ class TestMast:
     # TesscutClass tests #
     ######################
 
-    def test_tesscut_get_sectors(self):
+    @pytest.mark.parametrize("product", ["tica", "spoc"])
+    def test_tesscut_get_sectors(self, product):
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
-        sector_table = mast.Tesscut.get_sectors(coordinates=coord)
+        sector_table = mast.Tesscut.get_sectors(coordinates=coord, product=product)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
-        assert "tess-s00" in sector_table['sectorName'][0]
+
+        name = "tess" if product == "spoc" else product
+        assert f"{name}-s00" in sector_table['sectorName'][0]
+
         assert sector_table['sector'][0] > 0
         assert sector_table['camera'][0] > 0
         assert sector_table['ccd'][0] > 0
 
-        # This should always return no results
-
-        with pytest.warns(NoResultsWarning):
-            coord = SkyCoord(90, -66.5, unit="deg")
-            sector_table = mast.Tesscut.get_sectors(coordinates=coord,
-                                                    radius=0)
-            assert isinstance(sector_table, Table)
-            assert len(sector_table) == 0
-
-        coord = SkyCoord(90, -66.5, unit="deg")
-        with pytest.warns(NoResultsWarning):
-            sector_table = mast.Tesscut.get_sectors(coordinates=coord, radius=0)
-        assert isinstance(sector_table, Table)
-        assert len(sector_table) == 0
-
-        sector_table = mast.Tesscut.get_sectors(objectname="M104")
+        sector_table = mast.Tesscut.get_sectors(objectname="M104", product=product)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
-        assert "tess-s00" in sector_table['sectorName'][0]
+
+        name = "tess" if product == "spoc" else product
+        assert f"{name}-s00" in sector_table['sectorName'][0]
+
         assert sector_table['sector'][0] > 0
         assert sector_table['camera'][0] > 0
         assert sector_table['ccd'][0] > 0
 
-        # Moving target functionality testing
+    def test_tesscut_get_sectors_mt(self):
 
+        # Moving target functionality testing (defaults to SPOC)
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
         moving_target_name = 'Eleonora'
 
         sector_table = mast.Tesscut.get_sectors(objectname=moving_target_name,
@@ -835,6 +829,20 @@ class TestMast:
                                      coordinates=coord,
                                      moving_target=True)
         assert error_mt_coord in str(error_msg.value)
+
+        # The TICA product option is not available for moving targets. This should default to SPOC.
+
+        moving_target_name = 'Eleonora'
+
+        with pytest.warns(InputWarning):
+            sector_table = mast.Tesscut.get_sectors(objectname=moving_target_name, product='tica',
+                                                    moving_target=True)
+            assert isinstance(sector_table, Table)
+            assert len(sector_table) >= 1
+            assert "tess-s00" in sector_table['sectorName'][0]
+            assert sector_table['sector'][0] > 0
+            assert sector_table['camera'][0] > 0
+            assert sector_table['ccd'][0] > 0
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
