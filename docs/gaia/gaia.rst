@@ -164,8 +164,7 @@ radius argument.
   >>>
   >>> Gaia.ROW_LIMIT = 50  # Ensure the default row limit.
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius = u.Quantity(1.0, u.deg)
-  >>> j = Gaia.cone_search_async(coord, radius)
+  >>> j = Gaia.cone_search_async(coord, radius=u.Quantity(1.0, u.deg))
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = j.get_results()
   >>> r.pprint()
