@@ -65,7 +65,7 @@ class MPCClass(BaseQuery):
     def __init__(self):
         super().__init__()
 
-    def query_object_async(self, target_type, get_query_payload=False, *args, **kwargs):
+    def query_object_async(self, target_type, *, get_query_payload=False, **kwargs):
         """
         Query around a specific object within a given mission catalog. When
         searching for a comet, it will return the entry with the latest epoch.
@@ -194,9 +194,9 @@ class MPCClass(BaseQuery):
         self.get_mpc_object_endpoint(target_type)
 
         kwargs['limit'] = 1
-        return self.query_objects_async(target_type, get_query_payload, *args, **kwargs)
+        return self.query_objects_async(target_type, get_query_payload=get_query_payload, **kwargs)
 
-    def query_objects_async(self, target_type, get_query_payload=False, *args, **kwargs):
+    def query_objects_async(self, target_type, *, get_query_payload=False, **kwargs):
         """
         Query around a specific object within a given mission catalog
 
@@ -343,7 +343,7 @@ class MPCClass(BaseQuery):
         return mpc_endpoint
 
     @class_or_instance
-    def get_ephemeris_async(self, target, location='500', start=None, step='1d',
+    def get_ephemeris_async(self, target, *, location='500', start=None, step='1d',
                             number=None, ut_offset=0, eph_type='equatorial',
                             ra_format=None, dec_format=None,
                             proper_motion='total', proper_motion_unit='arcsec/h',
@@ -610,7 +610,7 @@ class MPCClass(BaseQuery):
         return response
 
     @class_or_instance
-    def get_observatory_codes_async(self, get_raw_response=False, cache=True):
+    def get_observatory_codes_async(self, *, get_raw_response=False, cache=True):
         """
         Table of observatory codes from the IAU Minor Planet Center.
 
@@ -656,7 +656,7 @@ class MPCClass(BaseQuery):
         return response
 
     @class_or_instance
-    def get_observatory_location(self, code, cache=True):
+    def get_observatory_location(self, code, *, cache=True):
         """
         IAU observatory location.
 
@@ -774,7 +774,7 @@ class MPCClass(BaseQuery):
         return request_args
 
     @class_or_instance
-    def get_observations_async(self, targetid,
+    def get_observations_async(self, targetid, *,
                                id_type=None,
                                comettype=None,
                                get_mpcformat=False,
