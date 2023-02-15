@@ -8,7 +8,8 @@ from .. import utils
 
 
 def test_clean(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                            max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.clean_column_headings(x)
     assert 'Resolved QNs' not in c.colnames
@@ -16,7 +17,8 @@ def test_clean(patch_post):
 
 
 def test_merge(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                            max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.merge_frequencies(x)
     assert 'Freq' in c.colnames
@@ -24,7 +26,8 @@ def test_merge(patch_post):
 
 
 def test_minimize(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                            max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.minimize_table(x)
 
@@ -36,7 +39,8 @@ def test_minimize(patch_post):
 
 @pytest.mark.remote_data
 def test_minimize_issue2135():
-    rslt = splatalogue.Splatalogue.query_lines(100*u.GHz, 200*u.GHz,
+    rslt = splatalogue.Splatalogue.query_lines(min_frequency=100*u.GHz,
+                                               max_frequency=200*u.GHz,
                                                chemical_name=' SiO ',
                                                energy_max=1840,
                                                energy_type='eu_k',
