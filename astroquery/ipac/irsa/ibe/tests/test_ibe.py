@@ -67,22 +67,22 @@ def test_list_missions(patch_get):
 
 
 def test_list_datasets(patch_get):
-    assert Ibe.list_datasets('ptf') == ['images']
+    assert Ibe.list_datasets(mission='ptf') == ['images']
 
 
 def test_list_tables(patch_get):
-    assert Ibe.list_tables('ptf', 'images') == ['level1', 'level2']
+    assert Ibe.list_tables(mission='ptf', dataset='images') == ['level1', 'level2']
 
 
 def test_get_columns(patch_get):
-    columns = Ibe.get_columns('ptf', 'images', 'level1')
+    columns = Ibe.get_columns(mission='ptf', dataset='images', table='level1')
     assert len(columns) == 173
     assert columns[0]['name'] == 'expid'
 
 
 def test_ibe_pos(patch_get):
     table = Ibe.query_region(
-        SkyCoord(148.969687 * u.deg, 69.679383 * u.deg),
+        coordinate=SkyCoord(148.969687 * u.deg, 69.679383 * u.deg),
         where='expid <= 43010')
     assert isinstance(table, Table)
     assert len(table) == 21

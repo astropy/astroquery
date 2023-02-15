@@ -30,9 +30,9 @@ class IbeClass(BaseQuery):
     TABLE = conf.table
     TIMEOUT = conf.timeout
 
-    def query_region(self, coordinate=None, where=None, mission=None, dataset=None,
-                     table=None, columns=None, width=None, height=None,
-                     intersect='OVERLAPS', most_centered=False):
+    def query_region(self, *, coordinate=None, where=None, mission=None,
+                     dataset=None, table=None, columns=None, width=None,
+                     height=None, intersect='OVERLAPS', most_centered=False):
         """
         For certain missions, this function can be used to search for image and
         catalog files based on a point, a box (bounded by great circles) and/or
@@ -106,7 +106,7 @@ class IbeClass(BaseQuery):
 
         return Table.read(response.text, format='ipac', guess=False)
 
-    def query_region_sia(self, coordinate=None, mission=None,
+    def query_region_sia(self, *, coordinate=None, mission=None,
                          dataset=None, table=None, width=None,
                          height=None, intersect='OVERLAPS',
                          most_centered=False):
@@ -126,7 +126,7 @@ class IbeClass(BaseQuery):
         return commons.parse_votable(
             response.text).get_first_table().to_table()
 
-    def query_region_async(self, coordinate=None, where=None, mission=None, dataset=None,
+    def query_region_async(self, *, coordinate=None, where=None, mission=None, dataset=None,
                            table=None, columns=None, width=None, height=None,
                            action='search', intersect='OVERLAPS', most_centered=False):
         """
@@ -251,7 +251,7 @@ class IbeClass(BaseQuery):
 
         return self._request('GET', url, args, timeout=self.TIMEOUT)
 
-    def list_missions(self, cache=True):
+    def list_missions(self, *, cache=True):
         """
         Return a list of the available missions
 
@@ -277,7 +277,7 @@ class IbeClass(BaseQuery):
 
         return missions
 
-    def list_datasets(self, mission=None, cache=True):
+    def list_datasets(self, *, mission=None, cache=True):
         """
         For a given mission, list the available datasets
 
@@ -314,7 +314,7 @@ class IbeClass(BaseQuery):
 
         return datasets
 
-    def list_tables(self, mission=None, dataset=None, cache=True):
+    def list_tables(self, *, mission=None, dataset=None, cache=True):
         """
         For a given mission and dataset (see
         `~astroquery.ipac.irsa.ibe.IbeClass.list_missions`,
@@ -348,11 +348,11 @@ class IbeClass(BaseQuery):
                              "Must be one of: {1}"
                              .format(mission, self.list_missions()))
 
-        if dataset not in self.list_datasets(mission, cache=cache):
+        if dataset not in self.list_datasets(mission=mission, cache=cache):
             raise ValueError("Invalid dataset {0} specified for mission {1}."
                              "Must be one of: {2}"
                              .format(dataset, mission,
-                                     self.list_datasets(mission, cache=True)))
+                                     self.list_datasets(mission=mission, cache=True)))
 
         url = "{URL}search/{mission}/{dataset}/".format(URL=self.URL,
                                                         mission=mission,
@@ -368,7 +368,7 @@ class IbeClass(BaseQuery):
     # def get_data(self, **kwargs):
     #    return self.query_region_async(retrieve_data=True, **kwargs)
 
-    def show_docs(self, mission=None, dataset=None, table=None):
+    def show_docs(self, *, mission=None, dataset=None, table=None):
         """
         Open the documentation for a given table in a web browser.
 
@@ -390,7 +390,7 @@ class IbeClass(BaseQuery):
 
         return webbrowser.open(url)
 
-    def get_columns(self, mission=None, dataset=None, table=None):
+    def get_columns(self, *, mission=None, dataset=None, table=None):
         """
         Get the schema for a given table.
 
