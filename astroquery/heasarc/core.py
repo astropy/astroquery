@@ -37,7 +37,7 @@ class HeasarcClass(BaseQuery):
     TIMEOUT = conf.timeout
     coord_systems = ['fk5', 'fk4', 'equatorial', 'galactic']
 
-    def query_async(self, request_payload, cache=True, url=None):
+    def query_async(self, request_payload, *, cache=True, url=None):
         """
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
@@ -50,7 +50,7 @@ class HeasarcClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_mission_list(self, cache=True, get_query_payload=False):
+    def query_mission_list(self, *, cache=True, get_query_payload=False):
         """
         Returns a list of all available mission tables with descriptions
         """
@@ -76,7 +76,7 @@ class HeasarcClass(BaseQuery):
                            data_start=3, data_end=-1)
         return table
 
-    def query_mission_cols(self, mission, cache=True, get_query_payload=False,
+    def query_mission_cols(self, mission, *, cache=True, get_query_payload=False,
                            **kwargs):
         """
         Returns a list containing the names of columns that can be returned for
@@ -108,7 +108,7 @@ class HeasarcClass(BaseQuery):
 
         return self._parse_result(response).colnames
 
-    def query_object_async(self, object_name, mission,
+    def query_object_async(self, object_name, mission, *,
                            cache=True, get_query_payload=False,
                            **kwargs):
         """
@@ -138,7 +138,7 @@ class HeasarcClass(BaseQuery):
         return self.query_async(request_payload, cache=cache)
 
     def query_region_async(self, position: Union[coordinates.SkyCoord, str],
-                           mission, radius, cache=True, get_query_payload=False,
+                           mission, radius, *, cache=True, get_query_payload=False,
                            **kwargs):
         """
         Query around specific set of coordinates within a given mission
@@ -245,7 +245,7 @@ class HeasarcClass(BaseQuery):
         warnings.warn(NoResultsWarning("No matching rows were found in the query."))
         return emptytable
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
