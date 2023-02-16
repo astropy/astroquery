@@ -123,7 +123,7 @@ def test_list_async_jobs():
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+       Mock(side_effect=lambda x, capability=None: 'https://some.url'))
 @patch('astroquery.cadc.core.pyvo.dal.TAPService.capabilities', [])  # TAP capabilities not needed
 @patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService.capabilities', [])  # DL capabilities not needed
 def test_auth():
@@ -135,7 +135,7 @@ def test_auth():
     password = 'password'
     cert = 'cert'
     with pytest.raises(AttributeError):
-        cadc.login(None, None, None)
+        cadc.login(user=None, password=None, certificate_file=None)
     with pytest.raises(AttributeError):
         cadc.login(user=user)
     with pytest.raises(AttributeError):
@@ -205,11 +205,11 @@ def test_get_access_url():
                 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
             assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/tables' == \
-                cadc_core.get_access_url('mytap', 'ivo://ivoa.net/std/VOSI#tables-1.1')
+                cadc_core.get_access_url('mytap', capability='ivo://ivoa.net/std/VOSI#tables-1.1')
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+       Mock(side_effect=lambda x, capability=None: 'https://some.url'))
 @patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
        Mock(return_value=Mock(capabilities=[])))  # DL capabilities not needed
 def test_get_data_urls():
@@ -259,7 +259,7 @@ def test_get_data_urls():
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+       Mock(side_effect=lambda x, capability=None: 'https://some.url'))
 def test_misc():
     cadc = Cadc()
 
@@ -288,7 +288,7 @@ def test_misc():
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+       Mock(side_effect=lambda x, capability=None: 'https://some.url'))
 @patch('astroquery.cadc.core.pyvo.dal.TAPService',
        Mock(return_value=Mock(capabilities=[])))  # TAP capabilities not needed
 @patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
@@ -359,7 +359,7 @@ def test_get_image_list():
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+       Mock(side_effect=lambda x, capability=None: 'https://some.url'))
 def test_exec_sync(tmp_path):
     # save results in a file
     # create the VOTable result

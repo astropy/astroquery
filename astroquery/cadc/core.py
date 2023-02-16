@@ -70,7 +70,7 @@ class CadcClass(BaseQuery):
     CADCLOGIN_SERVICE_URI = conf.CADCLOGIN_SERVICE_URI
     TIMEOUT = conf.TIMEOUT
 
-    def __init__(self, url=None, auth_session=None):
+    def __init__(self, *, url=None, auth_session=None):
         """
         Initialize Cadc object
 
@@ -123,10 +123,10 @@ class CadcClass(BaseQuery):
         if not hasattr(self, '_data_link_url'):
             self._data_link_url = get_access_url(
                 self.CADCDATALINK_SERVICE_URI,
-                "ivo://ivoa.net/std/DataLink#links-1.0")
+                capability="ivo://ivoa.net/std/DataLink#links-1.0")
         return self._data_link_url
 
-    def login(self, user=None, password=None, certificate_file=None):
+    def login(self, *, user=None, password=None, certificate_file=None):
         """
         login allows user to authenticate to the service. Both user/password
         and https client certificates are supported.
@@ -167,7 +167,7 @@ class CadcClass(BaseQuery):
                 self.cadctap._session.cert = certificate_file
         if user and password:
             login_url = get_access_url(self.CADCLOGIN_SERVICE_URI,
-                                       'ivo://ivoa.net/std/UMS#login-0.1')
+                                       capability='ivo://ivoa.net/std/UMS#login-0.1')
             if login_url is None:
                 raise RuntimeError("No login URL")
             # need to login and get a cookie
@@ -223,7 +223,7 @@ class CadcClass(BaseQuery):
                 'Do not know how to log out from custom session')
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.016666666666667*u.deg,
+    def query_region_async(self, coordinates, *, radius=0.016666666666667*u.deg,
                            collection=None,
                            get_query_payload=False):
         """
@@ -311,7 +311,7 @@ class CadcClass(BaseQuery):
         return collections
 
     @class_or_instance
-    def get_images(self, coordinates, radius,
+    def get_images(self, coordinates, radius, *,
                    collection=None,
                    get_url_list=False,
                    show_progress=False):
@@ -340,8 +340,8 @@ class CadcClass(BaseQuery):
         str if returning urls).
         """
 
-        filenames = self.get_images_async(coordinates, radius, collection,
-                                          get_url_list, show_progress)
+        filenames = self.get_images_async(coordinates, radius, collection=collection,
+                                          get_url_list=get_url_list, show_progress=show_progress)
 
         if get_url_list:
             return filenames
@@ -360,7 +360,7 @@ class CadcClass(BaseQuery):
 
         return images
 
-    def get_images_async(self, coordinates, radius, collection=None,
+    def get_images_async(self, coordinates, radius, *, collection=None,
                          get_url_list=False, show_progress=False):
         """
         A coordinate-based query function that returns a list of
@@ -471,7 +471,7 @@ class CadcClass(BaseQuery):
         return result
 
     @class_or_instance
-    def get_data_urls(self, query_result, include_auxiliaries=False):
+    def get_data_urls(self, query_result, *, include_auxiliaries=False):
         """
         Function to map the results of a CADC query into URLs to
         corresponding data that can be later downloaded.
@@ -538,7 +538,7 @@ class CadcClass(BaseQuery):
                 result.append(service_def.access_url)
         return result
 
-    def get_tables(self, only_names=False):
+    def get_tables(self, *, only_names=False):
         """
         Gets all public tables
 
@@ -575,7 +575,7 @@ class CadcClass(BaseQuery):
             if table == t.name:
                 return t
 
-    def exec_sync(self, query, maxrec=None, uploads=None, output_file=None,
+    def exec_sync(self, query, *, maxrec=None, uploads=None, output_file=None,
                   output_format='votable'):
         """
         Run a query and return the results or save them in an output_file
@@ -619,7 +619,7 @@ class CadcClass(BaseQuery):
             result.write(fname, format=output_format, overwrite=True)
         return result
 
-    def create_async(self, query, maxrec=None, uploads=None):
+    def create_async(self, query, *, maxrec=None, uploads=None):
         """
         Creates a TAP job to execute and returns it to the caller. The
         caller then can start the execution and monitor the job.
@@ -674,7 +674,7 @@ class CadcClass(BaseQuery):
         return pyvo.dal.AsyncTAPJob('{}/async/{}'.format(
             self.cadctap.baseurl, jobid), session=self._auth_session)
 
-    def list_async_jobs(self, phases=None, after=None, last=None,
+    def list_async_jobs(self, *, phases=None, after=None, last=None,
                         short_description=True):
         """
         Returns all the asynchronous jobs
@@ -701,7 +701,7 @@ class CadcClass(BaseQuery):
         return self.cadctap.get_job_list(phases=phases, after=after, last=last,
                                          short_description=short_description)
 
-    def _parse_result(self, result, verbose=None):
+    def _parse_result(self, result, *, verbose=None):
         return result
 
     def _args_to_payload(self, *args, **kwargs):
@@ -736,7 +736,7 @@ def static_vars(**kwargs):
 
 
 @static_vars(caps={})
-def get_access_url(service, capability=None):
+def get_access_url(service, *, capability=None):
     """
     Returns the URL corresponding to a service by doing a lookup in the cadc
     registry. It returns the access URL corresponding to cookie authentication.

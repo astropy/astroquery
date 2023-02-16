@@ -188,8 +188,7 @@ cutout coordinates and radius.
     >>> from astropy import units as u
     >>> cadc = Cadc()
     >>> coords = '01h45m07.5s +23d18m00s'
-    >>> radius = 0.1*u.deg
-    >>> results = cadc.query_region(coords, radius, collection='CFHT')
+    >>> results = cadc.query_region(coords, radius=0.1*u.deg, collection='CFHT')
     >>> filtered_results = results[results['time_exposure'] > 120.0]
     >>> image_list = cadc.get_image_list(filtered_results, coords, radius)  # doctest: +IGNORE_WARNINGS
     >>> print(image_list)   # doctest: +IGNORE_OUTPUT
