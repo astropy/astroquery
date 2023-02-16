@@ -12,7 +12,7 @@ _url_list = ['https://almascience.org',
              'https://almascience.nao.ac.jp'
              ]
 
-auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
+auth_urls = _url_list
 
 
 class Conf(_config.ConfigNamespace):
