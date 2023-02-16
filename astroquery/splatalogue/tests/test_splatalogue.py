@@ -17,16 +17,18 @@ def data_path(filename):
 
 
 def test_simple(patch_post):
-    splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+    splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                        max_frequency=116 * u.GHz,
                                         chemical_name=' CO ')
 
 
 @pytest.mark.remote_data
 def test_init(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                            max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
     S = splatalogue.Splatalogue(chemical_name=' CO ')
-    y = S.query_lines(114 * u.GHz, 116 * u.GHz)
+    y = S.query_lines(min_frequency=114 * u.GHz, max_frequency=116 * u.GHz)
     # it is not currently possible to test equality between tables:
     # masked arrays fail
     # assert y == x
@@ -43,14 +45,16 @@ def test_load_species_table():
 
 # regression test: get_query_payload should work (#308)
 def test_get_payload():
-    q = splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
+    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+                                                       max_frequency=10 * u.GHz,
                                                        get_query_payload=True)
     assert '__utma' in q
 
 
 # regression test: line lists should ask for only one line list, not all
 def test_line_lists():
-    q = splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
+    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+                                                       max_frequency=10 * u.GHz,
                                                        line_lists=['JPL'],
                                                        get_query_payload=True)
     assert q['displayJPL'] == 'displayJPL'
@@ -61,7 +65,8 @@ def test_line_lists():
 # uses get_query_payload to avoid having to monkeypatch
 def test_linelist_type():
     with pytest.raises(TypeError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
+        splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+                                                       max_frequency=10 * u.GHz,
                                                        line_lists='JPL',
                                                        get_query_payload=True)
     assert exc.value.args[0] == ("Line lists should be a list of linelist "
@@ -69,12 +74,14 @@ def test_linelist_type():
 
 
 def test_top20_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+    splatalogue.core.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                   max_frequency=116 * u.GHz,
                                                    top20='top20',
                                                    get_query_payload=True)
     with pytest.raises(ValueError) as exc:
         splatalogue.core.Splatalogue.query_lines_async(
-            114 * u.GHz, 116 * u.GHz, top20='invalid', get_query_payload=True)
+            min_frequency=114 * u.GHz, max_frequency=116 * u.GHz,
+            top20='invalid', get_query_payload=True)
     assert exc.value.args[0] == "Top20 is not one of the allowed values"
 
 
@@ -103,7 +110,8 @@ def test_band_crashorno():
 
 def test_exclude(patch_post):
     # regression test for issue 616
-    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                  max_frequency=116 * u.GHz,
                                                   chemical_name=' CO ',
                                                   exclude=None,
                                                   get_query_payload=True)
@@ -115,7 +123,8 @@ def test_exclude(patch_post):
     for k, v in exclusions.items():
         assert d[k] == v
 
-    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                  max_frequency=116 * u.GHz,
                                                   chemical_name=' CO ',
                                                   exclude='none',
                                                   get_query_payload=True)

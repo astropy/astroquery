@@ -13,7 +13,7 @@ from astroquery.ipac.irsa import ibe
 @pytest.mark.remote_data
 def test_ibe_pos():
     table = ibe.Ibe.query_region(
-        SkyCoord(148.969687 * u.deg, 69.679383 * u.deg),
+        coordinate=SkyCoord(148.969687 * u.deg, 69.679383 * u.deg),
         where='expid <= 43010')
     assert isinstance(table, Table)
     assert len(table) == 21

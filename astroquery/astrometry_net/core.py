@@ -198,7 +198,7 @@ class AstrometryNetClass(BaseQuery):
                 raise ValueError('Scale type {} requires '
                                  'values for {}'.format(scale_type, required_keys))
 
-    def monitor_submission(self, submission_id,
+    def monitor_submission(self, submission_id, *,
                            solve_timeout=TIMEOUT, verbose=True):
         """
         Monitor the submission for completion.
@@ -270,7 +270,7 @@ class AstrometryNetClass(BaseQuery):
             raise RuntimeError('Unrecognized status {}'.format(status))
         return wcs
 
-    def solve_from_source_list(self, x, y, image_width, image_height,
+    def solve_from_source_list(self, x, y, image_width, image_height, *,
                                solve_timeout=TIMEOUT,
                                verbose=True,
                                **settings
@@ -320,7 +320,7 @@ class AstrometryNetClass(BaseQuery):
                                        solve_timeout=solve_timeout,
                                        verbose=verbose)
 
-    def solve_from_image(self, image_file_path, force_image_upload=False,
+    def solve_from_image(self, image_file_path, *, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
                          fwhm=3, detect_threshold=5,

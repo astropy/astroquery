@@ -32,7 +32,7 @@ def data_path(filename: str):
     return os.path.join(data_dir, filename)
 
 
-def get_json_species_ids(outfile='splat-species.json', base_url=conf.base_url):
+def get_json_species_ids(*, outfile='splat-species.json', base_url=conf.base_url):
     """
     Uses BeautifulSoup to scrape the NRAO Splatalogue species
     selector form, and caches the result as JSON. The file

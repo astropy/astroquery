@@ -21,7 +21,6 @@ esa.hubble
 
 - Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [#2567][#2597]
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
-- Optional parameters in all methods are kwargs keyword only. [#2597]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
@@ -114,8 +113,6 @@ jplhorizons
 - Adding ``optional_setting`` kwarg to the ephemerides methods to allow
   passing additional settings. [#1802]
 
-- Optional keyword arguments are now keyword only. [#1802]
-
 - Topocentric coordinates can now be specified for both center and target in observer
   and vector queries. [#2625]
 
@@ -145,16 +142,6 @@ mast
 - Expanding ``Cutouts`` functionality to support making Hubble Advanced Product (HAP)
   cutouts via HAPCut. [#2613]
 
-nist
-^^^^
-
-- Optional parameters in all methods are kwargs keyword only. [#2655]
-
-nvas
-^^^^
-
-- Made NVAS optional kwargs keyword only. [#2656]
-
 oac
 ^^^
 
@@ -173,7 +160,7 @@ simbad
 - It is now possible to specify multiple coordinates together with a single
   radius as a string in ``query_region()`` and ``query_region_async()``.
   [#2494]
-- Optional keyword arguments are now keyword only. [#2609]
+
 - ``ROW_LIMIT`` is now respected when running region queries; previously, it
   was ignored for region queries but respected for all others.  A new warning,
   ``BlankResponseWarning``, is introduced for use when one or more query terms result
@@ -184,8 +171,6 @@ skyview
 ^^^^^^^
 
 - Fix bug for ``radius`` parameter to not behave as diameter. [#2601]
-
-- Optional keyword arguments are now keyword only. [#2601]
 
 svo_fps
 ^^^^^^^
@@ -222,9 +207,6 @@ sdss
 
 - The default data release has been changed to DR17. [#2478]
 
-- Optional keyword arguments are now keyword only. [#2477, #2532]
-
-
 mast
 ^^^^
 
@@ -240,6 +222,9 @@ xmatch
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+- Optional keyword arguments are now keyword only. [#1802, #2477, #2532,
+  #2597, #2601, #2609, #2655, #2656, #2661]
 
 - New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
   added to help the testcleanup narrative in narrative documentations. [#2384]

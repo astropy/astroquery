@@ -7,7 +7,7 @@ query.
 """
 
 
-def slap_default_payload(request='queryData', version='2.0', wavelength='',
+def slap_default_payload(*, request='queryData', version='2.0', wavelength='',
                          chemical_element='', initial_level_energy='',
                          final_level_energy='', temperature='', einstein_a=''):
     """

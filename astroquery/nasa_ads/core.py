@@ -40,7 +40,7 @@ class ADSClass(BaseQuery):
         super().__init__()
 
     @class_or_instance
-    def query_simple(self, query_string, get_query_payload=False,
+    def query_simple(self, query_string, *, get_query_payload=False,
                      get_raw_response=False, cache=True):
         """
         Basic query.  Uses a string and the ADS generic query.
@@ -48,7 +48,7 @@ class ADSClass(BaseQuery):
         request_string = self._args_to_url(query_string)
         request_fields = self._fields_to_url()
         request_sort = self._sort_to_url()
-        request_rows = self._rows_to_url(self.NROWS, self.NSTART)
+        request_rows = self._rows_to_url(nrows=self.NROWS, nstart=self.NSTART)
         request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_sort + request_rows
 
         # primarily for debug purposes, but also useful if you want to send
@@ -101,7 +101,7 @@ class ADSClass(BaseQuery):
         request_sort = '&sort=' + urlencode(self.SORT)
         return request_sort
 
-    def _rows_to_url(self, nrows=10, nstart=0):
+    def _rows_to_url(self, *, nrows=10, nstart=0):
         request_rows = '&rows=' + str(nrows) + '&start=' + str(nstart)
         return request_rows
 

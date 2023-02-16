@@ -53,7 +53,7 @@ class FermiLATClass(BaseQuery):
 
         return result_url
 
-    def _parse_args(self, name_or_coords, searchradius='', obsdates='',
+    def _parse_args(self, name_or_coords, *, searchradius='', obsdates='',
                     timesys='Gregorian', energyrange_MeV='',
                     LATdatatype='Photon', spacecraftdata=True):
         """
@@ -91,7 +91,7 @@ class FermiLATClass(BaseQuery):
 
         return payload
 
-    def _parse_result(self, result, verbose=False, **kwargs):
+    def _parse_result(self, result, *, verbose=False, **kwargs):
         """
         Use get_fermilat_datafile to download a result URL
         """
@@ -131,7 +131,7 @@ class GetFermilatDatafile:
 
     check_frequency = 1  # minutes
 
-    def __call__(self, result_url, check_frequency=1, verbose=False):
+    def __call__(self, result_url, *, check_frequency=1, verbose=False):
         self.result_url = result_url
 
         page_loaded = False

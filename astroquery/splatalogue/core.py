@@ -76,7 +76,7 @@ class SplatalogueClass(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    def get_species_ids(self, restr=None, reflags=0, recache=False):
+    def get_species_ids(self, *, restr=None, reflags=0, recache=False):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
         name, mass, and chemical composition.
@@ -95,7 +95,7 @@ class SplatalogueClass(BaseQuery):
         --------
         >>> import re
         >>> import pprint # unfortunate hack required for documentation testing
-        >>> rslt = Splatalogue.get_species_ids('Formaldehyde')
+        >>> rslt = Splatalogue.get_species_ids(restr='Formaldehyde')
         >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03106 H213CO - Formaldehyde': '324',
@@ -107,7 +107,7 @@ class SplatalogueClass(BaseQuery):
          '03301 D213CO - Formaldehyde': '1220',
          '03315 HDC18O - Formaldehyde': '21141',
          '0348 D2C18O - Formaldehyde': '21140'}
-        >>> rslt = Splatalogue.get_species_ids('H2CO')
+        >>> rslt = Splatalogue.get_species_ids(restr='H2CO')
         >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03109 H2COH+ - Hydroxymethylium ion': '224',
@@ -125,9 +125,9 @@ class SplatalogueClass(BaseQuery):
          '08903 CH3CHNH2COOH - II - α-Alanine': '1322'}
         >>> # note the whitespace, preventing H2CO within other
         >>> # more complex molecules
-        >>> Splatalogue.get_species_ids(' H2CO ')
+        >>> Splatalogue.get_species_ids(restr=' H2CO ')
         {'03023 H2CO - Formaldehyde': '194'}
-        >>> Splatalogue.get_species_ids(' h2co ', re.IGNORECASE)
+        >>> Splatalogue.get_species_ids(restr=' h2co ', reflags=re.IGNORECASE)
         {'03023 H2CO - Formaldehyde': '194'}
 
         """
@@ -137,7 +137,7 @@ class SplatalogueClass(BaseQuery):
             self._species_ids = load_species_table.species_lookuptable(recache=recache)
 
         if restr is not None:
-            return self._species_ids.find(restr, reflags)
+            return self._species_ids.find(restr, flags=reflags)
         else:
             return self._species_ids
 
@@ -160,7 +160,7 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-    def _parse_kwargs(self, min_frequency=None, max_frequency=None,
+    def _parse_kwargs(self, *, min_frequency=None, max_frequency=None,
                       band='any', top20=None, chemical_name=None,
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
@@ -319,7 +319,7 @@ class SplatalogueClass(BaseQuery):
             payload['sid[]'] = []
         elif chemical_name is not None:
             if parse_chemistry_locally:
-                species_ids = self.get_species_ids(chemical_name, chem_re_flags)
+                species_ids = self.get_species_ids(restr=chemical_name, reflags=chem_re_flags)
                 if len(species_ids) == 0:
                     raise ValueError("No matching chemical species found.")
                 payload['sid[]'] = list(species_ids.values())
@@ -408,7 +408,7 @@ class SplatalogueClass(BaseQuery):
 
         return payload
 
-    def _validate_kwargs(self, min_frequency=None, max_frequency=None,
+    def _validate_kwargs(self, *, min_frequency=None, max_frequency=None,
                          band='any', **kwargs):
         """
         Check that either min_frequency + max_frequency or band are specified
@@ -419,7 +419,7 @@ class SplatalogueClass(BaseQuery):
                                  "a valid Band.")
 
     @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
-    def query_lines_async(self, min_frequency=None, max_frequency=None,
+    def query_lines_async(self, *, min_frequency=None, max_frequency=None,
                           cache=True, **kwargs):
         """
 
@@ -462,7 +462,7 @@ class SplatalogueClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -478,7 +478,7 @@ class SplatalogueClass(BaseQuery):
 
         return result
 
-    def get_fixed_table(self, columns=None):
+    def get_fixed_table(self, *, columns=None):
         """
         Convenience function to get the table with html column names made human
         readable.  It returns only the columns identified with the ``columns``

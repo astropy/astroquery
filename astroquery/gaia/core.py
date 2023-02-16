@@ -46,7 +46,7 @@ class GaiaClass(TapPlus):
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
     GAIA_MESSAGES = "notification?action=GetNotifications"
 
-    def __init__(self, tap_plus_conn_handler=None,
+    def __init__(self, *, tap_plus_conn_handler=None,
                  datalink_handler=None,
                  gaia_tap_server='https://gea.esac.esa.int/',
                  gaia_data_server='https://gea.esac.esa.int/',
@@ -79,7 +79,7 @@ class GaiaClass(TapPlus):
         if show_server_messages:
             self.get_status_messages()
 
-    def login(self, user=None, password=None, credentials_file=None,
+    def login(self, *, user=None, password=None, credentials_file=None,
               verbose=False):
         """Performs a login.
         User and password arguments can be used or a file that contains
@@ -118,7 +118,7 @@ class GaiaClass(TapPlus):
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
-    def login_gui(self, verbose=False):
+    def login_gui(self, *, verbose=False):
         """Performs a login using a GUI dialog
 
         Parameters
@@ -143,7 +143,7 @@ class GaiaClass(TapPlus):
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
-    def logout(self, verbose=False):
+    def logout(self, *, verbose=False):
         """Performs a logout
 
         Parameters
@@ -163,8 +163,9 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging out data server")
 
-    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=False,
-                  band=None, avoid_datatype_check=False, format="votable", output_file=None,
+    def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL',
+                  retrieval_type="ALL", valid_data=False, band=None,
+                  avoid_datatype_check=False, format="votable", output_file=None,
                   overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
@@ -348,7 +349,7 @@ class GaiaClass(TapPlus):
                 files[key] = tables
         return files
 
-    def get_datalinks(self, ids, verbose=False):
+    def get_datalinks(self, ids, *, verbose=False):
         """Gets datalinks associated to the provided identifiers
         TAP+ only
 
@@ -365,7 +366,7 @@ class GaiaClass(TapPlus):
         """
         return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
-    def __query_object(self, coordinate, radius=None, width=None, height=None,
+    def __query_object(self, coordinate, *, radius=None, width=None, height=None,
                        async_job=False, verbose=False, columns=[]):
         """Launches a job
         TAP & TAP+
@@ -444,7 +445,7 @@ class GaiaClass(TapPlus):
                 job = self.launch_job(query, verbose=verbose)
         return job.get_results()
 
-    def query_object(self, coordinate, radius=None, width=None, height=None,
+    def query_object(self, coordinate, *, radius=None, width=None, height=None,
                      verbose=False, columns=[]):
         """Launches a job
         TAP & TAP+
@@ -468,9 +469,11 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height, async_job=False, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius=radius,
+                                   width=width, height=height, async_job=False,
+                                   verbose=verbose, columns=columns)
 
-    def query_object_async(self, coordinate, radius=None, width=None,
+    def query_object_async(self, coordinate, *, radius=None, width=None,
                            height=None, verbose=False, columns=[]):
         """Launches a job (async)
         TAP & TAP+
@@ -494,9 +497,11 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height, async_job=True, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius=radius, width=width,
+                                   height=height, async_job=True, verbose=verbose,
+                                   columns=columns)
 
-    def __cone_search(self, coordinate, radius, table_name=None,
+    def __cone_search(self, coordinate, radius, *, table_name=None,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
                       dec_column_name=MAIN_GAIA_TABLE_DEC,
                       async_job=False,
@@ -589,7 +594,7 @@ class GaiaClass(TapPlus):
                                    verbose=verbose,
                                    dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, radius=None,
+    def cone_search(self, coordinate, *, radius=None,
                     table_name=None,
                     ra_column_name=MAIN_GAIA_TABLE_RA,
                     dec_column_name=MAIN_GAIA_TABLE_DEC,
@@ -639,7 +644,7 @@ class GaiaClass(TapPlus):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file, columns=columns)
 
-    def cone_search_async(self, coordinate, radius=None,
+    def cone_search_async(self, coordinate, *, radius=None,
                           table_name=None,
                           ra_column_name=MAIN_GAIA_TABLE_RA,
                           dec_column_name=MAIN_GAIA_TABLE_DEC,
@@ -733,7 +738,7 @@ class GaiaClass(TapPlus):
             elif isinstance(col.unit, str):
                 col.unit = col.unit.replace(".", " ").replace("'", "")
 
-    def load_user(self, user_id, verbose=False):
+    def load_user(self, user_id, *, verbose=False):
         """Loads the specified user
         TAP+ only
 
@@ -752,7 +757,7 @@ class GaiaClass(TapPlus):
         return self.is_valid_user(user_id=user_id,
                                   verbose=verbose)
 
-    def cross_match(self, full_qualified_table_name_a=None,
+    def cross_match(self, *, full_qualified_table_name_a=None,
                     full_qualified_table_name_b=None,
                     results_table_name=None,
                     radius=1.0,
@@ -818,7 +823,7 @@ class GaiaClass(TapPlus):
                                      upload_resource=None,
                                      upload_table_name=None)
 
-    def launch_job(self, query, name=None, output_file=None,
+    def launch_job(self, query, *, name=None, output_file=None,
                    output_format="votable", verbose=False,
                    dump_to_file=False, upload_resource=None,
                    upload_table_name=None):
@@ -861,7 +866,7 @@ class GaiaClass(TapPlus):
                                   upload_resource=upload_resource,
                                   upload_table_name=upload_table_name)
 
-    def launch_job_async(self, query, name=None, output_file=None,
+    def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,

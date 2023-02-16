@@ -151,7 +151,7 @@ class HitranClass(BaseQuery):
         """
         super().__init__()
 
-    def _args_to_payload(self, molecule_number=1, isotopologue_number=1,
+    def _args_to_payload(self, *, molecule_number=1, isotopologue_number=1,
                          min_frequency=None, max_frequency=None):
         """
         Code to parse input and construct the payload dictionary.
@@ -199,7 +199,7 @@ class HitranClass(BaseQuery):
         return payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def query_lines_async(self, get_query_payload=False, cache=True, **kwargs):
+    def query_lines_async(self, *, get_query_payload=False, cache=True, **kwargs):
         """
         Queries Hitran class for a particular molecule with default arguments
         set. Based on fetch function from hapi.py.
@@ -223,7 +223,7 @@ class HitranClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
         """

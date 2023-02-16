@@ -36,7 +36,7 @@ class MiriadeClass(BaseQuery):
         """
         return self._query_uri
 
-    def get_ephemerides_async(self, targetname, objtype='asteroid',
+    def get_ephemerides_async(self, targetname, *, objtype='asteroid',
                               epoch=None, epoch_step='1d', epoch_nsteps=1,
                               location=500, coordtype=1,
                               timescale='UTC',
@@ -276,7 +276,7 @@ class MiriadeClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=None):
+    def _parse_result(self, response, *, verbose=None):
         """
         Parser for Miriade request results
         """
@@ -426,6 +426,7 @@ class SkybotClass(BaseQuery):
                           coo,
                           rad,
                           epoch,
+                          *,
                           location='500',
                           position_error=120,
                           find_planets=True,
@@ -614,7 +615,7 @@ class SkybotClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         internal wrapper to parse queries
         """

@@ -57,7 +57,7 @@ class VsaClass(BaseWFAUClass):
     # apparently needed for some queries
     archive = 'VSA'
 
-    def __init__(self, username=None, password=None, community=None,
+    def __init__(self, *, username=None, password=None, community=None,
                  database='VVVDR4', programme_id='all'):
         super(VsaClass, self).__init__(database=database,
                                        programme_id=programme_id,

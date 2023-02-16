@@ -171,7 +171,7 @@ class CDMSClass(BaseQuery):
 
         return response2
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -277,7 +277,7 @@ class CDMSClass(BaseQuery):
 
         return result
 
-    def get_species_table(self, catfile='catdir.cat'):
+    def get_species_table(self, *, catfile='catdir.cat'):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 

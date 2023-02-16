@@ -56,7 +56,7 @@ class OgleClass(BaseQuery):
                      'a2', 'f8']
 
     @_validate_params
-    def _args_to_payload(self, coord=None, algorithm='NG', quality='GOOD',
+    def _args_to_payload(self, *, coord=None, algorithm='NG', quality='GOOD',
                          coord_sys='RD'):
         """
         Query the OGLE-III interstellar extinction calculator.
@@ -143,7 +143,7 @@ class OgleClass(BaseQuery):
         response.raise_for_status()
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
         # Select first row and skip first character ('#') to find column

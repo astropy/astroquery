@@ -27,7 +27,7 @@ class JPLSpecClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_lines_async(self, min_frequency, max_frequency,
+    def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500,
                           max_lines=2000, molecule='All', flags=0,
                           parse_name_locally=False,
@@ -126,7 +126,7 @@ class JPLSpecClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -181,7 +181,7 @@ class JPLSpecClass(BaseQuery):
 
         return result
 
-    def get_species_table(self, catfile='catdir.cat'):
+    def get_species_table(self, *, catfile='catdir.cat'):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
         Each element of this directory is an 80-character record with the

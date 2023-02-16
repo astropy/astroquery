@@ -282,7 +282,7 @@ The archive can be queried as follows:
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_surveys('HARPS', cache=False, target="HD203608")
+    >>> table = eso.query_surveys(surveys='HARPS', cache=False, target="HD203608")
 
 The returned table has an ``ARCFILE`` column. It can be used to retrieve the datasets with
 :meth:`astroquery.eso.EsoClass.retrieve_data` (see next section).

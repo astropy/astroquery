@@ -27,7 +27,7 @@ column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
                        }
 
 
-def clean_column_headings(table, renaming_dict=column_headings_map):
+def clean_column_headings(table, *, renaming_dict=column_headings_map):
     """
     Rename column headings to shorter version that are easier for display
     on-screen / at the terminal
@@ -40,7 +40,7 @@ def clean_column_headings(table, renaming_dict=column_headings_map):
     return table
 
 
-def merge_frequencies(table, prefer='measured',
+def merge_frequencies(table, *, prefer='measured',
                       theor_kwd='Freq-GHz(rest frame,redshifted)',
                       meas_kwd='Meas Freq-GHz(rest frame,redshifted)'):
     """
@@ -79,12 +79,12 @@ def merge_frequencies(table, prefer='measured',
     return table
 
 
-def minimize_table(table, columns=['Species', 'Chemical Name',
-                                   'Resolved QNs',
-                                   'Freq-GHz(rest frame,redshifted)',
-                                   'Meas Freq-GHz(rest frame,redshifted)',
-                                   'Log<sub>10</sub> (A<sub>ij</sub>)',
-                                   'E_U (K)'],
+def minimize_table(table, *, columns=['Species', 'Chemical Name',
+                                      'Resolved QNs',
+                                      'Freq-GHz(rest frame,redshifted)',
+                                      'Meas Freq-GHz(rest frame,redshifted)',
+                                      'Log<sub>10</sub> (A<sub>ij</sub>)',
+                                      'E_U (K)'],
                    merge=True,
                    clean=True):
     """

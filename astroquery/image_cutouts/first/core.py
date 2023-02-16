@@ -16,8 +16,8 @@ class FirstClass(BaseQuery):
     TIMEOUT = conf.timeout
     maximsize = 1024
 
-    def _args_to_payload(self, coordinates, image_size=1 * u.arcmin,
-                         *, maximsize=None):
+    def _args_to_payload(self, coordinates, *, image_size=1 * u.arcmin,
+                         maximsize=None):
         """
         Fetches image cutouts from FIRST survey.
 
@@ -49,8 +49,8 @@ class FirstClass(BaseQuery):
         return request_payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def get_images(self, coordinates, image_size=1 * u.arcmin,
-                   *, get_query_payload=False):
+    def get_images(self, coordinates, *, image_size=1 * u.arcmin,
+                   get_query_payload=False):
         """
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP
@@ -71,8 +71,8 @@ class FirstClass(BaseQuery):
             raise InvalidQueryError(response.content)
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def get_images_async(self, coordinates, image_size=1 * u.arcmin,
-                         *, get_query_payload=False):
+    def get_images_async(self, coordinates, *, image_size=1 * u.arcmin,
+                         get_query_payload=False):
         """
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP

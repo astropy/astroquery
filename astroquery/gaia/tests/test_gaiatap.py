@@ -60,7 +60,7 @@ def mock_querier():
     launch_response.set_data(method="POST", body=job_data)
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
-    return GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
 
 @pytest.fixture(scope="module")
@@ -82,7 +82,7 @@ def mock_querier_async():
     results_response.set_data(method="GET", body=job_data)
     conn_handler.set_response("async/" + jobid + "/results/result", results_response)
 
-    return GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
 
 def test_show_message():
@@ -100,7 +100,7 @@ def test_show_message():
     connHandler.set_response(tableRequest, dummy_response)
 
     tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-    GaiaClass(connHandler, tapplus, show_server_messages=True)
+    GaiaClass(tap_plus_conn_handler=connHandler, datalink_handler=tapplus, show_server_messages=True)
 
 
 def test_query_object(column_attrs, mock_querier):
@@ -140,7 +140,7 @@ def test_query_object_async(column_attrs, mock_querier_async):
 
 
 def test_cone_search_sync(column_attrs, mock_querier):
-    job = mock_querier.cone_search(skycoord, 1 * u.deg)
+    job = mock_querier.cone_search(skycoord, radius=1 * u.deg)
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -153,7 +153,7 @@ def test_cone_search_sync(column_attrs, mock_querier):
 
 def test_cone_search_async(column_attrs, mock_querier_async):
     radius = 1.0 * u.deg
-    job = mock_querier_async.cone_search_async(skycoord, radius)
+    job = mock_querier_async.cone_search_async(skycoord, radius=radius)
     assert job.async_ is True
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -168,17 +168,17 @@ def test_cone_search_async(column_attrs, mock_querier_async):
     # The preceding tests should have used the default value.
     assert 'gaiadr3.gaia_source' in job.parameters['query']
     with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
-        job = mock_querier_async.cone_search_async(skycoord, radius)
+        job = mock_querier_async.cone_search_async(skycoord, radius=radius)
         assert "name_from_conf" in job.parameters["query"]
         # Changing the value through the class should overrule conf.
         mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
-        job = mock_querier_async.cone_search_async(skycoord, radius)
+        job = mock_querier_async.cone_search_async(skycoord, radius=radius)
         assert "name_from_class" in job.parameters["query"]
 
 
 def test_load_data():
     dummy_handler = DummyTapHandler()
-    tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
+    tap = GaiaClass(tap_plus_conn_handler=dummy_handler, datalink_handler=dummy_handler, show_server_messages=False)
 
     ids = "1,2,3,4"
     retrieval_type = "epoch_photometry"
@@ -211,11 +211,10 @@ def test_load_data():
 
 def test_get_datalinks():
     dummy_handler = DummyTapHandler()
-    tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
+    tap = GaiaClass(tap_plus_conn_handler=dummy_handler, datalink_handler=dummy_handler, show_server_messages=False)
     ids = ["1", "2", "3", "4"]
-    verbose = True
-    tap.get_datalinks(ids, verbose)
-    dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": verbose})
+    tap.get_datalinks(ids, verbose=True)
+    dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": True})
 
 
 def test_xmatch(mock_querier_async):
@@ -310,11 +309,11 @@ def test_xmatch(mock_querier_async):
 def test_login(mock_login):
     conn_handler = DummyConnHandler()
     tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
-    tap.login("user", "password")
+    tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.login(user="user", password="password")
     assert (mock_login.call_count == 2)
     mock_login.side_effect = HTTPError("Login error")
-    tap.login("user", "password")
+    tap.login(user="user", password="password")
     assert (mock_login.call_count == 3)
 
 
@@ -323,11 +322,11 @@ def test_login(mock_login):
 def test_login_gui(mock_login_gui, mock_login):
     conn_handler = DummyConnHandler()
     tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login_gui()
     assert (mock_login_gui.call_count == 1)
     mock_login_gui.side_effect = HTTPError("Login error")
-    tap.login("user", "password")
+    tap.login(user="user", password="password")
     assert (mock_login.call_count == 1)
 
 
@@ -335,7 +334,7 @@ def test_login_gui(mock_login_gui, mock_login):
 def test_logout(mock_logout):
     conn_handler = DummyConnHandler()
     tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-    tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
+    tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.logout()
     assert (mock_logout.call_count == 2)
     mock_logout.side_effect = HTTPError("Login error")

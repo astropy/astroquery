@@ -167,7 +167,7 @@ def test_get_images(patch_get, patch_get_readable_fileobj):
 
 
 def test_query_refcode_async(patch_get):
-    response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', True)
+    response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', get_query_payload=True)
     assert response == {'search_type': 'Search',
                         'refcode': '1997A&A...323...31K',
                         'hconst': conf.hubble_constant,

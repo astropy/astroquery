@@ -7,7 +7,7 @@ fmt_dict = {'f': float, 's': str, 'd': int, 'e': float, 'A': str, 'I': int,
             'F': float}
 
 
-def parse_readme(filename, group_global=None, group_local=None):
+def parse_readme(filename, *, group_global=None, group_local=None):
     with open(filename, 'r') as f:
         lines = f.readlines()
 
@@ -51,7 +51,7 @@ def parse_readme(filename, group_global=None, group_local=None):
     return formats
 
 
-def quanta_formatter(group_global='class1', group_local='group1'):
+def quanta_formatter(*, group_global='class1', group_local='group1'):
     """
     Format based on the global/local formatters from the HITRAN04 paper
     """

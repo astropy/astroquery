@@ -55,7 +55,7 @@ class UkidssClass(BaseWFAUClass):
     # needed for some WFAU queries, not for UKIDSS
     archive = None
 
-    def __init__(self, username=None, password=None, community=None,
+    def __init__(self, *, username=None, password=None, community=None,
                  database='UKIDSSDR11PLUS', programme_id='all'):
         super(UkidssClass, self).__init__(database=database,
                                           programme_id=programme_id,

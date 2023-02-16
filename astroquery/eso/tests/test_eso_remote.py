@@ -37,7 +37,7 @@ class TestEso:
         assert len(surveys) > 0
         # result_s = eso.query_surveys('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_surveys('VVV', coord1=266.41681662,
+        result_s = eso.query_surveys(surveys='VVV', coord1=266.41681662,
                                      coord2=-29.00782497,
                                      box='01 00 00',
                                      cache=False)
@@ -57,7 +57,7 @@ class TestEso:
         # first b333 was at 157
         # first pistol....?
 
-        result_s = eso.query_surveys(['VVV', 'XSHOOTER'],
+        result_s = eso.query_surveys(surveys=['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,
                                      coord2=-29.00782497,
                                      box='01 00 00',
@@ -88,7 +88,7 @@ class TestEso:
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_surveys(surveys[0], coord1=202.469575,
+            result_s = eso.query_surveys(surveys=surveys[0], coord1=202.469575,
                                          coord2=47.195258, cache=False)
 
         assert result_s is None
@@ -158,7 +158,7 @@ class TestEso:
         eso = Eso()
 
         tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
-        tblb = eso.query_apex_quicklooks('095.F-9802')
+        tblb = eso.query_apex_quicklooks(project_id='095.F-9802')
 
         assert len(tbl) == 5
         assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
@@ -190,20 +190,20 @@ class TestEso:
         surveys = eso.list_surveys(cache=False)
         for survey in surveys:
             if survey in SGRA_SURVEYS:
-                result_s = eso.query_surveys(survey, coord1=266.41681662,
+                result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
                                              coord2=-29.00782497,
                                              box='01 00 00',
                                              cache=False)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_surveys(survey, coord1=266.41681662,
+                    result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
                                                  coord2=-29.00782497,
                                                  box='01 00 00',
                                                  cache=False)
                     assert result_s is None
 
-                    generic_result = eso.query_surveys(survey)
+                    generic_result = eso.query_surveys(surveys=survey)
                     assert len(generic_result) > 0
 
     def test_mixed_case_instrument(self, tmp_path):

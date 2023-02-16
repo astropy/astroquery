@@ -8,7 +8,7 @@ from astroquery.splatalogue.build_species_table import data_path, get_json_speci
 
 class SpeciesLookuptable(dict):
 
-    def find(self, s, flags=0, return_dict=True,):
+    def find(self, s, *, flags=0, return_dict=True,):
         """
         Search dictionary keys for a regex match to string s
 
@@ -38,7 +38,7 @@ class SpeciesLookuptable(dict):
             return out.values()
 
 
-def species_lookuptable(filename='splat-species.json', recache=False):
+def species_lookuptable(*, filename='splat-species.json', recache=False):
     """
     Function to format the species ID results from scraping Splatalogue
     into a ``SpeciesLookuptable`` object.

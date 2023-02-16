@@ -33,7 +33,7 @@ class MagpisClass(BaseQuery):
                "bolocam"]
     maximsize = 1024
 
-    def _args_to_payload(self, coordinates, image_size=1 * u.arcmin,
+    def _args_to_payload(self, coordinates, *, image_size=1 * u.arcmin,
                          survey='bolocam', maximsize=None):
         """
         Fetches image cutouts from MAGPIS surveys.
@@ -71,7 +71,7 @@ class MagpisClass(BaseQuery):
         return request_payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def get_images(self, coordinates, image_size=1 * u.arcmin,
+    def get_images(self, coordinates, *, image_size=1 * u.arcmin,
                    survey='bolocam', get_query_payload=False):
         """
         get_query_payload : bool, optional
@@ -94,7 +94,7 @@ class MagpisClass(BaseQuery):
             raise InvalidQueryError(response.content)
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
-    def get_images_async(self, coordinates, image_size=1 * u.arcmin,
+    def get_images_async(self, coordinates, *, image_size=1 * u.arcmin,
                          survey='bolocam', get_query_payload=False):
         """
         get_query_payload : bool, optional

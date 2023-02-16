@@ -95,7 +95,7 @@ class CasdaClass(QueryWithLogin):
 
         return authenticated
 
-    def query_region_async(self, coordinates, radius=1*u.arcmin, height=None, width=None,
+    def query_region_async(self, coordinates, *, radius=1*u.arcmin, height=None, width=None,
                            get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates. Either a radius or both a height and a width
@@ -135,7 +135,7 @@ class CasdaClass(QueryWithLogin):
 
     # Create the dict of HTTP request parameters by parsing the user
     # entered values.
-    def _args_to_payload(self, radius=1*u.arcmin, **kwargs):
+    def _args_to_payload(self, *, radius=1*u.arcmin, **kwargs):
         request_payload = dict()
 
         # Convert the coordinates to FK5
@@ -206,7 +206,7 @@ class CasdaClass(QueryWithLogin):
     # the methods above implicitly call the private _parse_result method.
     # This should parse the raw HTTP response and return it as
     # an `astropy.table.Table`.
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
@@ -284,7 +284,7 @@ class CasdaClass(QueryWithLogin):
 
         return fileurls
 
-    def stage_data(self, table, verbose=False):
+    def stage_data(self, table, *, verbose=False):
         """
         Request access to a set of data files. All requests for data must use authentication. If you have access to the
         data, the requested files will be brought online and a set of URLs to download the files will be returned.
@@ -367,7 +367,7 @@ class CasdaClass(QueryWithLogin):
 
         return self._complete_job(job_url, verbose)
 
-    def download_files(self, urls, savedir=''):
+    def download_files(self, urls, *, savedir=''):
         """
         Download a series of files
 
@@ -445,7 +445,7 @@ class CasdaClass(QueryWithLogin):
 
         return async_url, authenticated_id_token
 
-    def _create_soda_job(self, authenticated_id_tokens, soda_url=None):
+    def _create_soda_job(self, authenticated_id_tokens, *, soda_url=None):
         """
         Creates the async job, returning the url to query the job status and details
 
@@ -488,7 +488,7 @@ class CasdaClass(QueryWithLogin):
         resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
         resp.raise_for_status()
 
-    def _run_job(self, job_location, verbose, poll_interval=20):
+    def _run_job(self, job_location, verbose, *, poll_interval=20):
         """
         Start an async job (e.g. TAP or SODA) and wait for it to be completed.
 

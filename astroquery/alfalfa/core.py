@@ -88,7 +88,7 @@ class AlfalfaClass(BaseQuery):
 
         return catalog
 
-    def query_region(self, coordinates, radius=3. * u.arcmin,
+    def query_region(self, coordinates, *, radius=3. * u.arcmin,
                      optical_counterpart=False):
         """
         Perform object cross-ID in ALFALFA.

@@ -31,7 +31,7 @@ class SvoFpsClass(BaseQuery):
     SVO_MAIN_URL = conf.base_url
     TIMEOUT = conf.timeout
 
-    def data_from_svo(self, query, cache=True, timeout=None,
+    def data_from_svo(self, query, *, cache=True, timeout=None,
                       error_msg='No data found for requested query'):
         """Get data in response to the query send to SVO FPS.
         This method is not generally intended for users, but it can be helpful
@@ -128,7 +128,7 @@ class SvoFpsClass(BaseQuery):
         error_msg = 'No filter found for requested Filter ID'
         return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 
-    def get_filter_list(self, facility, instrument=None, **kwargs):
+    def get_filter_list(self, facility, *, instrument=None, **kwargs):
         """Get filters data for requested facilty and instrument from SVO
 
         Parameters

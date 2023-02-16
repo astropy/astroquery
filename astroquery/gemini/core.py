@@ -132,7 +132,7 @@ class ObservationsClass(QueryWithLogin):
         return True
 
     @class_or_instance
-    def query_region(self, coordinates, radius=0.3*units.deg):
+    def query_region(self, coordinates, *, radius=0.3*units.deg):
         """
         search for Gemini observations by target on the sky.
 
@@ -156,7 +156,7 @@ class ObservationsClass(QueryWithLogin):
         return self.query_criteria(coordinates=coordinates, radius=radius)
 
     @class_or_instance
-    def query_object(self, objectname, radius=0.3*units.deg):
+    def query_object(self, objectname, *, radius=0.3*units.deg):
         """
         search for Gemini observations by target on the sky.
 
