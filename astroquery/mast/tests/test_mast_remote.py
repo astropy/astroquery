@@ -787,7 +787,8 @@ class TestMast:
 
     def test_tesscut_get_sectors_mt(self):
 
-        # Moving target functionality testing (defaults to SPOC)
+        # Moving target functionality testing
+
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
         moving_target_name = 'Eleonora'
 
@@ -806,6 +807,7 @@ class TestMast:
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
         error_name_coord = "Only one of objectname and coordinates may be specified."
+        error_tica_mt = "Only SPOC is available for moving targets queries."
 
         with pytest.raises(InvalidQueryError) as error_msg:
             mast.Tesscut.get_sectors(moving_target=True)
@@ -830,25 +832,19 @@ class TestMast:
                                      moving_target=True)
         assert error_mt_coord in str(error_msg.value)
 
-        # The TICA product option is not available for moving targets. This should default to SPOC.
+        # The TICA product option is not available for moving targets
 
-        moving_target_name = 'Eleonora'
-
-        with pytest.warns(InputWarning):
+        with pytest.raises(InvalidQueryError) as error_msg:
             sector_table = mast.Tesscut.get_sectors(objectname=moving_target_name, product='tica',
                                                     moving_target=True)
-            assert isinstance(sector_table, Table)
-            assert len(sector_table) >= 1
-            assert "tess-s00" in sector_table['sectorName'][0]
-            assert sector_table['sector'][0] > 0
-            assert sector_table['camera'][0] > 0
-            assert sector_table['ccd'][0] > 0
+            assert error_msg in str(error_msg.value)
 
-    def test_tesscut_download_cutouts(self, tmpdir):
+    @pytest.mark.parametrize("product", ["tica", "spoc"])
+    def test_tesscut_download_cutouts(self, tmpdir, product):
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(product=product, coordinates=coord, size=5, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
@@ -857,34 +853,38 @@ class TestMast:
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=1, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(product=product, coordinates=coord, size=5, sector=27, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-4:] == "fits"
         assert os.path.isfile(manifest[0]['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=[5, 7]*u.pix, sector=8, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(product=product, coordinates=coord, size=[5, 7]*u.pix, sector=33,
+                                                 path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=8, path=str(tmpdir), inflate=False)
+        manifest = mast.Tesscut.download_cutouts(product=product, coordinates=coord, size=5, sector=33, path=str(tmpdir),
+                                                 inflate=False)
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-3:] == "zip"
         assert os.path.isfile(manifest[0]['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(objectname="TIC 32449963", size=5, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(product=product, objectname="TIC 32449963", size=5, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        # Moving target functionality testing
+    def test_tesscut_download_cutouts_mt(self, tmpdir):
 
+        # Moving target functionality testing
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
         moving_target_name = 'Eleonora'
 
         manifest = mast.Tesscut.download_cutouts(objectname=moving_target_name,
@@ -928,34 +928,44 @@ class TestMast:
                                           moving_target=True)
         assert error_mt_coord in str(error_msg.value)
 
-    def test_tesscut_get_cutouts(self, tmpdir):
+        # The TICA product option is not available for moving targets
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name, product='tica',
+                                          moving_target=True)
+            assert error_msg in str(error_msg.value)
+
+    @pytest.mark.parametrize("product", ["tica", "spoc"])
+    def test_tesscut_get_cutouts(self, product):
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5, sector=8,)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(product=product, coordinates=coord, size=5, sector=33)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5, sector=1)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(product=product, coordinates=coord, size=5, sector=27)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=[2, 4]*u.arcmin)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(product=product, coordinates=coord, size=[2, 4]*u.arcmin)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="TIC 32449963", size=5)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(product=product, objectname="TIC 32449963", size=5)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    def test_tesscut_get_cutouts_mt(self):
 
         # Moving target functionality testing
-
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
         moving_target_name = 'Eleonora'
 
         cutout_hdus_list = mast.Tesscut.get_cutouts(objectname=moving_target_name,
@@ -974,27 +984,34 @@ class TestMast:
         error_name_coord = "Only one of objectname and coordinates may be specified."
 
         with pytest.raises(InvalidQueryError) as error_msg:
-            mast.Tesscut.download_cutouts(moving_target=True)
+            mast.Tesscut.get_cutouts(moving_target=True)
         assert error_noname in str(error_msg.value)
 
         with pytest.raises(ResolverError) as error_msg:
-            mast.Tesscut.download_cutouts(objectname=moving_target_name)
+            mast.Tesscut.get_cutouts(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
         with pytest.raises(InvalidQueryError) as error_msg:
-            mast.Tesscut.download_cutouts(coordinates=coord, moving_target=True)
+            mast.Tesscut.get_cutouts(coordinates=coord, moving_target=True)
         assert error_mt_coord in str(error_msg.value)
 
         with pytest.raises(InvalidQueryError) as error_msg:
-            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+            mast.Tesscut.get_cutouts(objectname=moving_target_name,
                                           coordinates=coord)
         assert error_name_coord in str(error_msg.value)
 
         with pytest.raises(InvalidQueryError) as error_msg:
-            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+            mast.Tesscut.get_cutouts(objectname=moving_target_name,
                                           coordinates=coord,
                                           moving_target=True)
         assert error_mt_coord in str(error_msg.value)
+
+        # The TICA product option is not available for moving targets
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_cutouts(objectname=moving_target_name, product='tica',
+                                          moving_target=True)
+            assert error_msg in str(error_msg.value)
 
     ###################
     # ZcutClass tests #
