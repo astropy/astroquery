@@ -78,13 +78,15 @@ class TestESASky:
         result = ESASky.get_images(observation_ids=obsid,
                                    missions=mission, download_dir=tmp_path)
 
-        assert Path(tmp_path, mission).exists()
+        assert Path(tmp_path, mission.upper()).exists()
         if mission == "Herschel":
             assert isinstance(result[mission.upper()][0]["250"], HDUList)
             assert isinstance(result[mission.upper()][0]["350"], HDUList)
             assert isinstance(result[mission.upper()][0]["500"], HDUList)
         else:
             assert isinstance(result[mission.upper()][0], HDUList)
+            for hdu_list in result[mission.upper()]:
+                hdu_list.close()
 
     @pytest.mark.parametrize("mission, observation_id",
                              zip(["ISO-IR", "Chandra", "IUE", "XMM-NEWTON",
@@ -95,12 +97,13 @@ class TestESASky:
         result = ESASky.get_spectra(observation_ids=observation_id,
                                     missions=mission, download_dir=tmp_path)
 
-        assert Path(tmp_path, mission).exists()
+        assert Path(tmp_path, mission.upper()).exists()
         if mission == "Herschel":
             assert isinstance(result[mission.upper()]["1342253595"]["WBS"]["WBS-V_USB_4b"], HDUList)
             assert isinstance(result[mission.upper()]["1342253595"]["HRS"]["HRS-H_LSB_4b"], HDUList)
         else:
             assert isinstance(result[mission.upper()][0], HDUList)
+            result[mission.upper()][0].close()
 
     def test_esasky_query_region_maps(self):
         result = ESASky.query_region_maps(position="M51", radius="5 arcmin")
@@ -115,9 +118,12 @@ class TestESASky:
                                          'ISO-IR', 'Herschel', 'JWST-MID-IR',
                                          'JWST-NEAR-IR', 'Spitzer'])
     def test_esasky_get_images(self, tmp_path, mission):
-        ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
-
+        result = ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
         assert tmp_path.stat().st_size
+
+        if mission != "Herschel" and result:
+            for hdu_list in result[mission.upper()]:
+                hdu_list.close()
 
     @pytest.mark.bigdata
     def test_esasky_get_images_hst(self, tmp_path):
@@ -141,12 +147,16 @@ class TestESASky:
         iso_maps = ESASky.query_object_maps(position="M51", missions=mission)
         # Remove a few maps, so the other list will have downloadable ones, too
         iso_maps[mission].remove_rows([0, 1])
-        ESASky.get_maps(iso_maps, download_dir=tmp_path)
+        result = ESASky.get_maps(iso_maps, download_dir=tmp_path)
         assert len(os.listdir(file_path)) == len(all_maps[mission]) - 2
+        for hdu_list in result[mission]:
+            hdu_list.close()
 
         iso_maps2 = dict({mission: all_maps[mission][:2]})
-        ESASky.get_maps(iso_maps2, download_dir=tmp_path)
+        result = ESASky.get_maps(iso_maps2, download_dir=tmp_path)
         assert len(os.listdir(file_path)) == len(all_maps[mission])
+        for hdu_list in result[mission]:
+            hdu_list.close()
 
     def test_esasky_query_region_spectra(self):
         result = ESASky.query_region_spectra(position="M51", radius="5 arcmin")
@@ -164,9 +174,12 @@ class TestESASky:
         # - HST-IR, JWST-MID-IR and CHEOPS have no data
         # - LAMOST does not support download
         # - JWST-NEAR-IR returns a zip file with many fits files in it, unsupported
-        ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
+        result = ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
+        assert Path(tmp_path, mission.upper()).exists()
 
-        assert Path(tmp_path, mission).exists()
+        if mission != "Herschel":
+            for hdu_list in result[mission.upper()]:
+                hdu_list.close()
 
     def test_esasky_get_spectra_small(self, tmp_path):
         missions = ['HST-IR']
@@ -185,11 +198,15 @@ class TestESASky:
         iso_spectra = ESASky.query_object_spectra(position="M51", missions=mission)
         # Remove a few maps, so the other list will have downloadable ones, too
         iso_spectra[mission].remove_rows([0, 1])
-        ESASky.get_spectra_from_table(query_table_list=iso_spectra, download_dir=tmp_path)
+        result = ESASky.get_spectra_from_table(query_table_list=iso_spectra, download_dir=tmp_path)
+        for hdu_list in result[mission]:
+            hdu_list.close()
         assert len(os.listdir(file_path)) == len(all_spectra[mission]) - 2
 
         iso_spectra2 = dict({mission: all_spectra[mission][:2]})
-        ESASky.get_spectra_from_table(query_table_list=iso_spectra2, download_dir=tmp_path)
+        result = ESASky.get_spectra_from_table(query_table_list=iso_spectra2, download_dir=tmp_path)
+        for hdu_list in result[mission]:
+            hdu_list.close()
         assert len(os.listdir(file_path)) == len(all_spectra[mission])
 
     def test_query(self):
