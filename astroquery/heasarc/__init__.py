@@ -9,6 +9,9 @@ is the primary archive for NASA's (and other space agencies') missions.
 The initial version of this was coded in a sprint at the
 "Python in astronomy" workshop in April 2015 by Jean-Christophe Leyder,
 Abigail Stevens, Antonio Martin-Carrillo and Christoph Deil.
+
+Updates to use the XAMIN service was added by Abdu Zoghbi
+
 """
 from astropy import config as _config
 
@@ -26,12 +29,22 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         30,
         'Time limit for connecting to HEASARC server.')
+    
+    VO_URL = _config.ConfigItem(
+        'https://heasarc.gsfc.nasa.gov/xamin/vo',
+        'Base Url for VO services')
+
+    TAR_URL = _config.ConfigItem(
+        'https://heasarc.gsfc.nasa.gov/xamin/TarServlet',
+        'URL for the xamin tar servlet'
+    )
 
 
 conf = Conf()
 
-from .core import Heasarc, HeasarcClass
+from .core import Heasarc, HeasarcClass, HeasarcXaminClass, Xamin
 
 __all__ = ['Heasarc', 'HeasarcClass',
+           'HeasarcXaminClass', 'Xamin',
            'Conf', 'conf',
            ]
