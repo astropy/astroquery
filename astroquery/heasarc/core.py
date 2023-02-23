@@ -1,5 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+"""
+HEASARC
+====
+
+
+Module to query the NASA High Energy Archive HEASARC.
+"""
+
 from typing import Union
 import warnings
 from io import StringIO, BytesIO
@@ -7,13 +15,16 @@ from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates
 from astropy import units as u
+
+import pyvo
+
+from astroquery import log
 from ..query import BaseQuery
-from ..utils import commons
-from ..utils import async_to_sync
+from ..utils import commons, async_to_sync, parse_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
-__all__ = ['Heasarc', 'HeasarcClass']
+__all__ = ['Heasarc', 'HeasarcClass', 'HeasarcXaminClass', 'Xamin']
 
 
 def Table_read(*args, **kwargs):
@@ -421,4 +432,307 @@ class HeasarcClass(BaseQuery):
         return request_payload
 
 
+@async_to_sync
+class HeasarcXaminClass(BaseQuery):
+    """Class for accessing HEASARC data using XAMIN.
+
+    Example Usage:
+    ...
+
+    """
+
+    # we can move url to Config later
+    VO_URL = conf.VO_URL
+    TAR_URL = conf.TAR_URL
+    timeout = conf.timeout
+
+    def __init__(self):
+        """Initialize some basic useful variables"""
+        super().__init__()
+        self._tap = None
+
+        self._datalink = None
+        self._session = None
+
+    @property
+    def tap(self):
+        """TAP service"""
+        if self._tap is None:
+            self._tap = pyvo.dal.TAPService(f'{self.VO_URL}/tap', session=self._session)
+            self._session = self._tap._session
+        return self._tap
+
+    def tables(self, master=False):
+        """Return a dictionay of all available table in the
+        form {name: description}
+
+        Parameters:
+        master: bool
+            Select only master tables. Default is False
+
+        """
+
+        # use 'mast' to include both 'master' and 'mastr'
+        tables = {k: g.description for k, g in self.tap.tables.items()
+                  if not master or (master and 'mast' in k)}
+
+        return tables
+
+    def columns(self, table_name, full=False):
+        """Return a dictionay of the columns available in table_name
+
+        Parameters:
+        table_name: str
+            The name of table as a str
+        full: bool
+            If True, return the underlying list of columns as a vo
+            TableParam objects. May be useful to check units etc.
+
+        """
+        tables = self.tap.tables
+        if table_name not in tables.keys():
+            msg = f'{table_name} is not available as a public table. '
+            msg += 'The list of tables can be accessed in Heasarc.tables()'
+            raise ValueError(msg)
+
+        if full:
+            cols = tables[table_name].columns
+        else:
+            cols = {c.name: c.description for c in tables[table_name].columns}
+
+        return cols
+
+    def query_tap(self, query, *, maxrec=None):
+        """
+        Send query to HEASARC's Xamin TAP using ADQL.
+        Results in `~pyvo.dal.TAPResults` format.
+        result.to_table gives `~astropy.table.Table` format.
+
+        Parameters
+        ----------
+        query : str
+            ADQL query to be executed
+        maxrec : int
+            maximum number of records to return
+
+        Returns
+        -------
+        result : `~pyvo.dal.TAPResults`
+            TAP query result.
+        result.to_table : `~astropy.table.Table`
+            TAP query result as `~astropy.table.Table`
+        result.to_qtable : `~astropy.table.QTable`
+            TAP query result as `~astropy.table.QTable`
+
+        """
+        log.debug(f'TAP query: {query}')
+        return self.tap.search(query, language='ADQL', maxrec=maxrec)
+
+    def query_region(self, position=None, *, table=None, spatial='cone',
+                     radius=1 * u.arcmin, width=None, polygon=None,
+                     get_query_payload=False, columns=None,
+                     verbose=False, maxrec=None):
+        """
+        Queries the HEASARC TAP server around a coordinate and returns a `~astropy.table.Table` object.
+
+        Parameters
+        ----------
+        position : str, `astropy.coordinates` object
+            Gives the position of the center of the cone or box if performing a cone or box search.
+            Required if spatial is ``'cone'`` or ``'box'``. Ignored if spatial is ``'polygon'`` or
+            ``'all-sky'``.
+        table : str
+            The table to query. To list the available tables, use
+            :meth:`~astroquery.heasarc.HeasarcXaminClass.tables`.
+        spatial : str
+            Type of spatial query: ``'cone'``, ``'box'``, ``'polygon'``, and
+            ``'all-sky'``. Defaults to ``'cone'``.
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial == ``'cone'``]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 1 arcmin.
+        width : str, `~astropy.units.Quantity` object [Required for spatial == ``'box'``.]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used.
+        polygon : list, [Required for spatial is ``'polygon'``]
+            A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
+            outlining the polygon to search in. It can also be a list of
+            `astropy.coordinates` object or strings that can be parsed by
+            `astropy.coordinates.ICRS`.
+        get_query_payload : bool, optional
+            If `True` then returns the generated ADQL query as str.
+            Defaults to `False`.
+        columns : str, optional
+            Target column list with value separated by a comma(,)
+        verbose : bool, optional
+            If False, supress vo warnings.
+        maxrec : int, optional
+            Maximum number of records
+
+
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        """
+        # if verbose is False then suppress any VOTable related warnings
+        if not verbose:
+            commons.suppress_vo_warnings()
+
+        if table is None:
+            raise InvalidQueryError("table name is required! Use 'xray' "
+                                    "to search the master X-ray table")
+
+        if columns is None:
+            columns = '*'
+
+        adql = f'SELECT {columns} FROM {table}'
+
+        if spatial.lower() == 'all-sky':
+            where = ''
+        elif spatial.lower() == 'polygon':
+            try:
+                coords_list = [parse_coordinates(coord).icrs for coord in polygon]
+            except TypeError:
+                # to handle the input cases that worked before
+                try:
+                    coords_list = [coordinates.SkyCoord(*coord).icrs for coord in polygon]
+                except u.UnitTypeError:
+                    warnings.warn("Polygon endpoints are being interpreted as "
+                                  "RA/Dec pairs specified in decimal degree units.")
+                    coords_list = [coordinates.SkyCoord(*coord, unit='deg').icrs for coord in polygon]
+
+            coords_str = [f'{coord.ra.deg},{coord.dec.deg}' for coord in coords_list]
+            where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                     f"POLYGON('ICRS',{','.join(coords_str)}))=1")
+        else:
+            coords_icrs = parse_coordinates(position).icrs
+            ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
+
+            if spatial.lower() == 'cone':
+                if isinstance(radius, str):
+                    radius = coordinates.Angle(radius)
+                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                         f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
+            elif spatial.lower() == 'box':
+                if isinstance(width, str):
+                    width = coordinates.Angle(width)
+                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                         f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},{width.to(u.deg).value}))=1")
+            else:
+                raise ValueError("Unrecognized spatial query type. Must be one of "
+                                 "'cone', 'box', 'polygon', or 'all-sky'.")
+
+        adql += where
+
+        if get_query_payload:
+            return adql
+        response = self.query_tap(query=adql, maxrec=maxrec)
+
+        # save the response in case we want to use it later
+        self._query_result = response
+        self._tablename = table
+
+        return response.to_table()
+
+    def get_links(self, query_result=None, tablename=None):
+        """Get links to data products
+        Use vo/datalinks to query the data products for some query_results.
+
+        Parameters
+        ----------
+        query_result : `astropy.table.Table`, optional
+            A table that contain the search resutls. Typically as
+            returned by query_region. If None, use the table from the
+            most recent query_region call.
+        tablename : str
+            The table name for the which the query_result belongs to.
+            If None, use the one from the most recent query_region call.
+
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        """
+        if query_result is None:
+            if not hasattr(self, '_query_result') or self._query_result is None:
+                raise ValueError('query_result is None, and none '
+                                 'found from a previous search')
+            else:
+                query_result = self._query_result
+
+        if not isinstance(query_result, Table):
+            raise TypeError('query_result need to be an astropy.table.Table')
+
+        # make sure we have a column __row
+        if '__row' not in query_result.colnames:
+            raise ValueError('No __row column found in query_result. '
+                             'This may not be standard results table.')
+
+        if tablename is None:
+            tablename = self._tablename
+        if not (isinstance(tablename, str) and tablename in self.tables()):
+            raise ValueError(f'Unknown table name: {tablename}')
+
+        # datalink url
+        dlink_url = f'{self.VO_URL}/datalink/{tablename}'
+
+        query = pyvo.dal.adhoc.DatalinkQuery(
+            baseurl=dlink_url,
+            id=query_result['__row'],
+            session=self._session
+        )
+        dl_result = query.execute().to_table()
+        dl_result = dl_result[dl_result['content_type'] == 'directory']
+        dl_result = dl_result[['ID', 'access_url', 'content_length']]
+
+        # add sciserver and s3 columns
+        newcol = [f"/FTP/{row.split('FTP/')[1]}".replace('//', '/')
+                  for row in dl_result['access_url']]
+        dl_result.add_column(newcol, name='sciserver', index=2)
+        newcol = [f"s3://nasa-heasarc/{row[5:]}" for row in dl_result['sciserver']]
+        dl_result.add_column(newcol, name='aws', index=3)
+
+        return dl_result
+
+    def download_data(self, links, local_filepath='xamin.tar', cache=False):
+        """Download data products in links.
+        This currently downloads data from the main heasarc server.
+
+        Parameters
+        ----------
+        links : `astropy.table.Table`
+            The result from get_links
+        local_filepath : str
+            local path to where the downloaded file will be saved.
+            Default is ./xamin.tar
+        cache : bool
+            Cache downloaded file. Defaults to False.
+
+        Returns
+        -------
+        path : path to downloaded tar file
+        """
+        if len(links) == 0:
+            raise ValueError('Input links table is empty')
+
+        file_list = [f"/FTP/{link.split('FTP/')[1]}"
+                     for link in links['access_url']]
+        params = {
+            'files': f'>{"&&>".join(file_list)}&&',
+            'filter': ''
+        }
+
+        log.info('List of files to be downloaded:')
+        for file in file_list:
+            log.info(file)
+
+        self._download_file(self.TAR_URL, local_filepath,
+                            timeout=self.timeout,
+                            continuation=False, cache=cache, method="POST",
+                            head_safe=False, params=params)
+
+        return local_filepath
+
+
+Xamin = HeasarcXaminClass()
 Heasarc = HeasarcClass()
