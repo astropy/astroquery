@@ -5,10 +5,6 @@ HEASARC
 
 The High Energy Astrophysics Science Archive Research Center (HEASARC)
 is the primary archive for NASA's (and other space agencies') missions.
-
-The initial version of this was coded in a sprint at the
-"Python in astronomy" workshop in April 2015 by Jean-Christophe Leyder,
-Abigail Stevens, Antonio Martin-Carrillo and Christoph Deil.
 """
 from astropy import config as _config
 
@@ -26,6 +22,20 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         30,
         'Time limit for connecting to HEASARC server.')
+
+    VO_URL = _config.ConfigItem(
+        'https://heasarc.gsfc.nasa.gov/xamin/vo',
+        'Base Url for VO services')
+
+    TAR_URL = _config.ConfigItem(
+        'https://heasarc.gsfc.nasa.gov/xamin/TarServlet',
+        'URL for the xamin tar servlet'
+    )
+
+    S3_BUCKET = _config.ConfigItem(
+        'nasa-heasarc',
+        'The name of the AWS S3 bucket that contain the HEASARC data'
+    )
 
 
 conf = Conf()
