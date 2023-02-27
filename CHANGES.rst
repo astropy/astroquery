@@ -142,6 +142,9 @@ mast
 - Expanding ``Cutouts`` functionality to support making Hubble Advanced Product (HAP)
   cutouts via HAPCut. [#2613]
 
+- Expanding ``Cutouts`` functionality to support TICA HLSPs now available through 
+  ``TesscutClass``. [##2668]
+
 oac
 ^^^
 
