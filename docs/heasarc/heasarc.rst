@@ -263,7 +263,7 @@ tables listing the most recent INTEGRAL data.
     >>> table = heasarc.query_object('Crab', mission='integral_rev3_scw',
     ...                              radius='361 degree', time="2022-12-01 .. 2022-12-31",
     ...                              sortvar='START_DATE', resultmax=100000)
-    >>> table.pprint()
+    >>> table.pprint() # doctest: +IGNORE_OUTPUT
        SCW_ID    SCW_VER SCW_TYPE ... GOOD_OMC   DSIZE     SEARCH_OFFSET_ 
     ------------ ------- -------- ... -------- --------- -----------------
     258300400010 001     POINTING ...        0 123494400 5199.027 (CRAB)\n

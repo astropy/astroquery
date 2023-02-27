@@ -227,7 +227,7 @@ Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
 - Optional keyword arguments are now keyword only. [#1802, #2477, #2532,
-  #2597, #2601, #2609, #2655, #2656, #2661]
+  #2597, #2601, #2609, #2655, #2656, #2661, #2671]
 
 - New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
   added to help the testcleanup narrative in narrative documentations. [#2384]
