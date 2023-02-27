@@ -705,6 +705,15 @@ def test_tesscut_get_sector(patch_post):
         mast.Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
     assert error_str in str(invalid_query.value)
 
+    # Testing invalid queries
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(objectname="M101", product="spooc")
+    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(objectname="M101", product="TICA", moving_target=True)
+    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
+
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
@@ -754,6 +763,15 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
                                       path=str(tmpdir))
     assert error_str in str(invalid_query.value)
 
+    # Testing invalid queries
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(objectname="M101", product="spooc")
+    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(objectname="M101", product="TICA", moving_target=True)
+    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
+
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
 
@@ -787,6 +805,15 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
                                  coordinates=coord,
                                  size=5)
     assert error_str in str(invalid_query.value)
+
+    # Testing invalid queries
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(objectname="M101", product="spooc")
+    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(objectname="M101", product="TICA", moving_target=True)
+    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
 
 
 ######################
