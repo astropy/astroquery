@@ -87,7 +87,7 @@ install command after you made the changes.
 To install all dependencies, including those required for local testing and
 building the documentation, in editable mode:
 
-..code-block:: bash
+.. code-block:: bash
 
     $ pip install -e .[all,test,docs]
 
