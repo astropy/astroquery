@@ -75,7 +75,7 @@ To install the 'bleeding edge' version:
 
 .. code-block:: bash
 
-   $ pip install https://github.com/astropy/astroquery/archive/main.zip
+   $ pip install git+https://github.com/astropy/astroquery.git
 
 or cloned and installed from source:
 
@@ -86,7 +86,7 @@ or cloned and installed from source:
     $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
-    $ python setup.py install
+    $ pip install .
 
 Using astroquery
 ----------------

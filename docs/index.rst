@@ -74,7 +74,22 @@ The development version can be obtained and installed from github:
     $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
-    $ python setup.py install
+    $ pip install .
+
+
+To install all the optional dependencies (listed below), add the option
+``[all]``. To install dependencies required for running the tests locally
+use ``[test]``, and for documentation build ``[docs]``.
+If you would like to modify the source, you can install
+``astroquery`` in editable mode, which means you don't need to rerun the
+install command after you made the changes.
+
+To install all dependencies, including those required for local testing and
+building the documentation, in editable mode:
+
+.. code-block:: bash
+
+    $ pip install -e .[all,test,docs]
 
 
 Requirements
