@@ -86,7 +86,7 @@ or cloned and installed from source:
     $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
-    $ python setup.py install
+    $ pip install .
 
 Using astroquery
 ----------------
