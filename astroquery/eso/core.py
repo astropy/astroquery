@@ -1,24 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import time
-import sys
+import json
 import os.path
-import shutil
-import webbrowser
-import warnings
-import keyring
-import numpy as np
 import re
+import warnings
+import webbrowser
+from io import BytesIO
+
+import keyring
+import requests.exceptions
+from astropy.table import Table, Column
 from bs4 import BeautifulSoup
 
-from io import BytesIO
-from astropy.table import Table, Column
 from astroquery import log
-
-from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning
-from ..utils import schema, system_tools
-from ..query import QueryWithLogin, suspend_cache
 from . import conf
+from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning, CorruptDataWarning
+from ..query import QueryWithLogin
+from ..utils import schema
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -37,7 +35,6 @@ def _check_response(content):
 
 
 class EsoClass(QueryWithLogin):
-
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
@@ -191,6 +188,51 @@ class EsoClass(QueryWithLogin):
 
         return response
 
+    def _get_auth_token(self, *, username, password):
+        """
+        Get the access token from ESO SSO provider
+        """
+        url = "https://www.eso.org/sso/oidc/token"
+        url_params = {"response_type": "id_token token",
+                      "grant_type": "password",
+                      "client_id": "clientid",
+                      "client_secret": "clientSecret",
+                      "username": username,
+                      "password": password}
+        response = self._request('GET', url, params=url_params)
+        response.raise_for_status()
+        parsed_content = json.loads(response.content)
+        return parsed_content['id_token']
+
+    def _get_auth_info(self, username, *, store_password=False,
+                       reenter_password=False):
+        """
+        Get the auth info (user, password) for use in another function
+        """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        if hasattr(self, '_auth_url'):
+            auth_url = self._auth_url
+        else:
+            raise LoginError("Login with .login() to acquire the appropriate"
+                             " login URL")
+
+        # Get password from keyring or prompt
+        password, password_from_keyring = self._get_password(
+            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+
+        # When authenticated, save password in keyring if needed
+        if password_from_keyring is None and store_password:
+            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+
+        return username, password
+
     def _login(self, *, username=None, store_password=False,
                reenter_password=False):
         """
@@ -227,30 +269,13 @@ class EsoClass(QueryWithLogin):
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
 
-        # Do not cache pieces of the login process
-        login_response = self._request("GET", "https://www.eso.org/sso/login",
-                                       cache=False)
-        root = BeautifulSoup(login_response.content, 'html5lib')
-        login_input = root.find(name='input', attrs={'name': 'execution'})
-        if login_input is None:
-            raise ValueError("ESO login page did not have the correct attributes.")
-        execution = login_input.get('value')
-
-        login_result_response = self._request("POST", "https://www.eso.org/sso/login",
-                                              data={'username': username,
-                                                    'password': password,
-                                                    'execution': execution,
-                                                    '_eventId': 'submit',
-                                                    'geolocation': '',
-                                                    })
-        login_result_response.raise_for_status()
-        root = BeautifulSoup(login_result_response.content, 'html5lib')
-        authenticated = root.find('h4').text == 'Login successful'
-
-        if authenticated:
+        try:
+            token = self._get_auth_token(username=username, password=password)
             log.info("Authentication successful!")
-        else:
+            authenticated = True
+        except requests.exceptions.HTTPError as ex:
             log.exception("Authentication failed!")
+            authenticated = False
 
         # When authenticated, save password in keyring if needed
         if authenticated and password_from_keyring is None and store_password:
@@ -399,7 +424,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
-        url = self.QUERY_INSTRUMENT_URL+"/eso_archive_main/form"
+        url = self.QUERY_INSTRUMENT_URL + "/eso_archive_main/form"
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -437,7 +462,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = self.QUERY_INSTRUMENT_URL+'/{0}/form'.format(instrument.lower())
+        url = self.QUERY_INSTRUMENT_URL + '/{0}/form'.format(instrument.lower())
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -604,29 +629,130 @@ class EsoClass(QueryWithLogin):
 
         return datasets_to_download, files
 
-    def _download_file(self, url, local_filepath, **kwargs):
-        """ Wraps QueryWithLogin._download_file to detect if the
-        authentication expired.
+    def download_files(self, files, *, savedir=None, cache=True,
+                       continuation=True, skip_unauthorized=True,
+                       verify_only=False):
         """
-        trials = 1
-        while trials <= 2:
-            resp = super(EsoClass, self)._download_file(url, local_filepath,
-                                                        **kwargs)
+        Given a list of file URLs, download them
 
-            # trying to detect the failing authentication:
-            # - content type should not be html
-            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8'
-                    and resp.url.startswith('https://www.eso.org/sso/login')):
-                if trials == 1:
-                    log.warning("Session expired, trying to re-authenticate")
-                    self.login()
-                    trials += 1
+        Note: Given a list with repeated URLs, each will only be downloaded
+        once, so the return may have a different length than the input list
+
+        Parameters
+        ----------
+        files : list
+            List of URLs to download
+        savedir : None or str
+            The directory to save to.  Default is the cache location.
+        cache : bool
+            Cache the download?
+        continuation : bool
+            Attempt to continue where the download left off (if it was broken)
+        skip_unauthorized : bool
+            If you receive "unauthorized" responses for some of the download
+            requests, skip over them.  If this is False, an exception will be
+            raised.
+        verify_only : bool
+            Option to go through the process of checking the files to see if
+            they're the right size, but not actually download them.  This
+            option may be useful if a previous download run failed partway.
+        """
+
+        if self.USERNAME:
+            auth = self._get_auth_info(self.USERNAME)
+        else:
+            auth = None
+
+        downloaded_files = []
+        if savedir is None:
+            savedir = self.cache_location
+        for file_link in files:
+            log.debug("Downloading {0} to {1}".format(file_link, savedir))
+            try:
+                check_filename = self._request('HEAD', file_link, auth=auth)
+                check_filename.raise_for_status()
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    if skip_unauthorized:
+                        log.info("Access denied to {url}.  Skipping to"
+                                 " next file".format(url=file_link))
+                        continue
+                    else:
+                        raise (ex)
+
+            try:
+                filename = re.search("filename=(.*)",
+                                     check_filename.headers['Content-Disposition']).groups()[0]
+            except KeyError:
+                log.info(f"Unable to find filename for {file_link}  "
+                         "(missing Content-Disposition in header).  "
+                         "Skipping to next file.")
+                continue
+
+            if savedir is not None:
+                filename = os.path.join(savedir,
+                                        filename)
+
+            if verify_only:
+                existing_file_length = os.stat(filename).st_size
+                if 'content-length' in check_filename.headers:
+                    length = int(check_filename.headers['content-length'])
+                    if length == 0:
+                        warnings.warn('URL {0} has length=0'.format(file_link))
+                    elif existing_file_length == length:
+                        log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
+                    elif existing_file_length < length:
+                        log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
+                                 f"size {length}.  The download should be continued.")
+                    elif existing_file_length > length:
+                        warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
+                                      f"size {length}.  The download is likely corrupted.",
+                                      CorruptDataWarning)
                 else:
-                    raise LoginError("Could not authenticate")
-            else:
-                break
+                    warnings.warn(f"Could not verify {file_link} because it has no 'content-length'")
 
-        return resp
+            try:
+                if not verify_only:
+                    self._download_file(file_link,
+                                        filename,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=False,
+                                        continuation=continuation)
+
+                downloaded_files.append(filename)
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    if skip_unauthorized:
+                        log.info("Access denied to {url}.  Skipping to"
+                                 " next file".format(url=file_link))
+                        continue
+                    else:
+                        raise (ex)
+                elif ex.response.status_code == 403:
+                    log.error("Access denied to {url}".format(url=file_link))
+                    if 'dataPortal' in file_link and 'sso' not in file_link:
+                        log.error("The URL may be incorrect.  Try using "
+                                  "{0} instead of {1}"
+                                  .format(file_link.replace('dataPortal/',
+                                                            'dataPortal/sso/'),
+                                          file_link))
+                    raise ex
+                elif ex.response.status_code == 500:
+                    # empirically, this works the second time most of the time...
+                    self._download_file(file_link,
+                                        filename,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=False,
+                                        continuation=continuation)
+
+                    downloaded_files.append(filename)
+                else:
+                    raise ex
+        return downloaded_files
 
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
                       with_calib='none', request_all_objects=False,
@@ -677,203 +803,12 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
-        calib_options = {'none': '', 'raw': 'CalSelectorRaw2Raw',
-                         'processed': 'CalSelectorRaw2Master'}
-
-        if with_calib not in calib_options:
-            raise ValueError("invalid value for 'with_calib', "
-                             "it must be 'none', 'raw' or 'processed'")
-
+        download_url = "https://dataportal.eso.org/dataPortal/file/"
         if isinstance(datasets, str):
-            return_list = False
             datasets = [datasets]
-        else:
-            return_list = True
-        if not isinstance(datasets, (list, tuple, np.ndarray)):
-            raise TypeError("Datasets must be given as a list of strings.")
-
-        # First: Detect datasets already downloaded
-        if with_calib != 'none' and request_all_objects:
-            datasets_to_download, files = list(datasets), []
-        else:
-            log.info("Detecting already downloaded datasets...")
-            datasets_to_download, files = self._check_existing_files(
-                datasets, continuation=continuation, destination=destination)
-
-        # Second: Check that the datasets to download are in the archive
-        if request_id is None:
-            log.info("Checking availability of datasets to download...")
-            valid_datasets = [self.verify_data_exists(ds)
-                              for ds in datasets_to_download]
-        else:
-            # Assume all valid if a request_id was provided
-            valid_datasets = [(ds, True) for ds in datasets_to_download]
-
-        if not all(valid_datasets):
-            invalid_datasets = [ds for ds, v in zip(datasets_to_download,
-                                                    valid_datasets) if not v]
-            raise ValueError("The following data sets were not found on the "
-                             "ESO servers: {0}".format(invalid_datasets))
-
-        # Third: Download the other datasets
-        log.info("Downloading datasets...")
-        if datasets_to_download:
-            if not self.authenticated():
-                self.login()
-            url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
-            with suspend_cache(self):  # Never cache staging operations
-                if request_id is None:
-                    log.info("Contacting retrieval server...")
-                    retrieve_data_form = self._request("GET", url,
-                                                       cache=False)
-                    retrieve_data_form.raise_for_status()
-                    log.info("Staging request...")
-                    inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
-                    data_confirmation_form = self._activate_form(
-                        retrieve_data_form, form_index=-1, inputs=inputs,
-                        cache=False)
-
-                    data_confirmation_form.raise_for_status()
-
-                    root = BeautifulSoup(data_confirmation_form.content,
-                                         'html5lib')
-                    login_button = root.select('input[value=LOGIN]')
-                    if login_button:
-                        raise LoginError("Not logged in. "
-                                         "You must be logged in to download data.")
-                    inputs = {}
-                    if with_calib != 'none':
-                        inputs['requestCommand'] = calib_options[with_calib]
-
-                    # TODO: There may be another screen for Not Authorized;
-                    # that should be included too
-                    # form name is "retrieve"; no id
-                    data_download_form = self._activate_form(
-                        data_confirmation_form, form_index=-1, inputs=inputs,
-                        cache=False)
-                else:
-                    # Build URL by hand
-                    request_url = 'https://dataportal.eso.org/rh/requests/'
-                    request_url += f'{self.USERNAME}/{request_id}'
-                    data_download_form = self._request("GET", request_url,
-                                                       cache=False)
-
-                    _content = data_download_form.content.decode('utf-8')
-                    if ('Request Handler - Error' in _content):
-                        # Likely a problem with the request_url
-                        msg = (f"The form at {request_url} returned an error."
-                               " See your recent requests at "
-                               "https://dataportal.eso.org/rh/requests/"
-                               f"{self.USERNAME}/recentRequests")
-
-                        raise RemoteServiceError(msg)
-
-                log.info("Staging form is at {0}"
-                         .format(data_download_form.url))
-                root = BeautifulSoup(data_download_form.content, 'html5lib')
-                state = root.select('span[id=requestState]')[0].text
-                t0 = time.time()
-                while state not in ('COMPLETE', 'ERROR'):
-                    time.sleep(2.0)
-                    data_download_form = self._request("GET",
-                                                       data_download_form.url,
-                                                       cache=False)
-                    root = BeautifulSoup(data_download_form.content,
-                                         'html5lib')
-                    state = root.select('span[id=requestState]')[0].text
-                    log.info("{0:20.0f}s elapsed".format(time.time() - t0), end='\r')
-                    sys.stdout.flush()
-                if state == 'ERROR':
-                    raise RemoteServiceError("There was a remote service "
-                                             "error; perhaps the requested "
-                                             "file could not be found?")
-
-            if with_calib != 'none':
-                # when requested files with calibrations, some javascript is
-                # used to display the files, which prevent retrieving the files
-                # directly. So instead we retrieve the download script provided
-                # in the web page, and use it to extract the list of files.
-                # The benefit of this is also that in the download script the
-                # list of files is de-duplicated, whereas on the web page the
-                # calibration files would be duplicated for each exposure.
-                link = root.select('a[href$="/script"]')[0]
-                if 'downloadRequest' not in link.text:
-                    # Make sure that we found the correct link
-                    raise RemoteServiceError(
-                        "A link was found in the download file for the "
-                        "calibrations that is not a downloadRequest link "
-                        "and therefore appears invalid.")
-
-                href = link.attrs['href']
-                script = self._request("GET", href, cache=False)
-                fileLinks = re.findall(
-                    r'"(https://dataportal\.eso\.org/dataPortal/api/requests/.*)"',
-                    script.text)
-
-                # urls with api/ require using Basic Authentication, though
-                # it's easier for us to reuse the existing requests session (to
-                # avoid asking agin for a username/password if it is not
-                # stored). So we remove api/ from the urls:
-                fileLinks = [
-                    f.replace('https://dataportal.eso.org/dataPortal/api/requests',
-                              'https://dataportal.eso.org/dataPortal/requests')
-                    for f in fileLinks]
-
-                log.info("Detecting already downloaded datasets, "
-                         "including calibrations...")
-                fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
-                filteredIds, files = self._check_existing_files(
-                    fileIds, continuation=continuation,
-                    destination=destination)
-
-                fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
-                             if fileId in filteredIds]
-            else:
-                fileIds = root.select('input[name=fileId]')
-                fileLinks = ["http://dataportal.eso.org/dataPortal"
-                             + fileId.attrs['value'].split()[1]
-                             for fileId in fileIds]
-
-            nfiles = len(fileLinks)
-            log.info("Downloading {} files...".format(nfiles))
-            log.debug("Files:\n{}".format('\n'.join(fileLinks)))
-            for i, fileLink in enumerate(fileLinks, 1):
-                fileId = fileLink.rsplit('/', maxsplit=1)[1]
-
-                if request_id is not None:
-                    # Since we fetched the script directly without sending
-                    # a new request, check here that the file in the list
-                    # is among those requested in the input list
-                    if fileId.split('.fits')[0] not in datasets_to_download:
-                        continue
-
-                log.info("Downloading file {}/{}: {}..."
-                         .format(i, nfiles, fileId))
-                filename = self._request("GET", fileLink, save=True,
-                                         continuation=True)
-
-                if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')) and unzip:
-                    log.info("Unzipping file {0}...".format(fileId))
-                    filename = system_tools.gunzip(filename)
-
-                if destination is not None:
-                    log.info("Copying file {0} to {1}...".format(fileId, destination))
-                    destfile = os.path.join(destination, os.path.basename(filename))
-                    shutil.move(filename, destfile)
-                    files.append(destfile)
-                else:
-                    files.append(filename)
-
-        # Empty the redirect cache of this request session
-        # Only available and needed for requests versions < 2.17
-        try:
-            self._session.redirect_cache.clear()
-        except AttributeError:
-            pass
-        log.info("Done!")
-        if (not return_list) and (len(files) == 1):
-            files = files[0]
-        return files
+        file_links = [download_url + ds for ds in datasets]
+        downloaded_files = self.download_files(file_links)
+        return downloaded_files
 
     def verify_data_exists(self, dataset):
         """
