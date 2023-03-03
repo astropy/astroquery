@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 from astroquery import log
 from . import conf
-from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning, CorruptDataWarning
+from ..exceptions import RemoteServiceError, NoResultsWarning, CorruptDataWarning
 from ..query import QueryWithLogin
 from ..utils import schema
 
@@ -38,12 +38,12 @@ class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
+    AUTH_URL = "https://www.eso.org/sso"
 
     def __init__(self):
         super().__init__()
         self._instrument_list = None
         self._survey_list = None
-        self.username = None
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
@@ -192,14 +192,14 @@ class EsoClass(QueryWithLogin):
         """
         Get the access token from ESO SSO provider
         """
-        url = "https://www.eso.org/sso/oidc/token"
+        auth_url = self.AUTH_URL + "/oidc/token"
         url_params = {"response_type": "id_token token",
                       "grant_type": "password",
                       "client_id": "clientid",
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        response = self._request('GET', url, params=url_params)
+        response = self._request('GET', auth_url, params=url_params)
         response.raise_for_status()
         parsed_content = json.loads(response.content)
         return parsed_content['id_token']
@@ -210,26 +210,13 @@ class EsoClass(QueryWithLogin):
         Get the auth info (user, password) for use in another function
         """
 
-        if username is None:
-            if not self.USERNAME:
-                raise LoginError("If you do not pass a username to login(), "
-                                 "you should configure a default one!")
-            else:
-                username = self.USERNAME
-
-        if hasattr(self, '_auth_url'):
-            auth_url = self._auth_url
-        else:
-            raise LoginError("Login with .login() to acquire the appropriate"
-                             " login URL")
-
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
-            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+            "astroquery:{0}".format(self.AUTH_URL), username, reenter=reenter_password)
 
         # When authenticated, save password in keyring if needed
         if password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+            keyring.set_password("astroquery:{0}".format(self.AUTH_URL), username, password)
 
         return username, password
 
@@ -250,37 +237,27 @@ class EsoClass(QueryWithLogin):
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
         """
-        if username is None:
-            if self.USERNAME != "":
-                username = self.USERNAME
-            elif self.username is not None:
-                username = self.username
-            else:
-                raise LoginError("If you do not pass a username to login(), "
-                                 "you should configure a default one!")
-        else:
-            # store username as we may need it to re-authenticate
-            self.username = username
 
-        # Get password from keyring or prompt
-        password, password_from_keyring = self._get_password(
-            "astroquery:www.eso.org", username, reenter=reenter_password)
+        username, password = self._get_auth_info(username=username,
+                                                 store_password=store_password,
+                                                 reenter_password=reenter_password)
 
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
 
+        token = None
         try:
             token = self._get_auth_token(username=username, password=password)
-            log.info("Authentication successful!")
-            authenticated = True
-        except requests.exceptions.HTTPError as ex:
-            log.exception("Authentication failed!")
-            authenticated = False
+        except requests.exceptions.HTTPError:
+            pass
 
-        # When authenticated, save password in keyring if needed
-        if authenticated and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:www.eso.org", username, password)
-        return authenticated
+        if token:
+            log.info("Authentication successful!")
+            self.USERNAME = username
+        else:
+            log.exception("Authentication failed!")
+
+        return token is not None
 
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -809,22 +786,6 @@ class EsoClass(QueryWithLogin):
         file_links = [download_url + ds for ds in datasets]
         downloaded_files = self.download_files(file_links)
         return downloaded_files
-
-    def verify_data_exists(self, dataset):
-        """
-        Given a data set name, return 'True' if ESO has the file and 'False'
-        otherwise
-        """
-        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
-        payload = {'dp_id': dataset,
-                   'ascii_out_mode': 'true',
-                   }
-        # Never cache this as it is verifying the existence of remote content
-        response = self._request("POST", url, params=payload, cache=False)
-
-        content = response.text
-
-        return 'No data returned' not in content
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):
