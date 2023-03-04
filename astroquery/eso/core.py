@@ -3,6 +3,8 @@
 import json
 import os.path
 import re
+import shutil
+import subprocess
 import warnings
 import webbrowser
 from io import BytesIO
@@ -39,6 +41,7 @@ class EsoClass(QueryWithLogin):
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
     AUTH_URL = "https://www.eso.org/sso"
+    GUNZIP = "gunzip"
 
     def __init__(self):
         super().__init__()
@@ -731,9 +734,25 @@ class EsoClass(QueryWithLogin):
                     raise ex
         return downloaded_files
 
+    def _unzip(self, filename):
+        """
+        Uncompress the provided file with gunzip.
+
+        Note: ``system_tools.gunzip`` does not work with .Z files
+        """
+        if filename.endswith(('fits.Z', 'fits.gz')):
+            uncompressed_filename = filename.rsplit(".", 1)[0]
+            if not os.path.exists(uncompressed_filename):
+                log.info(f"Uncompressing file {filename}")
+                try:
+                    subprocess.run([self.GUNZIP, filename], check=True)
+                    return uncompressed_filename
+                except Exception as ex:
+                    log.error(f"'gunzip' failed: {ex}")
+        return filename
+
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
-                      with_calib='none', request_all_objects=False,
-                      unzip=True, request_id=None):
+                      with_calib='none', request_all_objects=False, unzip=True):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -761,12 +780,6 @@ class EsoClass(QueryWithLogin):
         unzip : bool
             Unzip compressed files from the archive after download. `True` by
             default.
-        request_id : str, int
-            Retrieve from an existing request number rather than sending a new
-            query, with the identifier from the URL in the email sent from
-            the archive from the earlier request as in:
-
-                https://dataportal.eso.org/rh/requests/[USERNAME]/[request_id]
 
         Returns
         -------
@@ -784,7 +797,13 @@ class EsoClass(QueryWithLogin):
         if isinstance(datasets, str):
             datasets = [datasets]
         file_links = [download_url + ds for ds in datasets]
-        downloaded_files = self.download_files(file_links)
+        downloaded_files = self.download_files(file_links, savedir=destination)
+        if unzip:
+            if shutil.which(self.GUNZIP):
+                downloaded_files = [self._unzip(file) for file in downloaded_files]
+            else:
+                log.warning("Can't unzip downloaded files because 'gunzip' "
+                            "is not available on this system")
         return downloaded_files
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,
