@@ -1,10 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import base64
 import json
 import os.path
 import re
 import shutil
 import subprocess
+import time
 import warnings
 import webbrowser
 from io import BytesIO
@@ -38,6 +40,23 @@ def _check_response(content):
         return True
 
 
+class AuthInfo:
+    def __init__(self, username: str, password: str, token: str):
+        self.username = username
+        self.password = password
+        self.token = token
+        self.expiration_time = self._get_exp_time_from_token()
+
+    def _get_exp_time_from_token(self) -> int:
+        # "manual" decoding since jwt is not installed
+        decoded_token = base64.b64decode(self.token.split(".")[1] + "==")
+        return int(json.loads(decoded_token)['exp'])
+
+    def expired(self) -> bool:
+        # we anticipate the expiration time by 10 minutes to avoid issues
+        return time.time() > self.expiration_time - 600
+
+
 class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
@@ -50,7 +69,7 @@ class EsoClass(QueryWithLogin):
         super().__init__()
         self._instrument_list = None
         self._survey_list = None
-        self._token = None
+        self._auth_info: Optional[AuthInfo] = None
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
@@ -199,6 +218,7 @@ class EsoClass(QueryWithLogin):
         """
         Get the access token from ESO SSO provider
         """
+        self._auth_info = None
         auth_url = self.AUTH_URL + "/oidc/token"
         url_params = {"response_type": "id_token token",
                       "grant_type": "password",
@@ -206,10 +226,16 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
+        log.info(f"Authenticating {username} on {self.AUTH_URL} ...")
         response = self._request('GET', auth_url, params=url_params)
-        response.raise_for_status()
-        parsed_content = json.loads(response.content)
-        return parsed_content.get('id_token', None)
+        if response.status_code == 200:
+            token = json.loads(response.content)['id_token']
+            self._auth_info = AuthInfo(username=username, password=password, token=token)
+            log.info("Authentication successful!")
+            return True
+        else:
+            log.info("Authentication failed!")
+            return False
 
     def _get_auth_info(self, username, *, store_password=False,
                        reenter_password=False):
@@ -256,17 +282,17 @@ class EsoClass(QueryWithLogin):
                                                  store_password=store_password,
                                                  reenter_password=reenter_password)
 
-        # Authenticate
-        log.info("Authenticating {0} on www.eso.org...".format(username))
+        return self._authenticate(username=username, password=password)
 
-        self._token = None
-        try:
-            self._token = self._authenticate(username=username, password=password)
-            log.info("Authentication successful!")
-        except requests.exceptions.HTTPError:
-            log.exception("Authentication failed!")
-
-        return self._token is not None
+    def _get_auth_header(self):
+        if self._auth_info and self._auth_info.expired():
+            log.info("Authentication token has expired! Re-authenticating ...")
+            self._authenticate(username=self._auth_info.username,
+                               password=self._auth_info.password)
+        if self._auth_info and not self._auth_info.expired():
+            return {'Authorization': 'Bearer ' + self._auth_info.token}
+        else:
+            return {}
 
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -589,7 +615,7 @@ class EsoClass(QueryWithLogin):
 
     def _download_eso_file(self, file_link: str, destination: str):
         block_size = astropy.utils.data.conf.download_block_size
-        headers = {'Authorization': 'Bearer ' + self._token} if self._token else {}
+        headers = self._get_auth_header()
         with self._session.get(file_link, stream=True, headers=headers) as response:
             response.raise_for_status()
             filename = self._get_filename_from_server(response)
