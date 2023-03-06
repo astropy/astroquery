@@ -8,7 +8,9 @@ import subprocess
 import warnings
 import webbrowser
 from io import BytesIO
+from typing import List, Optional
 
+import astropy.utils.data
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
@@ -16,7 +18,7 @@ from bs4 import BeautifulSoup
 
 from astroquery import log
 from . import conf
-from ..exceptions import RemoteServiceError, NoResultsWarning, CorruptDataWarning
+from ..exceptions import RemoteServiceError, NoResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
 
@@ -40,6 +42,7 @@ class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
+    DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso"
     GUNZIP = "gunzip"
 
@@ -562,194 +565,85 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def _check_existing_files(self, datasets, *, continuation=False,
-                              destination=None):
-        """Detect already downloaded datasets."""
+    @staticmethod
+    def _get_filename_from_server(response: requests.Response):
+        content_disposition = response.headers.get("Content-Disposition", "")
+        filename = re.findall("filename=(\S+)", content_disposition)
+        if not filename:
+            raise RemoteServiceError(f"Unable to find filename for {response.url}")
+        return filename[0]
 
-        datasets_to_download = []
-        files = []
+    @staticmethod
+    def _find_cached_file(filename: str):
+        files_to_check = [filename]
+        if filename.endswith(('fits.Z', 'fits.gz')):
+            files_to_check.append(filename.rsplit(".", 1)[0])
+        for file in files_to_check:
+            if os.path.exists(file):
+                log.info(f"Found cached file {file}")
+                return True
+        return False
 
-        for dataset in datasets:
-            ext = os.path.splitext(dataset)[1].lower()
-            if ext in ('.fits', '.tar'):
-                local_filename = dataset
-            elif ext == '.fz':
-                local_filename = dataset[:-3]
-            elif ext == '.z':
-                local_filename = dataset[:-2]
-            else:
-                local_filename = dataset + ".fits"
+    def _download_eso_file(self, file_link: str, destination: str):
+        block_size = astropy.utils.data.conf.download_block_size
+        with self._session.get(file_link, stream=True) as response:
+            response.raise_for_status()
+            filename = self._get_filename_from_server(response)
+            filename = os.path.join(destination, filename)
+            cached = True
+            if not self._find_cached_file(filename):
+                cached = False
+                with open(filename, 'wb') as fd:
+                    for chunk in response.iter_content(chunk_size=block_size):
+                        fd.write(chunk)
+        return filename, cached
 
-            if destination is not None:
-                local_filename = os.path.join(destination,
-                                              local_filename)
-            elif self.cache_location is not None:
-                local_filename = os.path.join(self.cache_location,
-                                              local_filename)
-            if os.path.exists(local_filename):
-                log.info("Found {0}.fits...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename)
-            elif os.path.exists(local_filename + ".Z"):
-                log.info("Found {0}.fits.Z...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".Z")
-            elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
-                log.info("Found {0}.fits.fz...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".fz")
-            else:
-                datasets_to_download.append(dataset)
-
-        return datasets_to_download, files
-
-    def download_files(self, files, *, savedir=None, cache=True,
-                       continuation=True, skip_unauthorized=True,
-                       verify_only=False):
-        """
-        Given a list of file URLs, download them
-
-        Note: Given a list with repeated URLs, each will only be downloaded
-        once, so the return may have a different length than the input list
-
-        Parameters
-        ----------
-        files : list
-            List of URLs to download
-        savedir : None or str
-            The directory to save to.  Default is the cache location.
-        cache : bool
-            Cache the download?
-        continuation : bool
-            Attempt to continue where the download left off (if it was broken)
-        skip_unauthorized : bool
-            If you receive "unauthorized" responses for some of the download
-            requests, skip over them.  If this is False, an exception will be
-            raised.
-        verify_only : bool
-            Option to go through the process of checking the files to see if
-            they're the right size, but not actually download them.  This
-            option may be useful if a previous download run failed partway.
-        """
-
-        if self.USERNAME:
-            auth = self._get_auth_info(self.USERNAME)
-        else:
-            auth = None
-
+    def _download_eso_files(self, file_ids: List[str], destination: Optional[str]):
+        destination = destination or self.cache_location
         downloaded_files = []
-        if savedir is None:
-            savedir = self.cache_location
-        for file_link in files:
-            log.debug("Downloading {0} to {1}".format(file_link, savedir))
+        for file_id in file_ids:
+            file_link = self.DOWNLOAD_URL + file_id
+            log.info(f"Downloading {file_link} to {destination}")
             try:
-                check_filename = self._request('HEAD', file_link, auth=auth)
-                check_filename.raise_for_status()
-            except requests.HTTPError as ex:
-                if ex.response.status_code == 401:
-                    if skip_unauthorized:
-                        log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=file_link))
-                        continue
-                    else:
-                        raise (ex)
-
-            try:
-                filename = re.search("filename=(.*)",
-                                     check_filename.headers['Content-Disposition']).groups()[0]
-            except KeyError:
-                log.info(f"Unable to find filename for {file_link}  "
-                         "(missing Content-Disposition in header).  "
-                         "Skipping to next file.")
-                continue
-
-            if savedir is not None:
-                filename = os.path.join(savedir,
-                                        filename)
-
-            if verify_only:
-                existing_file_length = os.stat(filename).st_size
-                if 'content-length' in check_filename.headers:
-                    length = int(check_filename.headers['content-length'])
-                    if length == 0:
-                        warnings.warn('URL {0} has length=0'.format(file_link))
-                    elif existing_file_length == length:
-                        log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
-                    elif existing_file_length < length:
-                        log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
-                                 f"size {length}.  The download should be continued.")
-                    elif existing_file_length > length:
-                        warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
-                                      f"size {length}.  The download is likely corrupted.",
-                                      CorruptDataWarning)
-                else:
-                    warnings.warn(f"Could not verify {file_link} because it has no 'content-length'")
-
-            try:
-                if not verify_only:
-                    self._download_file(file_link,
-                                        filename,
-                                        auth=auth,
-                                        cache=cache,
-                                        method='GET',
-                                        head_safe=False,
-                                        continuation=continuation)
-
+                filename, cached = self._download_eso_file(file_link, destination)
                 downloaded_files.append(filename)
-            except requests.HTTPError as ex:
-                if ex.response.status_code == 401:
-                    if skip_unauthorized:
-                        log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=file_link))
-                        continue
-                    else:
-                        raise (ex)
-                elif ex.response.status_code == 403:
-                    log.error("Access denied to {url}".format(url=file_link))
-                    if 'dataPortal' in file_link and 'sso' not in file_link:
-                        log.error("The URL may be incorrect.  Try using "
-                                  "{0} instead of {1}"
-                                  .format(file_link.replace('dataPortal/',
-                                                            'dataPortal/sso/'),
-                                          file_link))
-                    raise ex
-                elif ex.response.status_code == 500:
-                    # empirically, this works the second time most of the time...
-                    self._download_file(file_link,
-                                        filename,
-                                        auth=auth,
-                                        cache=cache,
-                                        method='GET',
-                                        head_safe=False,
-                                        continuation=continuation)
-
-                    downloaded_files.append(filename)
+                if not cached:
+                    log.info(f"Successfully downloaded dataset"
+                             f" {file_id} to {filename}")
+            except requests.HTTPError as http_error:
+                if http_error.response.status_code == 401:
+                    log.info(f"Access denied to {file_link}")
                 else:
-                    raise ex
+                    log.error(f"Failed to download {file_link}. {http_error}")
+            except Exception as ex:
+                log.error(f"Failed to download {file_link}. {ex}")
         return downloaded_files
 
-    def _unzip(self, filename):
+    def _unzip_file(self, filename: str):
         """
         Uncompress the provided file with gunzip.
 
         Note: ``system_tools.gunzip`` does not work with .Z files
         """
+        uncompressed_filename = None
         if filename.endswith(('fits.Z', 'fits.gz')):
             uncompressed_filename = filename.rsplit(".", 1)[0]
             if not os.path.exists(uncompressed_filename):
                 log.info(f"Uncompressing file {filename}")
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
-                    return uncompressed_filename
                 except Exception as ex:
-                    log.error(f"'gunzip' failed: {ex}")
-        return filename
+                    uncompressed_filename = None
+                    log.error(f"Failed to unzip {filename}: {ex}")
+        return uncompressed_filename or filename
+
+    def _unzip_files(self, files: List[str]):
+        if shutil.which(self.GUNZIP):
+            files = [self._unzip_file(file) for file in files]
+        else:
+            log.warning("Unable to unzip files "
+                        "(gunzip is not available on this system)")
+        return files
 
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
                       with_calib='none', request_all_objects=False, unzip=True):
@@ -793,18 +687,12 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
-        download_url = "https://dataportal.eso.org/dataPortal/file/"
         if isinstance(datasets, str):
             datasets = [datasets]
-        file_links = [download_url + ds for ds in datasets]
-        downloaded_files = self.download_files(file_links, savedir=destination)
+        files = self._download_eso_files(datasets, destination)
         if unzip:
-            if shutil.which(self.GUNZIP):
-                downloaded_files = [self._unzip(file) for file in downloaded_files]
-            else:
-                log.warning("Can't unzip downloaded files because 'gunzip' "
-                            "is not available on this system")
-        return downloaded_files
+            files = self._unzip_files(files)
+        return files
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):
