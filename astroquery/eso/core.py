@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 
 from astroquery import log
 from . import conf
-from ..exceptions import RemoteServiceError, NoResultsWarning
+from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
 
@@ -50,6 +50,7 @@ class EsoClass(QueryWithLogin):
         super().__init__()
         self._instrument_list = None
         self._survey_list = None
+        self._token = None
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
@@ -194,7 +195,7 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _get_auth_token(self, *, username, password):
+    def _authenticate(self, *, username: str, password: str):
         """
         Get the access token from ESO SSO provider
         """
@@ -208,13 +209,20 @@ class EsoClass(QueryWithLogin):
         response = self._request('GET', auth_url, params=url_params)
         response.raise_for_status()
         parsed_content = json.loads(response.content)
-        return parsed_content['id_token']
+        return parsed_content.get('id_token', None)
 
     def _get_auth_info(self, username, *, store_password=False,
                        reenter_password=False):
         """
         Get the auth info (user, password) for use in another function
         """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
 
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
@@ -251,19 +259,14 @@ class EsoClass(QueryWithLogin):
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
 
-        token = None
+        self._token = None
         try:
-            token = self._get_auth_token(username=username, password=password)
-        except requests.exceptions.HTTPError:
-            pass
-
-        if token:
+            self._token = self._authenticate(username=username, password=password)
             log.info("Authentication successful!")
-            self.USERNAME = username
-        else:
+        except requests.exceptions.HTTPError:
             log.exception("Authentication failed!")
 
-        return token is not None
+        return self._token is not None
 
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -586,7 +589,8 @@ class EsoClass(QueryWithLogin):
 
     def _download_eso_file(self, file_link: str, destination: str):
         block_size = astropy.utils.data.conf.download_block_size
-        with self._session.get(file_link, stream=True) as response:
+        headers = {'Authorization': 'Bearer ' + self._token} if self._token else {}
+        with self._session.get(file_link, stream=True, headers=headers) as response:
             response.raise_for_status()
             filename = self._get_filename_from_server(response)
             filename = os.path.join(destination, filename)
