@@ -12,7 +12,7 @@ import warnings
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, urlunparse
 
 from astropy.table import Table, Column, vstack
 from astroquery import log
@@ -228,6 +228,7 @@ class AlmaClass(QueryWithLogin):
         self._sia_url = None
         self._tap_url = None
         self._datalink_url = None
+        self._auth_url = None
 
     @property
     def datalink(self):
@@ -875,7 +876,7 @@ class AlmaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
-        if hasattr(self, '_auth_url'):
+        if self._auth_url:
             auth_url = self._auth_url
         else:
             raise LoginError("Login with .login() to acquire the appropriate"
@@ -909,40 +910,41 @@ class AlmaClass(QueryWithLogin):
             on the keyring. Default is False.
         """
 
-        success = False
-        for auth_url in auth_urls:
-            # set session cookies (they do not get set otherwise)
-            cookiesetpage = self._request("GET",
-                                          urljoin(self._get_dataarchive_url(),
-                                                  'rh/forceAuthentication'),
-                                          cache=False)
-            self._login_cookiepage = cookiesetpage
-            cookiesetpage.raise_for_status()
+        if not self._auth_url:
+            for auth_url in auth_urls:
+                # set session cookies (they do not get set otherwise)
+                cookiesetpage = self._request("GET",
+                                              urljoin(self._get_dataarchive_url(),
+                                                      'rh/forceAuthentication'),
+                                              cache=False)
+                cookiesetpage.raise_for_status()
 
-            if (auth_url+'/cas/login' in cookiesetpage.request.url):
-                # we've hit a target, we're good
-                success = True
-                break
-        if not success:
-            raise LoginError("Could not log in to any of the known ALMA "
-                             "authorization portals: {0}".format(auth_urls))
+                if (cookiesetpage.request.url):
+                    # we've hit a target, we're good
+                    self._auth_url = cookiesetpage.request.url
+                    # remove any residual query string value
+                    self._auth_url = urlunparse(
+                        urlparse(self._auth_url)._replace(query=''))
+                    break
+
+            if not self._auth_url:
+                raise LoginError("Could not log in to any of the known ALMA "
+                                 "authorization portals: {0}".format(auth_urls))
 
         # Check if already logged in
-        loginpage = self._request("GET", "https://{auth_url}/cas/login".format(auth_url=auth_url),
-                                  cache=False)
+        loginpage = self._request("GET", self._auth_url, cache=False)
         root = BeautifulSoup(loginpage.content, 'html5lib')
-        if root.find('div', class_='success'):
-            log.info("Already logged in.")
-            return True
-
-        self._auth_url = auth_url
+        for html_div in root.findAll('div', id='formTitle'):
+            if 'Login successful' in  html_div.text:
+                log.info("Already logged in.")
+                return True
 
         username, password = self._get_auth_info(username=username,
                                                  store_password=store_password,
                                                  reenter_password=reenter_password)
 
         # Authenticate
-        log.info("Authenticating {0} on {1} ...".format(username, auth_url))
+        log.info("Authenticating {0} on {1} ...".format(username, self._auth_url))
         # Do not cache pieces of the login process
         data = {kw: root.find('input', {'name': kw})['value']
                 for kw in ('execution', '_eventId')}
@@ -950,7 +952,7 @@ class AlmaClass(QueryWithLogin):
         data['password'] = password
         data['submit'] = 'LOGIN'
 
-        login_response = self._request("POST", "https://{0}/cas/login".format(auth_url),
+        login_response = self._request("POST", self._auth_url,
                                        params={'service': self._get_dataarchive_url()},
                                        data=data,
                                        cache=False)
