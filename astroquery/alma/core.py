@@ -935,7 +935,7 @@ class AlmaClass(QueryWithLogin):
         loginpage = self._request("GET", self._auth_url, cache=False)
         root = BeautifulSoup(loginpage.content, 'html5lib')
         for html_div in root.findAll('div', id='formTitle'):
-            if 'Login successful' in  html_div.text:
+            if 'Login successful' in html_div.text:
                 log.info("Already logged in.")
                 return True
 
