@@ -33,6 +33,7 @@ from astroquery.utils.tap.core import TapPlus
 
 GAIA_QUERIER = GaiaClass(show_server_messages=False)
 JOB_DATA = (Path(__file__).with_name("data") / "job_1.vot").read_text()
+RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
 
@@ -83,6 +84,13 @@ def mock_querier_async():
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
 
+@pytest.fixture
+def cross_match_kwargs():
+    return {"full_qualified_table_name_a": "schemaA.tableA",
+            "full_qualified_table_name_b": "schemaB.tableB",
+            "results_table_name": "results"}
+
+
 def test_show_message():
     connHandler = DummyConnHandler()
 
@@ -101,44 +109,33 @@ def test_show_message():
     GaiaClass(tap_plus_conn_handler=connHandler, datalink_handler=tapplus, show_server_messages=True)
 
 
-def test_query_object(column_attrs, mock_querier):
-    with pytest.raises(ValueError) as err:
-        mock_querier.query_object(SKYCOORD)
-    assert "Missing required argument: width" in err.value.args[0]
-
-    width = 12 * u.deg
-
-    with pytest.raises(ValueError) as err:
-        mock_querier.query_object(SKYCOORD, width=width)
-    assert "Missing required argument: height" in err.value.args[0]
-
-    table = mock_querier.query_object(SKYCOORD, width=width, height=10 * u.deg)
-    assert len(table) == 3
-    for colname, attrs in column_attrs.items():
-        assert table[colname].attrs_equal(attrs)
-    # by radius
-    table = mock_querier.query_object(SKYCOORD, radius=1 * u.deg)
+@pytest.mark.parametrize(
+    "kwargs", [{"width": 12 * u.deg, "height": 10 * u.deg}, {"radius": RADIUS}])
+def test_query_object(column_attrs, mock_querier, kwargs):
+    table = mock_querier.query_object(SKYCOORD, **kwargs)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
 
-def test_query_object_async(column_attrs, mock_querier_async):
-    table = mock_querier_async.query_object_async(
-        SKYCOORD, width=12 * u.deg, height=10 * u.deg
-    )
-    assert len(table) == 3
-    for colname, attrs in column_attrs.items():
-        assert table[colname].attrs_equal(attrs)
-    # by radius
-    table = mock_querier_async.query_object_async(SKYCOORD, radius=1 * u.deg)
+@pytest.mark.parametrize(
+    "kwargs,reported_missing", [({}, "width"), ({"width": 12 * u.deg}, "height")])
+def test_query_object_missing_argument(kwargs, reported_missing):
+    with pytest.raises(ValueError, match=f"^Missing required argument: {reported_missing}$"):
+        GAIA_QUERIER.query_object(SKYCOORD, **kwargs)
+
+
+@pytest.mark.parametrize(
+    "kwargs", ({"width": 12 * u.deg, "height": 10 * u.deg}, {"radius": RADIUS}))
+def test_query_object_async(column_attrs, mock_querier_async, kwargs):
+    table = mock_querier_async.query_object_async(SKYCOORD, **kwargs)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
 
 def test_cone_search_sync(column_attrs, mock_querier):
-    job = mock_querier.cone_search(SKYCOORD, radius=1 * u.deg)
+    job = mock_querier.cone_search(SKYCOORD, radius=RADIUS)
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -150,8 +147,7 @@ def test_cone_search_sync(column_attrs, mock_querier):
 
 
 def test_cone_search_async(column_attrs, mock_querier_async):
-    radius = 1.0 * u.deg
-    job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
+    job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
     assert job.async_ is True
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -161,16 +157,18 @@ def test_cone_search_async(column_attrs, mock_querier_async):
     for colname, attrs in column_attrs.items():
         assert results[colname].attrs_equal(attrs)
 
+
+def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
     # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
     # had no effect.
-    # The preceding tests should have used the default value.
+    job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
     assert 'gaiadr3.gaia_source' in job.parameters['query']
     with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
-        job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
+        job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
         assert "name_from_conf" in job.parameters["query"]
         # Changing the value through the class should overrule conf.
         mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
-        job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
+        job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
         assert "name_from_class" in job.parameters["query"]
 
 
@@ -210,92 +208,51 @@ def test_get_datalinks(monkeypatch):
     assert isinstance(result, Table)
 
 
-def test_xmatch(mock_querier_async):
-    # missing table A
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_b='schemaB.tableB',
-            results_table_name='results',
-        )
-    assert "Table name A argument is mandatory" in err.value.args[0]
-    # missing schema A
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='tableA',
-            full_qualified_table_name_b='schemaB.tableB',
-            results_table_name='results',
-        )
-    assert "Not found schema name in full qualified table A: 'tableA'" \
-           in err.value.args[0]
-    # missing table B
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            results_table_name='results',
-        )
-    assert "Table name B argument is mandatory" in err.value.args[0]
-    # missing schema B
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            full_qualified_table_name_b='tableB',
-            results_table_name='results',
-        )
-    assert "Not found schema name in full qualified table B: 'tableB'" \
-           in err.value.args[0]
-    # missing results table
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            full_qualified_table_name_b='schemaB.tableB',
-        )
-    assert "Results table name argument is mandatory" in err.value.args[0]
-    # wrong results table (with schema)
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            full_qualified_table_name_b='schemaB.tableB',
-            results_table_name='schema.results',
-        )
-    assert "Please, do not specify schema for 'results_table_name'" \
-           in err.value.args[0]
-    # radius < 0.1
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            full_qualified_table_name_b='schemaB.tableB',
-            results_table_name='results',
-            radius=0.01,
-        )
-    assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
-           in err.value.args[0]
-    # radius > 10.0
-    with pytest.raises(ValueError) as err:
-        mock_querier_async.cross_match(
-            full_qualified_table_name_a='schemaA.tableA',
-            full_qualified_table_name_b='schemaB.tableB',
-            results_table_name='results',
-            radius=10.1
-        )
-    assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
-           in err.value.args[0]
-    job = mock_querier_async.cross_match(
-        full_qualified_table_name_a='schemaA.tableA',
-        full_qualified_table_name_b='schemaB.tableB',
-        results_table_name='results',
-    )
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match(background, cross_match_kwargs, mock_querier_async):
+    job = mock_querier_async.cross_match(**cross_match_kwargs, background=background)
     assert job.async_ is True
-    assert job.get_phase() == "COMPLETED"
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
-    job = mock_querier_async.cross_match(
-        full_qualified_table_name_a='schemaA.tableA',
-        full_qualified_table_name_b='schemaB.tableB',
-        results_table_name='results',
-        background=True,
-    )
-    assert job.async_ is True
-    assert job.get_phase() == "EXECUTING"
-    assert job.failed is False
+
+
+@pytest.mark.parametrize(
+    "kwarg,invalid_value,error_message",
+    [("full_qualified_table_name_a",
+      "tableA",
+      "^Not found schema name in full qualified table A: 'tableA'$"),
+     ("full_qualified_table_name_b",
+      "tableB",
+      "^Not found schema name in full qualified table B: 'tableB'$"),
+     ("results_table_name",
+      "schema.results",
+      "^Please, do not specify schema for 'results_table_name'$")])
+def test_cross_match_invalid_mandatory_kwarg(
+    cross_match_kwargs, kwarg, invalid_value, error_message
+):
+    cross_match_kwargs[kwarg] = invalid_value
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match(**cross_match_kwargs)
+
+
+@pytest.mark.parametrize("radius", [0.01, 10.1])
+def test_cross_match_invalid_radius(cross_match_kwargs, radius):
+    with pytest.raises(
+        ValueError,
+        match=rf"^Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0$",
+    ):
+        GAIA_QUERIER.cross_match(**cross_match_kwargs, radius=radius)
+
+
+@pytest.mark.parametrize(
+    "missing_kwarg,msg",
+    [("full_qualified_table_name_a", "Table name A"),
+     ("full_qualified_table_name_b", "Table name B"),
+     ("results_table_name", "Results table name")])
+def test_cross_match_missing_mandatory_kwarg(cross_match_kwargs, missing_kwarg, msg):
+    del cross_match_kwargs[missing_kwarg]
+    with pytest.raises(ValueError, match=rf"^{msg} argument is mandatory$"):
+        GAIA_QUERIER.cross_match(**cross_match_kwargs)
 
 
 @patch.object(TapPlus, 'login')
