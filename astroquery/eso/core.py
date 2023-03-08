@@ -676,7 +676,7 @@ class EsoClass(QueryWithLogin):
         return files
 
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
-                      with_calib='none', request_all_objects=False, unzip=True):
+                      with_calib='none', unzip=True):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -695,12 +695,6 @@ class EsoClass(QueryWithLogin):
         with_calib : string
             Retrieve associated calibration files: 'none' (default), 'raw' for
             raw calibrations, or 'processed' for processed calibrations.
-        request_all_objects : bool
-            When retrieving associated calibrations (``with_calib != 'none'``),
-            this allows to request all the objects included the already
-            downloaded ones, to be sure to retrieve all calibration files.
-            This is useful when the download was interrupted. `False` by
-            default.
         unzip : bool
             Unzip compressed files from the archive after download. `True` by
             default.
