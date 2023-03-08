@@ -613,31 +613,31 @@ class EsoClass(QueryWithLogin):
                 return True
         return False
 
-    def _download_eso_file(self, file_link: str, destination: str):
+    def _download_eso_file(self, file_link: str, destination: str, overwrite: bool):
         block_size = astropy.utils.data.conf.download_block_size
         headers = self._get_auth_header()
         with self._session.get(file_link, stream=True, headers=headers) as response:
             response.raise_for_status()
             filename = self._get_filename_from_server(response)
             filename = os.path.join(destination, filename)
-            cached = True
-            if not self._find_cached_file(filename):
-                cached = False
+            download_required = overwrite or not self._find_cached_file(filename)
+            if download_required:
                 with open(filename, 'wb') as fd:
                     for chunk in response.iter_content(chunk_size=block_size):
                         fd.write(chunk)
-        return filename, cached
+        return filename, download_required
 
-    def _download_eso_files(self, file_ids: List[str], destination: Optional[str]):
+    def _download_eso_files(self, file_ids: List[str], destination: Optional[str],
+                            overwrite: bool):
         destination = destination or self.cache_location
         downloaded_files = []
         for file_id in file_ids:
             file_link = self.DOWNLOAD_URL + file_id
             log.info(f"Downloading {file_link} to {destination}")
             try:
-                filename, cached = self._download_eso_file(file_link, destination)
+                filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
-                if not cached:
+                if downloaded:
                     log.info(f"Successfully downloaded dataset"
                              f" {file_id} to {filename}")
             except requests.HTTPError as http_error:
@@ -675,7 +675,7 @@ class EsoClass(QueryWithLogin):
                         "(gunzip is not available on this system)")
         return files
 
-    def retrieve_data(self, datasets, *, continuation=False, destination=None,
+    def retrieve_data(self, datasets, *, overwrite=False, destination=None,
                       with_calib='none', unzip=True):
         """
         Retrieve a list of datasets form the ESO archive.
@@ -687,9 +687,9 @@ class EsoClass(QueryWithLogin):
         destination: string
             Directory where the files are copied.
             Files already found in the destination directory are skipped,
-            unless continuation=True.
+            unless overwrite=True.
             Default to astropy cache.
-        continuation : bool
+        overwrite : bool
             Force the retrieval of data that are present in the destination
             directory.
         with_calib : string
@@ -713,7 +713,7 @@ class EsoClass(QueryWithLogin):
         """
         if isinstance(datasets, str):
             datasets = [datasets]
-        files = self._download_eso_files(datasets, destination)
+        files = self._download_eso_files(datasets, destination, overwrite)
         if unzip:
             files = self._unzip_files(files)
         return files
