@@ -632,10 +632,12 @@ class EsoClass(QueryWithLogin):
         destination = destination or self.cache_location
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
+        nfiles = len(file_ids)
+        log.info(f"Downloading {nfiles} files ...")
         downloaded_files = []
-        for file_id in file_ids:
+        for i, file_id in enumerate(file_ids, 1):
             file_link = self.DOWNLOAD_URL + file_id
-            log.info(f"Downloading {file_link} to {destination}")
+            log.info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
             try:
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
@@ -717,9 +719,11 @@ class EsoClass(QueryWithLogin):
         if isinstance(datasets, str):
             return_string = True
             datasets = [datasets]
+        log.info("Downloading datasets ...")
         files = self._download_eso_files(datasets, destination, overwrite)
         if unzip:
             files = self._unzip_files(files)
+        log.info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,

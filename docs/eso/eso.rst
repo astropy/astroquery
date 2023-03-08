@@ -346,41 +346,27 @@ using their data product IDs ``DP.ID`` (or ``ARCFILE`` for surveys), and retriev
 .. doctest-skip::
 
     >>> data_files = eso.retrieve_data(table['DP.ID'][:2])
-    Staging request...
-    Downloading files...
-    Downloading MIDI.2007-02-07T07:01:51.000.fits.Z...
-    Downloading MIDI.2007-02-07T07:02:49.000.fits.Z...
-    Done!
+    INFO: Downloading datasets ...
+    INFO: Downloading 2 files ...
+    INFO: Downloading file 1/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:01:51.000 to ...
+    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:01:51.000 to ...
+    INFO: Downloading file 2/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:02:49.000 to ...
+    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:02:49.000 to ...
+    INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:01:51.000.fits.Z
+    INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:02:49.000.fits.Z
+    INFO: Done!
 
 The file names, returned in data_files, points to the decompressed datasets
 (without the .Z extension) that have been locally downloaded.
 They are ready to be used with `~astropy.io.fits`.
 
 The default location (in the astropy cache) of the decompressed datasets can be adjusted by providing
-a ``location`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
+a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
-In all cases, if a requested dataset is already found,
-it is not downloaded again from the archive.
+By default, if a requested dataset is already found, it is not downloaded again from the archive.
+To force the retrieval of data that are present in the destination directory, use ``overwrite=True``
+in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
-By default, calling ``eso.retrieve_data`` submits a new archive request
-through the web form to stage and download the requested ``datasets``. If you
-would like to download datasets from an existing request, either submitted
-through the functions here or externally, call ``retrieve_data`` with the
-``request_id`` option:
-
-.. doctest-skip::
-
-    >>> data_files = eso.retrieve_data(table['DP.ID'][:2], request_id=999999)
-
-The ``request_id`` can be found in the automatic email sent by the archive after
-staging the initial request, i.e., https://dataportal.eso.org/rh/requests/[USERNAME]/{request_id}.
-A summary of your available requests is shown at https://dataportal.eso.org/rh/requests/[USERNAME]/recentRequests.
-
-Note: The function does check that the specified retrieval URL based on
-``request_id`` is valid and then that the datasets indicated there are
-consistent with the user-specified ``datasets``, but there is currently no
-reverse checking that the specified ``datasets`` are provided in
-``request_id``.
 
 Reference/API
 =============
