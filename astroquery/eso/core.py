@@ -597,7 +597,7 @@ class EsoClass(QueryWithLogin):
     @staticmethod
     def _get_filename_from_server(response: requests.Response):
         content_disposition = response.headers.get("Content-Disposition", "")
-        filename = re.findall("filename=(\S+)", content_disposition)
+        filename = re.findall(r"filename=(\S+)", content_disposition)
         if not filename:
             raise RemoteServiceError(f"Unable to find filename for {response.url}")
         return filename[0]
@@ -711,12 +711,14 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
+        return_string = False
         if isinstance(datasets, str):
+            return_string = True
             datasets = [datasets]
         files = self._download_eso_files(datasets, destination, overwrite)
         if unzip:
             files = self._unzip_files(files)
-        return files
+        return files[0] if files and len(files) == 1 and return_string else files
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):

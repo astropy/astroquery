@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import numpy as np
-import pytest
 import warnings
 
-from astroquery.exceptions import LoginError, NoResultsWarning
+import numpy as np
+import pytest
+
 from astroquery.eso import Eso
+from astroquery.exceptions import NoResultsWarning
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
@@ -69,16 +70,10 @@ class TestEso:
         assert 'Pistol-Star' in result_s['Object']
 
     def test_nologin(self):
-        # WARNING: this test will fail if you haven't cleared your cache and
-        # you have downloaded this file!
         eso = Eso()
-
-        with pytest.raises(LoginError) as exc:
-            eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
-
-        assert (exc.value.args[0]
-                == ("If you do not pass a username to login(), you should "
-                    "configure a default one!"))
+        file_id = 'AMBER.2006-03-14T07:40:19.830'
+        result = eso.retrieve_data(file_id)
+        assert file_id in result
 
     def test_empty_return(self):
         # test for empty return with an object from the North
