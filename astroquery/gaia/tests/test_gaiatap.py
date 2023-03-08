@@ -32,9 +32,8 @@ from astroquery.utils.tap.core import TapPlus
 
 
 GAIA_QUERIER = GaiaClass(show_server_messages=False)
-job_data = (Path(__file__).with_name("data") / "job_1.vot").read_text()
-
-skycoord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
+JOB_DATA = (Path(__file__).with_name("data") / "job_1.vot").read_text()
+SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +55,7 @@ def mock_querier():
     conn_handler = DummyConnHandler()
     tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
     launch_response = DummyResponse(200)
-    launch_response.set_data(method="POST", body=job_data)
+    launch_response.set_data(method="POST", body=JOB_DATA)
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
@@ -78,7 +77,7 @@ def mock_querier_async():
     conn_handler.set_response("async/" + jobid + "/phase", phase_response)
 
     results_response = DummyResponse(200)
-    results_response.set_data(method="GET", body=job_data)
+    results_response.set_data(method="GET", body=JOB_DATA)
     conn_handler.set_response("async/" + jobid + "/results/result", results_response)
 
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
@@ -104,21 +103,21 @@ def test_show_message():
 
 def test_query_object(column_attrs, mock_querier):
     with pytest.raises(ValueError) as err:
-        mock_querier.query_object(skycoord)
+        mock_querier.query_object(SKYCOORD)
     assert "Missing required argument: width" in err.value.args[0]
 
     width = 12 * u.deg
 
     with pytest.raises(ValueError) as err:
-        mock_querier.query_object(skycoord, width=width)
+        mock_querier.query_object(SKYCOORD, width=width)
     assert "Missing required argument: height" in err.value.args[0]
 
-    table = mock_querier.query_object(skycoord, width=width, height=10 * u.deg)
+    table = mock_querier.query_object(SKYCOORD, width=width, height=10 * u.deg)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
     # by radius
-    table = mock_querier.query_object(skycoord, radius=1 * u.deg)
+    table = mock_querier.query_object(SKYCOORD, radius=1 * u.deg)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
@@ -126,20 +125,20 @@ def test_query_object(column_attrs, mock_querier):
 
 def test_query_object_async(column_attrs, mock_querier_async):
     table = mock_querier_async.query_object_async(
-        skycoord, width=12 * u.deg, height=10 * u.deg
+        SKYCOORD, width=12 * u.deg, height=10 * u.deg
     )
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
     # by radius
-    table = mock_querier_async.query_object_async(skycoord, radius=1 * u.deg)
+    table = mock_querier_async.query_object_async(SKYCOORD, radius=1 * u.deg)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
 
 def test_cone_search_sync(column_attrs, mock_querier):
-    job = mock_querier.cone_search(skycoord, radius=1 * u.deg)
+    job = mock_querier.cone_search(SKYCOORD, radius=1 * u.deg)
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -152,7 +151,7 @@ def test_cone_search_sync(column_attrs, mock_querier):
 
 def test_cone_search_async(column_attrs, mock_querier_async):
     radius = 1.0 * u.deg
-    job = mock_querier_async.cone_search_async(skycoord, radius=radius)
+    job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
     assert job.async_ is True
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
@@ -167,11 +166,11 @@ def test_cone_search_async(column_attrs, mock_querier_async):
     # The preceding tests should have used the default value.
     assert 'gaiadr3.gaia_source' in job.parameters['query']
     with conf.set_temp("MAIN_GAIA_TABLE", "name_from_conf"):
-        job = mock_querier_async.cone_search_async(skycoord, radius=radius)
+        job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
         assert "name_from_conf" in job.parameters["query"]
         # Changing the value through the class should overrule conf.
         mock_querier_async.MAIN_GAIA_TABLE = "name_from_class"
-        job = mock_querier_async.cone_search_async(skycoord, radius=radius)
+        job = mock_querier_async.cone_search_async(SKYCOORD, radius=radius)
         assert "name_from_class" in job.parameters["query"]
 
 
