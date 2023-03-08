@@ -14,17 +14,15 @@ Created on 30 jun. 2016
 
 
 """
-import os
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from astropy.table import Column
+from astropy.table import Column, Table
 from requests import HTTPError
 
 from astroquery.gaia import conf
 from astroquery.gaia.core import GaiaClass
-from astroquery.gaia.tests.DummyTapHandler import DummyTapHandler
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
@@ -33,6 +31,7 @@ import numpy as np
 from astroquery.utils.tap.core import TapPlus
 
 
+GAIA_QUERIER = GaiaClass(show_server_messages=False)
 job_data = (Path(__file__).with_name("data") / "job_1.vot").read_text()
 
 skycoord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
@@ -176,45 +175,40 @@ def test_cone_search_async(column_attrs, mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
-def test_load_data():
-    dummy_handler = DummyTapHandler()
-    tap = GaiaClass(tap_plus_conn_handler=dummy_handler, datalink_handler=dummy_handler, show_server_messages=False)
+def test_load_data(monkeypatch, tmp_path):
 
-    ids = "1,2,3,4"
-    retrieval_type = "epoch_photometry"
-    verbose = True
-    output_file = os.path.abspath("output_file")
-    path_to_end_with = os.path.join("gaia", "test", "output_file")
-    if not output_file.endswith(path_to_end_with):
-        output_file = os.path.abspath(path_to_end_with)
-
-    tap.load_data(ids=ids,
-                  retrieval_type=retrieval_type,
-                  valid_data=True,
-                  verbose=verbose,
-                  output_file=output_file)
-
-    parameters = {
-        "params_dict": {
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
             "VALID_DATA": "true",
-            "ID": ids,
+            "ID": "1,2,3,4",
             "FORMAT": "votable",
-            "RETRIEVAL_TYPE": retrieval_type,
+            "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
-            "USE_ZIP_ALWAYS": "true",
-        },
-        "output_file": dummy_handler._DummyTapHandler__parameters["output_file"],
-        "verbose": verbose,
-    }
-    dummy_handler.check_call('load_data', parameters)
+            "USE_ZIP_ALWAYS": "true"}
+        assert output_file == str(tmp_path / "output_file")
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    GAIA_QUERIER.load_data(
+        ids="1,2,3,4",
+        retrieval_type="epoch_photometry",
+        valid_data=True,
+        verbose=True,
+        output_file=tmp_path / "output_file")
 
 
-def test_get_datalinks():
-    dummy_handler = DummyTapHandler()
-    tap = GaiaClass(tap_plus_conn_handler=dummy_handler, datalink_handler=dummy_handler, show_server_messages=False)
-    ids = ["1", "2", "3", "4"]
-    tap.get_datalinks(ids, verbose=True)
-    dummy_handler.check_call("get_datalinks", {"ids": ids, "verbose": True})
+def test_get_datalinks(monkeypatch):
+
+    def get_datalinks_monkeypatched(self, ids, verbose):
+        return Table()
+
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    result = GAIA_QUERIER.get_datalinks(ids=["1", "2", "3", "4"], verbose=True)
+    assert isinstance(result, Table)
 
 
 def test_xmatch(mock_querier_async):
