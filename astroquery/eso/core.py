@@ -630,6 +630,8 @@ class EsoClass(QueryWithLogin):
     def _download_eso_files(self, file_ids: List[str], destination: Optional[str],
                             overwrite: bool):
         destination = destination or self.cache_location
+        destination = os.path.abspath(destination)
+        os.makedirs(destination, exist_ok=True)
         downloaded_files = []
         for file_id in file_ids:
             file_link = self.DOWNLOAD_URL + file_id
