@@ -126,20 +126,22 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Raises
-        ------
-        TypeError
-            If the `radius` keyword could not be parsed as an angle.
-        ValueError
-            If the `radius` exceeds 3 arcmin, or if the sizes of
-            `coordinates` and `obj_names` do not match.
-
         Returns
         -------
         result : `~astropy.table.Table`
             The result of the query as a `~astropy.table.Table` object.
 
         """
+        # Move Raises section here, since async_to_sync does not appear to like it.
+        #
+        # Raises
+        # ------
+        # TypeError
+        #     If the `radius` keyword could not be parsed as an angle.
+        # ValueError
+        #     If the `radius` exceeds 3 arcmin, or if the sizes of
+        #     `coordinates` and `obj_names` do not match.
+
 
         if isinstance(radius, Angle):
             radius = radius.to_value(u.arcmin)
@@ -286,15 +288,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Raises
-        ------
-        TypeError
-            If the `radius`, `width` or `height` keywords could not be parsed as an angle.
-        ValueError
-            If both `radius` and `width are set (or neither),
-            or if the `radius` exceeds 3 arcmin,
-            or if the sizes of `coordinates` and `obj_names` do not match.
-
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -316,6 +309,17 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
+        # Move Raises section here, since async_to_sync does not appear to like it.
+        #
+        # Raises
+        # ------
+        # TypeError
+        #     If the `radius`, `width` or `height` keywords could not be parsed as an angle.
+        # ValueError
+        #     If both `radius` and `width are set (or neither),
+        #     or if the `radius` exceeds 3 arcmin,
+        #     or if the sizes of `coordinates` and `obj_names` do not match.
+
         # Allow field_help requests to pass without requiring a radius or width.
         if field_help and radius is None and width is None:
             radius = 2.0 * u.arcsec

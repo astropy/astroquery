@@ -597,5 +597,5 @@ def test_field_help_region(patch_request):
 
 def test_rectangle_sql():
     sql = sdss.SDSS._rectangle_sql(0, 0, 1)
-    assert sql == '(((p.ra >= 359.5) OR (p.ra <= 0.5)) AND (p.dec BETWEEN -0.5 AND 0.5))
+    assert sql == '(((p.ra >= 359.5) OR (p.ra <= 0.5)) AND (p.dec BETWEEN -0.5 AND 0.5))'
     # assert sql == '((p.ra BETWEEN -0.5 AND 0.5) AND (p.dec BETWEEN -0.5 AND 0.5))
