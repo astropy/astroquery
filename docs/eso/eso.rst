@@ -49,7 +49,7 @@ interaction with the ESO archive.
     TEST, enter your password:
 
     INFO: Authenticating TEST on https://www.eso.org/sso ... [astroquery.eso.core]
-    INFO: Authentication failed! [astroquery.eso.core]
+    ERROR: Authentication failed! [astroquery.eso.core]
     >>> # Second example: pretend ICONDOR is a valid username
     >>> eso.login(username="ICONDOR", store_password=True) # doctest: +SKIP
     WARNING: No password was found in the keychain for the provided username. [astroquery.query]

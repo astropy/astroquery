@@ -234,7 +234,7 @@ class EsoClass(QueryWithLogin):
             log.info("Authentication successful!")
             return True
         else:
-            log.info("Authentication failed!")
+            log.error("Authentication failed!")
             return False
 
     def _get_auth_info(self, username: str, *, store_password: bool = False,
@@ -648,7 +648,7 @@ class EsoClass(QueryWithLogin):
                              f" {file_id} to {filename}")
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
-                    log.info(f"Access denied to {file_link}")
+                    log.error(f"Access denied to {file_link}")
                 else:
                     log.error(f"Failed to download {file_link}. {http_error}")
             except Exception as ex:
@@ -677,8 +677,8 @@ class EsoClass(QueryWithLogin):
         if shutil.which(self.GUNZIP):
             files = [self._unzip_file(file) for file in files]
         else:
-            log.warning("Unable to unzip files "
-                        "(gunzip is not available on this system)")
+            warnings.warn("Unable to unzip files "
+                          "(gunzip is not available on this system)")
         return files
 
     def retrieve_data(self, datasets, *, overwrite=False, destination=None,
