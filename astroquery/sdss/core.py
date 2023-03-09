@@ -209,7 +209,7 @@ class SDSSClass(BaseQuery):
                            data_release=conf.default_release, cache=True):
         """
         Used to query a region around given coordinates. Either ``radius`` or
-        `width` must be specified.
+        ``width`` must be specified.
 
         When called with keyword ``radius``, a radial or "cone" search is
         performed, centered on each of the given coordinates. In this mode, internally,
@@ -252,7 +252,7 @@ class SDSSClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. If not specified, it will be
-            set to the same value as `width`.
+            set to the same value as ``width``.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
