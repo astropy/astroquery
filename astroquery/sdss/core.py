@@ -610,7 +610,6 @@ class SDSSClass(BaseQuery):
         0.3000027 256.99461 25.566255 1237661387086693265
          0.300003 175.65125  34.37548 1237665128003731630
 
-
         Returns
         -------
         result : `~astropy.table.Table`
@@ -683,6 +682,14 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
+        Returns
+        -------
+        list : list
+            A list of context-managers that yield readable file-like objects.
+            The function returns the spectra for only one of ``matches``, or
+            ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
+            ``fiberID``.
+
         Examples
         --------
         Using results from a call to `query_region`:
@@ -700,14 +707,6 @@ class SDSSClass(BaseQuery):
         Fetch the spectra from all fibers on plate 751 with mjd 52251:
 
         >>> specs = SDSS.get_spectra(plate=751, mjd=52251)
-
-        Returns
-        -------
-        list : list
-            A list of context-managers that yield readable file-like objects.
-            The function returns the spectra for only one of ``matches``, or
-            ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
-            ``fiberID``.
 
         """
 
@@ -852,6 +851,10 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
+        Returns
+        -------
+        list : List of `~astropy.io.fits.HDUList` objects.
+
         Examples
         --------
         Using results from a call to `query_region`:
@@ -873,10 +876,6 @@ class SDSSClass(BaseQuery):
         Fetch only images from run 1904, camcol 3 and field 164:
 
         >>> imgs = SDSS.get_images(run=1904, camcol=3, field=164)
-
-        Returns
-        -------
-        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
         if not matches:
@@ -1275,6 +1274,56 @@ class SDSSClass(BaseQuery):
         url = conf.skyserver_baseurl + suffix.format(dr=data_release)
         self._last_url = url
         return url
+
+    def _rectangle_sql(self, ra, dec, width, height=None, cosdec=False):
+        """Generate SQL for a rectangular query centered on `ra`, `dec`.
+
+        This assumes that RA is defined on the range ``[0, 360)``, and Dec on
+        ``[-90, 90]``.
+
+        Parameters
+        ----------
+        ra : float
+            Right Ascension in degrees.
+        dec : float
+            Declination in degrees.
+        width : float
+            Width of rectangle in degrees.
+        height : float, optional
+            Height of rectangle in degrees. If not specified, `width` is used.
+        cosdec : bool, optional
+            If ``True`` apply ``cos(dec)`` correction to the rectangle.
+
+        Returns
+        -------
+        :class:`str`
+            A string defining the rectangle in SQL notation.
+        """
+        if height is None:
+            height = width
+        dr = width/2.0
+        dd = height/2.0
+        d0 = dec - dd
+        if d0 < -90:
+            d0 = -90.0
+        d1 = dec + dd
+        if d1 > 90.0:
+            d1 = 90.0
+        ra_wrap = False
+        r0 = ra - dr
+        if r0 < 0:
+            ra_wrap = True
+            r0 += 360.0
+        r1 = ra + dr
+        if r1 > 360.0:
+            ra_wrap = True
+            r1 -= 360.0
+        # BETWEEN is inclusive, so it is equivalent to the <=, >= operators.
+        if ra_wrap:
+            sql = f"(((p.ra >= {r0:g}) OR (p.ra <= {r1:g}))"
+        else:
+            sql = f"((p.ra BETWEEN {r0:g} AND {r1:g})"
+        return sql + f" AND (p.dec BETWEEN {d0:g} AND {d1:g}))"
 
 
 SDSS = SDSSClass()
