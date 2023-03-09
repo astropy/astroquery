@@ -66,7 +66,7 @@ class SDSSClass(BaseQuery):
 
         This query returns the nearest `primary object`_.
 
-        Note that there is a server-side limit of 3 arcmin on `radius`.
+        Note that there is a server-side limit of 3 arcmin on ``radius``.
 
         .. _`primary object`: https://www.sdss.org/dr17/help/glossary/#surveyprimary
 
@@ -129,10 +129,10 @@ class SDSSClass(BaseQuery):
         Raises
         ------
         TypeError
-            If the `radius` keyword could not be parsed as an angle.
+            If the ``radius`` keyword could not be parsed as an angle.
         ValueError
-            If the `radius` exceeds 3 arcmin, or if the sizes of
-            `coordinates` and `obj_names` do not match.
+            If the ``radius`` exceeds 3 arcmin, or if the sizes of
+            ``coordinates`` and ``obj_names`` do not match.
 
         Returns
         -------
@@ -208,16 +208,16 @@ class SDSSClass(BaseQuery):
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
         """
-        Used to query a region around given coordinates. Either `radius` or
+        Used to query a region around given coordinates. Either ``radius`` or
         `width` must be specified.
 
-        When called with keyword `radius`, a radial or "cone" search is
+        When called with keyword ``radius``, a radial or "cone" search is
         performed, centered on each of the given coordinates. In this mode, internally,
         this function is equivalent to the object cross-ID (`query_crossid`),
         with slightly different parameters.  Note that in this mode there is a server-side
-        limit of 3 arcmin on `radius`.
+        limit of 3 arcmin on ``radius``.
 
-        When called with keyword `width`, and optionally a different `height`,
+        When called with keyword ``width``, and optionally a different ``height``,
         a rectangular search is performed, centered on each of the given
         coordinates. In this mode, internally, this function is equivalent to
         a general SQL query (`query_sql`).
@@ -286,6 +286,15 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Raises
+        ------
+        TypeError
+            If the ``radius``, ``width`` or ``height`` keywords could not be parsed as an angle.
+        ValueError
+            If both ``radius`` and ``width`` are set (or neither),
+            or if the ``radius`` exceeds 3 arcmin,
+            or if the sizes of ``coordinates`` and ``obj_names`` do not match.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -307,17 +316,6 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
-        # Move Raises section here, since async_to_sync does not appear to like it.
-        #
-        # Raises
-        # ------
-        # TypeError
-        #     If the `radius`, `width` or `height` keywords could not be parsed as an angle.
-        # ValueError
-        #     If both `radius` and `width are set (or neither),
-        #     or if the `radius` exceeds 3 arcmin,
-        #     or if the sizes of `coordinates` and `obj_names` do not match.
-
         # Allow field_help requests to pass without requiring a radius or width.
         if field_help and radius is None and width is None:
             radius = 2.0 * u.arcsec
@@ -1279,7 +1277,7 @@ class SDSSClass(BaseQuery):
 
     def _rectangle_sql(self, ra, dec, width, height=None, cosdec=False):
         """
-        Generate SQL for a rectangular query centered on `ra`, `dec`.
+        Generate SQL for a rectangular query centered on ``ra``, ``dec``.
 
         This assumes that RA is defined on the range ``[0, 360)``, and Dec on
         ``[-90, 90]``.
@@ -1293,9 +1291,11 @@ class SDSSClass(BaseQuery):
         width : float
             Width of rectangle in degrees.
         height : float, optional
-            Height of rectangle in degrees. If not specified, `width` is used.
+            Height of rectangle in degrees. If not specified, ``width`` is used.
         cosdec : bool, optional
             If ``True`` apply ``cos(dec)`` correction to the rectangle.
+            Otherwise, rectangles become increasingly triangle-like
+            near the poles.
 
         Returns
         -------
@@ -1312,8 +1312,6 @@ class SDSSClass(BaseQuery):
         d1 = dec + dd
         if d1 > 90.0:
             d1 = 90.0
-        if d1 < d0:
-            d0, d1 = d1, d0
         ra_wrap = False
         r0 = ra - dr
         if r0 < 0:
