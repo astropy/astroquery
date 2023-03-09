@@ -250,13 +250,14 @@ class EsoClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
+        service_name = "astroquery:www.eso.org"
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
-            "astroquery:{0}".format(self.AUTH_URL), username, reenter=reenter_password)
+            service_name, username, reenter=reenter_password)
 
         # When authenticated, save password in keyring if needed
         if password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:{0}".format(self.AUTH_URL), username, password)
+            keyring.set_password(service_name, username, password)
 
         return username, password
 

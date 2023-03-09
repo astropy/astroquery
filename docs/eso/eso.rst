@@ -30,8 +30,9 @@ The following packages are required for the use of this module:
 Authentication with ESO User Portal
 ===================================
 
-Whereas querying the ESO database is fully open, accessing actual datasets requires
-authentication with the ESO User Portal (https://www.eso.org/sso/login).
+Except for data under proprietary period, ESO datasets can be downloaded anonymously (without login).
+PIs and their collaborators need to authenticate with the ESO User Portal (https://www.eso.org/sso/login)
+to download datasets from their observing programmes which are still under proprietary period.
 This authentication is performed directly with the provided :meth:`~astroquery.query.QueryWithLogin.login` command,
 as illustrated in the example below. This method uses your keyring to securely
 store the password in your operating system. As such you should have to enter your
@@ -43,21 +44,23 @@ interaction with the ESO archive.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     >>> # First example: TEST is not a valid username, it will fail
-    >>> eso.login("TEST")
-    TEST, enter your ESO password:
+    >>> eso.login(username="TEST")
+    WARNING: No password was found in the keychain for the provided username. [astroquery.query]
+    TEST, enter your password:
 
-    Authenticating TEST on www.eso.org...
-    Authentication failed!
+    INFO: Authenticating TEST on https://www.eso.org/sso ... [astroquery.eso.core]
+    INFO: Authentication failed! [astroquery.eso.core]
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> eso.login("ICONDOR", store_password=True) # doctest: +SKIP
-    ICONDOR, enter your ESO password:
+    >>> eso.login(username="ICONDOR", store_password=True) # doctest: +SKIP
+    WARNING: No password was found in the keychain for the provided username. [astroquery.query]
+    ICONDOR, enter your password:
 
-    Authenticating ICONDOR on www.eso.org...
-    Authentication successful!
+    INFO: Authenticating ICONDOR on https://www.eso.org/sso ... [astroquery.eso.core]
+    INFO: Authentication successful! [astroquery.eso.core]
     >>> # After the first login, your password has been stored
-    >>> eso.login("ICONDOR") # doctest: +SKIP
-    Authenticating ICONDOR on www.eso.org...
-    Authentication successful!
+    >>> eso.login(username="ICONDOR") # doctest: +SKIP
+    INFO: Authenticating ICONDOR on https://www.eso.org/sso ... [astroquery.eso.core]
+    INFO: Authentication successful! [astroquery.eso.core]
 
 Automatic password
 ------------------
