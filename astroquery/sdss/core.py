@@ -209,7 +209,8 @@ class SDSSClass(BaseQuery):
                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
-        """Used to query a region around given coordinates. Either `radius` or
+        """
+        Used to query a region around given coordinates. Either `radius` or
         `width` must be specified.
 
         When called with keyword `radius`, a radial or "cone" search is
@@ -1279,7 +1280,8 @@ class SDSSClass(BaseQuery):
         return url
 
     def _rectangle_sql(self, ra, dec, width, height=None, cosdec=False):
-        """Generate SQL for a rectangular query centered on `ra`, `dec`.
+        """
+        Generate SQL for a rectangular query centered on `ra`, `dec`.
 
         This assumes that RA is defined on the range ``[0, 360)``, and Dec on
         ``[-90, 90]``.
