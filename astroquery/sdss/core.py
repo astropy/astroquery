@@ -126,22 +126,20 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Raises
+        ------
+        TypeError
+            If the `radius` keyword could not be parsed as an angle.
+        ValueError
+            If the `radius` exceeds 3 arcmin, or if the sizes of
+            `coordinates` and `obj_names` do not match.
+
         Returns
         -------
         result : `~astropy.table.Table`
             The result of the query as a `~astropy.table.Table` object.
 
         """
-        # Move Raises section here, since async_to_sync does not appear to like it.
-        #
-        # Raises
-        # ------
-        # TypeError
-        #     If the `radius` keyword could not be parsed as an angle.
-        # ValueError
-        #     If the `radius` exceeds 3 arcmin, or if the sizes of
-        #     `coordinates` and `obj_names` do not match.
-
         if isinstance(radius, Angle):
             radius = radius.to_value(u.arcmin)
         else:
@@ -1314,6 +1312,8 @@ class SDSSClass(BaseQuery):
         d1 = dec + dd
         if d1 > 90.0:
             d1 = 90.0
+        if d1 < d0:
+            d0, d1 = d1, d0
         ra_wrap = False
         r0 = ra - dr
         if r0 < 0:

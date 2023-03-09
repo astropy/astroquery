@@ -602,3 +602,11 @@ def test_rectangle_sql():
     assert sql == '(((p.ra >= 357.5) OR (p.ra <= 0.5)) AND (p.dec BETWEEN -0.5 AND 0.5))'
     sql = sdss.SDSS._rectangle_sql(5, 0, 1)
     assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -0.5 AND 0.5))'
+    sql = sdss.SDSS._rectangle_sql(5, 89.75, 1)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN 89.25 AND 90))'
+    sql = sdss.SDSS._rectangle_sql(5, -89.75, 1)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -90 AND -89.25))'
+    sql = sdss.SDSS._rectangle_sql(5, 5, 1, height=2)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN 4 AND 6))'
+    sql = sdss.SDSS._rectangle_sql(5, -5, 1, height=2)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -6 AND -4))'
