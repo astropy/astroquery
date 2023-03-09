@@ -142,7 +142,6 @@ class SDSSClass(BaseQuery):
         #     If the `radius` exceeds 3 arcmin, or if the sizes of
         #     `coordinates` and `obj_names` do not match.
 
-
         if isinstance(radius, Angle):
             radius = radius.to_value(u.arcmin)
         else:
