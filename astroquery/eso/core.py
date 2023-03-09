@@ -10,7 +10,7 @@ import time
 import warnings
 import webbrowser
 from io import BytesIO
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict
 
 import astropy.utils.data
 import keyring
@@ -214,7 +214,7 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _authenticate(self, *, username: str, password: str):
+    def _authenticate(self, *, username: str, password: str) -> bool:
         """
         Get the access token from ESO SSO provider
         """
@@ -237,8 +237,8 @@ class EsoClass(QueryWithLogin):
             log.info("Authentication failed!")
             return False
 
-    def _get_auth_info(self, username, *, store_password=False,
-                       reenter_password=False):
+    def _get_auth_info(self, username: str, *, store_password: bool = False,
+                       reenter_password: bool = False) -> Tuple[str, str]:
         """
         Get the auth info (user, password) for use in another function
         """
@@ -260,8 +260,8 @@ class EsoClass(QueryWithLogin):
 
         return username, password
 
-    def _login(self, *, username=None, store_password=False,
-               reenter_password=False):
+    def _login(self, *, username: str = None, store_password: bool = False,
+               reenter_password: bool = False) -> bool:
         """
         Login to the ESO User Portal.
 
@@ -284,7 +284,7 @@ class EsoClass(QueryWithLogin):
 
         return self._authenticate(username=username, password=password)
 
-    def _get_auth_header(self):
+    def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
             log.info("Authentication token has expired! Re-authenticating ...")
             self._authenticate(username=self._auth_info.username,
@@ -595,7 +595,7 @@ class EsoClass(QueryWithLogin):
         return Table(result)
 
     @staticmethod
-    def _get_filename_from_server(response: requests.Response):
+    def _get_filename_from_server(response: requests.Response) -> str:
         content_disposition = response.headers.get("Content-Disposition", "")
         filename = re.findall(r"filename=(\S+)", content_disposition)
         if not filename:
@@ -603,7 +603,7 @@ class EsoClass(QueryWithLogin):
         return filename[0]
 
     @staticmethod
-    def _find_cached_file(filename: str):
+    def _find_cached_file(filename: str) -> bool:
         files_to_check = [filename]
         if filename.endswith(('fits.Z', 'fits.gz')):
             files_to_check.append(filename.rsplit(".", 1)[0])
@@ -613,7 +613,8 @@ class EsoClass(QueryWithLogin):
                 return True
         return False
 
-    def _download_eso_file(self, file_link: str, destination: str, overwrite: bool):
+    def _download_eso_file(self, file_link: str, destination: str,
+                           overwrite: bool) -> Tuple[str, bool]:
         block_size = astropy.utils.data.conf.download_block_size
         headers = self._get_auth_header()
         with self._session.get(file_link, stream=True, headers=headers) as response:
@@ -628,7 +629,7 @@ class EsoClass(QueryWithLogin):
         return filename, download_required
 
     def _download_eso_files(self, file_ids: List[str], destination: Optional[str],
-                            overwrite: bool):
+                            overwrite: bool) -> List[str]:
         destination = destination or self.cache_location
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
@@ -653,7 +654,7 @@ class EsoClass(QueryWithLogin):
                 log.error(f"Failed to download {file_link}. {ex}")
         return downloaded_files
 
-    def _unzip_file(self, filename: str):
+    def _unzip_file(self, filename: str) -> str:
         """
         Uncompress the provided file with gunzip.
 
@@ -671,7 +672,7 @@ class EsoClass(QueryWithLogin):
                     log.error(f"Failed to unzip {filename}: {ex}")
         return uncompressed_filename or filename
 
-    def _unzip_files(self, files: List[str]):
+    def _unzip_files(self, files: List[str]) -> List[str]:
         if shutil.which(self.GUNZIP):
             files = [self._unzip_file(file) for file in files]
         else:
