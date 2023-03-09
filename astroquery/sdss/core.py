@@ -126,11 +126,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         Raises
         ------
         TypeError
@@ -138,6 +133,12 @@ class SDSSClass(BaseQuery):
         ValueError
             If the `radius` exceeds 3 arcmin, or if the sizes of
             `coordinates` and `obj_names` do not match.
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         """
 
         if isinstance(radius, Angle):
@@ -285,11 +286,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         Raises
         ------
         TypeError
@@ -313,6 +309,12 @@ class SDSSClass(BaseQuery):
         2.02344596595 14.8398237229 1237652943176138867 1739   301      3   315
         2.02344596303 14.8398237521 1237652943176138868 1739   301      3   315
         2.02344772021 14.8398201105 1237653651835781243 1904   301      3   163
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         """
         # Allow field_help requests to pass without requiring a radius or width.
         if field_help and radius is None and width is None:
@@ -445,11 +447,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object.
-
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -463,6 +460,12 @@ class SDSSClass(BaseQuery):
         47.1604269095 5.48241410994  2340 53733     332 2634697104106219520
         48.6634992214 6.69459110287  2340 53733     553 2634757852123654144
         48.0759195428 6.18757403485  2340 53733     506 2634744932862027776
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as an `~astropy.table.Table` object.
+
         """
 
         if plate is None and mjd is None and fiberID is None:
@@ -524,11 +527,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -541,6 +539,12 @@ class SDSSClass(BaseQuery):
         22.2574304026 8.43175488904 1237670017262485671 5714   301      6    21
         23.3724928784 8.32576993103 1237670017262944491 5714   301      6    28
         25.4801226435 8.27642390025 1237670017263927330 5714   301      6    43
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         """
 
         if run is None and camcol is None and field is None:
@@ -585,11 +589,6 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
-        Returns
-        -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -610,6 +609,13 @@ class SDSSClass(BaseQuery):
         0.3000027 156.25024 7.6586271 1237658425162858683
         0.3000027 256.99461 25.566255 1237661387086693265
          0.300003 175.65125  34.37548 1237665128003731630
+
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
         """
 
         request_payload = dict(cmd=self.__sanitize_query(sql_query),
@@ -677,14 +683,6 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
-        Returns
-        -------
-        list : list
-            A list of context-managers that yield readable file-like objects.
-            The function returns the spectra for only one of ``matches``, or
-            ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
-            ``fiberID``.
-
         Examples
         --------
         Using results from a call to `query_region`:
@@ -702,6 +700,14 @@ class SDSSClass(BaseQuery):
         Fetch the spectra from all fibers on plate 751 with mjd 52251:
 
         >>> specs = SDSS.get_spectra(plate=751, mjd=52251)
+
+        Returns
+        -------
+        list : list
+            A list of context-managers that yield readable file-like objects.
+            The function returns the spectra for only one of ``matches``, or
+            ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
+            ``fiberID``.
 
         """
 
@@ -846,10 +852,6 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
-        Returns
-        -------
-        list : List of `~astropy.io.fits.HDUList` objects.
-
         Examples
         --------
         Using results from a call to `query_region`:
@@ -871,6 +873,10 @@ class SDSSClass(BaseQuery):
         Fetch only images from run 1904, camcol 3 and field 164:
 
         >>> imgs = SDSS.get_images(run=1904, camcol=3, field=164)
+
+        Returns
+        -------
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
         if not matches:
@@ -977,15 +983,16 @@ class SDSSClass(BaseQuery):
         show_progress : bool, optional
             If False, do not display download progress.
 
-        Returns
-        -------
-        list : List of `~astropy.io.fits.HDUList` objects.
-
         Examples
         --------
         >>> qso = SDSS.get_spectral_template(kind='qso')
         >>> Astar = SDSS.get_spectral_template(kind='star_A')
         >>> Fstar = SDSS.get_spectral_template(kind='star_F')
+
+        Returns
+        -------
+        list : List of `~astropy.io.fits.HDUList` objects.
+
         """
 
         if kind == 'all':
