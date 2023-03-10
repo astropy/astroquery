@@ -270,6 +270,7 @@ def test_sdss_photoobj(patch_request, dr):
         compare_xid_data(xid, data)
         url_tester(dr)
 
+
 @pytest.mark.parametrize("dr", dr_list)
 @pytest.mark.parametrize("radius", [None, Angle('2 arcsec')])
 @pytest.mark.parametrize("width", [None, Angle('2 arcsec')])
@@ -286,7 +287,7 @@ def test_list_coordinates(patch_request, dr, radius, width):
                 warnings.filterwarnings("ignore", category=AstropyWarning,
                                         message=r'OverflowError converting.*')
             data = Table.read(data_path(DATA_FILES['images_id']),
-                            format='ascii.csv', comment='#')
+                              format='ascii.csv', comment='#')
 
             data['objid'] = data['objid'].astype(np.int64)
 
