@@ -316,7 +316,7 @@ def test_list_coordinates_with_height(patch_request, width, height):
                 warnings.filterwarnings("ignore", category=AstropyWarning,
                                         message=r'OverflowError converting.*')
             data = Table.read(data_path(DATA_FILES['images_id']),
-                                format='ascii.csv', comment='#')
+                              format='ascii.csv', comment='#')
 
             data['objid'] = data['objid'].astype(np.int64)
 
