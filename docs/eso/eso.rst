@@ -30,9 +30,11 @@ The following packages are required for the use of this module:
 Authentication with ESO User Portal
 ===================================
 
-Except for data under proprietary period, ESO datasets can be downloaded anonymously (without login).
-PIs and their collaborators need to authenticate with the ESO User Portal (https://www.eso.org/sso/login)
-to download datasets from their observing programmes which are still under proprietary period.
+Most of the datasets in the ESO Science Archive are public and can be downloaded anonymously
+without authenticating with the ESO User Portal (https://www.eso.org/sso/login).
+Data with restricted access like datasets under proprietary period can be downloaded by authorised users
+(for example PIs of the corresponding observing programmes and their delegates)
+after authentication with the ESO User Portal.
 This authentication is performed directly with the provided :meth:`~astroquery.query.QueryWithLogin.login` command,
 as illustrated in the example below. This method uses your keyring to securely
 store the password in your operating system. As such you should have to enter your
@@ -61,6 +63,16 @@ interaction with the ESO archive.
     >>> eso.login(username="ICONDOR") # doctest: +SKIP
     INFO: Authenticating ICONDOR on https://www.eso.org/sso ... [astroquery.eso.core]
     INFO: Authentication successful! [astroquery.eso.core]
+
+    >>> # Successful download of a public file (with or without login)
+    >>> eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
+    INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/AMBER.2006-03-14T07:40:19.830
+    INFO: Successfully downloaded dataset AMBER.2006-03-14T07:40:19.830
+
+    >>> # Access denied to a restricted-access file (as anonymous user or as authenticated but not authorised user)
+    >>> eso.retrieve_data('ADP.2023-03-02T01:01:24.355')
+    INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355
+    ERROR: Access denied to https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355
 
 Automatic password
 ------------------
