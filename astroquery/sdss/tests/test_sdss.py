@@ -428,6 +428,60 @@ def test_list_coordinates_region_payload(patch_request, dr):
     assert query_payload['uquery'] == expect
     assert query_payload['format'] == 'csv'
     assert query_payload['photoScope'] == 'allObj'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'CrossID'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_list_coordinates_region_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p "
+              "WHERE (((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)) "
+              "OR ((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)))")
+    query_payload = sdss.SDSS.query_region(coords_list, width=Angle('2 arcsec'),
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_list_coordinates_region_spectro_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field, "
+              "s.z, s.plate, s.mjd, s.fiberID, s.specobjid, s.run2d "
+              "FROM PhotoObjAll AS p "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "WHERE (((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)) "
+              "OR ((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)))")
+    query_payload = sdss.SDSS.query_region(coords_list, width=Angle('2 arcsec'),
+                                           spectro=True,
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_coordinate_region_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p "
+              "WHERE ((((p.ra >= 359.999) OR (p.ra <= 0.00152171)) AND (p.dec BETWEEN 14.8356 AND 14.844)))")
+    query_payload = sdss.SDSS.query_region(SkyCoord("0h0m00.03s +14d50m23.3s", frame="icrs"),
+                                           width=Angle('10 arcsec'),
+                                           height=Angle('30 arcsec'),
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
 
 
 @pytest.mark.parametrize("dr", dr_list)
