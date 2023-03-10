@@ -298,6 +298,31 @@ def test_list_coordinates(patch_request, dr, radius, width):
                 url_tester(dr)
 
 
+@pytest.mark.parametrize("width", [Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle'])
+@pytest.mark.parametrize("height", [None, Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle'])
+def test_list_coordinates_with_height(patch_request, width, height):
+    if width == 'bad angle' or height == 'bad angle':
+        with pytest.raises(TypeError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        if width == 'bad angle':
+            assert str(e.value) == "width should be either Quantity or convertible to float."
+        else:
+            assert str(e.value) == "height should be either Quantity or convertible to float."
+    else:
+        xid = sdss.SDSS.query_region(coords_list, width=width, height=height)
+
+        with warnings.catch_warnings():
+            if sys.platform.startswith('win'):
+                warnings.filterwarnings("ignore", category=AstropyWarning,
+                                        message=r'OverflowError converting.*')
+            data = Table.read(data_path(DATA_FILES['images_id']),
+                                format='ascii.csv', comment='#')
+
+            data['objid'] = data['objid'].astype(np.int64)
+
+            compare_xid_data(xid, data)
+
+
 @pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates(patch_request, dr):
     xid = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'), data_release=dr)

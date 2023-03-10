@@ -140,6 +140,7 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
+
         if isinstance(radius, Angle):
             radius = radius.to_value(u.arcmin)
         else:
