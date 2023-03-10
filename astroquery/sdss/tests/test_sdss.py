@@ -123,26 +123,26 @@ dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
 # interfaces are supported for DR11."
 def url_tester(data_release):
     if data_release < 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_sql.asp'
     if data_release == 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_sql.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
-    assert sdss.SDSS._last_url == baseurl.format(data_release)
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_results.aspx'
+    assert sdss.SDSS._last_url == baseurl
 
 
 def url_tester_crossid(data_release):
     if data_release < 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/crossid/x_crossid.asp'
     if data_release == 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/crossid/x_crossid.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
-    assert sdss.SDSS._last_url == baseurl.format(data_release)
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/X_Results.aspx'
+    assert sdss.SDSS._last_url == baseurl
 
 
 def compare_xid_data(xid, data):
@@ -270,22 +270,31 @@ def test_sdss_photoobj(patch_request, dr):
         compare_xid_data(xid, data)
         url_tester(dr)
 
-
 @pytest.mark.parametrize("dr", dr_list)
-def test_list_coordinates(patch_request, dr):
-    xid = sdss.SDSS.query_region(coords_list, radius=Angle('2 arcsec'), data_release=dr)
+@pytest.mark.parametrize("radius", [None, Angle('2 arcsec')])
+@pytest.mark.parametrize("width", [None, Angle('2 arcsec')])
+def test_list_coordinates(patch_request, dr, radius, width):
+    if (radius is None and width is None) or (radius is not None and width is not None):
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, radius=radius, width=width)
+        assert str(e.value) == "Either radius or width must be selected!"
+    else:
+        xid = sdss.SDSS.query_region(coords_list, radius=radius, width=width, data_release=dr)
 
-    with warnings.catch_warnings():
-        if sys.platform.startswith('win'):
-            warnings.filterwarnings("ignore", category=AstropyWarning,
-                                    message=r'OverflowError converting.*')
-        data = Table.read(data_path(DATA_FILES['images_id']),
-                          format='ascii.csv', comment='#')
+        with warnings.catch_warnings():
+            if sys.platform.startswith('win'):
+                warnings.filterwarnings("ignore", category=AstropyWarning,
+                                        message=r'OverflowError converting.*')
+            data = Table.read(data_path(DATA_FILES['images_id']),
+                            format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+            data['objid'] = data['objid'].astype(np.int64)
 
-        compare_xid_data(xid, data)
-        url_tester_crossid(dr)
+            compare_xid_data(xid, data)
+            if width is None:
+                url_tester_crossid(dr)
+            else:
+                url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", dr_list)
@@ -305,7 +314,7 @@ def test_column_coordinates(patch_request, dr):
         url_tester_crossid(dr)
 
 
-def test_query_timeout(patch_request_slow, coord=coords):
+def test_query_timeout(patch_request_slow):
     with pytest.raises(TimeoutError):
         sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), timeout=1)
 

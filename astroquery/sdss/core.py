@@ -339,10 +339,10 @@ class SDSSClass(BaseQuery):
 
         if width is not None:
             if isinstance(width, Angle):
-                width = width.to_value(u.arcmin)
+                width = width.to_value(u.degree)
             else:
                 try:
-                    width = Angle(width).to_value(u.arcmin)
+                    width = Angle(width).to_value(u.degree)
                 except ValueError:
                     raise TypeError("width should be either Quantity or "
                                     "convertible to float.")
@@ -350,10 +350,10 @@ class SDSSClass(BaseQuery):
                 height = width
             else:
                 if isinstance(height, Angle):
-                    height = height.to_value(u.arcmin)
+                    height = height.to_value(u.degree)
                 else:
                     try:
-                        height = Angle(height).to_value(u.arcmin)
+                        height = Angle(height).to_value(u.degree)
                     except ValueError:
                         raise TypeError("height should be either Quantity or "
                                         "convertible to float.")
@@ -378,16 +378,8 @@ class SDSSClass(BaseQuery):
             for n, target in enumerate(coordinates):
                 # Query for a rectangle
                 target = commons.parse_coordinates(target).transform_to('fk5')
+                rectangles.append(self._rectangle_sql(target.ra.degree, target.dec.degree, width, height=height))
 
-                ra = target.ra.degree
-                dec = target.dec.degree
-                dra = Angle(width).to('degree').value / 2.0
-                ddec = Angle(height).to('degree').value / 2.0
-                rectangles.append('((p.ra BETWEEN {0:g} AND {1:g}) '
-                                  'AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(ra - dra,
-                                                                                ra + dra,
-                                                                                dec - ddec,
-                                                                                dec + ddec))
             rect = ' OR '.join(rectangles)
             if 'WHERE' in sql_query:
                 sql_query += f' AND ({rect})'
