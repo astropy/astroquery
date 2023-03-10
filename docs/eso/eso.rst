@@ -46,7 +46,7 @@ interaction with the ESO archive.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     >>> # First example: TEST is not a valid username, it will fail
-    >>> eso.login(username="TEST")
+    >>> eso.login(username="TEST") # doctest: +SKIP
     WARNING: No password was found in the keychain for the provided username. [astroquery.query]
     TEST, enter your password:
 
@@ -65,12 +65,12 @@ interaction with the ESO archive.
     INFO: Authentication successful! [astroquery.eso.core]
 
     >>> # Successful download of a public file (with or without login)
-    >>> eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
+    >>> eso.retrieve_data('AMBER.2006-03-14T07:40:19.830') # doctest: +SKIP
     INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/AMBER.2006-03-14T07:40:19.830
     INFO: Successfully downloaded dataset AMBER.2006-03-14T07:40:19.830
 
     >>> # Access denied to a restricted-access file (as anonymous user or as authenticated but not authorised user)
-    >>> eso.retrieve_data('ADP.2023-03-02T01:01:24.355')
+    >>> eso.retrieve_data('ADP.2023-03-02T01:01:24.355') # doctest: +SKIP
     INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355
     ERROR: Access denied to https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355
 
