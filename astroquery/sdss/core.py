@@ -384,10 +384,10 @@ class SDSSClass(BaseQuery):
                 rectangles.append(self._rectangle_sql(target.ra.degree, target.dec.degree, width, height=height))
 
             rect = ' OR '.join(rectangles)
-            if 'WHERE' in sql_query:
-                sql_query += f' AND ({rect})'
-            else:
-                sql_query += f' WHERE ({rect})'
+
+            # self._args_to_payload only returns a WHERE if e.g. plate, mjd, fiber
+            # are set, which will not happen in this function.
+            sql_query += f' WHERE ({rect})'
 
             return self.query_sql_async(sql_query, timeout=timeout,
                                         data_release=data_release,
