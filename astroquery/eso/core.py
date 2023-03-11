@@ -9,6 +9,7 @@ import subprocess
 import time
 import warnings
 import webbrowser
+import xml.etree.ElementTree as ET
 from io import BytesIO
 from typing import List, Optional, Tuple, Dict
 
@@ -61,6 +62,7 @@ class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
+    CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso"
     GUNZIP = "gunzip"
@@ -681,8 +683,22 @@ class EsoClass(QueryWithLogin):
                           "(gunzip is not available on this system)")
         return files
 
+    def find_associated_files(self, datasets: List[str], mode: str) -> List[str]:
+        """
+        Invoke calselector service to find calibration files associated to the given datasets.
+        """
+        mode = "Raw2Raw" if mode == "raw" else "Raw2Master"
+        post_data = {"dp_id": datasets, "mode": mode}
+        response = self._session.post(self.CALSELECTOR_URL, data=post_data)
+        response.raise_for_status()
+        # parse calselector XML response
+        tree = ET.fromstring(response.content)
+        associated_files = {element.attrib['name'] for element in tree.iter('file')}
+        # remove input datasets from calselector results
+        return list(associated_files.difference(set(datasets)))
+
     def retrieve_data(self, datasets, *, overwrite=False, destination=None,
-                      with_calib='none', unzip=True):
+                      with_calib=None, unzip=True):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -699,7 +715,7 @@ class EsoClass(QueryWithLogin):
             Force the retrieval of data that are present in the destination
             directory.
         with_calib : string
-            Retrieve associated calibration files: 'none' (default), 'raw' for
+            Retrieve associated calibration files: None (default), 'raw' for
             raw calibrations, or 'processed' for processed calibrations.
         unzip : bool
             Unzip compressed files from the archive after download. `True` by
@@ -721,8 +737,23 @@ class EsoClass(QueryWithLogin):
         if isinstance(datasets, str):
             return_string = True
             datasets = [datasets]
+
+        if with_calib and with_calib not in ('raw', 'processed'):
+            raise ValueError("Invalid value for 'with_calib'. "
+                             "It must be 'raw' or 'processed'")
+
+        associated_files = []
+        if with_calib:
+            log.info(f"Retrieving associated '{with_calib}' calibration files ...")
+            try:
+                associated_files = self.find_associated_files(datasets, with_calib)
+                log.info(f"Found {len(associated_files)} associated files")
+            except Exception as ex:
+                log.error(f"Failed to retrieve associated files: {ex}")
+
+        all_datasets = datasets + associated_files
         log.info("Downloading datasets ...")
-        files = self._download_eso_files(datasets, destination, overwrite)
+        files = self._download_eso_files(all_datasets, destination, overwrite)
         if unzip:
             files = self._unzip_files(files)
         log.info("Done!")
