@@ -218,10 +218,6 @@ class GaiaClass(TapPlus):
         -------
         A table object
         """
-
-        if retrieval_type is None:
-            raise ValueError("Missing mandatory argument 'retrieval_type'")
-
         now = datetime.now()
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
         temp_dirname = "temp_" + now_formatted
@@ -238,9 +234,6 @@ class GaiaClass(TapPlus):
                                  f"overwrite output file.")
 
         path = os.path.dirname(output_file)
-
-        if ids is None:
-            raise ValueError("Missing mandatory argument 'ids'")
 
         if avoid_datatype_check is False:
             # we need to check params
@@ -757,9 +750,9 @@ class GaiaClass(TapPlus):
         return self.is_valid_user(user_id=user_id,
                                   verbose=verbose)
 
-    def cross_match(self, *, full_qualified_table_name_a=None,
-                    full_qualified_table_name_b=None,
-                    results_table_name=None,
+    def cross_match(self, *, full_qualified_table_name_a,
+                    full_qualified_table_name_b,
+                    results_table_name,
                     radius=1.0,
                     background=False,
                     verbose=False):
@@ -785,12 +778,6 @@ class GaiaClass(TapPlus):
         -------
         Boolean indicating if the specified user is valid
         """
-        if full_qualified_table_name_a is None:
-            raise ValueError("Table name A argument is mandatory")
-        if full_qualified_table_name_b is None:
-            raise ValueError("Table name B argument is mandatory")
-        if results_table_name is None:
-            raise ValueError("Results table name argument is mandatory")
         if radius < 0.1 or radius > 10.0:
             raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
 
