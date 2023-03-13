@@ -245,13 +245,13 @@ def test_cross_match_invalid_radius(cross_match_kwargs, radius):
 
 
 @pytest.mark.parametrize(
-    "missing_kwarg,msg",
-    [("full_qualified_table_name_a", "Table name A"),
-     ("full_qualified_table_name_b", "Table name B"),
-     ("results_table_name", "Results table name")])
-def test_cross_match_missing_mandatory_kwarg(cross_match_kwargs, missing_kwarg, msg):
+    "missing_kwarg",
+    ["full_qualified_table_name_a", "full_qualified_table_name_b", "results_table_name"])
+def test_cross_match_missing_mandatory_kwarg(cross_match_kwargs, missing_kwarg):
     del cross_match_kwargs[missing_kwarg]
-    with pytest.raises(ValueError, match=rf"^{msg} argument is mandatory$"):
+    with pytest.raises(
+        TypeError, match=rf"missing 1 required keyword-only argument: '{missing_kwarg}'$"
+    ):
         GAIA_QUERIER.cross_match(**cross_match_kwargs)
 
 
