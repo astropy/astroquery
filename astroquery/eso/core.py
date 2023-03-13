@@ -64,7 +64,7 @@ class EsoClass(QueryWithLogin):
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
     CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
-    AUTH_URL = "https://www.eso.org/sso"
+    AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
 
     def __init__(self):
@@ -221,15 +221,14 @@ class EsoClass(QueryWithLogin):
         Get the access token from ESO SSO provider
         """
         self._auth_info = None
-        auth_url = self.AUTH_URL + "/oidc/token"
         url_params = {"response_type": "id_token token",
                       "grant_type": "password",
                       "client_id": "clientid",
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        log.info(f"Authenticating {username} on {self.AUTH_URL} ...")
-        response = self._request('GET', auth_url, params=url_params)
+        log.info(f"Authenticating {username} on 'www.eso.org' ...")
+        response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
             self._auth_info = AuthInfo(username=username, password=password, token=token)

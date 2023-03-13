@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from astroquery.utils.mocks import MockResponse
 
+from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -11,26 +11,34 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 
-DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form':
-                      'main_query_form.html',
-                      'http://archive.eso.org/wdb/wdb/eso/amber/form':
-                      'amber_query_form.html',
-                      'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
-                      'vvv_sgra_form.html',
-                      },
-              'POST': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query':
-                       'main_sgra_query.tbl',
-                       'http://archive.eso.org/wdb/wdb/eso/amber/query':
-                       'amber_sgra_query.tbl',
-                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
-                       'vvv_sgra_survey_response.tbl',
-                       }
-              }
+DATA_FILES = {
+    'GET':
+        {
+            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form': 'main_query_form.html',
+            'http://archive.eso.org/wdb/wdb/eso/amber/form': 'amber_query_form.html',
+            'http://archive.eso.org/wdb/wdb/adp/phase3_main/form': 'vvv_sgra_form.html',
+            Eso.AUTH_URL: 'oidc_token.json',
+        },
+    'POST':
+        {
+            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query': 'main_sgra_query.tbl',
+            'http://archive.eso.org/wdb/wdb/eso/amber/query': 'amber_sgra_query.tbl',
+            'http://archive.eso.org/wdb/wdb/adp/phase3_main/query': 'vvv_sgra_survey_response.tbl',
+        }
+}
 
 
 def eso_request(request_type, url, **kwargs):
     with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
+    return response
+
+
+def download_request(url, **kwargs):
+    filename = 'testfile.fits.Z'
+    with open(data_path(filename), 'rb') as f:
+        header = {'Content-Disposition': f'filename={filename}'}
+        response = MockResponse(content=f.read(), url=url, headers=header)
     return response
 
 
@@ -92,3 +100,23 @@ def test_vvv(monkeypatch):
     assert result_s is not None
     assert 'Object' in result_s.colnames
     assert 'b333' in result_s['Object']
+
+
+def test_authenticate(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, '_request', eso_request)
+    eso.cache_location = DATA_DIR
+    authenticated = eso._authenticate(username="someuser", password="somepassword")
+    assert authenticated is True
+
+
+def test_download(monkeypatch):
+    fileid = 'testfile'
+    url = Eso.DOWNLOAD_URL + fileid
+    eso = Eso()
+    destination = os.path.join(DATA_DIR, 'downloads')
+    os.makedirs(destination, exist_ok=True)
+    monkeypatch.setattr(eso._session, 'get', download_request)
+    filename, downloaded = eso._download_eso_file(url, destination=destination, overwrite=True)
+    assert downloaded is True
+    assert fileid in filename
