@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import base64
+import email
 import json
 import os.path
 import re
@@ -11,7 +12,7 @@ import warnings
 import webbrowser
 import xml.etree.ElementTree as ET
 from io import BytesIO
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Set
 
 import astropy.utils.data
 import keyring
@@ -39,6 +40,10 @@ def _check_response(content):
                                  "problem; the service may be offline.")
     elif b"# No data returned !" not in content:
         return True
+
+
+class CalSelectorError(Exception):
+    pass
 
 
 class AuthInfo:
@@ -597,12 +602,12 @@ class EsoClass(QueryWithLogin):
         return Table(result)
 
     @staticmethod
-    def _get_filename_from_server(response: requests.Response) -> str:
+    def _get_filename_from_response(response: requests.Response) -> str:
         content_disposition = response.headers.get("Content-Disposition", "")
         filename = re.findall(r"filename=(\S+)", content_disposition)
         if not filename:
             raise RemoteServiceError(f"Unable to find filename for {response.url}")
-        return filename[0]
+        return filename[0].replace('"', '')
 
     @staticmethod
     def _find_cached_file(filename: str) -> bool:
@@ -621,7 +626,7 @@ class EsoClass(QueryWithLogin):
         headers = self._get_auth_header()
         with self._session.get(file_link, stream=True, headers=headers) as response:
             response.raise_for_status()
-            filename = self._get_filename_from_server(response)
+            filename = self._get_filename_from_response(response)
             filename = os.path.join(destination, filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
@@ -682,17 +687,68 @@ class EsoClass(QueryWithLogin):
                           "(gunzip is not available on this system)")
         return files
 
-    def find_associated_files(self, datasets: List[str], mode: str) -> List[str]:
+    @staticmethod
+    def _get_unique_files_from_association_tree(xml: str) -> Set[str]:
+        tree = ET.fromstring(xml)
+        return {element.attrib['name'] for element in tree.iter('file')}
+
+    def _save_xml(self, payload: bytes, filename: str, destination: str):
+        destination = destination or self.cache_location
+        destination = os.path.abspath(destination)
+        os.makedirs(destination, exist_ok=True)
+        filename = os.path.join(destination, filename)
+        log.info(f"Saving Calselector association tree to {filename}")
+        with open(filename, "wb") as fd:
+            fd.write(payload)
+
+    def find_associated_files(self, datasets: List[str], *, mode: str = "raw",
+                              savexml: bool = False, destination: str = None) -> List[str]:
         """
-        Invoke calselector service to find calibration files associated to the given datasets.
+        Invoke Calselector service to find calibration files associated to the provided datasets.
+
+        Parameters
+        ----------
+        datasets :
+            List of datasets for which calibration files should be retrieved.
+        mode :
+            Calselector mode: 'raw' (default) for raw calibrations,
+             or 'processed' for processed calibrations.
+        savexml :
+            If true, save to disk the XML association tree returned by Calselector.
+        destination :
+            Directory where the XML files are saved (default = astropy cache).
+
+        Returns
+        -------
+        files :
+            List of unique datasets associated to the input datasets.
         """
         mode = "Raw2Raw" if mode == "raw" else "Raw2Master"
         post_data = {"dp_id": datasets, "mode": mode}
         response = self._session.post(self.CALSELECTOR_URL, data=post_data)
         response.raise_for_status()
-        # parse calselector XML response
-        tree = ET.fromstring(response.content)
-        associated_files = {element.attrib['name'] for element in tree.iter('file')}
+        associated_files = set()
+        content_type = response.headers['Content-Type']
+        # Calselector can return one or more XML association trees depending on the input.
+        # For a single dataset it returns one XML and content-type = 'application/xml'
+        if 'application/xml' in content_type:
+            filename = self._get_filename_from_response(response)
+            xml = response.content
+            associated_files.update(self._get_unique_files_from_association_tree(xml))
+            if savexml:
+                self._save_xml(xml, filename, destination)
+        # For multiple datasets it returns a multipart message
+        elif 'multipart/form-data' in content_type:
+            msg = email.message_from_string(f'Content-Type: {content_type}\r\n' + response.content.decode())
+            for part in msg.get_payload():
+                filename = part.get_filename()
+                xml = part.get_payload(decode=True)
+                associated_files.update(self._get_unique_files_from_association_tree(xml))
+                if savexml:
+                    self._save_xml(xml, filename, destination)
+        else:
+            raise CalSelectorError(f"Unexpected content-type '{content_type}' for {response.url}")
+
         # remove input datasets from calselector results
         return list(associated_files.difference(set(datasets)))
 

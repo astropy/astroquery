@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<association category="SCI_IMG_2x2_low" certified="true" complete="true"
+    mode="Raw2Raw" type="main">
+    <mainFiles>
+        <file category="SCIENCE_IMG" name="FORS2.2021-01-02T00:59:12.533"/>
+    </mainFiles>
+    <messages/>
+    <associatedFiles>
+        <association category="FLAT_SKY" certified="true"
+            complete="true" match="calib_plan" type="main">
+            <mainFiles>
+                <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:09.658"/>
+                <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:59.553"/>
+                <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:20:52.557"/>
+                <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:21:49.661"/>
+                <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:22:52.656"/>
+            </mainFiles>
+            <messages/>
+            <associatedFiles>
+                <association category="BIAS" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:54:31.688"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:54:54.290"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:55:17.291"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:55:40.764"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:56:03.344"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:56:26.286"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:56:49.299"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:57:12.301"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:57:35.302"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:57:58.314"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:58:21.297"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:58:44.298"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:59:07.320"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:59:30.312"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T08:59:53.324"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T09:00:16.336"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T09:00:39.317"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T09:01:02.320"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T09:01:25.321"/>
+                        <file category="BIAS" name="FORS2.2020-12-26T09:01:48.333"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+            </associatedFiles>
+        </association>
+        <association category="STD_IMA" certified="true" complete="true"
+            match="calib_plan" type="main">
+            <mainFiles>
+                <file category="STANDARD_IMG" name="FORS2.2021-01-02T00:14:20.344"/>
+            </mainFiles>
+            <messages/>
+            <associatedFiles>
+                <association category="FLX_STD_IMG" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="FLX_STD_IMG" name="M.FORS2.2015-08-05T11:20:17.466"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="PHOT_TABLE" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="PHOT_TABLE" name="M.FORS2.2020-12-16T08:22:29.053"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="FLAT_SKY" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:09.658"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:59.553"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:20:52.557"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:21:49.661"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:22:52.656"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles>
+                        <association category="BIAS" certified="true"
+                            complete="true" match="calib_plan" type="main">
+                            <mainFiles>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:31.688"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:54.290"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:17.291"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:40.764"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:03.344"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:26.286"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:49.299"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:12.301"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:35.302"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:58.314"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:21.297"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:44.298"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:07.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:30.312"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:53.324"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:16.336"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:39.317"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:02.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:25.321"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:48.333"/>
+                            </mainFiles>
+                            <messages/>
+                            <associatedFiles/>
+                        </association>
+                    </associatedFiles>
+                </association>
+                <association category="BIAS" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:34.589"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:57.671"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:20.672"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:43.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:06.667"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:29.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:52.679"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:15.681"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:38.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:01.685"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:24.677"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:47.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:10.691"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:33.703"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:56.704"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:19.696"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:42.698"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:05.701"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:28.712"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:51.714"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+            </associatedFiles>
+        </association>
+        <association category="STD_IMA" certified="true" complete="true"
+            match="calib_plan" type="main">
+            <mainFiles>
+                <file category="STANDARD_IMG" name="FORS2.2021-01-02T00:27:11.249"/>
+            </mainFiles>
+            <messages/>
+            <associatedFiles>
+                <association category="FLX_STD_IMG" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="FLX_STD_IMG" name="M.FORS2.2015-08-05T11:20:17.466"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="PHOT_TABLE" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="PHOT_TABLE" name="M.FORS2.2020-12-16T08:22:29.053"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="FLAT_SKY" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:09.658"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:59.553"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:20:52.557"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:21:49.661"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:22:52.656"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles>
+                        <association category="BIAS" certified="true"
+                            complete="true" match="calib_plan" type="main">
+                            <mainFiles>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:31.688"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:54.290"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:17.291"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:40.764"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:03.344"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:26.286"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:49.299"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:12.301"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:35.302"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:58.314"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:21.297"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:44.298"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:07.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:30.312"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:53.324"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:16.336"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:39.317"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:02.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:25.321"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:48.333"/>
+                            </mainFiles>
+                            <messages/>
+                            <associatedFiles/>
+                        </association>
+                    </associatedFiles>
+                </association>
+                <association category="BIAS" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:34.589"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:57.671"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:20.672"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:43.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:06.667"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:29.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:52.679"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:15.681"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:38.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:01.685"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:24.677"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:47.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:10.691"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:33.703"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:56.704"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:19.696"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:42.698"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:05.701"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:28.712"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:51.714"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+            </associatedFiles>
+        </association>
+        <association category="STD_IMA" certified="true" complete="true"
+            match="calib_plan" type="main">
+            <mainFiles>
+                <file category="STANDARD_IMG" name="FORS2.2021-01-02T08:47:39.656"/>
+            </mainFiles>
+            <messages/>
+            <associatedFiles>
+                <association category="FLX_STD_IMG" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="FLX_STD_IMG" name="M.FORS2.2015-08-05T11:20:17.466"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="PHOT_TABLE" certified="true"
+                    complete="true" match="N/A" type="main">
+                    <mainFiles>
+                        <file category="PHOT_TABLE" name="M.FORS2.2020-12-16T08:22:29.053"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+                <association category="FLAT_SKY" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:09.658"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:19:59.553"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:20:52.557"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:21:49.661"/>
+                        <file category="SKY_FLAT_IMG" name="FORS2.2020-12-26T00:22:52.656"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles>
+                        <association category="BIAS" certified="true"
+                            complete="true" match="calib_plan" type="main">
+                            <mainFiles>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:31.688"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:54:54.290"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:17.291"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:55:40.764"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:03.344"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:26.286"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:56:49.299"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:12.301"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:35.302"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:57:58.314"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:21.297"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:58:44.298"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:07.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:30.312"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T08:59:53.324"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:16.336"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:00:39.317"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:02.320"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:25.321"/>
+                                <file category="BIAS" name="FORS2.2020-12-26T09:01:48.333"/>
+                            </mainFiles>
+                            <messages/>
+                            <associatedFiles/>
+                        </association>
+                    </associatedFiles>
+                </association>
+                <association category="BIAS" certified="true"
+                    complete="true" match="calib_plan" type="main">
+                    <mainFiles>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:34.589"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:27:57.671"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:20.672"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:28:43.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:06.667"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:29.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:29:52.679"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:15.681"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:30:38.683"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:01.685"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:24.677"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:31:47.678"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:10.691"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:33.703"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:32:56.704"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:19.696"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:33:42.698"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:05.701"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:28.712"/>
+                        <file category="BIAS" name="FORS2.2021-01-02T09:34:51.714"/>
+                    </mainFiles>
+                    <messages/>
+                    <associatedFiles/>
+                </association>
+            </associatedFiles>
+        </association>
+        <association category="BIAS" certified="true" complete="true"
+            match="calib_plan" type="main">
+            <mainFiles>
+                <file category="BIAS" name="FORS2.2021-01-02T09:27:34.589"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:27:57.671"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:28:20.672"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:28:43.683"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:29:06.667"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:29:29.678"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:29:52.679"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:30:15.681"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:30:38.683"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:31:01.685"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:31:24.677"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:31:47.678"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:32:10.691"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:32:33.703"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:32:56.704"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:33:19.696"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:33:42.698"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:34:05.701"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:34:28.712"/>
+                <file category="BIAS" name="FORS2.2021-01-02T09:34:51.714"/>
+            </mainFiles>
+            <messages/>
+            <associatedFiles/>
+        </association>
+    </associatedFiles>
+</association>
