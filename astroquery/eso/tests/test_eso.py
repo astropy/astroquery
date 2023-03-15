@@ -45,12 +45,12 @@ def download_request(url, **kwargs):
 def calselector_request(url, **kwargs):
     is_multipart = len(kwargs['data']['dp_id']) > 1
     if is_multipart:
-        filename = 'FORS2.2021-01-02T00:59:12.533_raw2raw_multipart.xml'
+        filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw_multipart.xml'
         header = {
             'Content-Type': 'multipart/form-data; boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
         }
     else:
-        filename = 'FORS2.2021-01-02T00:59:12.533_raw2raw.xml'
+        filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw.xml'
         header = {
             'Content-Disposition': f'filename="{filename}"',
             'Content-Type': 'application/xml; content=calselector'
@@ -144,7 +144,7 @@ def test_calselector(monkeypatch):
     eso = Eso()
     dataset = 'FORS2.2021-01-02T00:59:12.533'
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.find_associated_files([dataset], savexml=True, destination=data_path('downloads'))
+    result = eso.find_associated_files([dataset], savexml=False, destination=data_path('downloads'))
     assert isinstance(result, list)
     assert len(result) == 50
     assert dataset not in result
@@ -154,7 +154,7 @@ def test_calselector_multipart(monkeypatch):
     eso = Eso()
     datasets = ['FORS2.2021-01-02T00:59:12.533', 'FORS2.2021-01-02T00:59:12.534']
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.find_associated_files(datasets, savexml=True, destination=data_path('downloads'))
+    result = eso.find_associated_files(datasets, savexml=False, destination=data_path('downloads'))
     assert isinstance(result, list)
     assert len(result) == 99
     assert datasets[0] not in result and datasets[1] not in result
