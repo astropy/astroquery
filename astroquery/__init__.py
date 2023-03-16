@@ -60,4 +60,3 @@ class Cache_Conf(_config.ConfigNamespace):
 
 
 cache_conf = Cache_Conf()
-

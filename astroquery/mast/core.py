@@ -25,9 +25,11 @@ class MastQueryWithLogin(QueryWithLogin):
 
         super().__init__()
 
+        self.name = "Mast"
+        
         # Initializing API connections
-        self._portal_api_connection = PortalAPI(self._session)
-        self._service_api_connection = ServiceAPI(self._session)
+        self._portal_api_connection = PortalAPI(self._session, self.name)
+        self._service_api_connection = ServiceAPI(self._session, self.name)
 
         if mast_token:
             self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)
@@ -59,24 +61,20 @@ class MastQueryWithLogin(QueryWithLogin):
 
         return self._auth_obj.login(token, store_token, reenter_token)
 
+
     @property
     def cache_location(self):
-        cl = self._portal_api_connection.cache_location
-        cl_2 = self._service_api_connection.cache_location
-
-        if cl != cl_2:
-            print("What should we do in this case? (currently setting it by force)")
-            self._service_api_connection.cache_location = cl
-        
-        return cl
-
+        return super().cache_location
+    
     @cache_location.setter
     def cache_location(self, loc):
+        self._cache_location = Path(loc)
         self._portal_api_connection.cache_location = loc
         self._service_api_connection.cache_location = loc
 
     def reset_cache_location(self):
         """Resets the cache location to the default astropy cache"""
+        self._cache_location = None
         self._portal_api_connection.reset_cache_location()
         self._service_api_connection.reset_cache_location()
 
