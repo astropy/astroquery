@@ -144,6 +144,12 @@ mast
 
 - Expanding ``Cutouts`` functionality to support TICA HLSPs now available through 
   ``TesscutClass``. [##2668]
+  
+nist
+^^^^
+
+- Vectoized ``linename`` option to query multiple spectral lines with one call
+  of ``Nist.query``. [#2678]
 
 oac
 ^^^
