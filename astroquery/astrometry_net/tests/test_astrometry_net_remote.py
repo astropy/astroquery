@@ -152,3 +152,36 @@ def test_solve_timeout_behavior():
         except TypeError:
             pass
         assert difference == 0
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@pytest.mark.remote_data
+def test_solve_from_image_default_behaviour():
+    # Test that solving by uploading an image works
+    a = AstrometryNet()
+    a.api_key = api_key
+    sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
+    # The image_width, image_height and crpix_center below are set to match the
+    # original solve on astrometry.net.
+    result = a.solve_from_source_list(sources['X'], sources['Y'],
+                                      4109, 4096,
+                                      crpix_center=True)
+
+    assert isinstance(result, fits.Header)
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@pytest.mark.remote_data
+def test_solve_from_image_with_return_job_id():
+    # Test that solving by uploading an image works
+    a = AstrometryNet()
+    a.api_key = api_key
+    sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
+    # The image_width, image_height and crpix_center below are set to match the
+    # original solve on astrometry.net.
+    result = a.solve_from_source_list(sources['X'], sources['Y'],
+                                      4109, 4096,
+                                      crpix_center=True,
+                                      return_job_id=True)
+
+    assert isinstance(result, tuple)
