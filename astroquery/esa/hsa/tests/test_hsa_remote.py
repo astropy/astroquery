@@ -7,10 +7,15 @@ from requests.exceptions import ChunkedEncodingError
 
 from ..core import HSAClass
 
-spire_chksum = [10233, 10762, 9019, 10869, 3944, 11328, 3921, 10999, 10959,
-                11342, 10974, 3944, 11335, 11323, 11078, 11321, 11089, 11314, 11108, 6281]
 
-pacs_chksum = [10208, 10755, 8917, 10028, 3924, 3935, 6291]
+
+PACS_ENDINGS = ["571.xml", "571.jpg", "214.fits.gz", "008.fits.gz",
+                "674.fits.gz", "350.fits.gz", "README.pdf"]
+SPIRE_ENDINGS = ["898.xml", "898.jpg", "141.fits.gz", "045.fits.gz", "952.fits.gz",
+                 "974.fits.gz", "715.fits.gz", "547.fits.gz", "770.fits.gz",
+                 "856.fits.gz", "148.fits.gz", "025.fits.gz", "538.fits.gz",
+                 "070.fits.gz", "434.fits.gz", "637.fits.gz", "835.fits.gz",
+                 "372.fits.gz","248.fits.gz", "README.pdf"]
 
 
 @pytest.mark.remote_data
@@ -42,8 +47,10 @@ class TestHSARemote:
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
+            names = tar.getnames()
+        assert len(names) == len(PACS_ENDINGS)
+        for name, ending in zip(names, PACS_ENDINGS):
+            assert name.endswith(ending)
 
     def test_download_data_observation_pacs_filename(self, tmp_path):
         obs_id = "1342191813"
@@ -63,8 +70,10 @@ class TestHSARemote:
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
+            names = tar.getnames()
+        assert len(names) == len(PACS_ENDINGS)
+        for name, ending in zip(names, PACS_ENDINGS):
+            assert name.endswith(ending)
 
     def test_download_data_observation_pacs_compressed(self, tmp_path):
         obs_id = "1342191813"
@@ -83,8 +92,10 @@ class TestHSARemote:
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
+            names = tar.getnames()
+        assert len(names) == len(PACS_ENDINGS)
+        for name, ending in zip(names, PACS_ENDINGS):
+            assert name.endswith(ending)
 
     def test_download_data_observation_spire(self, tmp_path):
         obs_id = "1342191188"
@@ -102,8 +113,10 @@ class TestHSARemote:
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == spire_chksum.sort()
+            names = tar.getnames()
+        assert len(names) == len(SPIRE_ENDINGS)
+        for name, ending in zip(names, SPIRE_ENDINGS):
+            assert name.endswith(ending)
 
     def test_download_data_postcard_pacs(self, tmp_path):
         obs_id = "1342191813"
@@ -152,8 +165,10 @@ class TestHSARemote:
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
+            names = tar.getnames()
+        assert len(names) == len(PACS_ENDINGS)
+        for name, ending in zip(names, PACS_ENDINGS):
+            assert name.endswith(ending)
 
     def test_get_postcard(self, tmp_path):
         obs_id = "1342191813"
