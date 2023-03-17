@@ -3,7 +3,6 @@ from pathlib import Path
 import tarfile
 
 import pytest
-from requests.exceptions import ChunkedEncodingError
 
 from ..core import HSAClass
 
@@ -20,16 +19,6 @@ SPIRE_ENDINGS = ["898.xml", "898.jpg", "141.fits.gz", "045.fits.gz", "952.fits.g
 
 @pytest.mark.remote_data
 class TestHSARemote:
-    retries = 2
-
-    def access_archive_with_retries(self, f, params):
-        for _ in range(self.retries):
-            try:
-                res = f(**params)
-                return res
-            except ChunkedEncodingError:
-                pass
-        return None
 
     def test_download_data_observation_pacs(self, tmp_path):
         obs_id = "1342191813"
@@ -41,9 +30,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".tar")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
@@ -64,9 +51,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, fname + ".tar")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
@@ -86,9 +71,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".tgz")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
@@ -107,9 +90,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".tar")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
@@ -127,9 +108,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".jpg")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
 
@@ -144,9 +123,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, fname + ".jpg")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.download_data(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
 
@@ -159,9 +136,7 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".tar")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.get_observation, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.get_observation(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
         with tarfile.open(res) as tar:
@@ -178,8 +153,6 @@ class TestHSARemote:
                       'download_dir': tmp_path}
         expected_res = Path(tmp_path, obs_id + ".jpg")
         hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.get_postcard, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
+        res = hsa.get_postcard(**parameters)
         assert Path(res) == expected_res
         assert Path(res).is_file()
