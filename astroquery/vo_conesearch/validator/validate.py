@@ -31,7 +31,7 @@ from . import conf
 __all__ = ['check_conesearch_sites']
 
 
-@timefunc(1)
+@timefunc(num_tries=1)
 def check_conesearch_sites(destdir=os.curdir, verbose=True, parallel=True,
                            url_list='default'):
     """
