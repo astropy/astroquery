@@ -10,7 +10,7 @@ def append_docstr(doc):
     return dec
 
 
-def prepend_docstr_nosections(doc, sections=['Returns', ]):
+def prepend_docstr_nosections(doc, *, sections=['Returns', ]):
     """
     Decorator to prepend to the function's docstr after stripping out the
     list of sections provided (by default "Returns" only).

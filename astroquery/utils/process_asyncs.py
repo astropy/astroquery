@@ -53,7 +53,7 @@ def async_to_sync(cls):
     return cls
 
 
-def async_to_sync_docstr(doc, returntype='table'):
+def async_to_sync_docstr(doc, *, returntype='table'):
     """
     Strip of the "Returns" component of a docstr and replace it with "Returns a
     table" code

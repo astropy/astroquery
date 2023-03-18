@@ -280,7 +280,7 @@ class FileContainer:
 
         return self._fits
 
-    def save_fits(self, savepath, link_cache='hard'):
+    def save_fits(self, savepath, *, link_cache='hard'):
         """
         Save a FITS file to savepath
 
