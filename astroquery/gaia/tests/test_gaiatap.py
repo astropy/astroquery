@@ -54,7 +54,7 @@ def column_attrs():
 @pytest.fixture(scope="module")
 def mock_querier():
     conn_handler = DummyConnHandler()
-    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     launch_response = DummyResponse(200)
     launch_response.set_data(method="POST", body=JOB_DATA)
     # The query contains decimals: default response is more robust.
@@ -65,7 +65,7 @@ def mock_querier():
 @pytest.fixture(scope="module")
 def mock_querier_async():
     conn_handler = DummyConnHandler()
-    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     jobid = "12345"
 
     launch_response = DummyResponse(303)
@@ -105,7 +105,7 @@ def test_show_message():
     tableRequest = 'notification?action=GetNotifications'
     connHandler.set_response(tableRequest, dummy_response)
 
-    tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     GaiaClass(tap_plus_conn_handler=connHandler, datalink_handler=tapplus, show_server_messages=True)
 
 
@@ -258,7 +258,7 @@ def test_cross_match_missing_mandatory_kwarg(cross_match_kwargs, missing_kwarg):
 @patch.object(TapPlus, 'login')
 def test_login(mock_login):
     conn_handler = DummyConnHandler()
-    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login(user="user", password="password")
     assert (mock_login.call_count == 2)
@@ -271,7 +271,7 @@ def test_login(mock_login):
 @patch.object(TapPlus, 'login')
 def test_login_gui(mock_login_gui, mock_login):
     conn_handler = DummyConnHandler()
-    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login_gui()
     assert (mock_login_gui.call_count == 1)
@@ -283,7 +283,7 @@ def test_login_gui(mock_login_gui, mock_login):
 @patch.object(TapPlus, 'logout')
 def test_logout(mock_logout):
     conn_handler = DummyConnHandler()
-    tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.logout()
     assert (mock_logout.call_count == 2)
