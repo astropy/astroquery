@@ -48,7 +48,7 @@ def test_get():
     # GET
     subContext = "testSubContextGet"
     context = f"/{serverContext}/{tapContext}/{subContext}"
-    r = tap.execute_tapget(subcontext=subContext)
+    r = tap.execute_tapget(subcontext=subContext, verbose=False)
     assert r.status == 222
     assert r.get_method() == 'GET'
     assert r.get_context() == context
@@ -79,7 +79,7 @@ def test_post():
     subContext = "testSubContextGet"
     context = f"/{serverContext}/{tapContext}/{subContext}"
     data = "postData"
-    r = tap.execute_tappost(subcontext=subContext, data=data)
+    r = tap.execute_tappost(subcontext=subContext, data=data, verbose=False)
     assert r.status == 111
     assert r.get_method() == 'POST'
     assert r.get_context() == context
@@ -110,7 +110,7 @@ def test_login():
     subContext = "testSubContextPost"
     context = f"/{serverContext}/{subContext}"
     data = "testData"
-    r = tap.execute_secure(subcontext=subContext, data=data)
+    r = tap.execute_secure(subcontext=subContext, data=data, verbose=False)
     assert r.status == 333
     assert r.get_method() == 'POST'
     assert r.get_context() == context

@@ -32,7 +32,7 @@ class Job:
     """Job class
     """
 
-    def __init__(self, async_job, query=None, connhandler=None):
+    def __init__(self, async_job, *, query=None, connhandler=None):
         """Constructor
 
         Parameters
@@ -88,7 +88,7 @@ class Job:
             raise ValueError("Cannot assign a phase when a job is finished")
         self._phase = phase
 
-    def start(self, verbose=False):
+    def start(self, *, verbose=False):
         """Starts the job (allowed in PENDING phase only)
 
         Parameters
@@ -98,7 +98,7 @@ class Job:
         """
         self.__change_phase(phase="RUN", verbose=verbose)
 
-    def abort(self, verbose=False):
+    def abort(self, *, verbose=False):
         """Aborts the job (allowed in PENDING phase only)
 
         Parameters
@@ -108,7 +108,7 @@ class Job:
         """
         self.__change_phase(phase="ABORT", verbose=verbose)
 
-    def __change_phase(self, phase, verbose=False):
+    def __change_phase(self, phase, *, verbose=False):
         if self._phase == 'PENDING':
             context = f"async/{self.jobid}/phase"
             response = self.connHandler.execute_tappost(
@@ -135,7 +135,7 @@ class Job:
         else:
             raise ValueError(f"Cannot start a job in phase: {self._phase}")
 
-    def send_parameter(self, name=None, value=None, verbose=False):
+    def send_parameter(self, *, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
 
         Parameters
@@ -163,7 +163,7 @@ class Job:
         else:
             raise ValueError(f"Cannot start a job in phase: {self._phase}")
 
-    def get_phase(self, update=False):
+    def get_phase(self, *, update=False):
         """Returns the job phase. May optionally update the job's phase.
 
         Parameters
@@ -253,7 +253,7 @@ class Job:
         self.results = results
         self.__resultInMemory = True
 
-    def save_results(self, verbose=False):
+    def save_results(self, *, verbose=False):
         """Saves job results
         If the job is asynchronous, this method will block until the results
         are available.
@@ -273,7 +273,7 @@ class Job:
                 log.info("No results to save")
             else:
                 # Async
-                self.wait_for_job_end(verbose)
+                self.wait_for_job_end(verbose=verbose)
                 response = self.connHandler.execute_tapget(
                     f"async/{self.jobid}/results/result")
                 if verbose:
@@ -299,7 +299,7 @@ class Job:
                     print(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
 
-    def wait_for_job_end(self, verbose=False):
+    def wait_for_job_end(self, *, verbose=False):
         """Waits until a job is finished
 
         Parameters
@@ -333,7 +333,7 @@ class Job:
             time.sleep(0.5)
         return currentResponse, lphase
 
-    def __load_async_job_results(self, debug=False):
+    def __load_async_job_results(self, *, debug=False):
         wjResponse, phase = self.wait_for_job_end()
         subContext = f"async/{self.jobid}/results/result"
         resultsResponse = self.connHandler.execute_tapget(subContext)
@@ -343,7 +343,7 @@ class Job:
             print(resultsResponse.getheaders())
 
         resultsResponse = self.__handle_redirect_if_required(resultsResponse,
-                                                             debug)
+                                                             verbose=debug)
         isError = self.connHandler.\
             check_launch_response_status(resultsResponse,
                                          debug,
@@ -363,7 +363,7 @@ class Job:
                                                    outputFormat)
                 self.set_results(results)
 
-    def __handle_redirect_if_required(self, resultsResponse, verbose=False):
+    def __handle_redirect_if_required(self, resultsResponse, *, verbose=False):
         # Thanks @emeraldTree24
         numberOfRedirects = 0
         while ((resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20):
@@ -378,7 +378,7 @@ class Job:
                 print(resultsResponse.getheaders())
         return resultsResponse
 
-    def get_error(self, verbose=False):
+    def get_error(self, *, verbose=False):
         """Returns the error associated to a job
 
         Parameters

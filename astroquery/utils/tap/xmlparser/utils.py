@@ -24,7 +24,7 @@ def util_create_string_from_buffer(buffer):
     return ''.join(map(str, buffer))
 
 
-def read_http_response(response, output_format, correct_units=True):
+def read_http_response(response, output_format, *, correct_units=True):
     astropy_format = get_suitable_astropy_format(output_format)
 
     # If we want to use astropy.table, we have to read the data

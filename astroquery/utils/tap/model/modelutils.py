@@ -30,7 +30,7 @@ def check_file_exists(file_name):
     return os.path.exists(file_name)
 
 
-def read_results_table_from_file(file_name, output_format, correct_units=True):
+def read_results_table_from_file(file_name, output_format, *, correct_units=True):
 
     astropy_format = utils.get_suitable_astropy_format(output_format)
 

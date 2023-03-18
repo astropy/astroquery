@@ -45,7 +45,7 @@ class JobSaxParser(xml.sax.ContentHandler):
     classdocs
     '''
 
-    def __init__(self, async_job=False):
+    def __init__(self, *, async_job=False):
         '''
         Constructor
         '''

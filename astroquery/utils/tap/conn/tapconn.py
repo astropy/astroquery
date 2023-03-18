@@ -23,7 +23,6 @@ except ImportError:
     import httplib
 import mimetypes
 import time
-
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 from astroquery import version
@@ -41,7 +40,7 @@ class TapConn:
     """
 
     def __init__(self, ishttps,
-                 host,
+                 host, *,
                  server_context=None,
                  port=80,
                  sslport=443,
@@ -142,7 +141,7 @@ class TapConn:
         else:
             return self.__dataContext
 
-    def __get_datalink_context(self, subContext, encodedData=None):
+    def __get_datalink_context(self, subContext, *, encodedData=None):
         if self.__datalinkContext is None:
             raise ValueError("datalink_context must be specified at TAP "
                              + "object creation for this action to be "
@@ -170,7 +169,7 @@ class TapConn:
     def __get_server_context(self, subContext):
         return f"{self.__serverContext}/{subContext}"
 
-    def execute_tapget(self, subcontext, verbose=False):
+    def execute_tapget(self, subcontext, *, verbose=False):
         """Executes a TAP GET request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -189,12 +188,12 @@ class TapConn:
         """
         if subcontext.startswith("http"):
             # absolute url
-            return self.__execute_get(subcontext, verbose)
+            return self.__execute_get(subcontext, verbose=verbose)
         else:
             context = self.__get_tap_context(subcontext)
-            return self.__execute_get(context, verbose)
+            return self.__execute_get(context, verbose=verbose)
 
-    def execute_dataget(self, query, verbose=False):
+    def execute_dataget(self, query, *, verbose=False):
         """Executes a data GET request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -213,7 +212,7 @@ class TapConn:
         context = self.__get_data_context(query)
         return self.__execute_get(context, verbose)
 
-    def execute_datalinkget(self, subcontext, query, verbose=False):
+    def execute_datalinkget(self, subcontext, query, *, verbose=False):
         """Executes a datalink GET request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -234,8 +233,8 @@ class TapConn:
         context = self.__get_datalink_context(subcontext, query)
         return self.__execute_get(context, verbose)
 
-    def __execute_get(self, context, verbose=False):
-        conn = self.__get_connection(verbose)
+    def __execute_get(self, context, *, verbose=False):
+        conn = self.__get_connection(verbose=verbose)
         if verbose:
             print(f"host = {conn.host}:{conn.port}")
             print(f"context = {context}")
@@ -246,7 +245,7 @@ class TapConn:
         return response
 
     def execute_tappost(self, subcontext, data,
-                        content_type=CONTENT_TYPE_POST_DEFAULT,
+                        content_type=CONTENT_TYPE_POST_DEFAULT, *,
                         verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
@@ -269,10 +268,10 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_tap_context(subcontext)
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
     def execute_datapost(self, data,
-                         content_type=CONTENT_TYPE_POST_DEFAULT,
+                         content_type=CONTENT_TYPE_POST_DEFAULT, *,
                          verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
@@ -292,10 +291,10 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_data_context()
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
     def execute_datalinkpost(self, subcontext, data,
-                             content_type=CONTENT_TYPE_POST_DEFAULT,
+                             content_type=CONTENT_TYPE_POST_DEFAULT, *,
                              verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
@@ -318,10 +317,10 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_datalink_context(subcontext)
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
     def execute_upload(self, data,
-                       content_type=CONTENT_TYPE_POST_DEFAULT,
+                       content_type=CONTENT_TYPE_POST_DEFAULT, *,
                        verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
@@ -341,9 +340,9 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_upload_context()
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
-    def execute_share(self, data, verbose=False):
+    def execute_share(self, data, *, verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -368,7 +367,7 @@ class TapConn:
                                    verbose=verbose)
 
     def execute_table_edit(self, data,
-                           content_type=CONTENT_TYPE_POST_DEFAULT,
+                           content_type=CONTENT_TYPE_POST_DEFAULT, *,
                            verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
@@ -388,10 +387,10 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_table_edit_context()
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
     def execute_table_tool(self, data,
-                           content_type=CONTENT_TYPE_POST_DEFAULT,
+                           content_type=CONTENT_TYPE_POST_DEFAULT, *,
                            verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
@@ -411,12 +410,12 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_table_edit_context()
-        return self.__execute_post(context, data, content_type, verbose)
+        return self.__execute_post(context, data, content_type, verbose=verbose)
 
     def __execute_post(self, context, data,
-                       content_type=CONTENT_TYPE_POST_DEFAULT,
+                       content_type=CONTENT_TYPE_POST_DEFAULT, *,
                        verbose=False):
-        conn = self.__get_connection(verbose)
+        conn = self.__get_connection(verbose=verbose)
         if verbose:
             print(f"host = {conn.host}:{conn.port}")
             print(f"context = {context}")
@@ -428,7 +427,7 @@ class TapConn:
         self.__currentStatus = response.status
         return response
 
-    def execute_secure(self, subcontext, data, verbose=False):
+    def execute_secure(self, subcontext, data, *, verbose=False):
         """Executes a secure POST request
         The connection is done through HTTPS
 
@@ -445,7 +444,7 @@ class TapConn:
         -------
         An HTTPS response object
         """
-        conn = self.__get_connection_secure(verbose)
+        conn = self.__get_connection_secure(verbose=verbose)
         context = self.__get_server_context(subcontext)
         self.__postHeaders["Content-type"] = CONTENT_TYPE_POST_DEFAULT
         conn.request("POST", context, data, self.__postHeaders)
@@ -638,7 +637,7 @@ class TapConn:
         return f'{self.__connHost}:{self.__connPortSsl}{self.__get_tap_context("")}'
 
     def check_launch_response_status(self, response, debug,
-                                     expected_response_status,
+                                     expected_response_status, *,
                                      raise_exception=True):
         """Checks the response status code
         Returns True if the response status code is the
@@ -673,13 +672,13 @@ class TapConn:
         else:
             return isError
 
-    def __get_connection(self, verbose=False):
-        return self.__connectionHandler.get_connection(self.__isHttps,
-                                                       self.__cookie,
-                                                       verbose)
+    def __get_connection(self, *, verbose=False):
+        return self.__connectionHandler.get_connection(ishttps=self.__isHttps,
+                                                       cookie=self.__cookie,
+                                                       verbose=verbose)
 
-    def __get_connection_secure(self, verbose=False):
-        return self.__connectionHandler.get_connection_secure(verbose)
+    def __get_connection_secure(self, *, verbose=False):
+        return self.__connectionHandler.get_connection_secure(verbose=verbose)
 
     def encode_multipart(self, fields, files):
         """Encodes a multipart form request
@@ -731,7 +730,7 @@ class ConnectionHandler:
         self.__connPort = port
         self.__connPortSsl = sslport
 
-    def get_connection(self, ishttps=False, cookie=None, verbose=False):
+    def get_connection(self, *, ishttps=False, cookie=None, verbose=False):
         if (ishttps) or (cookie is not None):
             if verbose:
                 print("------>https")
