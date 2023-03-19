@@ -231,7 +231,7 @@ class TestTap:
 
     def test_query_region(self):
         connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
 
         # Launch response: we use default response because the
@@ -364,7 +364,7 @@ class TestTap:
 
     def test_query_region_async(self):
         connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
@@ -436,7 +436,7 @@ class TestTap:
 
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         # Launch response: we use default response because the
         # query contains decimals
@@ -521,7 +521,7 @@ class TestTap:
 
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response

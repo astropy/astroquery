@@ -93,9 +93,9 @@ class JwstClass(BaseQuery):
         -------
         A list of table objects
         """
-        return self.__jwsttap.load_tables(only_names,
-                                          include_shared_tables,
-                                          verbose)
+        return self.__jwsttap.load_tables(only_names=only_names,
+                                          include_shared_tables=include_shared_tables,
+                                          verbose=verbose)
 
     def load_table(self, table, *, verbose=False):
         """Loads the specified table
@@ -112,7 +112,7 @@ class JwstClass(BaseQuery):
         -------
         A table object
         """
-        return self.__jwsttap.load_table(table, verbose)
+        return self.__jwsttap.load_table(table, verbose=verbose)
 
     def launch_job(self, query, *, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,
@@ -686,7 +686,7 @@ class JwstClass(BaseQuery):
         try:
             subContext = conf.JWST_MESSAGES
             connHandler = self.__jwsttap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, False)
+            response = connHandler.execute_tapget(subContext, verbose=False)
             if response.status == 200:
                 for line in response:
                     string_message = line.decode("utf-8")

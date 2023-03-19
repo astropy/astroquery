@@ -82,7 +82,7 @@ This third case will download the science files associated to the observation 'j
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.get_postcard(observation_id="j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")  # doctest: +IGNORE_OUTPUT
+  >>> esahubble.get_postcard("j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")  # doctest: +IGNORE_OUTPUT
 
 This will download the postcard for the observation 'J8VP03010' with low
 resolution (256) and it will stored in a jpg called
