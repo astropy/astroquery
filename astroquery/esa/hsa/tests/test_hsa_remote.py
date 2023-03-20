@@ -27,9 +27,7 @@ SPIRE_ENDINGS = ["898.xml", "898.jpg", "141.fits.gz", "045.fits.gz", "952.fits.g
      ("download_data", {"observation_id": "1342191188", "instrument_name": "SPIRE", "product_level": "LEVEL2", },
       "1342191188.tar", SPIRE_ENDINGS),
      ("get_observation", {}, "1342191813.tar", PACS_ENDINGS)])
-def test_download_data_observation(
-    method, kwargs, expected_filename, expected_endings, tmp_path
-):
+def test_download_data_observation(method, kwargs, expected_filename, expected_endings, tmp_path):
     parameters = {"observation_id": "1342191813",
                   'instrument_name': "PACS",
                   'product_level': 'LEVEL3',
