@@ -3,168 +3,63 @@ from pathlib import Path
 import tarfile
 
 import pytest
-from requests.exceptions import ChunkedEncodingError
 
 from ..core import HSAClass
 
-spire_chksum = [10233, 10762, 9019, 10869, 3944, 11328, 3921, 10999, 10959,
-                11342, 10974, 3944, 11335, 11323, 11078, 11321, 11089, 11314, 11108, 6281]
 
-pacs_chksum = [10208, 10755, 8917, 10028, 3924, 3935, 6291]
+pytestmark = pytest.mark.remote_data
 
 
-@pytest.mark.remote_data
-class TestHSARemote:
-    retries = 2
+PACS_ENDINGS = ["571.xml", "571.jpg", "214.fits.gz", "008.fits.gz",
+                "674.fits.gz", "350.fits.gz", "README.pdf"]
+SPIRE_ENDINGS = ["898.xml", "898.jpg", "141.fits.gz", "045.fits.gz", "952.fits.gz",
+                 "974.fits.gz", "715.fits.gz", "547.fits.gz", "770.fits.gz",
+                 "856.fits.gz", "148.fits.gz", "025.fits.gz", "538.fits.gz",
+                 "070.fits.gz", "434.fits.gz", "637.fits.gz", "835.fits.gz",
+                 "372.fits.gz", "248.fits.gz", "README.pdf"]
 
-    def access_archive_with_retries(self, f, params):
-        for _ in range(self.retries):
-            try:
-                res = f(**params)
-                return res
-            except ChunkedEncodingError:
-                pass
-        return None
 
-    def test_download_data_observation_pacs(self, tmp_path):
-        obs_id = "1342191813"
-        parameters = {'retrieval_type': "OBSERVATION",
-                      'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'product_level': 'LEVEL3',
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".tar")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-        with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
+@pytest.mark.parametrize(
+    "method,kwargs,expected_filename,expected_endings",
+    [("download_data", {}, "1342191813.tar", PACS_ENDINGS),
+     ("download_data", {"filename": "output_file"}, "output_file.tar", PACS_ENDINGS),
+     ("download_data", {"compress": "true"}, "1342191813.tgz", PACS_ENDINGS),
+     ("download_data", {"observation_id": "1342191188", "instrument_name": "SPIRE", "product_level": "LEVEL2", },
+      "1342191188.tar", SPIRE_ENDINGS),
+     ("get_observation", {}, "1342191813.tar", PACS_ENDINGS)])
+def test_download_data_observation(method, kwargs, expected_filename, expected_endings, tmp_path):
+    parameters = {"observation_id": "1342191813",
+                  'instrument_name': "PACS",
+                  'product_level': 'LEVEL3',
+                  'cache': False,
+                  'download_dir': tmp_path}
+    parameters.update(kwargs)
+    if method == "download_data":
+        res = HSAClass().download_data(**parameters, retrieval_type="OBSERVATION")
+    elif method == "get_observation":
+        res = HSAClass().get_observation(**parameters)
+    assert Path(res) == tmp_path / expected_filename
+    assert Path(res).is_file()
+    with tarfile.open(res) as tar:
+        names = tar.getnames()
+    assert len(names) == len(expected_endings)
+    for name, ending in zip(names, expected_endings):
+        assert name.endswith(ending)
 
-    def test_download_data_observation_pacs_filename(self, tmp_path):
-        obs_id = "1342191813"
-        fname = "output_file"
-        parameters = {'retrieval_type': "OBSERVATION",
-                      'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'product_level': 'LEVEL3',
-                      'filename': fname,
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, fname + ".tar")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-        with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
 
-    def test_download_data_observation_pacs_compressed(self, tmp_path):
-        obs_id = "1342191813"
-        parameters = {'retrieval_type': "OBSERVATION",
-                      'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'product_level': 'LEVEL3',
-                      'compress': 'true',
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".tgz")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-        with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
-
-    def test_download_data_observation_spire(self, tmp_path):
-        obs_id = "1342191188"
-        parameters = {'retrieval_type': "OBSERVATION",
-                      'observation_id': obs_id,
-                      'instrument_name': "SPIRE",
-                      'product_level': 'LEVEL2',
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".tar")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-        with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == spire_chksum.sort()
-
-    def test_download_data_postcard_pacs(self, tmp_path):
-        obs_id = "1342191813"
-        parameters = {'retrieval_type': "POSTCARD",
-                      'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".jpg")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-
-    def test_download_data_postcard_pacs_filename(self, tmp_path):
-        obs_id = "1342191813"
-        fname = "output_file"
-        parameters = {'retrieval_type': "POSTCARD",
-                      'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'filename': fname,
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, fname + ".jpg")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-
-    def test_get_observation(self, tmp_path):
-        obs_id = "1342191813"
-        parameters = {'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'product_level': 'LEVEL3',
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".tar")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.get_observation, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
-        with tarfile.open(res) as tar:
-            chksum = [m.chksum for m in tar.getmembers()]
-        assert chksum.sort() == pacs_chksum.sort()
-
-    def test_get_postcard(self, tmp_path):
-        obs_id = "1342191813"
-        parameters = {'observation_id': obs_id,
-                      'instrument_name': "PACS",
-                      'cache': False,
-                      'download_dir': tmp_path}
-        expected_res = Path(tmp_path, obs_id + ".jpg")
-        hsa = HSAClass()
-        res = self.access_archive_with_retries(hsa.get_postcard, parameters)
-        if res is None:
-            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
-        assert Path(res) == expected_res
-        assert Path(res).is_file()
+@pytest.mark.parametrize(
+    "method,kwargs,expected_filename",
+    [("download_data", {}, "1342191813.jpg"),
+     ("download_data", {"filename": "output_file"}, "output_file.jpg"),
+     ("get_postcard", {}, "1342191813.jpg")])
+def test_download_data_postcard(method, kwargs, expected_filename, tmp_path):
+    parameters = {"observation_id": "1342191813",
+                  'instrument_name': "PACS",
+                  'cache': False,
+                  'download_dir': tmp_path}
+    if method == "download_data":
+        res = HSAClass().download_data(**parameters, **kwargs, retrieval_type="POSTCARD")
+    elif method == "get_postcard":
+        res = HSAClass().get_postcard(**parameters, **kwargs)
+    assert Path(res) == tmp_path / expected_filename
+    assert Path(res).is_file()
