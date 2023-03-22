@@ -294,7 +294,8 @@ class SDSSClass(BaseQuery):
         ValueError
             If both ``radius`` and ``width`` are set (or neither),
             or if the ``radius`` exceeds 3 arcmin,
-            or if the sizes of ``coordinates`` and ``obj_names`` do not match.
+            or if the sizes of ``coordinates`` and ``obj_names`` do not match,
+            or if the units of ``width`` or ``height`` could not be parsed.
 
         Examples
         --------
@@ -322,9 +323,9 @@ class SDSSClass(BaseQuery):
             radius = 2.0 * u.arcsec
 
         if radius is None and width is None:
-            raise ValueError("Either radius or width must be selected!")
+            raise ValueError("Either radius or width must be specified!")
         if radius is not None and width is not None:
-            raise ValueError("Either radius or width must be selected!")
+            raise ValueError("Either radius or width must be specified, not both!")
 
         if radius is not None:
             request_payload, files = self.query_crossid_async(coordinates=coordinates,
@@ -339,25 +340,11 @@ class SDSSClass(BaseQuery):
                                                               data_release=data_release)
 
         if width is not None:
-            if isinstance(width, Angle):
-                width = width.to_value(u.degree)
-            else:
-                try:
-                    width = Angle(width).to_value(u.degree)
-                except ValueError:
-                    raise TypeError("width should be either Quantity or "
-                                    "convertible to float.")
+            width = u.Quantity(width, u.degree).value
             if height is None:
                 height = width
             else:
-                if isinstance(height, Angle):
-                    height = height.to_value(u.degree)
-                else:
-                    try:
-                        height = Angle(height).to_value(u.degree)
-                    except ValueError:
-                        raise TypeError("height should be either Quantity or "
-                                        "convertible to float.")
+                height = u.Quantity(height, u.degree).value
 
             dummy_payload = self._args_to_payload(coordinates=coordinates,
                                                   fields=fields,
@@ -378,7 +365,7 @@ class SDSSClass(BaseQuery):
                 coordinates = [coordinates]
 
             rectangles = list()
-            for n, target in enumerate(coordinates):
+            for target in coordinates:
                 # Query for a rectangle
                 target = commons.parse_coordinates(target).transform_to('fk5')
                 rectangles.append(self._rectangle_sql(target.ra.degree, target.dec.degree, width, height=height))

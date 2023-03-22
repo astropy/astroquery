@@ -275,10 +275,14 @@ def test_sdss_photoobj(patch_request, dr):
 @pytest.mark.parametrize("radius", [None, Angle('2 arcsec')])
 @pytest.mark.parametrize("width", [None, Angle('2 arcsec')])
 def test_list_coordinates(patch_request, dr, radius, width):
-    if (radius is None and width is None) or (radius is not None and width is not None):
+    if (radius is None and width is None):
         with pytest.raises(ValueError) as e:
             sdss.SDSS.query_region(coords, radius=radius, width=width)
-        assert str(e.value) == "Either radius or width must be selected!"
+        assert str(e.value) == "Either radius or width must be specified!"
+    elif (radius is not None and width is not None):
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, radius=radius, width=width)
+        assert str(e.value) == "Either radius or width must be specified, not both!"
     else:
         xid = sdss.SDSS.query_region(coords_list, radius=radius, width=width, data_release=dr)
 
@@ -298,16 +302,25 @@ def test_list_coordinates(patch_request, dr, radius, width):
                 url_tester(dr)
 
 
-@pytest.mark.parametrize("width", [Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle'])
-@pytest.mark.parametrize("height", [None, Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle'])
+@pytest.mark.parametrize("width", [Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle', '2.0 things'])
+@pytest.mark.parametrize("height", [None, Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle', '2.0 things'])
 def test_list_coordinates_with_height(patch_request, width, height):
-    if width == 'bad angle' or height == 'bad angle':
+    if width == 'bad angle':
         with pytest.raises(TypeError) as e:
             sdss.SDSS.query_region(coords, width=width, height=height)
-        if width == 'bad angle':
-            assert str(e.value) == "width should be either Quantity or convertible to float."
-        else:
-            assert str(e.value) == "height should be either Quantity or convertible to float."
+        assert str(e.value) == 'Cannot parse "bad angle" as a Quantity. It does not start with a number.'
+    elif width == '2.0 things':
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value).startswith("'things' did not parse as unit")
+    elif height == 'bad angle':
+        with pytest.raises(TypeError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value) == 'Cannot parse "bad angle" as a Quantity. It does not start with a number.'
+    elif height == '2.0 things':
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value).startswith("'things' did not parse as unit")
     else:
         xid = sdss.SDSS.query_region(coords_list, width=width, height=height)
 
