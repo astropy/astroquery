@@ -1,12 +1,11 @@
 """
-
-@author: Elena Colomo
-@contact: ecolomo@esa.int
+===================
+eJWST Dummy Handler
+===================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 4 Sept. 2019
 """
 
 
