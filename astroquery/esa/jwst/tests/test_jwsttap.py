@@ -1014,4 +1014,3 @@ class TestTap:
         parameters['name'] = None
         parameters['verbose'] = False
         dummyTapHandler.check_call('load_async_job', parameters)
-
