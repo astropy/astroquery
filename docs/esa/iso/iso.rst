@@ -91,9 +91,9 @@ provided by this service, see section 'Getting Tables Details'.
   >>> ISO.download_data('80000203', retrieval_type="OBSERVATION",
   ...   product_level="DEFAULT_DATA_SET",
   ...   filename="80000203", verbose=True)
-  INFO: http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
+  INFO: https://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
   INFO: Copying file to 80000203.tar... [astroquery.esa.iso.core]
-  INFO: Wrote http://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET to 80000203.tar [astroquery.esa.iso.core]
+  INFO: Wrote https://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET to 80000203.tar [astroquery.esa.iso.core]
   '80000203.tar'
   >>> tar = tarfile.open("80000203.tar")
   >>> tar.list()    # doctest: +IGNORE_OUTPUT
@@ -102,7 +102,6 @@ provided by this service, see section 'Getting Tables Details'.
   -rw-r--r-- idaops/0      14400 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//psph80000203.fits
   -rw-r--r-- idaops/0       5599 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//ppch80000203.gif
   -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10180000203.tar
-  >>> tar.extract("././ISO1659972236/EXTRAKON//psph80000203.fits")  # doctest: +SKIP
   >>> tar.extractall()
   >>> tar.close()
 

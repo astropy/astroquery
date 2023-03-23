@@ -22,6 +22,11 @@ from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 
 
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
 @pytest.mark.remote_data
 class TestXMMNewtonRemote:
     _files = {
@@ -148,7 +153,7 @@ class TestXMMNewtonRemote:
         xsa.get_postcard(**parameters)
 
     def test_get_epic_metadata(self):
-        tap_url = "http://nxsadev.esac.esa.int/tap-server/tap/"
+        tap_url = "https://nxsa.esac.esa.int/tap-server/tap/"
         target_name = "4XMM J122934.7+015657"
         radius = 0.01
         epic_source_table = "xsa.v_epic_source"
@@ -191,9 +196,9 @@ class TestXMMNewtonRemote:
         assert report_diff_values(slew_source, table)
 
     def test_download_proprietary_data_incorrect_credentials(self, tmp_cwd):
-        parameters = {'observation_id': "0762470101",
+        parameters = {'observation_id': "0861270201",
                       'prop': 'True',
-                      'credentials_file': "astroquery/esa/xmm_newton/tests/data/dummy_config.ini",
+                      'credentials_file': data_path("dummy_config.ini"),
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',
@@ -205,7 +210,7 @@ class TestXMMNewtonRemote:
             xsa.download_data(**parameters)
 
     def test_download_proprietary_data_without_credentials(self, tmp_cwd):
-        parameters = {'observation_id': "0883780101",
+        parameters = {'observation_id': "0861270201",
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',
