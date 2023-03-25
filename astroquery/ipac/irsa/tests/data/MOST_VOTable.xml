@@ -5,7 +5,7 @@
 </DEFINITIONS>
 <RESOURCE name="MOST Output Tables">
 <TABLE name="imgframes_matched_final_table.tbl">
-<PARAM name="output_url" datatype="char" arraysize="*" value="https://irsa.ipac.caltech.edu/workspace/TMP_XIBNAd_17194/MOST/pid5856"/>
+<PARAM name="output_url" datatype="char" arraysize="*" value="https://irsa.ipac.caltech.edu/workspace/TMP_noPis4_23270/MOST/pid9390"/>
 <PARAM name="catalog" datatype="char" arraysize="*" value="wise_merge"/>
 <PARAM name="user_input_begin_time" datatype="char" arraysize="*" value="2014-05-01"/>
 <PARAM name="user_input_end_time" datatype="char" arraysize="*" value="2014-05-30"/>
@@ -18,7 +18,7 @@
 <PARAM name="semimajor_axis" datatype="char" arraysize="*" value=" 2.333774627713947"/>
 <PARAM name="mean_anomaly" datatype="char" arraysize="*" value="349.752560575505981"/>
 <PARAM name="magnitude_parameters" datatype="char" arraysize="*" value=" 7.34  0.00"/>
-<PARAM name="job_time_stamp" datatype="char" arraysize="*" value="Wed Feb  8 14:40:39 2023"/>
+<PARAM name="job_time_stamp" datatype="char" arraysize="*" value="Fri Mar 24 16:07:12 2023"/>
 <PARAM name="description" datatype="char" arraysize="*" value="MOST ODBC query result"/>
 <PARAM name="fixlen" datatype="char" arraysize="*" value="T"/>
 <FIELD name="ra_obj" datatype="double" unit=""/>
