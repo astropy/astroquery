@@ -1,12 +1,10 @@
 """
-
-@author: Elena Colomo
-@contact: ecolomo@esa.int
+===============
+XMM-Newton Init
+===============
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 3 Sept. 2019
 
 """
 

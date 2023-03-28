@@ -1146,8 +1146,8 @@ class JwstClass(BaseQuery):
                 raise ValueError("prod_type must be one of: "
                                  + str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
             else:
-                condition = " AND dataproducttype LIKE '"+prod_type.lower() + \
-                    "' "
+                condition = " AND dataproducttype ILIKE '%"+prod_type.lower() + \
+                    "%' "
         return condition
 
     def __get_instrument_name_condition(self, *, value=None):
@@ -1159,7 +1159,7 @@ class JwstClass(BaseQuery):
                 raise ValueError("instrument_name must be one of: "
                                  + str(', '.join(self.INSTRUMENT_NAMES)))
             else:
-                condition = " AND instrument_name LIKE '"+value.upper()+"' "
+                condition = " AND instrument_name ILIKE '%"+value.upper()+"%' "
         return condition
 
     def __get_filter_name_condition(self, *, value=None):
@@ -1191,7 +1191,7 @@ class JwstClass(BaseQuery):
                 raise ValueError("product_type must be one of: "
                                  + str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
             else:
-                condition = " AND producttype LIKE '"+product_type+"'"
+                condition = " AND producttype ILIKE '%"+product_type+"%'"
         return condition
 
     @staticmethod

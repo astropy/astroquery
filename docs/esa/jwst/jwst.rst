@@ -308,17 +308,14 @@ Using the observation ID as input parameter, this function will retrieve the obs
 .. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> observation_id = 'jw01076-o110_s01130_nircam_f444w-grismr'
+  >>> observation_id = 'jw02739-o001_t001_nircam_clear-f444w'
   >>> results = Jwst.get_related_observations(observation_id=observation_id)
-  >>> results
-  ['jw01076110001_02101_00001_nrcalong',
-   'jw01076110001_02101_00001_nrcblong',
-   'jw01076110001_02101_00002_nrcalong',
-   'jw01076110001_02101_00002_nrcblong',
-   'jw01076110001_02101_00003_nrcalong',
-   'jw01076110001_02101_00003_nrcblong',
-   'jw01076110001_02101_00004_nrcalong',
-   'jw01076110001_02101_00004_nrcblong']
+  >>> results[0:5]
+  ['jw02739001001_02105_00001_nrcalong',
+   'jw02739001001_02105_00001_nrcblong',
+   'jw02739001001_02105_00002_nrcalong',
+   'jw02739001001_02105_00002_nrcblong',
+   'jw02739001001_02105_00003_nrcalong']
 
 
 1.5 Getting public tables

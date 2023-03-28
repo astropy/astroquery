@@ -1,14 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Elena Colomo
-@contact: ecolomo@esa.int
+============================
+XMM-Newton Astroquery Module
+============================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 3 Sept 2019
-
 
 """
 import re

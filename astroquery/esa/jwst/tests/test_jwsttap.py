@@ -1004,3 +1004,13 @@ class TestTap:
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_load_async_job(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        tap.load_async_job(jobid=101222)
+        parameters = {}
+        parameters['jobid'] = 101222
+        parameters['name'] = None
+        parameters['verbose'] = False
+        dummyTapHandler.check_call('load_async_job', parameters)
