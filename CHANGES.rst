@@ -147,11 +147,16 @@ mast
 
 - Resolved issue making PANSTARRS catalog queries when columns and sorting is specified. [#2727]
 
+- Added warning message for ``Tesscut`` requests when input cutout size reaches a
+  limit of 30 pixels in either dimension, and enables users to modify the request
+  timeout upper limit from the default 600 seconds. [#2693]
+
 nist
 ^^^^
 
 - Vectoized ``linename`` option to query multiple spectral lines with one call
   of ``Nist.query``. [#2678]
+  ``TesscutClass``. [#2668]
 
 oac
 ^^^
