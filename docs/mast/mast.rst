@@ -1065,6 +1065,40 @@ and because the TICA products are not available for sectors 1-26, we request cut
    ----------------------------------------------------------
    ./tica-s0027-4-2_107.186960_-70.509190_21x14_astrocut.fits
 
+It is important to be mindful of the requested cutout size when using either `~astroquery.mast.TesscutClass.download_cutouts` or `~astroquery.mast.TesscutClass.get_cutouts`,
+as it will affect the time it takes to retrieve your cutouts. By default, any request that ``astroquery.mast`` makes to an
+API is capped at 600 seconds. Queries that take longer than this will yield a timeout error.
+The recommended cutout size for TESSCut is no larger than 30 pixels in either the X or Y
+direction, so a user will be met with a warning message if the input cutout size exceeds
+those limits. Below is an example of a request using `~astroquery.mast.TesscutClass.get_cutouts` for cutouts of size 0.2 x 0.2 degrees-squared, which is 
+around 34 x 34 pixels-squared.
+
+.. doctest-remote-data::
+
+   >>> import astropy.units as u
+   >>> from astroquery.mast import Tesscut
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=0.2*u.deg)
+   WARNING: InputWarning: You have selected a large cutout size that may result in a timeout error.
+   We suggest limiting the size of your requested cutout, or changing the request timeout limit from
+   its default 600 seconds to something higher, using the timeout_add argument. [astroquery.mast.cutouts]
+   
+At this point, users may choose to decrease their cutout size or extend the request timeout limit from
+600 seconds to something longer. Using the example above, we will use the ``timeout_add`` argument to extend
+the request timeout limit from 600 seconds to 2600 seconds, or approximately 43 minutes.
+
+.. doctest-remote-data::
+
+   >>> import astropy.units as u
+   >>> from astroquery.mast import Tesscut
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=0.2*u.deg, timeout_add=2000)
+   INFO: Request timeout upper limit is being changed to 2600 seconds. [astroquery.mast.cutouts]
+
 Sector information
 ------------------
 

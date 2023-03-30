@@ -82,7 +82,7 @@ def _parse_cutout_size(size, timeout_add=None, mission=None):
 
         # Based on the literature, TESS resolution is approx. 21 arcseconds per pixel.
         # We will convert the recommended upper limit for a dimension from pixels
-        # to degrees.
+        # to the unit being passed.
         unit = size[0].unit
         upper_limit = (30 * 21*u.arcsec).to(unit).value
         limit_reached = size[0].value > upper_limit or size[1].value > upper_limit
