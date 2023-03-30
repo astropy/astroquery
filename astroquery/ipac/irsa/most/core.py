@@ -68,7 +68,8 @@ Output mode                  Returned object
     as the returned data in both cases is identical, as the figures created in
     ``Full`` mode are not downloaded. The difference between the two modes are
     mainly visible in presentation of the data when MOST is used via their
-    online interface.
+    online interface. It is, therefore, recommended ``Regular`` because the
+    query will complete significantly faster.
 
 Regular and Full
 ________________
@@ -336,6 +337,109 @@ mode are ignored.
 |                   |                  |       | Comets                       |
 |                   |                  |       | (``YYYY+MM+DD+HH:MM:SS``)    |
 +-------------------+------------------+-------+------------------------------+
+
+Examples
+--------
+
+By default the input mode will be set to ``"name_input"``, the times to ``None``
+and output mode to ``Regular``. So the only piece of information required is the
+object's name. Since this will search the whole of ``wise_merged`` catalog for
+any detections of the given asteroid - we will restrict the example query in
+time and output in order to have a more manageable output.
+
+So we can query the night of Thursday, 29th of May 2015 for observations of an
+asteroid `Victoria <https://en.wikipedia.org/wiki/12_Victoria>`_ as:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.ipac.irsa.most import Most
+    >>> Most.query_object(output_mode="Brief",
+    ...                   obj_name="Victoria",
+    ...                   obs_begin="2014-05-29",
+    ...                   obs_end="2014-05-30")
+    <Table length=10>
+      ra_obj    dec_obj  sun_dist geo_dist ... saa_sep qual_frame image_set
+     float64    float64  float64  float64  ... float64   int64      int64
+    ---------- --------- -------- -------- ... ------- ---------- ---------
+    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
+    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
+    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
+    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
+    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
+    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
+     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+
+To return more than just a table of image identifiers, use one of the more
+verbose output modes - ``Regular`` or ``Full``.
+
+.. doctest-remote-data::
+
+    >>> matched = Most.query_object(output_mode="Regular",
+    ...                             with_tarballs=True,
+    ...                             obj_name="Victoria",
+    ...                             obs_begin="2014-05-29",
+    ...                             obs_end="2014-05-30")
+    >>> type(matched)
+    <class 'dict'>
+    >>> matched.keys()
+    dict_keys(['results', 'metadata', 'region', 'fits_tarball', 'region_tarball'])
+    >>> matched["metadata"]
+    <Table length=10>
+      ra_obj    dec_obj  sun_dist geo_dist ... saa_sep qual_frame image_set
+     float64    float64  float64  float64  ... float64   int64      int64
+    ---------- --------- -------- -------- ... ------- ---------- ---------
+    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
+    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
+    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
+    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
+    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
+    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
+     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+
+As demonstrated, the returned values are stored in a dictionary and which
+``metadata`` key table matches the ``Brief`` output mode table.
+
+The ``fits_tarball`` and ``region_tarballs`` keys store the URL of the TAR
+archive containing all 10 images that observed asteroid Victoria on that night.
+Individual images that were put into the archive are stored under the ``results``
+key:
+
+.. doctest-remote-data::
+
+    >>> matched["fits_tarball"]  # doctest: +IGNORE_OUTPUT
+    'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/MOST/pid15792/fitsimage_A850RA.tar.gz'
+    >>> matched["region_tarball"]  # doctest: +IGNORE_OUTPUT
+    'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/MOST/pid15792/ds9region_A850RA.tar'
+    >>> matched["results"].columns
+    <TableColumns names=('Image_ID','date_obs','time_obs','mjd_obs','ra_obj','dec_obj','sun_dist','geo_dist','dist_ctr','phase','vmag','image_url','postcard_url','region_file')>  # noqa: E501
+    >>> matched["results"]["time_obs", "image_url"]  # doctest: +IGNORE_OUTPUT
+    <Table length=10>
+      time_obs                                                  image_url
+       str12                                                      str103
+    ------------ -------------------------------------------------------------------------------------------------------
+    11:00:08.319 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/3b/49273b/134/49273b134-w2-int-1b.fits
+    11:00:08.319 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/3b/49273b/134/49273b134-w1-int-1b.fits
+    14:09:44.351 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/7b/49277b/135/49277b135-w1-int-1b.fits
+    14:09:44.351 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/7b/49277b/135/49277b135-w2-int-1b.fits
+    17:19:09.391 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/1b/49281b/134/49281b134-w2-int-1b.fits
+    17:19:09.391 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/1b/49281b/134/49281b134-w1-int-1b.fits
+    20:28:45.431 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/5b/49285b/135/49285b135-w2-int-1b.fits
+    20:28:45.431 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/5b/49285b/135/49285b135-w1-int-1b.fits
+    23:38:10.476 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/9b/49289b/134/49289b134-w1-int-1b.fits
+    23:38:10.476 https://irsa.ipac.caltech.edu/ibe/data/wise/merge/merge_p1bm_frm/9b/49289b/134/49289b134-w2-int-1b.fits
+
+.. note::
+    The returned TAR Archives point to the MOST service hosted directory which
+    will dissapear after a while, making the URLs return a 404 Not Found Error.
+    The URLs returned by the results table, however, point to the NASA/IPAC
+    Infrared Science Archive, which means that the URLs to the images themselves
+    will remain valid even after the MOST URLs expire.
 """
 import io
 import re

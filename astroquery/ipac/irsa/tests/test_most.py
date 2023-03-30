@@ -2,7 +2,6 @@
 
 import io
 import os
-import itertools
 import pytest
 
 from astropy.io import votable
@@ -24,10 +23,10 @@ FULL_BASE_URL = "https://irsa.ipac.caltech.edu/workspace/TMP_FmruWd_8104/MOST/pi
 # and Regular are two different jobs with two different PIDs we need individual
 # results files
 GET_FILENAME_MAP = {
-    REGULAR_BASE_URL+"results.tbl" : "most_regular_results.tbl",
-    REGULAR_BASE_URL+"imgframes_matched_final_table.tbl" : "most_regular_metadata.tbl",
-    FULL_BASE_URL+"results.tbl" : "most_full_results.tbl",
-    FULL_BASE_URL+"imgframes_matched_final_table.tbl" : "most_full_metadata.tbl",
+    REGULAR_BASE_URL+"results.tbl": "most_regular_results.tbl",
+    REGULAR_BASE_URL+"imgframes_matched_final_table.tbl": "most_regular_metadata.tbl",
+    FULL_BASE_URL+"results.tbl": "most_full_results.tbl",
+    FULL_BASE_URL+"imgframes_matched_final_table.tbl": "most_full_metadata.tbl",
     "https://irsa.ipac.caltech.edu/applications/MOST/": "MOST_application.html"
 }
 
