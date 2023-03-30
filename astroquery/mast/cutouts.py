@@ -26,7 +26,7 @@ from astropy.table import Table
 from astropy.io import fits
 
 from .. import log
-from ..exceptions import InputWarning, NoResultsWarning, InvalidQueryError
+from ..exceptions import InputWarning, LargeQueryWarning, NoResultsWarning, InvalidQueryError
 
 from .utils import parse_input_location
 from .core import MastQueryWithLogin
@@ -35,7 +35,7 @@ from .core import MastQueryWithLogin
 __all__ = ["TesscutClass", "Tesscut", "ZcutClass", "Zcut"]
 
 
-def _parse_cutout_size(size, timeout_add=None, mission=None):
+def _parse_cutout_size(size, timeout=None, mission=None):
     """
     Take a user input cutout size and parse it into the regular format
     [ny,nx] where nx/ny are quantities with units either pixels or degrees.
@@ -53,8 +53,8 @@ def _parse_cutout_size(size, timeout_add=None, mission=None):
         The mission for which the size parsing is being done. This parameter
         is mainly meant to trigger a cutout size warning specifically for TESSCut
         requests. Default is None.
-    timeout_add : int or float, optional
-        The amount (in seconds) by which the request processing time upper limit will be changed.
+    timeout : int or float, optional
+        The modified request timeout limit.
         The request processing time by default is 600 seconds, meaning an attempt at communicating
         with the API will take 600 seconds before timing out. In the context of this function, this
         parameter is meant to keep track of whether or not the timeout limit has been modified, which
@@ -68,11 +68,15 @@ def _parse_cutout_size(size, timeout_add=None, mission=None):
         either pixels or degrees.
     """
 
+    # This local variable will change to True if input cutout size exceeds recommended limits for TESS
+    limit_reached = False
+
     # Making size into an array [ny, nx]
     if np.isscalar(size):
         size = np.repeat(size, 2)
 
-        limit_reached = size[0] > 30 or size[1] > 30
+        if mission == 'TESS':
+            limit_reached = (size > 30).any()
 
     if isinstance(size, u.Quantity):
         size = np.atleast_1d(size)
@@ -83,14 +87,24 @@ def _parse_cutout_size(size, timeout_add=None, mission=None):
         # Based on the literature, TESS resolution is approx. 21 arcseconds per pixel.
         # We will convert the recommended upper limit for a dimension from pixels
         # to the unit being passed.
-        unit = size[0].unit
-        upper_limit = (30 * 21*u.arcsec).to(unit).value
-        limit_reached = size[0].value > upper_limit or size[1].value > upper_limit
+        if mission == 'TESS':
+            with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
+                limit_reached = (size > 30 * u.pixel).any()
 
     if len(size) > 2:
         warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
                       InputWarning)
+    
+    # Checking 2d size inputs for the recommended cutout size
+    if (len(size) == 2) & (mission == 'TESS'):
+        
+        if np.isscalar(size[0]):
+            print(size)
+            size = size * u.pixel
 
+        with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
+            limit_reached = (size * size[0].unit > 30 * u.pixel).any()
+    
     # Getting x and y out of the size
 
     if np.isscalar(size[0]):
@@ -111,10 +125,10 @@ def _parse_cutout_size(size, timeout_add=None, mission=None):
     else:
         raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
 
-    if (mission == 'TESS') & (limit_reached) & (not timeout_add):
+    if (limit_reached) & (not timeout):
         warnings.warn("You have selected a large cutout size that may result in a timeout error. We suggest limiting"
                       " the size of your requested cutout, or changing the request timeout limit from its"
-                      " default 600 seconds to something higher, using the timeout_add argument.", InputWarning)
+                      " default 600 seconds to something higher, using the timeout argument.", LargeQueryWarning)
 
     return {"x": x, "y": y, "units": units}
 
@@ -136,6 +150,11 @@ class TesscutClass(MastQueryWithLogin):
                     "mt_astrocut": {"path": "moving_target/astrocut"}
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
+
+    def _get_default_timeout(self):
+        """ Gets the default request timeout limit. """
+
+        return self._service_api_connection.TIMEOUT
 
     def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', objectname=None,
                     moving_target=False, mt_type=None):
@@ -256,7 +275,7 @@ class TesscutClass(MastQueryWithLogin):
 
     def download_cutouts(self, *, coordinates=None, size=5, sector=None, product='SPOC', path=".",
                          inflate=True, objectname=None, moving_target=False, mt_type=None, verbose=False,
-                         timeout_add=None):
+                         timeout=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -313,11 +332,22 @@ class TesscutClass(MastQueryWithLogin):
             first majorbody is tried and then smallbody if a matching majorbody is not found.
 
             NOTE: If moving_target is supplied, this argument is ignored.
+        timeout : int or float, optional
+            The modified request timeout limit.
+            The request processing time by default is 600 seconds, meaning an attempt at communicating
+            with the API will take 600 seconds before timing out. The timeout upper limit can be modified
+            using this argument for large cutout requests via TESSCut. Default is None.
 
         Returns
         -------
         response : `~astropy.table.Table`
         """
+
+        # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
+        if timeout:
+            self._service_api_connection.TIMEOUT = timeout
+            log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
+                     " seconds.")
 
         if moving_target:
 
@@ -348,7 +378,7 @@ class TesscutClass(MastQueryWithLogin):
             astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
 
         # Adding the arguments that are common between moving/still astrocut requests
-        size_dict = _parse_cutout_size(size, timeout_add=timeout_add, mission='TESS')
+        size_dict = _parse_cutout_size(size, timeout=timeout, mission='TESS')
         astrocut_request += f"&y={size_dict['y']}&x={size_dict['x']}&units={size_dict['units']}"
 
         # Making sure input product is either SPOC or TICA,
@@ -389,10 +419,14 @@ class TesscutClass(MastQueryWithLogin):
         os.remove(zipfile_path)
 
         localpath_table['Local Path'] = [path+x for x in cutout_files]
+
+        if timeout:
+            self._service_api_connection.TIMEOUT = self._get_default_timeout()
+
         return localpath_table
 
     def get_cutouts(self, *, coordinates=None, size=5, product='SPOC', sector=None,
-                    objectname=None, moving_target=False, mt_type=None, timeout_add=None):
+                    objectname=None, moving_target=False, mt_type=None, timeout=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -441,8 +475,8 @@ class TesscutClass(MastQueryWithLogin):
             first majorbody is tried and then smallbody if a matching majorbody is not found.
 
             NOTE: If moving_target is supplied, this argument is ignored.
-        timeout_add : int or float, optional
-            The amount (in seconds) by which the request processing time upper limit will be changed.
+        timeout : int or float, optional
+            The modified request timeout limit.
             The request processing time by default is 600 seconds, meaning an attempt at communicating
             with the API will take 600 seconds before timing out. The timeout upper limit can be modified
             using this argument for large cutout requests via TESSCut. Default is None.
@@ -453,13 +487,13 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
-        if timeout_add:
-            self._service_api_connection.TIMEOUT = self._service_api_connection.TIMEOUT + timeout_add
+        if timeout:
+            self._service_api_connection.TIMEOUT = timeout
             log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
                      " seconds.")
 
         # Setting up the cutout size
-        param_dict = _parse_cutout_size(size, timeout_add=timeout_add, mission='TESS')
+        param_dict = _parse_cutout_size(size, timeout=timeout, mission='TESS')
 
         # Add sector if present
         if sector:
@@ -529,6 +563,9 @@ class TesscutClass(MastQueryWithLogin):
             # preserve the original filename in the fits object
             cutout_hdus_list[-1].filename = name
 
+        if timeout:
+            self._service_api_connection.TIMEOUT = self._get_default_timeout()
+
         return cutout_hdus_list
 
 
@@ -592,7 +629,7 @@ class ZcutClass(MastQueryWithLogin):
         return survey_json
 
     def download_cutouts(self, coordinates, *, size=5, survey=None, cutout_format="fits", path=".", inflate=True,
-                         verbose=False, timeout_add=None, **img_params):
+                         verbose=False, **img_params):
         """
         Download cutout FITS/image file(s) around the given coordinates with indicated size.
 
@@ -633,23 +670,12 @@ class ZcutClass(MastQueryWithLogin):
             The Column Name is the keyword, with the argument being one or more acceptable
             values for that parameter, except for fields with a float datatype where the
             argument should be in the form [minVal, maxVal].
-        timeout_add : int or float, optional
-            The amount (in seconds) by which the request processing time upper limit will be changed.
-            The request processing time by default is 600 seconds, meaning an attempt at communicating
-            with the API will take 600 seconds before timing out. The timeout upper limit can be modified
-            using this argument for large cutout requests via TESSCut. Default is None.
 
         Returns
         -------
         response : `~astropy.table.Table`
             Cutout file(s) for given coordinates
         """
-
-        # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
-        if timeout_add:
-            self._service_api_connection.TIMEOUT = self._service_api_connection.TIMEOUT + timeout_add
-            log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
-                     " seconds.")
 
         # Get Skycoord object for coordinates/object
         coordinates = parse_input_location(coordinates)

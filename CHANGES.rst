@@ -156,7 +156,6 @@ nist
 
 - Vectoized ``linename`` option to query multiple spectral lines with one call
   of ``Nist.query``. [#2678]
-  ``TesscutClass``. [#2668]
 
 oac
 ^^^
