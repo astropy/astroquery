@@ -2,6 +2,7 @@
 
 import io
 import os
+import itertools
 import pytest
 
 from astropy.io import votable
@@ -11,47 +12,67 @@ from astroquery.ipac.irsa.most import Most
 from astropy.utils.diff import report_diff_values
 
 
-OUTPUTMODE_FILE_MAP = {
+# each MOST query is given a PID and a temporary directory availible publicly
+# from this base URL. This URL is then used to create links on the returned
+# HTML page and data returned to the user
+REGULAR_BASE_URL = "https://irsa.ipac.caltech.edu/workspace/TMP_FmruWd_8104/MOST/pid17003/"
+FULL_BASE_URL = "https://irsa.ipac.caltech.edu/workspace/TMP_FmruWd_8104/MOST/pid10459/"
+
+
+# When in Regular or Full output mode, there are 2 GET requests for each
+# query_object call that fetch the results and metadata separately. Since Full
+# and Regular are two different jobs with two different PIDs we need individual
+# results files
+GET_FILENAME_MAP = {
+    REGULAR_BASE_URL+"results.tbl" : "most_regular_results.tbl",
+    REGULAR_BASE_URL+"imgframes_matched_final_table.tbl" : "most_regular_metadata.tbl",
+    FULL_BASE_URL+"results.tbl" : "most_full_results.tbl",
+    FULL_BASE_URL+"imgframes_matched_final_table.tbl" : "most_full_metadata.tbl",
+    "https://irsa.ipac.caltech.edu/applications/MOST/": "MOST_application.html"
+}
+
+
+# In brief, votable and gator output modes MOST includes the results, a text
+# file, in the reponse to the POST request. We return these without making
+# additional GET requests, unlike above. Which file should be returned can be
+# determined from the output_mode given in the POST request.
+POST_FILENAME_MAP = {
     "Regular": "MOST_regular.html",
     "Full": "MOST_full_with_tarballs.html",
-    "VOTable": "MOST_VOTable.xml",
-    "Brief": "most_results_table.tbl",
-    "Gator": "most_gator_table.tbl"
+    "VOTable": "most_votable.xml",
+    "Brief": "most_regular_results.tbl",
+    "Gator": "most_gator.tbl"
 }
 
 
 def data_path(filename):
+    """Returns the path to the file in the module's test data directory."""
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
 
-def get_mocked_return(method=None, url=None, data=None, timeout=120, **kwargs):
-    if "results.tbl" in url:
-        url = "most_results_table.tbl"
-    elif "imgframes_matched_final_table.tbl" in url:
-        url = "most_imgframes_matched_final_table.tbl"
-    elif "applications" in url:
-        url = "MOST_application.html"
-
+def get_mocked_response(method=None, url=None, data=None, timeout=120, **kwargs):
+    """Returns an appropriate MockedResponse based on type and content of the request."""
     if method == "GET":
-        filename = data_path(url)
+        filepath = data_path(GET_FILENAME_MAP[url])
     else:
-        filename = data_path(OUTPUTMODE_FILE_MAP[data["output_mode"]])
+        filepath = data_path(POST_FILENAME_MAP[data["output_mode"]])
 
-    with open(filename, 'rb') as infile:
+    with open(filepath, 'rb') as infile:
         content = infile.read()
 
     return MockResponse(content, **kwargs)
 
 
 @pytest.fixture
-def patch_get_regular(request):
+def patch_requests(request):
     mp = request.getfixturevalue("monkeypatch")
-    mp.setattr(Most, '_request', get_mocked_return)
+    mp.setattr(Most, '_request', get_mocked_response)
     return mp
 
 
-def test_validation(patch_get_regular):
+def test_validation(patch_requests):
+    """Tests MOST parameter validation."""
     with pytest.raises(ValueError):
         Most.query_object()
 
@@ -130,7 +151,8 @@ def test_validation(patch_get_regular):
     )
 
 
-def test_regular(patch_get_regular):
+def test_regular(patch_requests):
+    """Tests the default MOST query returns expected results."""
     response = Most.query_object(obj_name="Victoria")
 
     assert "results" in response
@@ -139,9 +161,9 @@ def test_regular(patch_get_regular):
     assert "fits_tarball" not in response
     assert "region_tarball" not in response
 
-    results = Table.read(data_path("most_results_table.tbl"), format="ipac")
+    results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
     metadata = Table.read(data_path("most_imgframes_matched_final_table.tbl"), format="ipac")
-    url = "https://irsa.ipac.caltech.edu/workspace/TMP_noPis4_23270/MOST/pid30587/ds9region/ds9_orbit_path.reg"
+    url = REGULAR_BASE_URL + "ds9region/ds9_orbit_path.reg"
 
     silent_stream = io.StringIO()
     assert report_diff_values(results, response["results"], silent_stream)
@@ -149,7 +171,7 @@ def test_regular(patch_get_regular):
     assert url == response["region"]
 
 
-def test_get_full_with_tarballs(patch_get_regular):
+def test_get_full_with_tarballs(patch_requests):
     response = Most.query_object(
         obj_name="Victoria",
         output_mode="Full",
@@ -162,11 +184,11 @@ def test_get_full_with_tarballs(patch_get_regular):
     assert "fits_tarball" in response
     assert "region_tarball" in response
 
-    results = Table.read(data_path("most_results_table.tbl"), format="ipac")
+    results = Table.read(data_path("most_full_results.tbl"), format="ipac")
     metadata = Table.read(data_path("most_imgframes_matched_final_table.tbl"), format="ipac")
-    url = "https://irsa.ipac.caltech.edu/workspace/TMP_noPis4_23270/MOST/pid1957/ds9region/ds9_orbit_path.reg"
-    region_tar = "https://irsa.ipac.caltech.edu/workspace/TMP_noPis4_23270/MOST/pid1957/ds9region_A850RA.tar"
-    fits_tar = "https://irsa.ipac.caltech.edu/workspace/TMP_noPis4_23270/MOST/pid1957/fitsimage_A850RA.tar.gz"
+    url = FULL_BASE_URL + "ds9region/ds9_orbit_path.reg"
+    region_tar = FULL_BASE_URL + "ds9region_A850RA.tar"
+    fits_tar = FULL_BASE_URL + "fitsimage_A850RA.tar.gz"
 
     silent_stream = io.StringIO()
     assert report_diff_values(results, response["results"], silent_stream)
@@ -176,18 +198,18 @@ def test_get_full_with_tarballs(patch_get_regular):
     assert fits_tar == response["fits_tarball"]
 
 
-def test_votable(patch_get_regular):
+def test_votable(patch_requests):
     response = Most.query_object(
         output_mode="VOTable",
         obj_name="Victoria"
     )
 
-    vtbl = votable.parse(data_path("MOST_VOTable.xml"))
+    vtbl = votable.parse(data_path("most_votable.xml"))
     silent_stream = io.StringIO()
     assert report_diff_values(response, vtbl, silent_stream)
 
 
-def test_list_catalogs(patch_get_regular):
+def test_list_catalogs(patch_requests):
     expected = [
         '2mass', 'spitzer_bcd', 'ptf', 'sofia', 'wise_merge', 'wise_allsky_4band',
         'wise_allsky_3band', 'wise_allsky_2band', 'wise_neowiser',
@@ -202,12 +224,12 @@ def test_list_catalogs(patch_get_regular):
     assert response == expected
 
 
-def test_gator(patch_get_regular):
+def test_gator(patch_requests):
     response = Most.query_object(
         output_mode="Gator",
         obj_name="Victoria"
     )
 
-    tbl = Table.read(data_path("most_gator_table.tbl"), format="ipac")
+    tbl = Table.read(data_path("most_gator.tbl"), format="ipac")
     silent_stream = io.StringIO()
     assert report_diff_values(tbl, response, silent_stream)

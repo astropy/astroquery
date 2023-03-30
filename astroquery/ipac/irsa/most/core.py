@@ -56,16 +56,29 @@ return different objects depending on the specified output mode.
 Output mode                  Returned object
 ============================ ==================================================
 ``"Regular"`` or ``"Full"``` Dictionary containing ``results``, ``metadata``
-                             and ``region``. keys, optionally also
+                             and ``region`` keys. Optionally also
                              ``fits_tarball`` and ``region_tarball``.
 ``"Brief"`` or ``"Gator"``   :class:`~astropy.table.Table` object.
-``"VOTable"``                :class:`astropy.io.votable.tree.VOTableFile`
+``"VOTable"``                :class:`~astropy.io.votable.tree.VOTableFile`
                              object.
 ============================ ==================================================
 
-In ``"Regular"`` or ``"Full"`` output mode, the returned dictionary's key
-``results`` maps to the table titled "Images with a Matched Object Position",
-which contains the following columns:
+.. note::
+    The difference between ``Regular`` and ``Full`` output mode is non-existant
+    as the returned data in both cases is identical, as the figures created in
+    ``Full`` mode are not downloaded. The difference between the two modes are
+    mainly visible in presentation of the data when MOST is used via their
+    online interface.
+
+Regular and Full
+________________
+
+In ``"Regular"`` or ``"Full"`` output mode :meth:`~astroquery.ipac.irsa.most.MOSTClass.query_object`
+returns a dictionary containing ``results``, ``metadata`` and ``region`` keys.
+
+The ``results`` key contains a table that maps to the results table returned by
+MOST service titled ``Images with a Matched Object Position``. The table
+contains the following columns:
 
 ============   ===============================================================
 Column 	       Description
@@ -87,8 +100,10 @@ postcard_url   ??? usually ``null``
 region_file    Markers for the moving object in DS9 "region" format.
 ============   ===============================================================
 
-The table contained under ``metadata`` key, when in ``"Regular"`` or ``"Full"``
-mode contains the following columns:
+The ``metadata`` key contains a table which columns change depending on what
+catalog (instrument) was queried. Only a small set of columns are guaranteed to
+always be present. The following table lays out which columns can be expected
+to be present for a given instrument/observatory:
 
 +---------------------+-------------------------------------------------------+
 | Column              | Description                                           |
@@ -212,21 +227,30 @@ mode contains the following columns:
 | exposuretime        | Exposure time (sec)                                   |
 +---------------------+-------------------------------------------------------+
 
-The key ``region`` contains an URL to the DS9 Region file.
+The key ``region`` contains an URL to the DS9 Region file that draws a green
+circle over the object, or predicted ephemeride, used in the search.
 
-In ``"Full"`` and ``"Regular"`` mode, when the query parameter
-``with_tarballs`` (see below) is set to ``True``, the two additional keys -
-``fits_tarball`` and ``region_tarball`` will be present in the return. The two
-keys contain a link to all the matched FITS images and the DS9 region file, as
-a TAR archive.
+The results returned in this output mode could contain two additional keys -
+``fits_tarball`` and ``region_tarball`` - depending on whether the query
+parameter ``with_tarballs`` (see below) is set to ``True`` or ``False``. The
+keys will contain a link to an TAR archive of all of the matched FITS and DS9
+region files respectively.
 
-In ``"Brief"`` and ``"VOTable"`` output modes, only the second (``metadata``)
-table is returned. In ``"Brief"`` mode the table is retrieved as a
-:class:`~astropy.table.Table` object and in ``"VOTable"`` as an
-:class:`~astropy.io.votable.tree.VOTableFile`.
+Brief and VOTable
+_________________
 
-``"Gator"`` mode returns :class:`~astropy.table.Table` containing the following
-columns:
+In these two modes, only the second key (``metadata``) is returned as either an
+:class:`~astropy.table.Table` object, in ``"Brief"`` mode, or, in ``"VOTable"``
+mode as an :class:`~astropy.io.votable.tree.VOTableFile` object.
+
+The content of these tables is identical to the one described above. The
+``with_tarballs`` parameter is also not applicable to these two modes and will
+be ignored if provided.
+
+Gator
+_____
+
+An :class:`~astropy.table.Table` is returned containing the following columns:
 
 =========      =====================================
 Column 	       Description
@@ -238,12 +262,14 @@ ra             Right Ascension of the object (J2000)
 dec            Declination of the object (J2000)
 =========      =====================================
 
+
 Query Parameters
 -----------------
 
 Depending on the selected ``input_mode`` the required and optional parameters
 differ. Certain parameters are always required and, for some, reasonable
-defaults are provided.
+defaults are provided. Parameters that are not applicable to the selected input
+mode are ignored.
 
 +-------------------+------------------+-------+------------------------------+
 | Parameter         | Required         | Type  | Note                         |
@@ -256,6 +282,9 @@ defaults are provided.
 +-------------------+------------------+-------+------------------------------+
 | ephem_step        | always required  | float | Ephemeris step size, days.   |
 +-------------------+------------------+-------+------------------------------+
+| with_tarballs     | Only in Regular, | bool  | Return tarballs of fits and  |
+|                   | Full output mode |       | regions.                     |
++-------------------+------------------+-------+------------------------------+
 | obs_begin         | always optional  | str   | In ``YYYY-MM-DD`` format,    |
 |                   |                  | None  | Date prior to which results  |
 |                   |                  |       | will not be returned. When   |
@@ -267,9 +296,6 @@ defaults are provided.
 |                   |                  |       | will not be returned. When   |
 |                   |                  |       | not specified, all           |
 |                   |                  |       | observations are returned.   |
-+-------------------+------------------+-------+------------------------------+
-| with_tarballs     | Only in Regular, | bool  | Return tarballs of fits and  |
-|                   | Full output mode |       | regions. Default: ``False``  |
 +-------------------+------------------+-------+------------------------------+
 | obj_name          | name_input       | str   | Solar System Object name.    |
 +-------------------+------------------+-------+------------------------------+
@@ -310,7 +336,6 @@ defaults are provided.
 |                   |                  |       | Comets                       |
 |                   |                  |       | (``YYYY+MM+DD+HH:MM:SS``)    |
 +-------------------+------------------+-------+------------------------------+
-
 """
 import io
 import re
@@ -456,11 +481,11 @@ class MOSTClass(BaseQuery):
             If the input does not have the minimum required parameters set to
             an at least truthy value.
         """
-        if not params.get("catalog", False):
+        if params.get("catalog", None) is None:
             raise ValueError("Which catalog is being queried is always required.")
 
-        input_type = params.get("input_type", False)
-        if not input_type:
+        input_type = params.get("input_type", None)
+        if input_type is None:
             raise ValueError("Input type is always required.")
 
         if input_type == "name_input":
@@ -545,11 +570,9 @@ class MOSTClass(BaseQuery):
             self,
             catalog="wise_merge",
             input_mode="name_input",
-            output_mode="Regular",
+            ephem_step=0.25,
             obs_begin=None,
             obs_end=None,
-            ephem_step=0.25,
-            with_tarballs=False,
             obj_name=None,
             obj_nafid=None,
             obj_type=None,
@@ -569,7 +592,102 @@ class MOSTClass(BaseQuery):
             savedir='',
     ):
         """Gets images containing the specified object or orbit.
+
+        Parameters are case sensitive.
+        See module help for more details.
+
+        Parameters
+        ----------
+        catalog : str
+            Catalog to query.
+            Required.
+            Default ``"wise_merge"``.
+        input_mode : str
+            Input mode. One of ``"name_input"``, ``"naifid_input"``,
+            ``"mpc_input"`` or ``"manual_input"``.
+            Required.
+            Default: ``"name_input"``.
+        ephem_step : 0.25,
+            Size of the steps (in days) at which the object ephemeris is evaluated.
+            Required.
+            Default: 0.25
+        obs_begin : str or None
+            UTC of the start of observations in ``YYYY-MM-DD``. When ``None``
+            queries all availible data in the catalog which can be slow.
+            Optional.
+            Default: ``None``.
+        obs_end : str or None
+            UTC of the end of observations in ``YYYY-MM-DD``. When ``None``
+            queries all availible data in the catalog, can be slow.
+            Optional.
+            Default: ``None``.
+        obj_name : str or None
+            Object name.
+            Required when input mode is ``"name_input"``.
+        obj_nafid : str or None
+            Object NAIFD.
+            Required when input mode is ``"naifid_input"``.
+        obj_type : str or None
+            Object type, ``"Asteroid"`` or ``Comet``.
+            Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
+        mpc_data : str or None
+            MPC formatted object string.
+            Required when input mode is ``"mpc_input"``.
+        body_designation : str or None
+            Name of the object described by the given orbital parameters. Does
+            not have to be a real name. Will default to ``"TestAsteroid"`` or
+            ``"TestComet"`` depending on selected object type.
+            Required when input mode is ``"manual_input"``.
+        epoch : str or None
+            Epoch in MJD.
+            Required when input mode is ``"manual_input"``.
+        eccentricity : float or None
+            Eccentricity (0-1).
+            Required when input mode is ``"manual_input"``.
+        inclination : float or None
+            Inclination (0-180 degrees).
+            Required when input mode is ``"manual_input"``.
+        arg_perihelion : str or None
+            Argument of perihelion (0-360 degrees).
+            Required when input mode is ``"manual_input"``.
+        ascend_node : float or None
+            Longitude of the ascending node (0-360).
+            Required when input mode is ``"manual_input"``.
+        semimajor_axis : float or None
+            Semimajor axis (AU).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Asteroid"``.
+        mean_anomaly : str or None
+            Mean anomaly (degrees).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Asteroid"``.
+        perih_dist : float or None
+            Perihelion distance (AU).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Comet"``.
+        perih_time : str or None
+            Perihelion time (YYYY+MM+DD+HH:MM:SS).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Comet"``.
+        get_query_payload : bool
+            Return the query parameters as a dictionary. Useful for debugging.
+            Optional.
+            Default: ``False``
+        save : bool
+            Whether to save the file to a local directory.
+        savedir : str
+            The location to save the local file if you want to save it
+            somewhere other than `~astroquery.query.BaseQuery.cache_location`
+
+        Returns
+        -------
+        images : list
+            A list of `~astropy.io.fits.HDUList` objects.
         """
+        # We insist on output_mode being regular so that it executes quicker,
+        # and we insist on tarballs so the download is quicker. We ignore
+        # whatever else user provides, but leave the parameters as arguments to
+        # keep the same signatures for doc purposes.
         queryres = self.query_object(
             catalog=catalog,
             input_mode=input_mode,
@@ -591,7 +709,7 @@ class MOSTClass(BaseQuery):
             perih_dist=perih_dist,
             perih_time=perih_time,
             get_query_payload=get_query_payload,
-            output_mode="Full",
+            output_mode="Regular",
             with_tarballs=True,
         )
 
@@ -614,10 +732,10 @@ class MOSTClass(BaseQuery):
             catalog="wise_merge",
             input_mode="name_input",
             output_mode="Regular",
-            obs_begin=None,
-            obs_end=None,
             ephem_step=0.25,
             with_tarballs=False,
+            obs_begin=None,
+            obs_end=None,
             obj_name=None,
             obj_nafid=None,
             obj_type=None,
@@ -650,61 +768,94 @@ class MOSTClass(BaseQuery):
         the online MOST interface.
 
         Parameters are case sensitive.
-
         See module help for more details.
 
         Parameters
         ----------
         catalog : str
             Catalog to query.
-        input_type : str
+            Required.
+            Default ``"wise_merge"``.
+        input_mode : str
             Input mode. One of ``"name_input"``, ``"naifid_input"``,
             ``"mpc_input"`` or ``"manual_input"``.
+            Required.
+            Default: ``"name_input"``.
         output_mode : str
             Output mode. One of ``"Regular"``, ``"Full"``, ``"Brief"``,
-            ``"Gator"`` or ``"VOTable"``
-        obs_begin : str or None
-            UTC of the start of observations in ``YYYY-MM-DD``.
-        obs_end : str or None
-            UTC of the end of observations in ``YYYY-MM-DD``.
+            ``"Gator"`` or ``"VOTable"``.
+            Required.
+            Default: ``"Regular"``
         ephem_step : 0.25,
-            Size of the steps (in days) at which the object ephemeris is
-            evaluated.
+            Size of the steps (in days) at which the object ephemeris is evaluated.
+            Required.
+            Default: 0.25
         with_tarballs : bool
             Return links to tarballs of found FITS and Region files.
+            Optional, only when output mode is ``"Regular"`` or ``"Full"``.
+            Default: ``False``
+        obs_begin : str or None
+            UTC of the start of observations in ``YYYY-MM-DD``. When ``None``
+            queries all availible data in the catalog which can be slow.
+            Optional.
+            Default: ``"None"``.
+        obs_end : str or None
+            UTC of the end of observations in ``YYYY-MM-DD``. When ``None``
+            queries all availible data in the catalog, can be slow.
+            Optional.
+            Default: ``None``
         obj_name : str or None
             Object name.
+            Required when input mode is ``"name_input"``.
         obj_nafid : str or None
             Object NAIFD
+            Required when input mode is ``"naifid_input"``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``
+            Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
         mpc_data : str or None
             MPC formatted object string.
+            Required when input mode is ``"mpc_input"``.
         body_designation : str or None
             Name of the object described by the given orbital parameters. Does
             not have to be a real name. Will default to ``"TestAsteroid"`` or
-            ``"TestComet"``.
+            ``"TestComet"`` depending on selected object type.
+            Required when input mode is ``"manual_input"``.
         epoch : str or None
             Epoch in MJD.
+            Required when input mode is ``"manual_input"``.
         eccentricity : float or None
             Eccentricity (0-1).
+            Required when input mode is ``"manual_input"``.
         inclination : float or None
             Inclination (0-180 degrees).
+            Required when input mode is ``"manual_input"``.
         arg_perihelion : str or None
             Argument of perihelion (0-360 degrees).
+            Required when input mode is ``"manual_input"``.
         ascend_node : float or None
             Longitude of the ascending node (0-360).
+            Required when input mode is ``"manual_input"``.
         semimajor_axis : float or None
             Semimajor axis (AU).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Asteroid"``.
         mean_anomaly : str or None
             Mean anomaly (degrees).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Asteroid"``.
         perih_dist : float or None
             Perihelion distance (AU).
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Comet"``.
         perih_time : str or None
             Perihelion time (YYYY+MM+DD+HH:MM:SS).
-        get_query_payload : bool, optional
+            Required when input mode is ``"manual_input"`` and object type is
+            ``"Comet"``.
+        get_query_payload : bool
             Return the query parameters as a dictionary. Useful for debugging.
-            Set to ``False`` by default.
+            Optional.
+            Default: ``False``
 
         Returns
         -------
@@ -713,9 +864,9 @@ class MOSTClass(BaseQuery):
             In ``"Full"`` or ``"Regular"`` output mode returns a dictionary
             containing at least ``results``, ``metadata`` and ``region`` keys,
             and optionally ``fits_tarball`` and ``region_tarball`` keys. When
-            in ``"Brief"`` or ``"Gator"`` an ``Table`` object and in
-            ``"VOTable"`` an ``VOTable``. See module help for more details on
-            the content of these tables.
+            in ``"Brief"`` or ``"Gator"`` an `~astropy.table.Table` object and
+            in ``"VOTable"`` an `~astropy.io.votable.tree.VOTableFile`. See
+            module help for more details on the content of these tables.
         """
         # This is a map between the keyword names used by the MOST cgi-bin
         # service and their more user-friendly names. For example,
