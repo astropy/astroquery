@@ -416,7 +416,7 @@ key:
     'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/MOST/pid15792/fitsimage_A850RA.tar.gz'
     >>> matched["region_tarball"]  # doctest: +IGNORE_OUTPUT
     'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/MOST/pid15792/ds9region_A850RA.tar'
-    >>> matched["results"].columns
+    >>> matched["results"].columns  # doctest: +IGNORE_OUTPUT
     <TableColumns names=('Image_ID','date_obs','time_obs','mjd_obs','ra_obj','dec_obj','sun_dist','geo_dist','dist_ctr','phase','vmag','image_url','postcard_url','region_file')>  # noqa: E501
     >>> matched["results"]["time_obs", "image_url"]  # doctest: +IGNORE_OUTPUT
     <Table length=10>
