@@ -419,7 +419,7 @@ class SplatalogueClass(BaseQuery):
                                  "a valid Band.")
 
     @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
-    def query_lines_async(self, *, min_frequency=None, max_frequency=None,
+    def query_lines_async(self, min_frequency=None, max_frequency=None, *,
                           cache=True, **kwargs):
         """
 
