@@ -63,8 +63,8 @@ class NistClass(BaseQuery):
             The lower wavelength for the spectrum in appropriate units.
         maxwav : `astropy.units.Quantity` object
             The upper wavelength for the spectrum in appropriate units.
-        linename : str, optional
-            The spectrum to fetch. Defaults to "H I"
+        linename : str or iterable of str, optional
+            The spectrum/spectra to fetch. Defaults to "H I"
         energy_level_unit : str, optional
             The energy level units must be one of the following:
             'R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV',
@@ -85,7 +85,8 @@ class NistClass(BaseQuery):
 
         """
         request_payload = {}
-        request_payload["spectra"] = kwargs['linename']
+        linename = kwargs["linename"]
+        request_payload["spectra"] = linename if isinstance(linename, str) else "; ".join(linename)
         (min_wav, max_wav, wav_unit) = _parse_wavelength(args[0], args[1])
         request_payload["low_wl"] = min_wav
         request_payload["upp_wl"] = max_wav
