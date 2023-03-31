@@ -18,8 +18,10 @@ nanometer, or angstrom or the like. For example, to use a lower wavelength
 value of 4000 Angstroms, you should use ```4000 * u.AA``` and if you want the
 same in nanometers, just use ```400 * u.nm```. Of course there are several optional
 parameters you can also specify. For instance use the ``linename`` parameter to
-specify the spectrum you wish to fetch. By default this is set to "H I", but
-you can set it to several other values like "Na;Mg", etc. Lets now see a simple example.
+specify the spectrum you wish to fetch.
+``linename`` also accepts multiple line strings in an iterable (e.g. ``["Na", "H I"]``)
+or you can specify multiple lines as a single string value separated with a
+semicolon (e.g. ``"Na;Mg"``). Now let's see a simple example:
 
 .. doctest-remote-data::
 
