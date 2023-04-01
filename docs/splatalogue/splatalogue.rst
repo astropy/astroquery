@@ -230,14 +230,14 @@ data sorted by energy, you can use an approach like this:
      H213CO  Formaldehyde 3(1,2)-3(1,3)       --      27.55567   -6.95712  32.9381
        H2CO  Formaldehyde 3(1,2)-3(1,3)       --       28.9748   -6.89179 33.44949
 
+
 Reference/API
 =============
 
 .. automodapi:: astroquery.splatalogue
     :no-inheritance-diagram:
 
-.. _Splatalogue: http://www.splatalogue.net
-.. _Splatalogue web service: http://www.splatalogue.net
+.. _Splatalogue: https://www.splatalogue.online
+.. _Splatalogue web service: https://splatalogue.online/
 .. _query interface: https://www.cv.nrao.edu/php/splat/b.php
 .. _An example ipynb from an interactive tutorial session at NRAO in April 2014: http://nbviewer.jupyter.org/gist/keflavich/10477775
-
