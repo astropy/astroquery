@@ -106,7 +106,7 @@ class SplatalogueClass(BaseQuery):
          '03204 HD13CO - Formaldehyde': '1219',
          '03301 D213CO - Formaldehyde': '1220',
          '03315 HDC18O - Formaldehyde': '21141',
-         '0348 D2C18O - Formaldehyde': '21140'}
+         '03410 D2C18O - Formaldehyde': '21140'}
         >>> rslt = Splatalogue.get_species_ids(regex_str='H2CO')
         >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
