@@ -97,7 +97,6 @@ size of the printout and assist with doctests; it is not needed as the default
 ``pprint`` behavior is to fill the terminal width)
 
 .. doctest-remote-data::
-.. code-block:: python
 
    >>> from astropy import units as u
    >>> CO1to0 = Splatalogue.query_lines(115.271*u.GHz, 115.273*u.GHz)
@@ -134,7 +133,6 @@ in the 1 mm band, but you don't know its exact frequency (after all, why else wo
 this query works:
 
 .. doctest-remote-data::
-.. code-block:: python
 
    >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ")
    >>> CO2to1.pprint(max_width=100)
@@ -154,7 +152,6 @@ Of course, there's some noise in there: both the vibrationally excited line and 
 Start by thinning out the line lists used:
 
 .. doctest-remote-data::
-.. code-block:: python
 
    >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",only_NRAO_recommended=True)
    >>> CO2to1.pprint(max_width=100)
@@ -166,7 +163,6 @@ Start by thinning out the line lists used:
 Then get rid of the vibrationally excited line by setting an energy upper limit in Kelvin:
 
 .. doctest-remote-data::
-.. code-block:: python
 
    >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",
    ...                                  only_NRAO_recommended=True,
@@ -187,7 +183,6 @@ these symbols (Hα, Hβ, Hγ, Hδ, Hε, Hζ), even though they will show up as
 ``&alpha;`` in the ASCII table.  For example:
 
 .. doctest-remote-data::
-.. code-block:: python
 
    >>> ha_result = Splatalogue.query_lines(84*u.GHz, 115*u.GHz, chemical_name='Hα')
    >>> ha_result.pprint(max_width=100)
@@ -201,7 +196,6 @@ these symbols (Hα, Hβ, Hγ, Hδ, Hε, Hζ), even though they will show up as
 You could also search by specifying the line list
 
 .. doctest-remote-data::
-.. code-block:: python
 
     >>> recomb_result = Splatalogue.query_lines(84*u.GHz, 85*u.GHz, line_lists=['Recomb'])
     >>> recomb_result.pprint(max_width=100)
@@ -225,7 +219,6 @@ is not respected; we include it here as a demonstration in the hope that that er
 be fixed)
 
 .. doctest-remote-data::
-.. code-block:: python
 
     >>> S = Splatalogue(energy_max=500,
     ...    energy_type='eu_k',energy_levels=['el4'],
