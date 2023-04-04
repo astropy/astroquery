@@ -208,7 +208,7 @@ class SDSSClass(BaseQuery):
                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
-        """
+        r"""
         Used to query a region around given coordinates. Either ``radius`` or
         ``width`` must be specified.
 
