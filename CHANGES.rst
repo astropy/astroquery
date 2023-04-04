@@ -217,8 +217,8 @@ gaia
 sdss
 ^^^^
 
-- ``query_region()`` now does a cone search around the specified
-  coordinates. [#2477]
+- ``query_region()`` can perform cone search or a rectangular
+  search around the specified coordinates. [#2477, #2663]
 
 - The default data release has been changed to DR17. [#2478]
 
