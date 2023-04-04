@@ -21,7 +21,7 @@ __all__ = ['timefunc', 'RunTimePredictor']
 __doctest_skip__ = ['timefunc']
 
 
-def timefunc(num_tries=1, verbose=True):
+def timefunc(*, num_tries=1, verbose=True):
     """Decorator to time a function or method.
 
     Parameters
@@ -207,7 +207,7 @@ class RunTimePredictor:
             self._cache_time(arg)
 
     # FUTURE: Implement N^x * O(log(N)) fancy fitting.
-    def do_fit(self, model=None, fitter=None, power=1, min_datapoints=3):
+    def do_fit(self, *, model=None, fitter=None, power=1, min_datapoints=3):
         """Fit a function to the lists of arguments and
         their respective run time in the cache.
 
@@ -304,7 +304,7 @@ class RunTimePredictor:
             self._cache_est[arg] = t_est
         return t_est
 
-    def plot(self, xscale='linear', yscale='linear', xlabeltext='args',
+    def plot(self, *, xscale='linear', yscale='linear', xlabeltext='args',
              save_as=''):  # pragma: no cover
         """Plot prediction.
 

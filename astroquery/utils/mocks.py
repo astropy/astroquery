@@ -12,7 +12,7 @@ class MockResponse:
     A mocked/non-remote version of `astroquery.query.AstroResponse`
     """
 
-    def __init__(self, content=None, url=None, headers={}, content_type=None,
+    def __init__(self, content=None, *, url=None, headers={}, content_type=None,
                  stream=False, auth=None, status_code=200, verify=True,
                  allow_redirects=True, json=None):
         assert content is None or hasattr(content, 'decode')

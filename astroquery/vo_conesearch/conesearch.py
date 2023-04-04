@@ -497,7 +497,7 @@ def predict_search(url, *args, **kwargs):
     return t_est, n_est
 
 
-@timefunc(1)
+@timefunc(num_tries=1)
 def conesearch_timer(*args, **kwargs):
     """
     Time a single Cone Search using `astroquery.utils.timer.timefunc`

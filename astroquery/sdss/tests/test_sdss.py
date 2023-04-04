@@ -44,7 +44,7 @@ def patch_request(request):
         with open(filename, 'rb') as infile:
             content = infile.read()
 
-        return MockResponse(content, url)
+        return MockResponse(content=content, url=url)
 
     mp = request.getfixturevalue("monkeypatch")
 

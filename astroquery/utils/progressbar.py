@@ -21,7 +21,7 @@ def chunk_report(bytes_so_far, chunk_size, total_size):
                          (bytes_so_far / 1024. ** 2))
 
 
-def chunk_read(response, chunk_size=1024, report_hook=None):
+def chunk_read(response, *, chunk_size=1024, report_hook=None):
     content_length = response.info().get('Content-Length')
     if content_length is None:
         total_size = 0
@@ -51,7 +51,7 @@ def chunk_read(response, chunk_size=1024, report_hook=None):
     return result_string
 
 
-def retrieve(url, outfile, opener=None, overwrite=False):
+def retrieve(url, outfile, *, opener=None, overwrite=False):
     """
     "retrieve" (i.e., download to file) a URL.
     """

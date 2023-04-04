@@ -33,7 +33,7 @@ TEST_DATA = {f.name: f.read_text() for f in Path(__file__).with_name("data").ite
 
 def test_load_tables():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     responseLoadTable = DummyResponse(500)
     responseLoadTable.set_data(method='GET', body=TEST_DATA["test_tables.xml"])
     tableRequest = "tables"
@@ -70,7 +70,7 @@ def test_load_tables():
 
 def test_load_tables_parameters():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     responseLoadTable = DummyResponse(200)
     responseLoadTable.set_data(method='GET', body=TEST_DATA["test_tables.xml"])
     tableRequest = "tables"
@@ -106,7 +106,7 @@ def test_load_tables_parameters():
 
 def test_load_table():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
 
     # No arguments
     with pytest.raises(Exception):
@@ -137,7 +137,7 @@ def test_load_table():
 
 def test_launch_sync_job():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     responseLaunchJob = DummyResponse(500)
     responseLaunchJob.set_data(method='POST', body=TEST_DATA["job_1.vot"])
     query = 'select top 5 * from table'
@@ -191,7 +191,7 @@ def test_launch_sync_job():
 
 def test_launch_sync_job_redirect():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     responseLaunchJob = DummyResponse(500)
     jobid = '12345'
     resultsReq = f'sync/{jobid}'
@@ -271,7 +271,7 @@ def test_launch_sync_job_redirect():
 
 def test_launch_async_job():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     jobid = '12345'
     # Launch response
     responseLaunchJob = DummyResponse(500)
@@ -347,7 +347,7 @@ def test_launch_async_job():
 
 def test_start_job():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     jobid = '12345'
     # Phase POST response
     responsePhase = DummyResponse(200)
@@ -402,7 +402,7 @@ def test_start_job():
 
 def test_abort_job():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     jobid = '12345'
     # Phase POST response
     responsePhase = DummyResponse(200)
@@ -441,7 +441,7 @@ def test_abort_job():
 
 def test_job_parameters():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     jobid = '12345'
     # Launch response
     responseLaunchJob = DummyResponse(303)
@@ -489,7 +489,7 @@ def test_job_parameters():
     connHandler.set_response(req, responsePhase)
 
     # send parameter OK
-    job.send_parameter("param1", "value1")
+    job.send_parameter(name="param1", value="value1")
     # start job
     job.start()
     assert job.get_phase() == 'QUEUED'
@@ -500,7 +500,7 @@ def test_job_parameters():
 
 def test_list_async_jobs():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     response = DummyResponse(500)
     response.set_data(method='GET', body=TEST_DATA["jobs_list.xml"])
     req = "async"
@@ -519,7 +519,7 @@ def test_list_async_jobs():
 
 def test_data():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap",
+    tap = TapPlus(url="http://test:1111/tap",
                   data_context="data",
                   connhandler=connHandler)
     responseResultsJob = DummyResponse(200)
@@ -540,20 +540,20 @@ def test_data():
     responseResultsJob.set_status_code(200)
 
     # results
-    results = tap.load_data(params_dict)
+    results = tap.load_data(params_dict=params_dict)
     assert len(results) == 3
     # error: no params dictionary
     with pytest.raises(Exception):
         # no dictionary: exception
         tap.load_data("1,2")
     params_dict['format'] = "votable"
-    results = tap.load_data(params_dict)
+    results = tap.load_data(params_dict=params_dict)
     assert len(results) == 3
 
 
 def test_datalink():
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap",
+    tap = TapPlus(url="http://test:1111/tap",
                   datalink_context="datalink",
                   connhandler=connHandler)
     responseResultsJob = DummyResponse(200)
@@ -718,7 +718,7 @@ def test_get_current_column_values_for_update():
 def test_update_user_table():
     tableName = 'table'
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     dummyResponse = DummyResponse(200)
     dummyResponse.set_data(method='GET', body=TEST_DATA["test_table_update.xml"])
     tableRequest = f"tables?tables={tableName}"
@@ -784,7 +784,7 @@ def test_rename_table():
     newTableName = 'user_test.table_test_rename_new'
     newColumnNames = {'ra': 'alpha', 'dec': 'delta'}
     connHandler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     dummyResponse = DummyResponse(200)
     dummyResponse.set_data(method='GET', body=TEST_DATA["test_table_rename.xml"])
 
@@ -842,7 +842,7 @@ def __check_results_column(results, columnName, description, unit,
 @patch.object(TapPlus, 'login')
 def test_login(mock_login):
     conn_handler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap.login("user", "password")
     assert (mock_login.call_count == 1)
     mock_login.side_effect = HTTPError("Login error")
@@ -855,7 +855,7 @@ def test_login(mock_login):
 @patch.object(TapPlus, 'login')
 def test_login_gui(mock_login_gui, mock_login):
     conn_handler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap.login_gui()
     assert (mock_login_gui.call_count == 0)
     mock_login_gui.side_effect = HTTPError("Login error")
@@ -867,7 +867,7 @@ def test_login_gui(mock_login_gui, mock_login):
 @patch.object(TapPlus, 'logout')
 def test_logout(mock_logout):
     conn_handler = DummyConnHandler()
-    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap.logout()
     assert (mock_logout.call_count == 1)
     mock_logout.side_effect = HTTPError("Login error")

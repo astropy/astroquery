@@ -43,7 +43,7 @@ class Tap:
     Provides TAP capabilities
     """
 
-    def __init__(self, url=None,
+    def __init__(self, *, url=None,
                  host=None,
                  server_context=None,
                  tap_context=None,
@@ -141,7 +141,7 @@ class Tap:
         self.__connHandler = None
         self.tap_client_id = f"aqtappy1-{VERSION}"
 
-    def load_tables(self, verbose=False):
+    def load_tables(self, *, verbose=False):
         """Loads all public tables
 
         Parameters
@@ -155,7 +155,7 @@ class Tap:
         """
         return self.__load_tables(verbose=verbose)
 
-    def load_table(self, table, verbose=False):
+    def load_table(self, table, *, verbose=False):
         """Loads the specified table
 
         Parameters
@@ -188,7 +188,7 @@ class Tap:
             print("Done.")
         return tsp.get_table()
 
-    def __load_tables(self, only_names=False, include_shared_tables=False,
+    def __load_tables(self, *, only_names=False, include_shared_tables=False,
                       verbose=False):
         """Loads all public tables
 
@@ -237,7 +237,7 @@ class Tap:
         log.info("Done.")
         return tsp.get_tables()
 
-    def launch_job(self, query, name=None, output_file=None,
+    def launch_job(self, query, *, name=None, output_file=None,
                    output_format="votable", verbose=False,
                    dump_to_file=False, upload_resource=None,
                    upload_table_name=None, maxrec=None):
@@ -314,7 +314,7 @@ class Tap:
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   200,
-                                                                  False)
+                                                                  raise_exception=False)
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                False,
@@ -355,7 +355,7 @@ class Tap:
             job._phase = 'COMPLETED'
         return job
 
-    def launch_job_async(self, query, name=None, output_file=None,
+    def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,
@@ -411,21 +411,21 @@ class Tap:
                                                  output_format,
                                                  "async",
                                                  verbose,
-                                                 name,
-                                                 autorun,
-                                                 maxrec)
+                                                 name=name,
+                                                 autorun=autorun,
+                                                 maxrec=maxrec)
         else:
             response = self.__launchJob(query,
                                         output_format,
                                         "async",
                                         verbose,
-                                        name,
-                                        autorun,
-                                        maxrec)
+                                        name=name,
+                                        autorun=autorun,
+                                        maxrec=maxrec)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   303,
-                                                                  False)
+                                                                  raise_exception=False)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler)
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
@@ -464,13 +464,13 @@ class Tap:
                         print("Retrieving async. results...")
                     # saveResults or getResults will block (not background)
                     if dump_to_file:
-                        job.save_results(verbose)
+                        job.save_results(verbose=verbose)
                     else:
                         job.get_results()
                         log.info("Query finished.")
         return job
 
-    def load_async_job(self, jobid=None, name=None, verbose=False,
+    def load_async_job(self, *, jobid=None, name=None, verbose=False,
                        load_results=True):
         """Loads an asynchronous job
 
@@ -522,7 +522,7 @@ class Tap:
             job.get_results()
         return job
 
-    def list_async_jobs(self, verbose=False):
+    def list_async_jobs(self, *, verbose=False):
         """Returns all the asynchronous jobs
 
         Parameters
@@ -567,7 +567,7 @@ class Tap:
                 result = f"{result}&{k}={data[k]}"
         return result
 
-    def save_results(self, job, verbose=False):
+    def save_results(self, job, *, verbose=False):
         """Saves job results
 
         Parameters
@@ -580,7 +580,7 @@ class Tap:
         job.save_results(verbose=verbose)
 
     def __launchJobMultipart(self, query, uploadResource, uploadTableName,
-                             outputFormat, context, verbose, name=None,
+                             outputFormat, context, verbose, *, name=None,
                              autorun=True, maxrec=None):
         uploadValue = f"{uploadTableName},param:{uploadTableName}"
         args = {
@@ -621,7 +621,7 @@ class Tap:
             print(response.getheaders())
         return response
 
-    def __launchJob(self, query, outputFormat, context, verbose, name=None,
+    def __launchJob(self, query, outputFormat, context, verbose, *, name=None,
                     autorun=True, maxrec=None):
         args = {
             "REQUEST": "doQuery",
@@ -649,7 +649,7 @@ class Tap:
             return location
         return location[pos:]
 
-    def __findCookieInHeader(self, headers, verbose=False):
+    def __findCookieInHeader(self, headers, *, verbose=False):
         cookies = self.__connHandler.find_header(headers, 'Set-Cookie')
         if verbose:
             print(cookies)
@@ -662,7 +662,7 @@ class Tap:
                     return i
         return None
 
-    def __parseUrl(self, url, verbose=False):
+    def __parseUrl(self, url, *, verbose=False):
         isHttps = False
         if url.startswith("https://"):
             isHttps = True
@@ -735,7 +735,7 @@ class TapPlus(Tap):
     Provides TAP and TAP+ capabilities
     """
 
-    def __init__(self, url=None,
+    def __init__(self, *, url=None,
                  host=None,
                  server_context=None,
                  tap_context=None,
@@ -781,7 +781,7 @@ class TapPlus(Tap):
             flag to display information about the process
         """
 
-        super(TapPlus, self).__init__(url, host,
+        super(TapPlus, self).__init__(url=url, host=host,
                                       server_context=server_context,
                                       tap_context=tap_context,
                                       upload_context=upload_context,
@@ -804,7 +804,7 @@ class TapPlus(Tap):
         if client_id:
             self.tap_client_id = client_id
 
-    def load_tables(self, only_names=False, include_shared_tables=False,
+    def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
         """Loads all public tables
 
@@ -825,7 +825,7 @@ class TapPlus(Tap):
                                       include_shared_tables=include_shared_tables,  # noqa
                                       verbose=verbose)
 
-    def load_data(self, params_dict=None, output_file=None, verbose=False):
+    def load_data(self, *, params_dict=None, output_file=None, verbose=False):
         """Loads the specified data
 
         Parameters
@@ -879,7 +879,7 @@ class TapPlus(Tap):
                 print("Done.")
             return results
 
-    def load_groups(self, verbose=False):
+    def load_groups(self, *, verbose=False):
         """Loads groups
 
         Parameters
@@ -910,7 +910,7 @@ class TapPlus(Tap):
                 print(g.title)
         return gsp.get_groups()
 
-    def load_group(self, group_name=None, verbose=False):
+    def load_group(self, *, group_name=None, verbose=False):
         """Load group with title being group_name
 
         Parameters
@@ -934,7 +934,7 @@ class TapPlus(Tap):
                 break
         return group
 
-    def load_shared_items(self, verbose=False):
+    def load_shared_items(self, *, verbose=False):
         """Loads shared items
 
         Parameters
@@ -965,7 +965,7 @@ class TapPlus(Tap):
                 print(g.title)
         return ssp.get_shared_items()
 
-    def share_table(self, group_name=None,
+    def share_table(self, *, group_name=None,
                     table_name=None,
                     description=None,
                     verbose=False):
@@ -1009,7 +1009,7 @@ class TapPlus(Tap):
         msg = f"Shared table '{table_name}' to group '{group_name}'."
         log.info(msg)
 
-    def share_table_stop(self, group_name=None, table_name=None,
+    def share_table_stop(self, *, group_name=None, table_name=None,
                          verbose=False):
         """Stop sharing a table
 
@@ -1056,7 +1056,7 @@ class TapPlus(Tap):
         msg = f"Stop sharing table '{table_name}' to group '{group_name}'."
         log.info(msg)
 
-    def share_group_create(self, group_name=None, description=None,
+    def share_group_create(self, *, group_name=None, description=None,
                            verbose=False):
         """Creates a group
 
@@ -1091,7 +1091,7 @@ class TapPlus(Tap):
         msg = f"Created group '{group_name}'."
         log.info(msg)
 
-    def share_group_delete(self,
+    def share_group_delete(self, *,
                            group_name=None,
                            verbose=False):
         """Deletes a group
@@ -1120,7 +1120,7 @@ class TapPlus(Tap):
         msg = f"Deleted group '{group_name}'."
         log.info(msg)
 
-    def share_group_add_user(self,
+    def share_group_add_user(self, *,
                              group_name=None,
                              user_id=None,
                              verbose=False):
@@ -1169,7 +1169,7 @@ class TapPlus(Tap):
         msg = f"Added user '{user_id}' from group '{group_name}'."
         log.info(msg)
 
-    def share_group_delete_user(self,
+    def share_group_delete_user(self, *,
                                 group_name=None,
                                 user_id=None,
                                 verbose=False):
@@ -1219,7 +1219,7 @@ class TapPlus(Tap):
         msg = f"Deleted user '{user_id}' from group '{group_name}'."
         log.info(msg)
 
-    def is_valid_user(self, user_id=None, verbose=False):
+    def is_valid_user(self, *, user_id=None, verbose=False):
         """Determines if the specified user exists in the system
         TAP+ only
 
@@ -1251,7 +1251,7 @@ class TapPlus(Tap):
             print(f"USER response = {user}")
         return user.startswith(f"{user_id}:") and user.count("\\n") == 0
 
-    def get_datalinks(self, ids, verbose=False):
+    def get_datalinks(self, ids, *, verbose=False):
         """Gets datalinks associated to the provided identifiers
 
         Parameters
@@ -1293,7 +1293,7 @@ class TapPlus(Tap):
 
         return results
 
-    def search_async_jobs(self, jobfilter=None, verbose=False):
+    def search_async_jobs(self, *, jobfilter=None, verbose=False):
         """Searches for jobs applying the specified filter
 
         Parameters
@@ -1329,7 +1329,7 @@ class TapPlus(Tap):
                 j.connHandler = connHandler
         return jobs
 
-    def remove_jobs(self, jobs_list, verbose=False):
+    def remove_jobs(self, jobs_list, *, verbose=False):
         """Removes the specified jobs
 
         Parameters
@@ -1366,7 +1366,7 @@ class TapPlus(Tap):
         msg = f"Removed jobs: '{jobs_list}'."
         log.info(msg)
 
-    def __execLogin(self, usr, pwd, verbose=False):
+    def __execLogin(self, usr, pwd, *, verbose=False):
         subContext = "login"
         args = {
             "username": usr,
@@ -1378,7 +1378,7 @@ class TapPlus(Tap):
             print(response.getheaders())
         return response
 
-    def upload_table(self, upload_resource=None, table_name=None,
+    def upload_table(self, *, upload_resource=None, table_name=None,
                      table_description=None,
                      format=None, verbose=False):
         """Uploads a table to the user private space
@@ -1430,7 +1430,7 @@ class TapPlus(Tap):
             log.info(f"Uploaded table '{table_name}'.")
             return None
 
-    def __uploadTableMultipart(self, resource, table_name=None,
+    def __uploadTableMultipart(self, resource, *, table_name=None,
                                table_description=None,
                                resource_format="VOTable",
                                verbose=False):
@@ -1482,7 +1482,7 @@ class TapPlus(Tap):
                                                      200)
         return response
 
-    def upload_table_from_job(self, job=None, table_name=None,
+    def upload_table_from_job(self, *, job=None, table_name=None,
                               table_description=None, verbose=False):
         """Creates a table to the user private space from a job
 
@@ -1522,7 +1522,7 @@ class TapPlus(Tap):
         msg = f"Created table '{table_name}' from job: '{j.jobid}'."
         log.info(msg)
 
-    def __uploadTableMultipartFromJob(self, resource, table_name=None,
+    def __uploadTableMultipartFromJob(self, resource, *, table_name=None,
                                       table_description=None, verbose=False):
         args = {
             "TASKID": str(-1),
@@ -1542,7 +1542,7 @@ class TapPlus(Tap):
                                                  200)
         return response
 
-    def delete_user_table(self, table_name=None, force_removal=False,
+    def delete_user_table(self, *, table_name=None, force_removal=False,
                           verbose=False):
         """Removes a user table
 
@@ -1578,7 +1578,7 @@ class TapPlus(Tap):
         msg = f"Table '{table_name}' deleted."
         log.info(msg)
 
-    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict=None,
+    def rename_table(self, *, table_name=None, new_table_name=None, new_column_names_dict=None,
                      verbose=False):
         """ This method allows you to update the column names of a user table.
 
@@ -1652,7 +1652,7 @@ class TapPlus(Tap):
             }
         return args
 
-    def update_user_table(self, table_name=None, list_of_changes=[],
+    def update_user_table(self, *, table_name=None, list_of_changes=[],
                           verbose=False):
         """Updates a user table
 
@@ -1709,8 +1709,8 @@ class TapPlus(Tap):
                                          f" was not found in the table")
                 index = index + 1
 
-        new_ra_column = TapPlus.__changesContainFlag(list_of_changes, "Ra")
-        new_dec_column = TapPlus.__changesContainFlag(list_of_changes, "Dec")
+        new_ra_column = TapPlus.__changesContainFlag(changes=list_of_changes, flag="Ra")
+        new_dec_column = TapPlus.__changesContainFlag(changes=list_of_changes, flag="Dec")
 
         # check whether both (Ra/Dec) are present
         # or both are None
@@ -1863,7 +1863,7 @@ class TapPlus(Tap):
 
         return flags, indexed, ucd, utype
 
-    def set_ra_dec_columns(self, table_name=None,
+    def set_ra_dec_columns(self, *, table_name=None,
                            ra_column_name=None, dec_column_name=None,
                            verbose=False):
         """Set columns of a table as ra and dec respectively a user table
@@ -1904,7 +1904,7 @@ class TapPlus(Tap):
         msg = f"Table '{table_name}' updated (ra/dec)."
         return msg
 
-    def login(self, user=None, password=None, credentials_file=None,
+    def login(self, *, user=None, password=None, credentials_file=None,
               verbose=False):
         """Performs a login.
         User and password arguments can be used or a file that contains
@@ -1943,7 +1943,7 @@ class TapPlus(Tap):
         self.__pwd = str(password)
         self.__dologin(verbose)
 
-    def login_gui(self, verbose=False):
+    def login_gui(self, *, verbose=False):
         """Performs a login using a GUI dialog
 
         Parameters
@@ -1963,7 +1963,7 @@ class TapPlus(Tap):
         else:
             self.__isLoggedIn = False
 
-    def __dologin(self, verbose=False):
+    def __dologin(self, *, verbose=False):
         self.__isLoggedIn = False
         response = self.__execLogin(self.__user, self.__pwd, verbose)
         # check response
@@ -1982,7 +1982,7 @@ class TapPlus(Tap):
                 connHandler.set_cookie(cookie)
         log.info("OK")
 
-    def logout(self, verbose=False):
+    def logout(self, *, verbose=False):
         """Performs a logout
 
         Parameters
@@ -1999,7 +1999,7 @@ class TapPlus(Tap):
         self.__isLoggedIn = False
 
     @staticmethod
-    def __columnsContainFlag(columns=None, flag=None, verbose=False):
+    def __columnsContainFlag(*, columns=None, flag=None, verbose=False):
         c = None
         if columns is not None and len(columns) > 0:
             for column in columns:
@@ -2022,7 +2022,7 @@ class TapPlus(Tap):
         return c
 
     @staticmethod
-    def __changesContainFlag(changes=None, flag=None, verbose=False):
+    def __changesContainFlag(*, changes=None, flag=None, verbose=False):
         c = None
         if changes is not None and len(changes) > 0:
             for change in changes:

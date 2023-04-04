@@ -912,7 +912,7 @@ class GaiaClass(TapPlus):
         try:
             subContext = self.GAIA_MESSAGES
             connHandler = self._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, False)
+            response = connHandler.execute_tapget(subContext, verbose=False)
             if response.status == 200:
                 if isinstance(response, Iterable):
                     for line in response:

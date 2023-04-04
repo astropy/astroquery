@@ -105,7 +105,7 @@ class ESAHubbleClass(BaseQuery):
             params["PRODUCTTYPE"] = product_type
 
         filename = self._get_product_filename(product_type, filename)
-        self._tap.load_data(params, filename, verbose=verbose)
+        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
         return filename
 
@@ -254,7 +254,7 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = artifact_id
 
-        self._tap.load_data(params, filename, verbose=verbose)
+        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
         return filename
 
@@ -302,7 +302,7 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id
 
-        self._tap.load_data(params, filename, verbose=verbose)
+        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
         return filename
 
@@ -505,7 +505,7 @@ class ESAHubbleClass(BaseQuery):
             subContext = conf.EHST_TARGET_ACTION
             connHandler = self._tap._TapPlus__getconnhandler()
             data = urlencode(params)
-            target_response = connHandler.execute_secure(subContext, data, True)
+            target_response = connHandler.execute_secure(subContext, data, verbose=True)
             for line in target_response:
                 target_result = json.loads(line.decode("utf-8"))
                 if target_result['objects']:
@@ -763,7 +763,7 @@ class ESAHubbleClass(BaseQuery):
         try:
             subContext = conf.EHST_MESSAGES
             connHandler = self._tap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, False)
+            response = connHandler.execute_tapget(subContext, verbose=False)
             if response.status == 200:
                 for line in response:
                     string_message = line.decode("utf-8")
