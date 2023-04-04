@@ -221,7 +221,10 @@ class SDSSClass(BaseQuery):
         When called with keyword ``width``, and optionally a different ``height``,
         a rectangular search is performed, centered on each of the given
         coordinates. In this mode, internally, this function is equivalent to
-        a general SQL query (`query_sql`).
+        a general SQL query (`query_sql`). The shape of the rectangle is
+        not corrected for declination (*i.e.* no :math:`\cos \delta` correction);
+        conceptually, this means that the rectangle will become increasingly
+        trapezoidal-shaped at high declination.
 
         In both radial and rectangular modes, this function returns all objects
         within the search area; this could potentially include duplicate observations

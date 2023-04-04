@@ -17,11 +17,11 @@ images, are also included in DR17.  Users may select alternate DR's.
 Getting started
 ===============
 
-This example shows how to perform an object cross-ID with SDSS. We'll start
-with the position of a source found in another survey, and search within a 5
-arcsecond radius for optical counterparts in SDSS. Note use of the keyword
-argument spectro, which requires matches to have spectroscopy, not just
-photometry:
+This example shows how to perform an individual object cross-ID with SDSS.
+We'll start with the position of a source found in another survey, and search
+within a 5 arcsecond radius (a "cone search") for optical counterparts in SDSS.
+Note use of the keyword argument spectro, which requires matches to have
+spectroscopy, not just photometry:
 
 .. doctest-remote-data::
 
@@ -35,6 +35,38 @@ photometry:
     2.02344596573482 14.8398237551311 ... 845594848269461504    26
 
 The result is an astropy.Table.
+
+Searching regions and multiple objects
+======================================
+
+You can use `~astroquery.sdss.SDSSClass.query_region` to search multiple
+locations; the input coordinates can be a single `astropy.coordinates` object
+or a `list` or `~astropy.table.Column` of coordinates.
+However, it is important to specify exactly what kind of search is
+desired.  When `~astroquery.sdss.SDSSClass.query_region` is invoked with the
+``radius`` keyword, a circle around each point is searched. This is also
+called a "cone search".  When invoked in this mode,
+`~astroquery.sdss.SDSSClass.query_region` is equivalent to
+`~astroquery.sdss.SDSSClass.query_crossid`. Because of this equivalence, there
+is a strict limit of 3 arcmin on the value of ``radius`` which is imposed
+by the SDSS servers.
+
+`~astroquery.sdss.SDSSClass.query_region` can also be used to search a
+rectangular region centered on a coordinate or each coordinate in a list.
+This mode is invoked with the ``width`` keyword, which is the width in
+right ascension. Optionally, the ``height`` keyword can be used to specify
+a different range of declination.  With these parameters,
+`~astroquery.sdss.SDSSClass.query_region` constructs a rectangle in RA, dec
+that does *not* correct for the geometry at high declination, also known as
+the :math:`\cos \delta` correction.  At high declination, these rectangles
+would appear much more like trapezoids. However, this is the more intuitive
+interpretation of "this range of RA, that range of Dec" that many people use.
+Finally though, the constructed rectangles *do* account for RA wrap-around,
+so an appropriate region of the celestial sphere is searched, even if the
+central coordinate is very close to RA = 0.
+
+Finally note that either ``radius`` or ``width`` must be specified.
+Specifying neither or both will raise an exception.
 
 Downloading data
 ================
