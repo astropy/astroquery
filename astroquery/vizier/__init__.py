@@ -22,8 +22,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        ['vizier.unistra.fr',
-         'vizier.u-strasbg.fr',  # obsolete
+        ['vizier.cds.unistra.fr',
          'vizier.cfa.harvard.edu',
          'vizier.nao.ac.jp',
          'vizier.hia.nrc.ca',
