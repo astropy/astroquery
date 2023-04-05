@@ -439,6 +439,39 @@ See that link for details of how these queries are formed.
          NAME SGR A EAST    17 45 47    -29 00.2       4        4    18000.000    18000.000             1        E
 
 
+Object type criteria
+--------------------
+
+SIMBAD set a maintype for each astronomical object which is related to the real type classification. Other object types are given, which are related to some types coming from some surveys/observations. Depending on your needs, ``maintype`` or  ``otype`` fields can be used.
+To use all subcategories of an object type, ``maintypes`` or  ``otypes`` fields can also be used.
+See the dedicated SIMBAD `documentation on object types <https://simbad.cds.unistra.fr/guide/otypes/>`__.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> result = Simbad.query_criteria('region(CIRCLE, Trapezium Nebula, 3m)', maintypes='YSO')
+    >>> print(result)
+        MAIN_ID               RA           DEC      RA_PREC DEC_PREC ... COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     SCRIPT_NUMBER_ID
+    ----------------------- ------------- ------------- ------- -------- ... ------------- -------- -------------- ------------------- ----------------
+              * tet01 Ori D 05 35 17.2574 -05 23 16.570      14       14 ...            90        A              O 2020yCat.1350....0G                0
+              * tet01 Ori A 05 35 15.8254 -05 23 14.334      14       14 ...            90        A              O 2020yCat.1350....0G                0
+                  V* MR Ori 05 35 16.9783 -05 21 45.337      14       14 ...            90        A              O 2020yCat.1350....0G                0
+                V* V377 Ori 05 35 21.2917 -05 24 57.399      14       14 ...            90        A              O 2020yCat.1350....0G                0
+                  V* AF Ori 05 35 18.6664 -05 23 13.946      14       14 ...            90        A              O 2020yCat.1350....0G                0
+               V* V1228 Ori 05 35 12.2788 -05 23 48.027      14       14 ...            90        A              O 2020yCat.1350....0G                0
+               V* V2228 Ori 05 35 12.8166 -05 20 43.608      14       14 ...            90        A              O 2020yCat.1350....0G                0
+             Parenago  1820 05 35 13.5189 -05 22 19.552      14       14 ...            90        A              O 2020yCat.1350....0G                0
+                         ...           ...           ...     ...      ... ...           ...      ...            ...                 ...              ...
+                    HH  998    05 35 16.0     -05 23 54       5        5 ...             0        E                2015AJ....150..108O                0
+             Parenago  1823 05 35 14.0513 -05 23 38.466      14       14 ...            90        A              O 2020yCat.1350....0G                0
+    2MASS J05351884-0522229 05 35 18.8454 -05 22 22.996      14       14 ...            90        C              O 2020yCat.1350....0G                0
+             [SRB2015] p132 05 35 25.9362 -05 22 24.404       9        9 ...             0        E              s 2015MNRAS.449.1769S                0
+             [SRB2015] p136 05 35 14.3406 -05 22 26.643       9        9 ...             0        E              s 2015MNRAS.449.1769S                0
+             [SRB2015] p142 05 35 25.9653 -05 21 24.460       9        9 ...             0        E              s 2015MNRAS.449.1769S                0
+             [OW94] 183-405 05 35 18.3314 -05 24 04.844      14       14 ...            90        A              O 2020yCat.1350....0G                0
+                [H97b] 511b 05 35 16.2800 -05 22 10.420       8        8 ...             0        C              R 2016ApJ...831..155S                0
+
+
 .. _vectorqueries:
 
 Vectorized Queries
@@ -525,6 +558,7 @@ You can also stitch together region queries by writing a sophisticated script:
       NAME Sgr A East     17 45 41     -29 00.8       4        4           --           --             0        D                2010ApJS..188..405A
                 W 49b 19 11 09.000 +09 06 24.00       7        7           --           --             0        D                2015ApJS..217....2M
     SNR G000.13-00.12      17 46.4       -28 53       3        3           --           --             0        E                2013MNRAS.434.1339H
+
 
 
 
