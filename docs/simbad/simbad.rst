@@ -442,7 +442,7 @@ See that link for details of how these queries are formed.
 Object type criteria
 --------------------
 
-SIMBAD set a maintype for each astronomical object which is related to the real type classification. Other object types are given, which are related to some types coming from some surveys/observations. Depending on your needs, ``maintype`` or  ``otype`` fields can be used.
+SIMBAD sets a ``maintype`` for each astronomical object that is related to the real type classification. Other object types (``otypes``) are given, which are related to some types coming from some surveys/observations. Depending on your needs, ``maintype`` or  ``otype`` fields can be used.
 To use all subcategories of an object type, ``maintypes`` or  ``otypes`` fields can also be used.
 See the dedicated SIMBAD `documentation on object types <https://simbad.cds.unistra.fr/guide/otypes/>`__.
 
