@@ -29,10 +29,10 @@ To search within this list for a particular species, you can use regular express
 
 .. code-block:: python
 
-   >>> CO_containing_species = Splatalogue.get_species_ids(regex_str='CO')
+   >>> CO_containing_species = Splatalogue.get_species_ids(species_regex='CO')
    >>> len(CO_containing_species)
    105
-   >>> just_CO = Splatalogue.get_species_ids(regex_str=' CO ') # note the spaces
+   >>> just_CO = Splatalogue.get_species_ids(species_regex=' CO ') # note the spaces
    >>> len(just_CO)
    4
    >>> assert just_CO == {'02812 CO v = 0 - Carbon Monoxide': '204',

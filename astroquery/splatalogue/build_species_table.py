@@ -67,7 +67,6 @@ def get_json_species_ids(*, outfile='splat-species.json', base_url=conf.base_url
             species[kid['class'][0]][kid['value']] = kid.text
 
     with open(data_path(outfile), 'w') as f:
-        assert isinstance(species, dict)
         json.dump(species, f)
 
     return json.dumps(species)
