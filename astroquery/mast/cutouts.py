@@ -103,7 +103,7 @@ def _parse_cutout_size(size, timeout=None, mission=None):
     if len(size) > 2:
         warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
                       InputWarning)
-    
+
     # Getting x and y out of the size
 
     if np.isscalar(size[0]):
