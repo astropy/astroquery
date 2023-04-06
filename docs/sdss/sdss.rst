@@ -20,7 +20,7 @@ Getting started
 This example shows how to perform an individual object cross-ID with SDSS.
 We'll start with the position of a source found in another survey, and search
 within a 5 arcsecond radius (a "cone search") for optical counterparts in SDSS.
-Note use of the keyword argument spectro, which requires matches to have
+Note use of the keyword argument ``spectro``, which requires matches to have
 spectroscopy, not just photometry:
 
 .. doctest-remote-data::
@@ -61,7 +61,7 @@ that does *not* correct for the geometry at high declination, also known as
 the :math:`\cos \delta` correction.  At high declination, these rectangles
 would appear much more like trapezoids. However, this is the more intuitive
 interpretation of "this range of RA, that range of Dec" that many people use.
-Finally though, the constructed rectangles *do* account for RA wrap-around,
+Finally, though, the constructed rectangles *do* account for RA wrap-around,
 so an appropriate region of the celestial sphere is searched, even if the
 central coordinate is very close to RA = 0.
 
