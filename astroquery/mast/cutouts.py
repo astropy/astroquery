@@ -71,6 +71,15 @@ def _parse_cutout_size(size, timeout=None, mission=None):
     # This local variable will change to True if input cutout size exceeds recommended limits for TESS
     limit_reached = False
 
+    # Checking 2d size inputs for the recommended cutout size
+    if isinstance(size, list) & (mission == 'TESS'):
+        if len(size) == 2:
+            if np.isscalar(size[0]):
+                size = [size[0] * u.pixel, size[1] * u.pixel]
+
+            with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
+                limit_reached = (size * size[0].unit > 30 * u.pixel).any()
+
     # Making size into an array [ny, nx]
     if np.isscalar(size):
         size = np.repeat(size, 2)
@@ -94,16 +103,6 @@ def _parse_cutout_size(size, timeout=None, mission=None):
     if len(size) > 2:
         warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
                       InputWarning)
-    
-    # Checking 2d size inputs for the recommended cutout size
-    if (len(size) == 2) & (mission == 'TESS'):
-        
-        if np.isscalar(size[0]):
-            print(size)
-            size = size * u.pixel
-
-        with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
-            limit_reached = (size * size[0].unit > 30 * u.pixel).any()
     
     # Getting x and y out of the size
 
