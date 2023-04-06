@@ -15,8 +15,8 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
-                           NoResultsWarning)
+from ...exceptions import (InputWarning, InvalidQueryError, LargeQueryWarning,
+                           MaxResultsWarning, NoResultsWarning)
 
 
 OBSID = '1647157'
@@ -1032,9 +1032,9 @@ class TestMast:
                                      moving_target=True)
             assert error_tica_mt in str(error_msg.value)
 
-    @pytest.mark.xfail(raises=InputWarning)
+    @pytest.mark.xfail(raises=LargeQueryWarning)
     @pytest.mark.parametrize("product", ["tica", "spoc"])
-    @pytest.mark.parametrize("size", [31, 0.2 * u.deg, 5000 * u.arcsec, 20 * u.arcmin])
+    @pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg], 5000 * u.arcsec, 20 * u.arcmin])
     def test_tesscut_timeout_param(self, product, size):
 
         # Check that a warning comes up when cutout size too big
