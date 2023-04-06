@@ -344,6 +344,7 @@ class TesscutClass(MastQueryWithLogin):
 
         # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
         if timeout:
+            default_timeout = self._get_default_timeout()
             self._service_api_connection.TIMEOUT = timeout
             log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
                      " seconds.")
@@ -420,7 +421,7 @@ class TesscutClass(MastQueryWithLogin):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
 
         if timeout:
-            self._service_api_connection.TIMEOUT = self._get_default_timeout()
+            self._service_api_connection.TIMEOUT = default_timeout
 
         return localpath_table
 
@@ -487,6 +488,7 @@ class TesscutClass(MastQueryWithLogin):
 
         # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
         if timeout:
+            default_timeout = self._get_default_timeout()
             self._service_api_connection.TIMEOUT = timeout
             log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
                      " seconds.")
@@ -563,7 +565,7 @@ class TesscutClass(MastQueryWithLogin):
             cutout_hdus_list[-1].filename = name
 
         if timeout:
-            self._service_api_connection.TIMEOUT = self._get_default_timeout()
+            self._service_api_connection.TIMEOUT = default_timeout
 
         return cutout_hdus_list
 
