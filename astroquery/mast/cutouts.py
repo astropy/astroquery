@@ -72,7 +72,7 @@ def _parse_cutout_size(size, timeout=None, mission=None):
     limit_reached = False
 
     # Checking 2d size inputs for the recommended cutout size
-    if not isinstance(size, (int, float, u.Quantity)) & (mission == 'TESS'):
+    if (mission == 'TESS') & (not isinstance(size, (int, float, u.Quantity))):
         if len(size) == 2:
             if np.isscalar(size[0]):
                 size = [size[0] * u.pixel, size[1] * u.pixel]
