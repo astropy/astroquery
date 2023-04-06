@@ -980,6 +980,9 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "timeout upper limit is being changed" in caplog.text
 
+        # Ensure that timeout returns to default (600 seconds) after adjusted in previous call
+        assert mast.Tesscut._service_api_connection.TIMEOUT == 600
+
     def test_tesscut_get_cutouts_mt(self):
 
         # Moving target functionality testing
