@@ -16,6 +16,8 @@ from . import conf
 from . import load_species_table
 from .utils import clean_column_headings
 
+from astropy.utils.decorators import deprecated_renamed_argument
+
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
@@ -76,6 +78,7 @@ class SplatalogueClass(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
+    @deprecated_renamed_argument("restr", "species_regex", since="0.4.7")
     def get_species_ids(self, species_regex=None, *, reflags=0, recache=False):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
