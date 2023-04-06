@@ -1037,7 +1037,8 @@ class TestMast:
 
     @pytest.mark.xfail(raises=LargeQueryWarning)
     @pytest.mark.parametrize("product", ["tica", "spoc"])
-    @pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg], 5000 * u.arcsec, 20 * u.arcmin])
+    @pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg],
+                                      5000 * u.arcsec, 20 * u.arcmin])
     def test_tesscut_timeout_param(self, product, size):
 
         # Check that a warning comes up when cutout size too big
