@@ -32,7 +32,7 @@ __all__ = ['check_conesearch_sites']
 
 
 @timefunc(num_tries=1)
-def check_conesearch_sites(destdir=os.curdir, verbose=True, parallel=True,
+def check_conesearch_sites(*, destdir=os.curdir, verbose=True, parallel=True,
                            url_list='default'):
     """
     Validate Cone Search Services.
@@ -155,7 +155,7 @@ def check_conesearch_sites(destdir=os.curdir, verbose=True, parallel=True,
             continue
 
         # Use testQuery to return non-empty VO table with max verbosity.
-        testquery_pars = parse_cs(cur_cat['ivoid'], cur_cat['cap_index'])
+        testquery_pars = parse_cs(cur_cat['ivoid'], cap_index=cur_cat['cap_index'])
         cs_pars_arr = ['{}={}'.format(key, testquery_pars[key])
                        for key in testquery_pars]
         cs_pars_arr += ['VERB=3']

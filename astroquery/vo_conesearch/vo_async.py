@@ -49,7 +49,7 @@ class AsyncBase:
         except AttributeError:
             return getattr(self.future, what)
 
-    def get(self, timeout=None):
+    def get(self, *, timeout=None):
         """Get result, if available, then shut down thread.
 
         Parameters

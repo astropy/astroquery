@@ -39,7 +39,7 @@ class ConeSearchResults:
         Show download progress bars.
 
     """
-    def __init__(self, cache=False, verbose=True):
+    def __init__(self, *, cache=False, verbose=True):
         self.dbtypes = ['good', 'warn', 'exception', 'error']
         self.dbs = {}
         self.catkeys = {}
@@ -49,7 +49,7 @@ class ConeSearchResults:
                 'conesearch_' + typ, cache=cache, verbose=verbose)
             self.catkeys[typ] = self.dbs[typ].list_catalogs()
 
-    def tally(self, fout=None):
+    def tally(self, *, fout=None):
         """
         Tally databases.
 
@@ -74,7 +74,7 @@ class ConeSearchResults:
             str_list.append('total: {0} catalog(s)\n'.format(n_tot))
             fout.write('\n'.join(str_list))
 
-    def list_cats(self, typ, fout=None, ignore_noncrit=False):
+    def list_cats(self, typ, *, fout=None, ignore_noncrit=False):
         """
         List catalogs in given database.
 
@@ -131,7 +131,7 @@ class ConeSearchResults:
         if len(str_list) > 0:
             fout.write('\n'.join(str_list))
 
-    def print_cat(self, key, fout=None):
+    def print_cat(self, key, *, fout=None):
         """
         Display a single catalog of given key.
 
