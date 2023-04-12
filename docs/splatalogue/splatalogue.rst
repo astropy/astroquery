@@ -35,47 +35,51 @@ To search within this list for a particular species, you can use regular express
    >>> just_CO = Splatalogue.get_species_ids(species_regex=' CO ') # note the spaces
    >>> len(just_CO)
    4
-   >>> assert just_CO == {'02812 CO v = 0 - Carbon Monoxide': '204',
-   ...                    '02813 CO v = 1 - Carbon Monoxide': '990',
-   ...                    '02814 CO v = 2 - Carbon Monoxide': '991',
-   ...                    '02815 CO v = 3 - Carbon Monoxide': '1343'}
+   >>> just_CO
+   {'02812 CO v = 0 - Carbon Monoxide': '204',
+    '02813 CO v = 1 - Carbon Monoxide': '990',
+    '02814 CO v = 2 - Carbon Monoxide': '991',
+    '02815 CO v = 3 - Carbon Monoxide': '1343'}
    >>> carbon_monoxide = Splatalogue.get_species_ids('Carbon Monoxide')
    >>> len(carbon_monoxide) # includes isotopologues
    17
-   >>> assert carbon_monoxide == {'02931 13CO+ - Carbon Monoxide Ion': '21107',
-   ...                            '03027 C18O+ - Carbon Monoxide Ion': '21108',
-   ...                            '03119 13C18O+ - Carbon Monoxide Ion': '21109',
-   ...                            '02812 CO v = 0 - Carbon Monoxide': '204',
-   ...                            '02813 CO v = 1 - Carbon Monoxide': '990',
-   ...                            '02816 CO+ v = 0 - Carbon Monoxide Ion': '709',
-   ...                            '02910 13CO v = 0 - Carbon Monoxide': '4',
-   ...                            '02913 C17O - Carbon Monoxide': '226',
-   ...                            '03005 C18O - Carbon Monoxide': '245',
-   ...                            '03006 13C17O - Carbon Monoxide': '264',
-   ...                            '03101 13C18O - Carbon Monoxide': '14',
-   ...                            '02814 CO v = 2 - Carbon Monoxide': '991',
-   ...                            '02815 CO v = 3 - Carbon Monoxide': '1343',
-   ...                            '02817 CO+ v = 1 - Carbon Monoxide Ion': '21273',
-   ...                            '02911 13CO v = 1 - Carbon Monoxide': '992',
-   ...                            '02912 13CO v = 2 - Carbon Monoxide': '993',
-   ...                            '03004 14CO - Carbon Monoxide': '778'}
+   >>> carbon_monoxide
+   {'02931 13CO+ - Carbon Monoxide Ion': '21107',
+    '03027 C18O+ - Carbon Monoxide Ion': '21108',
+    '03119 13C18O+ - Carbon Monoxide Ion': '21109',
+    '02812 CO v = 0 - Carbon Monoxide': '204',
+    '02813 CO v = 1 - Carbon Monoxide': '990',
+    '02816 CO+ v = 0 - Carbon Monoxide Ion': '709',
+    '02910 13CO v = 0 - Carbon Monoxide': '4',
+    '02913 C17O - Carbon Monoxide': '226',
+    '03005 C18O - Carbon Monoxide': '245',
+    '03006 13C17O - Carbon Monoxide': '264',
+    '03101 13C18O - Carbon Monoxide': '14',
+    '02814 CO v = 2 - Carbon Monoxide': '991',
+    '02815 CO v = 3 - Carbon Monoxide': '1343',
+    '02817 CO+ v = 1 - Carbon Monoxide Ion': '21273',
+    '02911 13CO v = 1 - Carbon Monoxide': '992',
+    '02912 13CO v = 2 - Carbon Monoxide': '993',
+    '03004 14CO - Carbon Monoxide': '778'}
    >>> atomic_weight_88 = Splatalogue.get_species_ids('^088')
-   >>> assert atomic_weight_88 == {'08801 SiC5 - Silicon Tetracarbide': '265',
-   ...                             '08803 C6O - Hexacarbon monoxide': '585',
-   ...                             '08802 CH3C6H - Methyltriacetylene': '388'}
+   >>> atomic_weight_88
+   {'08801 SiC5 - Silicon Tetracarbide': '265',
+    '08803 C6O - Hexacarbon monoxide': '585',
+    '08802 CH3C6H - Methyltriacetylene': '388'}
 
 The returned items are dictionaries, but they are also searchable.
 
 .. code-block:: python
 
    >>> # note leading space
-   >>> assert carbon_monoxide.find(' 13') == {'02931 13CO+ - Carbon Monoxide Ion': '21107',
-   ...                                        '03119 13C18O+ - Carbon Monoxide Ion': '21109',
-   ...                                        '02910 13CO v = 0 - Carbon Monoxide': '4',
-   ...                                        '03006 13C17O - Carbon Monoxide': '264',
-   ...                                        '03101 13C18O - Carbon Monoxide': '14',
-   ...                                        '02911 13CO v = 1 - Carbon Monoxide': '992',
-   ...                                        '02912 13CO v = 2 - Carbon Monoxide': '993'}
+   >>> carbon_monoxide.find(' 13')
+   {'02931 13CO+ - Carbon Monoxide Ion': '21107',
+    '03119 13C18O+ - Carbon Monoxide Ion': '21109',
+    '02910 13CO v = 0 - Carbon Monoxide': '4',
+    '03006 13C17O - Carbon Monoxide': '264',
+    '03101 13C18O - Carbon Monoxide': '14',
+    '02911 13CO v = 1 - Carbon Monoxide': '992',
+    '02912 13CO v = 2 - Carbon Monoxide': '993'}
 
 Querying Splatalogue: Getting Line Information
 ----------------------------------------------
