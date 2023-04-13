@@ -67,11 +67,10 @@ def species_lookuptable(*, filename='splat-species.json', recache=False):
     # scraping routine
     if recache or not os.path.isfile(file_cache):
         species = get_json_species_ids(outfile=filename)
-        assert isinstance(species, dict)
     else:
         with open(data_path(filename), 'r') as f:
             species = json.load(f)
-            assert isinstance(species, dict)
+
     lookuptable = SpeciesLookuptable(dict((v, k) for d in species.values()
                                           for k, v in d.items()))
 
