@@ -16,6 +16,8 @@ from . import conf
 from . import load_species_table
 from .utils import clean_column_headings
 
+from astropy.utils.decorators import deprecated_renamed_argument
+
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
@@ -76,16 +78,18 @@ class SplatalogueClass(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    def get_species_ids(self, *, restr=None, reflags=0, recache=False):
+    @deprecated_renamed_argument("restr", "species_regex", since="0.4.7")
+    def get_species_ids(self, species_regex=None, *, reflags=0, recache=False):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
         name, mass, and chemical composition.
 
         Parameters
         ----------
-        restr : str
-            String to compile into an re, if specified.   Searches table for
-            species whose names match
+        species_regex : str
+            String to search for among the species names, if specified.
+            The string will be compiled into a regular expression using the
+            python `re` module.
         reflags : int
             Flags to pass to `re`.
         recache : bool
@@ -95,7 +99,7 @@ class SplatalogueClass(BaseQuery):
         --------
         >>> import re
         >>> import pprint # unfortunate hack required for documentation testing
-        >>> rslt = Splatalogue.get_species_ids(restr='Formaldehyde')
+        >>> rslt = Splatalogue.get_species_ids(species_regex='Formaldehyde')
         >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03106 H213CO - Formaldehyde': '324',
@@ -106,8 +110,8 @@ class SplatalogueClass(BaseQuery):
          '03204 HD13CO - Formaldehyde': '1219',
          '03301 D213CO - Formaldehyde': '1220',
          '03315 HDC18O - Formaldehyde': '21141',
-         '0348 D2C18O - Formaldehyde': '21140'}
-        >>> rslt = Splatalogue.get_species_ids(restr='H2CO')
+         '03410 D2C18O - Formaldehyde': '21140'}
+        >>> rslt = Splatalogue.get_species_ids(species_regex='H2CO')
         >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03109 H2COH+ - Hydroxymethylium ion': '224',
@@ -125,9 +129,9 @@ class SplatalogueClass(BaseQuery):
          '08903 CH3CHNH2COOH - II - α-Alanine': '1322'}
         >>> # note the whitespace, preventing H2CO within other
         >>> # more complex molecules
-        >>> Splatalogue.get_species_ids(restr=' H2CO ')
+        >>> Splatalogue.get_species_ids(species_regex=' H2CO ')
         {'03023 H2CO - Formaldehyde': '194'}
-        >>> Splatalogue.get_species_ids(restr=' h2co ', reflags=re.IGNORECASE)
+        >>> Splatalogue.get_species_ids(species_regex=' h2co ', reflags=re.IGNORECASE)
         {'03023 H2CO - Formaldehyde': '194'}
 
         """
@@ -136,8 +140,8 @@ class SplatalogueClass(BaseQuery):
         if not hasattr(self, '_species_ids'):
             self._species_ids = load_species_table.species_lookuptable(recache=recache)
 
-        if restr is not None:
-            return self._species_ids.find(restr, flags=reflags)
+        if species_regex is not None:
+            return self._species_ids.find(species_regex, flags=reflags)
         else:
             return self._species_ids
 
@@ -319,7 +323,7 @@ class SplatalogueClass(BaseQuery):
             payload['sid[]'] = []
         elif chemical_name is not None:
             if parse_chemistry_locally:
-                species_ids = self.get_species_ids(restr=chemical_name, reflags=chem_re_flags)
+                species_ids = self.get_species_ids(species_regex=chemical_name, reflags=chem_re_flags)
                 if len(species_ids) == 0:
                     raise ValueError("No matching chemical species found.")
                 payload['sid[]'] = list(species_ids.values())
@@ -419,7 +423,7 @@ class SplatalogueClass(BaseQuery):
                                  "a valid Band.")
 
     @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
-    def query_lines_async(self, *, min_frequency=None, max_frequency=None,
+    def query_lines_async(self, min_frequency=None, max_frequency=None, *,
                           cache=True, **kwargs):
         """
 
