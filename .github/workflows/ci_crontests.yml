@@ -6,8 +6,8 @@ on:
     tags:
     - '*'
   schedule:
-    # run every Monday at 5am UTC
-    - cron: '0 5 * * 1'
+    # run every Friday at 23:00 UTC
+    - cron: '0 23 * * 5'
   workflow_dispatch:
 
 permissions:
