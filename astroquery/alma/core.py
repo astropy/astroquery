@@ -229,7 +229,6 @@ class AlmaAuth(BaseQuery):
         self._auth_hosts = auth_urls
         self._auth_host = None
 
-
     def set_auth_hosts(self, auth_hosts):
         """
         Set the available hosts to check for login endpoints.
@@ -237,11 +236,11 @@ class AlmaAuth(BaseQuery):
         Parameters
         ----------
         auth_hosts : array
-            Available hosts name.  Checking each one until one returns a 200 for 
+            Available hosts name.  Checking each one until one returns a 200 for
             the well-known endpoint.
         """
         self._auth_hosts = auth_hosts
-    
+
     @property
     def host(self):
         if self._auth_host is None:
@@ -249,17 +248,17 @@ class AlmaAuth(BaseQuery):
                 # set session cookies (they do not get set otherwise)
                 url_to_check = f'https://{auth_url}{self._VERIFY_WELL_KNOWN_ENDPOINT}'
                 response = self._request("HEAD", url_to_check, cache=False)
-                
+
                 if response.status_code == 200:
                     self._auth_host = auth_url
                     log.debug(f'Set auth host to {self._auth_host}')
                     break
-        
+
         if self._auth_host is None:
             raise LoginError(f'No useable hosts to login to: {self._auth_hosts}')
         else:
             return self._auth_host
-            
+
     def login(self, username, password):
         """
         Authenticate to one of the configured hosts.
@@ -288,7 +287,7 @@ class AlmaAuth(BaseQuery):
             error_message = json_auth['error_description']
             if self._INVALID_PASSWORD_MESSAGE not in error_message:
                 raise LoginError("Could not log in to ALMA authorization portal: "
-                                f"{self.host} Message from server: {error_message}")
+                                 f"{self.host} Message from server: {error_message}")
             else:
                 log.error(error_message)
         elif 'access_token' not in json_auth:
@@ -997,11 +996,11 @@ class AlmaClass(QueryWithLogin):
         """
 
         self.auth.set_auth_hosts(auth_urls)
-        
+
         username, password = self._get_auth_info(username=username,
                                                  store_password=store_password,
                                                  reenter_password=reenter_password)
-        
+
         self.auth.login(username, password)
         self.USERNAME = username
 
