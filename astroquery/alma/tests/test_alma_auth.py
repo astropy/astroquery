@@ -4,7 +4,7 @@ from ...exceptions import LoginError
 
 import json
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 
 
 def test_host():
@@ -18,6 +18,7 @@ def test_host():
     test_subject._request = Mock(side_effect=_requests_mock_ok)
     assert test_subject.host == 'almaexample.com'
 
+
 def test_host_default():
     def _requests_mock_ok(method, url, **kwargs):
         response = Mock()
@@ -27,6 +28,7 @@ def test_host_default():
     test_subject = AlmaAuth()
     test_subject._request = Mock(side_effect=_requests_mock_ok)
     assert test_subject.host == 'asa.alma.cl'
+
 
 def test_host_err():
     def _requests_mock_err(method, url, **kwargs):
@@ -40,14 +42,14 @@ def test_host_err():
     with pytest.raises(LoginError):
         test_subject.host
 
+
 def test_login_bad_error():
     def _response_json():
         obj = {
             'error': 'Badness',
             'error_description': 'Something very bad'
         }
-        return obj
-        # return json.dumps(obj, indent = 4) 
+        return json.dumps(obj, indent=4)
 
     def _requests_mock_err(method, url, **kwargs):
         response = Mock()
@@ -64,12 +66,13 @@ def test_login_bad_error():
         test_subject.login('TESTUSER', 'TESTPASS')
     assert 'Could not log in to ALMA authorization portal' in e.value.args[0]
 
+
 def test_login_missing_token():
     def _response_json():
         obj = {
             'irrlevant': 'Weird',
         }
-        return json.dumps(obj, indent = 4) 
+        return json.dumps(obj, indent=4)
 
     def _requests_mock_err(method, url, **kwargs):
         response = Mock()
@@ -87,12 +90,13 @@ def test_login_missing_token():
 
     assert 'No error from server, but missing access token from host' in e.value.args[0]
 
+
 def test_login_success():
     def _response_json():
         obj = {
             'access_token': 'MYTOKEN'
         }
-        return json.dumps(obj, indent = 4) 
+        return json.dumps(obj, indent=4)
 
     def _requests_mock_good(method, url, **kwargs):
         response = Mock()
