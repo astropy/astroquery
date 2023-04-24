@@ -80,7 +80,7 @@ Authentication
 ==============
 
 Users can log in to acquire proprietary data products.  Login is performed
-via the ALMA CAS (central authentication server).
+via the ALMA OIDC (OpenID Connect) service, Keycloak.
 
 .. doctest-skip::
 
@@ -97,11 +97,11 @@ via the ALMA CAS (central authentication server).
     ICONDOR, enter your ALMA password:
     <BLANKLINE>
     Authenticating ICONDOR on asa.alma.cl...
-    Authentication successful!
+    Successfully logged in to asa.alma.cl
     >>> # After the first login, your password has been stored
     >>> alma.login("ICONDOR")
     Authenticating ICONDOR on asa.alma.cl...
-    Authentication successful!
+    Successfully logged in to asa.alma.cl
 
 Your password will be stored by the `keyring
 <https://pypi.python.org/pypi/keyring>`_ module.
