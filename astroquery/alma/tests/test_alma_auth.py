@@ -2,7 +2,6 @@
 from ..core import AlmaAuth
 from ...exceptions import LoginError
 
-import json
 import pytest
 from unittest.mock import Mock
 
@@ -45,11 +44,10 @@ def test_host_err():
 
 def test_login_bad_error():
     def _response_json():
-        obj = {
+        return {
             'error': 'Badness',
             'error_description': 'Something very bad'
         }
-        return json.dumps(obj, indent=4)
 
     def _requests_mock_err(method, url, **kwargs):
         response = Mock()
@@ -69,10 +67,9 @@ def test_login_bad_error():
 
 def test_login_missing_token():
     def _response_json():
-        obj = {
+        return {
             'irrlevant': 'Weird',
         }
-        return json.dumps(obj, indent=4)
 
     def _requests_mock_err(method, url, **kwargs):
         response = Mock()
@@ -93,10 +90,9 @@ def test_login_missing_token():
 
 def test_login_success():
     def _response_json():
-        obj = {
+        return {
             'access_token': 'MYTOKEN'
         }
-        return json.dumps(obj, indent=4)
 
     def _requests_mock_good(method, url, **kwargs):
         response = Mock()
