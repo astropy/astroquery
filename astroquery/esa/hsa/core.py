@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import cgi
 import os
 import re
 import shutil
+from email.message import Message
 from pathlib import Path
 
 from astropy import units as u
@@ -113,10 +113,9 @@ class HSAClass(BaseQuery):
                 error = "Please set either 'obervation_id' or 'filename' for the output"
                 raise ValueError(error)
 
-        _, res_params = cgi.parse_header(response.headers['Content-Disposition'])
-
-        r_filename = res_params["filename"]
-        suffixes = Path(r_filename).suffixes
+        message = Message()
+        message["content-type"] = response.headers["Content-Disposition"]
+        suffixes = Path(message.get_param("filename")).suffixes
 
         if len(suffixes) > 1 and suffixes[-1] == ".jpg":
             filename += suffixes[-1]
@@ -205,10 +204,9 @@ class HSAClass(BaseQuery):
 
         response.raise_for_status()
 
-        _, res_params = cgi.parse_header(response.headers['Content-Disposition'])
-
-        r_filename = res_params["filename"]
-        suffixes = Path(r_filename).suffixes
+        message = Message()
+        message["content-type"] = response.headers["Content-Disposition"]
+        suffixes = Path(message.get_param("filename")).suffixes
 
         if filename is None:
             filename = observation_id
