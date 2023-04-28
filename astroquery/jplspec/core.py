@@ -164,7 +164,7 @@ class JPLSpecClass(BaseQuery):
         # Warning for a result with more than 1000 lines:
         # THIS form is currently limited to 1000 lines.
         result = ascii.read(response.text, header_start=None, data_start=0,
-                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
+                            comment=r'THIS|^\s{12,14}\d{4,6}.*|CADDIR CATDIR',
                             names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
                                    'TAG', 'QNFMT', 'QN\'', 'QN"'),
                             col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
