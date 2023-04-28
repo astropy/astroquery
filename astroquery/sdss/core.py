@@ -66,6 +66,8 @@ class SDSSClass(BaseQuery):
 
         This query returns the nearest `primary object`_.
 
+        Note that there is a server-side limit of 3 arcmin on ``radius``.
+
         .. _`primary object`: https://www.sdss.org/dr17/help/glossary/#surveyprimary
 
         Parameters
@@ -123,6 +125,14 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool, optional
             If ``True`` use the request caching mechanism.
+
+        Raises
+        ------
+        TypeError
+            If the ``radius`` keyword could not be parsed as an angle.
+        ValueError
+            If the ``radius`` exceeds 3 arcmin, or if the sizes of
+            ``coordinates`` and ``obj_names`` do not match.
 
         Returns
         -------
@@ -193,16 +203,31 @@ class SDSSClass(BaseQuery):
                                  timeout=timeout, cache=cache)
         return response
 
-    def query_region_async(self, coordinates, *, radius=2. * u.arcsec, timeout=TIMEOUT,
+    def query_region_async(self, coordinates, *, radius=None,
+                           width=None, height=None, timeout=TIMEOUT,
                            fields=None, photoobj_fields=None, specobj_fields=None, obj_names=None,
                            spectro=False, field_help=False, get_query_payload=False,
                            data_release=conf.default_release, cache=True):
-        """
-        Used to query a circular region (a "cone search") around given coordinates.
+        r"""
+        Used to query a region around given coordinates. Either ``radius`` or
+        ``width`` must be specified.
 
-        This function is equivalent to the object cross-ID (`query_crossid`),
-        with slightly different parameters. It returns all objects within the
-        search radius; this could potentially include duplicate observations
+        When called with keyword ``radius``, a radial or "cone" search is
+        performed, centered on each of the given coordinates. In this mode, internally,
+        this function is equivalent to the object cross-ID (`query_crossid`),
+        with slightly different parameters.  Note that in this mode there is a server-side
+        limit of 3 arcmin on ``radius``.
+
+        When called with keyword ``width``, and optionally a different ``height``,
+        a rectangular search is performed, centered on each of the given
+        coordinates. In this mode, internally, this function is equivalent to
+        a general SQL query (`query_sql`). The shape of the rectangle is
+        not corrected for declination (*i.e.* no :math:`\cos \delta` correction);
+        conceptually, this means that the rectangle will become increasingly
+        trapezoidal-shaped at high declination.
+
+        In both radial and rectangular modes, this function returns all objects
+        within the search area; this could potentially include duplicate observations
         of the same object.
 
         Parameters
@@ -221,8 +246,17 @@ class SDSSClass(BaseQuery):
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 2 arcsec.
+            `astropy.units` may also be used.
             The maximum allowed value is 3 arcmin.
+        width : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used.
+        height : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. If not specified, it will be
+            set to the same value as ``width``.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
@@ -256,6 +290,16 @@ class SDSSClass(BaseQuery):
         cache : bool, optional
             If ``True`` use the request caching mechanism.
 
+        Raises
+        ------
+        TypeError
+            If the ``radius``, ``width`` or ``height`` keywords could not be parsed as an angle.
+        ValueError
+            If both ``radius`` and ``width`` are set (or neither),
+            or if the ``radius`` exceeds 3 arcmin,
+            or if the sizes of ``coordinates`` and ``obj_names`` do not match,
+            or if the units of ``width`` or ``height`` could not be parsed.
+
         Examples
         --------
         >>> from astroquery.sdss import SDSS
@@ -277,16 +321,69 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
-        request_payload, files = self.query_crossid_async(coordinates=coordinates,
-                                                          radius=radius, fields=fields,
-                                                          photoobj_fields=photoobj_fields,
-                                                          specobj_fields=specobj_fields,
-                                                          obj_names=obj_names,
-                                                          spectro=spectro,
-                                                          region=True,
-                                                          field_help=field_help,
-                                                          get_query_payload=True,
-                                                          data_release=data_release)
+        # Allow field_help requests to pass without requiring a radius or width.
+        if field_help and radius is None and width is None:
+            radius = 2.0 * u.arcsec
+
+        if radius is None and width is None:
+            raise ValueError("Either radius or width must be specified!")
+        if radius is not None and width is not None:
+            raise ValueError("Either radius or width must be specified, not both!")
+
+        if radius is not None:
+            request_payload, files = self.query_crossid_async(coordinates=coordinates,
+                                                              radius=radius, fields=fields,
+                                                              photoobj_fields=photoobj_fields,
+                                                              specobj_fields=specobj_fields,
+                                                              obj_names=obj_names,
+                                                              spectro=spectro,
+                                                              region=True,
+                                                              field_help=field_help,
+                                                              get_query_payload=True,
+                                                              data_release=data_release)
+
+        if width is not None:
+            width = u.Quantity(width, u.degree).value
+            if height is None:
+                height = width
+            else:
+                height = u.Quantity(height, u.degree).value
+
+            dummy_payload = self._args_to_payload(coordinates=coordinates,
+                                                  fields=fields,
+                                                  spectro=spectro, region=True,
+                                                  photoobj_fields=photoobj_fields,
+                                                  specobj_fields=specobj_fields, field_help=field_help,
+                                                  data_release=data_release)
+
+            sql_query = dummy_payload['uquery'].replace('#upload u JOIN #x x ON x.up_id = u.up_id JOIN ', '')
+
+            if 'SpecObjAll' in dummy_payload['uquery']:
+                sql_query = sql_query.replace('ON p.objID = x.objID ', '').replace(' ORDER BY x.up_id', '')
+            else:
+                sql_query = sql_query.replace(' ON p.objID = x.objID ORDER BY x.up_id', '')
+
+            if (not isinstance(coordinates, list) and not isinstance(coordinates, Column)
+                    and not (isinstance(coordinates, commons.CoordClasses) and not coordinates.isscalar)):
+                coordinates = [coordinates]
+
+            rectangles = list()
+            for target in coordinates:
+                # Query for a rectangle
+                target = commons.parse_coordinates(target).transform_to('fk5')
+                rectangles.append(self._rectangle_sql(target.ra.degree, target.dec.degree, width, height=height))
+
+            rect = ' OR '.join(rectangles)
+
+            # self._args_to_payload only returns a WHERE if e.g. plate, mjd, fiber
+            # are set, which will not happen in this function.
+            sql_query += f' WHERE ({rect})'
+
+            return self.query_sql_async(sql_query, timeout=timeout,
+                                        data_release=data_release,
+                                        cache=cache,
+                                        field_help=field_help,
+                                        get_query_payload=get_query_payload)
 
         if get_query_payload or field_help:
             return request_payload
@@ -510,7 +607,7 @@ class SDSSClass(BaseQuery):
         if data_release > 11:
             request_payload['searchtool'] = 'SQL'
 
-        if kwargs.get('get_query_payload'):
+        if kwargs.get('get_query_payload') or kwargs.get('field_help'):
             return request_payload
 
         url = self._get_query_url(data_release)
@@ -1162,6 +1259,59 @@ class SDSSClass(BaseQuery):
         url = conf.skyserver_baseurl + suffix.format(dr=data_release)
         self._last_url = url
         return url
+
+    def _rectangle_sql(self, ra, dec, width, height=None, cosdec=False):
+        """
+        Generate SQL for a rectangular query centered on ``ra``, ``dec``.
+
+        This assumes that RA is defined on the range ``[0, 360)``, and Dec on
+        ``[-90, 90]``.
+
+        Parameters
+        ----------
+        ra : float
+            Right Ascension in degrees.
+        dec : float
+            Declination in degrees.
+        width : float
+            Width of rectangle in degrees.
+        height : float, optional
+            Height of rectangle in degrees. If not specified, ``width`` is used.
+        cosdec : bool, optional
+            If ``True`` apply ``cos(dec)`` correction to the rectangle.
+            Otherwise, rectangles become increasingly triangle-like
+            near the poles.
+
+        Returns
+        -------
+        :class:`str`
+            A string defining the rectangle in SQL notation.
+        """
+        if height is None:
+            height = width
+        dr = width/2.0
+        dd = height/2.0
+        d0 = dec - dd
+        if d0 < -90:
+            d0 = -90.0
+        d1 = dec + dd
+        if d1 > 90.0:
+            d1 = 90.0
+        ra_wrap = False
+        r0 = ra - dr
+        if r0 < 0:
+            ra_wrap = True
+            r0 += 360.0
+        r1 = ra + dr
+        if r1 > 360.0:
+            ra_wrap = True
+            r1 -= 360.0
+        # BETWEEN is inclusive, so it is equivalent to the <=, >= operators.
+        if ra_wrap:
+            sql = f"(((p.ra >= {r0:g}) OR (p.ra <= {r1:g}))"
+        else:
+            sql = f"((p.ra BETWEEN {r0:g} AND {r1:g})"
+        return sql + f" AND (p.dec BETWEEN {d0:g} AND {d1:g}))"
 
 
 SDSS = SDSSClass()

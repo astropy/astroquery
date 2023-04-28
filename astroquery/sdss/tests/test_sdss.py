@@ -123,26 +123,26 @@ dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
 # interfaces are supported for DR11."
 def url_tester(data_release):
     if data_release < 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_sql.asp'
     if data_release == 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_sql.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
-    assert sdss.SDSS._last_url == baseurl.format(data_release)
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/x_results.aspx'
+    assert sdss.SDSS._last_url == baseurl
 
 
 def url_tester_crossid(data_release):
     if data_release < 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/crossid/x_crossid.asp'
     if data_release == 10:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/crossid/x_crossid.aspx'
     if data_release == 11:
         return
     if data_release >= 12:
-        baseurl = 'https://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
-    assert sdss.SDSS._last_url == baseurl.format(data_release)
+        baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/X_Results.aspx'
+    assert sdss.SDSS._last_url == baseurl
 
 
 def compare_xid_data(xid, data):
@@ -164,7 +164,7 @@ def image_tester(images, filetype):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum(patch_request, patch_get_readable_fileobj, dr,
                        coords=coords):
-    xid = sdss.SDSS.query_region(coords, data_release=dr, spectro=True)
+    xid = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), data_release=dr, spectro=True)
     url_tester_crossid(dr)
     sp = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
     image_tester(sp, 'spectra')
@@ -213,7 +213,7 @@ def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_from_query_region(patch_request, patch_get_readable_fileobj,
                                       dr, coords=coords):
-    xid = sdss.SDSS.query_region(coords, data_release=dr)
+    xid = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), data_release=dr)
     url_tester_crossid(dr)
     # TODO test what img is
     img = sdss.SDSS.get_images(matches=xid)
@@ -272,25 +272,73 @@ def test_sdss_photoobj(patch_request, dr):
 
 
 @pytest.mark.parametrize("dr", dr_list)
-def test_list_coordinates(patch_request, dr):
-    xid = sdss.SDSS.query_region(coords_list, data_release=dr)
+@pytest.mark.parametrize("radius", [None, Angle('2 arcsec')])
+@pytest.mark.parametrize("width", [None, Angle('2 arcsec')])
+def test_list_coordinates(patch_request, dr, radius, width):
+    if (radius is None and width is None):
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, radius=radius, width=width)
+        assert str(e.value) == "Either radius or width must be specified!"
+    elif (radius is not None and width is not None):
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, radius=radius, width=width)
+        assert str(e.value) == "Either radius or width must be specified, not both!"
+    else:
+        xid = sdss.SDSS.query_region(coords_list, radius=radius, width=width, data_release=dr)
 
-    with warnings.catch_warnings():
-        if sys.platform.startswith('win'):
-            warnings.filterwarnings("ignore", category=AstropyWarning,
-                                    message=r'OverflowError converting.*')
-        data = Table.read(data_path(DATA_FILES['images_id']),
-                          format='ascii.csv', comment='#')
+        with warnings.catch_warnings():
+            if sys.platform.startswith('win'):
+                warnings.filterwarnings("ignore", category=AstropyWarning,
+                                        message=r'OverflowError converting.*')
+            data = Table.read(data_path(DATA_FILES['images_id']),
+                              format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+            data['objid'] = data['objid'].astype(np.int64)
 
-        compare_xid_data(xid, data)
-        url_tester_crossid(dr)
+            compare_xid_data(xid, data)
+            if width is None:
+                url_tester_crossid(dr)
+            else:
+                url_tester(dr)
+
+
+@pytest.mark.parametrize("width", [Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle', '2.0 things'])
+@pytest.mark.parametrize("height", [None, Angle('2 arcsec'), 2.0 * u.arcsec, '2.0 arcsec', 'bad angle', '2.0 things'])
+def test_list_coordinates_with_height(patch_request, width, height):
+    if width == 'bad angle':
+        with pytest.raises(TypeError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value) == 'Cannot parse "bad angle" as a Quantity. It does not start with a number.'
+    elif width == '2.0 things':
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value).startswith("'things' did not parse as unit")
+    elif height == 'bad angle':
+        with pytest.raises(TypeError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value) == 'Cannot parse "bad angle" as a Quantity. It does not start with a number.'
+    elif height == '2.0 things':
+        with pytest.raises(ValueError) as e:
+            sdss.SDSS.query_region(coords, width=width, height=height)
+        assert str(e.value).startswith("'things' did not parse as unit")
+    else:
+        xid = sdss.SDSS.query_region(coords_list, width=width, height=height)
+
+        with warnings.catch_warnings():
+            if sys.platform.startswith('win'):
+                warnings.filterwarnings("ignore", category=AstropyWarning,
+                                        message=r'OverflowError converting.*')
+            data = Table.read(data_path(DATA_FILES['images_id']),
+                              format='ascii.csv', comment='#')
+
+            data['objid'] = data['objid'].astype(np.int64)
+
+            compare_xid_data(xid, data)
 
 
 @pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates(patch_request, dr):
-    xid = sdss.SDSS.query_region(coords_column, data_release=dr)
+    xid = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'), data_release=dr)
 
     with warnings.catch_warnings():
         if sys.platform.startswith('win'):
@@ -305,9 +353,9 @@ def test_column_coordinates(patch_request, dr):
         url_tester_crossid(dr)
 
 
-def test_query_timeout(patch_request_slow, coord=coords):
+def test_query_timeout(patch_request_slow):
     with pytest.raises(TimeoutError):
-        sdss.SDSS.query_region(coords, timeout=1)
+        sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'), timeout=1)
 
 
 def test_spectra_timeout(patch_request, patch_get_readable_fileobj_slow):
@@ -387,12 +435,66 @@ def test_list_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_list,
+    query_payload = sdss.SDSS.query_region(coords_list, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
     assert query_payload['format'] == 'csv'
     assert query_payload['photoScope'] == 'allObj'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'CrossID'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_list_coordinates_region_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p "
+              "WHERE (((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)) "
+              "OR ((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)))")
+    query_payload = sdss.SDSS.query_region(coords_list, width=Angle('2 arcsec'),
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_list_coordinates_region_spectro_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field, "
+              "s.z, s.plate, s.mjd, s.fiberID, s.specobjid, s.run2d "
+              "FROM PhotoObjAll AS p "
+              "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
+              "WHERE (((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)) "
+              "OR ((p.ra BETWEEN 2.02319 AND 2.02374) AND (p.dec BETWEEN 14.8395 AND 14.8401)))")
+    query_payload = sdss.SDSS.query_region(coords_list, width=Angle('2 arcsec'),
+                                           spectro=True,
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_coordinate_region_payload_rectangle(patch_request, dr):
+    expect = (" SELECT\r "
+              "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
+              "FROM PhotoObjAll AS p "
+              "WHERE ((((p.ra >= 359.999) OR (p.ra <= 0.00152171)) AND (p.dec BETWEEN 14.8356 AND 14.844)))")
+    query_payload = sdss.SDSS.query_region(SkyCoord("0h0m00.03s +14d50m23.3s", frame="icrs"),
+                                           width=Angle('10 arcsec'),
+                                           height=Angle('30 arcsec'),
+                                           get_query_payload=True,
+                                           data_release=dr)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
+    if dr > 11:
+        assert query_payload['searchtool'] == 'SQL'
 
 
 @pytest.mark.parametrize("dr", dr_list)
@@ -401,7 +503,7 @@ def test_column_coordinates_region_payload(patch_request, dr):
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -417,7 +519,8 @@ def test_column_coordinates_region_spectro_payload(patch_request, dr):
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "JOIN SpecObjAll AS s ON p.objID = s.bestObjID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column, spectro=True,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
+                                           spectro=True,
                                            get_query_payload=True,
                                            data_release=dr)
     assert query_payload['uquery'] == expect
@@ -431,7 +534,7 @@ def test_column_coordinates_region_payload_custom_fields(patch_request, dr):
               "p.r, p.psfMag_r "
               "FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoObjAll AS p ON p.objID = x.objID "
               "ORDER BY x.up_id")
-    query_payload = sdss.SDSS.query_region(coords_column,
+    query_payload = sdss.SDSS.query_region(coords_column, radius=Angle('2 arcsec'),
                                            get_query_payload=True,
                                            fields=['r', 'psfMag_r'],
                                            data_release=dr)
@@ -578,10 +681,10 @@ def test_field_help_region(patch_request):
     assert isinstance(valid_field, dict)
     assert 'photoobj_all' in valid_field
 
-    existing_p_field = sdss.SDSS.query_region(coords,
+    existing_p_field = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'),
                                               field_help='psfMag_r')
 
-    existing_s_field = sdss.SDSS.query_region(coords,
+    existing_s_field = sdss.SDSS.query_region(coords, radius=Angle('2 arcsec'),
                                               field_help='spectroSynFlux_r')
 
     with pytest.warns(UserWarning, match="nonexist isn't a valid 'photobj_field' or 'specobj_field'"):
@@ -592,3 +695,20 @@ def test_field_help_region(patch_request):
 
     assert len(non_existing_field) == 2
     assert set(non_existing_field.keys()) == set(('photoobj_all', 'specobj_all'))
+
+
+def test_rectangle_sql():
+    sql = sdss.SDSS._rectangle_sql(0, 0, 1)
+    assert sql == '(((p.ra >= 359.5) OR (p.ra <= 0.5)) AND (p.dec BETWEEN -0.5 AND 0.5))'
+    sql = sdss.SDSS._rectangle_sql(359, 0, 3, height=1)
+    assert sql == '(((p.ra >= 357.5) OR (p.ra <= 0.5)) AND (p.dec BETWEEN -0.5 AND 0.5))'
+    sql = sdss.SDSS._rectangle_sql(5, 0, 1)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -0.5 AND 0.5))'
+    sql = sdss.SDSS._rectangle_sql(5, 89.75, 1)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN 89.25 AND 90))'
+    sql = sdss.SDSS._rectangle_sql(5, -89.75, 1)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -90 AND -89.25))'
+    sql = sdss.SDSS._rectangle_sql(5, 5, 1, height=2)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN 4 AND 6))'
+    sql = sdss.SDSS._rectangle_sql(5, -5, 1, height=2)
+    assert sql == '((p.ra BETWEEN 4.5 AND 5.5) AND (p.dec BETWEEN -6 AND -4))'

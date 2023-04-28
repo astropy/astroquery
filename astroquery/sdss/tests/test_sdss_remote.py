@@ -3,6 +3,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
+import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.utils.exceptions import AstropyUserWarning
@@ -36,7 +37,7 @@ class TestSDSSRemote:
         This test *must* be run before `test_sdss_image` because that query
         caches!
         """
-        xid = sdss.SDSS.query_region(self.coords)
+        xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec)
         assert len(xid) == 18
         try:
             with pytest.raises(TimeoutError):
@@ -51,9 +52,9 @@ class TestSDSSRemote:
     def test_sdss_spectrum(self, dr):
         if dr in dr_warn_list:
             with pytest.warns(AstropyUserWarning, match='Field info are not available for this data release'):
-                xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
+                xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, spectro=True, data_release=dr)
         else:
-            xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
+            xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, spectro=True, data_release=dr)
 
         assert isinstance(xid, Table)
         sdss.SDSS.get_spectra(matches=xid, data_release=dr)
@@ -85,7 +86,7 @@ class TestSDSSRemote:
         assert isinstance(xid, Table)
 
     def test_sdss_image(self):
-        xid = sdss.SDSS.query_region(self.coords)
+        xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec)
         assert isinstance(xid, Table)
         sdss.SDSS.get_images(matches=xid)
 
@@ -170,14 +171,14 @@ class TestSDSSRemote:
 
     def test_query_non_default_field(self):
         # A regression test for #469
-        query1 = sdss.SDSS.query_region(self.coords, fields=['r', 'psfMag_r'])
+        query1 = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, fields=['r', 'psfMag_r'])
 
-        query2 = sdss.SDSS.query_region(self.coords, fields=['ra', 'dec', 'r'])
+        query2 = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, fields=['ra', 'dec', 'r'])
         assert isinstance(query1, Table)
         assert isinstance(query2, Table)
 
-        assert query1.colnames == ['objID', 'r', 'psfMag_r']
-        assert query2.colnames == ['objID', 'ra', 'dec', 'r']
+        assert query1.colnames == ['r', 'psfMag_r']
+        assert query2.colnames == ['ra', 'dec', 'r']
 
     @pytest.mark.parametrize("dr", dr_list)
     def test_query_crossid(self, dr):
