@@ -300,14 +300,14 @@ class VOSDatabase(VOSBase):
         """
         return self._match_pattern(list(self._catalogs), pattern, sort)
 
-    def list_catalogs_by_url(self, pattern=None, sort=True):
+    def list_catalogs_by_url(self, *, pattern=None, sort=True):
         """Like :meth:`list_catalogs` but using access URL."""
         out_arr = self._match_pattern(list(self._url_keys), pattern, sort)
 
         # Discard URL that maps to nothing
         return [a for a in out_arr if len(self._url_keys[a]) > 0]
 
-    def add_catalog(self, name, cat, allow_duplicate_url=False):
+    def add_catalog(self, name, cat, *, allow_duplicate_url=False):
         """
         Add a catalog to database.
 
@@ -440,7 +440,7 @@ class VOSDatabase(VOSBase):
 
         return db
 
-    def to_json(self, filename, overwrite=False):
+    def to_json(self, filename, *, overwrite=False):
         """
         Write database content to a JSON file.
 
@@ -527,7 +527,7 @@ class VOSDatabase(VOSBase):
         return cls(tree)
 
     @classmethod
-    def from_registry(cls, registry_url, timeout=60, **kwargs):
+    def from_registry(cls, registry_url, *, timeout=60, **kwargs):
         """
         Create a database of VO services from VO registry URL.
 
@@ -628,7 +628,7 @@ class VOSDatabase(VOSBase):
         return db
 
 
-def get_remote_catalog_db(dbname, cache=True, verbose=True):
+def get_remote_catalog_db(dbname, *, cache=True, verbose=True):
     """
     Get a database of VO services (which is a JSON file) from a remote
     location.
@@ -700,7 +700,7 @@ def _get_catalogs(service_type, catalog_db, **kwargs):
     return catalogs
 
 
-def _vo_service_request(url, pedantic, kwargs, cache=True, verbose=False):
+def _vo_service_request(url, pedantic, kwargs, *, cache=True, verbose=False):
     """
     This is called by :func:`call_vo_service`.
 

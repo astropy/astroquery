@@ -22,7 +22,7 @@ from astropy.utils.exceptions import AstropyUserWarning
 __all__ = ['parse_cs']
 
 
-def parse_cs(ivoid, cap_index=1):
+def parse_cs(ivoid, *, cap_index=1):
     """Return test query pars as dict for given IVO ID and capability index."""
 
     # Production server.
