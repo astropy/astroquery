@@ -32,19 +32,19 @@ what each setting yields:
    ...                                max_frequency=1000 * u.GHz,
    ...                                min_strength=-500,
    ...                                molecule="28001 CO",
-   ...                                max_lines = 7,
    ...                                get_query_payload=False)
    >>> print(response)
        FREQ     ERR    LGINT   DR   ELO   GUP  TAG   QNFMT QN' QN"
-       MHz      MHz   MHz nm2      1 / cm
-   ----------- ------ ------- --- ------- --- ------ ----- --- ---
-   115271.2018 0.0005 -5.0105   2     0.0   3 -28001   101   1   0
-      230538.0 0.0005 -4.1197   2   3.845   5 -28001   101   2   1
-   345795.9899 0.0005 -3.6118   2  11.535   7 -28001   101   3   2
-   461040.7682 0.0005 -3.2657   2 23.0695   9 -28001   101   4   3
-   576267.9305 0.0005 -3.0118   2 38.4481  11 -28001   101   5   4
-   691473.0763 0.0005 -2.8193   2 57.6704  13 -28001   101   6   5
-    806651.806  0.005 -2.6716   2 80.7354  15 -28001   101   7   6
+       MHz      MHz   nm2 MHz      1 / cm
+   ----------- ------ ------- --- -------- --- ------ ----- --- ---
+   115271.2018 0.0005 -5.0105   2      0.0   3 -28001   101   1   0
+      230538.0 0.0005 -4.1197   2    3.845   5 -28001   101   2   1
+   345795.9899 0.0005 -3.6118   2   11.535   7 -28001   101   3   2
+   461040.7682 0.0005 -3.2657   2  23.0695   9 -28001   101   4   3
+   576267.9305 0.0005 -3.0118   2  38.4481  11 -28001   101   5   4
+   691473.0763 0.0005 -2.8193   2  57.6704  13 -28001   101   6   5
+    806651.806  0.005 -2.6716   2  80.7354  15 -28001   101   7   6
+      921799.7  0.005  -2.559   2 107.6424  17 -28001   101   8   7
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
@@ -54,10 +54,9 @@ The following example, with ``get_query_payload = True``, returns the payload:
    ...                                   max_frequency=1000 * u.GHz,
    ...                                   min_strength=-500,
    ...                                   molecule="28001 CO",
-   ...                                   max_lines = 7,
    ...                                   get_query_payload=True)
    >>> print(response)
-   [('MinNu', 100.0), ('MaxNu', 1000.0), ('MaxLines', 7), ('UnitNu', 'GHz'), ('StrLim', -500), ('Mol', '28001 CO')]
+   [('MinNu', 100.0), ('MaxNu', 1000.0), ('MaxLines', 2000), ('UnitNu', 'GHz'), ('StrLim', -500), ('Mol', '28001 CO')]
 
 The units of the columns of the query can be displayed by calling
 ``response.info``:
@@ -67,15 +66,14 @@ The units of the columns of the query can be displayed by calling
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
    ...                                max_frequency=1000 * u.GHz,
    ...                                min_strength=-500,
-   ...                                molecule="28001 CO",
-   ...                                max_lines = 7)
+   ...                                molecule="28001 CO")
    >>> print(response.info)
-      <Table length=7>
+      <Table length=8>
      name  dtype    unit
     ----- ------- -------
      FREQ float64     MHz
       ERR float64     MHz
-    LGINT float64 MHz nm2
+    LGINT float64 nm2 MHz
        DR   int64
       ELO float64  1 / cm
       GUP   int64
@@ -92,18 +90,19 @@ simplified version of the data above is shown below:
    >>> print (response['FREQ', 'ERR', 'ELO'])
        FREQ     ERR     ELO
        MHz      MHz    1 / cm
-   ----------- ------ -------
-   115271.2018 0.0005     0.0
-      230538.0 0.0005   3.845
-   345795.9899 0.0005  11.535
-   461040.7682 0.0005 23.0695
-   576267.9305 0.0005 38.4481
-   691473.0763 0.0005 57.6704
-    806651.806  0.005 80.7354
+   ----------- ------ --------
+   115271.2018 0.0005      0.0
+      230538.0 0.0005    3.845
+   345795.9899 0.0005   11.535
+   461040.7682 0.0005  23.0695
+   576267.9305 0.0005  38.4481
+   691473.0763 0.0005  57.6704
+    806651.806  0.005  80.7354
+      921799.7  0.005 107.6424
    >>> response['FREQ'].quantity
-   <Quantity [115271.2018, 230538.    , 345795.9899, 461040.7682, 576267.9305, 691473.0763, 806651.806 ] MHz>
+   <Quantity [115271.2018, 230538.    , 345795.9899, 461040.7682, 576267.9305, 691473.0763, 806651.806 , 921799.7   ] MHz>
    >>> response['FREQ'].to('GHz')
-   <Quantity [115.2712018, 230.538    , 345.7959899, 461.0407682, 576.2679305, 691.4730763, 806.651806 ] GHz>
+   <Quantity [115.2712018, 230.538    , 345.7959899, 461.0407682, 576.2679305, 691.4730763, 806.651806 , 921.7997   ] GHz>
 
 The parameters and response keys are described in detail under the
 Reference/API section.
@@ -219,8 +218,8 @@ to query these directly.
    ...                              molecule="H2O",
    ...                              parse_name_locally=True)
    >>> print(result)
-       FREQ      ERR     LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"   
-       MHz       MHz    MHz nm2        1 / cm                                    
+       FREQ      ERR     LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"
+       MHz       MHz    nm2 MHz        1 / cm
    ----------- -------- -------- --- --------- --- ------ ----- -------- --------
    115542.5692   0.6588 -13.2595   3 4606.1683  35  18003  1404 17 810 0 18 513 0
     139614.293     0.15  -9.3636   3 3080.1788  87 -18003  1404 14 6 9 0 15 312 0
@@ -235,7 +234,7 @@ response length:
 .. doctest-remote-data::
 
    >>> print(result.meta['comments'])
-   ['', '', '', '', '', 'form is currently limited to 2000 lines. Please limit your search.']
+   ['', '', '', '', '', '', '', '', '', '', '', 'form is currently limilted to 2000 lines. Please limit your search.']
 
 Inspecting the returned molecules shows that the 'H2O' string was processed as a
 regular expression, and the search matched any molecule that contained the
