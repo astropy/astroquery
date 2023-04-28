@@ -18,7 +18,7 @@ object to be retrieved. Here is a basic example:
 
     >>> from astroquery.solarsystem.neodys import NEODyS
     >>> result = NEODyS.query_object("1982YA")
-    >>> print(result)
+    >>> print(result)  # doctest: +IGNORE_OUTPUT
     {'Equinoctial State Vector': [3.6501814973859177, 0.55510840531515, 0.412442615432626, -0.316403600209491, -0.005615261288851, 7.4974723045741],
     'Mean Julian Date': ['57672.370442276', 'TDT'],
     'Magnitude': [17.478, 0.15],
@@ -51,7 +51,7 @@ Here's an example with these optional parameters:
 
     >>> from astroquery.solarsystem.neodys import NEODyS
     >>> results = NEODyS.query_object("1982YA", orbital_element_type="ke", epoch_near_present=1)
-    >>> print(results)
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
     {'Keplerian State Vector': [3.64669, 0.691945, 35.165, 268.935, 144.408, 283.498],
     'Mean Julian Date': ['60000.0000', 'TDT'],
     'Magnitude': [17.478, 0.15],

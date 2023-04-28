@@ -29,7 +29,7 @@ instance if you want to query NGC 224
     No. Object Name     RA     ... Redshift Points Diameter Points Associations
                      degrees   ...
     --- ----------- ---------- ... --------------- --------------- ------------
-      1 MESSIER 031   10.68479 ...              39              13            2
+      1 MESSIER 031   10.68479 ...              40              13            2
 
 
 Query a region
@@ -58,11 +58,11 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
       3 SSTSL2 J122855.23+020341.5  187.23013 ...               0            0
       4 SSTSL2 J122855.36+020346.9  187.23068 ...               0            0
     ...                        ...        ... ...             ...          ...
-    863 SSTSL2 J122918.24+020330.7    187.326 ...               0            0
-    864   SDSS J122918.38+020323.4   187.3266 ...               4            0
-    865 SSTSL2 J122918.52+020338.9  187.32718 ...               0            0
-    866 SSTSL2 J122918.64+020326.7  187.32767 ...               0            0
-    Length = 866 rows
+    864 SSTSL2 J122918.24+020330.7    187.326 ...               0            0
+    865   SDSS J122918.38+020323.4   187.3266 ...               4            0
+    866 SSTSL2 J122918.52+020338.9  187.32718 ...               0            0
+    867 SSTSL2 J122918.64+020326.7  187.32767 ...               0            0
+    Length = 867 rows
 
 
 Instead of using the name, the target may also be specified via
@@ -220,7 +220,8 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
     >>> spectra_list
     ['http://ned.ipac.caltech.edu/spc1/1992/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz',
      'http://ned.ipac.caltech.edu/spc1/2009/2009A+A...495.1033B/3C_273:S:B:bcc2009.fits.gz',
-     'http://ned.ipac.caltech.edu/spc1/2009/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
+     ...
+     'http://ned.ipac.caltech.edu/spc1/2016/2016ApJS..226...19F/3C_273:S:CII158.3x3.fits.gz']
 
 
 Fetching other data tables for an object
@@ -251,17 +252,17 @@ for the specified object. We look at a simple example:
       8 12h29m06.7001s ...                                   Uncertain origin
       9 12h29m06.7001s ...                                   Uncertain origin
     ...            ... ...                      ...                       ...
-    138   12h29m06.05s ...   Broad-band measurement        From new, raw data
-    139    12h29m06.5s ...   Broad-band measurement        From new, raw data
-    140    12h29m06.5s ...   Broad-band measurement From reprocessed raw data
-    141    12h29m09.0s ...                                   Uncertain origin
-    142    12h29m08.9s ...                                   Uncertain origin
-    143    12h29m07.9s ...                                   Uncertain origin
-    144      12h29m04s ...                                   Uncertain origin
-    145      12h29m06s ...                                   Uncertain origin
-    146      12h29m08s ...                                   Uncertain origin
-    147      12h29m06s ...                                   Uncertain origin
-    Length = 148 rows
+    144   12h29m06.05s ...   Broad-band measurement        From new, raw data
+    145    12h29m06.5s ...   Broad-band measurement        From new, raw data
+    146    12h29m06.5s ...   Broad-band measurement From reprocessed raw data
+    147    12h29m09.0s ...                                   Uncertain origin
+    148    12h29m08.9s ...                                   Uncertain origin
+    149    12h29m07.9s ...                                   Uncertain origin
+    150      12h29m04s ...                                   Uncertain origin
+    151      12h29m06s ...                                   Uncertain origin
+    152      12h29m08s ...                                   Uncertain origin
+    153      12h29m06s ...                                   Uncertain origin
+    Length = 154 rows
 
 
 Reference/API

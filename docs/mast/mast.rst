@@ -146,7 +146,7 @@ use the `~astroquery.mast.ObservationsClass.list_missions` function.
    >>> from astroquery.mast import Observations
    ...
    >>> print(Observations.list_missions())
-   ['BEFS', 'EUVE', 'FUSE', 'GALEX', 'HLA', 'HLSP', 'HST', 'HUT', 'IUE', 'JWST', 'K2', 'K2FFI', 'Kepler', 'KeplerFFI', 'OPO', 'PS1', 'SPITZER_SHA', 'SWIFT', 'TESS', 'TUES', 'WUPPE']
+   ['BEFS', 'EUVE', 'FIMS-SPEAR', 'FUSE', 'GALEX', 'HLA', 'HLSP', 'HST', 'HUT', 'IUE', 'JWST', 'K2', 'K2FFI', 'Kepler', 'KeplerFFI', 'OPO', 'PS1', 'SPITZER_SHA', 'SWIFT', 'TESS', 'TUES', 'WUPPE']
 
 To get a table of metadata associated with observation or product lists use the
 `~astroquery.mast.ObservationsClass.get_metadata` function.
@@ -742,7 +742,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
    ...                                        objectname='M101', radius=1, Tmag=[10.75,11])
    >>> print(catalog_data)
-       ID    version  HIP     TYC      ... raddflag wdflag   objID  
+       ID    version  HIP     TYC      ... raddflag wdflag   objID
    --------- -------- --- ------------ ... -------- ------ ---------
    233458861 20190415  -- 3852-01407-1 ...        1      0 150390757
    441662028 20190415  -- 3855-00941-1 ...        1      0 150395533
@@ -1240,8 +1240,8 @@ If the given coordinate appears in more than one product, a FITS file will be pr
    >>> hdulist[0].info()    # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU     754   ()      
-   1  SCI           1 ImageHDU       102   (5, 5)   float32   
+   0  PRIMARY       1 PrimaryHDU     754   ()
+   1  SCI           1 ImageHDU       102   (5, 5)   float32
    2  WHT           1 ImageHDU        56   (5, 5)   float32
 
 
@@ -1261,7 +1261,7 @@ If the given coordinate appears in more than one product, a cutout will be produ
    Inflating...
    ...
    >>> print(manifest)    # doctest: +IGNORE_OUTPUT
-                                 Local Path                                   
+                                 Local Path
    ---------------------------------------------------------------------------------
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w_coarse.fits
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f606w.fits
@@ -1401,4 +1401,3 @@ Reference/API
 
     >>> from astroquery.utils import cleanup_saved_downloads
     >>> cleanup_saved_downloads(['mastDownload*', 'tess-*', 'lwp13058*', '3dhst*'])
-
