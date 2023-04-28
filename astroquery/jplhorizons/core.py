@@ -235,7 +235,7 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime         | epoch (str, ``Date__(UT)__HR:MN:SC.fff``)     |
+        | datetime_str     | epoch (str, ``Date__(UT)__HR:MN:SC.fff``)     |
         +------------------+-----------------------------------------------+
         | datetime_jd      | epoch Julian Date (float,                     |
         |                  | ``Date_________JDUT``)                        |
