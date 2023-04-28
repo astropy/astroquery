@@ -95,6 +95,7 @@ A list of accessible tables can be found in the ``TAP_TABLES`` attribute:
     >>> NasaExoplanetArchive.TAP_TABLES
     ['superwasptimeseries',
     'kelttimeseries',
+    'DI_STARS_EXEP',
     'transitspec',
     'emissionspec',
     'ps',

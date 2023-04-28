@@ -29,11 +29,11 @@ For example:
     obs_publisher_did       s_ra           s_dec           obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
-           cube-11460 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11461 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11462 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11463 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11464 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+            cube-1170 333.70448386919 -45.966341151806 2019-01-30T13:00:00.000Z
+           cube-60339 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60338 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60337 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60336 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
 
 
 In most cases only public data is required. While most ASKAP data is public, some data products may not be released for quality reasons.
@@ -49,11 +49,11 @@ For example to filter out the 30 non-public results from the above data set:
     obs_publisher_did       s_ra           s_dec           obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
-           cube-11460 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11461 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11462 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11463 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
-           cube-11464 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+            cube-1170 333.70448386919 -45.966341151806 2019-01-30T13:00:00.000Z
+           cube-60339 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60338 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60337 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
+           cube-60336 333.74878924962  -46.50601666028 2022-03-18T00:32:52.674Z
 
 
 Authentication
@@ -71,7 +71,7 @@ date. To change user-registration details, or to request a new OPAL password,
 use the link to 'Log in or reset password'.
 
 To use download tasks, you should create an instance of the ``Casda`` class
-and call the :meth:`~astroquery.casda.CasdaClass.login` method with a username. The password will either be taken 
+and call the :meth:`~astroquery.casda.CasdaClass.login` method with a username. The password will either be taken
 from the keyring, or if in an interactive environment then it will be requested. e.g.:
 
 .. doctest-skip::
@@ -90,14 +90,14 @@ Data Access
 
 .. versionadded:: 0.4.4
 
-In order to access data in CASDA you must first stage the data using the :meth:`~astroquery.casda.CasdaClass.stage_data` 
+In order to access data in CASDA you must first stage the data using the :meth:`~astroquery.casda.CasdaClass.stage_data`
 method.
 This is because only some of the data in CASDA is held on disc at any particular time.
-The :meth:`~astroquery.casda.CasdaClass.stage_data` method should be passed an astropy Table object containing an 
+The :meth:`~astroquery.casda.CasdaClass.stage_data` method should be passed an astropy Table object containing an
 'access_url' column.
 This column should contain the datalink address of the data product.
 
-Once the data has been assembled you can then download the data using the :meth:`~astroquery.casda.CasdaClass.download_files` 
+Once the data has been assembled you can then download the data using the :meth:`~astroquery.casda.CasdaClass.download_files`
 method, or using tools such as wget.
 Authentication is required when staging the data, but not for the download.
 
@@ -128,9 +128,9 @@ Cutouts
 
 As well as accessing full data products, the CASDA service can produce cutout images and cubes from larger data products.
 The cutout support in AstroQuery allows both spatial and spectral cutouts.
-To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the 
+To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the
 :meth:`~astroquery.casda.CasdaClass.cutout` method.
-To produce a spectral cutout, pass in either a band or a channel value. 
+To produce a spectral cutout, pass in either a band or a channel value.
 For band, the value must be a list or tuple of two `astropy.units.Quantity` objects specifying a low and high frequency
 or wavelength. For an open ended range use `None` as the open value.
 For channel, the value must be a list or tuple of two integers specifying the low and high channels (i.e. planes of a
@@ -176,7 +176,7 @@ is shown below:
     >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, radius=9*u.arcmin, band=freq)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
-An example script to download a 3D cutout of a spectral channel range from the WALLABY Pre-Pilot Eridanus cube 
+An example script to download a 3D cutout of a spectral channel range from the WALLABY Pre-Pilot Eridanus cube
 is shown below:
 
 .. doctest-skip::

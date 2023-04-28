@@ -35,7 +35,7 @@ each setting yields:
    ...                             get_query_payload=False)
    >>> response.pprint(max_width=120)
         FREQ     ERR    LGINT   DR   ELO    GUP MOLWT TAG QNFMT  Ju  Ku  vu F1u F2u F3u  Jl  Kl  vl F1l F2l F3l   name  Lab
-        MHz      MHz   MHz nm2      1 / cm        u
+        MHz      MHz   nm2 MHz      1 / cm        u
     ----------- ------ ------- --- -------- --- ----- --- ----- --- --- --- --- --- --- --- --- --- --- --- --- ------- ----
     115271.2018 0.0005 -5.0105   2      0.0   3    28 503   101   1  --  --  --  --  --   0  --  --  --  --  -- CO, v=0 True
        230538.0 0.0005 -4.1197   2    3.845   5    28 503   101   2  --  --  --  --  --   1  --  --  --  --  -- CO, v=0 True
@@ -76,7 +76,7 @@ The units of the columns of the query can be displayed by calling
    ----- ------- ------- ------------ -----
     FREQ float64     MHz       Column     0
      ERR float64     MHz       Column     0
-   LGINT float64 MHz nm2       Column     0
+   LGINT float64 nm2 MHz       Column     0
       DR   int64               Column     0
      ELO float64  1 / cm       Column     0
      GUP   int64               Column     0

@@ -52,7 +52,7 @@ range) can be listed with
           WavelengthPeak float64              AA
           WavelengthPhot float64              AA
                     FWHM float64              AA
-                    Fsun float64 erg s / (A cm2)
+                    Fsun float64 erg / (A s cm2)
                PhotCalID  object
                   MagSys  object
                ZeroPoint float64              Jy
@@ -106,7 +106,7 @@ is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_ind
           WavelengthPeak float64              AA
           WavelengthPhot float64              AA
                     FWHM float64              AA
-                    Fsun float64 erg s / (A cm2)
+                    Fsun float64 erg / (A s cm2)
                PhotCalID  object
                   MagSys  object
                ZeroPoint float64              Jy

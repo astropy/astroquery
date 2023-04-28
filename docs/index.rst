@@ -141,10 +141,10 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
-    MAIN_ID    RA      DEC    ... COO_WAVELENGTH COO_BIBCODE SCRIPT_NUMBER_ID
-            "h:m:s"  "d:m:s"  ...
-    ------- -------- -------- ... -------------- ----------- ----------------
-      M   1 05 34 32 +22 00.8 ...              R                            1
+    MAIN_ID     RA        DEC    ...    COO_BIBCODE      SCRIPT_NUMBER_ID
+             "h:m:s"    "d:m:s"  ...
+    ------- ---------- --------- ... ------------------- ----------------
+      M   1 05 34 30.9 +22 00 53 ... 1995AuJPh..48..143S                1
 
 All query tools allow coordinate-based queries:
 
