@@ -25,6 +25,7 @@ from astropy.coordinates import Angle
 from astropy.table import Table
 from astropy.io import fits
 
+from . import conf
 from .. import log
 from ..exceptions import InputWarning, LargeQueryWarning, NoResultsWarning, InvalidQueryError
 
@@ -149,11 +150,6 @@ class TesscutClass(MastQueryWithLogin):
                     "mt_astrocut": {"path": "moving_target/astrocut"}
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
-
-    def _get_default_timeout(self):
-        """ Gets the default request timeout limit. """
-
-        return self._service_api_connection.TIMEOUT
 
     def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', objectname=None,
                     moving_target=False, mt_type=None):
@@ -344,7 +340,7 @@ class TesscutClass(MastQueryWithLogin):
 
         # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
         if timeout:
-            default_timeout = self._get_default_timeout()
+            default_timeout = conf.timeout
             self._service_api_connection.TIMEOUT = timeout
             log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
                      " seconds.")
@@ -488,7 +484,7 @@ class TesscutClass(MastQueryWithLogin):
 
         # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
         if timeout:
-            default_timeout = self._get_default_timeout()
+            default_timeout = conf.timeout
             self._service_api_connection.TIMEOUT = timeout
             log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
                      " seconds.")
