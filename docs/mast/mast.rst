@@ -4,6 +4,29 @@
 MAST Queries (`astroquery.mast`)
 ********************************
 
+Introduction
+============
+
+The Mikulski Archive for Space Telescopes (MAST) is a NASA funded project made to
+collect and archive a variety of scientific data to support the astronomical community.
+The data housed in MAST includes science and engineering data, with a primary focus on
+data sets in the optical, ultraviolet, and near-infrared parts of the spectrum, from over
+20 space-based missions. MAST offers single mission-based queries as well as cross-mission
+queries. Astroquery's astroquery.mast module is one tool used to query and access the data
+in this Archive.
+
+astroquery.mast offers 3 main services: `~astroquery.mast.MastClass`,
+`~astroquery.mast.CatalogsClass`, and Cutouts. MastClass allows direct programatic access
+to the MAST Portal. Along with `~astroquery.mast.ObservationsClass`, it is used to query
+MAST observational data. The Catalogs class is used to query MAST catalog data. The
+available catalogs include the Pan-STARRS and Hubble Source catalogs along with a few others
+listed under the Catalog Queries section of this page. Lastly, Cutouts, a newer addition to
+astroquery.mast, provides access to full-frame image cutouts of Transiting Exoplanet Survey
+Satellite (TESS), MAST Hubble Advanced Product (HAP),and deep-field images, through
+`~astroquery.mast.TesscutClass`, `~astroquery.mast.HapcutClass`, and
+`~astroquery.mast.ZcutClass` respectively. For a full description of MAST query options,
+please read the `MAST API Documentation <https://mast.stsci.edu/api/v0/>`__.
+
 Getting Started
 ===============
 
