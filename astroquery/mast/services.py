@@ -288,7 +288,27 @@ class ServiceAPI(BaseQuery):
             catalogs_request.extend(self._build_catalogs_params(params))
         else:
             headers['Content-Type'] = 'application/json'
-            catalogs_request = params
+
+            # Parameter syntax needs to be updated only for PANSTARRS catalog queries
+            if service.lower() == 'panstarrs':
+                catalogs_request.extend(self._build_catalogs_params(params))
+
+                # After parameter syntax is updated, revert back to dictionary
+                # so params can be passed as a JSON dictionary
+                params_dict = {}
+                for key, val in catalogs_request:
+                    params_dict.setdefault(key, []).append(val)
+                catalogs_request = params_dict
+
+                # Removing single-element lists. Single values will live on their own (except for `sort_by`)
+                for key in catalogs_request.keys():
+                    if (key != 'sort_by') & (len(catalogs_request[key]) == 1):
+                        catalogs_request[key] = catalogs_request[key][0]
+
+            # Otherwise, catalogs_request can remain as the original params dict
+            else:
+                catalogs_request = params
+
         response = self._request('POST', request_url, data=catalogs_request, headers=headers, use_json=use_json)
         return response
 
