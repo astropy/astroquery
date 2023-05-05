@@ -144,6 +144,8 @@ mast
 
 - Expanding ``Cutouts`` functionality to support TICA HLSPs now available through 
   ``TesscutClass``. [##2668]
+
+- Resolved issue making PANSTARRS catalog queries when columns and sorting is specified. [#2727]
   
 nist
 ^^^^

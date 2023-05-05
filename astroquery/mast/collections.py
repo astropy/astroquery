@@ -162,7 +162,11 @@ class CatalogsClass(MastQueryWithLogin):
         for prop, value in kwargs.items():
             params[prop] = value
 
-        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
+        # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
+        use_json = catalog.lower() == 'panstarrs'
+
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page,
+                                                              use_json=use_json)
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
@@ -313,7 +317,11 @@ class CatalogsClass(MastQueryWithLogin):
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
             params["filters"] = filters
 
-        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
+        # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
+        use_json = catalog.lower() == 'panstarrs'
+
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page,
+                                                              use_json=use_json)
 
     @class_or_instance
     def query_hsc_matchid_async(self, match, *, version=3, pagesize=None, page=None):
