@@ -163,7 +163,7 @@ class CatalogsClass(MastQueryWithLogin):
             params[prop] = value
 
         # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
-        use_json = True if catalog.lower() == 'panstarrs' else False
+        use_json = catalog.lower() == 'panstarrs'
 
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page,
                                                               use_json=use_json)
@@ -318,7 +318,7 @@ class CatalogsClass(MastQueryWithLogin):
             params["filters"] = filters
 
         # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
-        use_json = True if catalog.lower() == 'panstarrs' else False
+        use_json = catalog.lower() == 'panstarrs'
 
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page,
                                                               use_json=use_json)
