@@ -1,15 +1,28 @@
 version: 2
 
-python:
-   # Revise build version once more dependencies support python 3.9+
-   version: 3.8
-   system_packages: false
-   install:
-     - method: pip
-       path: .
-       extra_requirements:
-          - docs
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "mambaforge-4.10"
+
+conda:
+  environment: docs/rtd_environment.yaml
 
 sphinx:
-   fail_on_warning: true
-   configuration: docs/conf.py
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: true
+
+# Install regular dependencies.
+# Then, install special pinning for RTD.
+python:
+  system_packages: false
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+        - all
+
+# Don't build any extra formats
+formats: []
