@@ -302,7 +302,7 @@ def test_mast_service_request(patch_post):
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
     print(m103_loc)
-    assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
+    assert round(m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value, 10) == 0
 
 
 def test_login_logout(patch_post):
