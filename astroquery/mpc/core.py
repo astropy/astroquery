@@ -20,7 +20,7 @@ except ImportError:
 from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
-from ..exceptions import InvalidQueryError
+from ..exceptions import InvalidQueryError, EmptyResponseError
 
 
 __all__ = ['MPCClass']
@@ -1183,12 +1183,12 @@ class MPCClass(BaseQuery):
                         result.text))
 
             if len(src) == 0:
-                raise RuntimeError(('No data queried. Are the target '
-                                    'identifiers correct?  Is the MPC '
-                                    'database search working for your '
-                                    'object? The service is hosted at '
-                                    'https://www.minorplanetcenter.net/'
-                                    'search_db'))
+                raise EmptyResponseError(('No data queried. Are the target '
+                                          'identifiers correct?  Is the MPC '
+                                          'database search working for your '
+                                          'object? The service is hosted at '
+                                          'https://www.minorplanetcenter.net/'
+                                          'search_db'))
 
             # return raw response if requested
             if self.get_raw_response:
