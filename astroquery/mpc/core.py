@@ -11,11 +11,7 @@ from astropy.time import Time
 from astropy.table import Table, QTable, Column
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle, SkyCoord
-try:
-    from astropy.utils.exceptions import ErfaWarning
-except ImportError:
-    # DEPRECATED: remove eventually, but needed in July 2020
-    from astropy._erfa.core import ErfaWarning
+from astropy.utils.exceptions import ErfaWarning
 
 from ..query import BaseQuery
 from . import conf
