@@ -2,9 +2,22 @@
 """
 test_mpc
 
-Generate offline ephemeris files for testing with the following
-commands.  The asteroid must be one that returns ephemeris
-uncertainties:
+Generate offline ephemeris files for testing with the following commands.
+
+  * The first object can be any target with successful queries.
+
+  * The second object must be one that returns ephemeris uncertainties.
+
+  * The third object must be one that does not exist in the MPC database.  The
+    string 'test fail' is sufficient.
+
+  * The fourth object must be one that fails an orbit lookup.  Today (2022
+    July), that is 2008 JG, which has a permanent number 613986. The ephemeris
+    service is not resolving the temporary designation to the permanent number,
+    and therefore fails the orbit lookup.
+
+Any changes to these queries (such as target name) must be reflected in the
+appropriate tests below.
 
 ```
 from astroquery.mpc import MPC
@@ -17,7 +30,8 @@ parameters = {
   '2P_ephemeris_500-a-s': ('2P', {'proper_motion': 'sky'}),
   '1994XG_ephemeris_500-a-t': ('1994 XG', {}),
   '1994XG_ephemeris_G37-a-t': ('1994 XG', {'location': 'G37'}),
-  'testfail_ephemeris_500-a-t': ('test fail', {})
+  'testfail_ephemeris_500-a-t': ('test fail', {}),
+  '2008JG_ephemeris_500-a-t': ('2008 JG', {}),
 }
 for prefix, (name, kwargs) in parameters.items():
     with open(prefix + '.html', 'w') as outf:
@@ -39,7 +53,7 @@ For ObsCodes.html:
     wget https://minorplanetcenter.net/iau/lists/ObsCodes.html
 
 Then edit and remove all but the first 10 lines of observatories.
-This is sufficient for testing.
+This is sufficient for offline testing.
 
 """
 import os
@@ -178,6 +192,11 @@ def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
 def test_get_ephemeris_by_name_fail(patch_post):
     with pytest.raises(InvalidQueryError):
         mpc.core.MPC.get_ephemeris('test fail')
+
+
+def test_get_ephemeris_object_without_orbit(patch_post):
+    with pytest.raises(InvalidQueryError):
+        mpc.core.MPC.get_ephemeris('2008 JG')
 
 
 def test_get_ephemeris_location_str():
