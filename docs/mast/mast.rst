@@ -81,6 +81,16 @@ Radius is an optional parameter and the default is 0.2 degrees.
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
 
+Optional parameters must be labeled. For example the query above will produce
+an error if the "radius" field is not specified.
+
+.. doctest-skip::
+   >>> from astroquery.mast import Observations
+   ...
+   >>> obs_table = Observations.query_object("M8",".02 deg")
+   >>> print(obs_table[:10])  # doctest: +IGNORE_OUTPUT
+   TypeError: query_object_async() takes 2 positional arguments but 3 were given
+
 
 Observation Criteria Queries
 ----------------------------
@@ -210,6 +220,18 @@ To get a table of metadata associated with observation or product lists use the
             obsID Product Group ID ...         Long integer, e.g. 2007590987
    obs_collection          Mission ... HST, HLA, SWIFT, GALEX, Kepler, K2...
 
+The `~astroquery.mast.ObservationsClass.get_metadata` function only accepts the strings 
+"observations" or "products" as a parameter. Any other string or spelling will result 
+in an error.
+
+.. doctest-skip::
+   
+   >>> from astroquery.mast import Observations
+   ...
+   >>> meta_table = Observations.get_metadata("observation")
+   >>> print(meta_table[:5])  # doctest: +IGNORE_OUTPUT
+   InvalidQueryError: Unknown query type.
+   
 
 Downloading Data
 ================
