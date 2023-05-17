@@ -780,8 +780,7 @@ class ObservationsClass(MastQueryWithLogin):
         if self._cloud_connection is None:
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'See MAST Labs documentation for an example: '
-                'https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
+                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
 
         # Remove duplicate products
         data_products = self._remove_duplicate_products(data_products)
@@ -817,8 +816,7 @@ class ObservationsClass(MastQueryWithLogin):
         if self._cloud_connection is None:
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'See MAST Labs documentation for an example: '
-                'https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
+                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
