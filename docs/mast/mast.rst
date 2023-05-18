@@ -413,6 +413,27 @@ which can be changed with the ``local_path`` keyword argument.
    >>> print(result)
    ('COMPLETE', None, None)
 
+The `~astroquery.mast.ObservationsClass.download_file` and `~astroquery.mast.ObservationsClass.download_products` 
+methods are not interchangeable. Using the incorrect method for either single files or product lists will result
+in an error.
+
+.. doctest-skip::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+   >>> data_products = Observations.get_product_list(single_obs)
+   ...
+   >>> product = data_products[0]["dataURI"]
+   >>> result = Observations.download_products(product)   # doctest: +IGNORE_OUTPUT
+   RemoteServiceError: Error converting data type varchar to bigint.
+
+.. doctest-skip::
+   
+   >>> result = Observations.download_file(data_products)
+   TypeError: can only concatenate str (not "Table") to str
+
+
 Cloud Data Access
 ------------------
 Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
