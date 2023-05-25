@@ -1,6 +1,7 @@
 import io
 import re
 import tarfile
+import warnings
 
 from bs4 import BeautifulSoup
 
@@ -9,7 +10,7 @@ from astropy.table import Table
 
 from astroquery.query import BaseQuery
 from astroquery.utils import class_or_instance
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, NoResultsWarning
 
 from . import conf
 
@@ -354,6 +355,11 @@ class MostClass(BaseQuery):
             with_tarballs=True,
         )
 
+        if queryres is None:
+            # A warning will already be issued by query_object so no need to
+            # raise a new one here.
+            return None
+
         response = self._request("GET", queryres["fits_tarball"],
                                  save=save, savedir=savedir)
 
@@ -524,10 +530,28 @@ class MostClass(BaseQuery):
         response = self._request("POST", self.URL,
                                  data=qparams, timeout=self.TIMEOUT)
 
+        # service unreachable or some other reason
+        if not response.ok:
+            raise response.raise_for_status()
+
+        # MOST will not raise an bad response if the query is bad because they
+        # are not a REST API
+        if "MOST: *** error:" in response.text:
+            raise InvalidQueryError(response.text)
+
+        # presume that response is HTML to simplify conditions
+        if "Number of Matched Image Frames   = 0" in response.text:
+            warnings.warn("Number of Matched Image Frames   = 0", NoResultsWarning)
+            return None
+
         if qparams["output_mode"] in ("Brief", "Gator"):
             return Table.read(response.text, format="ipac")
         elif qparams["output_mode"] == "VOTable":
-            return votable.parse(io.BytesIO(response.content))
+            matches = votable.parse(io.BytesIO(response.content))
+            if matches.get_table_by_index(0).nrows == 0:
+                warnings.warn("Number of Matched Image Frames   = 0", NoResultsWarning)
+                return None
+            return matches
         else:
             return self._parse_full_regular_response(response, qparams["fits_region_files"])
 

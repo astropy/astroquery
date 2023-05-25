@@ -44,6 +44,21 @@ POST_FILENAME_MAP = {
 }
 
 
+class MockResponse(MockResponse):
+    """
+    We overwrite the default MockResponse to provide it wih `ok`
+    attribute. In these tests it is assumed they are all expected
+    to pass so it's fine to put it always True.
+
+    This is ok, these tests can really only cover parsing errors
+    because the mocking of failure cases of MOST is too complicated.
+    These tests are farmed out to remote data tests.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ok = True
+
+
 def data_path(filename):
     """Returns the path to the file in the module's test data directory."""
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

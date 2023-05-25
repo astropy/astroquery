@@ -1,15 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-import io
 import os
 import pytest
+import warnings
 
 import numpy as np
 
 import astropy.io.fits as fits
 from astropy.table import Table
 from astroquery.ipac.irsa import Most
-
+from astroquery.exceptions import InvalidQueryError
 
 # each MOST query is given a PID and a temporary directory availible publicly
 # from this base URL. This URL is then used to create links on the returned
@@ -46,8 +45,6 @@ def test_query_object():
     # not returned in same order nor header width. So we have to compare
     # manually
     results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
-    metadata = Table.read(data_path("most_imgframes_matched_final_table.tbl"), format="ipac")
-    url = REGULAR_BASE_URL + "ds9region/ds9_orbit_path.reg"
 
     columns = [col for col in results.columns if col not in ("image_url", "postcard_url", "region_file")]
     for col in columns:
@@ -89,7 +86,44 @@ def test_list_catalogs():
     ]
 
     cats = Most.list_catalogs()
-
     assert expected == cats
 
 
+@pytest.mark.remote_data
+def test_no_results():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        response = Most.query_object(
+            obj_name="Victoria",
+            obs_begin="2019-05-21",
+            obs_end="2019-05-22"
+        )
+
+    assert response is None
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        response = Most.get_images(
+            obj_name="Victoria",
+            obs_begin="2019-05-21",
+            obs_end="2019-05-22"
+        )
+
+    assert response is None
+
+
+@pytest.mark.remote_data
+def test_invalid_query():
+    with pytest.raises(InvalidQueryError):
+        Most.query_object(
+            obj_name="Victoria",
+            obs_begin="2014-05-21",
+            obs_end="2014-05-19"
+        )
+
+    with pytest.raises(InvalidQueryError):
+        Most.get_images(
+            obj_name="Victoria",
+            obs_begin="2014-05-21",
+            obs_end="2014-05-19"
+        )
