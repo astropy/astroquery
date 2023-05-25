@@ -7,7 +7,7 @@ import pytest
 from astropy.io import votable
 from astropy.table import Table
 from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.irsa.most import Most
+from astroquery.ipac.irsa import Most
 from astropy.utils.diff import report_diff_values
 
 

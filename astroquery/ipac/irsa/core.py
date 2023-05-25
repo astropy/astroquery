@@ -118,7 +118,7 @@ __all__ = ['Irsa', 'IrsaClass']
 
 @async_to_sync
 class IrsaClass(BaseQuery):
-    IRSA_URL = conf.server
+    IRSA_URL = conf.irsa_server
     GATOR_LIST_URL = conf.gator_list_catalogs
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
