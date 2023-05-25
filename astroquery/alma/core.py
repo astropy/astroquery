@@ -212,11 +212,14 @@ def _gen_sql(payload):
     return sql + where
 
 
-#
-# Authentication session information for connecting to an OIDC instance.  Assumes an OIDC system like Keycloak
-# with a preconfigured client called "oidc".
-#
 class AlmaAuth(BaseQuery):
+    """Authentication session information for passing credentials to an OIDC instance
+
+    Assumes an OIDC system like Keycloak with a preconfigured client app called "oidc" to validate against.
+    This does not use Tokens in the traditional OIDC sense, but rather uses the Keycloak specific endpoint
+    to validate a username and password.  Passwords are then kept in a Python keyring.
+    """
+
     _CLIENT_ID = 'oidc'
     _GRANT_TYPE = 'password'
     _INVALID_PASSWORD_MESSAGE = 'Invalid user credentials'
@@ -229,7 +232,12 @@ class AlmaAuth(BaseQuery):
         self._auth_hosts = auth_urls
         self._auth_host = None
 
-    def set_auth_hosts(self, auth_hosts):
+    @property
+    def auth_hosts(self):
+        return self._auth_hosts
+
+    @auth_hosts.setter
+    def auth_hosts(self, auth_hosts):
         """
         Set the available hosts to check for login endpoints.
 
@@ -239,10 +247,12 @@ class AlmaAuth(BaseQuery):
             Available hosts name.  Checking each one until one returns a 200 for
             the well-known endpoint.
         """
-        self._auth_hosts = auth_hosts
+        if auth_hosts is None:
+            raise LoginError('Valid authentication hosts cannot be None')
+        else:
+            self._auth_hosts = auth_hosts
 
-    @property
-    def host(self):
+    def get_valid_host(self):
         if self._auth_host is None:
             for auth_url in self._auth_hosts:
                 # set session cookies (they do not get set otherwise)
@@ -277,7 +287,7 @@ class AlmaAuth(BaseQuery):
             'client_id': self._CLIENT_ID
         }
 
-        login_url = f'https://{self.host}{self._LOGIN_ENDPOINT}'
+        login_url = f'https://{self.get_valid_host()}{self._LOGIN_ENDPOINT}'
         log.info(f'Authenticating {username} on {login_url}.')
         login_response = self._request('POST', login_url, data=data, cache=False)
         json_auth = login_response.json()
@@ -287,12 +297,12 @@ class AlmaAuth(BaseQuery):
             error_message = json_auth['error_description']
             if self._INVALID_PASSWORD_MESSAGE not in error_message:
                 raise LoginError("Could not log in to ALMA authorization portal: "
-                                 f"{self.host} Message from server: {error_message}")
+                                 f"{self.get_valid_host()} Message from server: {error_message}")
             else:
-                log.error(error_message)
+                raise LoginError(error_message)
         elif 'access_token' not in json_auth:
             raise LoginError("Could not log in to any of the known ALMA authorization portals: \n"
-                             f"No error from server, but missing access token from host: {self.host}")
+                             f"No error from server, but missing access token from host: {self.get_valid_host()}")
         else:
             log.info(f'Successfully logged in to {self._auth_host}')
 
@@ -965,7 +975,7 @@ class AlmaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
-        auth_url = self.auth.host
+        auth_url = self.auth.get_valid_host()
 
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
@@ -995,7 +1005,7 @@ class AlmaClass(QueryWithLogin):
             on the keyring. Default is False.
         """
 
-        self.auth.set_auth_hosts(auth_urls)
+        self.auth.auth_hosts = auth_urls
 
         username, password = self._get_auth_info(username=username,
                                                  store_password=store_password,

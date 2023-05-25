@@ -13,9 +13,9 @@ def test_host():
         return response
 
     test_subject = AlmaAuth()
-    test_subject.set_auth_hosts(['almaexample.com'])
+    test_subject.auth_hosts = ['almaexample.com']
     test_subject._request = Mock(side_effect=_requests_mock_ok)
-    assert test_subject.host == 'almaexample.com'
+    assert test_subject.get_valid_host() == 'almaexample.com'
 
 
 def test_host_default():
@@ -26,7 +26,7 @@ def test_host_default():
 
     test_subject = AlmaAuth()
     test_subject._request = Mock(side_effect=_requests_mock_ok)
-    assert test_subject.host == 'asa.alma.cl'
+    assert test_subject.get_valid_host() == 'asa.alma.cl'
 
 
 def test_host_err():
@@ -36,10 +36,10 @@ def test_host_err():
         return response
 
     test_subject = AlmaAuth()
-    test_subject.set_auth_hosts(['almaexample.com'])
+    test_subject.auth_hosts = ['almaexample.com']
     test_subject._request = Mock(side_effect=_requests_mock_err)
     with pytest.raises(LoginError):
-        test_subject.host
+        test_subject.get_valid_host()
 
 
 def test_login_bad_error():
@@ -58,7 +58,7 @@ def test_login_bad_error():
         return response
 
     test_subject = AlmaAuth()
-    test_subject.set_auth_hosts(['almaexample.com'])
+    test_subject.auth_hosts = ['almaexample.com']
     test_subject._request = Mock(side_effect=_requests_mock_err)
     with pytest.raises(LoginError) as e:
         test_subject.login('TESTUSER', 'TESTPASS')
@@ -80,7 +80,7 @@ def test_login_missing_token():
         return response
 
     test_subject = AlmaAuth()
-    test_subject.set_auth_hosts(['almaexample.com'])
+    test_subject.auth_hosts = ['almaexample.com']
     test_subject._request = Mock(side_effect=_requests_mock_err)
     with pytest.raises(LoginError) as e:
         test_subject.login('TESTUSER', 'TESTPASS')
@@ -104,6 +104,6 @@ def test_login_success():
         return response
 
     test_subject = AlmaAuth()
-    test_subject.set_auth_hosts(['almaexample.com'])
+    test_subject.auth_hosts = ['almaexample.com']
     test_subject._request = Mock(side_effect=_requests_mock_good)
     test_subject.login('TESTUSER', 'TESTPASS')
