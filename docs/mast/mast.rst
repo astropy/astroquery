@@ -85,10 +85,8 @@ Optional parameters must be labeled. For example the query above will produce
 an error if the "radius" field is not specified.
 
 .. doctest-skip::
-   >>> from astroquery.mast import Observations
-   ...
+
    >>> obs_table = Observations.query_object("M8",".02 deg")
-   >>> print(obs_table[:10])  # doctest: +IGNORE_OUTPUT
    TypeError: query_object_async() takes 2 positional arguments but 3 were given
 
 
@@ -226,10 +224,7 @@ in an error.
 
 .. doctest-skip::
    
-   >>> from astroquery.mast import Observations
-   ...
    >>> meta_table = Observations.get_metadata("observation")
-   >>> print(meta_table[:5])  # doctest: +IGNORE_OUTPUT
    InvalidQueryError: Unknown query type.
    
 
@@ -419,12 +414,6 @@ in an error.
 
 .. doctest-skip::
 
-   >>> from astroquery.mast import Observations
-   ...
-   >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
-   >>> data_products = Observations.get_product_list(single_obs)
-   ...
-   >>> product = data_products[0]["dataURI"]
    >>> result = Observations.download_products(product)   # doctest: +IGNORE_OUTPUT
    RemoteServiceError: Error converting data type varchar to bigint.
 
