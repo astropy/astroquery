@@ -688,6 +688,17 @@ If no catalog is specified, the Hubble Source Catalog will be queried.
    1.7524423152919317 6382034098672634846    AIS ...              --            0
 
 
+The `~astroquery.mast.CatalogsClass.query_object` method for positional queries
+requires a sky position with a right ascension (RA) between 0 and 360 degrees and
+a declination between -90 and 90 degrees. Any values outside of this range will
+result in an error.
+
+.. doctest-skip::
+   
+   >>> catalog_data = Catalogs.query_object("-158.47924 -7.30962", catalog="Galex")
+   ResolverError: Could not resolve -158.47924 -7.30962 to a sky position.
+
+
 Some catalogs have a maximum number of results they will return.
 If a query results in this maximum number of results a warning will be displayed to alert
 the user that they might be getting a subset of the true result set.
