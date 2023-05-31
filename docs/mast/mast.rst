@@ -914,6 +914,14 @@ Given an HSC Match ID, return all catalog results.
    410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
 
+"MatchID" is case sensitive in this case, and will produce an error with different
+capitalization.
+
+.. doctest-skip::
+
+   >>> matchid = catalog_data[0]["matchid"]
+   KeyError: 'matchid'
+
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
 does not take any arguments, and simply loads all HSC spectra.
 
@@ -1017,6 +1025,13 @@ not explicitly called for TICA.
      0  PRIMARY       1 PrimaryHDU      56   ()
      1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
      2  APERTURE      1 ImageHDU        81   (5, 5)   int32
+
+The SkyCoord constructor requires the 'unit' parameter. Unspecified units will result in an error.
+
+.. doctest-skip::
+
+   >>> cutout_coord = SkyCoord(107.18696, -70.50919)
+   UnitTypeError: Longitude instances require units equivalent to 'rad', but no unit was given.
 
 For users with time-sensitive targets who would like cutouts from the latest observations, 
 we recommend requesting for the TICA product. Using the same target from the example above, 
