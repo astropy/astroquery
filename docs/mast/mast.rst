@@ -1093,16 +1093,15 @@ simply with either the objectname or coordinates.
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 Note that the moving targets functionality does not currently support TICA, so the product
-parameter will always default to SPOC.
+parameter will result in an error when set to 'TICA'.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
    ...
    >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", product='tica', moving_target=True, size=5, sector=6)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
-   >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
-   'SPOC'
+   ...
+   InvalidQueryError: Only SPOC is available for moving targets queries.
 
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a product type ("TICA" or "SPOC", but defaults to "SPOC"),
 coordinate, cutout size (in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
