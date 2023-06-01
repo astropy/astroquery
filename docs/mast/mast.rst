@@ -84,9 +84,10 @@ Radius is an optional parameter and the default is 0.2 degrees.
 Optional parameters must be labeled. For example the query above will produce
 an error if the "radius" field is not specified.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> obs_table = Observations.query_object("M8",".02 deg")
+   ...
    TypeError: query_object_async() takes 2 positional arguments but 3 were given
 
 
@@ -222,9 +223,10 @@ The `~astroquery.mast.ObservationsClass.get_metadata` function only accepts the 
 "observations" or "products" as a parameter. Any other string or spelling will result 
 in an error.
 
-.. doctest-skip::
+.. doctest-remote-data::
    
    >>> meta_table = Observations.get_metadata("observation")
+   ...
    InvalidQueryError: Unknown query type.
    
 
@@ -412,14 +414,16 @@ The `~astroquery.mast.ObservationsClass.download_file` and `~astroquery.mast.Obs
 methods are not interchangeable. Using the incorrect method for either single files or product lists will result
 in an error.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> result = Observations.download_products(product)   # doctest: +IGNORE_OUTPUT
+   ...
    RemoteServiceError: Error converting data type varchar to bigint.
 
-.. doctest-skip::
+.. doctest-remote-data::
    
    >>> result = Observations.download_file(data_products)
+   ...
    TypeError: can only concatenate str (not "Table") to str
 
 
@@ -693,9 +697,10 @@ requires a sky position with a right ascension (RA) between 0 and 360 degrees an
 a declination between -90 and 90 degrees. Any values outside of this range will
 result in an error.
 
-.. doctest-skip::
+.. doctest-remote-data::
    
    >>> catalog_data = Catalogs.query_object("-158.47924 -7.30962", catalog="Galex")
+   ...
    ResolverError: Could not resolve -158.47924 -7.30962 to a sky position.
 
 
@@ -917,9 +922,10 @@ Given an HSC Match ID, return all catalog results.
 "MatchID" is case sensitive in this case, and will produce an error with different
 capitalization.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> matchid = catalog_data[0]["matchid"]
+   ...
    KeyError: 'matchid'
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
@@ -1028,9 +1034,10 @@ not explicitly called for TICA.
 
 The SkyCoord constructor requires the 'unit' parameter. Unspecified units will result in an error.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> cutout_coord = SkyCoord(107.18696, -70.50919)
+   ...
    UnitTypeError: Longitude instances require units equivalent to 'rad', but no unit was given.
 
 For users with time-sensitive targets who would like cutouts from the latest observations, 
