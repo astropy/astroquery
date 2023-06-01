@@ -30,7 +30,7 @@ except ImportError:
 from ..exceptions import LoginError
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
-from ..query import QueryWithLogin
+from ..query import BaseQuery, QueryWithLogin
 from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
@@ -212,6 +212,101 @@ def _gen_sql(payload):
     return sql + where
 
 
+class AlmaAuth(BaseQuery):
+    """Authentication session information for passing credentials to an OIDC instance
+
+    Assumes an OIDC system like Keycloak with a preconfigured client app called "oidc" to validate against.
+    This does not use Tokens in the traditional OIDC sense, but rather uses the Keycloak specific endpoint
+    to validate a username and password.  Passwords are then kept in a Python keyring.
+    """
+
+    _CLIENT_ID = 'oidc'
+    _GRANT_TYPE = 'password'
+    _INVALID_PASSWORD_MESSAGE = 'Invalid user credentials'
+    _REALM_ENDPOINT = '/auth/realms/ALMA'
+    _LOGIN_ENDPOINT = f'{_REALM_ENDPOINT}/protocol/openid-connect/token'
+    _VERIFY_WELL_KNOWN_ENDPOINT = f'{_REALM_ENDPOINT}/.well-known/openid-configuration'
+
+    def __init__(self):
+        super().__init__()
+        self._auth_hosts = auth_urls
+        self._auth_host = None
+
+    @property
+    def auth_hosts(self):
+        return self._auth_hosts
+
+    @auth_hosts.setter
+    def auth_hosts(self, auth_hosts):
+        """
+        Set the available hosts to check for login endpoints.
+
+        Parameters
+        ----------
+        auth_hosts : array
+            Available hosts name.  Checking each one until one returns a 200 for
+            the well-known endpoint.
+        """
+        if auth_hosts is None:
+            raise LoginError('Valid authentication hosts cannot be None')
+        else:
+            self._auth_hosts = auth_hosts
+
+    def get_valid_host(self):
+        if self._auth_host is None:
+            for auth_url in self._auth_hosts:
+                # set session cookies (they do not get set otherwise)
+                url_to_check = f'https://{auth_url}{self._VERIFY_WELL_KNOWN_ENDPOINT}'
+                response = self._request("HEAD", url_to_check, cache=False)
+
+                if response.status_code == 200:
+                    self._auth_host = auth_url
+                    log.debug(f'Set auth host to {self._auth_host}')
+                    break
+
+        if self._auth_host is None:
+            raise LoginError(f'No useable hosts to login to: {self._auth_hosts}')
+        else:
+            return self._auth_host
+
+    def login(self, username, password):
+        """
+        Authenticate to one of the configured hosts.
+
+        Parameters
+        ----------
+        username : str
+            The username to authenticate with
+        password : str
+            The user's password
+        """
+        data = {
+            'username': username,
+            'password': password,
+            'grant_type': self._GRANT_TYPE,
+            'client_id': self._CLIENT_ID
+        }
+
+        login_url = f'https://{self.get_valid_host()}{self._LOGIN_ENDPOINT}'
+        log.info(f'Authenticating {username} on {login_url}.')
+        login_response = self._request('POST', login_url, data=data, cache=False)
+        json_auth = login_response.json()
+
+        if 'error' in json_auth:
+            log.debug(f'{json_auth}')
+            error_message = json_auth['error_description']
+            if self._INVALID_PASSWORD_MESSAGE not in error_message:
+                raise LoginError("Could not log in to ALMA authorization portal: "
+                                 f"{self.get_valid_host()} Message from server: {error_message}")
+            else:
+                raise LoginError(error_message)
+        elif 'access_token' not in json_auth:
+            raise LoginError("Could not log in to any of the known ALMA authorization portals: \n"
+                             f"No error from server, but missing access token from host: {self.get_valid_host()}")
+        else:
+            log.info(f'Successfully logged in to {self._auth_host}')
+
+
 @async_to_sync
 class AlmaClass(QueryWithLogin):
 
@@ -228,6 +323,11 @@ class AlmaClass(QueryWithLogin):
         self._sia_url = None
         self._tap_url = None
         self._datalink_url = None
+        self._auth = AlmaAuth()
+
+    @property
+    def auth(self):
+        return self._auth
 
     @property
     def datalink(self):
@@ -875,11 +975,7 @@ class AlmaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
-        if hasattr(self, '_auth_url'):
-            auth_url = self._auth_url
-        else:
-            raise LoginError("Login with .login() to acquire the appropriate"
-                             " login URL")
+        auth_url = self.auth.get_valid_host()
 
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
@@ -909,69 +1005,16 @@ class AlmaClass(QueryWithLogin):
             on the keyring. Default is False.
         """
 
-        success = False
-        for auth_url in auth_urls:
-            # set session cookies (they do not get set otherwise)
-            cookiesetpage = self._request("GET",
-                                          urljoin(self._get_dataarchive_url(),
-                                                  'rh/forceAuthentication'),
-                                          cache=False)
-            self._login_cookiepage = cookiesetpage
-            cookiesetpage.raise_for_status()
-
-            if (auth_url+'/cas/login' in cookiesetpage.request.url):
-                # we've hit a target, we're good
-                success = True
-                break
-        if not success:
-            raise LoginError("Could not log in to any of the known ALMA "
-                             "authorization portals: {0}".format(auth_urls))
-
-        # Check if already logged in
-        loginpage = self._request("GET", "https://{auth_url}/cas/login".format(auth_url=auth_url),
-                                  cache=False)
-        root = BeautifulSoup(loginpage.content, 'html5lib')
-        if root.find('div', class_='success'):
-            log.info("Already logged in.")
-            return True
-
-        self._auth_url = auth_url
+        self.auth.auth_hosts = auth_urls
 
         username, password = self._get_auth_info(username=username,
                                                  store_password=store_password,
                                                  reenter_password=reenter_password)
 
-        # Authenticate
-        log.info("Authenticating {0} on {1} ...".format(username, auth_url))
-        # Do not cache pieces of the login process
-        data = {kw: root.find('input', {'name': kw})['value']
-                for kw in ('execution', '_eventId')}
-        data['username'] = username
-        data['password'] = password
-        data['submit'] = 'LOGIN'
+        self.auth.login(username, password)
+        self.USERNAME = username
 
-        login_response = self._request("POST", "https://{0}/cas/login".format(auth_url),
-                                       params={'service': self._get_dataarchive_url()},
-                                       data=data,
-                                       cache=False)
-
-        # save the login response for debugging purposes
-        self._login_response = login_response
-        # do not expose password back to user
-        del data['password']
-        # but save the parameters for debug purposes
-        self._login_parameters = data
-
-        authenticated = ('You have successfully logged in' in
-                         login_response.text)
-
-        if authenticated:
-            log.info("Authentication successful!")
-            self.USERNAME = username
-        else:
-            log.exception("Authentication failed!")
-
-        return authenticated
+        return True
 
     def get_cycle0_uid_contents(self, uid):
         """
