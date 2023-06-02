@@ -1454,6 +1454,20 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
    Length = 77 rows
 
 
+The 'params' parameter for the `~astroquery.mast.MastClass.service_request` method requires a key-value pair
+format, with the key name inside quotation marks. Keys without quotes will produce the following error.
+
+.. doctest-remote-data::
+
+   >>> service = 'Mast.Caom.Cone'
+   >>> params = {ra:184.3,
+   ...           dec:54.5,
+   ...           radius:0.2}
+   >>> observations = Mast.service_request(service, params)
+   ...
+   NameError: name 'ra' is not defined
+   
+
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
 In this case, the async method should be used to get the raw http response, which can then be manually parsed.
 
