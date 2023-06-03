@@ -315,7 +315,7 @@ epochs:
    ...                epochs={'start':'2017-10-01', 'stop':'2017-10-02',
    ...                        'step':'10m'})
    >>> vec = obj.vectors()
-   >>> print(vec)
+   >>> print(vec)  # doctest: +IGNORE_OUTPUT
    targetname    datetime_jd    ...        range              range_rate
       ---             d         ...          AU                 AU / d
    ---------- ----------------- ... ------------------- ---------------------
