@@ -32,7 +32,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.ipac.ned`.
     """
     server = _config.ConfigItem(
-        ['http://ned.ipac.caltech.edu/cgi-bin/'],
+        ['https://ned.ipac.caltech.edu/cgi-bin/'],
         'Name of the NED server to use.')
 
     timeout = _config.ConfigItem(

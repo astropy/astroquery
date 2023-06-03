@@ -9,10 +9,10 @@ Overview
 
 IMCCE provides a number of Solar System-related services, two of which are currently implemented here:
 
-* `SkyBoT <http://vo.imcce.fr/webservices/skybot/>`_: search for and
+* `SkyBoT <https://ssp.imcce.fr/webservices/skybot/>`_: search for and
   identify Solar System objects that are present in a given area of
   the sky at a given time
-* `Miriade <http://vo.imcce.fr/webservices/miriade/>`_: ephemerides service
+* `Miriade <https://ssp.imcce.fr/webservices/miriade/>`_: ephemerides service
 
 Use cases for both services are detailed below.
 
@@ -24,7 +24,7 @@ Cone Search
 -----------
 
 `astroquery.imcce.SkybotClass` provides an interface to the `cone search
-<http://vo.imcce.fr/webservices/skybot/?conesearch>`_ offered by SkyBoT.
+<https://ssp.imcce.fr/webservices/skybot/api/conesearch/>`_ offered by SkyBoT.
 
 A simple cone search for Solar System objects in a circular field
 looks like this:
@@ -212,7 +212,7 @@ details).
 Coordinate Types
 ^^^^^^^^^^^^^^^^
 
-The `Miriade <http://vo.imcce.fr/webservices/miriade/>`_ system offers
+The `Miriade <https://ssp.imcce.fr/webservices/miriade/>`_ system offers
 a range of different *coordinate types* - sets of coordinates and
 properties that can be queried. In agreement with the Miriade webform
 query, the coordinate type in
@@ -459,11 +459,11 @@ Acknowledgements
 ================
 
 This submodule makes use of IMCCE's `SkyBoT
-<http://vo.imcce.fr/webservices/skybot/>`_ VO tool and the `IMCCE
+<https://ssp.imcce.fr/webservices/skybot/>`_ VO tool and the `IMCCE
 Miriade service
-<http://vo.imcce.fr/webservices/miriade/>`_. Additional information on
+<https://ssp.imcce.fr/webservices/miriade//>`_. Additional information on
 SkyBoT can be obtained from `Berthier et al. 2006
-<http://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
+<https://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
 
 Please consider the following notes from IMCCE:
 
@@ -471,13 +471,13 @@ Please consider the following notes from IMCCE:
   acknowledgment would be appreciated: "*This research has made use of
   IMCCE's SkyBoT VO tool*", or cite the following article
   `2006ASPC..351..367B
-  <http://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
+  <https://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
 * If Miriade was helpful for your research work, the following
   acknowledgment would be appreciated: "*This research has made use of
   IMCCE's Miriade VO tool*"
 
 The development of this submodule is funded through NASA PDART Grant
-No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
+No. 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
 
 
 Reference/API

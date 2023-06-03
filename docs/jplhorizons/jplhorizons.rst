@@ -352,7 +352,7 @@ respectively.
 How to Use the Query Tables
 ===========================
 
-`astropy table`_ objects created by the query functions are extremely versatile
+`~astropy.table.Table` objects created by the query functions are extremely versatile
 and easy to use. Since all query functions return the same type of table, they
 can all be used in the same way.
 
@@ -392,7 +392,7 @@ As we have seen before, we can display a truncated version of table
 
 Please note the formatting of this table, which is done automatically. Above the
 dashes in the first two lines, you have the column name and its unit. Every
-column is assigned a unit from `astropy units`_. We will learn later how to use
+column is assigned a unit from `astropy.units`. We will learn later how to use
 these units.
 
 
@@ -523,7 +523,7 @@ same dimensions. For instance, we can turn ``RA_rate`` into ``arcsec / s``:
      0.005284855555555556
 
 
-Please refer to the `astropy table`_ and `astropy units`_ documentations for
+Please refer to the `astropy.table` and `astropy.units` documentations for
 more information.
 
 Hints and Tricks
@@ -631,7 +631,7 @@ Acknowledgements
 This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ system.
 
 The development of this submodule is in part funded through NASA PDART Grant No.
-80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
+80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
 
 
 Reference/API
@@ -640,10 +640,8 @@ Reference/API
 .. automodapi:: astroquery.jplhorizons
     :no-inheritance-diagram:
 
-.. _Solar System Dynamics group at the Jet Propulation Laboratory: http://ssd.jpl.nasa.gov/
-.. _MPC Observatory codes: http://minorplanetcenter.net/iau/lists/ObsCodesF.html
-.. _astropy table: http://docs.astropy.org/en/stable/table/index.html
-.. _astropy units: http://docs.astropy.org/en/stable/units/index.html
+.. _Solar System Dynamics group at the Jet Propulation Laboratory: https://ssd.jpl.nasa.gov/
+.. _MPC Observatory codes: https://minorplanetcenter.net/iau/lists/ObsCodesF.html
 .. _Definition of Observer Table Quantities: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table
 .. _Horizons documentation: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table
 .. _this section of the Horizons manual: <https://ssd.jpl.nasa.gov/horizons/manual.html#center>

@@ -772,7 +772,7 @@ Once you have your cross match finished, you can obtain the results::
   >>> results = job.get_results()
 
 Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.
-For more details about how to run different cross-matches we direct the reader to: https://gea.esac.esa.int/archive-help/tutorials/crossmatch/index.html
+
 
 2.7. Tables sharing
 ~~~~~~~~~~~~~~~~~~~

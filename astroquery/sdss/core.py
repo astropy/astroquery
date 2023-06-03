@@ -68,7 +68,7 @@ class SDSSClass(BaseQuery):
 
         Note that there is a server-side limit of 3 arcmin on ``radius``.
 
-        .. _`primary object`: https://www.sdss.org/dr17/help/glossary/#surveyprimary
+        .. _`primary object`: https://www.sdss4.org/dr17/help/glossary/#surveyprimary
 
         Parameters
         ----------
@@ -948,7 +948,7 @@ class SDSSClass(BaseQuery):
         """
         Download spectral templates from SDSS DR-2.
 
-        Location: http://www.sdss.org/dr7/algorithms/spectemplates/
+        Location: http://classic.sdss.org/dr7/algorithms/spectemplates/
 
         There 32 spectral templates available from DR-2, from stellar spectra,
         to galaxies, to quasars. To see the available templates, do:

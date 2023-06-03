@@ -142,11 +142,11 @@ mast
 - Expanding ``Cutouts`` functionality to support making Hubble Advanced Product (HAP)
   cutouts via HAPCut. [#2613]
 
-- Expanding ``Cutouts`` functionality to support TICA HLSPs now available through 
+- Expanding ``Cutouts`` functionality to support TICA HLSPs now available through
   ``TesscutClass``. [##2668]
 
 - Resolved issue making PANSTARRS catalog queries when columns and sorting is specified. [#2727]
-  
+
 nist
 ^^^^
 
@@ -1418,9 +1418,7 @@ Infrastructure, Utility and Other Changes and Additions
 - ESO archive now supports HARPS/FEROS reprocessed data queries [#412]
 - IPython notebook checker in the ESO tool is now compatible with regular
   python [#413]
-- Added new tool: ALMA archive query tool
-  http://astroquery.readthedocs.io/en/latest/alma/alma.html
-  [#411]
+- Added new tool: ALMA archive query tool. [#411]
 - setup script and installation fixes
 
 0.2 (2014-08-17)
