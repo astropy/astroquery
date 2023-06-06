@@ -1218,13 +1218,10 @@ class HorizonsClass(BaseQuery):
         }
         loc_dict["SITE_COORD"] = f"'{loc_dict['SITE_COORD']}'"
         return loc_dict
-    
+
     @staticmethod
     def _format_site_coords(coords):
         # formats lon/lat/elevation/body (e.g., id and location dictionaries) for the Horizons API
-        ",".join(
-                str(coords[k].to_value()) for k in ['lon', 'lat', 'elevation']
-            )
         return (f"{coords['lon'].to_value('deg')},{coords['lat'].to_value('deg')},"
                 f"{coords['elevation'].to_value('km')}@{coords['body']}")
 
