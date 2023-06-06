@@ -364,9 +364,9 @@ class TestHorizonsClass:
     def test_vectors_query_topocentric_coordinates(self):
         "Test vectors query specifying observer's longitude, latitude, and elevation"
         q = jplhorizons.Horizons(id='Ceres',
-                                location={"lon": 244, "lat": 33, "elevation": 1700},
-                                id_type='smallbody',
-                                epochs=2451544.5)
+                                 location={"lon": 244, "lat": 33, "elevation": 1700},
+                                 id_type='smallbody',
+                                 epochs=2451544.5)
         res = q.vectors_async()
         i = res.text.find("Center geodetic :")
         j = res.text.find("\n", i)
