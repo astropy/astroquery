@@ -103,7 +103,7 @@ as the observer's location, and Ceres as the target:
     ...                location=statue_of_liberty,
     ...                epochs=2458133.33546)
     >>> print(obj)
-    JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093, 'body': 399}, epochs=[2458133.33546], id_type=None
+    JPLHorizons instance "Ceres"; location={'lon': <Quantity -74.0466891 deg>, 'lat': <Quantity 40.6892534 deg>, 'elevation': <Quantity 0.093 km>, 'body': 399}, epochs=[2458133.33546], id_type=None
 
 2. Specifying topocentric coordinates for both location and observer is often
 useful when performing geometric calculations for artificial satellites without
