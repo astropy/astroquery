@@ -20,7 +20,7 @@ class Conf(_config.ConfigNamespace):
         ['https://ssd.jpl.nasa.gov/api/horizons.api', ],
         'JPL Horizons')
 
-    # implement later: sbdb_server = 'http://ssd-api.jpl.nasa.gov/sbdb.api'
+    # implement later: sbdb_server = 'https://ssd-api.jpl.nasa.gov/sbdb.api'
 
     timeout = _config.ConfigItem(
         30,
@@ -29,7 +29,7 @@ class Conf(_config.ConfigNamespace):
     # JPL Horizons settings
 
     # quantities queried in ephemerides query (see
-    # http://ssd.jpl.nasa.gov/?horizons_doc#table_quantities)
+    # https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities)
     # default: all quantities
     eph_quantities = ('1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
                       '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'

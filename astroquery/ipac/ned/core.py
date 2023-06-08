@@ -505,7 +505,7 @@ class NedClass(BaseQuery):
             Other options available: 'author-ascii', 'NED-ascii', 'VO-table'.
 
         """
-        base_url = 'http://ned.ipac.caltech.edu'
+        base_url = 'https://ned.ipac.caltech.edu'
 
         extensions = {'fits': 'fits.gz',
                       'author-ascii': 'txt',

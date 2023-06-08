@@ -60,8 +60,8 @@ class VizierClass(BaseQuery):
             "Unified Content Description" column descriptions.  Specifying
             these will select only catalogs that have columns matching the
             column descriptions defined on the Vizier web pages.
-            See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
-            http://cds.u-strasbg.fr/w/doc/UCD/
+            See https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd and
+            https://vizier.cds.unistra.fr/vizier/doc/UCD/
         vizier_server : string
             Name of the VizieR mirror to use.
             (This parameter's default is set from a configuration object.)
@@ -125,7 +125,7 @@ class VizierClass(BaseQuery):
     @property
     def ucd(self):
         """
-        UCD criteria: see http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd
+        UCD criteria: see https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd
 
         Examples
         --------
@@ -141,7 +141,7 @@ class VizierClass(BaseQuery):
         """
         Not generally meant to be modified, but there are different valid
         return types supported by Vizier, listed here:
-        http://vizier.u-strasbg.fr/doc/asu-summary.htx
+        https://vizier.cds.unistra.fr/doc/asu-summary.htx
 
         HTML: VizieR
         votable: votable
@@ -163,7 +163,7 @@ class VizierClass(BaseQuery):
             raise TypeError("asu-txt is not and cannot be supported: the "
                             "returned tables are not and cannot be made "
                             "parseable.")
-        return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
+        return "https://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
@@ -187,7 +187,7 @@ class VizierClass(BaseQuery):
         ----------
         keywords : list or string
             List of keywords, or space-separated set of keywords.
-            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            From `Vizier <https://vizier.cds.unistra.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
         include_obsolete : bool, optional
@@ -464,7 +464,7 @@ class VizierClass(BaseQuery):
         keyword/value pairs.
 
         See `the vizier constraints page
-        <http://vizier.cfa.harvard.edu/vizier/vizHelp/cst.htx>`_ for details.
+        <https://vizier.cds.unistra.fr/vizier/vizHelp/syntax.htx>`_ for details.
 
         Parameters
         ----------

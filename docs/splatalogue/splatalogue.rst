@@ -269,4 +269,4 @@ Reference/API
 
 .. _Splatalogue: https://www.splatalogue.online
 .. _Splatalogue web service: https://splatalogue.online/
-.. _query interface: https://www.cv.nrao.edu/php/splat/b.php
+.. _query interface: https://splatalogue.online//b.php

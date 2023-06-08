@@ -6,11 +6,11 @@
 CosmoSim Queries (`astroquery.cosmosim`)
 ****************************************
 
-This module allows the user to query and download from one of three 
-cosmological simulation projects: the MultiDark project, the BolshoiP project, 
-and the CLUES project. For accessing these databases a CosmoSim object must 
-first be instantiated with valid credentials (no public username/password 
-are implemented). Below are a couple of examples of usage. 
+This module allows the user to query and download from one of three
+cosmological simulation projects: the MultiDark project, the BolshoiP project,
+and the CLUES project. For accessing these databases a CosmoSim object must
+first be instantiated with valid credentials (no public username/password
+are implemented). Below are a couple of examples of usage.
 
 Requirements
 ============
@@ -35,14 +35,14 @@ Getting started
 Next, enter your credentials; caching is enabled, so after the initial
 successful login no further password is required if desired.
 
-    >>> CS.login(username="uname") 
+    >>> CS.login(username="uname")
     uname, enter your CosmoSim password:
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
-    >>> # If running from a script (rather than an interactive python session): 
+    >>> # If running from a script (rather than an interactive python session):
     >>> # CS.login(username="uname",password="password")
-    
-To store the password associated with your username in the keychain: 
+
+To store the password associated with your username in the keychain:
 
     >>> CS.login(username="uname",store_password=True)
     WARNING: No password was found in the keychain for the provided username. [astroquery.cosmosim.core]
@@ -65,8 +65,8 @@ currently logged in):
 Below is an example of running an SQL query (BDMV mass function of the
 MDR1 cosmological simulation at a redshift of z=0):
 
-    >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(mass)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(mass)/0.25) ORDER BY log_mass" 
-    >>> CS.run_sql_query(query_string=sql_query) 
+    >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(mass)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(mass)/0.25) ORDER BY log_mass"
+    >>> CS.run_sql_query(query_string=sql_query)
     Job created: 359748449665484 #jobid; note: is unique to each and
     every query
 
@@ -75,34 +75,34 @@ Managing CosmoSim Queries
 
 The cosmosim module provides functionality for checking the completion status
 of queries, in addition to deleting them from the server. Below are a
-few examples of functions available to the user for these purposes. 
+few examples of functions available to the user for these purposes.
 
 .. code-block:: python
 
-    >>> CS.check_all_jobs() 
-         JobID        Phase  
+    >>> CS.check_all_jobs()
+         JobID        Phase
     --------------- ---------
     359748449665484 COMPLETED
-    >>> CS.delete_job(jobid='359748449665484') 
+    >>> CS.delete_job(jobid='359748449665484')
     Deleted job: 359748449665484
     >>> CS.check_all_jobs()
-         JobID        Phase  
+         JobID        Phase
     --------------- ---------
 
 The above function 'check_all_jobs' also supports the usage of a
 job's phase status in order to filter through all available CosmoSim
-jobs. 
+jobs.
 
 .. code-block:: python
 
     >>> CS.check_all_jobs()
-         JobID        Phase  
+         JobID        Phase
     --------------- ---------
     359748449665484 COMPLETED
     359748449682647 ABORTED
     359748449628375 ERROR
-    >>> CS.check_all_jobs(phase=['Completed','Aborted']) 
-         JobID        Phase  
+    >>> CS.check_all_jobs(phase=['Completed','Aborted'])
+         JobID        Phase
     --------------- ---------
     359748449665484 COMPLETED
     359748449682647 ABORTED
@@ -115,7 +115,7 @@ arguments blank will delete ALL jobs!
 .. code-block:: python
 
     >>> CS.check_all_jobs()
-         JobID        Phase  
+         JobID        Phase
     --------------- ---------
     359748449665484 COMPLETED
     359748449682647 ABORTED
@@ -123,7 +123,7 @@ arguments blank will delete ALL jobs!
     >>> CS.table_dict()
     {'359748449665484': '2014-09-07T05:01:40:0458'}
     {'359748449682647': 'table2'}
-    {'359748449628375': 'table3'} 
+    {'359748449628375': 'table3'}
     >>> CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
     Deleted job: 359748449682647 (Table: table2)
     Deleted job: 359748449628375 (Table: table3)
@@ -131,8 +131,8 @@ arguments blank will delete ALL jobs!
 Note: Arguments for phase are case insensitive. Now, check to see if
 the jobs have been deleted:
 
-    >>> CS.check_all_jobs() 
-         JobID        Phase  
+    >>> CS.check_all_jobs()
+         JobID        Phase
     --------------- ---------
     359748449665484 COMPLETED
 
@@ -150,29 +150,29 @@ Deleting all jobs, regardless of tablename, and job phase:
 .. code-block:: python
 
     >>> CS.check_all_jobs()
-         JobID        Phase  
+         JobID        Phase
     --------------- ---------
     359748449665484 ABORTED
     359748586913123 COMPLETED
- 
-    >>> CS.delete_all_jobs() 
+
+    >>> CS.delete_all_jobs()
     Deleted job: 359748449665484
     Deleted job: 359748586913123
-    >>> CS.check_all_jobs() 
-         JobID        Phase  
+    >>> CS.check_all_jobs()
+         JobID        Phase
     --------------- ---------
 
 In addition to the phase and regex arguments for 'check_all_jobs',
 selected jobs can be sorted using two properties:
 
     >>> CS.check_all_jobs(phase=['completed'],regex='[a-z]*[0-9]*',sortby='tablename')
-         JobID        Phase   Tablename         Starttime        
+         JobID        Phase   Tablename         Starttime
     --------------- --------- --------- -------------------------
     361298054830707 COMPLETED    table1 2014-09-21T19:28:48+02:00
     361298050841687 COMPLETED    table2 2014-09-21T19:20:23+02:00
 
     >>> CS.check_all_jobs(phase=['completed'],regex='[a-z]*[0-9]*',sortby='starttime')
-         JobID        Phase   Tablename         Starttime        
+         JobID        Phase   Tablename         Starttime
     --------------- --------- --------- -------------------------
     361298050841687 COMPLETED    table2 2014-09-21T19:20:23+02:00
     361298054830707 COMPLETED    table1 2014-09-21T19:28:48+02:00
@@ -182,7 +182,7 @@ Exploring Database Schema
 =========================
 
 A database exploration tool is available to help the user navigate
-the structure of any simulation database in the CosmoSim database. 
+the structure of any simulation database in the CosmoSim database.
 
 Note: '@' precedes entries which are dictionaries
 
@@ -190,33 +190,33 @@ Note: '@' precedes entries which are dictionaries
 
     >>> CS.explore_db()
     Must first specify a database.
-            Projects         Project Items                                      Information                                      
+            Projects         Project Items                                      Information
     ------------------------ ------------- --------------------------------------------------------------------------------------
-                   @ Bolshoi      @ tables                                                                                       
+                   @ Bolshoi      @ tables
                                        id:                                                                                      2
                               description:                                                                  The Bolshoi Database.
     ------------------------ ------------- --------------------------------------------------------------------------------------
-                  @ BolshoiP      @ tables                                                                                       
+                  @ BolshoiP      @ tables
                                        id:                                                                                    119
                               description:                                                              Bolshoi Planck simulation
     ------------------------ ------------- --------------------------------------------------------------------------------------
-               @ Clues3_LGDM      @ tables                                                                                       
+               @ Clues3_LGDM      @ tables
                                        id:                                                                                    134
                               description: CLUES simulation, B64, 186592, WMAP3, Local Group resimulation, 4096, Dark Matter only
     ------------------------ ------------- --------------------------------------------------------------------------------------
-              @ Clues3_LGGas      @ tables                                                                                       
+              @ Clues3_LGGas      @ tables
                                        id:                                                                                    124
                               description:          CLUES simulation, B64, 186592, WMAP3, Local Group resimulation, 4096, Gas+SFR
     ------------------------ ------------- --------------------------------------------------------------------------------------
-                      @ MDPL      @ tables                                                                                       
+                      @ MDPL      @ tables
                                        id:                                                                                    114
                               description:                                                            The MDR1-Planck simulation.
     ------------------------ ------------- --------------------------------------------------------------------------------------
-                      @ MDR1      @ tables                                                                                       
+                      @ MDR1      @ tables
                                        id:                                                                                      7
                               description:                                                        The MultiDark Run 1 Simulation.
     ------------------------ ------------- --------------------------------------------------------------------------------------
-    @ cosmosim_user_username      @ tables                                                                                       
+    @ cosmosim_user_username      @ tables
                                        id:                                                                                 userdb
                               description:                                                                 Your personal database
     ------------------------ ------------- --------------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ Note: '@' precedes entries which are dictionaries
 .. code-block:: python
 
     >>> CS.explore_db(db='MDPL')
-      Projects  Project Items     Tables   
+      Projects  Project Items     Tables
     ----------- ------------- -------------
     --> @ MDPL: --> @ tables:         @ FOF
                            id        @ FOF5
@@ -236,12 +236,12 @@ Note: '@' precedes entries which are dictionaries
                                 @ Redshifts
                                @ LinkLength
                                @ AvailHalos
-                              @ Particles88 
+                              @ Particles88
 
 .. code-block:: python
 
     >>> CS.explore_db(db='MDPL',table='FOF')
-      Projects  Project Items     Tables    Table Items  Table Info Columns 
+      Projects  Project Items     Tables    Table Items  Table Info Columns
     ----------- ------------- ------------- ------------ ---------- --------
     --> @ MDPL: --> @ tables:    --> @ FOF:          id:        934        y
                            id        @ FOF5    @ columns                   x
@@ -279,12 +279,12 @@ Note: '@' precedes entries which are dictionaries
                                                                      snapnum
                                                                     angMom_x
                                                                     angMom_y
-                                                                    angMom_z    
+                                                                    angMom_z
 
 .. code-block:: python
 
     >>> CS.explore_db(db='MDPL',table='FOF',col='fofId')
-      Projects  Project Items     Tables     Table Items     Columns   
+      Projects  Project Items     Tables     Table Items     Columns
     ----------- ------------- ------------- -------------- ------------
     --> @ MDPL: --> @ tables:    --> @ FOF: --> @ columns: --> @ fofId:
                            id        @ FOF5             id       @ disp
@@ -330,11 +330,11 @@ Downloading data
 
 Query results can be downloaded and used in real-time from the command
 line, or alternatively they can be stored on your local machine.
- 
+
 .. code-block:: python
 
-    >>> CS.check_all_jobs() 
-         JobID        Phase  
+    >>> CS.check_all_jobs()
+         JobID        Phase
     --------------- ---------
     359750704009965 COMPLETED
 
@@ -369,11 +369,9 @@ file.
 
 Other formats include votable, votableb1, and votableb2 (the latter
 two are binary files, for easier handling of large data sets; these
-formats can not be used in an interactive python session). 
+formats can not be used in an interactive python session).
 
-Data can be stored and/or written out as a `VOTable`_.
-
-.. _VOTable: http://astropy.readthedocs.io/en/latest/io/votable/
+Data can be stored and/or written out as a `~astropy.io.votable`.
 
 .. code-block:: python
 

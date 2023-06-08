@@ -55,4 +55,4 @@ Reference/API
 
 .. _nasa_ads: http://adsabs.harvard.edu/
 .. _SAO/NASA Astrophysics Data System: https://ui.adsabs.harvard.edu/
-.. _account settings.: https://ui.adsabs.harvard.edu/#user/settings/token
+.. _account settings.: https://ui.adsabs.harvard.edu/user/settings/token

@@ -123,7 +123,7 @@ class ADSClass(BaseQuery):
             return self.TOKEN
         except OSError:
             raise RuntimeError('No API token found! Get yours from: '
-                               'https://ui.adsabs.harvard.edu/#user/settings/token '
+                               'https://ui.adsabs.harvard.edu/user/settings/token '
                                'and store it in the API_DEV_KEY environment variable.')
 
 

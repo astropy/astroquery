@@ -11,7 +11,7 @@ Overview
 The :class:`~astroquery.jplsbdb.SBDBClass` class provides
 an interface to the `Small-Body Database Browser
 <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ (SBDB) maintained by the `JPL
-Solar System Dynamics group <http://ssd.jpl.nasa.gov/>`_.
+Solar System Dynamics group <https://ssd.jpl.nasa.gov/>`_.
 
 The SBDB provides detailed information on a specific known small body,
 including it's orbit, close approaches with major planets, available
@@ -282,7 +282,7 @@ This submodule makes use of the `JPL Horizons
 <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ system.
 
 The development of this submodule is funded through NASA PDART
-Grant No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
+Grant No. 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
 
 
 Reference/API
