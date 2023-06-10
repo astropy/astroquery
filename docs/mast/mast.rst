@@ -1450,18 +1450,23 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
    Length = 77 rows
 
 
-The 'params' parameter for the `~astroquery.mast.MastClass.service_request` method requires a key-value pair
-format, with the key name inside quotation marks. Keys without quotes will produce the following error.
+Many mast services, specifically JWST and Catalog services, require the two principal keywords, columns and filters,
+to list parameters. Positional services will also require right ascension and declination parameters, either in
+addition to columns and filters or on their own. For example, the Cone search service only requires the 'ra' and
+'dec' parameters. Using the wrong service parameters will result in an error. Read the
+`MAST API services documentation <https://mast.stsci.edu/api/v0/_services.html>`__ for more information on valid 
+service parameters.
 
 .. doctest-remote-data::
 
+   >>> from astroquery.mast import Mast
+   ...
    >>> service = 'Mast.Caom.Cone'
-   >>> params = {ra:184.3,
-   ...           dec:54.5,
-   ...           radius:0.2}
+   >>> params = {'columns': "*",
+   ...           'filters': {}}
    >>> observations = Mast.service_request(service, params)
    ...
-   NameError: name 'ra' is not defined
+   RemoteServiceError: Request Object is Missing Required Parameter : RA
    
 
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
