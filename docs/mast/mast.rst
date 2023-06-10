@@ -692,18 +692,6 @@ If no catalog is specified, the Hubble Source Catalog will be queried.
    1.7524423152919317 6382034098672634846    AIS ...              --            0
 
 
-The `~astroquery.mast.CatalogsClass.query_object` method for positional queries
-requires a sky position with a right ascension (RA) between 0 and 360 degrees and
-a declination between -90 and 90 degrees. Any values outside of this range will
-result in an error.
-
-.. doctest-remote-data::
-   
-   >>> catalog_data = Catalogs.query_object("-158.47924 -7.30962", catalog="Galex")
-   ...
-   ResolverError: Could not resolve -158.47924 -7.30962 to a sky position.
-
-
 Some catalogs have a maximum number of results they will return.
 If a query results in this maximum number of results a warning will be displayed to alert
 the user that they might be getting a subset of the true result set.
@@ -855,6 +843,21 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    J165327.01-042546.2 ... https://talk.diskdetective.org/#/subjects/AWI0005ck3
    J165949.90-054300.7 ... https://talk.diskdetective.org/#/subjects/AWI0005ckk
    J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
+
+
+The `~astroquery.mast.CatalogsClass.query_criteria` function requires at least one non-positional parameter.
+These parameters are the column names listed in the `field descriptions <https://mast.stsci.edu/api/v0/pages.html>`__
+of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
+parameters will result in an error.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Catalogs
+   ...
+   >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
+   ...                                        objectname='M101', radius=1)
+   ...
+   InvalidQueryError: At least one non-positional criterion must be supplied.
 
 
 The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
@@ -1032,13 +1035,6 @@ not explicitly called for TICA.
      1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
      2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
-The SkyCoord constructor requires the 'unit' parameter. Unspecified units will result in an error.
-
-.. doctest-remote-data::
-
-   >>> cutout_coord = SkyCoord(107.18696, -70.50919)
-   ...
-   UnitTypeError: Longitude instances require units equivalent to 'rad', but no unit was given.
 
 For users with time-sensitive targets who would like cutouts from the latest observations, 
 we recommend requesting for the TICA product. Using the same target from the example above, 
