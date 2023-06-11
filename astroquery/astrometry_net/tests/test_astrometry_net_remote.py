@@ -172,7 +172,7 @@ def test_solve_from_image_default_behaviour():
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @pytest.mark.remote_data
-def test_solve_from_image_with_return_job_id():
+def test_solve_from_image_with_return_submission_id():
     # Test that solving by uploading an image works
     a = AstrometryNet()
     a.api_key = api_key
@@ -182,6 +182,6 @@ def test_solve_from_image_with_return_job_id():
     result = a.solve_from_source_list(sources['X'], sources['Y'],
                                       4109, 4096,
                                       crpix_center=True,
-                                      return_job_id=True)
+                                      return_submission_id=True)
 
     assert isinstance(result, tuple)
