@@ -34,6 +34,11 @@ This module can be used to query the Barbara A. Mikulski Archive for Space
 Telescopes (MAST). Below are examples of the types of queries that can be used,
 and how to access data products.
 
+.. toctree::
+   :titlesonly:
+   
+   mast_obsquery
+
 Positional Queries
 ------------------
 
