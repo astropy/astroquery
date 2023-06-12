@@ -59,7 +59,7 @@ alma
 - Fixed bug #2489 in which blank URLs were being sent to the downloader [#2490]
 - Removed deprecated broken functions from ``alma.utils``. [#2331]
 
-astrometry.net
+astrometry_net
 ^^^^^^^^^^^^^^
 
 - Added a ``verbose=`` keyword argument to ``AstrometryNet`` to control whether or not
@@ -69,11 +69,10 @@ astrometry.net
   solved by constructing a source list internally before sending data to
   astrometry.net. [#2484]
 
-astrometry.net
-^^^^^^^^^^^^^^
-
 - Avoid duplicated warnings about API key and raise an error only when API key is
   needed but not set. [#2483]
+
+- Added ``return_submission_id`` keyword argument to ``monitor_submission()``. [#2685]
 
 cadc
 ^^^^
