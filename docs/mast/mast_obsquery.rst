@@ -3,8 +3,8 @@
 Observation Queries
 *******************
 
-Queries by Position or Target
-=============================
+Observation Positional Queries
+==============================
 
 Positional queries can be based on a sky position or a target name.
 The observation fields are documented

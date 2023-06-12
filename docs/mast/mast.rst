@@ -35,8 +35,8 @@ Telescopes (MAST). Below are examples of the types of queries that can be used,
 and how to access data products.
 
 .. toctree::
-   :titlesonly:
-   
+   :maxdepth: 2
+
    mast_obsquery
 
 Positional Queries
