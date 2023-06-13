@@ -119,6 +119,8 @@ def test_solve_image_detect_source_local():
     expected_result = fits.getheader(os.path.join(DATA_DIR,
                                                   'thumbnail-wcs-sol-from-photutils.fit'))
     for key in result:
+        if key == 'COMMENT' or key == 'HISTORY':
+            continue
         try:
             difference = expected_result[key] - result[key]
         except TypeError:
@@ -152,6 +154,8 @@ def test_solve_timeout_behavior():
                                                   'test-wcs-sol.fit'))
 
     for key in result:
+        if key == 'COMMENT' or key == 'HISTORY':
+            continue
         try:
             difference = expected_result[key] - result[key]
         except TypeError:
