@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import os
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 # performs similar tests as test_module.py, but performs
@@ -13,6 +13,7 @@ import pytest
 
 from astropy.table import Table
 from astropy.io import fits
+from astropy.wcs import WCS
 
 from .. import conf, AstrometryNet
 from ..core import _HAVE_SOURCE_DETECTION
@@ -35,6 +36,33 @@ def data_path(filename):
 api_key = conf.api_key or os.environ.get('ASTROMETRY_NET_API_KEY')
 
 
+def _calculate_wcs_separation_at_points(wcses, center, extent):
+    """
+    Calculate the maximum separation between the given WCS solutions at a grid of points.
+
+    Parameters
+    ----------
+    wcses : list of `~astropy.wcs.WCS`
+        The WCS solutions to compare.
+    center : tuple of float
+        The center of the grid of points to use for the comparison.
+    extent : int
+        The extent of the grid of points to use for the comparison.
+
+    Returns
+    -------
+    max_separation : float
+        The maximum separation between the WCS solutions at the grid of points.
+    """
+    grid_points = np.mgrid[center[0] - extent // 2:center[0] + extent // 2,
+                           center[1] - extent // 2:center[1] + extent // 2]
+
+    result_location = wcses[0].pixel_to_world(grid_points[0], grid_points[1])
+    expected_location = wcses[1].pixel_to_world(grid_points[0], grid_points[1])
+
+    return result_location.separation(expected_location)
+
+
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @pytest.mark.remote_data
 def test_solve_by_source_list():
@@ -43,19 +71,25 @@ def test_solve_by_source_list():
     sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
     # The image_width, image_height and crpix_center below are set to match the
     # original solve on astrometry.net.
+    image_width = 4109
+    image_height = 4096
     result = a.solve_from_source_list(sources['X'], sources['Y'],
-                                      4109, 4096,
+                                      image_width, image_height,
                                       crpix_center=True)
 
     expected_result = fits.getheader(os.path.join(DATA_DIR,
-                                                  'test-wcs-sol.fit'))
+                                                  'wcs-sol-from-source-list-index-5200.fit'))
 
-    for key in result:
-        try:
-            difference = expected_result[key] - result[key]
-        except TypeError:
-            pass
-        assert difference == 0
+    wcs_r = WCS(result)
+    wcs_e = WCS(header=expected_result)
+    # Check that, at a a grid of points roughly in the center of the image, the WCS
+    # solutions are the same to within 0.1 arcsec.
+    # The grid created below covers about 1/4 of the pixels in the image.
+    center = np.array([image_width // 2, image_height // 2])
+    extent = image_width // 2
+
+    separations = _calculate_wcs_separation_at_points([wcs_r, wcs_e], center, extent)
+    assert (separations.arcsec).max() < 0.1
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
@@ -65,20 +99,28 @@ def test_solve_image_upload():
     a = AstrometryNet()
     a.api_key = api_key
     image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
+
+    image_width = 256
+    image_height = 256
     # The test image only solves if it is not downsampled
+
     result = a.solve_from_image(image,
                                 force_image_upload=True,
-                                downsample_factor=1)
                                 downsample_factor=1,
                                 crpix_center=True)
     expected_result = fits.getheader(os.path.join(DATA_DIR,
-                                                  'thumbnail-wcs-sol.fit'))
-    for key in result:
-        try:
-            difference = expected_result[key] - result[key]
-        except TypeError:
-            pass
-        assert difference == 0
+                                                  'wcs-sol-from-thumbnail-image-index-5200.fit'))
+
+    wcs_r = WCS(result)
+    wcs_e = WCS(header=expected_result)
+    # Check that, at a a grid of points roughly in the center of the image, the WCS
+    # solutions are the same to within 0.1 arcsec.
+    # The grid created below covers all of this small image.
+    center = np.array([image_width // 2, image_height // 2])
+    extent = image_width
+
+    separations = _calculate_wcs_separation_at_points([wcs_r, wcs_e], center, extent)
+    assert (separations.arcsec).max() < 0.1
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
@@ -107,6 +149,9 @@ def test_solve_image_detect_source_local():
     a = AstrometryNet()
     a.api_key = api_key
     image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
+
+    image_width = 256
+    image_height = 256
     # The source detection parameters below (fwhm, detect_threshold)
     # are specific to this test image. They should not be construed
     # as a general recommendation.
@@ -116,8 +161,33 @@ def test_solve_image_detect_source_local():
                                 fwhm=1.5, detect_threshold=5,
                                 center_ra=135.618, center_dec=49.786,
                                 radius=0.5, crpix_center=True)
+
+    # Use the result from the image solve for this test. The two WCS solutions really should be
+    # nearly identical in thesee two cases. Note that the closeness of the match is affected by the
+    # very low resolution of these images (256 x 256 pixels). That low resolution was
+    # chosen to keep the test data small.
     expected_result = fits.getheader(os.path.join(DATA_DIR,
-                                                  'thumbnail-wcs-sol-from-photutils.fit'))
+                                                  'wcs-sol-from-thumbnail-image-index-5200.fit'))
+
+    wcs_r = WCS(result)
+    wcs_e = WCS(header=expected_result)
+
+    # Check that, at a a grid of points roughly in the center of the image, the WCS
+    # solutions are the same to within 0.1 arcsec.
+    # The grid created below covers all of this small image.
+    center = np.array([image_width // 2, image_height // 2])
+    extent = image_width
+
+    separations = _calculate_wcs_separation_at_points([wcs_r, wcs_e], center, extent)
+
+    # The tolerance is higher here than in the other tests because of the
+    # low resolution of the test image. It leads to a difference in calculated
+    # coordinates of up to 2 arcsec across the whole image. The likely reason
+    # is that the source detection method is different locally than on
+    # astrometry.net.
+    assert (separations.arcsec).max() < 2.2
+
+    # The headers should also be about the same in this case.
     for key in result:
         if key == 'COMMENT' or key == 'HISTORY':
             continue
@@ -151,7 +221,7 @@ def test_solve_timeout_behavior():
     result = a.monitor_submission(submission_id, solve_timeout=120)
 
     expected_result = fits.getheader(os.path.join(DATA_DIR,
-                                                  'test-wcs-sol.fit'))
+                                                  'wcs-sol-from-source-list-index-5200.fit'))
 
     for key in result:
         if key == 'COMMENT' or key == 'HISTORY':
