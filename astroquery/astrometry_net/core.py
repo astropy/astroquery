@@ -15,7 +15,7 @@ else:
     _HAVE_CCDDATA = True
 
 try:
-    from photutils import DAOStarFinder
+    from photutils.detection import DAOStarFinder
 except ImportError:
     _HAVE_SOURCE_DETECTION = False
 else:
