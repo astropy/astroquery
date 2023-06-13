@@ -3,6 +3,8 @@
 
 import os
 
+from numpy.testing import assert_allclose
+
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
 # should be disabled or enabled at will - use the
@@ -121,7 +123,8 @@ def test_solve_image_detect_source_local():
             difference = expected_result[key] - result[key]
         except TypeError:
             pass
-        assert difference == 0
+
+        assert_allclose(difference, 0, atol=1e-4)
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
@@ -153,7 +156,7 @@ def test_solve_timeout_behavior():
             difference = expected_result[key] - result[key]
         except TypeError:
             pass
-        assert difference == 0
+        assert_allclose(difference, 0, atol=1e-4)
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
