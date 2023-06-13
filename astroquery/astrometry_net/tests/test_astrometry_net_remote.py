@@ -67,6 +67,8 @@ def test_solve_image_upload():
     result = a.solve_from_image(image,
                                 force_image_upload=True,
                                 downsample_factor=1)
+                                downsample_factor=1,
+                                crpix_center=True)
     expected_result = fits.getheader(os.path.join(DATA_DIR,
                                                   'thumbnail-wcs-sol.fit'))
     for key in result:
@@ -111,7 +113,7 @@ def test_solve_image_detect_source_local():
                                 downsample_factor=1,
                                 fwhm=1.5, detect_threshold=5,
                                 center_ra=135.618, center_dec=49.786,
-                                radius=0.5)
+                                radius=0.5, crpix_center=True)
     expected_result = fits.getheader(os.path.join(DATA_DIR,
                                                   'thumbnail-wcs-sol-from-photutils.fit'))
     for key in result:
