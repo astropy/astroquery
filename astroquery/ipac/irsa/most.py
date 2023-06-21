@@ -22,12 +22,9 @@ class MostClass(BaseQuery):
     URL = conf.most_server
     TIMEOUT = conf.timeout
 
-    def __init__(self):
-        super().__init__()
-
     def _validate_name_input_type(self, params):
         """
-        Validate required parameters when `input_type='name_input'`.
+        Validate required parameters when ``input_type='name_input'``.
 
         Parameters
         ----------
@@ -45,7 +42,7 @@ class MostClass(BaseQuery):
 
     def _validate_nafid_input_type(self, params):
         """
-        Validate required parameters when `input_type='naifid_input'`.
+        Validate required parameters when ``input_type='naifid_input'``.
 
 
         Parameters
@@ -64,7 +61,7 @@ class MostClass(BaseQuery):
 
     def _validate_mpc_input_type(self, params):
         """
-        Validate required parameters when `input_type='mpc_input'`.
+        Validate required parameters when ``input_type='mpc_input'``.
 
         Parameters
         ----------
@@ -88,7 +85,7 @@ class MostClass(BaseQuery):
 
     def _validate_manual_input_type(self, params):
         """
-        Validate required parameters when `input_type='manual_input'`.
+        Validate required parameters when ``input_type='manual_input'``.
 
         Parameters
         ----------
@@ -103,9 +100,9 @@ class MostClass(BaseQuery):
         """
         obj_type = params.get("obj_type", False)
         if not obj_type:
-            raise ValueError("When input type is 'mpc_input' key 'obj_type' is required.")
+            raise ValueError("When input type is 'manual_input' key 'obj_type' is required.")
         if obj_type not in ("Asteroid", "Comet"):
-            raise ValueError("Object type is case sensitive and must be one of: `Asteroid` or `Comet`")
+            raise ValueError("Object type is case sensitive and must be one of: 'Asteroid' or 'Comet'")
 
         # MOST will always require at least the distance and eccentricity
         # distance param is named differently in cases of asteroids and comets
@@ -128,8 +125,8 @@ class MostClass(BaseQuery):
         Validate the minimum required set of parameters, for a given input
         type, are at least truthy.
 
-        These include the keys `catalog`, `input_type`, `output_mode` and
-        `ephem_step` in addition to keys required by the specified input type.
+        These include the keys ``catalog``, ``input_type``, ``output_mode`` and
+        ``ephem_step`` in addition to keys required by the specified input type.
 
         Parameters
         ----------
@@ -159,13 +156,13 @@ class MostClass(BaseQuery):
             self._validate_manual_input_type(params)
         else:
             raise ValueError(
-                "Unrecognized `input_type`. Expected `name_input`, `nafid_input` "
+                "Unrecognized 'input_type'. Expected `name_input`, `nafid_input` "
                 f"`mpc_input` or `manual_input`, got {input_type} instead."
             )
 
     def _parse_full_regular_response(self, response, withTarballs=False):
         """
-        Parses the response when output type is set to `Regular` or `Full`.
+        Parses the response when output type is set to ``"Regular"`` or ``"Full"``.
 
         Parameters
         ----------
@@ -178,14 +175,14 @@ class MostClass(BaseQuery):
         Returns
         -------
         retdict : `dict`
-            Dictionary containing the keys `results`, `metadata` and `region`.
-            Optionally can contain keys `fits_tarball` and `region_tarball`.
-            The `results` and `metadata` are an `astropy.table.Table` object
+            Dictionary containing the keys ``results``, ``metadata`` and ``region``.
+            Optionally can contain keys ``fits_tarball`` and ``region_tarball``.
+            The ``results`` and ``metadata`` are an `astropy.table.Table` object
             containing the links to image and region files and minimum object
-            metadata, while `metadata` contains the image metadata and object
-            positions. The `region` key contains a link to the DS9 region file
+            metadata, while ``metadata`` contains the image metadata and object
+            positions. The ``region`` key contains a link to the DS9 region file
             representing the matched object trajectory and search boxes. When
-            existing, `fits_tarball` and `region_tarball` are links to the
+            existing, ``fits_tarball`` and ``region_tarball`` are links to the
             tarball archives of the fits and region images.
         """
         retdict = {}
@@ -220,9 +217,9 @@ class MostClass(BaseQuery):
         catalog_dropdown_options = html.find("select").find_all("option")
 
         catalogs = [tag.string for tag in catalog_dropdown_options]
-        # I think I saw somewhere that some password prompt will pop up for
-        # catalogs listed as '--- Internal use only:' but there are seemingly
-        # no limits to queries there.
+
+        # The Internal-Use-only datasets are free to search in MOST.
+        # The way it is supposed to work is that the images will not be accessible.
         if "--- Internal use only:" in catalogs:
             catalogs.remove("--- Internal use only:")
         return catalogs
@@ -531,8 +528,7 @@ class MostClass(BaseQuery):
                                  data=qparams, timeout=self.TIMEOUT)
 
         # service unreachable or some other reason
-        if not response.ok:
-            raise response.raise_for_status()
+        response.raise_for_status()
 
         # MOST will not raise an bad response if the query is bad because they
         # are not a REST API
@@ -550,7 +546,7 @@ class MostClass(BaseQuery):
             matches = votable.parse(io.BytesIO(response.content))
             if matches.get_table_by_index(0).nrows == 0:
                 warnings.warn("Number of Matched Image Frames   = 0", NoResultsWarning)
-                return None
+                return Table()
             return matches
         else:
             return self._parse_full_regular_response(response, qparams["fits_region_files"])

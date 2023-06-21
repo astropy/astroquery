@@ -97,7 +97,7 @@ dist_ctr       Projected distance  from the center of the image (deg).
 phase          Sun-Object-earth angle (deg).
 vmag           Estimate of visual magnitude (from Horizons).
 image_url      Links to download or view the data.
-postcard_url   ??? usually ``null``
+postcard_url   Currently ``null``.  It is waiting for a future dataset that may have a png along with the image.
 region_file    Markers for the moving object in DS9 "region" format.
 ============   ===============================================================
 
@@ -445,5 +445,4 @@ key:
 Reference/API
 =============
 
-.. automodule:: astroquery.ipac.irsa.most
-   :members:
+See `~astroquery.ipac.irsa.most.MostClass` and `~astroquery.ipac.irsa.Conf`.

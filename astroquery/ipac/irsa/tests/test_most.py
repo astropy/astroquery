@@ -87,10 +87,10 @@ def patch_requests(request):
 
 def test_validation(patch_requests):
     """Tests MOST parameter validation."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="When input type is 'name_input' key 'obj_name' is required."):
         Most.query_object()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="When input type is 'name_input' key 'obj_name' is required."):
         Most.query_object(catalog="wise_allsky_4band")
 
     # make sure no funny business happens with
@@ -105,7 +105,7 @@ def test_validation(patch_requests):
         input_mode="name_input"
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="When obj_type is 'Asteroid', 'semimajor_axis' is required."):
         # fails because insufficient orbital parameters specified
         Most.query_object(
             catalog="wise_allsky_4band",
@@ -125,7 +125,7 @@ def test_validation(patch_requests):
         eccentricity=0.33,
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="When obj_type is 'Comet', 'perih_dist' is required."):
         # Comets require perihel_dist keyword
         # instead of smimajor_axis
         Most.query_object(
@@ -137,7 +137,7 @@ def test_validation(patch_requests):
             eccentricity=0.33
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Object type is case sensitive and must be one of: 'Asteroid' or 'Comet'"):
         # object type is case sensitive
         Most.query_object(
             catalog="wise_allsky_4band",
@@ -148,7 +148,7 @@ def test_validation(patch_requests):
             eccentricity=0.33
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="When input type is 'mpc_input' key 'obj_type' is required."):
         # missing mpc_data and obj_type
         Most.query_object(
             catalog="wise_allsky_4band",
@@ -156,33 +156,34 @@ def test_validation(patch_requests):
             input_mode="mpc_input"
         )
 
-    Most.query_object(
+    response = Most.query_object(
         catalog="wise_allsky_4band",
         output_mode="Brief",
         input_mode="mpc_input",
         obj_type="Asteroid",
         mpc_data="K10N010+2010+08+16.1477+1.494525+0.533798+153.4910+113.2118+12.8762+20100621+17.0+4.0+P/2010+N1+(WISE)+MPC+75712"  # noqa: E501
     )
+    assert len(response) > 0
 
 
 def test_regular(patch_requests):
     """Tests the default MOST query returns expected results."""
-    response = Most.query_object(obj_name="Victoria")
+    results = Most.query_object(obj_name="Victoria")
 
-    assert "results" in response
-    assert "metadata" in response
-    assert "region" in response
-    assert "fits_tarball" not in response
-    assert "region_tarball" not in response
+    assert "results" in results
+    assert "metadata" in results
+    assert "region" in results
+    assert "fits_tarball" not in results
+    assert "region_tarball" not in results
 
-    results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
-    metadata = Table.read(data_path("most_imgframes_matched_final_table.tbl"), format="ipac")
+    expected_results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
+    expected_metadata = Table.read(data_path("most_imgframes_matched_final_table.tbl"), format="ipac")
     url = REGULAR_BASE_URL + "ds9region/ds9_orbit_path.reg"
 
     silent_stream = io.StringIO()
-    assert report_diff_values(results, response["results"], silent_stream)
-    assert report_diff_values(metadata, response["metadata"], silent_stream)
-    assert url == response["region"]
+    assert report_diff_values(expected_results, results["results"], silent_stream)
+    assert report_diff_values(expected_metadata, results["metadata"], silent_stream)
+    assert url == results["region"]
 
 
 def test_get_full_with_tarballs(patch_requests):

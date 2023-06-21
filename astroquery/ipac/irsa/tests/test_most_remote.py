@@ -1,14 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import pytest
-import warnings
 
 import numpy as np
 
 import astropy.io.fits as fits
 from astropy.table import Table
 from astroquery.ipac.irsa import Most
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, NoResultsWarning
 
 # each MOST query is given a PID and a temporary directory availible publicly
 # from this base URL. This URL is then used to create links on the returned
@@ -26,37 +25,38 @@ def data_path(filename):
 @pytest.mark.remote_data
 def test_query_object():
     """Tests the default MOST query returns expected results."""
-    response = Most.query_object(
+    results = Most.query_object(
         obj_name="Victoria",
         obs_begin="2014-05-21",
         obs_end="2014-05-30"
     )
 
     # check expected fields were returned
-    assert "results" in response
-    assert "metadata" in response
-    assert "region" in response
-    assert "fits_tarball" not in response
-    assert "region_tarball" not in response
+    assert "results" in results
+    assert "metadata" in results
+    assert "region" in results
+    assert "fits_tarball" not in results
+    assert "region_tarball" not in results
 
     # check content is as expected for the columns we don't expect to change
-    # This excludes URLS, they contain PIDs. The rest can be compared, but the
+    # This excludes URLS; they contain PIDs. The rest can be compared, but the
     # problem is that report_diff_values doesn't sort the values and they are
     # not returned in same order nor header width. So we have to compare
     # manually
-    results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
+    expected_results = Table.read(data_path("most_regular_results.tbl"), format="ipac")
 
-    columns = [col for col in results.columns if col not in ("image_url", "postcard_url", "region_file")]
+    columns = [col for col in expected_results.columns if col not in ("image_url", "postcard_url", "region_file")]
     for col in columns:
-        response_col = response["results"][col]
-        results_col = results[col]
-        response_col.sort()
+        results_col = results["results"][col]
+        expected_results_col = expected_results[col]
         results_col.sort()
-        if 'float' in response_col.dtype.name:
-            assert np.allclose(response_col, results_col, rtol=0.005)
+        expected_results_col.sort()
+        if 'float' in results_col.dtype.name:
+            assert np.allclose(results_col, expected_results_col, rtol=0.005)
         else:
-            # probably a string like Img_ID or datetime stamps
-            assert all(response_col == results_col)
+            # probably a string like Img_ID or datetime stamps so direct
+            # comparison is ok
+            assert all(results_col == expected_results_col)
 
 
 @pytest.mark.remote_data
@@ -91,8 +91,7 @@ def test_list_catalogs():
 
 @pytest.mark.remote_data
 def test_no_results():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+    with pytest.warns(NoResultsWarning, match="Number of Matched Image Frames   = 0"):
         response = Most.query_object(
             obj_name="Victoria",
             obs_begin="2019-05-21",
@@ -101,8 +100,7 @@ def test_no_results():
 
     assert response is None
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+    with pytest.warns(NoResultsWarning, match="Number of Matched Image Frames   = 0"):
         response = Most.get_images(
             obj_name="Victoria",
             obs_begin="2019-05-21",
@@ -114,14 +112,16 @@ def test_no_results():
 
 @pytest.mark.remote_data
 def test_invalid_query():
-    with pytest.raises(InvalidQueryError):
+    err_msg = r".*observation time start time must be less than end time.*"
+
+    with pytest.raises(InvalidQueryError, match=err_msg):
         Most.query_object(
             obj_name="Victoria",
             obs_begin="2014-05-21",
             obs_end="2014-05-19"
         )
 
-    with pytest.raises(InvalidQueryError):
+    with pytest.raises(InvalidQueryError, match=err_msg):
         Most.get_images(
             obj_name="Victoria",
             obs_begin="2014-05-21",
