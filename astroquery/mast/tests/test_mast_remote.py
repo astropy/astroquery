@@ -386,6 +386,7 @@ class TestMast:
         assert result == ('COMPLETE', None, None)
 
     def test_get_cloud_uri(self):
+        pytest.importorskip("boto3")
         test_obs_id = '25568122'
 
         # get a product list
@@ -403,6 +404,7 @@ class TestMast:
         assert len(uri) > 0, f'Product for OBSID {test_obs_id} was not found in the cloud.'
 
     def test_get_cloud_uris(self):
+        pytest.importorskip("boto3")
         test_obs_id = '25568122'
 
         # get a product list
