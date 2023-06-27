@@ -854,7 +854,7 @@ parameters will result in an error.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
+   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",
    ...                                        objectname='M101', radius=1)
    ...
    InvalidQueryError: At least one non-positional criterion must be supplied.
@@ -922,14 +922,6 @@ Given an HSC Match ID, return all catalog results.
    410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
 
-"MatchID" is case sensitive in this case, and will produce an error with different
-capitalization.
-
-.. doctest-remote-data::
-
-   >>> matchid = catalog_data[0]["matchid"]
-   ...
-   KeyError: 'matchid'
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
 does not take any arguments, and simply loads all HSC spectra.
@@ -1450,9 +1442,9 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
    Length = 77 rows
 
 
-Many mast services, specifically JWST and Catalog services, require the two principal keywords, columns and filters,
+Many mast services, specifically JWST and Catalog services, require the two principal keywords, 'columns' and 'filters',
 to list parameters. Positional services will also require right ascension and declination parameters, either in
-addition to columns and filters or on their own. For example, the Cone search service only requires the 'ra' and
+addition to columns and filters or on their own. For example, the cone search service only requires the 'ra' and
 'dec' parameters. Using the wrong service parameters will result in an error. Read the
 `MAST API services documentation <https://mast.stsci.edu/api/v0/_services.html>`__ for more information on valid 
 service parameters.
