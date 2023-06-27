@@ -134,6 +134,20 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
               image           2          GALEX ... 1000055044                0.0
               image           2          GALEX ... 1000055047 229.81061601101433
 
+We encourage the use of wildcards particularly when querying for JWST instruments
+with the instrument_name criteria. This is because of the varying instrument names
+for JWST science instruments, which you can read more about on the MAST page for
+`JWST Instrument Names <https://outerspace.stsci.edu/display/MASTDOCS/JWST+Instrument+Names>`__.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> obs_table = Observations.query_criteria(proposal_pi="Espinoza, Nestor",
+   ...                                         instrument_name="NIRISS*")
+   >>> set(obs_table['instrument_name'])  # doctest: +IGNORE_OUTPUT
+   {'NIRISS', 'NIRISS/IMAGE', 'NIRISS/SOSS'}
+
 
 Getting Observation Counts
 --------------------------
