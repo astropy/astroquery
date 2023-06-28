@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import requests
 import os
 
 from bs4 import BeautifulSoup
@@ -277,7 +278,8 @@ class CDMSClass(BaseQuery):
 
         return result
 
-    def get_species_table(self, *, catfile='catdir.cat'):
+    def get_species_table(self, *, catfile='catdir.cat', use_cached=True,
+                          catfile_url=conf.catfile_url):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -299,8 +301,10 @@ class CDMSClass(BaseQuery):
 
         """
 
-        result = ascii.read(data_path('catdir.cat'), format='csv',
-                            delimiter='|')
+        if use_cached:
+            result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
+        else:
+            result = retrieve_catfile(catfile_url)
 
         meta = {'lg(Q(1000))': 1000.0,
                 'lg(Q(500))': 500.0,
@@ -364,7 +368,7 @@ class Lookuptable(dict):
             Can be entered non-specific for broader results
             ('H2O' yields 'H2O' but will also yield 'HCCCH2OD')
             or as the specific desired regular expression for
-            catered results, for example: ('H20$' yields only 'H2O')
+            catered results, for example: ('H2O$' yields only 'H2O')
 
         flags : int
             Regular expression flags.
@@ -390,9 +394,24 @@ class Lookuptable(dict):
 def build_lookup():
 
     result = CDMS.get_species_table()
-    keys = list(result[1][:])  # convert NAME column to list
-    values = list(result[0][:])  # convert TAG column to list
+    keys = list(result['molecule'][:])  # convert NAME column to list
+    values = list(result['tag'][:])  # convert TAG column to list
     dictionary = dict(zip(keys, values))  # make k,v dictionary
     lookuptable = Lookuptable(dictionary)  # apply the class above
 
     return lookuptable
+
+
+def retrieve_catfile(url='https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html'):
+    """
+    Simple retrieve index function
+    """
+    response = requests.get(url)
+    response.raise_for_status()
+    tbl = ascii.read(response.text, header_start=None, data_start=15, data_end=-5,
+                     names=['tag', 'molecule', '#lines', 'lg(Q(1000))', 'lg(Q(500))', 'lg(Q(300))', 'lg(Q(225))',
+                            'lg(Q(150))', 'lg(Q(75))', 'lg(Q(37.5))', 'lg(Q(18.75))', 'lg(Q(9.375))', 'lg(Q(5.000))',
+                            'lg(Q(2.725))'],
+                     col_starts=(0, 7, 34, 41, 53, 66, 79, 92, 106, 117, 131, 145, 159, 173),
+                     format='fixed_width', delimiter=' ')
+    return tbl

@@ -128,10 +128,10 @@ Reference/API section.
 Looking Up More Information from the catdir.cat file
 ------------------------------------------------------
 
-If you have found a molecule you are interested in, the TAG field in the
+If you have found a molecule you are interested in, the ``tag`` column in the
 results provides enough information to access specific molecule information
 such as the partition functions at different temperatures. Keep in mind that a
-negative TAG value signifies that the line frequency has been measured in the
+negative ``tag`` value signifies that the line frequency has been measured in the
 laboratory but not in space
 
 .. doctest-remote-data::
@@ -139,11 +139,11 @@ laboratory but not in space
    >>> import matplotlib.pyplot as plt
    >>> from astroquery.linelists.cdms import CDMS
    >>> result = CDMS.get_species_table()
-   >>> mol = result[result['TAG'] == 28503]
+   >>> mol = result[result['tag'] == 28503]
    >>> mol.pprint(max_width=160)
-     TAG    NAME  NLINE lg(Q(1000)) lg(Q(500)) lg(Q(300)) lg(Q(225)) lg(Q(150)) lg(Q(75)) lg(Q(37.5)) lg(Q(18.75)) lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725))
-    ----- ------- ----- ----------- ---------- ---------- ---------- ---------- --------- ----------- ------------ ------------ ------------ ------------
-    28503 CO, v=0    95      2.5595     2.2584     2.0369     1.9123      1.737    1.4386      1.1429       0.8526       0.5733       0.3389       0.1478
+   tag  molecule #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) lg(Q(225)) lg(Q(150)) lg(Q(75)) lg(Q(37.5)) lg(Q(18.75)) lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725))
+   ----- -------- ------ ----------- ---------- ---------- ---------- ---------- --------- ----------- ------------ ------------ ------------ ------------
+   28503  CO, v=0     95      2.5595     2.2584     2.0369     1.9123      1.737    1.4386      1.1429       0.8526       0.5733       0.3389       0.1478
 
 
 One of the advantages of using CDMS is the availability in the catalog of the
@@ -171,7 +171,7 @@ shown below:
    from astroquery.linelists.cdms import CDMS
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 28503]  # do not include signs of TAG for this
+   mol = result[result['tag'] == 28503]  # do not include signs of tag for this
    keys = [k for k in mol.keys() if 'lg' in k]
    temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
    part = list(mol[keys][0])
@@ -194,7 +194,7 @@ other temperatures using curve fitting models:
    >>> from scipy.optimize import curve_fit
    ...
    >>> result = CDMS.get_species_table()
-   >>> mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
+   >>> mol = result[result['tag'] == 30501] #do not include signs of tag for this
    ...
    >>> def f(T, a):
            return np.log10(a*T**(1.5))
@@ -227,7 +227,7 @@ other temperatures using curve fitting models:
    from scipy.optimize import curve_fit
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 30501]  # do not include signs of TAG for this
+   mol = result[result['tag'] == 30501]  # do not include signs of tag for this
    def f(T, a):
        return np.log10(a*T**(1.5))
    keys = [k for k in mol.keys() if 'lg' in k]
@@ -272,7 +272,7 @@ We can then compare linear interpolation to the fitted interpolation above:
    from scipy.optimize import curve_fit
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 30501]  # do not include signs of TAG for this
+   mol = result[result['tag'] == 30501]  # do not include signs of tag for this
    def f(T, a):
        return np.log10(a*T**(1.5))
    keys = [k for k in mol.keys() if 'lg' in k]
