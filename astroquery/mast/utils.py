@@ -77,8 +77,8 @@ def _simple_request(url, params):
     """
 
     session = requests.session()
-    headers = {"User-Agent": "astroquery/{} ({} {}) {}".format(
-        version, platform.system(), sys.version, session.headers['User-Agent']),
+    old_user_agent = session.headers['User-Agent']
+    headers = {"User-Agent": f"astroquery/{version} ({platform.system()} {sys.version}) {old_user_agent}",
                "Content-type": "application/x-www-form-urlencoded",
                "Accept": "text/plain"}
 
