@@ -4,10 +4,10 @@
 New Tools and Services
 ----------------------
 
-ipac.irsa.most
-^^^^^^^^^^^^^^
+ipac.irsa
+^^^^^^^^^
 
-- New module to access the Moving Object Search Tool (MOST) added. [#2660]
+- New class to access the Moving Object Search Tool (MOST) added. [#2660]
 
 gaia
 ^^^^

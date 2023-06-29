@@ -1,6 +1,8 @@
-******************************
-IRSA Moving Object Search Tool
-******************************
+.. _astroquery.ipac.irsa.most:
+
+**********************************************************
+IRSA Moving Object Search Tool (astroquery.ipac.irsa.most)
+**********************************************************
 
 Moving Object Search Tool (MOST) can determine the orbit for a given solar system
 object then find images that covered the object's predicted positions in select
@@ -358,19 +360,19 @@ asteroid `Victoria <https://en.wikipedia.org/wiki/12_Victoria>`_ as:
     ...                   obs_begin="2014-05-29",
     ...                   obs_end="2014-05-30")
     <Table length=10>
-      ra_obj    dec_obj  sun_dist geo_dist ... saa_sep qual_frame image_set
-     float64    float64  float64  float64  ... float64   int64      int64
-    ---------- --------- -------- -------- ... ------- ---------- ---------
-    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
-    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
-    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
-    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
-    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
-    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
-    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
-    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
-     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
-     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+      ra_obj    dec_obj  sun_dist geo_dist ... moon_sep saa_sep qual_frame image_set
+     float64    float64  float64  float64  ... float64  float64   int64      int64
+    ---------- --------- -------- -------- ... -------- ------- ---------- ---------
+    333.539704 -0.779309   1.8179   1.4638 ...  102.339  15.039         10         6
+    333.539704 -0.779309   1.8179   1.4638 ...  102.339  15.039         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  103.825  46.517         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  103.825  46.517         10         6
+    333.638286  -0.71525   1.8179   1.4614 ...  105.327  89.053         10         6
+    333.638286  -0.71525   1.8179   1.4614 ...  105.327  89.053         10         6
+    333.687495 -0.683205   1.8178   1.4603 ...  106.803 115.076         10         6
+    333.687495 -0.683205   1.8178   1.4603 ...  106.803 115.076         10         6
+    333.736581 -0.651221   1.8178   1.4591 ...  108.294  73.321         10         6
+    333.736581 -0.651221   1.8178   1.4591 ...  108.294  73.321         10         6
 
 To return more than just a table of image identifiers, use one of the more
 verbose output modes - ``Regular`` or ``Full``.
@@ -388,19 +390,19 @@ verbose output modes - ``Regular`` or ``Full``.
     dict_keys(['results', 'metadata', 'region', 'fits_tarball', 'region_tarball'])
     >>> matched["metadata"]
     <Table length=10>
-      ra_obj    dec_obj  sun_dist geo_dist ... saa_sep qual_frame image_set
-     float64    float64  float64  float64  ... float64   int64      int64
-    ---------- --------- -------- -------- ... ------- ---------- ---------
-    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
-    333.539704 -0.779309   1.8179   1.4638 ...  15.039         10         6
-    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
-    333.589056 -0.747249   1.8179   1.4626 ...  46.517         10         6
-    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
-    333.638285  -0.71525   1.8179   1.4614 ...  89.053         10         6
-    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
-    333.687494 -0.683205   1.8178   1.4603 ... 115.076         10         6
-     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
-     333.73658 -0.651221   1.8178   1.4591 ...  73.321         10         6
+      ra_obj    dec_obj  sun_dist geo_dist ... moon_sep saa_sep qual_frame image_set
+     float64    float64  float64  float64  ... float64  float64   int64      int64
+    ---------- --------- -------- -------- ... -------- ------- ---------- ---------
+    333.539704 -0.779309   1.8179   1.4638 ...  102.339  15.039         10         6
+    333.539704 -0.779309   1.8179   1.4638 ...  102.339  15.039         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  103.825  46.517         10         6
+    333.589056 -0.747249   1.8179   1.4626 ...  103.825  46.517         10         6
+    333.638286  -0.71525   1.8179   1.4614 ...  105.327  89.053         10         6
+    333.638286  -0.71525   1.8179   1.4614 ...  105.327  89.053         10         6
+    333.687495 -0.683205   1.8178   1.4603 ...  106.803 115.076         10         6
+    333.687495 -0.683205   1.8178   1.4603 ...  106.803 115.076         10         6
+    333.736581 -0.651221   1.8178   1.4591 ...  108.294  73.321         10         6
+    333.736581 -0.651221   1.8178   1.4591 ...  108.294  73.321         10         6
 
 As demonstrated, the returned values are stored in a dictionary and which
 ``metadata`` key table matches the ``Brief`` output mode table.
@@ -412,13 +414,13 @@ key:
 
 .. doctest-remote-data::
 
-    >>> matched["fits_tarball"]
+    >>> matched["fits_tarball"]  # doctest: +IGNORE_OUTPUT
     'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/Most/pid15792/fitsimage_A850RA.tar.gz'
-    >>> matched["region_tarball"]
+    >>> matched["region_tarball"]  # doctest: +IGNORE_OUTPUT
     'https://irsa.ipac.caltech.edu/workspace/TMP_X69utS_13312/Most/pid15792/ds9region_A850RA.tar'
     >>> matched["results"].columns
-    <TableColumns names=('Image_ID','date_obs','time_obs','mjd_obs','ra_obj','dec_obj','sun_dist','geo_dist','dist_ctr','phase','vmag','image_url','postcard_url','region_file')>  # noqa: E501
-    >>> matched["results"]["time_obs", "image_url"]
+    <TableColumns names=('Image_ID','date_obs','time_obs','mjd_obs','ra_obj','dec_obj','sun_dist','geo_dist','dist_ctr','phase','vmag','image_url','postcard_url','region_file')>
+    >>> matched["results"]["time_obs", "image_url"]  # doctest: +IGNORE_OUTPUT
     <Table length=10>
       time_obs                                                  image_url
        str12                                                      str103
