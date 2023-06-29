@@ -15,14 +15,12 @@ Created on 30 jun. 2016
 
 """
 
-try:
-    # python 3
-    import http.client as httplib
-except ImportError:
-    # python 2
-    import httplib
+import http.client as httplib
 import mimetypes
+import platform
+import sys
 import time
+
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 from astroquery import version
@@ -122,7 +120,8 @@ class TapConn:
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain",
-            "User-Agent": "astroquery/{vers}".format(vers=version.version),
+            "User-Agent": "astroquery/{vers} ({plat} {sysver})".format(
+                vers=version.version, plat=platform.system(), sysver=sys.version),
         }
         self.__getHeaders = {}
         self.__cookie = None
