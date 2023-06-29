@@ -18,7 +18,6 @@ Created on 30 jun. 2016
 import http.client as httplib
 import mimetypes
 import platform
-import sys
 import time
 
 from astroquery.utils.tap.xmlparser import utils
@@ -121,7 +120,7 @@ class TapConn:
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain",
             "User-Agent": "astroquery/{vers} ({plat} {sysver})".format(
-                vers=version.version, plat=platform.system(), sysver=sys.version),
+                vers=version.version, plat=platform.system(), sysver=platform.python_version()),
         }
         self.__getHeaders = {}
         self.__cookie = None
