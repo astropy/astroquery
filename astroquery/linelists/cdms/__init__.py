@@ -17,6 +17,10 @@ class Conf(_config.ConfigNamespace):
         'https://cdms.astro.uni-koeln.de/cgi-bin/cdmssearch',
         'CDMS Search and Conversion Form URL.')
 
+    catfile_url = _config.ConfigItem(
+        'https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html',
+        'CDMS partition function table listing all available molecules.')
+
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to the CDMS server.')

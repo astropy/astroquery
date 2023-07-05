@@ -131,6 +131,9 @@ linelists.cdms
 
 - Fix issues with the line name parser and the line data parser; the original
   implementation was incomplete and upstream was not fully documented. [#2385, #2411]
+- Added new line list reader and enabled reading line list from remote server.
+  Also updated local version of line list, which includes some change in column names
+  [#2760]
 
 mast
 ^^^^
