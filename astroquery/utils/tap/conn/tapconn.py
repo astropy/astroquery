@@ -119,7 +119,7 @@ class TapConn:
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain",
-            "User-Agent": "astroquery/{vers} ({plat} {sysver})".format(
+            "User-Agent": "astroquery/{vers} Python/{sysver} ({plat})".format(
                 vers=version.version, plat=platform.system(), sysver=platform.python_version()),
         }
         self.__getHeaders = {}
