@@ -81,6 +81,16 @@ Radius is an optional parameter and the default is 0.2 degrees.
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
 
+Optional parameters must be labeled. For example the query above will produce
+an error if the "radius" field is not specified.
+
+.. doctest-remote-data::
+
+   >>> obs_table = Observations.query_object("M8", ".02 deg")
+   Traceback (most recent call last):
+   ...
+   TypeError: ObservationsClass.query_object_async() takes 2 positional arguments but 3 were given
+
 
 Observation Criteria Queries
 ----------------------------
@@ -209,6 +219,17 @@ To get a table of metadata associated with observation or product lists use the
            obs_id   Observation ID ...                  U24Z0101T, N4QF18030
             obsID Product Group ID ...         Long integer, e.g. 2007590987
    obs_collection          Mission ... HST, HLA, SWIFT, GALEX, Kepler, K2...
+
+The `~astroquery.mast.ObservationsClass.get_metadata` function only accepts the strings
+"observations" or "products" as a parameter. Any other string or spelling will result
+in an error.
+
+.. doctest-remote-data::
+
+   >>> meta_table = Observations.get_metadata("observation")
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: Unknown query type.
 
 
 Downloading Data
@@ -390,6 +411,25 @@ which can be changed with the ``local_path`` keyword argument.
    ...
    >>> print(result)
    ('COMPLETE', None, None)
+
+The `~astroquery.mast.ObservationsClass.download_file` and `~astroquery.mast.ObservationsClass.download_products`
+methods are not interchangeable. Using the incorrect method for either single files or product lists will result
+in an error.
+
+.. doctest-remote-data::
+
+   >>> result = Observations.download_products(product)   # doctest: +IGNORE_OUTPUT
+   Traceback (most recent call last):
+   ...
+   RemoteServiceError: Error converting data type varchar to bigint.
+
+.. doctest-remote-data::
+
+   >>> result = Observations.download_file(data_products)
+   Traceback (most recent call last):
+   ...
+   TypeError: can only concatenate str (not "Table") to str
+
 
 Cloud Data Access
 ------------------
@@ -809,6 +849,22 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
 
 
+The `~astroquery.mast.CatalogsClass.query_criteria` function requires at least one non-positional parameter.
+These parameters are the column names listed in the `field descriptions <https://mast.stsci.edu/api/v0/pages.html>`__
+of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
+parameters will result in an error.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Catalogs
+   ...
+   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",
+   ...                                        objectname='M101', radius=1)
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: At least one non-positional criterion must be supplied.
+
+
 The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
 sorting, column criteria, page size and page number. Additional information on PanSTARRS queries may be found
 `here <https://catalogs.mast.stsci.edu/docs/panstarrs.html>`__.
@@ -871,6 +927,7 @@ Given an HSC Match ID, return all catalog results.
    410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
 
+
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
 does not take any arguments, and simply loads all HSC spectra.
 
@@ -921,7 +978,7 @@ TESSCut
 =======
 
 TESSCut is MAST's tool to provide full-frame image (FFI) cutouts from the Transiting
-Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science 
+Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science
 Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products,
 or the TESS Image CAlibrator (`TICA <https://archive.stsci.edu/hlsp/tica>`__) high-level science products.
 Cutouts from the TICA products are not available for sectors 1-26,
@@ -958,7 +1015,7 @@ Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
-Note that the product argument will default to request for SPOC cutouts when 
+Note that the product argument will default to request for SPOC cutouts when
 not explicitly called for TICA.
 
 .. doctest-remote-data::
@@ -975,8 +1032,9 @@ not explicitly called for TICA.
      1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
      2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
-For users with time-sensitive targets who would like cutouts from the latest observations, 
-we recommend requesting for the TICA product. Using the same target from the example above, 
+
+For users with time-sensitive targets who would like cutouts from the latest observations,
+we recommend requesting for the TICA product. Using the same target from the example above,
 this example shows a request for TICA cutouts:
 
 .. doctest-remote-data::
@@ -1028,16 +1086,16 @@ simply with either the objectname or coordinates.
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 Note that the moving targets functionality does not currently support TICA, so the product
-parameter will always default to SPOC.
+parameter will result in an error when set to 'TICA'.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
    ...
    >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", product='tica', moving_target=True, size=5, sector=6)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
-   >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
-   'SPOC'
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: Only SPOC is available for moving targets queries.
 
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a product type ("TICA" or "SPOC", but defaults to "SPOC"),
 coordinate, cutout size (in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
@@ -1098,8 +1156,8 @@ To access sector information for a particular coordinate, object, or moving targ
    tess-s0008-1-1      8      1   1
    tess-s0034-1-2     34      1   2
 
-Note that because of the delivery cadence of the 
-TICA high level science products, later sectors will be available sooner with TICA than with 
+Note that because of the delivery cadence of the
+TICA high level science products, later sectors will be available sooner with TICA than with
 SPOC. Also note that TICA is not available for sectors 1-26. The following example is the same
 query as above, but for TICA. Notice that products for sector 8 are no longer available,
 but are now available for sector 61.
@@ -1152,7 +1210,6 @@ so the query will always default to SPOC.
    >>> from astroquery.mast import Tesscut
    ...
    >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
    >>> print(sector_table)
      sectorName   sector camera ccd
    -------------- ------ ------ ---
@@ -1388,6 +1445,26 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
       science          GALEX             AIS ...  1000016556  302.4058357983673
       science          GALEX             AIS ...  1000016556  302.4058357983673
    Length = 77 rows
+
+
+Many mast services, specifically JWST and Catalog services, require the two principal keywords, 'columns' and 'filters',
+to list parameters. Positional services will also require right ascension and declination parameters, either in
+addition to columns and filters or on their own. For example, the cone search service only requires the 'ra' and
+'dec' parameters. Using the wrong service parameters will result in an error. Read the
+`MAST API services documentation <https://mast.stsci.edu/api/v0/_services.html>`__ for more information on valid
+service parameters.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Mast
+   ...
+   >>> service = 'Mast.Caom.Cone'
+   >>> params = {'columns': "*",
+   ...           'filters': {}}
+   >>> observations = Mast.service_request(service, params)
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.RemoteServiceError: Request Object is Missing Required Parameter : RA
 
 
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
