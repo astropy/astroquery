@@ -21,6 +21,11 @@ hsa
 
 - New module to access ESA Herschel mission. [#2122]
 
+mocserver
+^^^^^^^^^
+
+- ``mocserver`` is the new name of the ``cds`` module allowing access to the CDS MOC server 
+
 esa.hubble
 ^^^^^^^^^^
 
@@ -94,6 +99,12 @@ casda
 
 - Use the standard ``login`` method for authenticating, which supports the system
   keyring [#2386]
+
+cds
+^^^
+
+the ``cds`` module has been renamed ``mocserver`` and issues a deprecation warning 
+when imported
 
 heasarc
 ^^^^^^^
