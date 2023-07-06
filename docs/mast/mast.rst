@@ -1210,7 +1210,6 @@ so the query will always default to SPOC.
    >>> from astroquery.mast import Tesscut
    ...
    >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
    >>> print(sector_table)
      sectorName   sector camera ccd
    -------------- ------ ------ ---
