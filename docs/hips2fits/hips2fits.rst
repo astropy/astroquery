@@ -18,7 +18,7 @@ Given an astropy user-defined WCS with a HiPS name,
 hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
 
 See the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_. It is also
-possible to use :meth:`astroquery.cds.CdsClass.find_datasets` to retrieve the list of HiPSes matching an expression
+possible to use :meth:`astroquery.mocserver.MOCserver.find_datasets` to retrieve the list of HiPSes matching an expression
 (e.g. \*HST\* will return the names of the HST surveys HiPSes).
 
 This package implements two methods:
