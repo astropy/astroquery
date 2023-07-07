@@ -21,11 +21,12 @@ work, the following acknowledgment would be appreciated::
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import warnings
 
-warnings.warn("The ``cds`` module has been moved to astroquery.mocserver,"
-              "and ``CdsClass`` has been renamed ``MOCServerClass``. "
+warnings.warn("The ``cds`` module has been moved to astroquery.mocserver, "
+              "and ``CdsClass`` has been renamed to ``MOCServerClass``. "
               "Please update your imports.", DeprecationWarning, stacklevel=2)
 
 from astroquery.mocserver import MOCServer as cds
 from astroquery.mocserver import MOCServerClass as CdsClass
+from astroquery.mocserver import conf, Conf
 
 __all__ = ['conf', 'Conf', 'cds', 'CdsClass']
