@@ -77,7 +77,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.atomic`.
     """
     url = _config.ConfigItem(
-        'https://www.pa.uky.edu/~peter/atomic/',
+        'https://linelist.pa.uky.edu/atomic/',
         'Atomic Line List URL')
 
     timeout = _config.ConfigItem(

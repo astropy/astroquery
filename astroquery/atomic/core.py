@@ -248,6 +248,10 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _parse_result(self, response):
+
+        if 'ERROR: request form contains no information' in response.text:
+            raise ValueError(f"The server returned an error.  Please check the URL.   The full error message is {response.text}")
+
         data = StringIO(BeautifulSoup(response.text, features='html5lib').find('pre').text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
@@ -299,6 +303,7 @@ class AtomicLineListClass(BaseQuery):
         log.debug(f"final payload = {payload} from url={url}")
         response = self._request("POST", url=url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
         log.debug("Retrieved data from POST request")
         return response
 
