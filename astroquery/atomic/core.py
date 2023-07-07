@@ -250,7 +250,8 @@ class AtomicLineListClass(BaseQuery):
     def _parse_result(self, response):
 
         if 'ERROR: request form contains no information' in response.text:
-            raise ValueError(f"The server returned an error.  Please check the URL.   The full error message is {response.text}")
+            raise ValueError("The server returned an error.  Please check the URL."
+                             f"   The full error message is {response.text}")
         elif 'ERROR' in response.text:
             raise ValueError(f"The server returned an error.  The full error message is {response.text}")
 
