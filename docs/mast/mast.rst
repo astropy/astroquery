@@ -1364,11 +1364,6 @@ If the given coordinate appears in more than one product, a cutout will be produ
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w_coarse.fits
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f606w.fits
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f814w.fits
-=======
-   mast_missions
-   mast_catalog
-   mast_cut
-   mast_mastquery
 
 
 Accessing Proprietary Data
