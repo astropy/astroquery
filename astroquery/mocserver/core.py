@@ -17,22 +17,20 @@ from copy import copy
 try:
     from mocpy import MOC
 except ImportError:
-    print("Could not import mocpy, which is a requirement for the CDS service."
+    print("Could not import mocpy, which is a requirement for the MOC server service."
           "Please refer to https://cds-astro.github.io/mocpy/install.html for how to install it.")
-    pass
 
 try:
     from regions import CircleSkyRegion, PolygonSkyRegion
 except ImportError:
     print("Could not import astropy-regions, which is a requirement for the CDS service."
           "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
-    pass
 
-__all__ = ['cds', 'CdsClass']
+__all__ = ['MOCServerClass', 'MOCServer']
 
 
 @async_to_sync
-class CdsClass(BaseQuery):
+class MOCServerClass(BaseQuery):
     """
     Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_
 
@@ -42,10 +40,10 @@ class CdsClass(BaseQuery):
 
     This package implements two methods:
 
-    * :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having
-      sources in a given region.
-    * :meth:`~astroquery.cds.CdsClass.find_datasets` retrieving data-sets (their associated MOCs and meta-datas) based
-      on the values of their meta-datas.
+    * :meth:`~astroquery.mocserver.MOCServerClass.query_region` retrieving data-sets
+      (their associated MOCs and meta-datas) having sources in a given region.
+    * :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` retrieving data-sets
+      (their associated MOCs and meta-datas) based on the values of their meta-datas.
 
     """
     URL = conf.server
@@ -83,9 +81,9 @@ class CdsClass(BaseQuery):
         max_rec : int, optional
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
-            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
-            the matching data-sets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
-            returns an `astropy.table.Table` object.
+            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union
+            of the MOCs of all the matching data-sets. By default it is set to False and
+            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         fields : [str], optional
@@ -161,8 +159,8 @@ class CdsClass(BaseQuery):
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
             Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
-            the matching data-sets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
-            returns an `astropy.table.Table` object.
+            the matching data-sets. By default it is set to False and
+            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         get_query_payload : bool, optional
@@ -185,8 +183,8 @@ class CdsClass(BaseQuery):
 
     def query_region_async(self, *, get_query_payload=False, **kwargs):
         """
-        Serves the same purpose as :meth:`~astroquery.cds.CdsClass.query_region` but only returns the HTTP response
-        rather than the parsed result.
+        Serves the same purpose as :meth:`~astroquery.mocserver.MOCServerClass.query_region`
+        but only returns the HTTP response rather than the parsed result.
 
         Parameters
         ----------
@@ -231,12 +229,12 @@ class CdsClass(BaseQuery):
         ----------
         kwargs
             Arbitrary keyword arguments. The same as those defined in the docstring of
-            :meth:`~astroquery.cds.CdsClass.query_object`.
+            :meth:`~astroquery.mocserver.MOCServerClass.query_object`.
 
         Returns
         -------
         request_payload : dict
-            The payload submitted to the MOCServer.
+            The payload submitted to the MOC server.
         """
         request_payload = dict()
         intersect = kwargs.get('intersect', 'overlaps')
@@ -378,7 +376,6 @@ class CdsClass(BaseQuery):
                     # some metadata can be of multiple types when looking on all the datasets.
                     # this can be due to internal typing errors of the metadatas.
                     columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k], dtype=object))
-                    pass
 
             # return an `astropy.table.Table` object created from columns_l
             return Table(columns_l)
@@ -416,4 +413,4 @@ class CdsClass(BaseQuery):
             return value
 
 
-cds = CdsClass()
+MOCServer = MOCServerClass()

@@ -1,10 +1,10 @@
 .. doctest-skip-all
 
-.. _astroquery.cds:
+.. _astroquery.mocserver:
 
-**********************************
-CDS MOC Service (`astroquery.cds`)
-**********************************
+****************************************
+CDS MOC Service (`astroquery.mocserver`)
+****************************************
 
 Getting started
 ===============
@@ -41,8 +41,8 @@ meta-data equals to ``"image"``).
 
 This package implements two methods:
 
-* :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
-* :meth:`~astroquery.cds.CdsClass.find_datasets` retrieving data-sets (their associated MOCs and meta-datas) based on the
+* :meth:`~astroquery.mocserver.MOCServerClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
+* :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` retrieving data-sets (their associated MOCs and meta-datas) based on the
   values of their meta-datas.
 
 Requirements
@@ -59,15 +59,15 @@ Examples
 Performing a CDS MOC query on a cone region
 -------------------------------------------
 
-The first thing to do is to import the `regions`_ package and the ``cds`` module.
+The first thing to do is to import the `regions`_ package and the ``mocserver`` module.
 
 .. code-block:: python
 
     >>> from astropy import coordinates
     >>> from regions import CircleSkyRegion
-    >>> from astroquery.cds import cds
+    >>> from astroquery.mocserver import MOCServer
 
-``cds`` implements the method :meth:`~astroquery.cds.CdsClass.query_region` and this is what we will use.
+``mocserver`` implements the method :meth:`~astroquery.mocserver.MOCServerClass.query_region` and this is what we will use.
 First, we need to define a cone region. For that purpose we will instantiate a `regions.CircleSkyRegion` object:
 
 .. code-block:: python
@@ -77,11 +77,11 @@ First, we need to define a cone region. For that purpose we will instantiate a `
 
     >>> cone = CircleSkyRegion(center, radius)
 
-And basically call the :meth:`~astroquery.cds.CdsClass.query_region` method with the cone and that's all.
+And basically call the :meth:`~astroquery.mocserver.MOCServerClass.query_region` method with the cone and that's all.
 
 .. code-block:: python
 
-    >>> cds.query_region(region=cone)
+    >>> MOCServer.query_region(region=cone)
     <Table masked=True length=1317>
     hips_service_url_8        hips_status         hips_status_7 ...   hipsgen_date_5                                  hips_master_url                                  moc_sky_fraction
           object                 object               object    ...       object                                           object                                          float64
@@ -150,7 +150,7 @@ You can also query the MOCServer on a `regions.PolygonSkyRegion` or even an `moc
 by replacing ``cone`` with a polygon or a MOC object.
 
 
-By default, :meth:`~astroquery.cds.CdsClass.query_region` returns an `astropy.table.Table` object storing the data-sets
+By default, :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object storing the data-sets
 as rows and their meta-datas as columns. Data-sets might have no information for a specific meta-data. If so, the value
 associated with this meta-data for this data-set is set to "-". The above astropy table looks like :
 
@@ -162,13 +162,13 @@ This table refers to a lot of meta-datas whereas we could only use a few of them
 MOCServer to give us a reduced set of meta-datas for the resulting data-sets. The table returned by the MOCServer
 will be lighter and thus faster to retrieve.
 
-The parameter ``fields`` of :meth:`~astroquery.cds.CdsClass.query_region` allows us to provide the list of meta-datas we
+The parameter ``fields`` of :meth:`~astroquery.mocserver.MOCServerClass.query_region` allows us to provide the list of meta-datas we
 want to get. Let's say we would like only the ``ID``, the ``moc_sky_fraction`` and the ``moc_access_url`` of the
 resulting data-sets:
 
 .. code-block:: python
 
-    >>> cds.query_region(region=cone, fields=['ID', 'moc_sky_fraction', 'moc_access_url'])
+    >>> MOCServer.query_region(region=cone, fields=['ID', 'moc_sky_fraction', 'moc_access_url'])
     <Table masked=True length=1317>
                                        moc_access_url                                                     ID                  moc_sky_fraction
                                            object                                                       str48                     float64
@@ -239,13 +239,13 @@ Retrieving data-sets based on their meta-data values
 ----------------------------------------------------
 
 As expressed in the last paragraph of the Getting Started section, we can ask the MOCServer to do some filtering tasks for us
-at the server side. The ``meta_data`` parameter of :meth:`~astroquery.cds.CdsClass.query_region` allows the user to
+at the server side. The ``meta_data`` parameter of :meth:`~astroquery.mocserver.MOCServerClass.query_region` allows the user to
 write an algebraic expression on the meta-datas. Let's query the MOCServer for retrieving what we have done using the
 web interface in the Getting Started section i.e. retrieving only the image data-sets that lie in the previously defined cone.
 
 .. code-block:: python
 
-    >>> cds.query_region(region=cone,
+    >>> MOCServer.query_region(region=cone,
     ...                  fields=['ID', 'dataproduct_type', 'moc_sky_fraction', 'moc_access_url'],
     ...                  meta_data="dataproduct_type=image")
     <Table masked=True length=279>
@@ -318,13 +318,13 @@ numpy operations on `astropy.table.Table` objects but here the MOCServer made it
 
 `This page <http://alasky.unistra.fr/MocServer/example>`_ on the web interface of the MOCServer gives examples of some filtering expressions.
 
-Alternatively, the method :meth:`~astroquery.cds.CdsClass.find_datasets` searches data-sets on the whole sky. If you want
+Alternatively, the method :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` searches data-sets on the whole sky. If you want
 to get the MOCs or meta-datas from some specific data-sets this is the method to use. The next example retrieves all the
 ``moc_access_url`` of the Hubble surveys:
 
 .. code-block:: python
 
-    >>> cds.find_datasets(meta_data="ID=*HST*",
+    >>> MOCServer.find_datasets(meta_data="ID=*HST*",
     ...                   fields=['ID', 'moc_access_url'])
     <Table masked=True length=42>
                        moc_access_url                             ID
@@ -383,7 +383,7 @@ Another parameter called ``max_rec`` specifies an upper limit for the number of 
 
 .. code-block:: python
 
-    >>> cds.query_region(region=cone, max_rec=3)
+    >>> MOCServer.query_region(region=cone, max_rec=3)
     <Table masked=True length=3>
     publisher_id                 obs_description_url                                                     moc_access_url                                    ...    TIMESTAMP    obs_label moc_sky_fraction
         str9                            str52                                                                str84                                         ...     float64        str8       float64
@@ -410,7 +410,7 @@ As an example, we would like to obtain the union of the spatial coverage of all 
     >>> from mocpy import MOC
     >>> # We want to retrieve all the HST surveys i.e. the HST surveys covering any region of the sky.
     >>> allsky = CircleSkyRegion(coordinates.SkyCoord(0, 0, unit="deg"), coordinates.Angle(180, unit="deg"))
-    >>> moc = cds.query_region(region=allsky,
+    >>> moc = MOCServer.query_region(region=allsky,
     ... # We want a mocpy object instead of an astropy table
     ...                        return_moc=True,
     ... # The order of the MOC
@@ -424,25 +424,25 @@ As an example, we would like to obtain the union of the spatial coverage of all 
 Retrieve the `~mocpy.MOC` of a specific data-set
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Finally, if you want to retrieve the MOC of a specific data-set, please consider using the `~astroquery.cds.CdsClass.find_datasets`
+Finally, if you want to retrieve the MOC of a specific data-set, please consider using the `~astroquery.mocserver.MOCServerClass.find_datasets`
 method with the ID of the data-set you want to retrieve the MOC along with the ``return_moc`` parameter set to True.
 The last example will show you how to get the MOC (i.e. a `mocpy.MOC` object) of the ``GALEXGR6/AIS/FUV`` survey.
 
 .. code-block:: python
 
     >>> from mocpy import MOC
-    >>> moc_galex=cds.find_datasets(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", return_moc=True)
+    >>> moc_galex= MOCServer.find_datasets(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", return_moc=True)
     >>> moc_galex.plot("MOC associated to CDS/P/GALEXGR6/AIS/FUV.")
 
 .. image:: ./MOC_GALEXGR6_AIS_FUV.png
 
-The ``cds`` package can therefore be used in complementarity with `mocpy`_. We can now retrieve `mocpy.MOC` objects
+The ``mocserver`` package can therefore be used in complementarity with `mocpy`_. We can now retrieve `mocpy.MOC` objects
 coming from the MOCServer and manipulate them in a python session with `mocpy`_.
 
 Reference/API
 =============
 
-.. automodapi:: astroquery.cds
+.. automodapi:: astroquery.mocserver
     :no-inheritance-diagram:
 
 

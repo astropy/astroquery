@@ -114,7 +114,7 @@ and for running the tests:
 * `pytest-rerunfailures <https://github.com/pytest-dev/pytest-rerunfailures>`__
 
 The following packages are optional dependencies and are required for the
-full functionality of the `~astroquery.cds` module:
+full functionality of the `~astroquery.mocserver` module:
 
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
@@ -238,7 +238,6 @@ The following modules have been completed using a common API:
   besancon/besancon.rst
   cadc/cadc.rst
   casda/casda.rst
-  cds/cds.rst
   linelists/cdms/cdms.rst
   dace/dace.rst
   esa/hsa/hsa.rst
@@ -262,6 +261,7 @@ The following modules have been completed using a common API:
   jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
+  mocserver/mocserver.rst
   mpc/mpc.rst
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst

@@ -18,27 +18,15 @@ work, the following acknowledgment would be appreciated::
   http://www.ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf
 """
 
-from astropy import config as _config
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+import warnings
 
+warnings.warn("The ``cds`` module has been moved to astroquery.mocserver, "
+              "and ``CdsClass`` has been renamed to ``MOCServerClass``. "
+              "Please update your imports.", DeprecationWarning, stacklevel=2)
 
-class Conf(_config.ConfigNamespace):
-    """
-    Configuration parameters for ``astroquery.template_module``.
-    """
-    server = _config.ConfigItem(
-        ["http://alasky.unistra.fr/MocServer/query",
-         "http://alaskybis.unistra.fr/MocServer/query"],
-        'Name of the template_module server to use.')
+from astroquery.mocserver import MOCServer as cds
+from astroquery.mocserver import MOCServerClass as CdsClass
+from astroquery.mocserver import conf, Conf
 
-    timeout = _config.ConfigItem(
-        30,
-        'Time limit for connecting to template_module server.')
-
-
-conf = Conf()
-
-from .core import cds, CdsClass
-
-__all__ = ['cds', 'CdsClass',
-           'Conf', 'conf',
-           ]
+__all__ = ['conf', 'Conf', 'cds', 'CdsClass']
