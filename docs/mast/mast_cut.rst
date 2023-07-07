@@ -7,7 +7,7 @@ TESSCut
 =======
 
 TESSCut is MAST's tool to provide full-frame image (FFI) cutouts from the Transiting
-Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science 
+Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science
 Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products,
 or the TESS Image CAlibrator (`TICA <https://archive.stsci.edu/hlsp/tica>`__) high-level science products.
 Cutouts from the TICA products are not available for sectors 1-26,
@@ -44,7 +44,7 @@ Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
-Note that the product argument will default to request for SPOC cutouts when 
+Note that the product argument will default to request for SPOC cutouts when
 not explicitly called for TICA.
 
 .. doctest-remote-data::
@@ -61,8 +61,9 @@ not explicitly called for TICA.
      1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
      2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
-For users with time-sensitive targets who would like cutouts from the latest observations, 
-we recommend requesting for the TICA product. Using the same target from the example above, 
+
+For users with time-sensitive targets who would like cutouts from the latest observations,
+we recommend requesting for the TICA product. Using the same target from the example above,
 this example shows a request for TICA cutouts:
 
 .. doctest-remote-data::
@@ -114,16 +115,16 @@ simply with either the objectname or coordinates.
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 Note that the moving targets functionality does not currently support TICA, so the product
-parameter will always default to SPOC.
+parameter will result in an error when set to 'TICA'.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
    ...
    >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", product='tica', moving_target=True, size=5, sector=6)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
-   >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
-   'SPOC'
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: Only SPOC is available for moving targets queries.
 
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a product type ("TICA" or "SPOC", but defaults to "SPOC"),
 coordinate, cutout size (in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
@@ -184,8 +185,8 @@ To access sector information for a particular coordinate, object, or moving targ
    tess-s0008-1-1      8      1   1
    tess-s0034-1-2     34      1   2
 
-Note that because of the delivery cadence of the 
-TICA high level science products, later sectors will be available sooner with TICA than with 
+Note that because of the delivery cadence of the
+TICA high level science products, later sectors will be available sooner with TICA than with
 SPOC. Also note that TICA is not available for sectors 1-26. The following example is the same
 query as above, but for TICA. Notice that products for sector 8 are no longer available,
 but are now available for sector 61.
@@ -238,7 +239,6 @@ so the query will always default to SPOC.
    >>> from astroquery.mast import Tesscut
    ...
    >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
-   WARNING: InputWarning: Only SPOC is available for moving targets queries. Defaulting to SPOC. [astroquery.mast.cutouts]
    >>> print(sector_table)
      sectorName   sector camera ccd
    -------------- ------ ------ ---
@@ -246,9 +246,9 @@ so the query will always default to SPOC.
    tess-s0043-3-3     43      3   3
    tess-s0044-2-4     44      2   4
 
-
 Zcut
 ====
+
 
 Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can
 be returned as either fits or image files (jpg and png are supported). This tool can be accessed in
@@ -337,6 +337,7 @@ To list the available deep field surveys at a particular location there is `~ast
 
 HAPCut
 ======
+
 
 HAPCut for MAST allows users to request cutouts from various Hubble Advance Products (HAPs). The cutouts can
 be returned as fits files (image files are not currently supported). This tool can be accessed in

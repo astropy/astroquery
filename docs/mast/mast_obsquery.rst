@@ -50,6 +50,16 @@ Radius is an optional parameter and the default is 0.2 degrees.
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
 
+Optional parameters must be labeled. For example the query above will produce
+an error if the "radius" field is not specified.
+
+.. doctest-remote-data::
+
+   >>> obs_table = Observations.query_object("M8", ".02 deg")
+   Traceback (most recent call last):
+   ...
+   TypeError: ObservationsClass.query_object_async() takes 2 positional arguments but 3 were given
+
 
 Observation Criteria Queries
 ============================
@@ -103,9 +113,23 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
               image           2          GALEX ... 1000055044                0.0
               image           2          GALEX ... 1000055047 229.81061601101433
 
+We encourage the use of wildcards particularly when querying for JWST instruments
+with the instrument_name criteria. This is because of the varying instrument names
+for JWST science instruments, which you can read more about on the MAST page for
+`JWST Instrument Names <https://outerspace.stsci.edu/display/MASTDOCS/JWST+Instrument+Names>`__.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> obs_table = Observations.query_criteria(proposal_pi="Espinoza, Nestor",
+   ...                                         instrument_name="NIRISS*")
+   >>> set(obs_table['instrument_name'])  # doctest: +IGNORE_OUTPUT
+   {'NIRISS', 'NIRISS/IMAGE', 'NIRISS/SOSS'}
+
 
 Getting Observation Counts
---------------------------
+==========================
 
 To get the number of observations and not the observations themselves, query_counts functions are available.
 This can be useful if trying to decide whether the available memory is sufficient for the number of observations.
@@ -124,6 +148,7 @@ This can be useful if trying to decide whether the available memory is sufficien
    ...                                         filters=["NUV","FUV"],
    ...                                         t_max=[52264.4586,54452.8914]))  # doctest: +IGNORE_OUTPUT
    59033
+
 
 
 Metadata Queries
@@ -163,6 +188,17 @@ To get a table of metadata associated with observation or product lists use the
            obs_id   Observation ID ...                  U24Z0101T, N4QF18030
             obsID Product Group ID ...         Long integer, e.g. 2007590987
    obs_collection          Mission ... HST, HLA, SWIFT, GALEX, Kepler, K2...
+
+The `~astroquery.mast.ObservationsClass.get_metadata` function only accepts the strings
+"observations" or "products" as a parameter. Any other string or spelling will result
+in an error.
+
+.. doctest-remote-data::
+
+   >>> meta_table = Observations.get_metadata("observation")
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: Unknown query type.
 
 
 Downloading Data
@@ -345,10 +381,27 @@ which can be changed with the ``local_path`` keyword argument.
    >>> print(result)
    ('COMPLETE', None, None)
 
+The `~astroquery.mast.ObservationsClass.download_file` and `~astroquery.mast.ObservationsClass.download_products`
+methods are not interchangeable. Using the incorrect method for either single files or product lists will result
+in an error.
+
+.. doctest-remote-data::
+
+   >>> result = Observations.download_products(product)   # doctest: +IGNORE_OUTPUT
+   Traceback (most recent call last):
+   ...
+   RemoteServiceError: Error converting data type varchar to bigint.
+
+.. doctest-remote-data::
+
+   >>> result = Observations.download_file(data_products)
+   Traceback (most recent call last):
+   ...
+   TypeError: can only concatenate str (not "Table") to str
+
 
 Cloud Data Access
-=================
-
+------------------
 Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 

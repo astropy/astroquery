@@ -3,6 +3,9 @@
 MAST Queries
 ************
 
+Direct Mast Queries
+===================
+
 The Mast class provides more direct access to the MAST interface.  It requires
 more knowledge of the inner workings of the MAST API, and should be rarely
 needed.  However in the case of new functionality not yet implemented in
@@ -46,6 +49,26 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
       science          GALEX             AIS ...  1000016556  302.4058357983673
       science          GALEX             AIS ...  1000016556  302.4058357983673
    Length = 77 rows
+
+
+Many mast services, specifically JWST and Catalog services, require the two principal keywords, 'columns' and 'filters',
+to list parameters. Positional services will also require right ascension and declination parameters, either in
+addition to columns and filters or on their own. For example, the cone search service only requires the 'ra' and
+'dec' parameters. Using the wrong service parameters will result in an error. Read the
+`MAST API services documentation <https://mast.stsci.edu/api/v0/_services.html>`__ for more information on valid
+service parameters.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Mast
+   ...
+   >>> service = 'Mast.Caom.Cone'
+   >>> params = {'columns': "*",
+   ...           'filters': {}}
+   >>> observations = Mast.service_request(service, params)
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.RemoteServiceError: Request Object is Missing Required Parameter : RA
 
 
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.

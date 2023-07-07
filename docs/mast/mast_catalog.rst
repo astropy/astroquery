@@ -197,6 +197,22 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
 
 
+The `~astroquery.mast.CatalogsClass.query_criteria` function requires at least one non-positional parameter.
+These parameters are the column names listed in the `field descriptions <https://mast.stsci.edu/api/v0/pages.html>`__
+of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
+parameters will result in an error.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Catalogs
+   ...
+   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",
+   ...                                        objectname='M101', radius=1)
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: At least one non-positional criterion must be supplied.
+
+
 The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
 sorting, column criteria, page size and page number. Additional information on PanSTARRS queries may be found
 `here <https://catalogs.mast.stsci.edu/docs/panstarrs.html>`__.
@@ -234,7 +250,7 @@ tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and va
 
 
 Hubble Source Catalog (HSC) specific queries
---------------------------------------------
+============================================
 
 Given an HSC Match ID, return all catalog results.
 
@@ -258,6 +274,7 @@ Given an HSC Match ID, return all catalog results.
    410574499 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
 does not take any arguments, and simply loads all HSC spectra.
