@@ -20,7 +20,7 @@ try:
 except ImportError:
     HAS_REGIONS = False
 
-from ..core import mocserver
+from ..core import MOCServer
 
 
 @pytest.mark.remote_data
@@ -38,7 +38,7 @@ class TestMOCServerRemote:
         radius = coordinates.Angle(1.5, unit="deg")
 
         cone_region = CircleSkyRegion(center, radius)
-        result = mocserver.query_region(
+        result = MOCServer.query_region(
             region=cone_region, max_rec=max_rec, get_query_payload=False
         )
 
@@ -61,7 +61,7 @@ class TestMOCServerRemote:
 
         cone_region = CircleSkyRegion(center, radius)
 
-        table = mocserver.query_region(
+        table = MOCServer.query_region(
             region=cone_region, fields=field_l, get_query_payload=False
         )
         assert isinstance(table, Table)
@@ -75,11 +75,11 @@ class TestMOCServerRemote:
     @pytest.mark.parametrize("moc_order", [5, 10])
     def test_moc_order_param(self, moc_order, tmp_cwd):
         # We need a long timeout for this
-        mocserver.TIMEOUT = 300
+        MOCServer.TIMEOUT = 300
 
         moc_region = MOC.from_json({"0": [1]})
 
-        result = mocserver.query_region(
+        result = MOCServer.query_region(
             region=moc_region,
             # return a mocpy obj
             return_moc=True,
@@ -94,7 +94,7 @@ class TestMOCServerRemote:
         ["ID=*HST*", "moc_sky_fraction>0.5", "(ID=*DSS*)&&(moc_sky_fraction>0.1)"],
     )
     def test_find_data_sets(self, meta_data_expr):
-        result = mocserver.find_datasets(
+        result = MOCServer.find_datasets(
             meta_data=meta_data_expr,
             fields=["ID", "moc_sky_fraction"],
             get_query_payload=False,

@@ -43,6 +43,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import mocserver, MOCserver
+from .core import MOCServer, MOCServerClass
 
-__all__ = ["Conf", "conf", "mocserver", "MOCserver"]
+__all__ = ["Conf", "conf", "MOCServer", "MOCServerClass"]

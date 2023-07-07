@@ -8,7 +8,7 @@ import requests
 from astropy import coordinates
 from astropy.table import Table
 
-from ..core import mocserver
+from ..core import MOCServer
 from astroquery.utils.mocks import MockResponse
 
 
@@ -94,7 +94,7 @@ def test_request_results(patch_get, datafile):
 
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
-    results = mocserver.query_region(
+    results = MOCServer.query_region(
         get_query_payload=False, verbose=True, data=datafile
     )
     assert type(results) == Table
@@ -117,7 +117,7 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
     radius = coordinates.Angle(RADIUS, unit="deg")
     cone_region = CircleSkyRegion(center=center, radius=radius)
 
-    request_payload = mocserver.query_region(
+    request_payload = MOCServer.query_region(
         region=cone_region, get_query_payload=True, intersect="overlaps"
     )
 
@@ -138,7 +138,7 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
 def test_polygon_spatial_request(poly, poly_payload):
     polygon_region = PolygonSkyRegion(vertices=poly)
 
-    request_payload = mocserver.query_region(
+    request_payload = MOCServer.query_region(
         region=polygon_region, intersect="overlaps", get_query_payload=True
     )
 
@@ -151,7 +151,7 @@ def test_intersect_param(intersect):
     radius = coordinates.Angle(1.5, unit="deg")
 
     cone_region = CircleSkyRegion(center, radius)
-    request_payload = mocserver.query_region(
+    request_payload = MOCServer.query_region(
         region=cone_region, intersect=intersect, get_query_payload=True
     )
     if intersect == "encloses":

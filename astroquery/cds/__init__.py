@@ -22,13 +22,10 @@ work, the following acknowledgment would be appreciated::
 import warnings
 
 warnings.warn("The ``cds`` module has been moved to astroquery.mocserver,"
-              "and ``CdsClass`` has been renamed ``MOCserver``. It means that"
-              " 'from astroquery.cds import cds' became 'from astroquery.mocserver"
-              " import mocserver'. Please update your imports.", DeprecationWarning, stacklevel=2)
+              "and ``CdsClass`` has been renamed ``MOCServerClass``. "
+              "Please update your imports.", DeprecationWarning, stacklevel=2)
 
-from astroquery.mocserver import mocserver, MOCserver
+from astroquery.mocserver import MOCServer as cds
+from astroquery.mocserver import MOCServerClass as CdsClass
 
-cds = mocserver
-CdsClass = MOCserver
-
-__all__ = ['mocserver', 'MOCserver', 'cds', 'CdsClass']
+__all__ = ['conf', 'Conf', 'cds', 'CdsClass']

@@ -17,7 +17,7 @@ from copy import copy
 try:
     from mocpy import MOC
 except ImportError:
-    print("Could not import mocpy, which is a requirement for the CDS service."
+    print("Could not import mocpy, which is a requirement for the MOC server service."
           "Please refer to https://cds-astro.github.io/mocpy/install.html for how to install it.")
 
 try:
@@ -26,11 +26,11 @@ except ImportError:
     print("Could not import astropy-regions, which is a requirement for the CDS service."
           "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
 
-__all__ = ['mocserver', 'MOCserver']
+__all__ = ['MOCServerClass', 'MOCServer']
 
 
 @async_to_sync
-class MOCserver(BaseQuery):
+class MOCServerClass(BaseQuery):
     """
     Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_
 
@@ -40,10 +40,10 @@ class MOCserver(BaseQuery):
 
     This package implements two methods:
 
-    * :meth:`~astroquery.mocserver.MOCserver.query_region` retrieving data-sets (their associated MOCs and meta-datas)
-      having sources in a given region.
-    * :meth:`~astroquery.mocserver.MOCserver.find_datasets` retrieving data-sets (their associated MOCs and meta-datas)
-      based on the values of their meta-datas.
+    * :meth:`~astroquery.mocserver.MOCServerClass.query_region` retrieving data-sets
+      (their associated MOCs and meta-datas) having sources in a given region.
+    * :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` retrieving data-sets
+      (their associated MOCs and meta-datas) based on the values of their meta-datas.
 
     """
     URL = conf.server
@@ -83,7 +83,7 @@ class MOCserver(BaseQuery):
         return_moc : bool, optional
             Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union
             of the MOCs of all the matching data-sets. By default it is set to False and
-            :meth:`~astroquery.mocserver.MOCserver.query_region` returns an `astropy.table.Table` object.
+            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         fields : [str], optional
@@ -160,7 +160,7 @@ class MOCserver(BaseQuery):
         return_moc : bool, optional
             Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
             the matching data-sets. By default it is set to False and
-            :meth:`~astroquery.mocserver.MOCserver.query_region` returns an `astropy.table.Table` object.
+            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         get_query_payload : bool, optional
@@ -183,7 +183,7 @@ class MOCserver(BaseQuery):
 
     def query_region_async(self, *, get_query_payload=False, **kwargs):
         """
-        Serves the same purpose as :meth:`~astroquery.mocserver.MOCserver.query_region`
+        Serves the same purpose as :meth:`~astroquery.mocserver.MOCServerClass.query_region`
         but only returns the HTTP response rather than the parsed result.
 
         Parameters
@@ -229,12 +229,12 @@ class MOCserver(BaseQuery):
         ----------
         kwargs
             Arbitrary keyword arguments. The same as those defined in the docstring of
-            :meth:`~astroquery.mocserver.MOCserver.query_object`.
+            :meth:`~astroquery.mocserver.MOCServerClass.query_object`.
 
         Returns
         -------
         request_payload : dict
-            The payload submitted to the MOCServer.
+            The payload submitted to the MOC server.
         """
         request_payload = dict()
         intersect = kwargs.get('intersect', 'overlaps')
@@ -413,4 +413,4 @@ class MOCserver(BaseQuery):
             return value
 
 
-mocserver = MOCserver()
+MOCServer = MOCServerClass()
