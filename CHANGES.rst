@@ -47,6 +47,11 @@ alfalfa
 - Removal of the non-functional ``get_spectrym`` method as that service has
   disappeared. [#2578]
 
+atomic
+^^^^^^
+
+- Change URL and improve error handling. [#2769]
+
 esa.hubble
 ^^^^^^^^^^
 

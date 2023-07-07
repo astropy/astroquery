@@ -248,7 +248,18 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _parse_result(self, response):
-        data = StringIO(BeautifulSoup(response.text, features='html5lib').find('pre').text.strip())
+
+        if 'ERROR: request form contains no information' in response.text:
+            raise ValueError("The server returned an error.  Please check the URL."
+                             f"   The full error message is {response.text}")
+        elif 'ERROR' in response.text:
+            raise ValueError(f"The server returned an error.  The full error message is {response.text}")
+
+        html_pre = BeautifulSoup(response.text, features='html5lib').find('pre')
+        if html_pre is None:
+            raise ValueError("Data format not recognized.  The <pre> tag was missing from the response.")
+
+        data = StringIO(html_pre.text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
         # `colnames` is then
@@ -299,6 +310,7 @@ class AtomicLineListClass(BaseQuery):
         log.debug(f"final payload = {payload} from url={url}")
         response = self._request("POST", url=url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
         log.debug("Retrieved data from POST request")
         return response
 
