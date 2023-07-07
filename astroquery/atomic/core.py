@@ -251,8 +251,14 @@ class AtomicLineListClass(BaseQuery):
 
         if 'ERROR: request form contains no information' in response.text:
             raise ValueError(f"The server returned an error.  Please check the URL.   The full error message is {response.text}")
+        elif 'ERROR' in response.text:
+            raise ValueError(f"The server returned an error.  The full error message is {response.text}")
 
-        data = StringIO(BeautifulSoup(response.text, features='html5lib').find('pre').text.strip())
+        html_pre = BeautifulSoup(response.text, features='html5lib').find('pre')
+        if html_pre is None:
+            raise ValueError("Data format not recognized.  The <pre> tag was missing from the response.")
+
+        data = StringIO(html_pre.text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
         # `colnames` is then
