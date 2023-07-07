@@ -24,7 +24,7 @@ hsa
 mocserver
 ^^^^^^^^^
 
-- ``mocserver`` is the new name of the ``cds`` module allowing access to the CDS MOC server 
+- ``mocserver`` is the new name of the ``cds`` module allowing access to the CDS MOC server [#2766]
 
 esa.hubble
 ^^^^^^^^^^
@@ -104,7 +104,7 @@ cds
 ^^^
 
 the ``cds`` module has been renamed ``mocserver`` and issues a deprecation warning 
-when imported
+when imported [#2766]
 
 heasarc
 ^^^^^^^
