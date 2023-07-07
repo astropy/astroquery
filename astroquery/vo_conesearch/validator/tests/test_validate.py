@@ -51,6 +51,11 @@ class TestConeSearchValidation:
         db2 = VOSDatabase.from_json(fname2)
         assert db1.list_catalogs() == db2.list_catalogs()
 
+    # Ignore falling back to default size warning, ignore votable warning, and multiprocessing, too.
+    # See discussion e.g. in https://github.com/astropy/astroquery/issues/2634
+    @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+    @pytest.mark.filterwarnings("ignore::astropy.io.votable.exceptions.W06")
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
     @pytest.mark.parametrize(('parallel'), [True, False])
     def test_validation(self, parallel):
 
@@ -62,6 +67,11 @@ class TestConeSearchValidation:
                 os.path.join(self.datadir, val)),
                 os.path.join(self.out_dir, val))
 
+    # Ignore falling back to default size warning, ignore votable warning, and multiprocessing, too.
+    # See discussion e.g. in https://github.com/astropy/astroquery/issues/2634
+    @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+    @pytest.mark.filterwarnings("ignore::astropy.io.votable.exceptions.W06")
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
     @pytest.mark.parametrize(('parallel'), [True, False])
     def test_url_list(self, parallel):
         local_outdir = os.path.join(self.out_dir, 'subtmp1')

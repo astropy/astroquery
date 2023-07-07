@@ -234,7 +234,7 @@ response length:
 .. doctest-remote-data::
 
    >>> print(result.meta['comments'])
-   ['', '', '', '', '', '', '', '', '', '', '', 'form is currently limilted to 2000 lines. Please limit your search.']
+   ['', '', '', '', '', 'form is currently limilted to 2000 lines. Please limit your search.']
 
 Inspecting the returned molecules shows that the 'H2O' string was processed as a
 regular expression, and the search matched any molecule that contained the

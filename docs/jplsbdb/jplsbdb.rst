@@ -202,7 +202,7 @@ per target, but only a list of objects matching this pattern:
 .. code-block:: python
 
     >>> sbdb['list']     # doctest: +REMOTE_DATA
-    OrderedDict([('pdes', ['2018 AA4', '2018 AA12']), ('name', ['(2018 AA4)', '(2018 AA12)'])])
+    OrderedDict([('name', ['(2018 AA4)', '(2018 AA12)', '(2018 AA74)']), ('pdes', ['2018 AA4', '2018 AA12', '2018 AA74'])])
 
 Customizing your Query
 ======================

@@ -183,7 +183,7 @@ Pallas over an entire year with a time step of 1 day:
 
    >>> from astroquery.imcce import Miriade
    >>> Miriade.get_ephemerides('Pallas', epoch='2019-01-01',
-   ...                         epoch_step='1d', epoch_nsteps=365)
+   ...                         epoch_step='1d', epoch_nsteps=365)  # doctest: +IGNORE_OUTPUT
    <Table length=365>
    target        epoch                 RA         ...   DEC_rate    delta_rate
                    d                  deg         ... arcsec / min    km / s

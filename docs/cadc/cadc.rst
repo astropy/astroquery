@@ -30,6 +30,7 @@ these collections:
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
+    BRITE-Constellation : {'Description': 'The BRITE-Constellation collection at the CADC', 'Bands': ['', 'Optical']}
     CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Optical', 'Infrared']}
     CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Optical']}
     CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical', 'Infrared']}
@@ -41,7 +42,7 @@ these collections:
     TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
     UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical', 'Infrared']}
     VGPS : {'Description': 'The VGPS collection at the CADC', 'Bands': ['Radio']}
-    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['Radio']}
+    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['', 'Radio']}
     WALLABY : {'Description': 'The WALLABY collection at the CADC', 'Bands': ['Radio']}
     XMM : {'Description': 'The XMM collection at the CADC', 'Bands': ['Optical', 'UV', 'X-ray']}
 
