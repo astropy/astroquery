@@ -39,6 +39,20 @@ to FK5.
 Note that non-Astropy coordinates may not be supported in a future version.
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.ogle import Ogle
+    >>> Ogle.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

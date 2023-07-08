@@ -101,6 +101,21 @@ or 'vac+air'. Here is an example with all these parameters.
           --    6946.756   1439.5208    -- ...     20     |      |   -- T8637    --
     Length = 37 rows
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.nist import Nist
+    >>> Nist.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+    
 Reference/API
 =============
 

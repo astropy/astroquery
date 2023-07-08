@@ -44,6 +44,21 @@ The data are returned as an `~astropy.table.Table` instance.
            1            1 9.834255 1.969e-35 ...                    135.0   141.0
            1            1 9.921502 6.136e-28 ...                     13.0    15.0
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.hitran import Hitran
+    >>> Hitran.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

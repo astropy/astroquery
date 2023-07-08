@@ -261,6 +261,20 @@ be fixed)
        H2CO  Formaldehyde 1(1,0)-1(1,1),F=1-2 4.8296665            --   -8.82819 15.39497
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.splatalogue import Splatalogue
+    >>> Splatalogue.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+       
 Reference/API
 =============
 

@@ -635,6 +635,20 @@ The development of this submodule is in part funded through NASA PDART Grant No.
 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.jplhorizons import Horizons
+    >>> Horizons.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

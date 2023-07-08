@@ -77,6 +77,20 @@ arguments as :meth:`~astroquery.nvas.NvasClass.get_images` above except for the
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.9+220052/8.46I1.60_AM503_1996FEB01_1_483.U2.59M.imfits']
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.nvas import Nvas
+    >>> Nvas.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+     
 Reference/API
 =============
 

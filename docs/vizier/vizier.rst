@@ -373,6 +373,21 @@ index to the ``agn`` table (not the 0-based python convention).
      11 192.721982  41.121040 12505327+4107157 10.822 ...  200  100  c00    2    0
      11 192.721179  41.120201 12505308+4107127  9.306 ...  222  111  000    2    0
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> Vizier.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The `clear_cache` function was introduced in version 0.4.7.dev8479.
+
+     
 Reference/API
 =============
 
