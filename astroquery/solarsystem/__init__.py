@@ -15,4 +15,3 @@ from .mpc import MPC, MPCClass
 __all__ = ["SBDB", "SBDBClass", "Horizons", "HorizonsClass",
            "Miriade", "MiriadeClass", "Skybot", "SkybotClass",
            "MPC", "MPCClass"]
-
