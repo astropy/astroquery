@@ -200,7 +200,3 @@ def _split_list_into_chunks(input_list, chunk_size):
     """Helper function for `mast_relative_path`."""
     for idx in range(0, len(input_list), chunk_size):
         yield input_list[idx:idx + chunk_size]
-
-
-def mast_path_strip(path, mission):
-    """Helper function to"""

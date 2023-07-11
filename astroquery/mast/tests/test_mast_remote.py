@@ -405,21 +405,24 @@ class TestMast:
 
     def test_get_cloud_uris(self):
         pytest.importorskip("boto3")
-        test_obs_id = '25568122'
+        test_obs_ids = ["25568122", "31411"]
 
-        # get a product list
-        products = mast.Observations.get_product_list(test_obs_id)[24:]
+        for test_obs_id in test_obs_ids:
 
-        assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
-                                   'Unable to move forward with getting URIs from the cloud.')
+            # get a product list
+            index = 24 if test_obs_id == "25568122" else 0
+            products = mast.Observations.get_product_list(test_obs_id)[index:]
 
-        # enable access to public AWS S3 bucket
-        mast.Observations.enable_cloud_dataset()
+            assert len(products) > 0, (f'No products found for OBSID {test_obs_id}.'
+                                       'Unable to move forward with getting URIs from the cloud.')
 
-        # get uris
-        uris = mast.Observations.get_cloud_uris(products)
+            # enable access to public AWS S3 bucket
+            mast.Observations.enable_cloud_dataset()
 
-        assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
+            # get uris
+            uris = mast.Observations.get_cloud_uris(products)
+
+            assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
 
     ######################
     # CatalogClass tests #
@@ -427,6 +430,7 @@ class TestMast:
 
     # query functions
     def test_catalogs_query_region_async(self):
+
         responses = mast.Catalogs.query_region_async("158.47924 -7.30962", catalog="Galex")
         assert isinstance(responses, list)
 
