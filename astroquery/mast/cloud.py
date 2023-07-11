@@ -14,7 +14,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ..exceptions import NoResultsWarning
+from ..exceptions import NoResultsWarning, InvalidQueryError
 
 from . import utils
 
@@ -110,7 +110,12 @@ class CloudAccess:  # pragma:no-cover
         """
 
         uri_list = self.get_cloud_uri_list(data_product, include_bucket=include_bucket, full_url=full_url)
-        return uri_list[0]
+
+        # Making sure we got at least 1 URI from the query above.
+        if len(uri_list) == 0:
+            raise InvalidQueryError("No products found on the cloud for this query.")
+        else:
+            return uri_list[0]
 
     def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
         """
@@ -142,14 +147,9 @@ class CloudAccess:  # pragma:no-cover
 
         uri_list = []
         for path in paths:
-
             if path is None:
                 uri_list.append(None)
-            elif 'galex' in path:
-                path = path.lstrip("/mast/")
             else:
-                path = path.lstrip("/")
-
                 try:
                     # Use `head_object` to verify that the product is available on S3 (not all products are)
                     s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)

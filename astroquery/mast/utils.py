@@ -182,7 +182,12 @@ def mast_relative_path(mast_uri):
                                    {"uri": chunk})
         json_response = response.json()
         for uri in chunk:
-            result.append(json_response.get(uri[1])["path"])
+            path = json_response.get(uri[1])["path"]
+            if 'galex' in path:
+                path = path.lstrip("/mast/")
+            else:
+                path = path.lstrip("/")
+            result.append(path)
 
     # If the input was a single URI string, we return a single string
     if isinstance(mast_uri, str):
@@ -195,3 +200,7 @@ def _split_list_into_chunks(input_list, chunk_size):
     """Helper function for `mast_relative_path`."""
     for idx in range(0, len(input_list), chunk_size):
         yield input_list[idx:idx + chunk_size]
+
+
+def mast_path_strip(path, mission):
+    """Helper function to"""
