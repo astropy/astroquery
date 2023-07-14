@@ -227,7 +227,6 @@ class IrsaClass(BaseVOQuery):
         full : bool
             If True returns the full schema VOTable. If False returns a dictionary of the table names and
             their description.
-
         """
         tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables")
 
@@ -239,6 +238,7 @@ class IrsaClass(BaseVOQuery):
     # TODO, deprecate this as legacy
     def print_catalogs(self):
         catalogs = self.list_catalogs()
+
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 

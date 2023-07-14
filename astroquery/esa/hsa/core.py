@@ -65,6 +65,9 @@ class HSAClass(BaseQuery):
             values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
         download_dir : string, optional
             The directory in which the file will be downloaded
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
         Returns
         -------

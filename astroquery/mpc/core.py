@@ -441,8 +441,9 @@ class MPCClass(BaseQuery):
             Return raw data without parsing into a table (default:
             ``False``).
 
-        cache : bool, optional
-            Cache results or use cached results (default: ``False``).
+        cache : bool
+            Defaults to False. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
 
         Returns
@@ -617,8 +618,9 @@ class MPCClass(BaseQuery):
             Return raw data without parsing into a table (default:
             `False`).
 
-        cache : bool, optional
-            Cache results or use cached results (default: `True`).
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
 
         Returns
@@ -662,9 +664,9 @@ class MPCClass(BaseQuery):
         code : string
             Three-character IAU observatory code.
 
-        cache : bool, optional
-            Cache observatory table or use cached results (default:
-            `True`).
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
 
         Returns
@@ -820,8 +822,9 @@ class MPCClass(BaseQuery):
             Return the HTTP request parameters as a dictionary
             (default: ``False``).
 
-        cache : bool, optional
-            If ``True``, queries will be cached. Default: ``True``
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
 
         Raises

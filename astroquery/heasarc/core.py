@@ -41,6 +41,9 @@ class HeasarcClass(BaseQuery):
         """
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
+
+        cache (bool) defaults to True. If set overrides global caching behavior.
+        See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         """
 
         if url is None:
@@ -53,6 +56,9 @@ class HeasarcClass(BaseQuery):
     def query_mission_list(self, *, cache=True, get_query_payload=False):
         """
         Returns a list of all available mission tables with descriptions
+
+        cache (bool) defaults to True. If set overrides global caching behavior.
+        See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         """
         request_payload = self._args_to_payload(
             entry='none',
@@ -91,6 +97,9 @@ class HeasarcClass(BaseQuery):
             * Standard      : Return default table columns
             * All (default) : Return all table columns
             * <custom>      : User defined csv list of columns to be returned
+        cache : bool, optional
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         All other parameters have no effect
         """
 
@@ -121,6 +130,9 @@ class HeasarcClass(BaseQuery):
             parameter.
         mission : str
             Mission table to search from
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         **kwargs :
             see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
             of additional parameters that can be used to refine search query
@@ -159,6 +171,9 @@ class HeasarcClass(BaseQuery):
         radius :
             Astropy Quantity object, or a string that can be parsed into one.
             e.g., '1 degree' or 1*u.degree.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         **kwargs :
             see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
             of additional parameters that can be used to refine search query

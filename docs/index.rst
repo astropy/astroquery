@@ -205,7 +205,7 @@ The cache location can be viewed with the following command
     >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
     /Users/username/.astropy/cache/astroquery/Simbad
 
-Each service's cache is cleared with the `clear_cache` function within that service.
+Each service's cache is cleared with the ``clear_cache`` function within that service.
 
 .. code-block:: python
 

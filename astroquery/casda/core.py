@@ -113,8 +113,9 @@ class CasdaClass(QueryWithLogin):
             the width for a box region
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters.
-        cache: bool, optional
-            Use the astroquery internal query result cache
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
         Returns
         -------

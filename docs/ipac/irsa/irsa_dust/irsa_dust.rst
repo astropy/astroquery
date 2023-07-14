@@ -173,7 +173,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
 
 .. code-block:: python
 
-    >>> from astroquery.pac.irsa.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> IrsaDust.clear_cache()
 
 If this function is unavailable, upgrade your version of astroquery. 

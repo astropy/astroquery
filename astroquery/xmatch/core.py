@@ -64,6 +64,9 @@ class XMatchClass(BaseQuery):
             Default value is 'allsky' (no restriction). If a
             ``regions.CircleSkyRegion`` object is given, only sources in
             this region will be considered.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
 
         Returns
         -------
@@ -177,6 +180,11 @@ class XMatchClass(BaseQuery):
         """Get the list of the VizieR tables which are available in the
         xMatch service and return them as a list of strings.
 
+        Parameters
+        ----------
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
         """
         response = self._request(
             'GET',
