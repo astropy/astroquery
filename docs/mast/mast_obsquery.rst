@@ -129,7 +129,7 @@ for JWST science instruments, which you can read more about on the MAST page for
 
 
 Getting Observation Counts
-==========================
+--------------------------
 
 To get the number of observations and not the observations themselves, query_counts functions are available.
 This can be useful if trying to decide whether the available memory is sufficient for the number of observations.
