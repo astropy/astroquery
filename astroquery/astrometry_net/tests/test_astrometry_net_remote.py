@@ -63,6 +63,7 @@ def _calculate_wcs_separation_at_points(wcses, center, extent):
     return result_location.separation(expected_location)
 
 
+@pytest.mark.filterwarnings("ignore:The WCS transformation has more axes:astropy.wcs.wcs.FITSFixedWarning")
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @pytest.mark.remote_data
 def test_solve_by_source_list():
@@ -92,6 +93,7 @@ def test_solve_by_source_list():
     assert (separations.arcsec).max() < 0.1
 
 
+@pytest.mark.filterwarnings("ignore:The WCS transformation has more axes:astropy.wcs.wcs.FITSFixedWarning")
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @pytest.mark.remote_data
 def test_solve_image_upload():
@@ -138,6 +140,7 @@ def test_solve_image_upload_expected_failure():
     assert not result
 
 
+@pytest.mark.filterwarnings("ignore:The WCS transformation has more axes:astropy.wcs.wcs.FITSFixedWarning")
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @pytest.mark.skipif(not _HAVE_SOURCE_DETECTION,
                     reason='photutils not installed')
