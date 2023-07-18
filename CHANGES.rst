@@ -89,6 +89,12 @@ astrometry_net
 
 - Added ``return_submission_id`` keyword argument to ``monitor_submission()``. [#2685]
 
+- Fixed off-by-one error in the reference pixel of the WCS solution when the
+  solution is found using sources detected by photutils. After this fix the
+  solution from astrometry.net will be the same when the input is an image
+  regardless of whether the image is uploaded or sources are detected
+  locally. [#2752]
+
 cadc
 ^^^^
 

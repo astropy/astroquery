@@ -15,7 +15,7 @@ else:
     _HAVE_CCDDATA = True
 
 try:
-    from photutils import DAOStarFinder
+    from photutils.detection import DAOStarFinder
 except ImportError:
     _HAVE_SOURCE_DETECTION = False
 else:
@@ -441,6 +441,10 @@ class AstrometryNetClass(BaseQuery):
             sources.reverse()
             if verbose:
                 print(sources)
+
+            # It turns out astrometry.net is 1-indexed, so add 1 to the source positions.
+            sources['xcentroid'] += 1
+            sources['ycentroid'] += 1
             return self.solve_from_source_list(sources['xcentroid'],
                                                sources['ycentroid'],
                                                ccd.header['naxis1'],
