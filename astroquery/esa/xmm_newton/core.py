@@ -182,8 +182,8 @@ class XMMNewtonClass(BaseQuery):
         if filename is None:
             response = self._request('HEAD', link)
             response.raise_for_status()
-            filename = re.findall('filename="(.+)"', response.headers[
-                "Content-Disposition"])[0]
+            filename = os.path.basename(re.findall('filename="(.+)"', response.headers[
+                "Content-Disposition"])[0])
         else:
             filename = observation_id + ".png"
 
@@ -318,7 +318,7 @@ class XMMNewtonClass(BaseQuery):
 
     def _create_filename(self, filename, observation_id, suffixes):
         if filename is not None:
-            filename = os.path.splitext(filename)[0]
+            filename = os.path.basename(os.path.splitext(filename)[0])
         else:
             filename = observation_id
         filename += "".join(suffixes)

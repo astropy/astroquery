@@ -19,7 +19,7 @@ import http.client as httplib
 import mimetypes
 import platform
 import time
-
+import os
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 from astroquery import version
@@ -585,7 +585,7 @@ class TapConn:
         if content_disposition is not None:
             p = content_disposition.find('filename="')
             if p >= 0:
-                filename = content_disposition[p+10:len(content_disposition)-1]
+                filename = os.path.basename(content_disposition[p+10:len(content_disposition)-1])
                 content_encoding = self.find_header(headers, 'Content-Encoding')
                 if content_encoding is not None:
                     if "gzip" == content_encoding.lower():
