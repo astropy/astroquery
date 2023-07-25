@@ -12,7 +12,7 @@ Getting Started
 The astroquery vamdc interface requires vamdclib_.  The documentation is sparse
 to nonexistent, but installation is straightforward::
 
-    pip install git+https://github.com/keflavich/vamdclib-1.git
+    python -m pip install git+https://github.com/keflavich/vamdclib-1.git
 
 This is the personal fork of the astroquery maintainer that includes astropy's
 setup helpers on top of the vamdclib infrastructure.  If the infrastructure is
