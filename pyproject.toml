@@ -1,8 +1,3 @@
-[tool.astropy-bot]
-
-[tool.astropy-bot.changelog_checker]
-filename = "CHANGES.rst"
-
 # astroquery still uses astropy-helpers
 # but we include pyproject.toml here so that python -m build can
 # work out of the box. In setup.py, we manually ensure that
