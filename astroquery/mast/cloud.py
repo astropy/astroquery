@@ -113,7 +113,7 @@ class CloudAccess:  # pragma:no-cover
 
         # Making sure we got at least 1 URI from the query above.
         if uri_list[0] == None:
-            raise InvalidQueryError("No products found on the cloud for this query.")
+            warnings.warn("Unable to locate file {}.".format(data_product), NoResultsWarning)
         else:
             # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
             return uri_list[0]
