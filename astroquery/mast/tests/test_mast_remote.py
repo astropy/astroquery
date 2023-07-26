@@ -412,7 +412,7 @@ class TestMast:
         products = mast.Observations.get_product_list(test_obs_id)[index:]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}.'
-                                    'Unable to move forward with getting URIs from the cloud.')
+                                   'Unable to move forward with getting URIs from the cloud.')
 
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
