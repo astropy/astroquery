@@ -55,12 +55,12 @@ installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
 <http://continuum.io/>`_.  Running the tests requires `curl
 <https://curl.haxx.se/>`_ to be installed.
 
-The latest version of astroquery can be pip installed (note the --pre for
-picking up released developer versions):
+The latest version of astroquery can be pip installed (note the ``--pre`` for
+picking up released developer versions, and ``-U`` for upgrade):
 
 .. code-block:: bash
 
-    $ pip install --pre astroquery
+    $ python -m pip install -U --pre astroquery
 
 To install all the mandatory and optional dependencies add the ``[all]``
 identifyer to the pip command above (or use ``[docs]`` or ``[test]`` for the
@@ -68,14 +68,14 @@ dependencies required to build the documentation or run the tests):
 
 .. code-block:: bash
 
-    $ pip install --pre astroquery[all]
+    $ python -m pip install -U --pre astroquery[all]
 
 
 To install the 'bleeding edge' version:
 
 .. code-block:: bash
 
-   $ pip install git+https://github.com/astropy/astroquery.git
+   $ python -m pip install git+https://github.com/astropy/astroquery.git
 
 or cloned and installed from source:
 
@@ -86,7 +86,7 @@ or cloned and installed from source:
     $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
-    $ pip install .
+    $ python -m pip install .
 
 Using astroquery
 ----------------
