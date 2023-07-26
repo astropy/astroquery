@@ -181,7 +181,11 @@ def mast_relative_path(mast_uri):
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
                                    {"uri": chunk})
         json_response = response.json()
+
         for uri in chunk:
+            # Chunk is a list of tuples where the tuple is
+            # ("uri", "/path/to/product")
+            # so we index for path (index=1)
             path = json_response.get(uri[1])["path"]
             if 'galex' in path:
                 path = path.lstrip("/mast/")
