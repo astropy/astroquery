@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 
+from astropy.utils import minversion
+import numpy as np
 import pytest
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
@@ -9,6 +11,11 @@ import pytest
 
 from pytest_astropy_header.display import (PYTEST_HEADER_MODULES,
                                            TESTED_VERSIONS)
+
+
+# Keep this until we require numpy to be >=2.0
+if minversion(np, "2.0.0.dev0+151"):
+    np.set_printoptions(legacy="1.25")
 
 
 def pytest_configure(config):
