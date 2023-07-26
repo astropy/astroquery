@@ -115,6 +115,7 @@ class CloudAccess:  # pragma:no-cover
         if len(uri_list) == 0:
             raise InvalidQueryError("No products found on the cloud for this query.")
         else:
+            # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
             return uri_list[0]
 
     def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
