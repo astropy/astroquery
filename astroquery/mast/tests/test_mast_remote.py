@@ -403,26 +403,24 @@ class TestMast:
 
         assert len(uri) > 0, f'Product for OBSID {test_obs_id} was not found in the cloud.'
 
-    def test_get_cloud_uris(self):
+    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411"])
+    def test_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
-        test_obs_ids = ["25568122", "31411"]
 
-        for test_obs_id in test_obs_ids:
+        # get a product list
+        index = 24 if test_obs_id == "25568122" else 0
+        products = mast.Observations.get_product_list(test_obs_id)[index:]
 
-            # get a product list
-            index = 24 if test_obs_id == "25568122" else 0
-            products = mast.Observations.get_product_list(test_obs_id)[index:]
+        assert len(products) > 0, (f'No products found for OBSID {test_obs_id}.'
+                                    'Unable to move forward with getting URIs from the cloud.')
 
-            assert len(products) > 0, (f'No products found for OBSID {test_obs_id}.'
-                                       'Unable to move forward with getting URIs from the cloud.')
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset()
 
-            # enable access to public AWS S3 bucket
-            mast.Observations.enable_cloud_dataset()
+        # get uris
+        uris = mast.Observations.get_cloud_uris(products)
 
-            # get uris
-            uris = mast.Observations.get_cloud_uris(products)
-
-            assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
+        assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
 
     ######################
     # CatalogClass tests #
