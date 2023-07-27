@@ -909,6 +909,38 @@ class MastClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
 
+    def mast_query(self, service, columns='*', **kwargs):
+        # Specific keywords related to positional and MashupRequest parameters.
+        position_keys = ['ra', 'dec', 'radius', 'position']
+        request_keys = ['format', 'data', 'filename', 'timeout', 'clearcache',
+                        'removecache', 'removenullcolumns', 'page', 'pagesize']
+
+        # Explicit formatting for Mast's filtered services
+        if 'Filtered' in service:
+
+            # Separating the filter params from the positional and service_request method params.
+            filters = [{'paramName': k, 'values': kwargs[k]} for k in kwargs
+                       if k not in position_keys+request_keys]
+            position_params = {k: v for k, v in kwargs.items() if k in position_keys}
+            request_params = {k: v for k, v in kwargs.items() if k in request_keys}
+
+            # Mast's filtered services require at least one filter
+            if filters == []:
+                raise InvalidQueryError("Please provide at least one filter.")
+
+            # Building 'params' for Mast.service_request
+            params = {'columns': columns,
+                      'filters': filters,
+                      **position_params
+                      }
+        else:
+
+            # Separating service specific params from service_request method params
+            params = {k: v for k, v in kwargs.items() if k not in request_keys}
+            request_params = {k: v for k, v in kwargs.items() if k in request_keys}
+
+        return self.service_request(service, params, **request_params)
+
 
 Observations = ObservationsClass()
 Mast = MastClass()
