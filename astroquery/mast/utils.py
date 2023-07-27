@@ -10,7 +10,9 @@ import numpy as np
 
 import requests
 import json
+import platform
 from urllib import parse
+
 import astropy.coordinates as coord
 
 from ..version import version
@@ -74,7 +76,8 @@ def _simple_request(url, params):
     """
 
     session = requests.session()
-    headers = {"User-Agent": "astroquery/{} {}".format(version, session.headers['User-Agent']),
+    headers = {"User-Agent": (f"astroquery/{version} Python/{platform.python_version()} ({platform.system()}) "
+                              f"{session.headers['User-Agent']}"),
                "Content-type": "application/x-www-form-urlencoded",
                "Accept": "text/plain"}
 

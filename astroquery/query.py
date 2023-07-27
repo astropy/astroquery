@@ -8,6 +8,7 @@ import hashlib
 import keyring
 import io
 import os
+import platform
 import requests
 import textwrap
 
@@ -184,9 +185,8 @@ class BaseQuery(metaclass=LoginABCMeta):
         S = self._session = requests.Session()
         self._session.hooks['response'].append(self._response_hook)
         S.headers['User-Agent'] = (
-            'astroquery/{vers} {olduseragent}'
-            .format(vers=version.version,
-                    olduseragent=S.headers['User-Agent']))
+            f"astroquery/{version.version} Python/{platform.python_version()} ({platform.system()}) "
+            f"{S.headers['User-Agent']}")
 
         self.name = self.__class__.__name__.split("Class")[0]
         self._cache_location = None
