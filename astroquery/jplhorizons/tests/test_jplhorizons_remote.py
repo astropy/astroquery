@@ -35,6 +35,7 @@ class TestHorizonsClass:
 
         assert_quantity_allclose(
             [2451544.5,
+             3.33, .120,
              188.7028, 9.09829, 34.40955, -2.68359,
              96.17083,
              161.3828, 10.4528, 2.551099027865, 0.1744491,
@@ -45,6 +46,7 @@ class TestHorizonsClass:
              71.545654,
              0.0, 0.0],
             [res['datetime_jd'],
+             res['H'], res['G'],
              res['RA'], res['DEC'], res['RA_rate'], res['DEC_rate'],
              res['illumination'],
              res['EclLon'], res['EclLat'], res['r'], res['r_rate'],
