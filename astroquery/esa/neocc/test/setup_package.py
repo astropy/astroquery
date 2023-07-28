@@ -6,6 +6,6 @@ setup.py to include the relevant files when installing.
 import os
 
 def get_package_data():
-    paths_test = [os.path.join('data', '*.xml')]
+    paths_test = [os.path.join('data', '*.lst')]
 
-    return {'astroquery.module.tests': paths_test}
+    return {'astroquery.esa.neocc.test': paths_test}

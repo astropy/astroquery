@@ -94,9 +94,12 @@ def get_list_data(url, list_name):
 
     # Get data from URL
     response = requests.get(API_URL + url, timeout=TIMEOUT, verify=VERIFICATION)
-    data_string = response.content.decode('utf-8')
+
+    # Raising error based on HTTP status if necessary
+    response.raise_for_status()
 
     # Parse decoded data
+    data_string = response.content.decode('utf-8')
     neocc_list = parse_list(list_name, data_string)
 
     return neocc_list
@@ -162,7 +165,8 @@ def parse_nea(resp_str):
     """
 
     resp_str = resp_str.replace('#', '')
-    return Table.read(resp_str, data_start=0, format="ascii.fixed_width", names=["NEA"])
+    resp_str = re.sub(' +', ' ', resp_str)
+    return Table.read(resp_str, data_start=0, format="ascii.csv", names=["NEA"])
 
 
 def parse_risk(resp_str):
@@ -184,7 +188,8 @@ def parse_risk(resp_str):
     neocc_lst.rename_columns(("Num/des.       Name", "m",  "Vel km/s"),
                              ('Object Name', 'Diameter in m', 'Vel in km/s'))
 
-    neocc_lst['Date/Time'] = Time(neocc_lst['Date/Time'], scale="utc") 
+    neocc_lst['Date/Time'] = Time(neocc_lst['Date/Time'], scale="utc")
+    neocc_lst['*=Y'] = neocc_lst['*=Y'].astype("<U1")
 
     if "Years" in neocc_lst.colnames:
         first_year, last_year  = np.array([x.split("-") for x in neocc_lst["Years"]]).swapaxes(0,1).astype(int)
@@ -224,9 +229,13 @@ def parse_clo(resp_str):
     neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width", 
                        names=('Object Name', 'Date', 'Miss Distance in km', 'Miss Distance in au',
                               'Miss Distance in LD', 'Diameter in m', '*=Yes', 'H', 'Max Bright',
-                              'Rel. vel in km/s'))
+                              'Rel. vel in km/s', "drop"))
+
+    # Remove last column
+    neocc_lst.remove_column("drop")
 
     neocc_lst['Date'] = Time(neocc_lst['Date'], scale="utc")
+    neocc_lst["Diameter in m"] = neocc_lst["Diameter in m"].astype(float)
 
     neocc_lst.meta = {'Object Name': 'name of the NEA',
                       'Date': 'close approach date in datetime format',
