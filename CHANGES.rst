@@ -114,8 +114,8 @@ casda
 cds
 ^^^
 
-the ``cds`` module has been renamed ``mocserver`` and issues a deprecation warning 
-when imported [#2766]
+- The ``cds`` module has been renamed ``mocserver`` and issues a deprecation warning
+  when imported. [#2766]
 
 heasarc
 ^^^^^^^
