@@ -408,9 +408,8 @@ class ESAneoccClass(BaseQuery):
         # Check the input of the method if tab is not in the list
         # print and error and show the valid names
         if tab not in tab_list:
-            raise KeyError('Please introduce a valid tab name. '
-                           'valid tabs names are: '
-                           ', '.join([str(elem) for elem in tab_list]))
+            raise KeyError(("Please introduce a valid table name. "
+                           f"Valid names are: {', '.join(tab_list)}"))
         # Depending on the tab selected the information will be requested
         # following different methods. Create "switch" for each case:
 
@@ -426,7 +425,7 @@ class ESAneoccClass(BaseQuery):
                 data_obj = tabs.get_object_data(url)
             except ConnectionError:  # pragma: no cover
                 print('Initial attempt to obtain object data failed. '
-                    'Reattempting...')
+                      'Reattempting...')
                 # Wait 5 seconds
                 time.sleep(5)
                 # Get object data
@@ -500,10 +499,6 @@ class ESAneoccClass(BaseQuery):
             resp_str = tabs.get_summary_data(name)
             
             neocc_obj = tabs.parse_summary(resp_str)
-            # Create empty object with class Summary
-            #neocc_obj = tabs.Summary()
-            # Parse the requested data using Summary parser
-            #neocc_obj._summary_parser(name)
 
         return neocc_obj
 

@@ -810,15 +810,27 @@ def parse_summary(resp_str):
     Uses BeautifulSoup, since it is html data.
     """
 
+    if "Object not found" in resp_str:
+        raise ValueError('Object not found: the name of the object is wrong or misspelt')
+    
     parsed_html = BeautifulSoup(resp_str, 'lxml')
 
     # Pull out the properties
     props = parsed_html.find_all("div", {"class": "simple-list__cell"})
     prop_list = [str(x.contents[0]).strip() for x in props]
 
-    # Seperate the ones that don't follow the same format (name followed by value followed by unit)
-    obs_props = prop_list[-4:]
-    prop_list = prop_list[:-4]
+    # Pulling out Discovery data/Observatory if they are present
+    # (These don't follow the name-value-unit format
+    try:
+        obs_ind = prop_list.index("Discovery Date")
+    except ValueError:
+        try:
+            obs_ind = prop_list.index("Observatory")
+        except:
+            obs_ind = len(prop_list)
+    
+    obs_props = prop_list[obs_ind:]
+    prop_list = prop_list[:obs_ind]
 
     # Building the table
     summary_tab = Table(names=["Physical Properties", "Value", "Units"], 
