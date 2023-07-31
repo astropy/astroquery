@@ -2,8 +2,7 @@ import os.path
 
 from astropy.table import Table
 
-from ...atomic import AtomicLineList, Transition, AtomicTransition,\
-    MultiTransition
+from ...atomic import AtomicLineList, Transition, AtomicTransition, MultiTransition
 from ...atomic.utils import is_valid_transitions_param
 
 

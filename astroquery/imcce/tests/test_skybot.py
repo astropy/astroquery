@@ -108,7 +108,7 @@ def general_query(patch_request):
     a = core.Skybot.cone_search((0, 0), 0.5, 2451200)
 
     assert (len(a) == 141)
-    assert (type(a['Number'][0]) == int)
+    assert isinstance(a['Number'][0], int)
     assert (a['RA'][0] == 359.94077541666667*u.deg)
     assert (a['DEC'][0] == -0.013904166666666667*u.deg)
 

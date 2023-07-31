@@ -453,7 +453,7 @@ class PortalAPI(BaseQuery):
             if separator:
                 entry["separator"] = separator
             if colType == "continuous":
-                entry["values"] = [{"min": value[0], "max":value[1]}]
+                entry["values"] = [{"min": value[0], "max": value[1]}]
             else:
                 entry["values"] = value
             if free_text:

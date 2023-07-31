@@ -403,55 +403,55 @@ class TestXMMNewton:
         # an instrument
         for k, v in res[1].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[2].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[3].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[4].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[5].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[8].items():
             assert k in _instruments
-            if type(v) == str:
+            if isinstance(v, str):
                 f = os.path.split(v)
                 assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
+            if isinstance(v, list):
                 for i in v:
                     f = os.path.split(i)
                     assert f[1] in self._files["0405320501"]["pps"]
@@ -462,9 +462,9 @@ class TestXMMNewton:
                 assert os.path.isdir(os.path.join(ob, t))
                 for b in res:
                     for i in res[b]:
-                        if type(res[b][i]) == str:
+                        if isinstance(res[b][i], str):
                             assert os.path.isfile(res[b][i])
-                        if type(res[b][i]) == list:
+                        if isinstance(res[b][i], list):
                             for f in res[b][i]:
                                 assert os.path.isfile(f)
 
