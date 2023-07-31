@@ -1660,20 +1660,20 @@ class ESASkyClass(BaseQuery):
 
         if ".gz" in content_disposition[start_index:].lower():
             end_index = (content_disposition.lower().index(".gz", start_index + 1) + len(".gz"))
-            return content_disposition[start_index: end_index]
+            return os.path.basename(content_disposition[start_index: end_index])
         elif self.__FITS_STRING in content_disposition[start_index:].lower():
             end_index = (
                 content_disposition.lower().index(self.__FITS_STRING, start_index + 1) + len(self.__FITS_STRING))
-            return content_disposition[start_index: end_index]
+            return os.path.basename(content_disposition[start_index: end_index])
         elif self.__FTZ_STRING in content_disposition[start_index:].upper():
             end_index = (content_disposition.upper().index(self.__FTZ_STRING, start_index + 1) + len(self.__FTZ_STRING))
-            return content_disposition[start_index: end_index]
+            return os.path.basename(content_disposition[start_index: end_index])
         elif ".fit" in content_disposition[start_index:].upper():
             end_index = (content_disposition.upper().index(".fit", start_index + 1) + len(".fit"))
-            return content_disposition[start_index: end_index]
+            return os.path.basename(content_disposition[start_index: end_index])
         elif self.__TAR_STRING in content_disposition[start_index:].lower():
             end_index = (content_disposition.lower().index(self.__TAR_STRING, start_index + 1) + len(self.__TAR_STRING))
-            return content_disposition[start_index: end_index]
+            return os.path.basename(content_disposition[start_index: end_index])
         else:
             return ""
 

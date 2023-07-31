@@ -837,8 +837,8 @@ class AlmaClass(QueryWithLogin):
                         raise (ex)
 
             try:
-                filename = re.search("filename=(.*)",
-                                     check_filename.headers['Content-Disposition']).groups()[0]
+                filename = os.path.basename(re.search("filename=(.*)",
+                                            check_filename.headers['Content-Disposition']).groups()[0])
             except KeyError:
                 log.info(f"Unable to find filename for {file_link}  "
                          "(missing Content-Disposition in header).  "
