@@ -191,6 +191,9 @@ class GaiaClass(TapPlus):
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For GAIA DR3, possible values are ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT' or 'MCMC_MSC']
+            For GAIA DR4, possible values are ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
+            'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RV_EPOCH_SINGLE', 'RV_EPOCH_DOUBLE', 'RVS_EPOCH' or 
+            'RVS_TRANSIT']
         valid_data : bool, optional, default False
             By default, the epoch photometry service returns all available data, including
             data rows where flux is null and/or the rejected_by_photometry flag is set to True.
