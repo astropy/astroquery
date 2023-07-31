@@ -155,7 +155,7 @@ def compare_xid_data(xid, data):
 
 def image_tester(images, filetype):
     """Test that an image/spectrum is our fake data."""
-    assert type(images) == list
+    assert isinstance(images, list)
     with fits.open(data_path(DATA_FILES[filetype])) as data:
         assert images[0][0].header == data[0].header
         assert images[0][0].data == data[0].data

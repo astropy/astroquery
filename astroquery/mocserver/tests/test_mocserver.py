@@ -97,7 +97,7 @@ def test_request_results(patch_get, datafile):
     results = MOCServer.query_region(
         get_query_payload=False, verbose=True, data=datafile
     )
-    assert type(results) == Table
+    assert isinstance(results, Table)
 
 
 """

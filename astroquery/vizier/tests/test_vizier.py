@@ -198,7 +198,7 @@ def test_find_resource_then_get(patch_post):
     assert next(iter(result.keys())).startswith(res.name)
 
     resultl = vizier.core.Vizier.get_catalogs([res])
-    assert type(result) == type(resultl)
+    assert isinstance(result, type(resultl))
     assert len(result) == len(resultl)
     assert len(result[0]) == len(resultl[0])
 
