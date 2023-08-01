@@ -36,7 +36,12 @@ class Conf(_config.ConfigNamespace):
                                       'XP_SAMPLED',
                                       'RVS',
                                       'MCMC_GSPPHOT',
-                                      'MCMC_MSC']
+                                      'MCMC_MSC',
+                                      'EPOCH_ASTROMETRY',
+                                      'RV_EPOCH_SINGLE',
+                                      'RV_EPOCH_DOUBLE',
+                                      'RVS_EPOCH',
+                                      'RVS_TRANSIT']
 
 
 conf = Conf()
