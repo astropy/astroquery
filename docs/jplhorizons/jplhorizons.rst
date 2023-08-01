@@ -96,6 +96,7 @@ as the observer's location, and Ceres as the target:
 
 .. doctest-remote-data::
 
+    >>> import astropy.units as u
     >>> statue_of_liberty = {'lon': -74.0466891 * u.deg,
     ...                      'lat': 40.6892534 * u.deg,
     ...                      'elevation': 0.093 * u.km}
