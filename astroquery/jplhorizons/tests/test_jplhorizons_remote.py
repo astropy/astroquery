@@ -361,17 +361,23 @@ class TestHorizonsClass:
 
         assert len(res) >= 6412
 
-    def test_vectors_query_topocentric_coordinates(self):
+    @pytest.mark.parametrize(
+            "location",
+            ({"lon": 244, "lat": 33, "elevation": 1.7},
+             {"lon": (244 * u.deg).to(u.rad), "lat": (33 * u.deg).to(u.rad), "elevation": 1700 * u.m},
+             )
+    )
+    def test_vectors_query_topocentric_coordinates(self, location):
         "Test vectors query specifying observer's longitude, latitude, and elevation"
         q = jplhorizons.Horizons(id='Ceres',
-                                 location={"lon": 244, "lat": 33, "elevation": 1700},
+                                 location=location,
                                  id_type='smallbody',
                                  epochs=2451544.5)
         res = q.vectors_async()
         i = res.text.find("Center geodetic :")
         j = res.text.find("\n", i)
         parts = res.text[i:j].split()
-        assert parts[3:6] == ['244.0,', '33.0,', '1700.0']
+        assert parts[3:6] == ['244.0,', '33.0,', '1.7']
 
         start = res.text.find("$$SOE")
         end = res.text.find("$$EOE")
