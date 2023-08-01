@@ -362,10 +362,11 @@ class TestHorizonsClass:
         assert len(res) >= 6412
 
     @pytest.mark.parametrize(
-            "location",
-            ({"lon": 244, "lat": 33, "elevation": 1.7},
-             {"lon": (244 * u.deg).to(u.rad), "lat": (33 * u.deg).to(u.rad), "elevation": 1700 * u.m},
-             )
+        "location",
+        (
+            {"lon": 244, "lat": 33, "elevation": 1.7},
+            {"lon": (244 * u.deg).to(u.rad), "lat": (33 * u.deg).to(u.rad), "elevation": 1700 * u.m},
+        )
     )
     def test_vectors_query_topocentric_coordinates(self, location):
         "Test vectors query specifying observer's longitude, latitude, and elevation"
