@@ -189,9 +189,9 @@ class GaiaClass(TapPlus):
             row per sourceId
         retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
-            For GAIA DR3, possible values are ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
+            For GAIA DR3, possible values are ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT' or 'MCMC_MSC']
-            For GAIA DR4, possible values are ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
+            For GAIA DR4, possible values will be ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RV_EPOCH_SINGLE', 'RV_EPOCH_DOUBLE', 'RVS_EPOCH' or
             'RVS_TRANSIT']
         valid_data : bool, optional, default False
