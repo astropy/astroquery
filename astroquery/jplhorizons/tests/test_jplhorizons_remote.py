@@ -15,25 +15,27 @@ from ... import jplhorizons
 
 @pytest.mark.remote_data
 class TestHorizonsClass:
-
     def test_ephemerides_query(self):
         # check all values of Ceres for a given epoch
-        # orbital uncertainty of Ceres is basically zero
-        res = jplhorizons.Horizons(id='Ceres', location='I41',
-                                   id_type='smallbody',
-                                   epochs=2451544.5,
-                                   quantities=",".join(str(q) for q in range(1, 49))
-                                   ).ephemerides()[0]
+        quantities = ",".join(str(q) for q in range(1, 49))
+        horizons = jplhorizons.Horizons(
+            id="Ceres", location="I41", id_type="smallbody", epochs=2451544.5
+        )
+        res = horizons.ephemerides(quantities=quantities)
 
         # Retrieved 2023 Aug 01:
         values = {
+            "targetname": "1 Ceres (A801 AA)",
+            "H": 3.33,
+            "G": 0.120,
+            "datetime_jd": 2451544.5,
             "datetime_str": "2000-Jan-01 00:00:00.000",
             "solar_presence": "*",
             "lunar_presence": "",
-            "RA": Angle("12 34 48.58", unit="hr"),
-            "DEC": Angle("+09 05 51.3", unit="deg"),
-            "RA_app": Angle("12 34 47.66", unit="hr"),
-            "DEC_app": Angle("+09 05 53.0", unit="deg"),
+            "RA": 188.70240 * u.deg,
+            "DEC": 9.09758 * u.deg,
+            "RA_app": 188.69858 * u.deg,
+            "DEC_app": 9.09806 * u.deg,
             "RA_rate": 35.17815 * u.arcsec / u.hr,
             "DEC_rate": -2.74237 * u.arcsec / u.hr,
             "AZ": 325.548736 * u.deg,
@@ -43,7 +45,7 @@ class TestHorizonsClass:
             "sat_X": -304791.02 * u.arcsec,
             "sat_Y": 115814.995 * u.arcsec,
             "sat_PANG": 277.607 * u.deg,
-            "siderealtime": "22 52 25.4117",
+            "siderealtime": 22.8737254836 * u.hr,
             "airmass": 999,
             "magextinct": np.ma.masked,
             "V": 8.259 * u.mag,
@@ -87,7 +89,7 @@ class TestHorizonsClass:
             "NPole_DEC": 66.76033 * u.deg,
             "GlxLon": 289.863376 * u.deg,
             "GlxLat": 71.544870 * u.deg,
-            "solartime": "16 09 31.6338",
+            "solartime": 16.1587871790 * u.hour,
             "earth_lighttime": 0.000354 * u.minute,
             "RA_3sigma": 0.000 * u.arcsec,
             "DEC_3sigma": 0.000 * u.arcsec,
@@ -102,73 +104,39 @@ class TestHorizonsClass:
             "XBand_3sigma": 0.00 * u.Hz,
             "DoppDelay_3sigma": 0.000001 * u.s,
             "true_anom": 7.1181 * u.deg,
-            "hour_angle": "10 17 37.752",
+            "hour_angle": 10.293820034 * u.hour,
             "alpha_true": 22.5691 * u.deg,
             "PABLon": 172.8355 * u.deg,
             "PABLat": 11.3478 * u.deg,
             "App_Lon_Sun": 309.1603680 * u.deg,
-            "RA_ICRF_app": Angle("12 34 48.57", unit=u.hr),
-            "DEC_ICRF_app": Angle("+09 05 46.6", unit=u.deg),
+            "RA_ICRF_app": 188.70238 * u.deg,
+            "DEC_ICRF_app": 9.09628 * u.deg,
             "RA_ICRF_rate": 35.17809 * u.arcsec / u.hour,
             "DEC_ICRF_rate": -2.74321 * u.arcsec / u.hour,
             "Sky_motion": 0.5880814 * u.arcsec / u.minute,
             "Sky_mot_PA": 94.457576 * u.deg,
             "RelVel-ANG": -53.53947 * u.deg,
-            "Lun_Sky_Brt": np.masked,
-            "sky_SNR": np.masked,
+            "Lun_Sky_Brt": np.ma.masked,
+            "sky_SNR": np.ma.masked,
         }
 
         # the ephemeris changes with Ceres's and the planets' orbital elements,
-        # which can be updated at any time, so only check for 1% tolerance, this
-        # is enough to verify that columns are not being confused, and that
+        # which can be updated at any time, so only check for 0.1% tolerance, this
+        # is enough to verify that most columns are not being confused, and that
         # units are correct
 
         for column, value in values.items():
-            if u.isinstance(value, (u.Quantity, u.Angle)):
-                assert u.isclose(res[column], value, rtol=0.001)
+            if isinstance(value, (u.Quantity, Angle)):
+                # A few columns have varied a lot more than the others
+                if column in ["H", "G", "V", "surfbright"]:
+                    rtol = 0.1
+                else:
+                    rtol = 0.001
+                assert u.isclose(res[column], value, rtol=rtol)
             elif value is np.ma.masked:
                 assert is_masked(res[column])
             else:
                 assert res[column] == value
-
-        # assert res['targetname'] == "1 Ceres (A801 AA)"
-        # assert res['datetime_str'] == "2000-Jan-01 00:00:00.000"
-        # assert res['solar_presence'] == ""
-        # assert res['lunar_presence'] == ""
-        # assert res['elongFlag'] == '/L'
-        # assert res['airmass'] == 999
-
-        # assert is_masked(res['AZ'])
-        # assert is_masked(res['EL'])
-        # assert is_masked(res['magextinct'])
-
-        # assert_quantity_allclose(
-        #     [2451544.5,
-        #      3.33, .120,
-        #      188.7028, 9.09829, 34.40955, -2.68359,
-        #      96.17083,
-        #      161.3828, 10.4528, 2.551099027865, 0.1744491,
-        #      2.26315121010004, -21.9390512, 18.82205467,
-        #      95.3996, 22.5698, 292.551,
-        #      296.85,
-        #      184.3426241, 11.7996517, 289.864335,
-        #      71.545654,
-        #      0.0, 0.0],
-        #     [res['datetime_jd'],
-        #      res['H'], res['G'],
-        #      res['RA'], res['DEC'], res['RA_rate'], res['DEC_rate'],
-        #      res['illumination'],
-        #      res['EclLon'], res['EclLat'], res['r'], res['r_rate'],
-        #      res['delta'], res['delta_rate'], res['lighttime'],
-        #      res['elong'], res['alpha'], res['sunTargetPA'],
-        #      res['velocityPA'],
-        #      res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'],
-        #      res['GlxLat'],
-        #      res['RA_3sigma'], res['DEC_3sigma']], rtol=1e-3)
-
-        # # V and surfbright tend to vary a lot more than the others.  Give them a
-        # # more generous test:
-        # assert_quantity_allclose([8.239, 6.779], [res['V'], res['surfbright']], rtol=0.1)
 
     def test_ephemerides_query_two(self):
         # check comet ephemerides using options
