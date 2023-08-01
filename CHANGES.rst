@@ -117,6 +117,13 @@ cds
 - The ``cds`` module has been renamed ``mocserver`` and issues a deprecation warning
   when imported. [#2766]
 
+exoplanet_orbit_database
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The module has been deprecated due to the retirement of its upstream
+  website. The database hasn't been updated since 2018, users are encouraged
+  to use the ``ipac.nexsci.nasa_exoplanet_archive`` module instead. [#2792]
+
 heasarc
 ^^^^^^^
 
