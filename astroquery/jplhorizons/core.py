@@ -445,8 +445,8 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |
         +------------------+-----------------------------------------------+
-        | hour_angle       | local apparent hour angle (string,            |
-        |                  | sexagesimal angular hours, ``L_Ap_Hour_Ang``) |
+        | hour_angle       | local apparent hour angle (float,             |
+        |                  | hour, ``L_Ap_Hour_Ang``)                      |
         +------------------+-----------------------------------------------+
         | alpha_true       | true phase angle (float, deg, ``phi``)        |
         +------------------+-----------------------------------------------+
@@ -455,6 +455,45 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | PABLat           | phase angle bisector latitude                 |
         |                  | (float, deg, ``PAB-LAT``)                     |
+        +------------------+-----------------------------------------------+
+        | App_Lon_Sun      | apparent target-centered longitude of the Sun |
+        |                  | (float, hour, ``App_Lon_Sun``)                |
+        +------------------+-----------------------------------------------+
+        | RA_ICRF_app      | airless apparent right ascension of the target|
+        |                  | in the ICRF                                   |
+        |                  | (float, hour, ``RA_(ICRF-a-app)``)            |
+        +------------------+-----------------------------------------------+
+        | DEC_ICRF_app     | airless apparent declination of the target    |
+        |                  | in the ICRF                                   |
+        |                  | (float, deg, ``DEC_(ICRF-a-app)``)            |
+        +------------------+-----------------------------------------------+
+        | RA_ICRF_rate_app | RA rate of change in the targets' ICRF        |
+        |                  | multiplied by the cosine of declination       |
+        |                  | (float, arcsec/hour, ``I_dRA*cosD``)          |
+        +------------------+-----------------------------------------------+
+        | DEC_ICRF_rate_app| DEC rate of change in the targets' ICRF       |
+        |                  | (float, arcsec/hour, ``I_d(DEC)/dt``)         |
+        +------------------+-----------------------------------------------+
+        | Sky_motion       | Total apparent angular rate in the plane-of-  |
+        |                  | sky                                           |
+        |                  | (float, arcsec/minute, ``Sky_motion``)        |
+        +------------------+-----------------------------------------------+
+        | Sky_mot_PA       | position angle direction of motion in the     |
+        |                  | plane-of-sky                                  |
+        |                  | (float, deg, ``Sky_mot_PA``)                  |
+        +------------------+-----------------------------------------------+
+        | RelVel-ANG       | flight path angle of the target's relative    |
+        |                  | motion with respect to the observer's         |
+        |                  | line-of-sight                                 |
+        |                  | (float, deg, ``RelVel-ANG``)                  |
+        +------------------+-----------------------------------------------+
+        | Lun_Sky_Brt      | Sky brightness due to moonlight               |
+        |                  | (float, mag, ``Lun_Sky_Brt``)                 |
+        +------------------+-----------------------------------------------+
+        | sky_SNR          | approximate visual signal-to-noise ratio of   |
+        |                  | the target's brightness divided by lunar sky  |
+        |                  | brightness                                    |
+        |                  | (float, unitless, ``sky_SNR``)                |
         +------------------+-----------------------------------------------+
 
 
@@ -1276,7 +1315,7 @@ class HorizonsClass(BaseQuery):
                         break
                 raise ValueError(('Ambiguous target name; provide '
                                   'unique id:\n%s' %
-                                  '\n'.join(src[idx + 2:end_idx])))
+                                  '\n'.join(src[idx + 2: end_idx])))
             # catch unknown target
             if ("Matching small-bodies" in line and "No matches found" in src[idx + 1]):
                 raise ValueError(('Unknown target ({:s}). Maybe try '

@@ -244,7 +244,7 @@ skips the query and only returns the query payload. To pass additional settings
 to the request use the ``optional_settings`` passing a key-value
 dictionary.
 
-:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by default all
+:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by default most
 available quantities from the JPL Horizons servers. This might take a while. If
 you are only interested in a subset of the available quantities, you can query
 only those. The corresponding optional parameter to be set is ``quantities``.

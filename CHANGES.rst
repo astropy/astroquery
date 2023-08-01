@@ -149,6 +149,10 @@ jplhorizons
 - Topocentric coordinates can now be specified for both center and target in observer
   and vector queries. [#2625]
 
+- Updated returned table columns to match Horizons's updates. [#2794]
+
+- Assign units to ``"hour_angle"``, ``"solartime"``, and ``"siderealtime"`` columns. [#2794]
+
 jplsbdb
 ^^^^^^^
 

@@ -20,8 +20,6 @@ class Conf(_config.ConfigNamespace):
         ['https://ssd.jpl.nasa.gov/api/horizons.api', ],
         'JPL Horizons')
 
-    # implement later: sbdb_server = 'https://ssd-api.jpl.nasa.gov/sbdb.api'
-
     timeout = _config.ConfigItem(
         30,
         'Time limit for connecting to JPL servers.')
@@ -29,8 +27,7 @@ class Conf(_config.ConfigNamespace):
     # JPL Horizons settings
 
     # quantities queried in ephemerides query (see
-    # https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities)
-    # default: all quantities
+    # https://ssd.jpl.nasa.gov/horizons/manual.html#output)
     eph_quantities = ('1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
                       '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'
                       '38,39,40,41,42,43')
@@ -64,14 +61,18 @@ class Conf(_config.ConfigNamespace):
                    'DEC_(FK4/B1950.0)': ('DEC', 'deg'),
                    'R.A._(FK4/B1950)': ('RA', 'deg'),
                    'DEC_(FK4/B1950)': ('DEC', 'deg'),
+                   'RA_(ICRF-a-app)': ('RA_ICRF_app', 'deg'),  # both *_app and *_ICRF_app may be present
+                   'DEC_(ICRF-a-app)': ('DEC_ICRF_app', 'deg'),
                    'R.A._(a-app)': ('RA_app', 'deg'),
-                   'R.A.__(a-app)': ('RA_app', 'deg'),
                    'DEC_(a-app)': ('DEC_app', 'deg'),
+                   'R.A.__(a-app)': ('RA_app', 'deg'),
                    'DEC___(a-app)': ('DEC_app', 'deg'),
                    'R.A._(r-app)': ('RA_app', 'deg'),
                    'DEC_(r-app)': ('DEC_app', 'deg'),
                    'dRA*cosD': ('RA_rate', 'arcsec/hour'),
                    'd(DEC)/dt': ('DEC_rate', 'arcsec/hour'),
+                   'I_dRA*cosD': ('RA_ICRF_rate_app', 'arcsec/hour'),
+                   'I_d(DEC)/dt': ('DEC_ICRF_rate_app', 'arcsec/hour'),
                    'Azi_(a-app)': ('AZ', 'deg'),
                    'Elev_(a-app)': ('EL', 'deg'),
                    'Azimuth_(a-app)': ('AZ', 'deg'),
@@ -83,7 +84,7 @@ class Conf(_config.ConfigNamespace):
                    'X_(sat-prim)': ('sat_X', 'arcsec'),
                    'Y_(sat-prim)': ('sat_Y', 'arcsec'),
                    'SatPANG': ('sat_PANG', 'deg'),
-                   'L_Ap_Sid_Time': ('siderealtime', '---'),
+                   'L_Ap_Sid_Time': ('siderealtime', "hour"),
                    'a-mass': ('airmass', '---'),
                    'mag_ex': ('magextinct', 'mag'),
                    'APmag': ('V', 'mag'),
@@ -144,7 +145,7 @@ class Conf(_config.ConfigNamespace):
                    'N.Pole-DC': ('NPole_DEC', 'deg'),
                    'GlxLon': ('GlxLon', 'deg'),
                    'GlxLat': ('GlxLat', 'deg'),
-                   'L_Ap_SOL_Time': ('solartime', '---'),
+                   'L_Ap_SOL_Time': ('solartime', 'hour'),
                    '399_ins_LT': ('earth_lighttime', 'minute'),
                    'RA_3sigma': ('RA_3sigma', 'arcsec'),
                    'DEC_3sigma': ('DEC_3sigma', 'arcsec'),
@@ -159,11 +160,17 @@ class Conf(_config.ConfigNamespace):
                    'DOP_X_3sig': ('XBand_3sigma', 'Hz'),
                    'RT_delay_3sig': ('DoppDelay_3sigma', 'second'),
                    'Tru_Anom': ('true_anom', 'deg'),
-                   'r-L_Ap_Hour_Ang': ('hour_angle', '---'),
-                   'L_Ap_Hour_Ang': ('hour_angle', '---'),
+                   'r-L_Ap_Hour_Ang': ('hour_angle', 'hour'),
+                   'L_Ap_Hour_Ang': ('hour_angle', 'hour'),
                    'phi': ('alpha_true', 'deg'),
                    'PAB-LON': ('PABLon', 'deg'),
-                   'PAB-LAT': ('PABLat', 'deg')
+                   'PAB-LAT': ('PABLat', 'deg'),
+                   'App_Lon_Sun': ('App_Lon_Sun', 'deg'),
+                   'Sky_motion': ('Sky_motion', 'arcsec/minute'),
+                   'Sky_mot_PA': ('Sky_mot_PA', 'deg'),
+                   'RelVel-ANG': ('RelVel-ANG', 'deg'),
+                   'Lun_Sky_Brt': ('Lun_Sky_Brt', 'mag/arcsec2'),
+                   'sky_SNR': ('sky_SNR', '---'),
                    }
 
     elem_columns = {'targetname': ('targetname', '---'),
