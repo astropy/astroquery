@@ -446,7 +446,7 @@ class HorizonsClass(BaseQuery):
         | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |
         +------------------+-----------------------------------------------+
         | hour_angle       | local apparent hour angle (float,             |
-        |                  | hour, ``L_Ap_Hour_Ang``)                       |
+        |                  | hour, ``L_Ap_Hour_Ang``)                      |
         +------------------+-----------------------------------------------+
         | alpha_true       | true phase angle (float, deg, ``phi``)        |
         +------------------+-----------------------------------------------+
@@ -1315,7 +1315,7 @@ class HorizonsClass(BaseQuery):
                         break
                 raise ValueError(('Ambiguous target name; provide '
                                   'unique id:\n%s' %
-                                  '\n'.join(src[idx + 2:end_idx])))
+                                  '\n'.join(src[idx + 2: end_idx])))
             # catch unknown target
             if ("Matching small-bodies" in line and "No matches found" in src[idx + 1]):
                 raise ValueError(('Unknown target ({:s}). Maybe try '
