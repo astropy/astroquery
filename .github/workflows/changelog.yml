@@ -18,3 +18,4 @@ jobs:
       env:
         CHANGELOG_FILENAME: CHANGES.rst
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CHECK_MILESTONE: false
