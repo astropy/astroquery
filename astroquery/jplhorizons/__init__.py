@@ -71,8 +71,8 @@ class Conf(_config.ConfigNamespace):
                    'DEC_(r-app)': ('DEC_app', 'deg'),
                    'dRA*cosD': ('RA_rate', 'arcsec/hour'),
                    'd(DEC)/dt': ('DEC_rate', 'arcsec/hour'),
-                   'I_dRA*cosD': ('RA_ICRF_rate', 'arcsec/hour'),  # both *_rate and *_ICRF_rate may be present
-                   'I_d(DEC)/dt': ('DEC_ICRF_rate', 'arcsec/hour'),
+                   'I_dRA*cosD': ('RA_ICRF_rate_app', 'arcsec/hour'),
+                   'I_d(DEC)/dt': ('DEC_ICRF_rate_app', 'arcsec/hour'),
                    'Azi_(a-app)': ('AZ', 'deg'),
                    'Elev_(a-app)': ('EL', 'deg'),
                    'Azimuth_(a-app)': ('AZ', 'deg'),
