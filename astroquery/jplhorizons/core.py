@@ -1210,14 +1210,13 @@ class HorizonsClass(BaseQuery):
 
     @staticmethod
     def _location_to_params(loc_dict):
-        """translate a 'location' dict to a dict of request parameters"""
-        loc_dict = {
+        """translate a 'location' dict to request parameters"""
+        location = {
             "CENTER": f"coord@{loc_dict['body']}",
             "COORD_TYPE": "GEODETIC",
-            "SITE_COORD": HorizonsClass._format_site_coords(loc_dict)
+            "SITE_COORD": "'{}'".format(str(HorizonsClass._format_site_coords(loc_dict)))
         }
-        loc_dict["SITE_COORD"] = f"'{loc_dict['SITE_COORD']}'"
-        return loc_dict
+        return location
 
     @staticmethod
     def _format_site_coords(coords):
