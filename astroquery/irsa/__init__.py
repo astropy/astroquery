@@ -1,4 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+This is the old namespace for querying the NASA/IPAC Infrared Science Archive (IRSA).
+Please update your imports and use it from astroquery.ipac.irsa
+
+.. deprecated:: 0.4.4
+"""
 import warnings
 
 warnings.warn("the ``irsa`` module has been moved to astroquery.ipac.irsa, "
