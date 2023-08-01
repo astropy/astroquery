@@ -1,5 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+This is the old namespace for querying the NASA/IPAC Infrared Science Archive Dust Reddening Tool.
+Please update your imports and use it from astroquery.ipac.irsa.irsa_dust
 
+.. deprecated:: 0.4.4
+"""
 
 import warnings
 

@@ -16,6 +16,8 @@ work, the following acknowledgment would be appreciated::
   This research has made use of the MOCServer, a tool developed at CDS, Strasbourg, France aiming at retrieving
   MOCs/meta-data from known data-sets. MOC is an IVOA standard described in the following paper :
   http://www.ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf
+
+.. deprecated:: 0.4.7
 """
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
@@ -26,6 +28,7 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 warnings.warn("The ``cds`` module has been moved to astroquery.mocserver, "
               "and ``CdsClass`` has been renamed to ``MOCServerClass``. "
               "Please update your imports.", AstropyDeprecationWarning, stacklevel=2)
+
 
 from astroquery.mocserver import MOCServer as cds
 from astroquery.mocserver import MOCServerClass as CdsClass
