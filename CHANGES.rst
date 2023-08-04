@@ -31,6 +31,8 @@ esa.hubble
 
 - Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [#2567][#2597]
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
+- New methods to download single files and download FITS associated to an observation. [#2797]
+- New function to retrieve all the files associated to an observation. [#2797]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
@@ -64,6 +66,7 @@ esa.hubble
   a lot faster. [#2524]
 - Method query_hst_tap has been deprecated and is replaced with query_tap, with the same arguments. [#2597]
 - Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [#2597]
+- query_criteria method now allows user to filter by Proposal ID. [#2797]
 
 alma
 ^^^^
