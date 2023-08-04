@@ -465,6 +465,7 @@ class ESAHubbleClass(BaseQuery):
                              obs_collection=None,
                              instrument_name=None,
                              filters=None,
+                             proposal=None,
                              async_job=True,
                              filename=None,
                              output_format='votable',
@@ -502,6 +503,8 @@ class ESAHubbleClass(BaseQuery):
             Name(s) of the instrument(s) used to generate the dataset
         filters : list of str, optional
             Name(s) of the filter(s) used to generate the dataset
+        proposal : int, optional
+            Proposal ID associated to the observations
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -534,6 +537,7 @@ class ESAHubbleClass(BaseQuery):
                                          obs_collection=obs_collection,
                                          instrument_name=instrument_name,
                                          filters=filters,
+                                         proposal=proposal,
                                          async_job=True,
                                          get_query=True)
         if crit_query.endswith(")"):
@@ -693,7 +697,7 @@ class ESAHubbleClass(BaseQuery):
     def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,
                        obs_collection=None, instrument_name=None,
-                       filters=None, async_job=True, output_file=None,
+                       filters=None, proposal=None, async_job=True, output_file=None,
                        output_format="votable", verbose=False,
                        get_query=False):
         """
@@ -713,13 +717,15 @@ class ESAHubbleClass(BaseQuery):
         intent : str, optional
             The intent of the original observer in acquiring this observation.
             SCIENCE or CALIBRATION
-        collection : list of str, optional
+        obs_collection : list of str, optional
             List of collections that are available in eHST catalogue.
-            HLA, HST
+            HLA, HST, HAP
         instrument_name : list of str, optional
             Name(s) of the instrument(s) used to generate the dataset
         filters : list of str, optional
             Name(s) of the filter(s) used to generate the dataset
+        proposal : int, optional
+            Proposal ID associated to the observations
         async_job : bool, optional, default 'True'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -754,6 +760,11 @@ class ESAHubbleClass(BaseQuery):
                 parameters.append("intent LIKE '%{}%'".format(intent.lower()))
             else:
                 raise ValueError("intent must be a string")
+        if proposal is not None:
+            if isinstance(proposal, int):
+                parameters.append("proposal_id = '{}'".format(proposal))
+            else:
+                raise ValueError("Proposal ID must be an integer")
         if self.__check_list_strings(obs_collection):
             parameters.append("(collection LIKE '%{}%')".format(
                 "%' OR collection LIKE '%".join(obs_collection)

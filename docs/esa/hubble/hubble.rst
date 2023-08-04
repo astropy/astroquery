@@ -34,88 +34,15 @@ It is highly recommended checking the status of eHST TAP before executing this m
 This method will retrieve the same warning messages shown in eHST Science Archive with information about
 service degradation.
 
---------------------------
-1. Getting Hubble products
---------------------------
-
-This function allows the user to download products based on their observation ID (mandatory) and
-a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY).
-
-Deprecation Warning: product types PRODUCT, SCIENCE_PRODUCT or POSTCARD are no longer supported. Please modify your scripts accordingly.
-
-
-This will download all files for the raw calibration level of the observation 'j6fl25s4q' and it will store them in a tar called
-'raw_data_for_j6fl25s4q.tar'.
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
-  ...                            filename="raw_data_for_j6fl25s4q.fits")  # doctest: +IGNORE_OUTPUT
-
-This will download the science files associated to the observation 'j6fl25s4q' and it will store them in a file called
-'science_data_for_j6fl25s4q.tar.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="j6fl25s4q", product_type="SCIENCE",
-  ...                            filename="science_data_for_j6fl25s4q.fits")   # doctest: +IGNORE_OUTPUT
-
-This third case will download the science files associated to the observation 'j6fl25s4q' in raw calibration level and it will store them in a file called
-'science_raw_data_for_j6fl25s4q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
-  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE")   # doctest: +IGNORE_OUTPUT
-
----------------------------
-2. Getting Hubble postcards
----------------------------
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.get_postcard(observation_id="j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")  # doctest: +IGNORE_OUTPUT
-
-This will download the postcard for the observation 'J8VP03010' with low
-resolution (256) and it will stored in a jpg called
-'raw_postcard_for_j6fl25s4q.jpg'. Resolution of 1024 is also available.
-
-Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
-
----------------------------
-3. Getting Hubble artifacts
----------------------------
-
-Note: Artifact is a single Hubble product file.
-
-.. Doesn't run
-.. doctest-skip::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> esahubble.get_artifact(artifact_id="w0ji0v01t_c2f.fits")
-
-This will download the compressed artifact
-'w0ji0v01t_c2f.fits.gz'. 'w0ji0v01t_c2f.fits' is the name of the Hubble
-artifact to be download.
-
 ----------------------------------------------
-4. Querying target names in the Hubble archive
+1. Querying target names in the Hubble archive
 ----------------------------------------------
 
 The query_target function queries the name of the target as given by the proposer of the observations.
 
 .. doctest-remote-data::
 
-  >>> from astroquery.esa.hubble import ESAHubble 
+  >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> table = esahubble.query_target(name="m31", filename="m31_query.xml.gz")  # doctest: +IGNORE_OUTPUT
 
@@ -124,9 +51,9 @@ It will also download a file storing all metadata for all observations
 associated with target name 'm31'. The result of the query will be stored in
 file 'm31_query.xml.gz'.
 
------------------------------------------------------------------
-5. Querying observations by search criteria in the Hubble archive
------------------------------------------------------------------
+-------------------------------------------------------------------
+2. Retrieving observations by search criteria in the Hubble archive
+-------------------------------------------------------------------
 
 The query_criteria function uses a set of established parameters to create
 and execute an ADQL query, accessing the HST archive database usgin the Table
@@ -154,11 +81,13 @@ Access Protocol (TAP).
 
  + HLA
  + HST
+ + HAP
 
  Do not forget that this is a list of elements, so it must be defined as ['HST'], ['HST', 'HLA']...
 
 - **instrument_name** (*list of strings, optional*): Name(s) of the instrument(s) used to generate the dataset. This is also a list of elements.
 - **filters** (*list of strings, optional*): Name(s) of the filter(s) used to generate the dataset. This is also a list of elements.
+- **proposal** (*int, optional*): Proposal or Program ID to be searched.
 - **async_job** (*bool, optional, default 'True'*): executes the query (job) in asynchronous/synchronous mode (default synchronous)
 - **output_file** (*str, optional, default None*) file name where the results are saved if dumpToFile is True. If this parameter is not provided, the jobid is used instead
 - **output_format** (*str, optional, default 'votable'*) results format
@@ -194,8 +123,8 @@ This is an example of a query with all the parameters and the verbose flag activ
   Saving results to: output1.vot.gz
   Query finished.
   >>> print(result)    # doctest: +IGNORE_OUTPUT
-   algorithm_name  collection ...         ra                 dec        
-       object        object   ...      float64             float64      
+   algorithm_name  collection ...         ra                 dec
+       object        object   ...      float64             float64
   ---------------- ---------- ... ------------------ -------------------
   HLA ASSOCIATIONS        HLA ... 196.03170537675234 -49.368511417967795
           exposure        HLA ... 196.03171011284857  -49.36851677699096
@@ -243,7 +172,7 @@ The following example uses the string definition of the calibration level ('PROD
   ...                                   verbose = False,
   ...                                   get_query = False)
   >>> print(result)  # doctest: +IGNORE_OUTPUT
-   algorithm_name  collection ...         ra                 dec        
+   algorithm_name  collection ...         ra                 dec
   ---------------- ---------- ... ------------------ -------------------
   HLA ASSOCIATIONS        HLA ... 196.03170537675234 -49.368511417967795
           exposure        HLA ... 196.03171011284857  -49.36851677699096
@@ -323,7 +252,7 @@ This last example will provide the ADQL query based on the criteria defined by t
   select * from ehst.archive where(calibration_level=3 AND data_product_type LIKE '%image%' AND intent LIKE '%science%' AND (collection LIKE '%HLA%') AND (instrument_name LIKE '%WFC3%') AND (instrument_configuration LIKE '%F555W%' OR instrument_configuration LIKE '%F606W%'))
 
 --------------------------------------
-6. Cone searches in the Hubble archive
+3. Cone searches in the Hubble archive
 --------------------------------------
 
 .. doctest-remote-data::
@@ -341,7 +270,7 @@ the module will provide a default name. It is also possible to store only the re
 in memory, without defining neither a filename nor the "save" tag.
 
 ----------------------------------------------------
-7. Cone searches with criteria in the Hubble archive
+4. Cone searches with criteria in the Hubble archive
 ----------------------------------------------------
 
 It is also possible to perform a cone search defined by a target name or coordinates, a radius
@@ -360,7 +289,7 @@ and a set of criteria to filter the results.
   ...                                         filename = 'output1.vot.gz',
   ...                                         output_format="votable")
   >>> print(result)    # doctest: +IGNORE_OUTPUT
-  algorithm_name collection            end_time           ...         ra                dec        
+  algorithm_name collection            end_time           ...         ra                dec
   -------------- ---------- ----------------------------- ... ------------------ ------------------
     multidrizzle        HST 2002-06-29 15:25:57.556128+00 ... 10.773035733571806  41.28459914735614
          drizzle        HST    2002-06-29 12:15:20.787+00 ... 10.809522856742248  41.29351658280752
@@ -404,7 +333,7 @@ and a set of criteria to filter the results.
   ...                                         filename = 'output1.vot.gz',
   ...                                         output_format="votable")
   >>> print(result)   # doctest: +IGNORE_OUTPUT
-  algorithm_name collection          end_time          ...         ra                dec        
+  algorithm_name collection          end_time          ...         ra                dec
   -------------- ---------- -------------------------- ... ------------------ ------------------
         exposure        HST 1996-07-11 19:57:16.567+00 ... 10.707934959432448  41.29717554921647
         exposure        HST 1996-07-11 19:57:16.567+00 ... 10.707934959432448  41.29717554921647
@@ -430,11 +359,110 @@ and a set of criteria to filter the results.
 This will perform a cone search with radius 7 arcmins around the target (defined by
 its coordinates or its name) using the filters defined when executing the function.
 
-This function allows the same parameters than the search criteria (see Section 5).
+This function allows the same parameters than the search criteria (see Section 2).
 
+--------------------------
+5. Getting Hubble products
+--------------------------
+
+After retrieving the metadata, the user can filter the result table and get the rows of interest.
+The most important column is 'observation_id' and it is possible to use it to retrieve all the
+associated files.
+
+In eHST is it possible to download products based on their observation ID (mandatory) and
+a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY).
+
+Deprecation Warning: product types PRODUCT, SCIENCE_PRODUCT or POSTCARD are no longer supported. Please modify your scripts accordingly.
+
+For instance, next commands will download all files for the raw calibration level
+of the observation 'j6fl25s4q' and it will store them in a file called
+'raw_data_for_j6fl25s4q.zip'.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
+  ...                            filename="raw_data_for_j6fl25s4q")  # doctest: +IGNORE_OUTPUT
+
+This second example will download the science files associated to the observation 'j6fl25s4q' and it will store them in a file called
+'science_data_for_j6fl25s4q.zip', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="j6fl25s4q", product_type="SCIENCE",
+  ...                            filename="science_data_for_j6fl25s4q")   # doctest: +IGNORE_OUTPUT
+
+This third case will download the science files associated to the observation 'j6fl25s4q' in raw calibration level and it will store them in a file called
+'science_raw_data_for_j6fl25s4q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
+  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE")   # doctest: +IGNORE_OUTPUT
+
+If the user wants to filter the files to be downloaded, this module provides additional mechanisms.
+
+The first step is to query eHST Server to retrieve them. For instance, for observation w0ji0v01t:
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> table = esahubble.get_associated_files(observation_id='w0ji0v01t')
+  >>> print(result)    # doctest: +IGNORE_OUTPUT
+         filename      calibration_level    type   size_uncompressed
+          object             object        object        object
+    ------------------ ----------------- --------- -----------------
+    w0ji0v01t_c0f.fits        CALIBRATED   science          10035 kB
+     w0ji0v01t_c0f.jpg        CALIBRATED   preview             15 kB
+                   ...               ...       ...               ...
+    w0ji0v01t_shf.fits               RAW auxiliary             31 kB
+    w0ji0v01t_trl.fits               RAW auxiliary             23 kB
+    w0ji0v01t_x0f.fits               RAW auxiliary            101 kB
+
+
+Now it is possible to download a specific file using the filename column.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_file(file="w0ji0v01t_x0f.fits")
+  'w0ji0v01t_x0f.fits.gz'
+
+
+This will download the compressed file 'w0ji0v01t_x0f.fits.gz'. This table can be iterated to download all the files.
+
+In case the user is only interested in FITS files, this module contains a specific function to execute this request.
+
+.. doctest-remote-data::
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_fits_files(observation_id='w0ji0v01t')
+
+---------------------------
+6. Getting Hubble postcards
+---------------------------
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.get_postcard(observation_id="j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")  # doctest: +IGNORE_OUTPUT
+
+This will download the postcard for the observation 'J8VP03010' with low
+resolution (256) and it will stored in a jpg called
+'raw_postcard_for_j6fl25s4q.jpg'. Resolution of 1024 is also available.
+
+Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 
 -------------------------------
-8. Getting access to catalogues
+7. Getting access to catalogues
 -------------------------------
 
 This function provides access to the HST archive database using the Table
@@ -463,7 +491,7 @@ To access the same information shown in eHST Science Archive:
 Deprecation Warning: this method was previously named as query_hst_tap. Please modify your scripts accordingly.
 
 ------------------------------------------------------
-9. Getting related members of HAP and HST observations
+8. Getting related members of HAP and HST observations
 ------------------------------------------------------
 
 This function takes in an observation id of a Composite or Simple observation.
@@ -480,9 +508,9 @@ method returns the simple observations that make it up.
   ['jdrz0cjxq', 'jdrz0cjyq']
 
 
---------------------------------------------------------
-10. Getting link between Simple HAP and HST observations
---------------------------------------------------------
+-------------------------------------------------------
+9. Getting link between Simple HAP and HST observations
+-------------------------------------------------------
 
 This function takes in an observation id of a Simple HAP or HST observation and
 returns the corresponding HAP or HST observation

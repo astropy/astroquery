@@ -293,6 +293,32 @@ class TestESAHubble:
         ehst.get_columns(table_name="table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters)
 
+    def test_query_criteria_proposal(self):
+        parameters1 = {'proposal': 12345,
+                       'async_job': False,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': True,
+                       'get_query': True}
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        test_query = ehst.query_criteria(proposal=parameters1['proposal'],
+                                         async_job=parameters1['async_job'],
+                                         output_file=parameters1['output_file'],
+                                         output_format=parameters1['output_format'],
+                                         verbose=parameters1['verbose'],
+                                         get_query=parameters1['get_query'])
+        parameters2 = {'query': test_query,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        parameters3 = {'query': "select * from ehst.archive where("
+                                "proposal_id = '12345')",
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters2)
+        dummy_tap_handler.check_call("launch_job", parameters3)
+
     def test_query_criteria(self):
         parameters1 = {'calibration_level': "PRODUCT",
                        'data_product_type': "image",
