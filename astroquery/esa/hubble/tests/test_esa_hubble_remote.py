@@ -45,8 +45,8 @@ class TestEsaHubbleRemoteData:
     hst_query = "select top 50 a.observation_id from ehst.archive " \
                 "a where a.collection='HST'"
 
-    top_artifact_query = f"select a.artifact_id, a.observation_id from ehst.artifact a "\
-                         f"where a.observation_id = 'iexn02e9q'"
+    top_artifact_query = (f"select a.artifact_id, a.observation_id from ehst.artifact a "
+                          f"where a.observation_id = 'iexn02e9q'")
 
     temp_folder = create_temp_folder()
 
@@ -60,8 +60,8 @@ class TestEsaHubbleRemoteData:
         result = esa_hubble.query_tap(query=self.hst_query)
         observation_id = np.random.choice((result['observation_id']))
         temp_file = self.temp_folder.name + "/" + observation_id
-        downloaded_file = esa_hubble.download_product(observation_id=observation_id,
-                                                      filename=temp_file)
+        esa_hubble.download_product(observation_id=observation_id,
+                                    filename=temp_file)
         possible_values = [os.path.exists(temp_file + '.jpg'),
                            os.path.exists(temp_file + '.zip'),
                            os.path.exists(temp_file + 'fits.gz')]
