@@ -45,8 +45,8 @@ class TestEsaHubbleRemoteData:
     hst_query = "select top 50 a.observation_id from ehst.archive " \
                 "a where a.collection='HST'"
 
-    top_artifact_query = (f"select a.artifact_id, a.observation_id from ehst.artifact a "
-                          f"where a.observation_id = 'iexn02e9q'")
+    top_artifact_query = "select a.artifact_id, a.observation_id from ehst.artifact a " \
+                         "where a.observation_id = 'iexn02e9q'"
 
     temp_folder = create_temp_folder()
 
