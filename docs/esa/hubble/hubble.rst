@@ -365,6 +365,11 @@ This function allows the same parameters than the search criteria (see Section 2
 5. Getting Hubble products
 --------------------------
 
+.. warning::
+
+   Please bear in mind that the default format to download
+   sets of files has been modified from TAR to ZIP.
+
 After retrieving the metadata, the user can filter the result table and get the rows of interest.
 The most important column is 'observation_id' and it is possible to use it to retrieve all the
 associated files.
