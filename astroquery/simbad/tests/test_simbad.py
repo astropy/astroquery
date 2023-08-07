@@ -347,17 +347,14 @@ def test_votable_fields():
     sb.add_votable_fields('rot', 'z_value', 'velocity')
     assert (set(sb.get_votable_fields())
             == set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
-    try:
-        sb.add_votable_fields('velocity')
-    except KeyError:
-        pass  # this is the expected response
+
     assert (set(sb.get_votable_fields())
             == set(['main_id', 'coordinates', 'rot', 'z_value', 'velocity']))
     sb.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(sb.get_votable_fields()) == set(['z_value', 'velocity'])
     # Warning is expected as we removed the 'coordinates' field above:
     with pytest.warns(UserWarning, match="coordinates: this field is not set"):
-        sb.remove_votable_fields('rot', 'main_id', 'coordinates')
+        sb.remove_votable_fields('coordinates')
     assert set(sb.get_votable_fields()) == set(['z_value', 'velocity'])
     with pytest.warns(UserWarning, match="All fields have been removed. Resetting"):
         sb.remove_votable_fields('z_value', 'velocity')
