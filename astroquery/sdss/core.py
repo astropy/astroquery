@@ -1040,7 +1040,7 @@ class SDSSClass(BaseQuery):
                 warnings.filterwarnings("ignore", category=AstropyWarning,
                                         message=r'OverflowError converting to IntType in column.*')
             arr = Table.read(response.text, format='ascii.csv', comment="#")
-            for id_column in ('objid', 'specobjid'):
+            for id_column in ('objid', 'specobjid', 'objID', 'specobjID'):
                 if id_column in arr.columns:
                     arr[id_column] = arr[id_column].astype(np.int64)
 
