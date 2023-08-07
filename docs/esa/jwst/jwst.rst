@@ -1,4 +1,3 @@
-
 .. _astroquery.esa.jwst:
 
 ****************************************
@@ -379,14 +378,14 @@ Once a table is loaded, columns can be inspected
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
   >>> print(*(column.name for column in table.columns), sep="\n")
-    "public"
-    algorithm_name
-    calibrationlevel
-    collection
-    creatorid
-    dataproducttype
-    energy_bandpassname
-    ...
+  public
+  algorithm_name
+  calibrationlevel
+  collection
+  creatorid
+  dataproducttype
+  energy_bandpassname
+  ...
 
 
 1.6 Synchronous query

@@ -122,7 +122,7 @@ class LamdaClass(BaseQuery):
         response = self._request('GET', main_url, cache=cache)
         response.raise_for_status()
 
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(response.content, features="html5lib")
 
         links = soup.find_all('a', href=True)
         datfile_urls = [url
