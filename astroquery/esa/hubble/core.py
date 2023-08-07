@@ -111,13 +111,18 @@ class ESAHubbleClass(BaseQuery):
         return self.check_rename_to_gz(filename=filename)
 
     def check_rename_to_gz(self, filename):
+        rename = False
         if os.path.exists(filename):
             with open(filename, 'rb') as test_f:
                 if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
-                    output = os.path.splitext(filename)[0] + '.fits.gz'
-                    os.rename(filename, output)
-                    return output
-        return filename
+                    rename = True
+
+        if rename:
+            output = os.path.splitext(filename)[0] + '.fits.gz'
+            os.rename(filename, output)
+            return output
+        else:
+            return filename
 
     def __set_product_type(self, product_type):
         if product_type:
