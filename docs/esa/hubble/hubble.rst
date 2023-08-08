@@ -19,10 +19,6 @@ in the EHST are synchronised with the MAST services for HST reprocessed
 public data and corresponding metadata.  Therefore, excluding proprietary
 data, all HST data in the EHST are identical to those in MAST.
 
-========
-Examples
-========
-
 It is highly recommended checking the status of eHST TAP before executing this module. To do this:
 
 .. doctest-remote-data::
@@ -33,6 +29,19 @@ It is highly recommended checking the status of eHST TAP before executing this m
 
 This method will retrieve the same warning messages shown in eHST Science Archive with information about
 service degradation.
+
+========
+Examples
+========
+
+.. note::
+    The recommended steps to work with eHST Astroquery module are described below:
+        #. Retrieve the desired observations, fulfilling the user requirements, using one of the following methods: ``query_target``, ``query_criteria``, ``cone_search`` or ``cone_search_criteria``. In the results, the user will allways find a column named 'observation_id' that will be used as a reference.
+        #. If all the products associated to an observation are required, then use ``download_product``.
+        #. If only FITS files associated to an observation are required, then use ``download_fits_files``.
+        #. It is possible to retrieve the name of the files associated to an observation using ``get_associated_files``, together with their calibration level, size and type.
+        #. Users can filter the previous list to get the specific files to download and use them in ``download_file`` function.
+        #. Use your algorithms and code to process the data.
 
 ----------------------------------------------
 1. Querying target names in the Hubble archive
@@ -374,10 +383,12 @@ After retrieving the metadata, the user can filter the result table and get the 
 The most important column is 'observation_id' and it is possible to use it to retrieve all the
 associated files.
 
-In eHST is it possible to download products based on their observation ID (mandatory) and
-a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY).
+.. note::
+    In eHST is it possible to download products based on their observation ID (mandatory) and
+    a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY).
 
-Deprecation Warning: product types PRODUCT, SCIENCE_PRODUCT or POSTCARD are no longer supported. Please modify your scripts accordingly.
+.. warning::
+    Deprecation Warning: product types PRODUCT, SCIENCE_PRODUCT or POSTCARD are no longer supported. Please modify your scripts accordingly.
 
 For instance, next commands will download all files for the raw calibration level
 of the observation 'j6fl25s4q' and it will store them in a file called
@@ -388,7 +399,8 @@ of the observation 'j6fl25s4q' and it will store them in a file called
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
-  ...                            filename="raw_data_for_j6fl25s4q")  # doctest: +IGNORE_OUTPUT
+  ...                            filename="raw_data_for_j6fl25s4q")
+  'raw_data_for_j6fl25s4q.zip'
 
 This second example will download the science files associated to the observation 'j6fl25s4q' and it will store them in a file called
 'science_data_for_j6fl25s4q.zip', modifying the filename provided to ensure that the extension of the file is correct.
@@ -398,17 +410,20 @@ This second example will download the science files associated to the observatio
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="j6fl25s4q", product_type="SCIENCE",
-  ...                            filename="science_data_for_j6fl25s4q")   # doctest: +IGNORE_OUTPUT
+  ...                            filename="science_data_for_j6fl25s4q")
+  'science_data_for_j6fl25s4q.zip'
 
 This third case will download the science files associated to the observation 'j6fl25s4q' in raw calibration level and it will store them in a file called
-'science_raw_data_for_j6fl25s4q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+'science_raw_data_for_j6fl25s4q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct. There is only
+one file fulfilling these conditions and it is a FITS file, so the extension is adapted to the contents of the request.
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> esahubble.download_product(observation_id="j6fl25s4q", calibration_level="RAW",
-  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE")   # doctest: +IGNORE_OUTPUT
+  ...                            filename="science_raw_data_for_j6fl25s4q", product_type="SCIENCE")
+  'science_raw_data_for_j6fl25s4q.fits.gz'
 
 If the user wants to filter the files to be downloaded, this module provides additional mechanisms.
 
@@ -448,7 +463,7 @@ In case the user is only interested in FITS files, this module contains a specif
 .. doctest-remote-data::
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_fits_files(observation_id='w0ji0v01t')
+  >>> esahubble.download_fits_files(observation_id='w0ji0v01t') # doctest: +IGNORE_OUTPUT
 
 ---------------------------
 6. Getting Hubble postcards
@@ -458,7 +473,8 @@ In case the user is only interested in FITS files, this module contains a specif
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.get_postcard(observation_id="j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")  # doctest: +IGNORE_OUTPUT
+  >>> esahubble.get_postcard(observation_id="j6fl25s4q", calibration_level="RAW", resolution=256, filename="raw_postcard_for_j6fl25s4q.jpg")
+  'raw_postcard_for_j6fl25s4q.jpg'
 
 This will download the postcard for the observation 'J8VP03010' with low
 resolution (256) and it will stored in a jpg called
@@ -509,7 +525,7 @@ method returns the simple observations that make it up.
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.get_member_observations(observation_id="jdrz0c010")
-  >>> print(result)
+  >>> result
   ['jdrz0cjxq', 'jdrz0cjyq']
 
 
@@ -525,7 +541,7 @@ returns the corresponding HAP or HST observation
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.get_hap_hst_link(observation_id="hst_16316_71_acs_sbc_f150lp_jec071i9")
-  >>> print(result)
+  >>> result
   ['jec071i9q']
 
 

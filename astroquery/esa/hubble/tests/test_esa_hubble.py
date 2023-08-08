@@ -23,6 +23,7 @@ from astropy.table.table import Table
 from requests.models import Response
 
 from astroquery.esa.hubble import ESAHubbleClass
+from astroquery.esa.hubble.core import check_rename_to_gz
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
@@ -270,7 +271,7 @@ class TestESAHubble:
     def test_is_not_gz(self, tmp_path):
         target_file = data_path('cone_search.vot')
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        assert ehst.check_rename_to_gz(target_file) == target_file
+        assert check_rename_to_gz(target_file) == target_file
 
     def test_is_gz(self, tmp_path):
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
@@ -281,7 +282,7 @@ class TestESAHubble:
             f.write(b'')
         # with open(test_file, 'rb') as f_in, gzip.open(target_file, 'wb') as f_out:
         #     f_out.writelines(f_in)
-        assert ehst.check_rename_to_gz(target_file) == target_file + '.fits.gz'
+        assert check_rename_to_gz(target_file) == target_file + '.fits.gz'
 
     def test_get_columns(self):
         parameters = {'table_name': "table",

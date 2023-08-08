@@ -28,6 +28,21 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
+def check_rename_to_gz(filename):
+    rename = False
+    if os.path.exists(filename):
+        with open(filename, 'rb') as test_f:
+            if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
+                rename = True
+
+    if rename:
+        output = os.path.splitext(filename)[0] + '.fits.gz'
+        os.rename(filename, output)
+        return output
+    else:
+        return filename
+
+
 class ESAHubbleClass(BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
@@ -108,21 +123,7 @@ class ESAHubbleClass(BaseQuery):
         filename = self._get_product_filename(product_type, filename)
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return self.check_rename_to_gz(filename=filename)
-
-    def check_rename_to_gz(self, filename):
-        rename = False
-        if os.path.exists(filename):
-            with open(filename, 'rb') as test_f:
-                if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
-                    rename = True
-
-        if rename:
-            output = os.path.splitext(filename)[0] + '.fits.gz'
-            os.rename(filename, output)
-            return output
-        else:
-            return filename
+        return check_rename_to_gz(filename=filename)
 
     def __set_product_type(self, product_type):
         if product_type:
@@ -311,7 +312,7 @@ class ESAHubbleClass(BaseQuery):
 
     def download_file(self, file, *, filename=None, verbose=False):
         """
-        Download a file from EHST based on its filename. Similar to get_a
+        Download a file from eHST based on its filename.
 
         Parameters
         ----------
@@ -335,7 +336,7 @@ class ESAHubbleClass(BaseQuery):
 
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return self.check_rename_to_gz(filename=filename)
+        return check_rename_to_gz(filename=filename)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
