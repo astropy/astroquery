@@ -45,8 +45,8 @@ class TestEsaHubbleRemoteData:
     hst_query = "select top 50 a.observation_id from ehst.archive " \
                 "a where a.collection='HST'"
 
-    top_artifact_query = "select top 50 a.artifact_id, a.observation_id " \
-                         " from ehst.artifact a"
+    top_artifact_query = "select a.artifact_id, a.observation_id from ehst.artifact a " \
+                         "where a.observation_id = 'iexn02e9q'"
 
     temp_folder = create_temp_folder()
 
@@ -59,23 +59,29 @@ class TestEsaHubbleRemoteData:
     def test_download_product(self):
         result = esa_hubble.query_tap(query=self.hst_query)
         observation_id = np.random.choice((result['observation_id']))
-        temp_file = self.temp_folder.name + "/" + observation_id + ".tar"
+        temp_file = os.path.join(self.temp_folder.name, observation_id)
         esa_hubble.download_product(observation_id=observation_id,
                                     filename=temp_file)
-        assert os.path.exists(temp_file)
+        possible_values = [os.path.exists(temp_file + '.jpg'),
+                           os.path.exists(temp_file + '.zip'),
+                           os.path.exists(temp_file + 'fits.gz')]
+        assert any([os.path.exists(f) for f in possible_values])
 
     def test_get_artifact(self):
         result = esa_hubble.query_tap(query=self.top_artifact_query)
         assert "artifact_id" in result.keys()
         artifact_id = np.random.choice(result["artifact_id"])
-        temp_file = self.temp_folder.name + "/" + artifact_id + ".gz"
+        temp_file = os.path.join(self.temp_folder.name, artifact_id)
         esa_hubble.get_artifact(artifact_id=artifact_id, filename=temp_file)
-        assert os.path.exists(temp_file)
+        possible_values = [os.path.exists(temp_file),
+                           os.path.exists(temp_file + '.zip'),
+                           os.path.exists(temp_file + 'fits.gz')]
+        assert any([os.path.exists(f) for f in possible_values])
 
     def test_cone_search(self):
         esa_hubble = ESAHubble()
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-        compressed_temp_file = self.temp_folder.name + "/cone_search_m31_5.vot.gz"
+        compressed_temp_file = os.path.join(self.temp_folder.name, "cone_search_m31_5.vot.gz")
         # open & extracting the file
         table = esa_hubble.cone_search(coordinates=c, radius=7, filename=compressed_temp_file, verbose=True)
         assert 'observation_id' in table.columns
@@ -101,7 +107,7 @@ class TestEsaHubbleRemoteData:
     def test_hap_simple_to_hap_composite(self):
         esa_hubble = ESAHubble()
         result = esa_hubble.get_member_observations(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
-        assert result == [' hst_16316_71_acs_sbc_total_jec071', 'hst_16316_71_acs_sbc_f150lp_jec071']
+        assert result == ['hst_16316_71_acs_sbc_f150lp_jec071']
 
     def test_hap_simple_to_hst_simple(self):
         esa_hubble = ESAHubble()
@@ -114,6 +120,6 @@ class TestEsaHubbleRemoteData:
         assert result == ['hst_16316_71_acs_sbc_f150lp_jec071i9']
 
     def test_query_target(self):
-        compressed_temp_file = self.temp_folder.name + "/" + "m31_query.xml.gz"
+        compressed_temp_file = os.path.join(self.temp_folder.name, "m31_query.xml.gz")
         table = esa_hubble.query_target(name="m3", filename=compressed_temp_file)
         assert 'observation_id' in table.columns

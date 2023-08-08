@@ -8,6 +8,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+import os
 from urllib.parse import urlencode
 
 from astropy import units
@@ -27,6 +28,21 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
+def _check_rename_to_gz(filename):
+    rename = False
+    if os.path.exists(filename):
+        with open(filename, 'rb') as test_f:
+            if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
+                rename = True
+
+    if rename:
+        output = os.path.splitext(filename)[0] + '.fits.gz'
+        os.rename(filename, output)
+        return output
+    else:
+        return filename
+
+
 class ESAHubbleClass(BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
@@ -34,7 +50,7 @@ class ESAHubbleClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
     calibration_levels = {"AUXILIARY": 0, "RAW": 1, "CALIBRATED": 2,
                           "PRODUCT": 3}
-    product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL" or "AUXILIARY"]
+    product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL", "AUXILIARY"]
     copying_string = "Copying file to {0}..."
 
     def __init__(self, *, tap_handler=None, show_messages=True):
@@ -93,7 +109,7 @@ class ESAHubbleClass(BaseQuery):
                   "RETRIEVAL_TYPE": "OBSERVATION"}
 
         if filename is None:
-            filename = observation_id + ".tar"
+            filename = observation_id
 
         if calibration_level:
             params["CALIBRATIONLEVEL"] = calibration_level
@@ -107,7 +123,7 @@ class ESAHubbleClass(BaseQuery):
         filename = self._get_product_filename(product_type, filename)
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return filename
+        return _check_rename_to_gz(filename=filename)
 
     def __set_product_type(self, product_type):
         if product_type:
@@ -216,18 +232,12 @@ class ESAHubbleClass(BaseQuery):
             raise ValueError("This product_type is not allowed")
 
     def _get_product_filename(self, product_type, filename):
-        if (product_type == "PRODUCT"):
-            return filename
-        elif (product_type == "SCIENCE"):
-            log.info("This is a SCIENCE_PRODUCT, the filename will be "
-                     f"renamed to {filename}.fits.gz")
-            return f"{filename}.fits.gz"
-        elif (product_type == "THUMBNAIL" or product_type == "PREVIEW"):
-            log.info("This is a POSTCARD, the filename will be "
+        if (product_type == "THUMBNAIL" or product_type == "PREVIEW"):
+            log.info("This is an image, the filename will be "
                      f"renamed to {filename}.jpg")
             return f"{filename}.jpg"
-
-        return filename
+        else:
+            return f"{filename}.zip"
 
     def get_artifact(self, artifact_id, *, filename=None, verbose=False):
         """
@@ -236,7 +246,7 @@ class ESAHubbleClass(BaseQuery):
         Parameters
         ----------
         artifact_id : string
-            id of the artifact to be downloaded, mandatory
+            filename to be downloaded, mandatory
             The identifier of the physical product (file) we want to retrieve.
         filename : string
             file name to be used to store the artifact, optional, default None
@@ -250,13 +260,83 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": artifact_id, "TAPCLIENT": "ASTROQUERY"}
+        return self.download_file(file=artifact_id, filename=filename, verbose=verbose)
+
+    def get_associated_files(self, observation_id, *, verbose=False):
+        """
+        Retrieves all the files associated to an observation
+
+        Parameters
+        ----------
+        observation_id : string
+            id of the observation to be downloaded, mandatory
+            The identifier of the observation we want to retrieve, regardless
+            of whether it is simple or composite.
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        None. The file is associated
+        """
+        query = (f"select art.artifact_id as filename, p.calibration_level, art.archive_class as type, "
+                 f"pg_size_pretty(art.size_uncompr) as size_uncompressed from ehst.artifact art "
+                 f"join ehst.plane p on p.plane_id = art.plane_id where "
+                 f"art.observation_id = '{observation_id}'")
+        return self.query_tap(query=query)
+
+    def download_fits_files(self, observation_id, *, verbose=False):
+        """
+        Retrieves all the FITS files associated to an observation
+
+        Parameters
+        ----------
+        observation_id : string
+            id of the observation to be downloaded, mandatory
+            The identifier of the observation we want to retrieve, regardless
+            of whether it is simple or composite.
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        None. The file is associated
+        """
+        results = self.get_associated_files(observation_id=observation_id, verbose=verbose)
+        for file in [i['filename'] for i in results if i['filename'].endswith('.fits')]:
+            if verbose:
+                print(f"Downloading {file} ...")
+            self.download_file(file=file, filename=file, verbose=verbose)
+
+    def download_file(self, file, *, filename=None, verbose=False):
+        """
+        Download a file from eHST based on its filename.
+
+        Parameters
+        ----------
+        file : string
+            file name of the artifact to be downloaded
+
+        filename : string
+            file name to be used to store the file, optional, default None
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        None. The file is associated
+        """
+
+        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file, "TAPCLIENT": "ASTROQUERY"}
         if filename is None:
-            filename = artifact_id
+            filename = file
 
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return filename
+        return _check_rename_to_gz(filename=filename)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -391,6 +471,7 @@ class ESAHubbleClass(BaseQuery):
                              obs_collection=None,
                              instrument_name=None,
                              filters=None,
+                             proposal=None,
                              async_job=True,
                              filename=None,
                              output_format='votable',
@@ -428,6 +509,8 @@ class ESAHubbleClass(BaseQuery):
             Name(s) of the instrument(s) used to generate the dataset
         filters : list of str, optional
             Name(s) of the filter(s) used to generate the dataset
+        proposal : int, optional
+            Proposal ID associated to the observations
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -460,6 +543,7 @@ class ESAHubbleClass(BaseQuery):
                                          obs_collection=obs_collection,
                                          instrument_name=instrument_name,
                                          filters=filters,
+                                         proposal=proposal,
                                          async_job=True,
                                          get_query=True)
         if crit_query.endswith(")"):
@@ -619,7 +703,7 @@ class ESAHubbleClass(BaseQuery):
     def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,
                        obs_collection=None, instrument_name=None,
-                       filters=None, async_job=True, output_file=None,
+                       filters=None, proposal=None, async_job=True, output_file=None,
                        output_format="votable", verbose=False,
                        get_query=False):
         """
@@ -639,13 +723,15 @@ class ESAHubbleClass(BaseQuery):
         intent : str, optional
             The intent of the original observer in acquiring this observation.
             SCIENCE or CALIBRATION
-        collection : list of str, optional
+        obs_collection : list of str, optional
             List of collections that are available in eHST catalogue.
-            HLA, HST
+            HLA, HST, HAP
         instrument_name : list of str, optional
             Name(s) of the instrument(s) used to generate the dataset
         filters : list of str, optional
             Name(s) of the filter(s) used to generate the dataset
+        proposal : int, optional
+            Proposal ID associated to the observations
         async_job : bool, optional, default 'True'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -680,6 +766,11 @@ class ESAHubbleClass(BaseQuery):
                 parameters.append("intent LIKE '%{}%'".format(intent.lower()))
             else:
                 raise ValueError("intent must be a string")
+        if proposal is not None:
+            if isinstance(proposal, int):
+                parameters.append("proposal_id = '{}'".format(proposal))
+            else:
+                raise ValueError("Proposal ID must be an integer")
         if self.__check_list_strings(obs_collection):
             parameters.append("(collection LIKE '%{}%')".format(
                 "%' OR collection LIKE '%".join(obs_collection)
@@ -767,7 +858,7 @@ class ESAHubbleClass(BaseQuery):
             if response.status == 200:
                 for line in response:
                     string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=')+1:])
+                    print(string_message[string_message.index('=') + 1:])
         except OSError:
             print("Status messages could not be retrieved")
 
@@ -810,10 +901,8 @@ class ESAHubbleClass(BaseQuery):
             return columns
 
     def _getCoordInput(self, value):
-        if not (isinstance(value, str)
-                or isinstance(value, SkyCoord)):
-            raise ValueError("Coordinates"
-                             + " must be either a string or astropy.coordinates")
+        if not (isinstance(value, str) or isinstance(value, SkyCoord)):
+            raise ValueError("Coordinates must be either a string or astropy.coordinates")
         if isinstance(value, str):
             return SkyCoord(value)
         else:

@@ -11,6 +11,7 @@ European Space Agency (ESA)
 
 import os
 import shutil
+import gzip
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -22,6 +23,7 @@ from astropy.table.table import Table
 from requests.models import Response
 
 from astroquery.esa.hubble import ESAHubbleClass
+from astroquery.esa.hubble.core import _check_rename_to_gz
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
@@ -76,8 +78,10 @@ class MockResponse:
 
 class TestESAHubble:
 
-    def get_dummy_tap_handler(self):
-        parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
+    def get_dummy_tap_handler(self, query=None):
+        if query is None:
+            query = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst = {'query': query,
                        'output_file': "test2.vot",
                        'output_format': "votable",
                        'verbose': False}
@@ -228,6 +232,58 @@ class TestESAHubble:
         path = Path(tmp_path, "w0ji0v01t_c2f.fits.gz")
         ehst.get_artifact(artifact_id=path)
 
+    def test_download_file(self, tmp_path):
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        file = 'w0ji0v01t_c2f.fits'
+        path = Path(tmp_path, file + '.gz')
+        ehst.download_file(file=path, filename=path)
+
+    def test_get_associated_files(self):
+        observation_id = 'test'
+        query = (f"select art.artifact_id as filename, p.calibration_level, art.archive_class as type, "
+                 f"pg_size_pretty(art.size_uncompr) as size_uncompressed from ehst.artifact art "
+                 f"join ehst.plane p on p.plane_id = art.plane_id where "
+                 f"art.observation_id = '{observation_id}'")
+        parameters = {'query': query,
+                      'output_file': 'test2.vot',
+                      'output_format': "votable",
+                      'verbose': False}
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(query=query), show_messages=False)
+        ehst.get_associated_files(observation_id=observation_id)
+        self.get_dummy_tap_handler(query=query).check_call("launch_job", parameters)
+
+    @patch.object(ESAHubbleClass, 'get_associated_files')
+    def test_download_fits(self, mock_associated_files):
+        observation_id = 'test'
+        query = (f"select art.artifact_id as filename, p.calibration_level, art.archive_class as type, "
+                 f"pg_size_pretty(art.size_uncompr) as size_uncompressed from ehst.artifact art "
+                 f"join ehst.plane p on p.plane_id = art.plane_id where "
+                 f"art.observation_id = '{observation_id}'")
+        parameters = {'query': query,
+                      'output_file': 'test2.vot',
+                      'output_format': "votable",
+                      'verbose': False}
+        mock_associated_files.return_value = [{'filename': 'test.fits'}]
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(query=query), show_messages=False)
+        ehst.download_fits_files(observation_id=observation_id)
+        self.get_dummy_tap_handler(query=query).check_call("launch_job", parameters)
+
+    def test_is_not_gz(self, tmp_path):
+        target_file = data_path('cone_search.vot')
+        ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        assert _check_rename_to_gz(target_file) == target_file
+
+    def test_is_gz(self, tmp_path):
+        ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        # test_file = data_path('m31.vot.test')
+        temp_file = 'testgz'
+        target_file = os.path.join(tmp_path, temp_file)
+        with gzip.open(target_file, 'wb') as f:
+            f.write(b'')
+        # with open(test_file, 'rb') as f_in, gzip.open(target_file, 'wb') as f_out:
+        #     f_out.writelines(f_in)
+        assert _check_rename_to_gz(target_file) == target_file + '.fits.gz'
+
     def test_get_columns(self):
         parameters = {'table_name': "table",
                       'only_names': True,
@@ -237,6 +293,32 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         ehst.get_columns(table_name="table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters)
+
+    def test_query_criteria_proposal(self):
+        parameters1 = {'proposal': 12345,
+                       'async_job': False,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': True,
+                       'get_query': True}
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        test_query = ehst.query_criteria(proposal=parameters1['proposal'],
+                                         async_job=parameters1['async_job'],
+                                         output_file=parameters1['output_file'],
+                                         output_format=parameters1['output_format'],
+                                         verbose=parameters1['verbose'],
+                                         get_query=parameters1['get_query'])
+        parameters2 = {'query': test_query,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        parameters3 = {'query': "select * from ehst.archive where("
+                                "proposal_id = '12345')",
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters2)
+        dummy_tap_handler.check_call("launch_job", parameters3)
 
     def test_query_criteria(self):
         parameters1 = {'calibration_level': "PRODUCT",
