@@ -25,7 +25,7 @@ from astropy.utils.decorators import deprecated
 from . import conf
 from astroquery import log
 
-__all__ = ['ESAHubble', 'ESAHubbleClass', '_check_rename_to_gz']
+__all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
 def _check_rename_to_gz(filename):
