@@ -270,11 +270,11 @@ class TestESAHubble:
 
     def test_is_not_gz(self, tmp_path):
         target_file = data_path('cone_search.vot')
-        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         assert check_rename_to_gz(target_file) == target_file
 
     def test_is_gz(self, tmp_path):
-        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         # test_file = data_path('m31.vot.test')
         temp_file = 'testgz'
         target_file = os.path.join(tmp_path, temp_file)
