@@ -66,7 +66,7 @@ esa.hubble
   a lot faster. [#2524]
 - Method query_hst_tap has been deprecated and is replaced with query_tap, with the same arguments. [#2597]
 - Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [#2597]
-- Added `proposal` keyword argument to several methods now allows to filter by Proposal ID. [#2797]
+- Added ``proposal`` keyword argument to several methods now allows to filter by Proposal ID. [#2797]
 
 alma
 ^^^^
