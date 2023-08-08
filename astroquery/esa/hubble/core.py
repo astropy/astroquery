@@ -25,10 +25,10 @@ from astropy.utils.decorators import deprecated
 from . import conf
 from astroquery import log
 
-__all__ = ['ESAHubble', 'ESAHubbleClass']
+__all__ = ['ESAHubble', 'ESAHubbleClass', '_check_rename_to_gz']
 
 
-def check_rename_to_gz(filename):
+def _check_rename_to_gz(filename):
     rename = False
     if os.path.exists(filename):
         with open(filename, 'rb') as test_f:
@@ -123,7 +123,7 @@ class ESAHubbleClass(BaseQuery):
         filename = self._get_product_filename(product_type, filename)
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return check_rename_to_gz(filename=filename)
+        return _check_rename_to_gz(filename=filename)
 
     def __set_product_type(self, product_type):
         if product_type:
@@ -336,7 +336,7 @@ class ESAHubbleClass(BaseQuery):
 
         self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
 
-        return check_rename_to_gz(filename=filename)
+        return _check_rename_to_gz(filename=filename)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
