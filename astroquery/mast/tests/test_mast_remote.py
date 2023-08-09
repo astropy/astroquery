@@ -15,8 +15,8 @@ import astropy.units as u
 from astroquery import mast
 
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
-                           NoResultsWarning)
+from ...exceptions import (InputWarning, InvalidQueryError, LargeQueryWarning,
+                           MaxResultsWarning, NoResultsWarning)
 
 
 OBSID = '1647157'
@@ -951,7 +951,7 @@ class TestMast:
             assert error_tica_mt in str(error_msg.value)
 
     @pytest.mark.parametrize("product", ["tica", "spoc"])
-    def test_tesscut_get_cutouts(self, product):
+    def test_tesscut_get_cutouts(self, product, caplog):
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
@@ -976,6 +976,14 @@ class TestMast:
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        # Check that an INFO message is returned when timeout is adjusted
+        mast.Tesscut.get_cutouts(product=product, coordinates=coord, size=5, timeout=1000)
+        with caplog.at_level("INFO", logger="astroquery"):
+            assert "timeout upper limit is being changed" in caplog.text
+
+        # Ensure that timeout returns to default (600 seconds) after adjusted in previous call
+        assert mast.Tesscut._service_api_connection.TIMEOUT == 600
 
     def test_tesscut_get_cutouts_mt(self):
 
@@ -1028,6 +1036,16 @@ class TestMast:
             mast.Tesscut.get_cutouts(objectname=moving_target_name, product='tica',
                                      moving_target=True)
             assert error_tica_mt in str(error_msg.value)
+
+    @pytest.mark.xfail(raises=LargeQueryWarning)
+    @pytest.mark.parametrize("product", ["tica", "spoc"])
+    @pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg],
+                                      5000 * u.arcsec, 20 * u.arcmin])
+    def test_tesscut_timeout_param(self, product, size):
+
+        # Check that a warning comes up when cutout size too big
+        coordinates = '60 60'
+        mast.Tesscut.get_cutouts(product=product, coordinates=coordinates, size=size)
 
     ###################
     # ZcutClass tests #
