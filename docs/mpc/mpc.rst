@@ -359,7 +359,7 @@ degrees per hour:
 
     >>> eph = MPC.get_ephemeris('C/1996 B2', start='1996-03-01', step='1h', number=30 * 24)
     >>> print(eph['Proper motion'].quantity.to('deg/h').max())
-    0.7756944444444445 deg / h
+    0.17234444444444447 deg / h
 
 Sky coordinates are returned as quantities carrying units of degrees.
 If a sexagesimal representation is desired, they may be replaced with

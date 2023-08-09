@@ -93,7 +93,8 @@ A list of accessible tables can be found in the ``TAP_TABLES`` attribute:
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.TAP_TABLES
-    ['superwasptimeseries',
+    ['spectra',
+    'superwasptimeseries',
     'kelttimeseries',
     'DI_STARS_EXEP',
     'transitspec',

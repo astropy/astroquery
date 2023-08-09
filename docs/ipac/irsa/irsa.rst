@@ -68,7 +68,7 @@ entered as a string that is parsable by `~astropy.coordinates.Angle`.
     >>> import astropy.units as u
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Cone",
     ...                           radius=2 * u.arcmin)
-    >>> print(table)
+    >>> print(table)  # doctest: +IGNORE_OUTPUT
         ra        dec         clon         clat     ...   angle     j_h   h_k   j_k
        deg        deg                               ...    deg
     ---------- ---------- ------------ ------------ ... ---------- ----- ----- -----

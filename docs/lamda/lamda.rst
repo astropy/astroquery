@@ -27,12 +27,12 @@ is called, then cached for future use.  If there has been an update and you
 want to reload the cache, you can find the cache file ``'molecules.json'`` and
 remove it:
 
-.. doctest-remote-data::
+.. doctest-skip::
 
     >>> import os
-    >>> Lamda.cache_location                   # doctest: +IGNORE_OUTPUT
+    >>> Lamda.cache_location
     '/Users/your_username/.astropy/cache/astroquery/Lamda'
-    >>> Lamda.moldict_path                     # doctest: +IGNORE_OUTPUT
+    >>> Lamda.moldict_path
     '/Users/your_username/.astropy/cache/astroquery/Lamda/molecules.json'
     >>> os.remove(Lamda.moldict_path)
 
