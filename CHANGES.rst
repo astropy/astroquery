@@ -208,7 +208,7 @@ sdss
 - Switching to https to avoid issues originating in relying on server side
   redirects. [#2654]
 
-- Fix bug to have object IDs as integers on windows. [#2800]
+- Fix bug to have object IDs as integers on windows. [#2800, #2806]
 
 
 simbad
