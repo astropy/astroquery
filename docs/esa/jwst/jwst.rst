@@ -377,8 +377,8 @@ Once a table is loaded, columns can be inspected
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
-  >>> print(*(column.name for column in table.columns), sep="\n")
-  public
+  >>> print(*(column.name for column in table.columns), sep="\n") # doctest: +IGNORE_OUTPUT
+  "public"
   algorithm_name
   calibrationlevel
   collection

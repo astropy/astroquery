@@ -890,8 +890,8 @@ class TestTap:
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target("TEST")
-        assert ("This target name cannot be determined with this resolver: ALL" in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="M1", target_resolver="ALL")
         assert err.value.args[0] in ["This target name cannot be determined "
@@ -913,20 +913,20 @@ class TestTap:
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this resolver: '
+                'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()

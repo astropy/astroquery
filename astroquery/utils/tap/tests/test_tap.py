@@ -16,6 +16,8 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
 
+import os
+import gzip
 import numpy as np
 import pytest
 from requests import HTTPError
@@ -28,7 +30,15 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap import taputils
 
 
-TEST_DATA = {f.name: f.read_text() for f in Path(__file__).with_name("data").iterdir()}
+def read_file(filename):
+    if filename.name.endswith('.gz'):
+        with gzip.open(filename, 'rb') as file:
+            return file.read()
+    else:
+        return filename.read_text();
+
+
+TEST_DATA = {f.name: read_file(f) for f in Path(__file__).with_name("data").iterdir()}
 
 
 def test_load_tables():
