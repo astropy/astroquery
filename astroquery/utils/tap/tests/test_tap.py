@@ -197,6 +197,7 @@ def test_launch_sync_job():
                            None,
                            np.int32)
 
+
 def test_launch_sync_job_secure():
     connHandler = DummyConnHandler()
     tap = TapPlus(url="https://test:1111/tap", connhandler=connHandler)
@@ -249,6 +250,7 @@ def test_launch_sync_job_secure():
                            'table1_oid',
                            None,
                            np.int32)
+
 
 def test_launch_sync_job_redirect():
     connHandler = DummyConnHandler()
