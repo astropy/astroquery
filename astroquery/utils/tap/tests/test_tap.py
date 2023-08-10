@@ -16,7 +16,6 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
 
-import os
 import gzip
 import numpy as np
 import pytest
