@@ -34,7 +34,7 @@ def read_file(filename):
         with gzip.open(filename, 'rb') as file:
             return file.read()
     else:
-        return filename.read_text();
+        return filename.read_text()
 
 
 TEST_DATA = {f.name: read_file(f) for f in Path(__file__).with_name("data").iterdir()}
