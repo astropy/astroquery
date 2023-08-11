@@ -59,6 +59,10 @@ class TestData:
         jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)
 
+
+@pytest.mark.remote_data
+class RemoteData:
+
     def test_login_error(self):
         jwst = JwstClass()
         with pytest.raises(HTTPError) as err:
