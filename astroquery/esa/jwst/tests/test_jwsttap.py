@@ -241,7 +241,7 @@ class TestTap:
 
         with pytest.raises(NameResolveError) as err:
             tap.query_region(coordinate='test')
-        assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve"
+        assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve "
                 "coordinates" in err.value.args[0])
 
         # Launch response: we use default response because the
