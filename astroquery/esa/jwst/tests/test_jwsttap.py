@@ -624,10 +624,6 @@ class TestTap:
     def test_get_products_list(self):
         dummyTapHandler = DummyTapHandler()
         jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        with pytest.raises(ValueError) as err:
-            jwst.get_product_list()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
@@ -638,7 +634,7 @@ class TestTap:
                  f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
                  f"FROM {conf.JWST_PLANE_TABLE} p JOIN {conf.JWST_ARTIFACT_TABLE} "
                  f"a ON (p.planeid=a.planeid) WHERE a.planeid "
-                 f"IN {planeids};")
+                 f"IN {planeids} AND producttype ILIKE '%science%';")
 
         parameters = {}
         parameters['query'] = query
@@ -650,8 +646,25 @@ class TestTap:
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
 
-        jwst.get_product_list(observation_id=observation_id)
+        jwst.get_product_list(observation_id=observation_id, product_type='science')
         dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_get_products_list_error(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        observation_id = "jw00777011001_02104_00001_nrcblong"
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list()
+        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list(observation_id=observation_id, product_type=1)
+        assert "product_type must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list(observation_id=observation_id, product_type='test')
+        assert "product_type must be one of" in err.value.args[0]
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
