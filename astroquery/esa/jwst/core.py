@@ -725,7 +725,7 @@ class JwstClass(BaseQuery):
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
-        if (cal_level == 3 and cal_level > max_cal_level):
+        if cal_level == 3 and cal_level > max_cal_level:
             raise ValueError("Requesting upper levels is not allowed")
         list = self._get_associated_planes(plane_ids=plane_ids,
                                            cal_level=cal_level,
@@ -778,7 +778,7 @@ class JwstClass(BaseQuery):
             job.get_results().reverse()
             max_cal_level = job.get_results()["calibrationlevel"][0]
             for row in job.get_results():
-                if (row["calibrationlevel"] == max_cal_level):
+                if row["calibrationlevel"] == max_cal_level:
                     planeids.append(
                         JwstClass.get_decoded_string(row["planeid"]))
             return planeids, max_cal_level
@@ -898,7 +898,7 @@ class JwstClass(BaseQuery):
                 output_file_name = self._query_get_product(artifact_id=artifact_id)
                 err_msg = str(artifact_id)
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for artifact_id ' + artifact_id + ': %s' % str(exx))
+                raise ValueError(f"Cannot retrieve product for artifact_id {artifact_id}: {exx}")
         else:
             output_file_name = str(file_name)
             err_msg = str(file_name)
@@ -910,14 +910,14 @@ class JwstClass(BaseQuery):
                 params_dict['ARTIFACTID'] = (self._query_get_product(
                                              file_name=file_name))
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for file_name ' + file_name + ': %s' % str(exx))
+                raise ValueError(f"Cannot retrieve product for file_name {file_name}: {exx}")
 
         try:
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_name)
         except Exception as exx:
             log.info("error")
-            raise ValueError('Error retrieving product for ' + err_msg + ': %s' % str(exx))
+            raise ValueError(f"Error retrieving product for {err_msg}: {exx}")
         return output_file_name
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
@@ -999,7 +999,7 @@ class JwstClass(BaseQuery):
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_full_path)
         except Exception as exx:
-            raise ValueError('Cannot retrieve products for observation ' + observation_id + ': %s' % str(exx))
+            raise ValueError(f"Cannot retrieve products for observation {observation_id}: {exx}")
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path,
@@ -1062,8 +1062,7 @@ class JwstClass(BaseQuery):
         try:
             os.makedirs(output_dir, exist_ok=True)
         except OSError as err:
-            raise OSError("Creation of the directory %s failed: %s"
-                          % (output_dir, err.strerror))
+            raise OSError(f"Creation of the directory {output_dir} failed: {err.strerror}")
         return output_file_full_path, output_dir
 
     def __set_additional_parameters(self, param_dict, cal_level,
@@ -1082,10 +1081,9 @@ class JwstClass(BaseQuery):
 
     def __get_quantity_input(self, value, msg):
         if value is None:
-            raise ValueError(f"Missing required argument: '{str(msg)}'")
+            raise ValueError(f"Missing required argument: '{msg}'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -1095,8 +1093,7 @@ class JwstClass(BaseQuery):
     def __get_coord_input(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
@@ -1182,7 +1179,7 @@ class JwstClass(BaseQuery):
             elif (product_type not in self.ARTIFACT_PRODUCT_TYPES):
                 raise ValueError(f"product_type must be one of: {str(', '.join(self.ARTIFACT_PRODUCT_TYPES))}")
             else:
-                condition = " AND producttype ILIKE '%" + product_type + "%'"
+                condition = f" AND producttype ILIKE '%{product_type}%'"
         return condition
 
     @staticmethod

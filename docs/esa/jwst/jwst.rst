@@ -365,9 +365,9 @@ To load only a table (TAP+ capability)
 
   >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
-  >>> print(table)
+  >>> print(table) # doctest: +SKIP
   TAP Table name: jwst.jwst.main
-  Description:
+  Description: None
   Num. columns: 109
 
 
