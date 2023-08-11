@@ -17,6 +17,7 @@ import astropy.units as u
 import numpy as np
 import pytest
 from astropy import units
+from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Table
 from astropy.units import Quantity
@@ -233,6 +234,14 @@ class TestTap:
         connHandler = DummyConnHandler()
         tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        with pytest.raises(ValueError) as err:
+            tap.query_region(coordinate=123)
+        assert "coordinate must be either a string or astropy.coordinates" in err.value.args[0]
+
+        with pytest.raises(NameResolveError) as err:
+            tap.query_region(coordinate='test')
+        assert "Unable to find coordinates for name 'test'" in err.value.args[0]
 
         # Launch response: we use default response because the
         # query contains decimals
@@ -767,13 +776,17 @@ class TestTap:
         try:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id,
+                              cal_level=1,
                               output_file=output_file_full_path))
+            parameters['params_dict']['calibrationlevel'] = 'LEVEL1ONLY'
             dummyTapHandler.check_call('load_data', parameters)
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
+
+        parameters['params_dict']['calibrationlevel'] = 'ALL'
 
         # Test single file gzip
         output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_4")
