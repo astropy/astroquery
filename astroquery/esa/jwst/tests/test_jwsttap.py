@@ -1011,7 +1011,7 @@ class TestTap:
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
-        assert('MAST token has been set successfully' in buffer.getvalue())
+        assert ('MAST token has been set successfully' in buffer.getvalue())
 
     def test_set_token_anonymous_error(self):
         old_stdout = sys.stdout  # Memorize the default stdout stream
