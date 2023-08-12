@@ -29,6 +29,9 @@ class DummyResponse:
         self.index = 0
         self.set_data(None, None, None, None)
 
+    def __iter__(self):
+        return iter([self.get_body().encode(encoding='UTF-8')])
+
     def set_status_code(self, status_code):
         self.status = status_code
         self.reason = self.STATUS_MESSAGES.get(status_code)

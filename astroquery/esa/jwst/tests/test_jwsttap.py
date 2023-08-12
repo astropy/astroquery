@@ -1047,6 +1047,21 @@ class TestTap:
         sys.stdout = old_stdout
         assert ('ERROR: Server error when setting the token' in buffer.getvalue())
 
+    def test_get_messages_ok(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(200)
+        response.set_data(method='GET', body='message=SERVER OK')
+        connHandler.set_response(f"{conf.JWST_MESSAGES}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.get_status_messages()
+        sys.stdout = old_stdout
+        assert ('SERVER OK' in buffer.getvalue())
+
     @pytest.mark.noautofixt
     def test_query_get_product(self):
         dummyTapHandler = DummyTapHandler()
