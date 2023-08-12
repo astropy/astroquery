@@ -12,6 +12,8 @@ import os
 import shutil
 from pathlib import Path
 from unittest.mock import MagicMock
+import sys
+import io
 
 import astropy.units as u
 import numpy as np
@@ -993,6 +995,57 @@ class TestTap:
         parameters['verbose'] = False
         tap.logout()
         dummyTapHandler.check_call('logout', parameters)
+
+    def test_set_token_ok(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(200)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert('MAST token has been set successfully' in buffer.getvalue())
+
+    def test_set_token_anonymous_error(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(403)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert ('ERROR: MAST tokens cannot be assigned or requested by anonymous users' in buffer.getvalue())
+
+    def test_set_token_server_error(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(500)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert ('ERROR: Server error when setting the token' in buffer.getvalue())
 
     @pytest.mark.noautofixt
     def test_query_get_product(self):
