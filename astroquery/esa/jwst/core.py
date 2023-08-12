@@ -1083,7 +1083,7 @@ class JwstClass(BaseQuery):
         if value is None:
             raise ValueError(f"Missing required argument: '{msg}'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or units.Quantity")
         if isinstance(value, str):
             q = Quantity(value)
             return q

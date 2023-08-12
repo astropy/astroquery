@@ -258,6 +258,11 @@ class TestTap:
             tap.query_region(sc)
         assert "Missing required argument: 'width'" in err.value.args[0]
 
+        width = 123
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width)
+        assert "width must be either a string or units.Quantity" in err.value.args[0]
+
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
 
