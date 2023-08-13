@@ -6,7 +6,7 @@ import re
 import time
 from math import cos, radians
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 from io import BytesIO, StringIO
 
 import astropy.units as u
@@ -312,6 +312,8 @@ class BaseWFAUClass(QueryWithLogin):
 
         if ignore_deprecated and radius is None:
             image_urls = image_table[image_table['deprecated'] == 0]['Link']
+        elif radius is not None:
+            image_urls = image_table['Img']
         else:
             image_urls = image_table['Link']
 
@@ -321,6 +323,8 @@ class BaseWFAUClass(QueryWithLogin):
                           ('fits_download' in link and '_cat.fits'
                            not in link and '_two.fit' not in link)]
         else:
+            # Not sure this is necessary any more (as of #2809), but it seems
+            # harmless and I'm not removing it until I'm sure
             image_urls = [link.replace("getImage", "getFImage")
                           for link in image_urls]
 
@@ -449,19 +453,31 @@ class BaseWFAUClass(QueryWithLogin):
         """
         ahref = re.compile(r'href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
 
-        html = "\n".join([
-            # for ascii.read: th -> header
-            row.replace("td", "th") if row.startswith("<table border") else
-            # "show" is the default, but we want the URLs
-            row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
-            # for radius searches, "FITS" needs to be s/FITS/url/
-            row.replace(">FITS<", ">{}<".format(ahref.search(row).groups()[0])) if ">FITS<" in row else
-            row
-            for row in html_in.split("\n")])
-        if radius is None:
-            return ascii.read(html, format='html')
+        if radius is not None:
+            html = "\n".join([
+                # for radius searches, "FITS" needs to be s/FITS/url/
+                row.replace(">FITS<", ">{}<".format(ahref.search(row).groups()[0])) if ">FITS<" in row else
+                row
+                for row in html_in.split("\n")])
+            with warnings.catch_warnings():
+                # this is really html; the xml parser doesn't work
+                warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
+                soup = BeautifulSoup(html, features='html5')
+            httb = soup.findAll('table')[2]
+            firstrow = httb.findAll('tr')[0]
+            for td in firstrow.findAll('td'):
+                td.name = 'th'
+            return ascii.read(str(httb), format='html')
+
         else:
-            return ascii.read(html, format='html', htmldict={'table_id': 3})
+            html = "\n".join([
+                # for ascii.read: th -> header
+                row.replace("td", "th") if row.startswith("<table border") else
+                # "show" is the default, but we want the URLs
+                row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
+                row
+                for row in html_in.split("\n")])
+            return ascii.read(html, format='html')
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
                      programme_id=None, database=None,
