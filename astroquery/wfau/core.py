@@ -12,6 +12,7 @@ from io import BytesIO, StringIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy.io import ascii
 
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
@@ -290,10 +291,46 @@ class BaseWFAUClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    def get_image_list(self, coordinates, *, waveband='all', frame_type='stack',
-                       image_width=1 * u.arcmin, image_height=None,
-                       radius=None, database=None,
-                       programme_id=None, get_query_payload=False):
+
+    def get_image_list(self, coordinates, *, radius=None, ignore_deprecated=True, **kwargs):
+        """
+        See `get_image_table` for a full list of options.
+
+        This method will return _only_ the URLs requested as a list of URLs.
+
+        Parameters
+        ----------
+        ignore_deprecated : bool
+            If set (default: True), only images with the ``deprecated`` flag
+            set to zero will be included
+
+        Returns
+        -------
+        url_list : list of image urls
+
+        """
+        image_table = self.get_image_table(coordinates, radius=radius, **kwargs)
+
+        if ignore_deprecated:
+            image_urls = image_table[image_table['deprecated'] == 0]['Link']
+        else:
+            image_urls = image_table['Link']
+
+        # different links for radius queries and simple ones
+        if radius is not None:
+            image_urls = [link for link in image_urls if
+                          ('fits_download' in link and '_cat.fits'
+                           not in link and '_two.fit' not in link)]
+        else:
+            image_urls = [link.replace("getImage", "getFImage")
+                          for link in image_urls]
+
+        return image_urls
+
+    def get_image_table(self, coordinates, *, waveband='all', frame_type='stack',
+                        image_width=1 * u.arcmin, image_height=None,
+                        radius=None, database=None,
+                        programme_id=None, get_query_payload=False):
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -337,7 +374,9 @@ class BaseWFAUClass(QueryWithLogin):
 
         Returns
         -------
-        url_list : list of image urls
+        table : Table
+            An astropy table containing the metadata table, including URLs, of
+            the requested files.
 
         """
 
@@ -399,39 +438,26 @@ class BaseWFAUClass(QueryWithLogin):
             return request_payload
 
         response = self._wfau_send_request(query_url, request_payload)
+        self._penultimate_response = response
         response = self._check_page(response.url, "row")
+        self._last_response = response
 
-        image_urls = self.extract_urls(response.text)
-        # different links for radius queries and simple ones
-        if radius is not None:
-            image_urls = [link for link in image_urls if
-                          ('fits_download' in link and '_cat.fits'
-                           not in link and '_two.fit' not in link)]
-        else:
-            image_urls = [link.replace("getImage", "getFImage")
-                          for link in image_urls]
+        return self.parse_imagequery_page(response.text)
 
-        return image_urls
-
-    def extract_urls(self, html_in):
+    def parse_imagequery_page(self, html_in):
         """
-        Helper function that uses regexps to extract the image urls from the
-        given HTML.
-
-        Parameters
-        ----------
-        html_in : str
-            source from which the urls are to be extracted.
-
-        Returns
-        -------
-        links : list
-            The list of URLS extracted from the input.
+        Parse the image metadata page
         """
-        # Parse html input for links
         ahref = re.compile(r'href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
-        links = ahref.findall(html_in)
-        return links
+
+        html = "\n".join([
+            # for ascii.read: th -> header
+            row.replace("td", "th") if row.startswith("<table border") else
+            # "show" is the default, but we want the URLs
+            row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
+            row
+            for row in html_in.split("\n")])
+        return ascii.read(html, format='html')
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
                      programme_id=None, database=None,
