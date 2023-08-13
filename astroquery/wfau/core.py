@@ -291,7 +291,6 @@ class BaseWFAUClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-
     def get_image_list(self, coordinates, *, radius=None, ignore_deprecated=True, **kwargs):
         """
         See `get_image_table` for a full list of options.
