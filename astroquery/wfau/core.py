@@ -310,7 +310,7 @@ class BaseWFAUClass(QueryWithLogin):
         """
         image_table = self.get_image_table(coordinates, radius=radius, **kwargs)
 
-        if ignore_deprecated:
+        if ignore_deprecated and radius is None:
             image_urls = image_table[image_table['deprecated'] == 0]['Link']
         else:
             image_urls = image_table['Link']
@@ -441,9 +441,9 @@ class BaseWFAUClass(QueryWithLogin):
         response = self._check_page(response.url, "row")
         self._last_response = response
 
-        return self.parse_imagequery_page(response.text)
+        return self.parse_imagequery_page(response.text, radius=radius)
 
-    def parse_imagequery_page(self, html_in):
+    def parse_imagequery_page(self, html_in, radius=None):
         """
         Parse the image metadata page
         """
@@ -454,9 +454,14 @@ class BaseWFAUClass(QueryWithLogin):
             row.replace("td", "th") if row.startswith("<table border") else
             # "show" is the default, but we want the URLs
             row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
+            # for radius searches, "FITS" needs to be s/FITS/url/
+            row.replace(">FITS<", ">{}<".format(ahref.search(row).groups()[0])) if ">FITS<" in row else
             row
             for row in html_in.split("\n")])
-        return ascii.read(html, format='html')
+        if radius is None:
+            return ascii.read(html, format='html')
+        else:
+            return ascii.read(html, format='html', htmldict={'table_id': 3})
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
                      programme_id=None, database=None,
