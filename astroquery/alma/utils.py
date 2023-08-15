@@ -61,17 +61,19 @@ def footprint_to_reg(footprint):
     entries = footprint.split()
     if entries[0] == 'Circle':
         center = SkyCoord(float(entries[2]), float(entries[3]), frame='icrs', unit=(u.deg, u.deg))
-        reg = regions.CircleSkyRegion(center, radius=float(entries[4]), meta=meta, visual=visual)
+        reg = regions.CircleSkyRegion(center,radius=float(entries[4])*u.deg,
+                                      meta=meta, visual=visual)
         reglist.append(reg)
 
     else:
         polygons = [index for index, entry in enumerate(entries) if entry == 'Polygon']
 
-        for start, stop in zip(polygons, polygons[1:]+[None]):
+        for start, stop in zip(polygons, polygons[1:]+[len(entries)]):
+            start += 1
             ra = [float(x) for x in entries[start+1:stop:2]]*u.deg
             dec = [float(x) for x in entries[start+2:stop:2]]*u.deg
             vertices = SkyCoord(ra, dec, frame='icrs')
-            reg = regions.PolygonSkyCoord(vertices=vertices, meta=meta, visual=visual)
+            reg = regions.PolygonSkyRegion(vertices=vertices, meta=meta, visual=visual)
             reglist.append(reg)
 
     return reglist
