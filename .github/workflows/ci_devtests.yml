@@ -27,14 +27,22 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
-          - name: dev dependencies with all dependencies with coverage
+          - name: Linux dev dependencies with all dependencies with coverage
             os: ubuntu-latest
             python: '3.11'
             toxenv: py311-test-alldeps-devdeps-cov
             toxargs: -v
+            toxposargs: -P cadc
+
+          - name: OSX dev dependencies with all dependencies with coverage
+            os: macos-latest
+            python: '3.11'
+            toxenv: py311-test-alldeps-devdeps-cov
+            toxargs: -v
+            toxposargs: -P cadc
 
     steps:
     - name: Checkout code
