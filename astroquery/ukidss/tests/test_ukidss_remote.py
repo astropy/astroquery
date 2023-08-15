@@ -69,6 +69,9 @@ class TestUkidss:
         result = uk.get_image_list(crd, waveband='all', ignore_deprecated=True)
 
         # this image is not deprecated (deprecated==0)
-        assert "http://wsa.roe.ac.uk/cgi-bin/getImage.cgi?file=/disk73/wsa/ingest/fits/20190614_v5/w20190614_00626_st.fit&mfid=11076607&extNo=4&lx=1276&hx=1426&ly=187&hy=337&rf=0&flip=1&uniq=834_579_14_86394_6&xpos=75.9&ypos=75.7&band=K&ra=211.3194905&dec=54.413845" in result  # noqa: E501
+        # can't check for exact URL match because URLs include generated 'uniq' strings
+        assert any("file=/disk73/wsa/ingest/fits/20190614_v5/w20190614_00626_st.fit"
+                   in x for x in result)
         # this image is deprecated (deprecated==80)
-        assert "http://wsa.roe.ac.uk/cgi-bin/getImage.cgi?file=/disk53/wsa/ingest/fits/20150129_v5/w20150129_02901_st.fit&mfid=8278383&extNo=4&lx=1274&hx=1425&ly=195&hy=345&rf=0&flip=1&uniq=834_579_14_86394_5&xpos=76.6&ypos=75.9&band=J&ra=211.3194905&dec=54.413845" not in result  # noqa: E501
+        assert not any("file=/disk53/wsa/ingest/fits/20150129_v5/w20150129_02901_st.fit"
+                       in x for x in result)
