@@ -242,6 +242,12 @@ xmatch
 - Minor internal change to use VOTable as the response format that include
   units, too. [#1375]
 
+wfau
+^^^^
+
+- Minor enhancement to enable getting tables of images to download instead
+  of just raw URLs.  Tables include metadata about deprecation [#2809]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
