@@ -479,6 +479,26 @@ class BaseWFAUClass(QueryWithLogin):
                 for row in html_in.split("\n")])
             return ascii.read(html, format='html')
 
+    def extract_urls(self, html_in):
+        """
+        Helper function that uses regexps to extract the image urls from the
+        given HTML.
+
+        Parameters
+        ----------
+        html_in : str
+            source from which the urls are to be extracted.
+
+        Returns
+        -------
+        links : list
+            The list of URLS extracted from the input.
+        """
+        # Parse html input for links
+        ahref = re.compile(r'href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
+        links = ahref.findall(html_in)
+        return links
+
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
                      programme_id=None, database=None,
                      verbose=False, get_query_payload=False, system='J2000',
