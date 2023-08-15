@@ -77,10 +77,10 @@ def get_mockreturn(method='GET', url='default_url',
                    params=None, timeout=10, **kwargs):
     if "GetImage" in url:
         filename = DATA_FILES["image_results_noradius"]
-        url = "Image_URL"
+        url = "GetImage"
     elif "ImageList" in url:
         filename = DATA_FILES["image_results_radius"]
-        url = "Image_URL"
+        url = "ImageList"
     elif "SQL" in url:
         filename = DATA_FILES["vo_results"]
         url = "SQL_URL"
