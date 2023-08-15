@@ -118,27 +118,27 @@ def test_get_images_async_1():
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
 
-    # debug: get the table first
+    # debug check: get the table first & make sure it has 'deprecated' column as expected
     tbl = ukidss.core.Ukidss.get_image_table(icrs_skycoord, programme_id="GPS")
     assert "deprecated" in tbl.colnames
 
     image_urls = ukidss.core.Ukidss.get_images_async(icrs_skycoord, programme_id="GPS")
 
-    assert len(image_urls) == 1
+    assert len(image_urls) == 3
 
 
 def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(
         icrs_skycoord, frame_type="all", waveband="all", programme_id="GPS")
     print(urls)
-    assert len(urls) == 1
+    assert len(urls) == 3
 
 
 def test_extract_urls():
-    with open(data_path(DATA_FILES["image_results"]), 'r') as infile:
+    with open(data_path(DATA_FILES["image_results_radius"]), 'r') as infile:
         html_in = infile.read()
     urls = ukidss.core.Ukidss.extract_urls(html_in)
-    assert len(urls) == 1
+    assert len(urls) == 14
 
 
 def test_query_region(patch_get, patch_get_readable_fileobj):
