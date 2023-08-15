@@ -291,7 +291,8 @@ class BaseWFAUClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    def get_image_list(self, coordinates, *, radius=None, ignore_deprecated=True, **kwargs):
+    def get_image_list(self, coordinates, *, radius=None, ignore_deprecated=True,
+                       get_query_payload=False, **kwargs):
         """
         See `get_image_table` for a full list of options.
 
@@ -308,7 +309,12 @@ class BaseWFAUClass(QueryWithLogin):
         url_list : list of image urls
 
         """
-        image_table = self.get_image_table(coordinates, radius=radius, **kwargs)
+        image_table = self.get_image_table(coordinates, radius=radius,
+                                           get_query_payload=get_query_payload,
+                                           **kwargs)
+        if get_query_payload:
+            # actully a payload, not a table
+            return image_table
 
         if ignore_deprecated and radius is None:
             image_urls = image_table[image_table['deprecated'] == 0]['Link']
@@ -462,7 +468,7 @@ class BaseWFAUClass(QueryWithLogin):
             with warnings.catch_warnings():
                 # this is really html; the xml parser doesn't work
                 warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
-                soup = BeautifulSoup(html, features='html5')
+                soup = BeautifulSoup(html, features='html5lib')
             httb = soup.findAll('table')[2]
             firstrow = httb.findAll('tr')[0]
             for td in firstrow.findAll('td'):
@@ -477,7 +483,10 @@ class BaseWFAUClass(QueryWithLogin):
                 row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
                 row
                 for row in html_in.split("\n")])
-            return ascii.read(html, format='html')
+            with warnings.catch_warnings():
+                # ascii.read uses bs4, result is html, not xml, despite xml tag
+                warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
+                return ascii.read(html, format='html')
 
     def extract_urls(self, html_in):
         """

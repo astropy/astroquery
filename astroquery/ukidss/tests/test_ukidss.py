@@ -14,7 +14,8 @@ from astroquery.utils.mocks import MockResponse
 from ...exceptions import InvalidQueryError
 
 DATA_FILES = {"vo_results": "vo_results.html",
-              "image_results": "image_results.html",
+              "image_results_noradius": "image_results_noradius.html",
+              "image_results_radius": "image_results_radius.html",
               "image": "image.fits",
               "votable": "votable.xml",
               "error": "error.html"
@@ -74,8 +75,11 @@ def patch_parse_coordinates(request):
 
 def get_mockreturn(method='GET', url='default_url',
                    params=None, timeout=10, **kwargs):
-    if "Image" in url:
-        filename = DATA_FILES["image_results"]
+    if "GetImage" in url:
+        filename = DATA_FILES["image_results_noradius"]
+        url = "Image_URL"
+    elif "ImageList" in url:
+        filename = DATA_FILES["image_results_radius"]
         url = "Image_URL"
     elif "SQL" in url:
         filename = DATA_FILES["vo_results"]
@@ -113,6 +117,10 @@ def test_get_images_async_1():
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
+
+    # debug: get the table first
+    tbl = ukidss.core.Ukidss.get_image_table(icrs_skycoord, programme_id="GPS")
+    assert "deprecated" in tbl.colnames
 
     image_urls = ukidss.core.Ukidss.get_images_async(icrs_skycoord, programme_id="GPS")
 
