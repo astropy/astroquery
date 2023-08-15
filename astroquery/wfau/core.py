@@ -446,9 +446,9 @@ class BaseWFAUClass(QueryWithLogin):
         if get_query_payload:
             return request_payload
 
-        response = self._wfau_send_request(query_url, request_payload)
-        self._penultimate_response = response
-        response = self._check_page(response.url, "row")
+        initial_response = self._wfau_send_request(query_url, request_payload)
+        self._penultimate_response = initial_response
+        response = self._check_page(initial_response.url, "row")
         self._last_response = response
 
         return self.parse_imagequery_page(response.text, radius=radius)
