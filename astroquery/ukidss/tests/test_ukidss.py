@@ -137,7 +137,7 @@ def test_get_image_list(patch_get, patch_get_readable_fileobj):
 def test_extract_urls():
     with open(data_path(DATA_FILES["image_results_radius"]), 'r') as infile:
         html_in = infile.read()
-    urls = ukidss.core.Ukidss.extract_urls(html_in)
+    urls = ukidss.core.Ukidss._extract_urls(html_in)
     assert len(urls) == 14
 
 

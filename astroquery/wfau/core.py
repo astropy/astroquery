@@ -6,7 +6,11 @@ import re
 import time
 from math import cos, radians
 import requests
-from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+try:
+    from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+except ImportError:
+    # workaround: older versions of bs4, which we still support, didn't have this warning
+    XMLParsedAsHTMLWarning = object
 from io import BytesIO, StringIO
 
 import astropy.units as u
@@ -488,7 +492,7 @@ class BaseWFAUClass(QueryWithLogin):
                 warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
                 return ascii.read(html, format='html')
 
-    def extract_urls(self, html_in):
+    def _extract_urls(self, html_in):
         """
         Helper function that uses regexps to extract the image urls from the
         given HTML.
@@ -676,7 +680,7 @@ class BaseWFAUClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table`
         """
-        table_links = self.extract_urls(response.text)
+        table_links = self._extract_urls(response.text)
         # keep only one link that is not a webstart
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
