@@ -61,7 +61,7 @@ def footprint_to_reg(footprint):
     entries = footprint.split()
     if entries[0] == 'Circle':
         center = SkyCoord(float(entries[2]), float(entries[3]), frame='icrs', unit=(u.deg, u.deg))
-        reg = regions.CircleSkyRegion(center,radius=float(entries[4])*u.deg,
+        reg = regions.CircleSkyRegion(center, radius=float(entries[4])*u.deg,
                                       meta=meta, visual=visual)
         reglist.append(reg)
 

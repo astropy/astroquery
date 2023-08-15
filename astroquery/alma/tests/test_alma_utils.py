@@ -6,7 +6,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 
 try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
+    from regions import CircleSkyRegion
 
     HAS_REGIONS = True
 except ImportError:
@@ -41,9 +41,9 @@ mosaic_footprint_str = '''Polygon ICRS 266.519781 -28.724666 266.524678 -28.7319
     -28.681414 266.530644 -28.685630 266.521788 -28.689453 266.519784
     -28.694332 266.521332 -28.699778'''
 
+
 @pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
 def test_footprint_to_reg_mosaic(mosaic_footprint_str=mosaic_footprint_str):
-
 
     pairs = zip(mosaic_footprint_str.split()[2::2], mosaic_footprint_str.split()[3::2])
     vertices = [SkyCoord(float(ra) * u.deg, float(dec) * u.deg, frame='icrs')
@@ -80,6 +80,7 @@ def test_footprint_to_reg_mosaic_multiple(mosaic_footprint_str=mosaic_footprint_
 
 pointing_footprint_str = 'Circle ICRS 266.519781 -28.724666 0.01'
 
+
 @pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
 def test_footprint_to_reg_pointing(pointing_footprint_str=pointing_footprint_str):
 
@@ -89,7 +90,6 @@ def test_footprint_to_reg_pointing(pointing_footprint_str=pointing_footprint_str
 
     actual_reg = CircleSkyRegion(center, radius=float(rad) * u.deg)
 
-
     reg_output = utils.footprint_to_reg(pointing_footprint_str)
 
     assert len(reg_output) == 1
@@ -97,4 +97,3 @@ def test_footprint_to_reg_pointing(pointing_footprint_str=pointing_footprint_str
     assert actual_reg.center.ra == reg_output[0].center.ra
     assert actual_reg.center.dec == reg_output[0].center.dec
     assert actual_reg.radius == reg_output[0].radius
-
