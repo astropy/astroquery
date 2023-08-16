@@ -615,7 +615,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = "g:" + self._format_site_coords(self.id)
+            commandline = self._format_id_coords(self.id)
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -850,16 +850,20 @@ class HorizonsClass(BaseQuery):
 
         URL = conf.horizons_server
 
-        # check for required information
+        # check for required information and assemble commandline stub
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
+        elif isinstance(self.id, dict):
+            commandline = self._format_id_coords(self.id)
+        else:
+            commandline = str(self.id)
+
         if self.location is None:
             self.location = '500@10'
         if self.epochs is None:
             self.epochs = Time.now().jd
 
-        # assemble commandline based on self.id_type
-        commandline = str(self.id)
+        # expand commandline based on self.id_type
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
             commandline = ({'designation': 'DES=',
@@ -878,7 +882,7 @@ class HorizonsClass(BaseQuery):
                 commandline += ' NOFRAG;'
 
         if isinstance(self.location, dict):
-            raise ValueError(('cannot use topographic position in orbital'
+            raise ValueError(('cannot use topographic position in orbital '
                               'elements query'))
 
         # configure request_payload for ephemerides query
@@ -1099,7 +1103,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = "g:" + self._format_site_coords(self.id)
+            commandline = self._format_id_coords(self.id)
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -1211,6 +1215,7 @@ class HorizonsClass(BaseQuery):
     @staticmethod
     def _location_to_params(loc_dict):
         """translate a 'location' dict to request parameters"""
+
         location = {
             "CENTER": f"coord@{loc_dict['body']}",
             "COORD_TYPE": "GEODETIC",
@@ -1219,10 +1224,20 @@ class HorizonsClass(BaseQuery):
         return location
 
     @staticmethod
-    def _format_site_coords(coords):
-        # formats lon/lat/elevation/body (e.g., id and location dictionaries) for the Horizons API
+    def _format_coords(coords):
+        """Dictionary to Horizons API formatted lon/lat/elevation coordinate triplet."""
         return (f"{coords['lon'].to_value('deg')},{coords['lat'].to_value('deg')},"
-                f"{coords['elevation'].to_value('km')}@{coords['body']}")
+                f"{coords['elevation'].to_value('km')}")
+
+    @staticmethod
+    def _format_site_coords(coords):
+        """`location` dictionary to SITE_COORDS parameter."""
+        return HorizonsClass._format_coords(coords)
+
+    @staticmethod
+    def _format_id_coords(coords):
+        """`id` dictionary to COMMAND parameter's coordinate format."""
+        return f"g:{HorizonsClass._format_coords(coords)}@{coords['body']}"
 
     def _parse_result(self, response, verbose=None):
         """

@@ -7,6 +7,7 @@ from collections import OrderedDict
 from numpy.ma import is_masked
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from astropy import units as u
 
 from astroquery.utils.mocks import MockResponse
 from ...query import AstroQuery
@@ -291,3 +292,61 @@ def test_id_type_deprecation():
 
     with pytest.warns(AstropyDeprecationWarning):
         jplhorizons.Horizons(id='Ceres', id_type='majorbody')
+
+
+def test_id_geodetic_coords():
+    """Test target based on geodetic coordinates.
+
+    From the Horizons manual:
+
+    For example, while 301 specifies the target to be the center of the Moon,
+    and Apollo-11 @ 301 specifies the Apollo-11 landing site as target, the
+    following:
+
+        g: 348.8, -43.3, 0 @ 301
+
+    specifies an ephemeris for the crater Tycho on the Moon (body 301), at
+    geodetic (planetodetic) coordinates 348.8 degrees east longitude, -43.3
+    degrees latitude (south), and zero km altitude with respect to the Moon’s
+    mean-Earth reference frame and ellipsoid surface.
+
+    """
+
+    target = {
+        "lon": 348.8 * u.deg,
+        "lat": -43.3 * u.deg,
+        "elevation": 0 * u.m,
+        "body": 301
+    }
+
+    q = jplhorizons.Horizons(id=target)
+    for payload in (q.ephemerides(get_query_payload=True),
+                    q.vectors(get_query_payload=True),
+                    q.elements(get_query_payload=True)):
+        assert payload["COMMAND"] == '"g:348.8,-43.3,0.0@301"'
+
+
+def test_location_topocentric_coords():
+    """Test location from topocentric coordinates.
+
+    Similar to `test_id_geodetic_coords`.
+
+    """
+
+    location = {
+        "lon": 348.8 * u.deg,
+        "lat": -43.3 * u.deg,
+        "elevation": 0 * u.m,
+        "body": 301
+    }
+
+    q = jplhorizons.Horizons(id=399, location=location)
+    for payload in (q.ephemerides(get_query_payload=True),
+                    q.vectors(get_query_payload=True)):
+        assert payload["CENTER"] == 'coord@301'
+        assert payload["COORD_TYPE"] == "GEODETIC"
+        assert payload["SITE_COORD"] == "'348.8,-43.3,0.0'"
+
+    # not allowed for elements
+    with pytest.raises(ValueError):
+        q.elements(get_query_payload=True)
