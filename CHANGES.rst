@@ -156,6 +156,8 @@ jplhorizons
 
 - Assign units to ``"hour_angle"``, ``"solartime"``, and ``"siderealtime"`` columns. [#2794]
 
+- Allow using units in locations specified as coordinates. [#2746]
+
 jplsbdb
 ^^^^^^^
 

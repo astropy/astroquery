@@ -78,7 +78,7 @@ must still be entered in east-longitude, which means they must be negative; Hori
 will raise an error if given any positive longitude value for such bodies. Instead enter
 the west-longitude - 360. For instance, a site on Mars (id code 499) at 30 degrees
 longitude, 30 degrees latitude, 0 km elevation should be specified as
-``{'body': 499, 'elevation': 0, 'lon': -330, 'lat': 30}``.
+``{'body': 499, 'elevation': 0 * u.km, 'lon': -330 * u.deg, 'lat': 30 * u.deg}``.
 2. This does not apply to the Earth, Moon, and Sun. Although they are prograde,
 Horizons interprets east-longitude as positive and west-longitude as negative for these
 bodies.
@@ -96,14 +96,15 @@ as the observer's location, and Ceres as the target:
 
 .. doctest-remote-data::
 
-    >>> statue_of_liberty = {'lon': -74.0466891,
-    ...                      'lat': 40.6892534,
-    ...                      'elevation': 0.093}
+    >>> import astropy.units as u
+    >>> statue_of_liberty = {'lon': -74.0466891 * u.deg,
+    ...                      'lat': 40.6892534 * u.deg,
+    ...                      'elevation': 0.093 * u.km}
     >>> obj = Horizons(id='Ceres',
     ...                location=statue_of_liberty,
     ...                epochs=2458133.33546)
     >>> print(obj)
-    JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093, 'body': 399}, epochs=[2458133.33546], id_type=None
+    JPLHorizons instance "Ceres"; location={'lon': <Quantity -74.0466891 deg>, 'lat': <Quantity 40.6892534 deg>, 'elevation': <Quantity 0.093 km>, 'body': 399}, epochs=[2458133.33546], id_type=None
 
 2. Specifying topocentric coordinates for both location and observer is often
 useful when performing geometric calculations for artificial satellites without
@@ -116,8 +117,8 @@ at a particular point in time to the center of the crater Double:
 
 .. doctest-remote-data::
 
-    >>> ce_2 = {'lon': 23.522, 'lat': 0.637, 'elevation': 181.2, 'body': 301}
-    >>> double = {'lon': 23.47, 'lat': 0.67, 'elevation': 0, 'body': 301}
+    >>> ce_2 = {'lon': 23.522 * u.deg, 'lat': 0.637 * u.deg, 'elevation': 181.2 * u.km, 'body': 301}
+    >>> double = {'lon': 23.47 * u.deg, 'lat': 0.67 * u.deg, 'elevation': 0 * u.km, 'body': 301}
     >>> obj = Horizons(id=double, location=ce_2, epochs=2454483.84247)
     >>> vecs = obj.vectors()
     >>> distance_km = (vecs['x'] ** 2 + vecs['y'] ** 2 + vecs['z'] ** 2) ** 0.5 * 1.496e8

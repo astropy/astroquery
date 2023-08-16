@@ -13,6 +13,7 @@ from numpy import ndarray
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
+from astropy import units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated_renamed_argument, deprecated_attribute
 
@@ -53,14 +54,14 @@ class HorizonsClass(BaseQuery):
 
         id : str or dict, required
             Name, number, or designation of target object. Uses the same codes
-            as JPL Horizons. Arbitrary topocentric coordinates can be added
-            in a dict. The dict has to be of the form
-            {``'lon'``: longitude in deg (East positive, West
-            negative), ``'lat'``: latitude in deg (North positive, South
-            negative), ``'elevation'``: elevation in km above the reference
-            ellipsoid, [``'body'``: Horizons body ID of the central body;
-            optional; if this value is not provided it is assumed that this
-            location is on Earth]}.
+            as JPL Horizons. Arbitrary topocentric coordinates can be added in a
+            dict. The dict has to be of the form {``'lon'``: longitude in deg
+            (East positive, West negative), ``'lat'``: latitude in deg (North
+            positive, South negative), ``'elevation'``: elevation in km above
+            the reference ellipsoid, [``'body'``: Horizons body ID of the
+            central body; optional; if this value is not provided it is assumed
+            that this location is on Earth]}.  Float values are assumed to have
+            units of degrees and kilometers.
 
         location : str or dict, optional
             Observer's location for ephemerides queries or center body name for
@@ -69,12 +70,13 @@ class HorizonsClass(BaseQuery):
             ephemerides queries and the Sun's center for elements and vectors
             queries. Arbitrary topocentric coordinates for ephemerides queries
             can be provided in the format of a dictionary. The dictionary has to
-            be of the form {``'lon'``: longitude in deg (East positive, West
-            negative), ``'lat'``: latitude in deg (North positive, South
-            negative), ``'elevation'``: elevation in km above the reference
-            ellipsoid, [``'body'``: Horizons body ID of the central body;
-            optional; if this value is not provided it is assumed that this
-            location is on Earth]}.
+            be of the form {``'lon'``: longitude (East positive, West negative),
+            ``'lat'``: latitude (North positive, South negative),
+            ``'elevation'``: elevation above the reference ellipsoid,
+            [``'body'``: Horizons body ID of the central body; optional; if this
+            value is not provided it is assumed that this location is on
+            Earth]}.  Float values are assumed to have units of degrees and
+            kilometers.
 
         epochs : scalar, list-like, or dictionary, optional
             Either a list of epochs in JD or MJD format or a dictionary defining
@@ -117,16 +119,10 @@ class HorizonsClass(BaseQuery):
         """
 
         super().__init__()
-        # check & format coordinate dictionaries for id and location; simply
-        # treat other values as given
-        if isinstance(id, Mapping):
-            self.id = self._prep_loc_dict(dict(id), "id")
-        else:
-            self.id = id
-        if isinstance(location, Mapping):
-            self.location = self._prep_loc_dict(dict(location), "location")
-        else:
-            self.location = location
+
+        self.id = id
+        self.location = location
+
         # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
             if isinstance(epochs, (list, tuple, ndarray)):
@@ -184,6 +180,32 @@ class HorizonsClass(BaseQuery):
                     str(self.location),
                     str(self.epochs),
                     str(self.id_type))
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, _id):
+        # check & format coordinate dictionaries for id; simply treat other
+        # values as given
+        if isinstance(_id, Mapping):
+            self._id = self._prep_loc_dict(dict(_id), "id")
+        else:
+            self._id = _id
+
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, _location):
+        # check & format coordinate dictionaries for location; simply treat
+        # other values as given
+        if isinstance(_location, Mapping):
+            self._location = self._prep_loc_dict(dict(_location), "location")
+        else:
+            self._location = _location
 
     # ---------------------------------- query functions
 
@@ -593,10 +615,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = (
-                f"g:{self.id['lon']},{self.id['lat']},"
-                f"{self.id['elevation']}@{self.id['body']}"
-            )
+            commandline = self._format_id_coords(self.id)
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -831,16 +850,20 @@ class HorizonsClass(BaseQuery):
 
         URL = conf.horizons_server
 
-        # check for required information
+        # check for required information and assemble commandline stub
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
+        elif isinstance(self.id, dict):
+            commandline = self._format_id_coords(self.id)
+        else:
+            commandline = str(self.id)
+
         if self.location is None:
             self.location = '500@10'
         if self.epochs is None:
             self.epochs = Time.now().jd
 
-        # assemble commandline based on self.id_type
-        commandline = str(self.id)
+        # expand commandline based on self.id_type
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
             commandline = ({'designation': 'DES=',
@@ -859,7 +882,7 @@ class HorizonsClass(BaseQuery):
                 commandline += ' NOFRAG;'
 
         if isinstance(self.location, dict):
-            raise ValueError(('cannot use topographic position in orbital'
+            raise ValueError(('cannot use topographic position in orbital '
                               'elements query'))
 
         # configure request_payload for ephemerides query
@@ -1080,7 +1103,7 @@ class HorizonsClass(BaseQuery):
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
         elif isinstance(self.id, dict):
-            commandline = "g:{lon},{lat},{elevation}@{body}".format(**self.id)
+            commandline = self._format_id_coords(self.id)
         else:
             commandline = str(self.id)
         if self.location is None:
@@ -1183,20 +1206,38 @@ class HorizonsClass(BaseQuery):
             )
         if 'body' not in loc_dict:
             loc_dict['body'] = 399
+        # assumed units are degrees and km
+        loc_dict["lat"] = u.Quantity(loc_dict["lat"], u.deg)
+        loc_dict["lon"] = u.Quantity(loc_dict["lon"], u.deg)
+        loc_dict["elevation"] = u.Quantity(loc_dict["elevation"], u.km)
         return loc_dict
 
     @staticmethod
     def _location_to_params(loc_dict):
-        """translate a 'location' dict to a dict of request parameters"""
-        loc_dict = {
+        """translate a 'location' dict to request parameters"""
+
+        location = {
             "CENTER": f"coord@{loc_dict['body']}",
             "COORD_TYPE": "GEODETIC",
-            "SITE_COORD": ",".join(
-                str(float(loc_dict[k])) for k in ['lon', 'lat', 'elevation']
-            )
+            "SITE_COORD": "'{}'".format(str(HorizonsClass._format_site_coords(loc_dict)))
         }
-        loc_dict["SITE_COORD"] = f"'{loc_dict['SITE_COORD']}'"
-        return loc_dict
+        return location
+
+    @staticmethod
+    def _format_coords(coords):
+        """Dictionary to Horizons API formatted lon/lat/elevation coordinate triplet."""
+        return (f"{coords['lon'].to_value('deg')},{coords['lat'].to_value('deg')},"
+                f"{coords['elevation'].to_value('km')}")
+
+    @staticmethod
+    def _format_site_coords(coords):
+        """`location` dictionary to SITE_COORDS parameter."""
+        return HorizonsClass._format_coords(coords)
+
+    @staticmethod
+    def _format_id_coords(coords):
+        """`id` dictionary to COMMAND parameter's coordinate format."""
+        return f"g:{HorizonsClass._format_coords(coords)}@{coords['body']}"
 
     def _parse_result(self, response, verbose=None):
         """
