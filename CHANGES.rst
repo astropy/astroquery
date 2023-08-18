@@ -248,6 +248,9 @@ mast
 
 - Bug fix in ``Observations.query_criteria()`` to use ``page`` and ``pagesize`` parameters [#2915]
 
+- Added ``Mast.mast_query`` to ``MastClass`` to handle the creation of parameter dictionaries for
+  MAST Service queries. [#2785]
+
 nist
 ^^^^
 

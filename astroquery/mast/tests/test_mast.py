@@ -309,9 +309,17 @@ def test_mast_query(patch_post):
                                   dataproduct_type=['image'],
                                   proposal_pi=['Osten, Rachel A.'],
                                   s_dec=[{'min': 43.5, 'max': 45.5}])
+    pp_list = result['proposal_pi']
+    sd_list = result['s_dec']
     assert isinstance(result, Table)
+    assert len(set(pp_list)) == 1
+    assert max(sd_list) < 45.5
+    assert min(sd_list) > 43.5
 
-    # filtered search with position
+    # error handling
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Mast.mast_query('Mast.Caom.Filtered')
+    assert "Please provide at least one filter." in str(invalid_query.value)
 
 
 def test_resolve_object(patch_post):
