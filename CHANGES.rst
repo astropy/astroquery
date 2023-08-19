@@ -76,6 +76,7 @@ alma
 - New DataLink API handling. [#2493]
 - Fixed bug #2489 in which blank URLs were being sent to the downloader [#2490]
 - Removed deprecated broken functions from ``alma.utils``. [#2331]
+- Fixed a bug in slicing of ALMA regions. [#2810]
 
 astrometry_net
 ^^^^^^^^^^^^^^

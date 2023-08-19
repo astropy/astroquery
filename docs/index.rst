@@ -114,7 +114,7 @@ and for running the tests:
 * `pytest-rerunfailures <https://github.com/pytest-dev/pytest-rerunfailures>`__
 
 The following packages are optional dependencies and are required for the
-full functionality of the `~astroquery.mocserver` module:
+full functionality of the `~astroquery.mocserver`, `~astroquery.alma`, and `~astroquery.xmatch` modules:
 
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
