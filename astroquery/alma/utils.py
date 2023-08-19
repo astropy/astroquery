@@ -50,7 +50,12 @@ def footprint_to_reg(footprint):
     if footprint[:7] != 'Polygon' and footprint[:6] != 'Circle':
         raise ValueError("Unrecognized footprint type")
 
-    import regions
+    try:
+        import regions
+    except ImportError:
+        print('Could not import `regions`, which is required for the '
+              'functionality of this function.')
+        raise
 
     reglist = []
 
