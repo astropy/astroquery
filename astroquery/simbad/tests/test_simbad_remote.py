@@ -103,9 +103,11 @@ class TestSimbad:
         simbad.ROW_LIMIT = 100
         simbad.cache_location = temp_dir
         response = simbad.query_region_async(
-            ICRS_COORDS_M42, radius=2 * u.deg, equinox=2000.0, epoch='J2000')
-
-        assert response is not None
+            ICRS_COORDS_M42, radius=5 * u.arcsec, equinox=2000.0, epoch='J2000')
+        # A correct response code
+        assert response.status_code == 200
+        # Check that Orion was found
+        assert "NAME Ori Region" in response.text
 
     @pytest.mark.parametrize("radius", (0.5 * u.arcsec, "0.5s"))
     def test_query_region_async_vector(self, temp_dir, radius):
