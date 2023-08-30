@@ -3,14 +3,13 @@ This module contains all the methods required to request the list data,
 obtain it from the ESA NEOCC portal and parse it to show it properly.
 """
 
-import io
 import re
 import requests
 
 import numpy as np
 
 from astropy.table import Table, Column
-from astropy.time import Time, TimeDelta
+from astropy.time import Time
 
 from astroquery.esa.neocc import conf
 from astroquery.esa.neocc.utils import convert_time
@@ -59,7 +58,7 @@ def get_list_url(list_name):
         "impacted_objects": 'past_impactors_list',
         "neo_catalogue_current": 'neo_kc.cat',
         "neo_catalogue_middle": 'neo_km.cat'
-        }
+    }
 
     # Raise error is input is not in dictionary
     if list_name not in lists_dict:
@@ -185,30 +184,30 @@ def parse_risk(resp_str):
 
     neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width")
 
-    neocc_lst.rename_columns(("Num/des.       Name", "m",  "Vel km/s"),
+    neocc_lst.rename_columns(("Num/des.       Name", "m", "Vel km/s"),
                              ('Object Name', 'Diameter in m', 'Vel in km/s'))
 
     neocc_lst['Date/Time'] = Time(neocc_lst['Date/Time'], scale="utc")
     neocc_lst['*=Y'] = neocc_lst['*=Y'].astype("<U1")
 
     if "Years" in neocc_lst.colnames:
-        first_year, last_year  = np.array([x.split("-") for x in neocc_lst["Years"]]).swapaxes(0,1).astype(int)
-        yr_index = neocc_lst.index_column("Years") 
+        first_year, last_year = np.array([x.split("-") for x in neocc_lst["Years"]]).swapaxes(0, 1).astype(int)
+        yr_index = neocc_lst.index_column("Years")
         neocc_lst.remove_column("Years")
         neocc_lst.add_column(Column(name="Last Year", data=last_year), index=yr_index)
         neocc_lst.add_column(Column(name="First Year", data=first_year), index=yr_index)
 
-    neocc_lst.meta =  {'Object Name': 'name of the NEA',
-                       'Diamater in m': 'approximate diameter in meters',
-                       '*=Y': 'recording an asterisk if the value has been estimated from the absolute magnitude',
-                       'Date/Time': 'predicted impact date in datetime format',
-                       'IP max': 'Maximum Impact Probability',
-                       'PS max': 'Palermo scale rating',
-                       'Vel in km/s': 'Impact velocity at atmospheric entry in km/s',
-                       'First year': 'first year of possible impacts',
-                       'Last year': 'last year of possible impacts',
-                       'IP cum': 'Cumulative Impact Probability',
-                       'PS cum': 'Cumulative Palermo Scale'}
+    neocc_lst.meta = {'Object Name': 'name of the NEA',
+                      'Diamater in m': 'approximate diameter in meters',
+                      '*=Y': 'recording an asterisk if the value has been estimated from the absolute magnitude',
+                      'Date/Time': 'predicted impact date in datetime format',
+                      'IP max': 'Maximum Impact Probability',
+                      'PS max': 'Palermo scale rating',
+                      'Vel in km/s': 'Impact velocity at atmospheric entry in km/s',
+                      'First year': 'first year of possible impacts',
+                      'Last year': 'last year of possible impacts',
+                      'IP cum': 'Cumulative Impact Probability',
+                      'PS cum': 'Cumulative Palermo Scale'}
 
     return neocc_lst
 
@@ -226,13 +225,10 @@ def parse_clo(resp_str):
         Astropy Table with close approaches list data parsed.
     """
 
-    neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width", 
-                       names=('Object Name', 'Date', 'Miss Distance in km', 'Miss Distance in au',
-                              'Miss Distance in LD', 'Diameter in m', '*=Yes', 'H', 'Max Bright',
-                              'Rel. vel in km/s', "drop"))
-
-    # Remove last column
-    neocc_lst.remove_column("drop")
+    neocc_lst = Table.read(resp_str, header_start=2, data_start=4, format="ascii.fixed_width",
+                           names=('Object Name', 'Date', 'Miss Distance in km', 'Miss Distance in au',
+                                  'Miss Distance in LD', 'Diameter in m', '*=Yes', 'H', 'Max Bright',
+                                  'Rel. vel in km/s', "CAI index"))
 
     neocc_lst['Date'] = Time(neocc_lst['Date'], scale="utc")
     neocc_lst["Diameter in m"] = neocc_lst["Diameter in m"].astype(float)
@@ -264,10 +260,11 @@ def parse_pri(resp_str):
         Astropy Table with priority list data parsed.
     """
 
-    neocc_lst = Table.read(resp_str, data_start=1, format="ascii.no_header", 
-                       names=['Priority', 'Object', 'R.A. in arcsec', 'Decl. in deg',
-                              'Elong. in deg', 'V in mag', 'Sky uncert.', 'End of Visibility'])
+    neocc_lst = Table.read(resp_str, data_start=1, format="ascii.no_header",
+                           names=['Priority', 'Object', 'R.A. in arcsec', 'Decl. in deg',
+                                  'Elong. in deg', 'V in mag', 'Sky uncert.', 'End of Visibility'])
 
+    neocc_lst["Object"] = [x.replace(' ', '') for x in neocc_lst["Object"]]
     neocc_lst['End of Visibility'] = Time.strptime(neocc_lst['End of Visibility'], '%Y/%m/%d')
 
     neocc_lst.meta = {'Priority': '0=UR: Urgent, 1=NE: Necessary, 2=US: Useful, 3=LP: Low Priority',
@@ -324,14 +321,14 @@ def parse_impacted(resp_str):
     ----------
     data_byte_d : object
         Decoded StringIO object.
-    
+
     Returns
     -------
     neocc_table : *astropy.table.table.Table*
         Astropy table with impacted objects list data parsed.
     """
 
-    neocc_table = Table.read(resp_str, header_start=1, format="ascii.fixed_width", fill_values = ['n/a', np.nan])
+    neocc_table = Table.read(resp_str, header_start=1, format="ascii.fixed_width", fill_values=['n/a', np.nan])
     neocc_table['Impact date/time in UTC'] = Time(neocc_table['Impact date/time in UTC'], scale='utc')
 
     return neocc_table
@@ -350,8 +347,8 @@ def parse_neo_catalogue(resp_str):
         Astropy Table  with catalogues of NEAs list data parsed.
     """
 
-    neocc_lst = Table.read(resp_str, data_start=6, format="ascii.no_header", 
-                           names=['Name', 'Epoch (MJD)', 'a', 'e', 'i', 'long. node', 'arg. peric.', 
+    neocc_lst = Table.read(resp_str, data_start=6, format="ascii.no_header",
+                           names=['Name', 'Epoch (MJD)', 'a', 'e', 'i', 'long. node', 'arg. peric.',
                                   'mean anomaly', 'absolute magnitude', 'slope param.', 'non-grav param.'])
 
     neocc_lst.meta = {'Name': 'designator of the NEA',
@@ -362,9 +359,10 @@ def parse_neo_catalogue(resp_str):
                       'slope param': 'Slope parameter',
                       'non-grav param.': 'Number of non-gravitational parameters'}
 
-    regex = re.search("(format) += '(.+)'.+\n(rectype) += '(.+)'.+\n(elem) += '(.+)'.+\n(refsys) += (\w+ \w+)", resp_str)
+    regex = re.search(r"(format) += '(.+)'.+\n(rectype) += '(.+)'.+\n(elem) "
+                      r"+= '(.+)'.+\n(refsys) += (\w+ \w+)", resp_str)
     keyvals = zip(regex.groups()[::2], regex.groups()[1::2])
-    for k,v in keyvals:
+    for k, v in keyvals:
         neocc_lst.meta[k] = v
 
     return neocc_lst
