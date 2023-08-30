@@ -10,7 +10,7 @@ tests is requested to ESA NEOCC portal.
 * Date: 21-08-2022
 """
 
-import io
+
 import os
 import re
 import random
@@ -46,11 +46,11 @@ class TestLists:
         "close_approaches_recent": 'esa_recent_close_app',
         "priority_list": 'esa_priority_neo_list',
         "priority_list_faint": 'esa_faint_neo_list',
-        "close_encounter" : 'close_encounter2.txt',
-        "impacted_objects" : 'past_impactors_list',
-        "neo_catalogue_current" : 'neo_kc.cat',
-        "neo_catalogue_middle" : 'neo_km.cat'
-        }
+        "close_encounter": 'close_encounter2.txt',
+        "impacted_objects": 'past_impactors_list',
+        "neo_catalogue_current": 'neo_kc.cat',
+        "neo_catalogue_middle": 'neo_km.cat'
+    }
 
     def test_get_list_url(self):
         """Test for checking the URL termination for requested lists.
@@ -73,7 +73,6 @@ class TestLists:
             with pytest.raises(KeyError):
                 neocc.lists.get_list_url(elements)
 
-
     def test_get_list_data(self):
         """Check data obtained is an astropy Table
         """
@@ -83,7 +82,6 @@ class TestLists:
                       "close_encounter", "priority_list_faint", "impacted_objects"]
         for series in list_names:
             assert isinstance(neocc.lists.get_list_data(self.lists_dict[series], series), Table)
-
 
     def test_parse_list(self):
         """Check data obtained is an astropy Table
@@ -110,7 +108,6 @@ class TestLists:
             with pytest.raises(KeyError):
                 neocc.lists.parse_list(elements, data_list_d)
 
-
     def test_parse_nea(self):
         """Check data: nea list, updated nea list and monthly update
         """
@@ -128,22 +125,22 @@ class TestLists:
             assert isinstance(new_list, Table)
             # Assert is not empty
             assert len(new_list)
+
             # List of all NEAs
             if url == "nea_list":
 
                 # Check size of the result
                 assert len(new_list) > 20000
-                
-                filename = os.path.join(DATA_DIR, self.lists_dict[url])
+
+                filename = os.path.join(DATA_DIR, "allnea.csv")
                 nea_list = Table.read(filename, format="ascii.csv")
-                
+
                 # Check 74 first elements are equal from reference data
                 # (since provisional designator may change)
                 assert (new_list[:74] == nea_list[:74]).all()
             else:
                 # Check date format DDD MMM DD HH:MM:SS UTC YYYY
                 assert re.match(r'\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \w{3} \d{4}', new_list["NEA"][0])
-
 
     def test_parse_risk(self):
         """Check data: risk_list, risk_list_special
@@ -169,12 +166,12 @@ class TestLists:
             assert isinstance(new_list, Table)
 
             if url == 'risk_list':
-                
+
                 # Assert dataframe is not empty, columns names, length
                 assert len(new_list)
-                assert all([x==y for x,y in zip(new_list.colnames, risk_columns)])
+                assert all([x == y for x, y in zip(new_list.colnames, risk_columns)])
                 assert len(new_list) > 1000
-                
+
                 # Assert columns data types
                 # Floats
                 float_cols = ['Diameter in m', 'IP max', 'PS max', 'Vel in km/s', 'IP cum', 'PS cum']
@@ -187,14 +184,14 @@ class TestLists:
                 # String
                 str_cols = ['Object Name', '*=Y']
                 assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
-                
+
                 # Datetime
                 assert isinstance(new_list['Date/Time'], Time)
 
             else:
                 # Assert dataframe is not empty, columns names
                 assert len(new_list)
-                assert all([x==y for x,y in zip(new_list.colnames, risk_special_columns)])
+                assert all([x == y for x, y in zip(new_list.colnames, risk_special_columns)])
 
                 # Assert columns data types
                 # Floats
@@ -208,7 +205,6 @@ class TestLists:
                 # String
                 str_cols = ['Object Name', '*=Y']
                 assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
-
 
     def test_parse_clo(self):
         """Check data: close_approaches_upcoming,
@@ -238,7 +234,7 @@ class TestLists:
 
             # Assert dataframe is not empty, columns names and length
             assert len(new_list)
-            assert all([x==y for x,y in zip(new_list.colnames, close_columns)])
+            assert all([x == y for x, y in zip(new_list.colnames, close_columns)])
             assert len(new_list) > 10
 
             # Assert columns data types
@@ -246,18 +242,16 @@ class TestLists:
             float_cols = ['Miss Distance in au', 'Miss Distance in LD', 'Diameter in m',
                           'H', 'Max Bright', 'Rel. vel in km/s']
             assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
-            
+
             # int64
             assert new_list['Miss Distance in km'].dtype == np.dtype('int64')
 
-            
             # Object
             str_cols = ['Object Name', '*=Yes']
             assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
 
             # Datetime
             assert isinstance(new_list['Date'], Time)
-
 
     def test_parse_pri(self):
         """Check data: priority_list, priority_list_faint
@@ -284,7 +278,7 @@ class TestLists:
 
             # Assert table is not empty, columns names and length
             assert len(new_list)
-            assert all([x==y for x,y in zip(new_list.colnames, priority_columns)])
+            assert all([x == y for x, y in zip(new_list.colnames, priority_columns)])
             assert len(new_list) > 100
 
             # Assert columns data types
@@ -301,7 +295,6 @@ class TestLists:
 
             # Datetime
             assert isinstance(new_list['End of Visibility'], Time)
-
 
     def test_parse_encounter(self):
         """Check data: close_encounter
@@ -329,21 +322,20 @@ class TestLists:
 
         # Assert dataframe is not empty, columns names and length
         assert len(new_list)
-        assert all([x==y for x,y in zip(new_list.colnames, encounter_columns)])
+        assert all([x == y for x, y in zip(new_list.colnames, encounter_columns)])
         assert len(new_list) > 100000
 
         # Assert columns data types
         # Floats
         float_cols = encounter_columns[3:]
         assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
-        
+
         # Str
         str_cols = ['Name/desig', 'Planet']
         assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
-        
+
         # Datetime
         assert isinstance(new_list['Date'], Time)
-
 
     def test_parse_impacted(self):
         """Check data: impacted_objects
@@ -368,7 +360,6 @@ class TestLists:
         assert len(new_list) != 0
         assert len(new_list) < 100
 
-
     def test_parse_neo_catalogue(self):
         """Check data: close_encounter
         """
@@ -386,7 +377,7 @@ class TestLists:
             data_list = requests.get(API_URL + self.lists_dict[url],
                                      timeout=TIMEOUT,
                                      verify=VERIFICATION).content
-    
+
             # Decode the data using UTF-8
             data_list_d = data_list.decode('utf-8')
 
@@ -398,16 +389,16 @@ class TestLists:
 
             # Assert dataframe is not empty, columns names and length
             assert len(new_list)
-            assert all([x==y for x,y in zip(new_list.colnames, cat_columns)])
+            assert all([x == y for x, y in zip(new_list.colnames, cat_columns)])
             assert len(new_list) > 10000
 
             # Assert columns data types
             # Floats
             float_cols = ['Epoch (MJD)', 'a', 'e', 'i',
-                         'long. node', 'arg. peric.', 'mean anomaly',
-                         'absolute magnitude', 'slope param.']
+                          'long. node', 'arg. peric.', 'mean anomaly',
+                          'absolute magnitude', 'slope param.']
             assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
-           
+
             # Object
             assert new_list['Name'].dtype.type == np.str_
 
@@ -419,7 +410,7 @@ class TestLists:
 class TestTabs:
     """Class which contains the unitary tests for tabs module.
     """
-    path_nea = os.path.join(DATA_DIR, 'allneo.lst')
+    path_nea = os.path.join(DATA_DIR, 'allnea.csv')
     nea_list = Table.read(path_nea, format="ascii.csv")
 
     def test_get_object_url(self):
@@ -428,12 +419,12 @@ class TestTabs:
         """
         # Dictionary for tabs
         tab_dict = {
-                "impacts": '.risk',
-                "close_approaches": '.clolin',
-                "observations": '.rwo',
-                "physical_properties": '.phypro',
-                "orbit_properties": ['.ke0', '.ke1', '.eq0', '.eq1']
-                }
+            "impacts": '.risk',
+            "close_approaches": '.clolin',
+            "observations": '.rwo',
+            "physical_properties": '.phypro',
+            "orbit_properties": ['.ke0', '.ke1', '.eq0', '.eq1']
+        }
 
         # Choose a random object from stored nea list
         rnd_object = random.choice(self.nea_list["NEA"])
@@ -454,7 +445,8 @@ class TestTabs:
                     for epoch in orbit_epoch:
                         with pytest.raises(ValueError):
                             neocc.tabs.get_object_url(rnd_object, tab,
-                            orbital_elements=None, orbit_epoch=epoch)
+                                                      orbital_elements=None,
+                                                      orbit_epoch=epoch)
             elif tab in ['&cefrgfe', 4851]:
                 with pytest.raises(KeyError):
                     neocc.tabs.get_object_url(rnd_object, tab)
@@ -462,7 +454,6 @@ class TestTabs:
                 assert neocc.tabs.get_object_url(rnd_object, tab) ==\
                     str(rnd_object).replace(' ', '%20') +\
                     tab_dict[tab]
-
 
     def test_get_object_data(self):
         """Test for obtaining the content of a URL.
@@ -485,13 +476,12 @@ class TestTabs:
                 for element in orbital_element:
                     for epoch in orbit_epoch:
                         url = neocc.tabs.get_object_url(rnd_object, tab,
-                        orbital_elements=element, orbit_epoch=epoch)
-                        assert isinstance(neocc.tabs.get_object_data(url),
-                                          bytes)
+                                                        orbital_elements=element,
+                                                        orbit_epoch=epoch)
+                        assert isinstance(neocc.tabs.get_object_data(url), bytes)
             else:
                 url = neocc.tabs.get_object_url(rnd_object, tab)
                 assert isinstance(neocc.tabs.get_object_data(url), bytes)
-
 
     @classmethod
     def test_tabs_names(cls):
@@ -502,7 +492,6 @@ class TestTabs:
         for element in bad_names:
             with pytest.raises(KeyError):
                 neocc.neocc.query_object(name='433', tab=element)
-
 
     def test_tabs_summary(self):
         """Check data: summary tab
@@ -523,7 +512,7 @@ class TestTabs:
         # Assert size of physical properties file
         assert len(summary)
         summary_cols = ['Physical Properties', 'Value', 'Units']
-        assert all([x==y for x,y in zip(summary.colnames, summary_cols)])
+        assert all([x == y for x, y in zip(summary.colnames, summary_cols)])
 
         # Assert dtype
         assert all([summary[x].dtype.type == np.str_ for x in summary_cols])
@@ -532,7 +521,7 @@ class TestTabs:
         ast_summ1 = neocc.neocc.query_object(name='433', tab='summary')
         assert ast_summ1.meta["Observatory"] == 'Berlin (1835-1913)'
         assert ast_summ1.meta["Discovery Date"] == '1898-08-13'
-        
+
         # Check asteroid with no observatory nor discovery date
         # This object may change
         ast_summ2 = neocc.neocc.query_object(name='2006BV4', tab='summary')

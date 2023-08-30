@@ -16,22 +16,17 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for 'ESANEOCC'
     """
 
-    BASE_URL = 'https://' + os.getenv('NEOCC_PORTAL_IP',
-                                      default='neo.ssa.esa.int')
+    BASE_URL = 'https://' + os.getenv('NEOCC_PORTAL_IP', default='neo.ssa.esa.int')
 
-    API_URL = _config.ConfigItem(BASE_URL +
-                                 '/PSDB-portlet/download?file=')
+    API_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/download?file=')
 
-    EPHEM_URL = _config.ConfigItem(BASE_URL +
-                                   '/PSDB-portlet/ephemerides?des=')
+    EPHEM_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/ephemerides?des=')
 
-    SUMMARY_URL = _config.ConfigItem(BASE_URL +
-                                     '/search-for-asteroids?sum=1&des=')
+    SUMMARY_URL = _config.ConfigItem(BASE_URL + '/search-for-asteroids?sum=1&des=')
 
     TIMEOUT = 60
 
-    SSL_CERT_VERIFICATION = bool(int(os.getenv('SSL_CERT_VERIFICATION',
-                                               default="1")))
+    SSL_CERT_VERIFICATION = bool(int(os.getenv('SSL_CERT_VERIFICATION', default="1")))
 
 
 conf = Conf()
