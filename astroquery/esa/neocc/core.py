@@ -426,14 +426,14 @@ class ESAneoccClass(BaseQuery):
             except ConnectionError:  # pragma: no cover
                 print('Initial attempt to obtain object data failed. '
                       'Reattempting...')
+
                 # Wait 5 seconds
                 time.sleep(5)
+
                 # Get object data
                 data_obj = tabs.get_object_data(url)
 
             resp_str = data_obj.decode('utf-8')
-
-            # TODO: check data here
 
             if tab == 'impacts':
                 neocc_obj = tabs.parse_impacts(resp_str)
@@ -443,23 +443,25 @@ class ESAneoccClass(BaseQuery):
                 neocc_obj = tabs.parse_observations(resp_str)
             elif tab == 'physical_properties':
                 neocc_obj = tabs.parse_physical_properties(resp_str)
-                
+
         # Orbit properties
         elif tab == 'orbit_properties':
             # Raise error if no elements are provided
             if 'orbital_elements' not in kwargs:
                 raise KeyError('Please specify type of orbital_elements: '
-                            'keplerian or equinoctial '
-                            '(e.g., orbital_elements="keplerian")')
+                               'keplerian or equinoctial '
+                               '(e.g., orbital_elements="keplerian")')
+
             # Raise error if no epoch is provided
             if 'orbit_epoch' not in kwargs:
                 raise KeyError('Please specify type of orbit_epoch: '
-                            'present or middle '
-                            '(e.g., orbit_epoch="middle")')
+                               'present or middle '
+                               '(e.g., orbit_epoch="middle")')
+
             # Get URL to obtain the data from NEOCC
             url = tabs.get_object_url(name, tab,
-                                    orbital_elements=kwargs['orbital_elements'],
-                                    orbit_epoch=kwargs['orbit_epoch'])
+                                      orbital_elements=kwargs['orbital_elements'],
+                                      orbit_epoch=kwargs['orbit_epoch'])
 
             # Request data two times if the first attempt fails
             try:
@@ -467,9 +469,11 @@ class ESAneoccClass(BaseQuery):
                 data_obj = tabs.get_object_data(url)
             except ConnectionError:  # pragma: no cover
                 print('Initial attempt to obtain object data failed. '
-                    'Reattempting...')
+                      'Reattempting...')
+
                 # Wait 5 seconds
                 time.sleep(5)
+
                 # Get object data
                 data_obj = tabs.get_object_data(url)
 
@@ -480,25 +484,27 @@ class ESAneoccClass(BaseQuery):
         elif tab == 'ephemerides':
             # Create dictionary for kwargs
             args_dict = {'observatory': 'observatory (e.g., observatory="500")',
-                        'start': 'start date (e.g., start="2021-05-17 00:00")',
-                        'stop': 'end date (e.g., stop="2021-05-18 00:00")',
-                        'step': 'time step (e.g., step="1")',
-                        'step_unit': 'step unit (e.g., step_unit="days")'}
+                         'start': 'start date (e.g., start="2021-05-17 00:00")',
+                         'stop': 'end date (e.g., stop="2021-05-18 00:00")',
+                         'step': 'time step (e.g., step="1")',
+                         'step_unit': 'step unit (e.g., step_unit="days")'}
+
             # Check if any kwargs is missing
             for element in args_dict:
                 if element not in kwargs:
                     raise KeyError(f'Please specify {args_dict[element]} for ephemerides.')
 
             resp_str = tabs.get_ephemerides_data(name, observatory=kwargs['observatory'],
-                                start=kwargs['start'], stop=kwargs['stop'],
-                                step=kwargs['step'],
-                                step_unit=kwargs['step_unit'])
+                                                 start=kwargs['start'], stop=kwargs['stop'],
+                                                 step=kwargs['step'], step_unit=kwargs['step_unit'])
             neocc_obj = tabs.parse_ephemerides(resp_str)
 
         elif tab == 'summary':
             resp_str = tabs.get_summary_data(name)
-            
             neocc_obj = tabs.parse_summary(resp_str)
+
+        if not isinstance(neocc_obj, list):
+            neocc_obj = [neocc_obj]
 
         return neocc_obj
 

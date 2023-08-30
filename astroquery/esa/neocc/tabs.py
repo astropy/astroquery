@@ -6,18 +6,16 @@ ESA NEOCC in different tabs that correspond to the different classes
 within this module.
 """
 
-import io
 import logging
 import time
 import re
-from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 
 import numpy as np
 
 from astropy.table import Table, Column, join, vstack
-from astropy.time import Time, TimeDelta
+from astropy.time import Time
 
 from astroquery.esa.neocc import conf
 from astroquery.esa.neocc.utils import convert_time
@@ -28,6 +26,7 @@ EPHEM_URL = conf.EPHEM_URL
 SUMMARY_URL = conf.SUMMARY_URL
 TIMEOUT = conf.TIMEOUT
 VERIFICATION = conf.SSL_CERT_VERIFICATION
+
 
 def get_object_url(name, tab, **kwargs):
     """Get url from requested object and tab name.
@@ -72,7 +71,7 @@ def get_object_url(name, tab, **kwargs):
     # Define the parameters of each list
     tab_dict = {"impacts": '.risk',
                 "close_approaches": '.clolin',
-                "physical_properties" : '.phypro',
+                "physical_properties": '.phypro',
                 "observations": '.rwo',
                 "orbit_properties": ['.ke0', '.ke1', '.eq0', '.eq1']}
 
@@ -85,7 +84,7 @@ def get_object_url(name, tab, **kwargs):
     if 'orbital_elements' in kwargs:
         # Check if the elements are Keplerian or Equinoctial
         if kwargs['orbital_elements'] == "keplerian":
-            #Check if the epoch is present day or middle obs. arch
+            # Check if the epoch is present day or middle obs. arch
             if kwargs['orbit_epoch'] == "present":
                 url = str(name).replace(' ', '%20') + tab_dict[tab][1]
             elif kwargs['orbit_epoch'] == "middle":
@@ -144,7 +143,7 @@ def get_ephemerides_data(name, observatory, start, stop, step, step_unit):
         data_obj = requests.get(url_ephe, timeout=TIMEOUT,
                                 verify=VERIFICATION).content
 
-    except ConnectionError: # pragma: no cover
+    except ConnectionError:  # pragma: no cover
         print('Initial attempt to obtain object data failed. '
               'Reattempting...')
         logging.warning('Initial attempt to obtain object data'
@@ -162,18 +161,18 @@ def get_ephemerides_data(name, observatory, start, stop, step, step_unit):
 
     return resp_str
 
-        
+
 def get_summary_data(name):
     """
     Get the summary info html page for a given object.
     """
-    
+
     url = SUMMARY_URL + str(name).replace(' ', '%20')
 
     contents = requests.get(url, timeout=TIMEOUT, verify=VERIFICATION).content
-    
+
     return contents.decode('utf-8')
-    
+
 
 def parse_impacts(resp_str):
     """
@@ -189,18 +188,18 @@ def parse_impacts(resp_str):
 
     # Make sure there is actually data for this object
     if "Required risk file is not available for this object" in resp_str:
-            raise ValueError('Required risk file is not available for this object')
+        raise ValueError('Required risk file is not available for this object')
 
     # Split the response into parts to more easily work with.
     resp_lst = resp_str.split("\n\n")
 
     # Build the main data table
-    impact_tble = Table.read(resp_lst[1], format='ascii', data_start=3, 
-                             names=["date", "MJD", "sigma", "sigimp", "dist", "+/-", "width", 
+    impact_tble = Table.read(resp_lst[1], format='ascii', data_start=3,
+                             names=["date", "MJD", "sigma", "sigimp", "dist", "+/-", "width",
                                     "stretch", "p_RE", "Exp. Energy in MT", "PS", "TS"])
     impact_tble.remove_column("+/-")
     impact_tble['date'] = convert_time(impact_tble['date'])
-    
+
     # Add the column info to the meta table
     impact_tble.meta["Column Info"] = {'Date': 'date for the potential impact in datetime format',
                                        'MJD': 'Modified Julian Day for the potential impact',
@@ -222,13 +221,14 @@ def parse_impacts(resp_str):
                                        'TS': 'Torino Scale'}
 
     # Adding the rest of the metadata from the remaining resp_lst entries
-    regex = re.search(("(\d+) optical observations.*(\d+) are rejected as outliers.*\nfrom (.+) to (.+)\."), resp_lst[2])
+    regex = re.search((r"(\d+) optical observations.*(\d+) "
+                       r"are rejected as outliers.*\nfrom (.+) to (.+)\."), resp_lst[2])
     obs_acc, obs_reg, start, end = regex.groups()
 
     dates = convert_time([start, end], conversion_string='%Y/%m/%d')
 
-    impact_tble.meta["observation_accepted"] = obs_acc
-    impact_tble.meta["observation_rejected"] = obs_reg
+    impact_tble.meta["observation_accepted"] = int(obs_acc)
+    impact_tble.meta["observation_rejected"] = int(obs_reg)
     impact_tble.meta["arc_start"] = dates[0]
     impact_tble.meta["arc_end"] = dates[1]
 
@@ -242,7 +242,7 @@ def parse_impacts(resp_str):
         impact_tble.meta["additional_note"] = add_note
 
     return impact_tble
-    
+
 
 def parse_close_aproach(resp_str):
     """
@@ -260,7 +260,7 @@ def parse_close_aproach(resp_str):
         return Table(names=['BODY', 'CALENDAR-TIME', 'MJD-TIME', 'TIME-UNCERT.', 'NOM.-DISTANCE',
                             'MIN.-POSS.-DIST.', 'DIST.-UNCERT.', 'STRETCH', 'WIDTH', 'PROBABILITY'])
 
-    df_close_appr = Table.read(resp_str, format="ascii")
+    df_close_appr = Table.read(resp_str, format="ascii", header_start=1)
 
     df_close_appr["CALENDAR-TIME"] = convert_time(df_close_appr["CALENDAR-TIME"], conversion_string='%Y/%m/%d')
 
@@ -287,22 +287,28 @@ def _parse_obs_meta(hdr_str):
     """
 
     mlst = hdr_str.split('\n')
-    pat = re.compile('(\w+)\s+=\s+\'{0,1}([\w\.-]+)\'{0,1}')
+    pat = re.compile(r'(\w+)\s+=\s+\'{0,1}([\w\.-]+)\'{0,1}')
 
     meta_dict = {}
     for ent in mlst:
-        if not ent: # Skip empty entries
+        if not ent:  # Skip empty entries
             continue
-        
+
         matches = pat.match(ent).groups()
         meta_dict[matches[0]] = [matches[1]]
-    
-    meta_table =  Table(meta_dict)
+
+    meta_table = Table(meta_dict)
     meta_table.meta["Title"] = "Observation metadata"
-    meta_table.meta["Column Info"] = {"version" : "File version",
-                                      "errmod" : "Error model for the data",
-                                      "rmsast" : "Root Mean Square for asteroid observations",
-                                      "rmsmag" : "Root Mean Square for magnitude"}
+    meta_table.meta["Column Info"] = {"version": "File version",
+                                      "errmod": "Error model for the data",
+                                      "rmsast": "Root Mean Square for asteroid observations",
+                                      "rmsmag": "Root Mean Square for magnitude"}
+
+    # Making the columns gave the right data types
+    for col in meta_table.colnames:
+        if col == 'errmod':
+            continue
+        meta_table[col] = meta_table[col].astype(float)
 
     return meta_table
 
@@ -312,35 +318,33 @@ def _parse_opt_obs(optical_str):
     Building the optical observations table.
     """
 
-    obs_table = Table.read(optical_str, format="ascii.fixed_width_no_header", 
-                           col_starts=[0,  11,  12,  15,  17,  22,  25,  40, 50,
-                                       53,  56,  64,  76, 83,  87,  96, 103, 107,
-                                       110, 117, 129, 136, 140, 149, 156, 161,
-                                       164, 170, 177, 180, 188, 194, 196],
-                           col_ends=[10,  12,  15,  16,  21,  24,  38, 49,  52,
-                                     55,  62,  73,  82, 84,  93, 102, 106, 109, 115,
-                                     126, 135, 137, 146, 155, 161, 162, 168, 175, 179,
-                                     183, 193, 195, 197],
+    obs_table = Table.read(optical_str, format="ascii.fixed_width_no_header",
+                           col_starts=[0, 11, 13, 15, 17, 22, 25, 40, 50, 53, 56, 64, 75, 83, 87,
+                                       95, 103, 106, 110, 117, 128, 136, 140, 147, 156, 161, 164,
+                                       170, 177, 180, 187, 194, 196],
+                           col_ends=[10, 12, 14, 16, 21, 24, 39, 49, 52, 55, 63, 74, 82, 86, 94, 102,
+                                     105, 109, 116, 127, 135, 139, 146, 155, 160, 163, 169, 176, 179,
+                                     186, 193, 195, 197],
                            names=['Design.', 'K', 'T', 'N', 'Date', 'MM', 'DD.ddd',
                                   'Date Accuracy', 'RA HH', 'RA MM', 'RA SS.sss', 'RA Accuracy',
                                   'RA RMS', 'RA F', 'RA Bias', 'RA Resid', 'DEC sDD', 'DEC MM',
-                                  'DEC SS.ss', 'DEC Accuracy','DEC RMS', 'DEC F', 'DEC Bias',
-                                  'DEC Resid', 'MAG Val', 'MAG B', 'MAG RMS', 'MAG Resid', 
+                                  'DEC SS.ss', 'DEC Accuracy', 'DEC RMS', 'DEC F', 'DEC Bias',
+                                  'DEC Resid', 'MAG Val', 'MAG B', 'MAG RMS', 'MAG Resid',
                                   'Ast Cat', 'Obs Code', 'Chi', 'A', 'M'])
 
     # Combining the date columns
-    date_array = [f"{x}/{y}/{z}" for x,y,z in obs_table["Date", "MM", "DD.ddd"]]
+    date_array = [f"{x}/{y}/{z}" for x, y, z in obs_table["Date", "MM", "DD.ddd"]]
     obs_table["Date"] = convert_time(date_array, conversion_string='%Y/%m/%d')
     obs_table.remove_columns(["MM", "DD.ddd"])
 
     # Combinging the ra/dec columns
-    ra_array = [f"{x:02d}:{y:02d}:{z:02.3f}" for x,y,z in obs_table['RA HH', 'RA MM', 'RA SS.sss']]
+    ra_array = [f"{x:02d}:{y:02d}:{z:02.3f}" for x, y, z in obs_table['RA HH', 'RA MM', 'RA SS.sss']]
     obs_table.replace_column('RA HH', Column(data=ra_array))
     obs_table.rename_column("RA HH", "RA")
     obs_table.remove_columns(['RA MM', 'RA SS.sss'])
 
-    dec_array = [f"{x:02d}:{y:02d}:{z:02.2f}" for x,y,z in obs_table['DEC sDD', 'DEC MM', 'DEC SS.ss']]
-    obs_table.replace_column('DEC sDD', Column(data=ra_array))
+    dec_array = [f"{x:02d}:{y:02d}:{z:02.2f}" for x, y, z in obs_table['DEC sDD', 'DEC MM', 'DEC SS.ss']]
+    obs_table.replace_column('DEC sDD', Column(data=dec_array))
     obs_table.rename_column("DEC sDD", "DEC")
     obs_table.remove_columns(['DEC MM', 'DEC SS.ss'])
 
@@ -375,14 +379,14 @@ def _parse_sat_obs(sat_str):
     Building the satellite observations table.
     """
 
-    sat_table = Table.read(sat_str, format="ascii.fixed_width_no_header", 
-                           col_starts=[0,  11,  12,  15,  17,  22,  25,  34,  40,  64,  88, 108],
-                           col_ends=[10,  12,  15,  16,  21,  24,  33,  35,  59,  83, 107, 111],
+    sat_table = Table.read(sat_str, format="ascii.fixed_width_no_header",
+                           col_starts=[0, 11, 12, 15, 17, 22, 25, 34, 40, 64, 88, 108],
+                           col_ends=[10, 12, 15, 16, 21, 24, 33, 35, 59, 83, 107, 111],
                            names=['Design.', 'K', 'T', 'N', 'Date', 'MM', 'DD.dddddd',
                                   'Parallax info.', 'X', 'Y', 'Z', 'Obs Code'])
 
     # Combining the date column
-    date_array = [f"{x}/{y}/{z}" for x,y,z in sat_table["Date", "MM", "DD.dddddd"]]
+    date_array = [f"{x}/{y}/{z}" for x, y, z in sat_table["Date", "MM", "DD.dddddd"]]
     sat_table["Date"] = convert_time(date_array, conversion_string='%Y/%m/%d')
     sat_table.remove_columns(["MM", "DD.dddddd"])
 
@@ -398,20 +402,20 @@ def _parse_rov_obs(rov_str):
     NOTE: THIS IS UNTESTED (can't find an object with these rows)
     """
 
-    rov_table = Table.read(sat_str, format="ascii.fixed_width_no_header", 
-                           col_starts=[0, 11, 12, 15, 17, 22, 25, 34, 45, 56, 65],
-                           col_ends=[10, 12, 14, 16, 21, 24, 34, 44, 55, 64, 68],
+    rov_table = Table.read(rov_str, format="ascii.fixed_width_no_header",
+                           col_starts=[0, 11, 13, 15, 17, 22, 25, 34, 45, 56, 65],
+                           col_ends=[10, 12, 14, 16, 21, 24, 33, 44, 55, 64, 68],
                            names=['Design.', 'K', 'T', 'N', 'Date', 'MM', 'DD.dddddd',
                                   'E longitude', 'Latitude', 'Altitude', 'Obs Code'])
 
     # Combining the date column
-    date_array = [f"{x}/{y}/{z}" for x,y,z in table["Date", "MM", "DD.dddddd"]]
-    table["Date"] = convert_time(date_array, conversion_string='%Y/%m/%d')
-    table.remove_columns(["MM", "DD.dddddd"])
+    date_array = [f"{x}/{y}/{z}" for x, y, z in rov_table["Date", "MM", "DD.dddddd"]]
+    rov_table["Date"] = convert_time(date_array, conversion_string='%Y/%m/%d')
+    rov_table.remove_columns(["MM", "DD.dddddd"])
 
-    table.meta["Title"] = "Roving Observer  Observations"
+    rov_table.meta["Title"] = "Roving Observer  Observations"
 
-    return table
+    return rov_table
 
 
 def _parse_radar_obs(radar_str):
@@ -419,18 +423,18 @@ def _parse_radar_obs(radar_str):
     Build the rada observations table.
     """
 
-    radar_str = radar_str[radar_str.find('\n')+1:] # First row is header
+    radar_str = radar_str[radar_str.find('\n')+1:]  # First row is header
     radar_table = Table.read(radar_str, format="ascii.fixed_width_no_header",
                              col_starts=[0, 11, 13, 15, 17, 22, 25, 28, 37, 54, 64,
-                                         73, 75, 87, 99,  106, 112, 124],
+                                         73, 75, 87, 99, 106, 112, 124],
                              col_ends=[10, 12, 14, 16, 21, 24, 27, 36, 53, 63, 72,
                                        74, 86, 98, 105, 111, 123, 125],
-                             names=["Design", "K", "T", "N", "Datetime", "MM", "DD", 
-                                    "hh:mm:ss", "Measure", "Accuracy", "rms", "F", 
+                             names=["Design", "K", "T", "N", "Datetime", "MM", "DD",
+                                    "hh:mm:ss", "Measure", "Accuracy", "rms", "F",
                                     "Bias", "Resid", "TRX", "RCX", "Chi", "S"])
 
     # Combining the datetime columns
-    date_array = [f"{x}/{y}/{z} {t}" for x,y,z,t in radar_table["Datetime", "MM", "DD", "hh:mm:ss"]]
+    date_array = [f"{x}/{y}/{z} {t}" for x, y, z, t in radar_table["Datetime", "MM", "DD", "hh:mm:ss"]]
     radar_table["Datetime"] = Time.strptime(date_array, '%Y/%m/%d %H:%M:%S')
     radar_table.remove_columns(["MM", "DD", "hh:mm:ss"])
 
@@ -468,13 +472,13 @@ def parse_observations(resp_str, verbose=False):
     Returns
     -------
     response : list(Table)
-        List of response tables. 
+        List of response tables.
     """
 
-    output_tables = list() # Setting up to collect the output tables
-    
+    output_tables = list()  # Setting up to collect the output tables
+
     # Split the meta data from the data table(s)
-    header, dat_tabs = resp_str.split("END_OF_HEADER\n")
+    header, dat_tabs = resp_str.split("END_OF_HEADER")
 
     # Make the metadata table
     output_tables.append(_parse_obs_meta(header))
@@ -483,15 +487,15 @@ def parse_observations(resp_str, verbose=False):
     # Each Table starts with two header lines of the form:
     # ! Object ...
     # ! Design ...
-    table_list = dat_tabs.split("!")
-    optical_tab = table_list[2] # This table will always exist
+    table_list = dat_tabs.split("\n!")
+    optical_tab = table_list[2]  # This table will always exist
 
     # Pulling satellite/roving observer observations out of the optical table if
     # there are any (these rows have different column structures)
-    optical_tab_list = np.array(optical_tab.split("\n")[1:]) # First row is headings
+    optical_tab_list = np.array(optical_tab.split("\n")[1:])  # First row is headings
     T_col = np.array([(x[12:15]).strip() for x in optical_tab_list])
-    s_rows = '\n'.join(optical_tab_list[T_col == 's']) # looking for sattelite observations
-    v_rows = '\n'.join(optical_tab_list[T_col == 'v']) # looking for roving observer observations
+    s_rows = '\n'.join(optical_tab_list[T_col == 's'])  # looking for sattelite observations
+    v_rows = '\n'.join(optical_tab_list[T_col == 'v'])  # looking for roving observer observations
     optical_str = '\n'.join(optical_tab_list[(T_col != 's') & (T_col != 'v')])
 
     # Building the optical observation table(s)
@@ -506,12 +510,12 @@ def parse_observations(resp_str, verbose=False):
     if v_rows:
         if verbose:
             print("Found roving observer observations.")
-            
+
         output_tables.append(_parse_rov_obs(v_rows))
-        
+
     # Building the radar table if it exists
-    if len(table_list) >=5:
-        radar_str = table_list[4] # This table will sometimes exist
+    if len(table_list) >= 5:
+        radar_str = table_list[4]  # This table will sometimes exist
         output_tables.append(_parse_radar_obs(radar_str))
 
     return output_tables
@@ -522,19 +526,21 @@ def parse_physical_properties(resp_str):
     Physical Properties table parser.
     """
 
+    if resp_str == '':
+        raise ValueError('Object not found: the name of the object is wrong or misspelt')
+
     # Split apart the table and reference data
     tbl, refs = resp_str.split("REFERENCES")
 
-    # Dealling with the Taxonomy (all) row by splitting it in two
-    # Not doing this will break the table building because this row
-    # has an extra comma
+    # Some rows have multple values which we will split into different Rows
     tbl_list = tbl.split("\n")
 
     repaired_string = ""
     for elt in tbl_list:
-        if "Taxonomy (all)" in elt:
-            repaired_string += elt.replace("Sq,", "") + "\n"
-            repaired_string += elt.replace("Scomp,", "") + "\n"
+        row = elt.split(",")
+        if len(row) > 4:
+            for i in range(1, len(row)-2):
+                repaired_string += f"{row[0]},{row[i]},{row[-2]},{row[-1]}\n"
         else:
             repaired_string += elt + "\n"
 
@@ -544,7 +550,7 @@ def parse_physical_properties(resp_str):
 
     # Building the referenced table
     ref_list = refs.split("\n")
-    search_pat = re.compile("(\[\d+\]),([\w\s]+),(.+)")
+    search_pat = re.compile(r"(\[\d+\]),([\w\s]+),(.+)")
 
     numbers = list()
     names = list()
@@ -552,8 +558,8 @@ def parse_physical_properties(resp_str):
 
     for ref in ref_list:
         if not ref:
-            continue # some extra empty rows
-    
+            continue  # some extra empty rows
+
         num, nm, src = search_pat.search(ref).groups()
         numbers.append(num)
         names.append(nm)
@@ -574,11 +580,11 @@ def _make_prop_table(props, vals, secname):
     """
     Small but we do this a million times so
     """
-    
+
     prop_tab = Table(names=("Property", "Value"), data=[props, vals], dtype=[str, str])
     prop_tab["Section"] = secname
     prop_tab = prop_tab["Section", "Property", "Value"]
-    
+
     return prop_tab
 
 
@@ -586,14 +592,14 @@ def _fill_sym_matrix(data, dim):
     """
     Fill a symmetrical matrix from a 1D data array, given a dimension.
     """
-    
-    matrix = np.zeros((dim,dim))
+
+    matrix = np.zeros((dim, dim))
     d1, d2 = np.triu_indices(dim)
-    
+
     for i, val in enumerate(data):
-        matrix[d1[i],d2[i]] = val
-        matrix[d2[i],d1[i]] = val
-        
+        matrix[d1[i], d2[i]] = val
+        matrix[d2[i], d1[i]] = val
+
     return matrix
 
 
@@ -603,22 +609,24 @@ def parse_orbital_properties(resp_str):
 
     Returns list of tables.
     """
-    
+
+    table_lst = list()
+
     header, body = resp_str.split("END_OF_HEADER")
 
     # Parse Header
-    pat = re.compile('(\w+)\s+=\s+\'{0,1}([\w\.-]+)\'{0,1}')
+    pat = re.compile(r'(\w+)\s+=\s+\'?([^\']+)\'?\s+!')
     props = list()
     vals = list()
 
     for row in header.split("\n"):
-        if not row: # Skip empty entries
+        if not row:  # Skip empty entries
             continue
         matches = pat.match(row).groups()
         props.append(matches[0])
-        vals.append(matches[1])
-    
-    orbital_table = _make_prop_table(props, vals, "HEADER")
+        vals.append(matches[1].strip())
+
+    table_lst.append(_make_prop_table(props, vals, "HEADER"))
 
     body_lst = body.split("! ")
     pat = re.compile("(.+): +")
@@ -630,8 +638,8 @@ def parse_orbital_properties(resp_str):
 
     prop_list = list()
     for ek in ek_elts[1:]:
-        eklst = re.split("\s+", ek)
-        if len(eklst) < 2: # skip empty rows
+        eklst = re.split(r"\s+", ek)
+        if len(eklst) < 2:  # skip empty rows
             continue
         if eklst[1] in ("KEP", "EQU"):
             ek_vals = eklst[2:]
@@ -640,85 +648,92 @@ def parse_orbital_properties(resp_str):
 
     ek_tbl = _make_prop_table(ek_names, ek_vals, ek_section)
     for prop in prop_list:
-        ek_tbl.add_row([prop[0],prop[1],prop[0]])
+        ek_tbl.add_row([prop[0], prop[1], prop[0]])
+
+    table_lst.append(ek_tbl)
+
+    # We need this list of properties for a number of tables so pull them out now
+    cols = list(ek_tbl["Property"][ek_tbl["Section"] == ek_section])
 
     # Non-gravitational parameters
     lsp_lst = body_lst[2].split("\n")
 
     section = pat.search(lsp_lst[0]).groups()[0]
     lsp_names = re.split(", +", pat.sub("", lsp_lst[0]))
-    lsp_vals = [int(x) for x in re.split("\s+", lsp_lst[1])[2:]]
+    lsp_vals = re.split(r"\s+", lsp_lst[1], maxsplit=len(lsp_names)+1)[2:]
 
     lps_tbl = _make_prop_table(lsp_names, lsp_vals, section)
+    table_lst.append(lps_tbl)
 
     # dynamical parameters
-    section = re.search("(\w+ parameters)", body_lst[3]).groups()[0]
+    kep_n = 3
+    if 'parameters' in body_lst[3]:
+        section = re.search(r"(\w+ parameters)", body_lst[3]).groups()[0]
 
-    ngr_names, ngr_vals = body_lst[4].split("\n")[:2]
-    ngr_names = re.split(",\s+", ngr_names)
-    ngr_vals = re.split("\s+", ngr_vals)[2:]
+        ngr_names, ngr_vals = body_lst[4].split("\n")[:2]
+        ngr_names = re.split(r",\s+", ngr_names)
+        ngr_vals = re.split(r"\s+", ngr_vals)[2:]
 
-    ngr_tbl = _make_prop_table(ngr_names, ngr_vals, section)
+        ngr_tbl = _make_prop_table(ngr_names, ngr_vals, section)
+        table_lst.append(ngr_tbl)
 
-    # We need this list of properties for a number of tables
-    # so pull them out now
-    cols = list(ek_tbl["Property"][ek_tbl["Section"] == ek_section])
-    for row in ngr_tbl:
-        if float(row["Value"]):
-            cols.append(row["Property"])
+        for row in ngr_tbl:
+            if float(row["Value"]):
+                cols.append(row["Property"])
+
+        kep_n = 5
 
     # Equinoctial or Keplarian specific code
-    table_lst = list()
-
     if "Equinoctial" in ek_section:
-    
+
         for row in body_lst[-3:]:
             if "WEA" in row:
                 row, cov = re.split("\n", row, maxsplit=1)
-            
-            row_list = re.split("\s+", row)
-            table_lst.append(_make_prop_table(cols, row_list[1:len(cols)+1], row_list[0]))  
-        
-    else: # Keplarian 
+
+            row_list = re.split(r"\s+", row)
+            table_lst.append(_make_prop_table(cols, row_list[1:len(cols)+1], row_list[0]))
+
+    else:  # Keplarian
         props = list()
         vals = list()
-        pat = re.compile("(\w+)\s+(.+)\n")
+        pat = re.compile(r"(\w+)\s+(.+)\n")
 
-        for row in body_lst[5:-1]:
+        for row in body_lst[kep_n:-1]:
             matches = pat.match(row).groups()
-    
+
             props.append(matches[0])
             vals.append(matches[1])
-        
+
         table_lst.append(_make_prop_table(props, vals, props))
-    
+
         row, cov = re.split("\n", body_lst[-1], maxsplit=1)
-        row_list = re.split("\s+", row)
-        table_lst.append(_make_prop_table(cols, row_list[1:len(cols)], row_list[0]))
+        row_list = re.split(r"\s+", row)
+        table_lst.append(_make_prop_table(cols, row_list[1:len(cols)+1], row_list[0]))
 
     # Building the main table, adding the section grouping, and putting in the return list
-    main_table = vstack([orbital_table, ek_tbl, lps_tbl, ngr_tbl] + table_lst)
+    main_table = vstack(table_lst)
+    main_table.meta["Title"] = "Orbital Elements"
     orbital_table_list = [main_table.group_by("Section")]
 
     # Making the matrix tables (COV/COR/NOR)
     mat_dict = dict()
 
     for row in cov.split("\n"):
-        rlst = re.split("\s+", row)
+        rlst = re.split(r"\s+", row)
         if len(rlst) < 2:
             continue
-        
+
         mat_dict[rlst[1]] = mat_dict.get(rlst[1], []) + rlst[2:]
 
-    dimension = int(lps_tbl["Value"][lps_tbl["Property"]=="dimension"][0])
+    dimension = int(lps_tbl["Value"][lps_tbl["Property"] == "dimension"][0])
 
     for mat_name in mat_dict:
         mat_arr = _fill_sym_matrix(np.array(mat_dict[mat_name]).astype(float), dimension)
         mat_table = Table(data=mat_arr, names=cols)
         mat_table.add_column(Column(name=mat_name, data=cols), index=0)
-        
+
         mat_table.meta["Title"] = mat_name
-    
+
         orbital_table_list.append(mat_table)
 
     return orbital_table_list
@@ -731,29 +746,32 @@ def parse_ephemerides(resp_str):
     Returns single table.
     """
 
+    if "No ephemerides file" in resp_str:
+        raise ValueError('No ephemerides file found for this object.')
+
     # Splitting the string into lines up to the nines which is where the table data starts
     resp_list = re.split("\n", resp_str, maxsplit=9)
 
-    ## Parsing the table info ##
+    # Parsing the table info
     # This row defines the column widthes as == ==== ...
-    col_inds = np.array([[m.start(0), m.end(0)] for m in re.finditer('\s+(=+)', resp_list[8])])
+    col_inds = np.array([[m.start(0), m.end(0)] for m in re.finditer(r'\s+(=+)', resp_list[8])])
 
     # Want to combine the column names and units
-    colnames = [(' '.join(x)).strip()  for x in zip([resp_list[6][x:y].strip() for x,y in col_inds],
-                                                    [resp_list[7][x:y].strip() for x,y in col_inds])]
+    colnames = [(' '.join(x)).strip() for x in zip([resp_list[6][x:y].strip() for x, y in col_inds],
+                                                   [resp_list[7][x:y].strip() for x, y in col_inds])]
 
     ephem_table = Table.read(resp_list[9], format="ascii.fixed_width_no_header",
-                             col_starts=col_inds[:,0], col_ends=col_inds[:,1], names=colnames)
+                             col_starts=col_inds[:, 0], col_ends=col_inds[:, 1], names=colnames)
 
     # Combine Date and Hour columns and make into time object
     ephem_table["Date"] = convert_time(ephem_table["Date"], ephem_table["Hour (UTC)"]/24, conversion_string="%d %b %Y")
     ephem_table.remove_column("Hour (UTC)")
 
     # Change error columns in to floats and give column names units
-    ephem_table["Err1"] = [float(x.replace('"','')) for x in ephem_table["Err1"]]
+    ephem_table["Err1"] = [float(x.replace('"', '')) for x in ephem_table["Err1"]]
     ephem_table.rename_column("Err1", 'Err1 (")')
-    
-    ephem_table["Err2"] = [float(x.replace('"','')) for x in ephem_table["Err2"]]
+
+    ephem_table["Err2"] = [float(x.replace('"', '')) for x in ephem_table["Err2"]]
     ephem_table.rename_column("Err2", 'Err2 (")')
 
     # Parse the query meta data and add to the table
@@ -812,7 +830,7 @@ def parse_summary(resp_str):
 
     if "Object not found" in resp_str:
         raise ValueError('Object not found: the name of the object is wrong or misspelt')
-    
+
     parsed_html = BeautifulSoup(resp_str, 'lxml')
 
     # Pull out the properties
@@ -826,14 +844,14 @@ def parse_summary(resp_str):
     except ValueError:
         try:
             obs_ind = prop_list.index("Observatory")
-        except:
+        except ValueError:
             obs_ind = len(prop_list)
-    
+
     obs_props = prop_list[obs_ind:]
     prop_list = prop_list[:obs_ind]
 
     # Building the table
-    summary_tab = Table(names=["Physical Properties", "Value", "Units"], 
+    summary_tab = Table(names=["Physical Properties", "Value", "Units"],
                         data=np.array(prop_list).reshape((len(prop_list)//3, 3)))
 
     # Dealing with the special cases
@@ -841,10 +859,11 @@ def parse_summary(resp_str):
     diameter = diameter[0].contents[0]
     summary_tab["Value"][summary_tab["Physical Properties"] == "Diameter"] = diameter
 
-    summary_tab["Physical Properties"][summary_tab["Physical Properties"] == ""] = "Nominal distance (from Earth center)"
+    summary_tab["Physical Properties"][summary_tab["Physical Properties"] == ""] = ("Nominal distance "
+                                                                                    "(from Earth center)")
 
     # Adding the other properties as metadata
-    for i in range(0,len(obs_props), 2):
+    for i in range(0, len(obs_props), 2):
         summary_tab.meta[obs_props[i]] = obs_props[i+1]
 
     return summary_tab

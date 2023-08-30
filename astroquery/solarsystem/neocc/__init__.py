@@ -7,4 +7,4 @@ astroquery.solarsystem.neocc
 a collection of data services provided by NEOCC
 """
 
-from ...esa.neocc import neocc, ESAneoccClass
+# from ...esa.neocc import neocc, ESAneoccClass
