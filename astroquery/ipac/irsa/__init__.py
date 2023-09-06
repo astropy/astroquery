@@ -34,6 +34,7 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to the IRSA server.')
+    tap_url = _config.ConfigItem('https://irsa.ipac.caltech.edu/TAP', 'IRSA TAP URL')
 
 
 conf = Conf()
