@@ -111,8 +111,8 @@ def parse_list(list_name, data_string):
     ----------
     list_name : str
         Name of the requested list.
-    data_byte_d : object
-        Decoded StringIO object.
+    data_string : str
+        String containing the raw data for the table.
 
     Returns
     -------
@@ -155,8 +155,9 @@ def parse_nea(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
+
     Returns
     -------
     neocc_lst : `~astropy.table.Table`
@@ -173,8 +174,8 @@ def parse_risk(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
 
     Returns
     -------
@@ -217,11 +218,12 @@ def parse_clo(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
+
     Returns
     -------
-   neocc_lst : `~astropy.table.Table`
+    neocc_lst : `~astropy.table.Table`
         Astropy Table with close approaches list data parsed.
     """
 
@@ -252,8 +254,9 @@ def parse_pri(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
+
     Returns
     -------
     neocc_lst : `~astropy.table.Table`
@@ -284,8 +287,9 @@ def parse_encounter(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
+
     Returns
     -------
     neocc_lst : `~astropy.table.Table`
@@ -319,8 +323,8 @@ def parse_impacted(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
 
     Returns
     -------
@@ -339,8 +343,9 @@ def parse_neo_catalogue(resp_str):
 
     Parameters
     ----------
-    data_byte_d : object
-        Decoded StringIO object.
+    resp_str : str
+        String containing the raw data for the table.
+
     Returns
     -------
    neocc_lst : `~astropy.table.Table`
