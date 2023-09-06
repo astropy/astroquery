@@ -36,12 +36,11 @@ def get_object_url(name, tab, **kwargs):
     name : str
         Name of the requested object.
     tab : str
-        Name of the request tab. Valid names are: *summary,
+        Name of the requested table. Valid names are: *summary,
         orbit_properties, physical_properties, observations,
         ephemerides, close_approaches and impacts*.
     **kwargs : str
-        orbit_properties and ephemerides tabs required additional
-        arguments to work:
+        orbit_properties and ephemerides tabs require additional arguments:
 
         * *orbit_properties*: the required additional arguments are:
 
@@ -119,8 +118,7 @@ def get_object_data(url):
         Object in byte format.
     """
     # Get data from URL
-    data_obj = requests.get(API_URL + url, timeout=TIMEOUT,
-                            verify=VERIFICATION).content
+    data_obj = requests.get(API_URL + url, timeout=TIMEOUT, verify=VERIFICATION).content
 
     return data_obj
 
@@ -178,11 +176,14 @@ def parse_impacts(resp_str):
     """
     Parse impact table response string.
 
-    TODO: document properly.
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
 
     Returns
     -------
-    response : Table
+    response : list(`astropy.table.Table`)
         The response table, with all the extra info in the meta dictionary.
     """
 
@@ -247,7 +248,11 @@ def parse_impacts(resp_str):
 def parse_close_aproach(resp_str):
     """
     Parse close approach response string.
-    TODO: document properly.
+
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
 
     Returns
     -------
@@ -398,8 +403,6 @@ def _parse_sat_obs(sat_str):
 def _parse_rov_obs(rov_str):
     """
     Building the roving observer observations table.
-
-    NOTE: THIS IS UNTESTED (can't find an object with these rows)
     """
 
     rov_table = Table.read(rov_str, format="ascii.fixed_width_no_header",
@@ -420,7 +423,7 @@ def _parse_rov_obs(rov_str):
 
 def _parse_radar_obs(radar_str):
     """
-    Build the rada observations table.
+    Building the radar observations table.
     """
 
     radar_str = radar_str[radar_str.find('\n')+1:]  # First row is header
@@ -461,13 +464,13 @@ def _parse_radar_obs(radar_str):
 
 def parse_observations(resp_str, verbose=False):
     """
-    Parse close approach response string.
-
-    NOTE: This one returns a list of tables because there is so much
-    to return, HOWEVER this makes it inconsistent with the other tables,
-    so this needs to be dealt with.
+    Parse the close approach response string into the close approach tables.
 
     TODO: document properly.
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the tables.
 
     Returns
     -------
@@ -523,7 +526,18 @@ def parse_observations(resp_str, verbose=False):
 
 def parse_physical_properties(resp_str):
     """
-    Physical Properties table parser.
+    Parse the physical properties response string.
+
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
+
+    Returns
+    -------
+    response : Table
+        The response table.
+    
     """
 
     if resp_str == '':
@@ -578,7 +592,8 @@ def parse_physical_properties(resp_str):
 
 def _make_prop_table(props, vals, secname):
     """
-    Small but we do this a million times so
+    Given correspondong properties and values, and the section the relate to,
+    build an orbital properties style table.
     """
 
     prop_tab = Table(names=("Property", "Value"), data=[props, vals], dtype=[str, str])
@@ -605,9 +620,17 @@ def _fill_sym_matrix(data, dim):
 
 def parse_orbital_properties(resp_str):
     """
-    Orbital properties parser.
+    Parse the orbintal properties response string.
 
-    Returns list of tables.
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
+
+    Returns
+    -------
+    response : list(Table)
+        List of response tables.
     """
 
     table_lst = list()
@@ -741,9 +764,17 @@ def parse_orbital_properties(resp_str):
 
 def parse_ephemerides(resp_str):
     """
-    Ephemerides parser.
+    Parse the ephemerides response string.
 
-    Returns single table.
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
+
+    Returns
+    -------
+    response : Table
+        The response table.
     """
 
     if "No ephemerides file" in resp_str:
@@ -825,7 +856,16 @@ def parse_ephemerides(resp_str):
 def parse_summary(resp_str):
     """
     Parse the summary data string.
-    Uses BeautifulSoup, since it is html data.
+
+    Parameters
+    ----------
+    resp_str : str
+        String containing the raw data for the table.
+
+    Returns
+    -------
+    response : Table
+        The response table.
     """
 
     if "Object not found" in resp_str:
