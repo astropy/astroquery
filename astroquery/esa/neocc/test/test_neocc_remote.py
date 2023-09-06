@@ -504,7 +504,9 @@ class TestTabs:
         rnd_object = random.choice(self.nea_list["NEA"])
 
         # Request summary and check types
-        summary = neocc.neocc.query_object(name=rnd_object, tab='summary')
+        result_list = neocc.neocc.query_object(name=rnd_object, tab='summary')
+        assert isinstance(result_list, list)
+        summary = result_list[0]
         assert isinstance(summary, Table)
         assert 'Discovery Date' in summary.meta.keys()
         assert 'Observatory' in summary.meta.keys()
@@ -518,12 +520,12 @@ class TestTabs:
         assert all([summary[x].dtype.type == np.str_ for x in summary_cols])
 
         # Check specific asteroids that will remain inmutable
-        ast_summ1 = neocc.neocc.query_object(name='433', tab='summary')
+        ast_summ1 = neocc.neocc.query_object(name='433', tab='summary')[0]
         assert ast_summ1.meta["Observatory"] == 'Berlin (1835-1913)'
         assert ast_summ1.meta["Discovery Date"] == '1898-08-13'
 
         # Check asteroid with no observatory nor discovery date
         # This object may change
-        ast_summ2 = neocc.neocc.query_object(name='2006BV4', tab='summary')
+        ast_summ2 = neocc.neocc.query_object(name='2006BV4', tab='summary')[0]
         assert "Observatory" not in ast_summ2.meta
         assert "Discovery Date" not in ast_summ2.meta

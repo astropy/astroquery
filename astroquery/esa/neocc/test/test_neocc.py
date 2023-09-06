@@ -61,7 +61,8 @@ def get_mockreturn(name, timeout=TIMEOUT, verify=VERIFICATION):
         fileloc = fileloc.split(r'&')[0] + '.eph'
 
     filename = data_path(fileloc)
-    content = open(filename, 'rb').read()
+    with open(filename, 'rb') as FLE:
+        content = FLE.read()
 
     return MockResponse(content)
 
