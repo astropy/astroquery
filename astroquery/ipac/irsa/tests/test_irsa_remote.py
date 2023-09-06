@@ -16,36 +16,17 @@ OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
 
 @pytest.mark.remote_data
 class TestIrsa:
-    def test_query_region_cone_async(self):
-        response = Irsa.query_region_async(
-            'm31', catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin, cache=False)
-        assert response is not None
-
     def test_query_region_cone(self):
         result = Irsa.query_region(
             'm31', catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin, cache=False)
         assert isinstance(result, Table)
 
-    def test_query_region_box_async(self):
-        response = Irsa.query_region_async(
-            "00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box',
-            width=2 * u.arcmin, cache=False)
-        assert response is not None
-
+    @pytest.mark.skip("Upstream TAP doesn't support Box geometry yet")
     def test_query_region_box(self):
         result = Irsa.query_region(
             "00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box',
             width=2 * u.arcmin, cache=False)
         assert isinstance(result, Table)
-
-    def test_query_region_async_polygon(self):
-        polygon = [SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-                   SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-                   SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
-        response = Irsa.query_region_async(
-            "m31", catalog="fp_psc", spatial="Polygon", polygon=polygon, cache=False)
-
-        assert response is not None
 
     def test_query_region_polygon(self):
         polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
@@ -56,7 +37,7 @@ class TestIrsa:
         assert isinstance(result, Table)
 
     def test_list_catalogs(self):
-        catalogs = Irsa.list_catalogs(cache=False)
+        catalogs = Irsa.list_catalogs()
         # Number of available catalogs may change over time, test only for significant drop.
-        # (at the time of writing there are 587 catalogs in the list).
-        assert len(catalogs) > 500
+        # (at the time of writing there are 933 tables in the list).
+        assert len(catalogs) > 900

@@ -8,18 +8,20 @@ Module to query the IRSA archive.
 """
 
 import warnings
-import astropy.units as u
-from astropy.coordinates import SkyCoord, ICRS
+from astropy.coordinates import SkyCoord
+from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
 from pyvo.dal.tap import TAPService
 from astroquery import log
 from astroquery.query import BaseQuery
 from astroquery.utils.commons import parse_coordinates
 from astroquery.ipac.irsa import conf
-from astroquery.exceptions import TableParseError, NoResultsWarning, InvalidQueryError
+from astroquery.exceptions import InvalidQueryError
 
 
 __all__ = ['Irsa', 'IrsaClass']
+
+
 class IrsaClass(BaseQuery):
 
     def __init__(self):
