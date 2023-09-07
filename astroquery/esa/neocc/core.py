@@ -63,9 +63,9 @@ class ESAneoccClass(BaseQuery):
         the list of all NEAs currently considered in the NEOCC system.
 
         >>> from astroquery.esa.neocc import neocc
-        >>> list_data = neocc.query_list(list_name='nea_list')
-        >>> print(list_data)  # doctest: +IGNORE_OUTPUT
-             NEA      
+        >>> list_data = neocc.query_list(list_name='nea_list')  # doctest: +REMOTE_DATA
+        >>> print(list_data)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
+             NEA
         ---------------
                433 Eros
              719 Albert
@@ -84,8 +84,8 @@ class ESAneoccClass(BaseQuery):
         contains object with upcoming close approaches.
 
         >>> from astroquery.esa.neocc import neocc
-        >>> list_data = neocc.query_list(list_name='close_approaches_upcoming')
-        >>> print(list_data)  # doctest: +IGNORE_OUTPUT
+        >>> list_data = neocc.query_list(list_name='close_approaches_upcoming')  # doctest: +REMOTE_DATA
+        >>> print(list_data)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
         Object Name           Date          ... Rel. vel in km/s CAI index
         ----------- ----------------------- ... ---------------- ---------
             2021JA5 2023-09-07 00:00:00.000 ...             11.0     3.496
@@ -175,25 +175,25 @@ class ESAneoccClass(BaseQuery):
         *query_list* search:
 
         >>> from astroquery.esa.neocc import neocc
-        >>> ast_impacts = neocc.query_object(name='1979XB', tab='impacts')
+        >>> ast_impacts = neocc.query_object(name='1979XB', tab='impacts')  # doctest: +REMOTE_DATA
 
         or
 
-        >>> nea_list = neocc.query_list(list_name='nea_list')
-        >>> print(nea_list["NEA"][3163])
+        >>> nea_list = neocc.query_list(list_name='nea_list')  # doctest: +REMOTE_DATA
+        >>> print(nea_list["NEA"][3163])  # doctest: +REMOTE_DATA
         1979XB
-        >>> ast_impacts = neocc.query_object(name=nea_list["NEA"][3163], tab='impacts')
+        >>> ast_impacts = neocc.query_object(name=nea_list["NEA"][3163], tab='impacts')  # doctest: +REMOTE_DATA
 
         or
 
-        >>> risk_list = neocc.query_list(list_name='risk_list')
-        >>> print(risk_list['Object Name'][1])
+        >>> risk_list = neocc.query_list(list_name='risk_list')  # doctest: +REMOTE_DATA
+        >>> print(risk_list['Object Name'][1])  # doctest: +REMOTE_DATA
         1979XB
-        >>> ast_impacts = neocc.query_object(name=risk_list['Object Name'][1], tab='impacts')
+        >>> ast_impacts = neocc.query_object(name=risk_list['Object Name'][1], tab='impacts')  # doctest: +REMOTE_DATA
 
         This query returns a list containing a single table:
 
-        >>> print(ast_impacts[0])  # doctest: +IGNORE_OUTPUT
+        >>> print(ast_impacts[0])  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
                   date             MJD    sigma  sigimp ... Exp. Energy in MT   PS   TS
         ----------------------- --------- ------ ------ ... ----------------- ----- ---
         2056-12-12 21:38:52.800 72344.902  0.255    0.0 ...             0.013 -2.86   0
@@ -207,7 +207,7 @@ class ESAneoccClass(BaseQuery):
             Most of the tables returned by this tye of query contain additional information
             in the 'meta' property, including information about the table columns.
 
-            >>> print(ast_impacts[0].meta.keys())  # doctest: +IGNORE_OUTPUT
+            >>> print(ast_impacts[0].meta.keys())  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
             odict_keys(['Column Info', 'observation_accepted', 'observation_rejected',
                         'arc_start', 'arc_end', 'info', 'computation'])
 
@@ -215,11 +215,11 @@ class ESAneoccClass(BaseQuery):
         **Physical Properties:** This example shows how to obtain the physical properties table.
 
         >>> from astroquery.esa.neocc import neocc
-        >>> properties = neocc.query_object(name='433', tab='physical_properties')
+        >>> properties = neocc.query_object(name='433', tab='physical_properties')  # doctest: +REMOTE_DATA
 
         Again, the output is a list containing a single table.
 
-        >>> print(properties[0])  # doctest: +IGNORE_OUTPUT
+        >>> print(properties[0])  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
                 Property        ...
         ----------------------- ...
          Absolute Magnitude (H) ...
@@ -247,15 +247,15 @@ class ESAneoccClass(BaseQuery):
         returns a list containing 3-5 `astropy.table.Table`s depending if there are
         "Roving observer" or satellite observations.
 
-        >>> ast_observations = neocc.query_object(name='99942', tab='observations')
-        >>> for tab in ast_observations:
+        >>> ast_observations = neocc.query_object(name='99942', tab='observations')  # doctest: +REMOTE_DATA
+        >>> for tab in ast_observations:  # doctest: +REMOTE_DATA
         ...     print(tab.meta["Title"])
         Observation metadata
         Optical Observations
         Satellite  Observations
         Radar Observations
-        >>> sat_obs = ast_observations[2]
-        >>> print(sat_obs)  # doctest: +IGNORE_OUTPUT
+        >>> sat_obs = ast_observations[2]  # doctest: +REMOTE_DATA
+        >>> print(sat_obs)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
         Design.  K   T   N  ...     X              Y                 Z          Obs Code
         ------- --- --- --- ... ---------- ----------------- ------------------ --------
           99942   S   s  -- ... -5634.1734        -2466.2657         -3038.3924      C51
@@ -273,8 +273,8 @@ class ESAneoccClass(BaseQuery):
         **Close Approaches**: This example queris for close approaches, another query
         which results in a single data table.
 
-        >>> close_appr = neocc.query_object(name='99942', tab='close_approaches')
-        >>> print(close_appr[0])  # doctest: +IGNORE_OUTPUT
+        >>> close_appr = neocc.query_object(name='99942', tab='close_approaches')  # doctest: +REMOTE_DATA
+        >>> print(close_appr[0])  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
         BODY      CALENDAR-TIME          MJD-TIME    ...  STRETCH    WIDTH   PROBABILITY
         ----- ----------------------- --------------- ... --------- --------- -----------
         EARTH 1957-04-01T03:19:44.544 35929.138710654 ... 2.871e-05 5.533e-09         1.0
@@ -297,15 +297,15 @@ class ESAneoccClass(BaseQuery):
         This query returns a list of three tables, the orbital properties, and the covariance
         and corotation matrices.
 
-        >>> ast_orbit_prop = neocc.query_object(name='99942', tab='orbit_properties',
-        ...                                     orbital_elements='keplerian', orbit_epoch='present')
-        >>> for tab in ast_orbit_prop:
+        >>> ast_orbit_prop = neocc.query_object(name='99942', tab='orbit_properties', orbital_elements='keplerian',
+        ...                                     orbit_epoch='present')  # doctest: +REMOTE_DATA
+        >>> for tab in ast_orbit_prop:  # doctest: +REMOTE_DATA
         ...     print(tab.meta["Title"])
         Orbital Elements
         COV
         COR
-        >>> print(ast_orbit_prop[0][:5])  # doctest: +IGNORE_OUTPUT
-        Section  Property          Value         
+        >>> print(ast_orbit_prop[0][:5])  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
+        Section  Property          Value
         -------- -------- -----------------------
            ANODE    ANODE -8.6707715058413322E-04
         APHELION APHELION  1.0993687643243035E+00
@@ -318,13 +318,14 @@ class ESAneoccClass(BaseQuery):
         is necessary to provide five additional inputs to *query_object*
         method: `observatory`, `start`, `stop`, `step` and `step_unit`.
 
-        >>> ast_ephemerides = neocc.query_object(name='99942', tab='ephemerides',
-        ...                                      observatory='500', start='2019-05-08 01:30',
-        ...                                      stop='2019-05-23 01:30', step='1', step_unit='days')
-        >>> ast_ephemerides = ast_ephemerides[0]
-        >>> print(ast_ephemerides.meta.keys())
-        odict_keys(['Ephemerides generation for', 'Observatory', 'Initial Date', 'Final Date', 'Time step', 'Column Info'])
-        >>> print(ast_ephemerides)  # doctest: +IGNORE_OUTPUT
+        >>> ast_ephemerides = neocc.query_object(name='99942', tab='ephemerides', observatory='500',
+        ...                                      start='2019-05-08 01:30', stop='2019-05-23 01:30',
+        ...                                      step='1', step_unit='days')  # doctest: +REMOTE_DATA
+        >>> ast_ephemerides = ast_ephemerides[0]  # doctest: +REMOTE_DATA
+        >>> print(ast_ephemerides.meta.keys())  # doctest: +REMOTE_DATA
+        odict_keys(['Ephemerides generation for', 'Observatory', 'Initial Date',
+                    'Final Date', 'Time step', 'Column Info'])
+        >>> print(ast_ephemerides)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
                   Date          MJD (UTC)  RA (h  m  s) ... Err1 (") Err2 (") AngAx (deg)
         ----------------------- ---------- ------------ ... -------- -------- -----------
         2019-05-08T01:30:00.000 58611.0625  6 43 40.510 ...    0.001      0.0       115.8
