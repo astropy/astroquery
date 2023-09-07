@@ -10,16 +10,31 @@ from astroquery.ipac.irsa import Irsa
 
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
-            SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg),  # noqa
-                     frame='galactic')]
+            SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg), frame='galactic')]
 
 
 @pytest.mark.remote_data
 class TestIrsa:
-    def test_query_region_cone(self):
-        result = Irsa.query_region(
-            'm31', catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin, cache=False)
+
+    @pytest.mark.parametrize("coordinates", OBJ_LIST)
+    def test_query_region_cone(self, coordinates):
+        """
+        Test multiple ways of specifying coordinates for a conesearch
+        """
+        result = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone', cache=False)
         assert isinstance(result, Table)
+        assert len(result) == 19
+        # assert all columns are returned
+        assert len(result.colnames) == 64
+
+    def test_query_selcols_radius(self):
+        """
+        Test selection of only a few columns, and using a bigger radius
+        """
+        result = Irsa.query_region("m31", catalog='fp_psc', selcols='ra,dec,j_m', radius=0.5 * u.arcmin)
+        assert len(result) == 84
+        # assert only selected columns are returned
+        assert result.colnames == ['ra', 'dec', 'j_m']
 
     @pytest.mark.skip("Upstream TAP doesn't support Box geometry yet")
     def test_query_region_box(self):

@@ -114,7 +114,12 @@ class IrsaClass(BaseQuery):
         if catalog is None:
             raise InvalidQueryError("Catalog name is required!")
 
-        adql = f'SELECT * from {catalog}'
+        if selcols is None:
+            columns = '*'
+        else:
+            columns = selcols
+
+        adql = f'SELECT {columns} from {catalog}'
 
         coords_icrs = parse_coordinates(coordinates).icrs
         ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
