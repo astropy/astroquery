@@ -1,10 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import pytest
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
+
+try:
+    # This requires pyvo 1.4
+    from pyvo.dal.exceptions import DALOverflowWarning
+except ImportError:
+    pass
 
 from astroquery.ipac.irsa import Irsa
 
@@ -56,3 +61,11 @@ class TestIrsa:
         # Number of available catalogs may change over time, test only for significant drop.
         # (at the time of writing there are 933 tables in the list).
         assert len(catalogs) > 900
+
+    def test_tap(self):
+        query = "SELECT TOP 5 ra,dec FROM cosmos2015"
+        with pytest.warns(expected_warning=DALOverflowWarning,
+                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+            result = Irsa.query_tap(query=query)
+        assert len(result) == 5
+        assert result.colnames == ['ra', 'dec']

@@ -59,6 +59,7 @@ class IrsaClass(BaseQuery):
         """
         log.debug(f'TAP query: {query}')
         return self.tap.search(query, language='ADQL', maxrec=maxrec)
+
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
                      get_query_payload=False, selcols=None,
@@ -77,13 +78,13 @@ class IrsaClass(BaseQuery):
             be resolved on the server (see `here
             <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
-            if spatial is ``'Polygon'``.
+            if spatial is ``'Polygon'`` or ``'All-Sky'``.
         catalog : str
             The catalog to be used. To list the available catalogs, use
             :meth:`~astroquery.ipac.irsa.IrsaClass.print_catalogs`.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
-            ``'All-Sky'``. If missing then defaults to ``'Cone'``.
+            ``'All-Sky'``. Defaults to ``'Cone'``.
         radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
@@ -119,19 +120,10 @@ class IrsaClass(BaseQuery):
         else:
             columns = selcols
 
-        adql = f'SELECT {columns} from {catalog}'
-
-        coords_icrs = parse_coordinates(coordinates).icrs
-        ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
+        adql = f'SELECT {columns} FROM {catalog}'
 
         if spatial == 'All-Sky':
             where = ''
-        elif spatial == 'Cone':
-            where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
-                     f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
-        elif spatial == 'Box':
-            where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
-                     f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},{width.to(u.deg).value}))=1")
         elif spatial == 'Polygon':
             try:
                 coordinates_list = [parse_coordinates(coord).icrs for coord in polygon]
@@ -147,10 +139,18 @@ class IrsaClass(BaseQuery):
             coordinates_str = [f'{coord.ra.deg},{coord.dec.deg}' for coord in coordinates_list]
             where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coordinates_str)}))=1")
-
         else:
-            raise ValueError("Unrecognized spatial query type. Must be one of "
-                             "'Cone', 'Box', 'Polygon', or 'All-Sky'.")
+            coords_icrs = parse_coordinates(coordinates).icrs
+            ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
+            if spatial == 'Cone':
+                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                         f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
+            elif spatial == 'Box':
+                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                         f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},{width.to(u.deg).value}))=1")
+            else:
+                raise ValueError("Unrecognized spatial query type. Must be one of "
+                                 "'Cone', 'Box', 'Polygon', or 'All-Sky'.")
 
         adql += where
 
