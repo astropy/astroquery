@@ -9,6 +9,12 @@ ipac.irsa
 
 - New class to access the Moving Object Search Tool (MOST) added. [#2660]
 
+- The IRSA module's backend has been refactored to favour VO services and to
+  run the queries through TAP rather than Gator.
+  New method ``query_tap`` is added to enable ADQL queries, async-named
+  methods have been removed. The ``cache`` and ``verbose`` kwargs have been
+  deprecated as they have no effect. [#2823]
+
 gaia
 ^^^^
 
