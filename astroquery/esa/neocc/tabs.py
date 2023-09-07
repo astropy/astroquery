@@ -537,7 +537,6 @@ def parse_physical_properties(resp_str):
     -------
     response : Table
         The response table.
-    
     """
 
     if resp_str == '':
