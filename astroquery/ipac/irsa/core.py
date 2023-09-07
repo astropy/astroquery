@@ -60,6 +60,7 @@ class IrsaClass(BaseQuery):
         log.debug(f'TAP query: {query}')
         return self.tap.search(query, language='ADQL', maxrec=maxrec)
 
+    @deprecated_renamed_argument(("cache", "verbose"), (None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
                      get_query_payload=False, selcols=None,
@@ -103,11 +104,6 @@ class IrsaClass(BaseQuery):
             Defaults to `False`.
         selcols : str, optional
             Target column list with value separated by a comma(,)
-        verbose : bool, optional.
-            If `True` then displays warnings when the returned VOTable does not
-            conform to the standard. Defaults to `False`.
-        cache : bool, optional
-            Use local cache when set to `True`.
 
         Returns
         -------
@@ -160,18 +156,24 @@ class IrsaClass(BaseQuery):
 
         return response.to_table()
 
-    def list_tap_tables(self):
-        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables")
-        return tap_tables
+    @deprecated_renamed_argument("cache", None, since="0.4.7")
+    def list_catalogs(self, full=False, cache=False):
+        """
+        Return information of available IRSA catalogs.
 
-    # TODO, deprecate this legacy in favour of full TAP table Table
-    @deprecated_renamed_argument("cache", None, "0.4.7")
-    def list_catalogs(self, cache=False):
-        """
-        Return a dictionary of IRSA catalogs.
+        Parameters
+        ----------
+        full : bool
+            If True returns the full schema VOTable. If False returns a dictionary of the table names and
+            their description.
+
         """
         tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables")
-        return {tap_table['table_name']: tap_table['description'] for tap_table in tap_tables}
+
+        if full:
+            return tap_tables
+        else:
+            return {tap_table['table_name']: tap_table['description'] for tap_table in tap_tables}
 
     # TODO, deprecate this as legacy
     def print_catalogs(self):

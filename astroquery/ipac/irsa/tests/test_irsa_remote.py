@@ -26,7 +26,7 @@ class TestIrsa:
         """
         Test multiple ways of specifying coordinates for a conesearch
         """
-        result = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone', cache=False)
+        result = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone')
         assert isinstance(result, Table)
         assert len(result) == 19
         # assert all columns are returned
@@ -51,8 +51,7 @@ class TestIrsa:
     def test_query_region_polygon(self):
         polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
         with pytest.warns(UserWarning, match='Polygon endpoints are being interpreted'):
-            result = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-                                       polygon=polygon, cache=False)
+            result = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon", polygon=polygon)
 
         assert isinstance(result, Table)
 
@@ -68,4 +67,4 @@ class TestIrsa:
                           match="Partial result set. Potential causes MAXREC, async storage space, etc."):
             result = Irsa.query_tap(query=query)
         assert len(result) == 5
-        assert result.colnames == ['ra', 'dec']
+        assert result.to_table().colnames == ['ra', 'dec']

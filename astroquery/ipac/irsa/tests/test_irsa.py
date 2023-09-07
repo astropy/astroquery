@@ -8,7 +8,7 @@ import astropy.units as u
 from astroquery.ipac.irsa import Irsa
 from astroquery.exceptions import InvalidQueryError
 
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
+OBJ_LIST = ["00h42m44.330s +41d16m07.50s",
             SkyCoord(l=121.1743 * u.deg, b=-21.5733 * u.deg, frame="galactic")]
 
 
@@ -62,7 +62,7 @@ def test_query_allsky():
 @pytest.mark.parametrize('spatial', ['cone', 'box', 'polygon', 'all-Sky', 'All-sky', 'invalid'])
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
-        Irsa.query_region("m31", catalog='invalid_spatial', spatial=spatial)
+        Irsa.query_region(OBJ_LIST[0], catalog='invalid_spatial', spatial=spatial)
 
 
 def test_no_catalog():
