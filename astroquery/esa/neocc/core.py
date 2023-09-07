@@ -204,12 +204,12 @@ class ESAneoccClass(BaseQuery):
 
         Note
         ----
-            Most of the tables returned by this tye of query contain additional information
-            in the 'meta' property, including information about the table columns.
+        Most of the tables returned by this tye of query contain additional information
+        in the 'meta' property, including information about the table columns.
 
-            >>> print(ast_impacts[0].meta.keys())  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
-            odict_keys(['Column Info', 'observation_accepted', 'observation_rejected',
-                        'arc_start', 'arc_end', 'info', 'computation'])
+        >>> print(ast_impacts[0].meta.keys())  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
+        odict_keys(['Column Info', 'observation_accepted', 'observation_rejected',
+                    'arc_start', 'arc_end', 'info', 'computation'])
 
 
         **Physical Properties:** This example shows how to obtain the physical properties table.
@@ -292,7 +292,7 @@ class ESAneoccClass(BaseQuery):
 
         **Orbit Properties:** In order to access the orbital properties
         information, it is necessary to provide two additional inputs to
-        *query_object* method: `orbital_elements` andv`orbit_epoch`.
+        *query_object* method: `orbital_elements` and `orbit_epoch`.
 
         This query returns a list of three tables, the orbital properties, and the covariance
         and corotation matrices.
