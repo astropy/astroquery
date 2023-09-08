@@ -11,7 +11,7 @@ import warnings
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
-from pyvo.dal.tap import TAPService
+from pyvo.dal import TAPService
 from astroquery import log
 from astroquery.query import BaseQuery
 from astroquery.utils.commons import parse_coordinates
@@ -37,7 +37,7 @@ class IrsaClass(BaseQuery):
 
     def query_tap(self, query, *, maxrec=None):
         """
-        Send query to IRSA TAP. Results in `~pyvo.dal.TapResult` format.
+        Send query to IRSA TAP. Results in `~pyvo.dal.TAPResults` format.
         result.to_qtable in `~astropy.table.QTable` format
 
         Parameters
@@ -47,9 +47,9 @@ class IrsaClass(BaseQuery):
         maxrec : int
             maximum number of records to return
 
-        Return
-        ------
-        result : `~pyvo.dal.TapResult`
+        Returns
+        -------
+        result : `~pyvo.dal.TAPResults`
             TAP query result.
         result.to_table : `~astropy.table.Table`
             TAP query result as `~astropy.table.Table`
@@ -66,23 +66,17 @@ class IrsaClass(BaseQuery):
                      get_query_payload=False, columns=None,
                      verbose=False, cache=True):
         """
-        This function serves the same purpose as
-        :meth:`~astroquery.ipac.irsa.IrsaClass.query_region`, but returns the raw
-        HTTP response rather than the results in a `~astropy.table.Table`.
+        Queries the IRSA TAP server around a coordinate and returns a `~astropy.table.Table` object.
 
         Parameters
         ----------
         coordinates : str, `astropy.coordinates` object
-            Gives the position of the center of the cone or box if
-            performing a cone or box search. The string can give coordinates
-            in various coordinate systems, or the name of a source that will
-            be resolved on the server (see `here
-            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
-            if spatial is ``'Polygon'`` or ``'All-Sky'``.
+            Gives the position of the center of the cone or box if performing a cone or box search.
+            Required if spatial is ``'Cone'`` or ``'Box'``. Ignored if spatial is ``'Polygon'`` or
+            ``'All-Sky'``.
         catalog : str
             The catalog to be used. To list the available catalogs, use
-            :meth:`~astroquery.ipac.irsa.IrsaClass.print_catalogs`.
+            :meth:`~astroquery.ipac.irsa.IrsaClass.list_catalogs`.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. Defaults to ``'Cone'``.
@@ -107,6 +101,7 @@ class IrsaClass(BaseQuery):
 
         Returns
         -------
+        table : A `~astropy.table.Table` object.
         """
         if catalog is None:
             raise InvalidQueryError("Catalog name is required!")
