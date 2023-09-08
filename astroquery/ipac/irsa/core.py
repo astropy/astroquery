@@ -60,10 +60,10 @@ class IrsaClass(BaseQuery):
         log.debug(f'TAP query: {query}')
         return self.tap.search(query, language='ADQL', maxrec=maxrec)
 
-    @deprecated_renamed_argument(("cache", "verbose"), (None, None), since="0.4.7")
+    @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, selcols=None,
+                     get_query_payload=False, columns=None,
                      verbose=False, cache=True):
         """
         This function serves the same purpose as
@@ -102,7 +102,7 @@ class IrsaClass(BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
-        selcols : str, optional
+        columns : str, optional
             Target column list with value separated by a comma(,)
 
         Returns
@@ -111,10 +111,8 @@ class IrsaClass(BaseQuery):
         if catalog is None:
             raise InvalidQueryError("Catalog name is required!")
 
-        if selcols is None:
+        if columns is None:
             columns = '*'
-        else:
-            columns = selcols
 
         adql = f'SELECT {columns} FROM {catalog}'
 

@@ -4,6 +4,7 @@ import pytest
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 try:
     # This requires pyvo 1.4
@@ -32,11 +33,20 @@ class TestIrsa:
         # assert all columns are returned
         assert len(result.colnames) == 64
 
-    def test_query_selcols_radius(self):
+    def test_query_selcols_deprecated(self):
+        """
+        Test renamed selcols
+        """
+        with pytest.warns(AstropyDeprecationWarning, match='"selcols" was deprecated in version'):
+            result = Irsa.query_region("m31", catalog='fp_psc', selcols='ra,dec,j_m')
+
+        assert result.colnames == ['ra', 'dec', 'j_m']
+
+    def test_query_columns_radius(self):
         """
         Test selection of only a few columns, and using a bigger radius
         """
-        result = Irsa.query_region("m31", catalog='fp_psc', selcols='ra,dec,j_m', radius=0.5 * u.arcmin)
+        result = Irsa.query_region("m31", catalog='fp_psc', columns='ra,dec,j_m', radius=0.5 * u.arcmin)
         assert len(result) == 84
         # assert only selected columns are returned
         assert result.colnames == ['ra', 'dec', 'j_m']
