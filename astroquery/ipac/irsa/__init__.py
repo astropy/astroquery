@@ -4,8 +4,8 @@ IRSA Query Tool
 ===============
 
 This module contains various methods for querying the
-IRSA Catalog Query Service(CatQuery) and the Moving
-Object Search Tool (MOST).
+IRSA Services.
+
 """
 from astropy import config as _config
 
@@ -14,13 +14,6 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.ipac.irsa`.
     """
-
-    irsa_server = _config.ConfigItem(
-        'https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query',
-        'Name of the IRSA mirror to use.')
-    gator_list_catalogs = _config.ConfigItem(
-        'https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan',
-        'URL from which to list all the public catalogs in IRSA.')
     most_server = _config.ConfigItem(
         'https://irsa.ipac.caltech.edu/cgi-bin/MOST/nph-most',
         'URL address of the MOST service.')
@@ -34,6 +27,7 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to the IRSA server.')
+    tap_url = _config.ConfigItem('https://irsa.ipac.caltech.edu/TAP', 'IRSA TAP URL')
 
 
 conf = Conf()

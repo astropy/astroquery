@@ -1,121 +1,40 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os
-import re
-import numpy as np
-
 import pytest
 from astropy.coordinates import SkyCoord
-from astropy.table import Table
 import astropy.units as u
 
-from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.irsa import Irsa, conf
-from astroquery.ipac import irsa
+from astroquery.ipac.irsa import Irsa
+from astroquery.exceptions import InvalidQueryError
 
-DATA_FILES = {'Cone': 'Cone.xml',
-              'Box': 'Box.xml',
-              'Polygon': 'Polygon.xml'}
-
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
+OBJ_LIST = ["00h42m44.330s +41d16m07.50s",
             SkyCoord(l=121.1743 * u.deg, b=-21.5733 * u.deg, frame="galactic")]
 
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
+SIZE_LIST = [2 * u.arcmin, '0d2m0s']
 
 
-@pytest.fixture
-def patch_get(request):
-    mp = request.getfixturevalue("monkeypatch")
+@pytest.mark.parametrize("coordinates", OBJ_LIST)
+@pytest.mark.parametrize("radius", SIZE_LIST)
+def test_query_region_cone(coordinates, radius):
+    query = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone', radius=radius,
+                              get_query_payload=True)
 
-    mp.setattr(Irsa, '_request', get_mockreturn)
-    return mp
-
-
-def get_mockreturn(method, url, params=None, timeout=10, cache=False, **kwargs):
-    filename = data_path(DATA_FILES[params['spatial']])
-    with open(filename, 'rb') as infile:
-        content = infile.read()
-    return MockResponse(content, **kwargs)
+    # We don't fully float compare in this string, there are slight differences due to the name-coordinate
+    # resolution and conversions
+    assert "SELECT * FROM fp_psc WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',10.68" in query
+    assert ",41.26" in query
+    assert ",0.0333" in query
 
 
-@pytest.mark.parametrize(('dim'),
-                         ['5d0m0s', 0.3 * u.rad, '5h0m0s', 2 * u.arcmin])
-def test_parse_dimension(dim):
-    # check that the returned dimension is always in units of 'arcsec',
-    # 'arcmin' or 'deg'
-    new_dim = irsa.core._parse_dimension(dim)
-    assert new_dim.unit in ['arcsec', 'arcmin', 'deg']
+@pytest.mark.parametrize("coordinates", OBJ_LIST)
+@pytest.mark.parametrize("width", SIZE_LIST)
+def test_query_region_box(coordinates, width):
+    query = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Box', width=2 * u.arcmin,
+                              get_query_payload=True)
 
-
-@pytest.mark.parametrize(('ra', 'dec', 'expected'),
-                         [(10, 10, '10 +10'),
-                          (10.0, -11, '10.0 -11')
-                          ])
-def test_format_decimal_coords(ra, dec, expected):
-    out = irsa.core._format_decimal_coords(ra, dec)
-    assert out == expected
-
-
-@pytest.mark.parametrize(('coordinates', 'expected'),
-                         [("5h0m0s 0d0m0s", "75.0 +0.0")
-                          ])
-def test_parse_coordinates(coordinates, expected):
-    out = irsa.core._parse_coordinates(coordinates)
-    for a, b in zip(out.split(), expected.split()):
-        try:
-            a = float(a)
-            b = float(b)
-            np.testing.assert_almost_equal(a, b)
-        except ValueError:
-            assert a == b
-
-
-def test_args_to_payload():
-    out = Irsa._args_to_payload("fp_psc")
-    assert out == dict(catalog='fp_psc', outfmt=3, outrows=conf.row_limit,
-                       selcols='')
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_cone_async(coordinates, patch_get):
-    response = Irsa.query_region_async(
-        coordinates, catalog='fp_psc', spatial='Cone',
-        radius=2 * u.arcmin, get_query_payload=True)
-    assert response['radius'] == 2
-    assert response['radunits'] == 'arcmin'
-    response = Irsa.query_region_async(
-        coordinates, catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin)
-    assert response is not None
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_cone(coordinates, patch_get):
-    result = Irsa.query_region(
-        coordinates, catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin)
-
-    assert isinstance(result, Table)
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_box_async(coordinates, patch_get):
-    response = Irsa.query_region_async(
-        coordinates, catalog='fp_psc', spatial='Box',
-        width=2 * u.arcmin, get_query_payload=True)
-    assert response['size'] == 120
-    response = Irsa.query_region_async(
-        coordinates, catalog='fp_psc', spatial='Box', width=2 * u.arcmin)
-    assert response is not None
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_box(coordinates, patch_get):
-    result = Irsa.query_region(
-        coordinates, catalog='fp_psc', spatial='Box', width=2 * u.arcmin)
-
-    assert isinstance(result, Table)
+    assert "SELECT * FROM fp_psc WHERE CONTAINS(POINT('ICRS',ra,dec),BOX('ICRS',10.68" in query
+    assert ",41.26" in query
+    assert ",0.0333" in query
 
 
 poly1 = [SkyCoord(ra=10.1 * u.deg, dec=10.1 * u.deg),
@@ -125,51 +44,34 @@ poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg),
          (10.0 * u.deg, 10.0 * u.deg)]
 
 
-@pytest.mark.parametrize(("polygon"), [poly1, poly2])
-def test_query_region_async_polygon(polygon, patch_get):
-    response = Irsa.query_region_async(
-        "m31", catalog="fp_psc", spatial="Polygon",
-        polygon=polygon, get_query_payload=True)
+@pytest.mark.parametrize("polygon", [poly1, poly2])
+def test_query_region_polygon(polygon):
+    query1 = Irsa.query_region(catalog="fp_psc", spatial="Polygon", polygon=polygon,
+                               get_query_payload=True)
+    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon", polygon=polygon,
+                               get_query_payload=True)
 
-    for a, b in zip(re.split("[ ,]", response["polygon"]),
-                    re.split("[ ,]", "10.1 +10.1,10.0 +10.1,10.0 +10.0")):
-        for a1, b1 in zip(a.split(), b.split()):
-            a1 = float(a1)
-            b1 = float(b1)
-            np.testing.assert_almost_equal(a1, b1)
-
-    response = Irsa.query_region_async(
-        "m31", catalog="fp_psc", spatial="Polygon", polygon=polygon)
-
-    assert response is not None
+    assert query1 == query2
+    assert query1 == ("SELECT * FROM fp_psc "
+                      "WHERE CONTAINS(POINT('ICRS',ra,dec),POLYGON('ICRS',10.1,10.1,10.0,10.1,10.0,10.0))=1")
 
 
-@pytest.mark.parametrize(("polygon"),
-                         [poly1,
-                          poly2,
-                          ])
-def test_query_region_polygon(polygon, patch_get):
-    result = Irsa.query_region(
-        "m31", catalog="fp_psc", spatial="Polygon", polygon=polygon)
+def test_query_allsky():
+    query1 = Irsa.query_region(catalog="fp_psc", spatial="All-Sky", get_query_payload=True)
+    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="All-Sky", get_query_payload=True)
 
-    assert isinstance(result, Table)
+    assert query1 == query2 == "SELECT * FROM fp_psc"
 
 
-@pytest.mark.parametrize(('spatial', 'result'),
-                         zip(('Cone', 'Box', 'Polygon', 'All-Sky'),
-                             ('Cone', 'Box', 'Polygon', 'NONE')))
-def test_spatial_valdi(spatial, result):
-    out = Irsa._parse_spatial(
-        spatial, coordinates='m31', radius=5 * u.deg, width=5 * u.deg,
-        polygon=[(5 * u.hour, 5 * u.deg)] * 3)
-    assert out['spatial'] == result
-
-
-@pytest.mark.parametrize(('spatial'), [('cone', 'box', 'polygon', 'all-Sky',
-                                        'All-sky', 'invalid', 'blah')])
+@pytest.mark.parametrize('spatial', ['cone', 'box', 'polygon', 'all-Sky', 'All-sky', 'invalid'])
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
-        Irsa._parse_spatial(spatial, coordinates='m31')
+        Irsa.query_region(OBJ_LIST[0], catalog='invalid_spatial', spatial=spatial)
+
+
+def test_no_catalog():
+    with pytest.raises(InvalidQueryError):
+        Irsa.query_region("m31", spatial='Cone')
 
 
 def test_deprecated_namespace_import_warning():
