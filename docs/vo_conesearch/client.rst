@@ -165,11 +165,11 @@ of this functionality is
 :func:`~astroquery.vo_conesearch.vos_catalog.VOSDatabase.get_catalogs_by_url`,
 which is useful in the case of multiple entries with same access URL):
 
->>> gsc_url = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
+>>> gsc_url = 'https://vizier.cds.unistra.fr/viz-bin/conesearch/I/305/out?'
 >>> gsc = registry_db.get_catalog_by_url(gsc_url)  # doctest: +REMOTE_DATA
 >>> print(gsc)  # doctest: +REMOTE_DATA
 title: 'The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)'
-url: http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?
+url: https://vizier.cds.unistra.fr/viz-bin/conesearch/I/305/out?
 
 Add all ``'usno*a2'`` catalogs from registry to your database:
 
@@ -197,14 +197,14 @@ contains a simple catalog that only has given name and access URL:
 >>> other_db = VOSDatabase.create_empty()
 >>> other_db.add_catalog_by_url(
 ...     'My Guide Star Catalogue',
-...     'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?')
+...     'https://vizier.cds.unistra.fr/viz-bin/conesearch/I/305/out?')
 >>> print(other_db.dumps())
 {
     "__version__": 1,
     "catalogs": {
         "My Guide Star Catalogue": {
             "title": "My Guide Star Catalogue",
-            "url": "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?"
+            "url": "https://vizier.cds.unistra.fr/viz-bin/conesearch/I/305/out?"
         }
     }
 }
@@ -578,7 +578,7 @@ It also uses the normal Cone Search, not the asynchronous version.
 This example uses a custom timeout of 30 seconds and runs silently
 (except for warnings):
 
->>> url_to_time = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
+>>> url_to_time = 'https://vizier.cds.unistra.fr/viz-bin/conesearch/I/305/out?'
 >>> t_est, n_est = conesearch.predict_search(
 ...     url_to_time, c, 0.5 * u.deg, verbose=False, plot=True)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 >>> t_est  # Predicted execution time  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
@@ -637,24 +637,24 @@ different order:
  'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
  'Guide Star Catalog 2.3 Cone Search 1']
 >>> gsc_result = conesearch.conesearch(c, 0.05 * u.deg, catalog_db=gsc_cats_reordered)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/255/out?
 WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/220/out?
 WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/254/out?
 >>> len(gsc_result)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 1
 >>> gsc_result.url  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?'
+'https://vizier.cds.unistra.fr/viz-bin/conesearch/I/254/out?'
 
 To obtain results from *all* the services above:
 
 >>> all_gsc_results = conesearch.search_all(c, 0.05 * u.deg, catalog_db=gsc_cats)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/220/out?
 WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/254/out?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/255/out?
 WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
 >>> len(all_gsc_results)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 2
@@ -662,7 +662,7 @@ WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
 ...     tab = all_gsc_results[url]
 ...     print('{} has {} results'.format(url, len(tab)))
 http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23 has 1444 results
-http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 1 results
+https://vizier.cds.unistra.fr/viz-bin/conesearch/I/254/out? has 1 results
 
 To repeat the above asynchronously:
 
@@ -677,7 +677,7 @@ True
 ...     tab = all_gsc_results[url]
 ...     print('{} has {} results'.format(url, len(tab)))
 http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23 has 1444 results
-http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 1 results
+https://vizier.cds.unistra.fr/viz-bin/conesearch/I/254/out? has 1 results
 
 If one is unable to obtain any desired results using the default
 Cone Search database, ``'conesearch_good'``, that only contains
@@ -693,7 +693,7 @@ Downloading http://astroconda.org/aux/vo_databases/conesearch_warn.json
 ['Gaia DR2 (Gaia Collaboration, 2018) 2',
  'The USNO-B1.0 Catalog (Monet+ 2003) 1']
 >>> result = conesearch.conesearch(c, sr)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/345/gaia2?
+Trying https://vizier.cds.unistra.fr/viz-bin/conesearch/I/345/gaia2?
 >>> len(result)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 81
 

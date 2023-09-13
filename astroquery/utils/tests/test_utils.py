@@ -162,7 +162,7 @@ docstr2 = """
         ----------
         keywords : list or string
             List of keywords, or space-separated set of keywords.
-            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            From `Vizier <https://vizier.unistra.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
 
@@ -195,7 +195,7 @@ docstr2_out = textwrap.dedent("""
         ----------
         keywords : list or string
             List of keywords, or space-separated set of keywords.
-            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            From `Vizier <https://vizier.unistra.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
 

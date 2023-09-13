@@ -343,4 +343,4 @@ Reference/API
 .. automodapi:: astroquery.vizier
     :no-inheritance-diagram:
 
-.. _for details see here: http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx
+.. _for details see here: https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx

@@ -271,4 +271,4 @@ Reference/API
 .. automodapi:: astroquery.ipac.ned
     :no-inheritance-diagram:
 
-.. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.htx
+.. _IAU format: https://cds.unistra.fr/Dic/iau-spec.html
