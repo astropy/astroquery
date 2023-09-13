@@ -8,7 +8,7 @@ Module to query the IRSA archive.
 """
 
 import warnings
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, Angle
 from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
 from pyvo.dal import TAPService
@@ -131,10 +131,15 @@ class IrsaClass(BaseQuery):
         else:
             coords_icrs = parse_coordinates(coordinates).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
+
             if spatial == 'Cone':
+                if isinstance(radius, str):
+                    radius = Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
             elif spatial == 'Box':
+                if isinstance(width, str):
+                    width = Angle(width)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},{width.to(u.deg).value}))=1")
             else:

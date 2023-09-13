@@ -2,7 +2,6 @@
 
 import pytest
 from astropy.coordinates import SkyCoord
-from astropy.table import Table
 import astropy.units as u
 
 from astroquery.ipac.irsa import Irsa
@@ -11,10 +10,13 @@ from astroquery.exceptions import InvalidQueryError
 OBJ_LIST = ["00h42m44.330s +41d16m07.50s",
             SkyCoord(l=121.1743 * u.deg, b=-21.5733 * u.deg, frame="galactic")]
 
+SIZE_LIST = [2 * u.arcmin, '0d2m0s']
 
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_cone(coordinates):
-    query = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone', radius=2 * u.arcmin,
+
+@pytest.mark.parametrize("coordinates", OBJ_LIST)
+@pytest.mark.parametrize("radius", SIZE_LIST)
+def test_query_region_cone(coordinates, radius):
+    query = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Cone', radius=radius,
                               get_query_payload=True)
 
     # We don't fully float compare in this string, there are slight differences due to the name-coordinate
@@ -24,13 +26,15 @@ def test_query_region_cone(coordinates):
     assert ",0.0333" in query
 
 
-@pytest.mark.skip("Upstream TAP doesn't support Box geometry yet")
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
-def test_query_region_box(coordinates):
-    result = Irsa.query_region(
-        coordinates, catalog='fp_psc', spatial='Box', width=2 * u.arcmin)
+@pytest.mark.parametrize("width", SIZE_LIST)
+def test_query_region_box(coordinates, width):
+    query = Irsa.query_region(coordinates, catalog='fp_psc', spatial='Box', width=2 * u.arcmin,
+                              get_query_payload=True)
 
-    assert isinstance(result, Table)
+    assert "SELECT * FROM fp_psc WHERE CONTAINS(POINT('ICRS',ra,dec),BOX('ICRS',10.68" in query
+    assert ",41.26" in query
+    assert ",0.0333" in query
 
 
 poly1 = [SkyCoord(ra=10.1 * u.deg, dec=10.1 * u.deg),
