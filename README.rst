@@ -28,7 +28,7 @@ Accessing Online Astronomical Data
 Astroquery is an `astropy <http://www.astropy.org>`_ affiliated package that
 contains a collection of tools to access online Astronomical data. Each web
 service has its own sub-package. For example, to interface with the `SIMBAD
-website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
+website <https://simbad.cds.unistra.fr/simbad/>`_, use the ``simbad`` sub-package:
 
 .. code-block:: python
 

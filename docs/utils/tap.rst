@@ -526,7 +526,7 @@ Your uploaded table can be referenced as 'user_joe.table_name'
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> # Provide a URL pointing to a valid VOTable resource
-  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
+  >>> url = "https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
   >>> job = gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
 
   Job '1539932326689O' created to upload table 'table_test_from_url'.
@@ -791,12 +791,12 @@ new columns names. Here is an example:
 
 TAP+ can be used to connect other TAP services.
 
-Example 1: TAPVizieR.u-strasbg.fr
+Example 1: TAPVizieR.cds.unistra.fr
 
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
+  >>> tap = TapPlus(url="https://TAPVizieR.cds.unistra.fr/TAPVizieR/tap")
   >>> #Inspect tables
   >>> tables = tap.load_tables()
   >>> for table in (tables):

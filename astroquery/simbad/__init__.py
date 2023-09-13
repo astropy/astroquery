@@ -4,7 +4,7 @@ SIMBAD Query Tool
 =================
 
 The SIMBAD query tool creates a `script query
-<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ that returns VOtable XML
+<https://simbad.cds.unistra.fr/simbad/sim-fscript>`__ that returns VOtable XML
 data that is then parsed into a SimbadResult object.  This object then
 parses the data and returns a table parsed with `astropy.io.votable.parse`.
 """
@@ -16,7 +16,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.simbad`.
     """
     server = _config.ConfigItem(
-        ['simbad.u-strasbg.fr', 'simbad.harvard.edu'],
+        ['simbad.cds.unistra.fr', 'simbad.harvard.edu'],
         'Name of the SIMBAD mirror to use.')
 
     timeout = _config.ConfigItem(

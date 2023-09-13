@@ -26,26 +26,26 @@ __doctest_skip__ = ['hips2fitsClass.*']
 @async_to_sync
 class hips2fitsClass(BaseQuery):
     """
-    Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_
+    Query the `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_
 
-    The `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ offers a way
+    The `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_ offers a way
     to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combines individual images in
     order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the
     `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
 
     Given an astropy user-defined WCS with an HiPS name
-    (see the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_),
+    (see the list of valid HiPS names hosted in CDS `here <https://aladin.cds.unistra.fr/hips/list>`_),
     hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
 
     This package implements two methods:
 
     * `~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an
       astropy `~astropy.wcs.WCS`.
-      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+      See `here <https://aladin.cds.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
     * `~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output
       image pixel size, the center of projection, the type of projection and the field of view.
-      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+      See `here <https://aladin.cds.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
 
     """
@@ -58,7 +58,7 @@ class hips2fitsClass(BaseQuery):
     def query_with_wcs(self, hips, wcs, *, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear",
                        cmap="Greys_r", get_query_payload=False, verbose=False):
         """
-        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ with an
+        Query the `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_ with an
         astropy WCS.
 
         Parameters
@@ -66,7 +66,7 @@ class hips2fitsClass(BaseQuery):
         hips : str
             ID or keyword identifying the HiPS to use.
             If multiple HiPS surveys match, one is chosen randomly.
-            See the list of valid HiPS ids hosted by the CDS `here <http://aladin.unistra.fr/hips/list>`_.
+            See the list of valid HiPS ids hosted by the CDS `here <https://aladin.cds.unistra.fr/hips/list>`_.
         wcs : `~astropy.wcs.WCS`
             An astropy WCS defining the astrometry you wish.
             Alternatively, you can pass lon, lat, fov, coordsys keywords.
@@ -172,7 +172,7 @@ class hips2fitsClass(BaseQuery):
               min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r",
               get_query_payload=False, verbose=False):
         """
-        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_.
+        Query the `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_.
 
         If you have not any WCS, you can call this method by passing:
         * The width/height size of the output pixel image
@@ -188,7 +188,7 @@ class hips2fitsClass(BaseQuery):
         hips : str
             ID or keyword identifying the HiPS to use.
             If multiple HiPS surveys match, one is chosen randomly.
-            See the list of valid HiPS ids hosted by the CDS `here <http://aladin.unistra.fr/hips/list>`_.
+            See the list of valid HiPS ids hosted by the CDS `here <https://aladin.cds.unistra.fr/hips/list>`_.
         width : int
             Width in pixels of the output image.
         height : int

@@ -7,7 +7,7 @@ import astropy.utils.data as aud
 
 
 def reload_votable_fields_json():
-    content = aud.get_file_contents("http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields")
+    content = aud.get_file_contents("https://simbad.cds.unistra.fr/guide/sim-fscript.htx#VotableFields")
 
     import bs4
     htmldoc = bs4.BeautifulSoup(content, 'html5lib')

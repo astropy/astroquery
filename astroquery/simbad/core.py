@@ -266,10 +266,10 @@ class SimbadClass(SimbadBaseQuery):
 
     Note that SIMBAD suggests submitting no more than 6 queries per second; if
     you submit more than that, your IP may be temporarily blacklisted
-    (http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-url)
+    (https://simbad.cds.unistra.fr/guide/sim-url.htx)
 
     """
-    SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
+    SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
     TIMEOUT = conf.timeout
     WILDCARDS = {
         '*': 'Any string of characters (including an empty one)',
@@ -292,7 +292,7 @@ class SimbadClass(SimbadBaseQuery):
     ROW_LIMIT = conf.row_limit
 
     # also find a way to fetch the votable fields table from
-    # <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
+    # <https://simbad.cds.unistra.fr/guide/sim-fscript.htx#VotableFields>
     # tried something for this in this ipython nb
     # <http://nbviewer.ipython.org/5851110>
     _VOTABLE_FIELDS = ['main_id', 'coordinates']

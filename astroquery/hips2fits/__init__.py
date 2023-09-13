@@ -7,8 +7,8 @@ CDS hips2fits Query Tool
 
 This package is for querying the CDS hips2fits service, primarily hosted at:
 
-* http://alasky.u-strasbg.fr/hips-image-services/hips2fits
-* http://alaskybis.u-strasbg.fr/hips-image-services/hips2fits (mirror)
+* https://alasky.cds.unistra.fr/hips-image-services/hips2fits
+* https://alaskybis.cds.unistra.fr/hips-image-services/hips2fits (mirror)
 
 Note: If the access to hips2fits was helpful for your research
 work, the following acknowledgment would be appreciated::
@@ -25,8 +25,8 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for ``astroquery.template_module``.
     """
     server = _config.ConfigItem(
-        ["http://alasky.u-strasbg.fr/hips-image-services/hips2fits",
-         "http://alaskybis.u-strasbg.fr/hips-image-services/hips2fits"],
+        ["https://alasky.cds.unistra.fr/hips-image-services/hips2fits",
+         "https://alaskybis.cds.unistra.fr/hips-image-services/hips2fits"],
         'Name of the template_module server to use.')
 
     timeout = _config.ConfigItem(

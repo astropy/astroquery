@@ -72,7 +72,7 @@ be set to ``False`` for them not to be thrown out by
 listed as non-critical, user is responsible to check whether the
 results are reliable; They should not be used blindly.
 
-Some `units recognized by VizieR <http://cdsarc.u-strasbg.fr/vizier/Units.htx>`_
+Some `units recognized by VizieR <http://cdsarc.unistra.fr/vizier/Units.htx>`_
 are considered invalid by Cone Search standards. As a result,
 they will give the warning ``'W50'``, which is non-critical by default.
 

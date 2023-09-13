@@ -217,7 +217,7 @@ class NedClass(BaseQuery):
         iau_name : str
             IAU coordinate-based name of target on which search is
             centered. Definition of IAU coordinates at
-            http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
+            https://cds.unistra.fr/Dic/iau-spec.html.
         frame : str, optional
             May be one of 'Equatorial', 'Ecliptic', 'Galactic',
             'SuperGalactic'.  Defaults to 'Equatorial'.
@@ -256,7 +256,7 @@ class NedClass(BaseQuery):
         iau_name : str
             IAU coordinate-based name of target on which search is
             centered. Definition of IAU coordinates at
-            http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
+            https://cds.unistra.fr/Dic/iau-spec.html.
         frame : str, optional
             May be one of 'Equatorial', 'Ecliptic', 'Galactic',
             'SuperGalactic'.  Defaults to 'Equatorial'.

@@ -7,9 +7,9 @@ HiPS2fits Service (`astroquery.hips2fits`)
 Getting started
 ===============
 
-Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_
+Query the `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_
 
-The `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ offers a way
+The `CDS hips2fits service <https://alasky.cds.unistra.fr/hips-image-services/hips2fits>`_ offers a way
 to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combines individual images in
 order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the
 `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
@@ -17,16 +17,16 @@ order to produce a progressive hierarchical sky map describing the whole survey.
 Given an astropy user-defined WCS with a HiPS name,
 hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
 
-See the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_. It is also
+See the list of valid HiPS names hosted in CDS `here <https://aladin.cds.unistra.fr/hips/list>`_. It is also
 possible to use :meth:`astroquery.mocserver.MOCServerClass.find_datasets` to retrieve the list of HiPSes matching an expression
 (e.g. \*HST\* will return the names of the HST surveys HiPSes).
 
 This package implements two methods:
 
 * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
-    See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+    See `here <https://aladin.cds.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
-    See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+    See `here <https://aladin.cds.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
 
 Examples
@@ -108,4 +108,4 @@ Reference/API
     :no-inheritance-diagram:
 
 
-.. _hips2fits: http://alasky.u-strasbg.fr/hips-image-services/hips2fits
+.. _hips2fits: https://alasky.cds.unistra.fr/hips-image-services/hips2fits

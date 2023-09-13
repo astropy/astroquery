@@ -31,12 +31,12 @@ Different ways to access Simbad
 
 The Simbad tool described here provides a number of convenient methods that
 internally creates a `script query
-<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ to the Simbad server, which
-is also how the `Simbad web interface <http://simbad.u-strasbg.fr/simbad/>`__
+<https://simbad.unistra.fr/simbad/sim-fscript>`__ to the Simbad server, which
+is also how the `Simbad web interface <https://simbad.cds.unistra.fr/simbad/>`__
 operates.
 
 Simbad provides another way to access its database via `TAP
-Service <http://simbad.u-strasbg.fr/simbad/sim-tap>`__. This may be better
+Service <https://simbad.cds.unistra.fr/simbad/sim-tap/>`__. This may be better
 suited for some usage. If you need a python client for TAP Services,
 check out `pyvo <https://pyvo.readthedocs.io/en/latest/>`__.
 
@@ -705,7 +705,7 @@ Specifying the format of the included VOTable fields
 The output for several of the VOTable fields can be formatted in many
 different ways described in the help page of the SIMBAD query interface (see
 Sect. 4.3 of `this page
-<http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript>`__). As an
+<https://simbad.cds.unistra.fr/guide/sim-fscript.htx>`__). As an
 example, the epoch and equinox for the Right Ascension and Declination can
 be specified as follows (e.g. epoch of J2017.5 and equinox of 2000):
 
@@ -728,4 +728,4 @@ Reference/API
 .. automodapi:: astroquery.simbad
     :no-inheritance-diagram:
 
-.. _criteria interface: http://simbad.u-strasbg.fr/simbad/sim-fsam
+.. _criteria interface: https://simbad.cds.unistra.fr/simbad/sim-fsam

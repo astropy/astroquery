@@ -200,4 +200,4 @@ Reference/API
 .. automodapi:: astroquery.casda
     :no-inheritance-diagram:
 
-.. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
+.. _IAU format: https://cds.unistra.fr/Dic/iau-spec.html.
