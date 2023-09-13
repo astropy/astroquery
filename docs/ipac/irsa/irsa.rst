@@ -161,7 +161,7 @@ is an ra, dec pair expressed in degrees:
      10.005549  10.018401    0.16    0.14 ...   1443005    91 4805087784811171840
 
 Selecting Columns
---------------------
+-----------------
 
 The IRSA service allows to query either a subset of the default columns for
 a given table, or additional columns that are not present by default. This
@@ -188,27 +188,36 @@ https://irsa.ipac.caltech.edu/holdings/catalogs.html. The "Long Form" button
 at the top of the column names table must be clicked to access a full list
 of all available columns.
 
+Direct TAP query to the IRSA server
+-----------------------------------
 
-Changing the precision of ascii output
---------------------------------------
-
-The precision of the table display of each column is set upstream by the archive,
-and appears as the ``.format`` attribute of individual columns. This attribute affects
-not only the display of columns, but also the precision that is output when the table
-is written in ``ascii.ipac`` or ``ascii.csv`` formats. The ``.format`` attribute of
-individual columns may be set to increase the precision.
+The `~astroquery.ipac.irsa.IrsaClass.query_tap` method allows for a rich variety of queries. ADQL queries
+provided via the ``query`` parameter is sent directly to the IRSA TAP server, and the result is
+returned as a `~pyvo.dal.TAPResults` object. Its ``to_table`` or ``to_qtable`` method convert the result to a
+`~astropy.table.Table` or `~astropy.table.QTable` object.
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", columns="ra,dec,w1mpro")
-    >>> table['ra'].format = '{:10.6f}'
-    >>> table['dec'].format = '{:10.6f}'
-    >>> print(table)
-        ra        dec       w1mpro
-       deg        deg        mag
-    ---------- ----------  -------
-      0.040791 -35.960260    4.837
+    >>> query = ("SELECT TOP 10 ra,dec,j_m,j_msigcom,h_m,h_msigcom,k_m,k_msigcom,ph_qual,cc_flg "
+    ...          "FROM fp_psc WHERE CONTAINS(POINT('ICRS',ra, dec), CIRCLE('ICRS',202.48417,47.23056,0.4))=1")
+    >>> results = Irsa.query_tap(query=query).to_qtable()  # doctest: +IGNORE_WARNINGS
+    >>> results
+    <QTable length=10>
+        ra        dec       j_m   j_msigcom ...   k_m   k_msigcom ph_qual cc_flg
+       deg        deg       mag      mag    ...   mag      mag
+     float64    float64   float32  float32  ... float32  float32   object object
+    ---------- ---------- ------- --------- ... ------- --------- ------- ------
+    202.900750  46.961285  16.168     0.096 ...  15.180     0.158     ABC    000
+    202.951614  47.024986  15.773     0.072 ...  15.541     0.234     ABD    000
+    202.922589  47.024452  14.628     0.032 ...  14.036     0.059     AAA    000
+    202.911833  47.011093  13.948     0.025 ...  13.318     0.036     AAA    000
+    202.925932  47.004223  16.461     0.131 ...  17.007       ———     BCU    000
+    202.515450  46.929302  15.967     0.088 ...  15.077     0.140     AAB    000
+    202.532240  46.931587  16.575     0.145 ...  15.888       ———     BDU    000
+    202.607930  46.932255  16.658     0.147 ...  15.430     0.193     BUC    000
+    202.823902  47.011593  16.555     0.143 ...  16.136       ———     BBU    000
+    202.809023  46.964558  15.874     0.081 ...  15.322     0.188     AAC    000
 
 
 Other Configurations
