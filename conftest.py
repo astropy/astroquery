@@ -1,7 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import numpy as np
+from astropy.utils import minversion
+
 from pytest_astropy_header.display import (PYTEST_HEADER_MODULES,
                                            TESTED_VERSIONS)
+
+
+# Keep this until we require numpy to be >=2.0
+if minversion(np, "2.0.0.dev0+git20230726"):
+    np.set_printoptions(legacy="1.25")
 
 
 def pytest_configure(config):
