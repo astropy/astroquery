@@ -106,29 +106,6 @@ object or a string resolvable by the `~astropy.coordinates.SkyCoord` constructor
      10.663245  41.240646    0.24    0.21 ...   1590591    33 4805203679649555456
     Length = 774 rows
 
-
-Performing a box search
------------------------
-
-The box queries have a syntax similar to the cone queries. In this case the
-``spatial`` keyword argument must be set to ``Box``. Also the width of the box
-region is required. The width may be specified in the same way as the radius
-for cone search queries, above - so it may be set using the appropriate
-`~astropy.units.Quantity` object or a string parsable by `~astropy.coordinates.Angle`.
-
-.. doctest-remote-data::
-
-    >>> from astroquery.ipac.irsa import Irsa
-    >>> import astropy.units as u
-    >>> table = Irsa.query_region("00h42m44.330s +41d16m07.50s",
-    ...                           catalog='fp_psc', spatial='Box',
-    ...                           width=5 * u.arcsec)
-    >>> print(table)
-        ra        dec         clon         clat     ... ext_key  j_h   h_k   j_k
-       deg        deg                               ...
-    ---------- ---------- ------------ ------------ ... ------- ----- ----- -----
-     10.684737  41.269035 00h42m44.34s 41d16m08.53s ...      -- 0.785 0.193 0.978
-
 Queries over a polygon
 ----------------------
 
