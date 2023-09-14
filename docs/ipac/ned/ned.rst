@@ -237,7 +237,7 @@ for the specified object. We look at a simple example:
 
     >>> from astroquery.ipac.ned import Ned
     >>> result_table = Ned.get_table("3C 273", table='positions')
-    >>> print(result_table)
+    >>> print(result_table)  # doctest: +IGNORE_OUTPUT
     No.       RA       ... Published Frequence Mode         Qualifiers
                        ...
     --- -------------- ... ------------------------ -------------------------

@@ -166,7 +166,7 @@ class LamdaClass(BaseQuery):
             # assume this URL does not contain data b/c it does not exist
             return []
 
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(response.content, features="html5lib")
 
         links = soup.find_all('a', href=True)
 
