@@ -397,44 +397,31 @@ class GaiaClass(TapPlus):
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
-            widthQuantity = self.__getQuantityInput(width, "width")
-            heightQuantity = self.__getQuantityInput(height, "height")
-            widthDeg = widthQuantity.to(units.deg)
-            heightDeg = heightQuantity.to(units.deg)
 
-            if columns:
-                columns = ','.join(map(str, columns))
-            else:
-                columns = "*"
-
-            query = """
+            query = f"""
                     SELECT
-                      {row_limit}
+                      {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
                       DISTANCE(
-                        POINT('ICRS', {ra_column}, {dec_column}),
+                        POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
                         POINT('ICRS', {ra}, {dec})
                       ) as dist,
-                      {columns}
+                      {",".join(columns) or "*"}
                     FROM
-                      {table_name}
+                      {self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
                     WHERE
                       1 = CONTAINS(
-                        POINT('ICRS', {ra_column}, {dec_column}),
+                        POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
                         BOX(
                           'ICRS',
                           {ra},
                           {dec},
-                          {width},
-                          {height}
+                          {self.__getQuantityInput(width, "width").to_value(u.deg)},
+                          {self.__getQuantityInput(height, "height").to_value(u.deg)}
                         )
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                                  'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
-                                  'ra': ra, 'dec': dec,
-                                  'width': widthDeg.value, 'height': heightDeg.value})
+                    """
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -548,33 +535,24 @@ class GaiaClass(TapPlus):
         if radius is not None:
             radiusDeg = Angle(self.__getQuantityInput(radius, "radius")).to_value(u.deg)
 
-        if columns:
-            columns = ','.join(map(str, columns))
-        else:
-            columns = "*"
-
-        query = """
+        query = f"""
                 SELECT
-                  {row_limit}
-                  {columns},
+                  {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
+                  {",".join(columns) or "*"},
                   DISTANCE(
-                    POINT('ICRS', {ra_column}, {dec_column}),
+                    POINT('ICRS', {ra_column_name}, {dec_column_name}),
                     POINT('ICRS', {ra}, {dec})
                   ) AS dist
                 FROM
-                  {table_name}
+                  {table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
                 WHERE
                   1 = CONTAINS(
-                    POINT('ICRS', {ra_column}, {dec_column}),
-                    CIRCLE('ICRS', {ra}, {dec}, {radius})
+                    POINT('ICRS', {ra_column_name}, {dec_column_name}),
+                    CIRCLE('ICRS', {ra}, {dec}, {radiusDeg})
                   )
                 ORDER BY
                   dist ASC
-                """.format(**{'ra_column': ra_column_name,
-                              'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                              'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
-                              'radius': radiusDeg,
-                              'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
+                """
 
         if async_job:
             return self.launch_job_async(query=query,
