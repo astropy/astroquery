@@ -18,6 +18,7 @@ import os
 from datetime import datetime
 import shutil
 from collections.abc import Iterable
+from textwrap import dedent
 
 from astropy import units
 from astropy.coordinates import Angle
@@ -398,30 +399,32 @@ class GaiaClass(TapPlus):
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
 
-            query = f"""
-                    SELECT
-                      {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
-                      DISTANCE(
-                        POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
-                        POINT('ICRS', {ra}, {dec})
-                      ) as dist,
-                      {",".join(columns) or "*"}
-                    FROM
-                      {self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
-                    WHERE
-                      1 = CONTAINS(
-                        POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
-                        BOX(
-                          'ICRS',
-                          {ra},
-                          {dec},
-                          {self.__getQuantityInput(width, "width").to_value(u.deg)},
-                          {self.__getQuantityInput(height, "height").to_value(u.deg)}
-                        )
-                      )
-                    ORDER BY
-                      dist ASC
-                    """
+            query = dedent(
+                f"""\
+                SELECT
+                  {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
+                  DISTANCE(
+                    POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
+                    POINT('ICRS', {ra}, {dec})
+                  ) as dist,
+                  {",".join(columns) or "*"}
+                FROM
+                  {self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
+                WHERE
+                  1 = CONTAINS(
+                    POINT('ICRS', {self.MAIN_GAIA_TABLE_RA}, {self.MAIN_GAIA_TABLE_DEC}),
+                    BOX(
+                      'ICRS',
+                      {ra},
+                      {dec},
+                      {self.__getQuantityInput(width, "width").to_value(u.deg)},
+                      {self.__getQuantityInput(height, "height").to_value(u.deg)}
+                    )
+                  )
+                ORDER BY
+                  dist ASC\
+                """
+            )
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -535,25 +538,26 @@ class GaiaClass(TapPlus):
         if radius is not None:
             radiusDeg = Angle(self.__getQuantityInput(radius, "radius")).to_value(u.deg)
 
-        query = f"""
-                SELECT
-                  {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
-                  {",".join(columns) or "*"},
-                  DISTANCE(
-                    POINT('ICRS', {ra_column_name}, {dec_column_name}),
-                    POINT('ICRS', {ra}, {dec})
-                  ) AS dist
-                FROM
-                  {table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
-                WHERE
-                  1 = CONTAINS(
-                    POINT('ICRS', {ra_column_name}, {dec_column_name}),
-                    CIRCLE('ICRS', {ra}, {dec}, {radiusDeg})
-                  )
-                ORDER BY
-                  dist ASC
-                """
-
+        query = dedent(
+            f"""\
+            SELECT
+              {f"TOP {self.ROW_LIMIT}" if self.ROW_LIMIT > 0 else ""}
+              {",".join(columns) or "*"},
+              DISTANCE(
+                POINT('ICRS', {ra_column_name}, {dec_column_name}),
+                POINT('ICRS', {ra}, {dec})
+              ) AS dist
+            FROM
+              {table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE}
+            WHERE
+              1 = CONTAINS(
+                POINT('ICRS', {ra_column_name}, {dec_column_name}),
+                CIRCLE('ICRS', {ra}, {dec}, {radiusDeg})
+              )
+            ORDER BY
+              dist ASC\
+            """
+        )
         if async_job:
             return self.launch_job_async(query=query,
                                          output_file=output_file,
