@@ -358,7 +358,7 @@ asteroid `Victoria <https://en.wikipedia.org/wiki/12_Victoria>`_ as:
     >>> Most.query_object(output_mode="Brief",
     ...                   obj_name="Victoria",
     ...                   obs_begin="2014-05-29",
-    ...                   obs_end="2014-05-30")
+    ...                   obs_end="2014-05-30")  # doctest: +IGNORE_OUTPUT
     <Table length=10>
       ra_obj    dec_obj  sun_dist geo_dist ... moon_sep saa_sep qual_frame image_set
      float64    float64  float64  float64  ... float64  float64   int64      int64
@@ -388,7 +388,7 @@ verbose output modes - ``Regular`` or ``Full``.
     <class 'dict'>
     >>> matched.keys()
     dict_keys(['results', 'metadata', 'region', 'fits_tarball', 'region_tarball'])
-    >>> matched["metadata"]
+    >>> matched["metadata"] # doctest: +IGNORE_OUTPUT
     <Table length=10>
       ra_obj    dec_obj  sun_dist geo_dist ... moon_sep saa_sep qual_frame image_set
      float64    float64  float64  float64  ... float64  float64   int64      int64

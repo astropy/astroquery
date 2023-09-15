@@ -164,7 +164,7 @@ All query tools allow coordinate-based queries:
                         ...           ... ...                 ...              ...
     2MASS J05353573-0525256 05 35 35.7755 ... 2020yCat.1350....0G                1
                V* V2114 Ori 05 35 01.6720 ... 2020yCat.1350....0G                1
-    Length = 3273 rows
+    Length = 3272 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 

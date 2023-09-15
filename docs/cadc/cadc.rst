@@ -30,8 +30,8 @@ these collections:
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
-    BRITE-Constellation : {'Description': 'The BRITE-Constellation collection at the CADC', 'Bands': ['', 'Optical']}
-    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Optical', 'Infrared']}
+    BRITE-Constellation : {'Description': 'The BRITE-Constellation collection at the CADC', 'Bands': ['Optical']}
+    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical|UV|EUV|X-ray|Gamma-ray', 'Infrared|Optical|UV', '', 'Optical', 'Infrared']}
     CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Optical']}
     CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical', 'Infrared']}
     CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
