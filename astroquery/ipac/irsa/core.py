@@ -11,7 +11,15 @@ import warnings
 from astropy.coordinates import SkyCoord, Angle
 from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
+
 from pyvo.dal import TAPService
+
+try:
+    from pyvo.dal.sia2 import SIA2Service
+except ImportError:
+    # Can be removed once min version of pyvo is 1.5
+    from pyvo.dal.sia2 import SIAService as SIA2Service
+
 from astroquery import log
 from astroquery.query import BaseVOQuery
 from astroquery.utils.commons import parse_coordinates
@@ -26,8 +34,16 @@ class IrsaClass(BaseVOQuery):
 
     def __init__(self):
         super().__init__()
+        self.sia_url = conf.sia_url
         self.tap_url = conf.tap_url
+        self._sia = None
         self._tap = None
+
+    @property
+    def sia(self):
+        if not self._sia:
+            self._sia = SIA2Service(baseurl=self.sia_url)
+        return self._sia
 
     @property
     def tap(self):
@@ -59,6 +75,48 @@ class IrsaClass(BaseVOQuery):
         """
         log.debug(f'TAP query: {query}')
         return self.tap.search(query, language='ADQL', maxrec=maxrec)
+
+    def query_sia(self, *, pos=None, band=None, time=None, pol=None,
+                  field_of_view=None, spatial_resolution=None,
+                  spectral_resolving_power=None, exptime=None,
+                  timeres=None, publisher_did=None,
+                  facility=None, collection=None,
+                  instrument=None, data_type=None,
+                  calib_level=None, target_name=None,
+                  res_format=None, maxrec=None,
+                  **kwargs):
+        """
+        Use standard SIA2 attributes to query the IRSA SIA service.
+
+        Parameters
+        ----------
+        _SIA2_PARAMETERS
+
+        Returns
+        -------
+        Results in `pyvo.dal.SIAResults` format.
+        result.table in Astropy table format
+        """
+        return self.sia.search(
+            pos=pos,
+            band=band,
+            time=time,
+            pol=pol,
+            field_of_view=field_of_view,
+            spatial_resolution=spatial_resolution,
+            spectral_resolving_power=spectral_resolving_power,
+            exptime=exptime,
+            timeres=timeres,
+            publisher_did=publisher_did,
+            facility=facility,
+            collection=collection,
+            instrument=instrument,
+            data_type=data_type,
+            calib_level=calib_level,
+            target_name=target_name,
+            res_format=res_format,
+            maxrec=maxrec,
+            **kwargs)
 
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
