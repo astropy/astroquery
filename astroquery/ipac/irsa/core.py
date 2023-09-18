@@ -63,7 +63,7 @@ class IrsaClass(BaseVOQuery):
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, columns=None,
+                     get_query_payload=False, columns='*',
                      verbose=False, cache=True):
         """
         Queries the IRSA TAP server around a coordinate and returns a `~astropy.table.Table` object.
@@ -105,9 +105,6 @@ class IrsaClass(BaseVOQuery):
         """
         if catalog is None:
             raise InvalidQueryError("Catalog name is required!")
-
-        if columns is None:
-            columns = '*'
 
         adql = f'SELECT {columns} FROM {catalog}'
 
