@@ -21,6 +21,8 @@ from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 from astropy.utils import deprecated
 
+import pyvo
+
 from astroquery import version, log, cache_conf
 from astroquery.utils import system_tools
 
@@ -175,6 +177,23 @@ class LoginABCMeta(abc.ABCMeta):
         return newcls
 
 
+class BaseVOQuery:
+    """
+    Bare minimum base query that sets the Session header to include both astroquery and pyvo.
+    Use in modules that rely on PyVO, either on its own or in combination with ``BaseQuery`` (be mindful
+    about resolution order of base classes!).
+    """
+    def __init__(self):
+        super().__init__()
+        self._session = requests.Session()
+        self._session.headers['User-Agent'] = (
+            f"astroquery/{version.version} pyVO/{pyvo.__version__} Python/{platform.python_version()} "
+            f"({platform.system()}) "
+            f"{self._session.headers['User-Agent']}")
+
+        self.name = self.__class__.__name__.split("Class")[0]
+
+
 class BaseQuery(metaclass=LoginABCMeta):
     """
     This is the base class for all the query classes in astroquery. It
@@ -182,11 +201,11 @@ class BaseQuery(metaclass=LoginABCMeta):
     """
 
     def __init__(self):
-        S = self._session = requests.Session()
+        self._session = requests.Session()
         self._session.hooks['response'].append(self._response_hook)
-        S.headers['User-Agent'] = (
+        self._session.headers['User-Agent'] = (
             f"astroquery/{version.version} Python/{platform.python_version()} ({platform.system()}) "
-            f"{S.headers['User-Agent']}")
+            f"{self._session.headers['User-Agent']}")
 
         self.name = self.__class__.__name__.split("Class")[0]
         self._cache_location = None
