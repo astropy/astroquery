@@ -42,7 +42,7 @@ class IrsaClass(BaseVOQuery):
     @property
     def sia(self):
         if not self._sia:
-            self._sia = SIA2Service(baseurl=self.sia_url)
+            self._sia = SIA2Service(baseurl=self.sia_url, session=self._session)
         return self._sia
 
     @property
