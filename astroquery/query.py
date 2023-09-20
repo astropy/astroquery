@@ -27,7 +27,7 @@ from astroquery import version, log, cache_conf
 from astroquery.utils import system_tools
 
 
-__all__ = ['BaseQuery', 'QueryWithLogin']
+__all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
 
 
 def to_cache(response, cache_file):
