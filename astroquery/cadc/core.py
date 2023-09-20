@@ -17,7 +17,7 @@ from urllib.error import HTTPError
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
-from ..query import BaseQuery
+from ..query import BaseQuery, BaseVOQuery
 from bs4 import BeautifulSoup
 from astropy import units as u
 from astropy.coordinates import Angle
@@ -37,7 +37,7 @@ warnings.filterwarnings('ignore', module='astropy.io.votable')
 
 
 @async_to_sync
-class CadcClass(BaseQuery):
+class CadcClass(BaseVOQuery, BaseQuery):
     """
     Class for accessing CADC data. Typical usage:
 
