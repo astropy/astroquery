@@ -9,7 +9,7 @@ import pytest
 import os
 import requests
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy import units as u
@@ -99,7 +99,7 @@ class TestCadcClass:
         assert 1000 < result[0][0]
 
         # test that no proprietary results are returned when not logged in
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
         result = cadc.exec_sync(query)
@@ -121,7 +121,7 @@ class TestCadcClass:
         for auth_session in [None, authsession.AuthSession(),
                              requests.Session()]:
             cadc = Cadc(auth_session=auth_session)
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             query = \
                 "select top 1 * from caom2.Plane where metaRelease>'{}'".\
                 format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
@@ -152,7 +152,7 @@ class TestCadcClass:
     def test_login_with_cert(self):
         for auth_session in [requests.Session()]:
             cadc = Cadc(auth_session=auth_session)
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             query = \
                 "select top 1 * from caom2.Plane where metaRelease>'{}'".\
                 format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
@@ -181,14 +181,14 @@ class TestCadcClass:
         auth_session = requests.Session()
         auth_session.cert = os.environ['CADC_CERT']
         cadc = Cadc(auth_session=auth_session)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
         result = cadc.exec_sync(query)
         assert len(result) == 1
         annon_session = requests.Session()
         cadc = Cadc(auth_session=annon_session)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
         result = cadc.exec_sync(query)

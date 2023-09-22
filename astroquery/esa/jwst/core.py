@@ -15,7 +15,7 @@ import os
 import shutil
 import tarfile
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 from astropy import log
@@ -1050,7 +1050,7 @@ class JwstClass(BaseQuery):
 
     def __set_dirs(self, output_file, observation_id):
         if output_file is None:
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
             formatted_now = now.strftime("%Y%m%d_%H%M%S")
             output_dir = os.getcwd() + os.sep + "temp_" + \
                 formatted_now

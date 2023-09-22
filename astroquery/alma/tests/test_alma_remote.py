@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 from urllib.parse import urlparse
@@ -139,7 +139,7 @@ class TestAlma:
         # public
         assert not alma.is_proprietary('uid://A001/X12a3/Xe9')
         IVOA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
-        now = datetime.utcnow().strftime(IVOA_DATE_FORMAT)[:-3]
+        now = datetime.now(timezone.utc).strftime(IVOA_DATE_FORMAT)[:-3]
         query = "select top 1 member_ous_uid from ivoa.obscore where " \
                 "obs_release_date > '{}'".format(now)
         result = alma.query_tap(query)

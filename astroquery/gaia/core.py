@@ -15,7 +15,7 @@ Modified on 18 Ene. 2022 by mhsarmiento
 """
 import zipfile
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import shutil
 from collections.abc import Iterable
 
@@ -221,7 +221,7 @@ class GaiaClass(TapPlus):
         -------
         A table object
         """
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
         temp_dirname = "temp_" + now_formatted
         downloadname_formated = "download_" + now_formatted
