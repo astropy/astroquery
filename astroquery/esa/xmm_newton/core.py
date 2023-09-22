@@ -29,6 +29,12 @@ from ...query import BaseQuery, QueryWithLogin
 __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
+if hasattr(tarfile, "fully_trusted_filter"):
+    tarfile.TarFile.extraction_filter = staticmethod(tarfile.fully_trusted_filter)
+
+
 class XMMNewtonClass(BaseQuery):
     data_url = conf.DATA_ACTION
     data_aio_url = conf.DATA_ACTION_AIO

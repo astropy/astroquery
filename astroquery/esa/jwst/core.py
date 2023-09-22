@@ -39,6 +39,12 @@ from .data_access import JwstDataHandler
 __all__ = ['Jwst', 'JwstClass']
 
 
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
+if hasattr(tarfile, "fully_trusted_filter"):
+    tarfile.TarFile.extraction_filter = staticmethod(tarfile.fully_trusted_filter)
+
+
 class JwstClass(BaseQuery):
 
     """
