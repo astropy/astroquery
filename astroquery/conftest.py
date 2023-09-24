@@ -47,14 +47,8 @@ from . import version
 version.version += '_testrun'
 
 
-# This is to figure out the affiliated package version, rather than
-# using Astropy's
-from .version import version, astropy_helpers_version
-
-
 packagename = os.path.basename(os.path.dirname(__file__))
 TESTED_VERSIONS[packagename] = version
-TESTED_VERSIONS['astropy_helpers'] = astropy_helpers_version
 
 
 def pytest_addoption(parser):
