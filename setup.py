@@ -1,23 +1,65 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os
+# NOTE: The configuration for the package, including the name, version, and
+# other information are set in the setup.cfg file.
+
 import sys
 
-# Workaround for https://github.com/pypa/pip/issues/6163
-sys.path.insert(0, os.path.dirname(__file__))
+from setuptools import setup
 
-import ah_bootstrap
 
-import builtins
+# First provide helpful messages if contributors try and run legacy commands
+# for tests or docs.
 
-builtins._ASTROPY_SETUP_ = True
+TEST_HELP = """
+Note: running tests is no longer done using 'python setup.py test'. Instead
+you will need to run:
 
-from astropy_helpers.setup_helpers import setup
+    tox -e test
 
-# Read the contents of the README file
-from pathlib import Path
-this_directory = Path(__file__).parent
-long_description = (this_directory / "README.rst").read_text()
+If you don't already have tox installed, you can install it with:
 
-setup(long_description=long_description, long_description_content_type='text/x-rst')
+    pip install tox
+
+If you only want to run part of the test suite, you can also use pytest
+directly with::
+
+    pip install -e .[test]
+    pytest
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/development/testguide.html#running-tests
+"""
+
+if 'test' in sys.argv:
+    print(TEST_HELP)
+    sys.exit(1)
+
+DOCS_HELP = """
+Note: building the documentation is no longer done using
+'python setup.py build_docs'. Instead you will need to run:
+
+    tox -e build_docs
+
+If you don't already have tox installed, you can install it with:
+
+    pip install tox
+
+You can also build the documentation with Sphinx directly using::
+
+    pip install -e .[docs]
+    cd docs
+    make html
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/install.html#builddocs
+"""
+
+if 'build_docs' in sys.argv or 'build_sphinx' in sys.argv:
+    print(DOCS_HELP)
+    sys.exit(1)
+
+setup()

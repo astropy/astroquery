@@ -1,12 +1,189 @@
-# astroquery still uses astropy-helpers
-# but we include pyproject.toml here so that python -m build can
-# work out of the box. In setup.py, we manually ensure that
-# astropy_helpers can be imported as an additional build time
-# dependency.
+[project]
+name = astroquery
+dynamic = ["version"]
+description = Functions and classes to access online astronomical data resources
+readme = "README.rst"
+authors = [
+    { name = "The Astroquery Developers"}
+]
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.7"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: C",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+keywords = [
+    "astronomy",
+    "astrophysics",
+    "cosmology",
+    "space",
+    "science",
+    "units",
+    "table",
+    "wcs",
+    "samp",
+    "coordinate",
+    "fits",
+    "modeling",
+    "models",
+    "fitting",
+    "ascii",
+]
+dependencies = [
+   numpy>="1.18",
+   astropy>="4.2.1",
+   requests>="2.19",
+   beautifulsoup4>="4.8",
+   html5lib>="0.999",
+   keyring>="15.0",
+   pyvo>="1.1",
+]
+
+[project.urls]
+homepage = "http://astropy.org/astroquery"
+documentation = "http://astroquery.readthedocs.io/"
+repository = "https://github.com/astropy/astroquery"
+
+[project.optional-dependencies]
+test = [
+   pytest-doctestplus>="0.13",
+   pytest-astropy,
+   matplotlib,
+   pytest-dependency,
+   pytest-rerunfailures,
+]
+docs = [
+   matplotlib,
+   sphinx-astropy>="1.5",
+   scipy,
+]
+all = [
+   mocpy>="0.9",
+   astropy-healpix,
+   boto3,
+   regions,
+]
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = 'setuptools.build_meta'
+requires = ["setuptools",
+            "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+license-files = ["LICENSE.rst", "licenses/*.rst"]
+
+[tool.setuptools.packages.find]
+include = ["astroquery*"]
+namespaces = false
+
+[tool.setuptools_scm]
+write_to = "astroquery/_version.py"
+
+[tool.pytest.ini_options]
+minversion = 6.0
+norecursedirs = [
+  "build",
+  "docs/_build",
+  "astroquery/irsa",
+  "astroquery/nasa_exoplanet_archive",
+  "astroquery/ned",
+  "astroquery/ibe",
+  "astroquery/irsa_dust",
+  "astroquery/cds",
+  "astroquery/sha"
+]
+testpaths = [
+  "astroquery",
+  "docs"
+]
+doctest_plus = "enabled"
+astropy_header = true
+text_file_format = "rst"
+xfail_strict = true
+remote_data_strict = true
+addopts = "--color=yes --doctest-rst --doctest-continue-on-failure"
+filterwarnings = [
+    "error",
+    #   These are temporary measures, all of these should be fixed:
+    #   -----------------------------------------------------------
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    # Remove along with astropy-helpers, once we switch to a new versioning scheme
+    "ignore:Use setlocale:DeprecationWarning",
+    # Upstream issues in many packages, not clear whether we can do anything about these in astroquery
+    "ignore:unclosed <socket.socket:ResourceWarning",
+    "ignore:unclosed <ssl.SSLSocket:ResourceWarning",
+    # Various VO warnings from vo_conesearch
+    "ignore::astropy.io.votable.exceptions.W21",
+    "ignore::astropy.io.votable.exceptions.W42",
+    # utils.commons.FileContainer needs a refactor
+    "ignore:FITS files must be read as binaries:astroquery.exceptions.InputWarning1",
+    # utils.commons.parse_coordinates, we should remove its usage:
+    "ignore:Coordinate string is being interpreted as an ICRS coordinate:astroquery.exceptions.InputWarning",
+    "ignore:Coordinate string is being interpreted as an ICRS coordinate:UserWarning",
+    # To be removed with a fix for https://github.com/astropy/astroquery/issues/2242
+    "ignore::astropy.io.votable.exceptions.E02",
+    # Warnings from yet to be refactored or to be removed modules
+    "ignore:Experimental. ALFALFA:UserWarning",
+    "ignore:Experimental. Fermi-LAT:UserWarning",
+    "ignore:Experimental. SHA:UserWarning",
+    "ignore:Experimental. OGLE:UserWarning:",
+    # Warnings from deprecated or known-to-be-broken modules. They have to be listed to make test collection work,
+    # Can be removed once the modules are removed.
+    "ignore:vamdclib could not be imported; the vamdc astroquery module will not work:UserWarning",
+    "ignore:the vamdc astroquery module:astropy.utils.exceptions.AstropyDeprecationWarning",
+    # exoplanet_orbit_database
+    "ignore:due to the retirement of its upstream website:astropy.utils.exceptions.AstropyDeprecationWarning",
+    # Leap second update related warning
+    "ignore:leap-second auto-update failed:astropy.utils.exceptions.AstropyWarning",
+    # Should ignore these for astropy<5.0
+    "ignore:getName|currentThread:DeprecationWarning:astropy"
+]
+markers = [
+    "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
+    "noautofixt: disabling fixture autouse"
+]
+
+[tool.pycodestyle]
+ignore = "E402"
+exclude = [
+  "_astropy_init.py",
+  "version.py"
+]
+
+[tool.flake8]
+max-line-length = 120
+ignore = [
+  "E226",
+  "E402",
+  "W503"
+]
+exclude = [
+  "_astropy_init.py",
+  "version.py",
+  "astroquery/template_module"
+]
+
+[tool.coverage]
+    [tool.coverage.run]
+    omit = [
+        "astroquery/*_init*",
+        "astroquery/**/tests/*",
+        "astroquery/*setup*",
+        "astroquery/version*",
+        "*/astroquery/*_init*",
+        "*/astroquery/**/tests/*",
+        "*/astroquery/*setup*",
+        "*/astroquery/version*"
+    ]
+
 
 [tool.black]
 force-exclude = '''
