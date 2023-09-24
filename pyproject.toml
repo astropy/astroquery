@@ -22,19 +22,8 @@ classifiers = [
 keywords = [
     "astronomy",
     "astrophysics",
-    "cosmology",
     "space",
     "science",
-    "units",
-    "table",
-    "wcs",
-    "samp",
-    "coordinate",
-    "fits",
-    "modeling",
-    "models",
-    "fitting",
-    "ascii",
 ]
 dependencies = [
    "numpy>=1.18",
@@ -144,7 +133,10 @@ filterwarnings = [
     # Leap second update related warning
     "ignore:leap-second auto-update failed:astropy.utils.exceptions.AstropyWarning",
     # Should ignore these for astropy<5.0
-    "ignore:getName|currentThread:DeprecationWarning:astropy"
+    "ignore:getName|currentThread:DeprecationWarning:astropy",
+    # Numpy and Astropy Table incompatibility
+    'ignore:numpy.ufunc size changed:RuntimeWarning',
+    'ignore:numpy.ndarray size changed:RuntimeWarning',
 ]
 markers = [
     "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
