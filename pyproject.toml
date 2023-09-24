@@ -85,7 +85,7 @@ include = ["astroquery*"]
 namespaces = false
 
 [tool.setuptools_scm]
-write_to = "astroquery/_version.py"
+write_to = "astroquery/version.py"
 
 [tool.pytest.ini_options]
 minversion = 6.0
