@@ -124,7 +124,7 @@ filterwarnings = [
     "ignore::astropy.io.votable.exceptions.W21",
     "ignore::astropy.io.votable.exceptions.W42",
     # utils.commons.FileContainer needs a refactor
-    "ignore:FITS files must be read as binaries:astroquery.exceptions.InputWarning1",
+    "ignore:FITS files must be read as binaries:astroquery.exceptions.InputWarning",
     # utils.commons.parse_coordinates, we should remove its usage:
     "ignore:Coordinate string is being interpreted as an ICRS coordinate:astroquery.exceptions.InputWarning",
     "ignore:Coordinate string is being interpreted as an ICRS coordinate:UserWarning",
