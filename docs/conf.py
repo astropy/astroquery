@@ -78,7 +78,7 @@ intersphinx_mapping.update({
 project = setup_cfg['name']
 author = setup_cfg['author']
 copyright = '{0}, {1}'.format(
-    datetime.datetime.now(datetime.UTC).year, setup_cfg['author'])
+    datetime.datetime.now(datetime.timezone.utc).year, setup_cfg['author'])
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
