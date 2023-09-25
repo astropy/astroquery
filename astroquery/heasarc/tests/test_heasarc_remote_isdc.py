@@ -176,7 +176,7 @@ class TestHeasarcISDC:
         assert 'GOOD_ISGRI' in cols
         assert 'RA_X' in cols
         assert 'DEC_X' in cols
-        assert '_SEARCH_OFFSET' in cols
+        assert 'SEARCH_OFFSET_' in cols
 
     def test_query_object_async(self):
         mission = 'integral_rev3_scw'
