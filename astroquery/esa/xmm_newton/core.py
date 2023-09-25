@@ -11,7 +11,7 @@ European Space Agency (ESA)
 import re
 import shutil
 from pathlib import Path
-import tarfile
+import tarfile as esatar
 import os
 import configparser
 from email.message import Message
@@ -31,8 +31,8 @@ __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 # We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
 # https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
-if hasattr(tarfile, "fully_trusted_filter"):
-    tarfile.TarFile.extraction_filter = staticmethod(tarfile.fully_trusted_filter)
+if hasattr(esatar, "fully_trusted_filter"):
+    esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
 class XMMNewtonClass(BaseQuery):
@@ -412,7 +412,7 @@ class XMMNewtonClass(BaseQuery):
         if path != "" and os.path.exists(path):
             _path = path
         try:
-            with tarfile.open(filename, "r") as tar:
+            with esatar.open(filename, "r") as tar:
                 ret = {}
                 for member in tar.getmembers():
                     paths = os.path.split(member.name)
@@ -558,7 +558,7 @@ class XMMNewtonClass(BaseQuery):
                     log.warning("Invalid instrument %s" % inst)
                     instrument.remove(inst)
         try:
-            with tarfile.open(filename, "r") as tar:
+            with esatar.open(filename, "r") as tar:
                 ret = {}
                 for member in tar.getmembers():
                     paths = os.path.split(member.name)
@@ -734,7 +734,7 @@ class XMMNewtonClass(BaseQuery):
             _path = path
 
         try:
-            with tarfile.open(filename, "r") as tar:
+            with esatar.open(filename, "r") as tar:
                 ret = {}
                 for member in tar.getmembers():
                     paths = os.path.split(member.name)
