@@ -670,7 +670,7 @@ class JwstClass(BaseQuery):
         subContext = conf.JWST_TOKEN
         data = urlencode({"token": token})
         connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        response = connHandler.execute_secure(subContext, data, True)
+        response = connHandler.execute_secure(subcontext=subContext, data=data, verbose=True)
         if response.status == 403:
             print("ERROR: MAST tokens cannot be assigned or requested by anonymous users")
         elif response.status == 500:
@@ -690,7 +690,7 @@ class JwstClass(BaseQuery):
             if response.status == 200:
                 for line in response:
                     string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=')+1:])
+                    print(string_message[string_message.index('=') + 1:])
         except OSError:
             print("Status messages could not be retrieved")
 
@@ -725,7 +725,7 @@ class JwstClass(BaseQuery):
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
-        if (cal_level == 3 and cal_level > max_cal_level):
+        if cal_level == 3 and cal_level > max_cal_level:
             raise ValueError("Requesting upper levels is not allowed")
         list = self._get_associated_planes(plane_ids=plane_ids,
                                            cal_level=cal_level,
@@ -778,7 +778,7 @@ class JwstClass(BaseQuery):
             job.get_results().reverse()
             max_cal_level = job.get_results()["calibrationlevel"][0]
             for row in job.get_results():
-                if (row["calibrationlevel"] == max_cal_level):
+                if row["calibrationlevel"] == max_cal_level:
                     planeids.append(
                         JwstClass.get_decoded_string(row["planeid"]))
             return planeids, max_cal_level
@@ -898,8 +898,7 @@ class JwstClass(BaseQuery):
                 output_file_name = self._query_get_product(artifact_id=artifact_id)
                 err_msg = str(artifact_id)
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for artifact_id '
-                                 + artifact_id + ': %s' % str(exx))
+                raise ValueError(f"Cannot retrieve product for artifact_id {artifact_id}: {exx}")
         else:
             output_file_name = str(file_name)
             err_msg = str(file_name)
@@ -911,16 +910,14 @@ class JwstClass(BaseQuery):
                 params_dict['ARTIFACTID'] = (self._query_get_product(
                                              file_name=file_name))
             except Exception as exx:
-                raise ValueError('Cannot retrieve product for file_name '
-                                 + file_name + ': %s' % str(exx))
+                raise ValueError(f"Cannot retrieve product for file_name {file_name}: {exx}")
 
         try:
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_name)
         except Exception as exx:
             log.info("error")
-            raise ValueError('Error retrieving product for '
-                             + err_msg + ': %s' % str(exx))
+            raise ValueError(f"Error retrieving product for {err_msg}: {exx}")
         return output_file_name
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
@@ -1002,8 +999,7 @@ class JwstClass(BaseQuery):
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_full_path)
         except Exception as exx:
-            raise ValueError('Cannot retrieve products for observation '
-                             + observation_id + ': %s' % str(exx))
+            raise ValueError(f"Cannot retrieve products for observation {observation_id}: {exx}")
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path,
@@ -1066,8 +1062,7 @@ class JwstClass(BaseQuery):
         try:
             os.makedirs(output_dir, exist_ok=True)
         except OSError as err:
-            raise OSError("Creation of the directory %s failed: %s"
-                          % (output_dir, err.strerror))
+            raise OSError(f"Creation of the directory {output_dir} failed: {err.strerror}")
         return output_file_full_path, output_dir
 
     def __set_additional_parameters(self, param_dict, cal_level,
@@ -1086,10 +1081,9 @@ class JwstClass(BaseQuery):
 
     def __get_quantity_input(self, value, msg):
         if value is None:
-            raise ValueError("Missing required argument: '"+str(msg)+"'")
+            raise ValueError(f"Missing required argument: '{msg}'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or units.Quantity")
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -1099,8 +1093,7 @@ class JwstClass(BaseQuery):
     def __get_coord_input(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
@@ -1113,7 +1106,7 @@ class JwstClass(BaseQuery):
             if (not isinstance(value, str)):
                 raise ValueError("observation_id must be string")
             else:
-                condition = " AND observationid LIKE '"+value.lower()+"' "
+                condition = f" AND observationid LIKE '{value.lower()}' "
         return condition
 
     def __get_callevel_condition(self, cal_level):
@@ -1122,8 +1115,7 @@ class JwstClass(BaseQuery):
             if (isinstance(cal_level, str) and cal_level == 'Top'):
                 condition = " AND max_cal_level=calibrationlevel "
             elif (isinstance(cal_level, int)):
-                condition = " AND calibrationlevel=" +\
-                    str(cal_level)+" "
+                condition = f" AND calibrationlevel={str(cal_level)} "
             else:
                 raise ValueError("cal_level must be either "
                                  "'Top' or an integer")
@@ -1139,15 +1131,13 @@ class JwstClass(BaseQuery):
 
     def __get_plane_dataproducttype_condition(self, *, prod_type=None):
         condition = ""
-        if (prod_type is not None):
-            if (not isinstance(prod_type, str)):
+        if prod_type is not None:
+            if not isinstance(prod_type, str):
                 raise ValueError("prod_type must be string")
-            elif (str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
-                raise ValueError("prod_type must be one of: "
-                                 + str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
+            elif str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES:
+                raise ValueError("prod_type must be one of: {str(', '.join(self.PLANE_DATAPRODUCT_TYPES))}")
             else:
-                condition = " AND dataproducttype ILIKE '%"+prod_type.lower() + \
-                    "%' "
+                condition = f" AND dataproducttype ILIKE '%{prod_type.lower()}%' "
         return condition
 
     def __get_instrument_name_condition(self, *, value=None):
@@ -1156,10 +1146,9 @@ class JwstClass(BaseQuery):
             if (not isinstance(value, str)):
                 raise ValueError("instrument_name must be string")
             elif (str(value).upper() not in self.INSTRUMENT_NAMES):
-                raise ValueError("instrument_name must be one of: "
-                                 + str(', '.join(self.INSTRUMENT_NAMES)))
+                raise ValueError(f"instrument_name must be one of: {str(', '.join(self.INSTRUMENT_NAMES))}")
             else:
-                condition = " AND instrument_name ILIKE '%"+value.upper()+"%' "
+                condition = f" AND instrument_name ILIKE '%{value.upper()}%' "
         return condition
 
     def __get_filter_name_condition(self, *, value=None):
@@ -1169,7 +1158,7 @@ class JwstClass(BaseQuery):
                 raise ValueError("filter_name must be string")
 
             else:
-                condition = " AND energy_bandpassname ILIKE '%"+value+"%' "
+                condition = f" AND energy_bandpassname ILIKE '%{value}%' "
         return condition
 
     def __get_proposal_id_condition(self, *, value=None):
@@ -1179,7 +1168,7 @@ class JwstClass(BaseQuery):
                 raise ValueError("proposal_id must be string")
 
             else:
-                condition = " AND proposal_id ILIKE '%"+value+"%' "
+                condition = f" AND proposal_id ILIKE '%{value}%' "
         return condition
 
     def __get_artifact_producttype_condition(self, *, product_type=None):
@@ -1188,10 +1177,9 @@ class JwstClass(BaseQuery):
             if (not isinstance(product_type, str)):
                 raise ValueError("product_type must be string")
             elif (product_type not in self.ARTIFACT_PRODUCT_TYPES):
-                raise ValueError("product_type must be one of: "
-                                 + str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
+                raise ValueError(f"product_type must be one of: {str(', '.join(self.ARTIFACT_PRODUCT_TYPES))}")
             else:
-                condition = " AND producttype ILIKE '%"+product_type+"%'"
+                condition = f" AND producttype ILIKE '%{product_type}%'"
         return condition
 
     @staticmethod
@@ -1217,7 +1205,7 @@ class JwstClass(BaseQuery):
         os.remove(input_file)
         if file.lower().endswith(".gz"):
             # remove .gz
-            new_file_name = file[:len(file)-3]
+            new_file_name = file[:len(file) - 3]
             output = output_dir + os.sep + new_file_name
         else:
             output = input_file

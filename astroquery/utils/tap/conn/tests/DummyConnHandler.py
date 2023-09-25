@@ -149,3 +149,6 @@ class DummyConnHandler:
                            verbose=False):
         return self.__execute_post(subcontext="TableTool", data=data,
                                    content_type=content_type, verbose=verbose)
+
+    def execute_secure(self, subcontext=None, data=None, verbose=False):
+        return self.__execute_post(subcontext=subcontext, data=data, verbose=verbose)

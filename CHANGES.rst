@@ -75,6 +75,11 @@ esa.hubble
 - Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [#2597]
 - Added ``proposal`` keyword argument to several methods now allows to filter by Proposal ID. [#2797]
 
+esa.jwt
+^^^^^^^
+
+- Fixes in ``login`` and ``set_token`` methods. [#2807]
+
 alma
 ^^^^
 

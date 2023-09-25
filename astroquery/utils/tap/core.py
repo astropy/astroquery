@@ -1372,7 +1372,7 @@ class TapPlus(Tap):
             "username": usr,
             "password": pwd}
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_secure(subContext, urlencode(args), verbose)
+        response = connHandler.execute_secure(subcontext=subContext, data=urlencode(args), verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1941,7 +1941,7 @@ class TapPlus(Tap):
                 return
         self.__user = str(user)
         self.__pwd = str(password)
-        self.__dologin(verbose)
+        self.__dologin(verbose=verbose)
 
     def login_gui(self, *, verbose=False):
         """Performs a login using a GUI dialog
@@ -1965,7 +1965,7 @@ class TapPlus(Tap):
 
     def __dologin(self, *, verbose=False):
         self.__isLoggedIn = False
-        response = self.__execLogin(self.__user, self.__pwd, verbose)
+        response = self.__execLogin(usr=self.__user, pwd=self.__pwd, verbose=verbose)
         # check response
         connHandler = self.__getconnhandler()
         isError = connHandler.check_launch_response_status(response,

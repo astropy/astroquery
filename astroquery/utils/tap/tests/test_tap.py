@@ -16,6 +16,7 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
 
+import gzip
 import numpy as np
 import pytest
 from requests import HTTPError
@@ -28,7 +29,15 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap import taputils
 
 
-TEST_DATA = {f.name: f.read_text() for f in Path(__file__).with_name("data").iterdir()}
+def read_file(filename):
+    if filename.name.endswith('.gz'):
+        with gzip.open(filename, 'rb') as file:
+            return file.read()
+    else:
+        return filename.read_text()
+
+
+TEST_DATA = {f.name: read_file(f) for f in Path(__file__).with_name("data").iterdir()}
 
 
 def test_load_tables():
@@ -138,6 +147,60 @@ def test_load_table():
 def test_launch_sync_job():
     connHandler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+    responseLaunchJob = DummyResponse(500)
+    responseLaunchJob.set_data(method='POST', body=TEST_DATA["job_1.vot"])
+    query = 'select top 5 * from table'
+    dictTmp = {
+        "REQUEST": "doQuery",
+        "LANG": "ADQL",
+        "FORMAT": "votable",
+        "tapclient": str(tap.tap_client_id),
+        "PHASE": "RUN",
+        "QUERY": quote_plus(query)}
+    sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+    jobRequest = f"sync?{sortedKey}"
+    connHandler.set_response(jobRequest, responseLaunchJob)
+
+    with pytest.raises(Exception):
+        tap.launch_job(query, maxrec=10)
+
+    responseLaunchJob.set_status_code(200)
+
+    job = tap.launch_job(query)
+
+    assert job is not None
+    assert job.async_ is False
+    assert job.get_phase() == 'COMPLETED'
+    assert job.failed is False
+
+    # results
+    results = job.get_results()
+    assert len(results) == 3
+    __check_results_column(results,
+                           'ra',
+                           'ra',
+                           None,
+                           np.float64)
+    __check_results_column(results,
+                           'dec',
+                           'dec',
+                           None,
+                           np.float64)
+    __check_results_column(results,
+                           'source_id',
+                           'source_id',
+                           None,
+                           object)
+    __check_results_column(results,
+                           'table1_oid',
+                           'table1_oid',
+                           None,
+                           np.int32)
+
+
+def test_launch_sync_job_secure():
+    connHandler = DummyConnHandler()
+    tap = TapPlus(url="https://test:1111/tap", connhandler=connHandler)
     responseLaunchJob = DummyResponse(500)
     responseLaunchJob.set_data(method='POST', body=TEST_DATA["job_1.vot"])
     query = 'select top 5 * from table'

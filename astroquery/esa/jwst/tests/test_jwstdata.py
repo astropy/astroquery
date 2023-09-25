@@ -10,6 +10,7 @@ European Space Agency (ESA)
 """
 import os
 import pytest
+from requests import HTTPError
 
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.esa.jwst.core import JwstClass
@@ -57,3 +58,11 @@ class TestData:
         parameters['verbose'] = False
         jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)
+
+
+@pytest.mark.remote_data
+def test_login_error():
+    jwst = JwstClass()
+    with pytest.raises(HTTPError) as err:
+        jwst.login(user="dummy", password="dummy")
+    assert "Unauthorized" in err.value.args[0]

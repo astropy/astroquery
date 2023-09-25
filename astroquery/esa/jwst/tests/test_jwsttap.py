@@ -12,11 +12,14 @@ import os
 import shutil
 from pathlib import Path
 from unittest.mock import MagicMock
+import sys
+import io
 
 import astropy.units as u
 import numpy as np
 import pytest
 from astropy import units
+from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Table
 from astropy.units import Quantity
@@ -234,6 +237,15 @@ class TestTap:
         tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
 
+        with pytest.raises(ValueError) as err:
+            tap.query_region(coordinate=123)
+        assert "coordinate must be either a string or astropy.coordinates" in err.value.args[0]
+
+        with pytest.raises(NameResolveError) as err:
+            tap.query_region(coordinate='test')
+        assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve "
+                "coordinates" in err.value.args[0])
+
         # Launch response: we use default response because the
         # query contains decimals
         responseLaunchJob = DummyResponse(200)
@@ -245,6 +257,11 @@ class TestTap:
         with pytest.raises(ValueError) as err:
             tap.query_region(sc)
         assert "Missing required argument: 'width'" in err.value.args[0]
+
+        width = 123
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width)
+        assert "width must be either a string or units.Quantity" in err.value.args[0]
 
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
@@ -624,10 +641,6 @@ class TestTap:
     def test_get_products_list(self):
         dummyTapHandler = DummyTapHandler()
         jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        with pytest.raises(ValueError) as err:
-            jwst.get_product_list()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
@@ -638,7 +651,7 @@ class TestTap:
                  f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
                  f"FROM {conf.JWST_PLANE_TABLE} p JOIN {conf.JWST_ARTIFACT_TABLE} "
                  f"a ON (p.planeid=a.planeid) WHERE a.planeid "
-                 f"IN {planeids};")
+                 f"IN {planeids} AND producttype ILIKE '%science%';")
 
         parameters = {}
         parameters['query'] = query
@@ -650,8 +663,25 @@ class TestTap:
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
 
-        jwst.get_product_list(observation_id=observation_id)
+        jwst.get_product_list(observation_id=observation_id, product_type='science')
         dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_get_products_list_error(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        observation_id = "jw00777011001_02104_00001_nrcblong"
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list()
+        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list(observation_id=observation_id, product_type=1)
+        assert "product_type must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list(observation_id=observation_id, product_type='test')
+        assert "product_type must be one of" in err.value.args[0]
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
@@ -754,13 +784,17 @@ class TestTap:
         try:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id,
+                              cal_level=1,
                               output_file=output_file_full_path))
+            parameters['params_dict']['calibrationlevel'] = 'LEVEL1ONLY'
             dummyTapHandler.check_call('load_data', parameters)
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
+
+        parameters['params_dict']['calibrationlevel'] = 'ALL'
 
         # Test single file gzip
         output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_4")
@@ -890,8 +924,8 @@ class TestTap:
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target("TEST")
-        assert ("This target name cannot be determined with this resolver: ALL" in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="M1", target_resolver="ALL")
         assert err.value.args[0] in ["This target name cannot be determined "
@@ -913,20 +947,20 @@ class TestTap:
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: NED' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this '
+                'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
         with pytest.raises((ValueError, TableParseError)) as err:
             jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
-                or 'Failed to parse' in err.value.args[0])
+        assert ('This target name cannot be determined with this resolver: '
+                'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()
@@ -966,6 +1000,72 @@ class TestTap:
         parameters['verbose'] = False
         tap.logout()
         dummyTapHandler.check_call('logout', parameters)
+
+    def test_set_token_ok(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(200)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert ('MAST token has been set successfully' in buffer.getvalue())
+
+    def test_set_token_anonymous_error(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(403)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert ('ERROR: MAST tokens cannot be assigned or requested by anonymous users' in buffer.getvalue())
+
+    def test_set_token_server_error(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(500)
+        response.set_data(method='GET', body='OK')
+        token = 'test_token'
+        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.set_token(token=token)
+
+        sys.stdout = old_stdout
+        assert ('ERROR: Server error when setting the token' in buffer.getvalue())
+
+    def test_get_messages_ok(self):
+        old_stdout = sys.stdout  # Memorize the default stdout stream
+        sys.stdout = buffer = io.StringIO()
+
+        connHandler = DummyConnHandler()
+        response = DummyResponse(200)
+        response.set_data(method='GET', body='message=SERVER OK')
+        connHandler.set_response(f"{conf.JWST_MESSAGES}", response)
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        tap.get_status_messages()
+        sys.stdout = old_stdout
+        assert ('SERVER OK' in buffer.getvalue())
 
     @pytest.mark.noautofixt
     def test_query_get_product(self):
