@@ -12,7 +12,6 @@ from .conftest import MockResponse, parametrization_local_save_remote, skycoord_
 @parametrization_local_save_remote
 class TestHeasarcISDC:
 
-
     @pytest.fixture(autouse=True)
     def _patch_get(self, patch_get):
         return patch_get
