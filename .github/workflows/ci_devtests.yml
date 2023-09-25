@@ -32,13 +32,13 @@ jobs:
         include:
           - name: dev dependencies with all dependencies with coverage
             os: ubuntu-latest
-            python: '3.11'
-            toxenv: py311-test-alldeps-devdeps-cov
+            python: '3.12-dev'
+            toxenv: py312-test-alldeps-devdeps-cov
             toxargs: -v
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up Python

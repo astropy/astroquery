@@ -5,7 +5,7 @@ from io import BytesIO
 from collections import namedtuple
 from xml.dom.minidom import parseString
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -625,7 +625,7 @@ class NedClass(BaseQuery):
                 'yes' if kwargs.get('extended_search') else 'no')
             request_payload['begin_year'] = kwargs.get('from_year', 1800)
             request_payload['end_year'] = kwargs.get('to_year',
-                                                     datetime.now().year)
+                                                     datetime.now(timezone.utc).year)
         if get_query_payload:
             return request_payload
         response = self._request("GET", url=Ned.DATA_SEARCH_URL,

@@ -13,9 +13,9 @@ import binascii
 import gzip
 import os
 import shutil
-import tarfile
+import tarfile as esatar
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 from astropy import log
@@ -37,6 +37,12 @@ from .data_access import JwstDataHandler
 
 
 __all__ = ['Jwst', 'JwstClass']
+
+
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
+if hasattr(esatar, "fully_trusted_filter"):
+    esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
 class JwstClass(BaseQuery):
@@ -1037,8 +1043,8 @@ class JwstClass(BaseQuery):
                         files.append(os.path.join(r, file))
 
     def __extract_file(self, output_file_full_path, output_dir, files):
-        if tarfile.is_tarfile(output_file_full_path):
-            with tarfile.open(output_file_full_path) as tar_ref:
+        if esatar.is_tarfile(output_file_full_path):
+            with esatar.open(output_file_full_path) as tar_ref:
                 tar_ref.extractall(path=output_dir)
         elif zipfile.is_zipfile(output_file_full_path):
             with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
@@ -1050,7 +1056,7 @@ class JwstClass(BaseQuery):
 
     def __set_dirs(self, output_file, observation_id):
         if output_file is None:
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
             formatted_now = now.strftime("%Y%m%d_%H%M%S")
             output_dir = os.getcwd() + os.sep + "temp_" + \
                 formatted_now

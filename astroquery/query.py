@@ -12,7 +12,7 @@ import platform
 import requests
 import textwrap
 
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from astropy.config import paths
@@ -117,8 +117,8 @@ class AstroQuery:
             if cache_timeout is None:
                 expired = False
             else:
-                current_time = datetime.utcnow()
-                cache_time = datetime.utcfromtimestamp(request_file.stat().st_mtime)
+                current_time = datetime.now(timezone.utc)
+                cache_time = datetime.fromtimestamp(request_file.stat().st_mtime, timezone.utc)
                 expired = current_time-cache_time > timedelta(seconds=cache_timeout)
             if not expired:
                 with open(request_file, "rb") as f:

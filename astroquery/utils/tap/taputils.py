@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import re
 import warnings
-from datetime import datetime
+from datetime import datetime, timezone
 
 TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
     r"\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
@@ -224,7 +224,7 @@ def get_table_name(full_qualified_table_name):
 
 def get_suitable_output_file(conn_handler, async_job, output_file, headers,
                              is_error, output_format):
-    date_time = datetime.now().strftime("%Y%m%d%H%M%S")
+    date_time = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     if output_file is None:
         file_name = conn_handler.get_file_from_header(headers)
         if file_name is None:
