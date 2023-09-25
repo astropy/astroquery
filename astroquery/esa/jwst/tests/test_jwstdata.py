@@ -61,10 +61,8 @@ class TestData:
 
 
 @pytest.mark.remote_data
-class RemoteData:
-
-    def test_login_error(self):
-        jwst = JwstClass()
-        with pytest.raises(HTTPError) as err:
-            jwst.login(user="dummy", password="dummy")
-        assert "Unauthorized" in err.value.args[0]
+def test_login_error():
+    jwst = JwstClass()
+    with pytest.raises(HTTPError) as err:
+        jwst.login(user="dummy", password="dummy")
+    assert "Unauthorized" in err.value.args[0]
