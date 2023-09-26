@@ -193,6 +193,8 @@ class BaseVOQuery:
         if 'astroquery' in user_agents[0]:
             if 'pyVO' not in user_agents[1]:
                 user_agents[0] = f"astroquery/{version.version} pyVO/{pyvo.__version__}"
+        elif 'pyVO' in user_agents[0]:
+            user_agents[0] = f"astroquery/{version.version} pyVO/{pyvo.__version__}"
         else:
             user_agents = [f"astroquery/{version.version} pyVO/{pyvo.__version__} "
                            f"Python/{platform.python_version()} ({platform.system()})"] + user_agents
