@@ -185,11 +185,19 @@ class BaseVOQuery:
     """
     def __init__(self):
         super().__init__()
-        self._session = requests.Session()
-        self._session.headers['User-Agent'] = (
-            f"astroquery/{version.version} pyVO/{pyvo.__version__} Python/{platform.python_version()} "
-            f"({platform.system()}) "
-            f"{self._session.headers['User-Agent']}")
+        if not hasattr(self, '_session'):
+            # We don't want to override another, e.g. already authenticated session from another baseclass
+            self._session = requests.Session()
+
+        user_agents = self._session.headers['User-Agent'].split()
+        if 'astroquery' in user_agents[0]:
+            if 'pyVO' not in user_agents[1]:
+                user_agents[0] = f"astroquery/{version.version} pyVO/{pyvo.__version__}"
+        else:
+            user_agents = [f"astroquery/{version.version} pyVO/{pyvo.__version__} "
+                           f"Python/{platform.python_version()} ({platform.system()})"] + user_agents
+
+        self._session.headers['User-Agent'] = " ".join(user_agents)
 
         self.name = self.__class__.__name__.split("Class")[0]
 
