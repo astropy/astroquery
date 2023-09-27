@@ -13,7 +13,7 @@ from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
 from pyvo.dal import TAPService
 from astroquery import log
-from astroquery.query import BaseQuery
+from astroquery.query import BaseVOQuery
 from astroquery.utils.commons import parse_coordinates
 from astroquery.ipac.irsa import conf
 from astroquery.exceptions import InvalidQueryError
@@ -22,7 +22,7 @@ from astroquery.exceptions import InvalidQueryError
 __all__ = ['Irsa', 'IrsaClass']
 
 
-class IrsaClass(BaseQuery):
+class IrsaClass(BaseVOQuery):
 
     def __init__(self):
         super().__init__()
@@ -32,7 +32,7 @@ class IrsaClass(BaseQuery):
     @property
     def tap(self):
         if not self._tap:
-            self._tap = TAPService(baseurl=self.tap_url)
+            self._tap = TAPService(baseurl=self.tap_url, session=self._session)
         return self._tap
 
     def query_tap(self, query, *, maxrec=None):

@@ -30,7 +30,7 @@ except ImportError:
 from ..exceptions import LoginError
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
-from ..query import BaseQuery, QueryWithLogin
+from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
                      _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,
                      _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT)
@@ -212,7 +212,7 @@ def _gen_sql(payload):
     return sql + where
 
 
-class AlmaAuth(BaseQuery):
+class AlmaAuth(BaseVOQuery, BaseQuery):
     """Authentication session information for passing credentials to an OIDC instance
 
     Assumes an OIDC system like Keycloak with a preconfigured client app called "oidc" to validate against.
@@ -366,7 +366,7 @@ class AlmaClass(QueryWithLogin):
     @property
     def tap(self):
         if not self._tap:
-            self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
+            self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url, session=self._session)
         return self._tap
 
     @property

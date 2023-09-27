@@ -21,7 +21,7 @@ from astropy.utils.exceptions import AstropyWarning
 
 # Import astroquery utilities
 from astroquery.exceptions import InputWarning, InvalidQueryError, NoResultsWarning, RemoteServiceError
-from astroquery.query import BaseQuery
+from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils import async_to_sync, commons
 from astroquery.utils.class_or_instance import class_or_instance
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import conf
@@ -129,7 +129,7 @@ class InvalidTableError(InvalidQueryError):
 # Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert
 # all query_x_async methods to query_x methods
 @async_to_sync
-class NasaExoplanetArchiveClass(BaseQuery):
+class NasaExoplanetArchiveClass(BaseVOQuery, BaseQuery):
     """
     The interface for querying the NASA Exoplanet Archive TAP and API services
 
@@ -230,7 +230,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             cache = self.CACHE
 
         if table in self.TAP_TABLES:
-            tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
+            tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP, session=self._session)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
 

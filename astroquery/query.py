@@ -21,11 +21,13 @@ from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 from astropy.utils import deprecated
 
+import pyvo
+
 from astroquery import version, log, cache_conf
 from astroquery.utils import system_tools
 
 
-__all__ = ['BaseQuery', 'QueryWithLogin']
+__all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
 
 
 def to_cache(response, cache_file):
@@ -175,6 +177,33 @@ class LoginABCMeta(abc.ABCMeta):
         return newcls
 
 
+class BaseVOQuery:
+    """
+    Bare minimum base query that sets the Session header to include both astroquery and pyvo.
+    Use in modules that rely on PyVO, either on its own or in combination with ``BaseQuery`` (be mindful
+    about resolution order of base classes!).
+    """
+    def __init__(self):
+        super().__init__()
+        if not hasattr(self, '_session'):
+            # We don't want to override another, e.g. already authenticated session from another baseclass
+            self._session = requests.Session()
+
+        user_agents = self._session.headers['User-Agent'].split()
+        if 'astroquery' in user_agents[0]:
+            if 'pyVO' not in user_agents[1]:
+                user_agents[0] = f"astroquery/{version.version} pyVO/{pyvo.__version__}"
+        elif 'pyVO' in user_agents[0]:
+            user_agents[0] = f"astroquery/{version.version} pyVO/{pyvo.__version__}"
+        else:
+            user_agents = [f"astroquery/{version.version} pyVO/{pyvo.__version__} "
+                           f"Python/{platform.python_version()} ({platform.system()})"] + user_agents
+
+        self._session.headers['User-Agent'] = " ".join(user_agents)
+
+        self.name = self.__class__.__name__.split("Class")[0]
+
+
 class BaseQuery(metaclass=LoginABCMeta):
     """
     This is the base class for all the query classes in astroquery. It
@@ -182,11 +211,11 @@ class BaseQuery(metaclass=LoginABCMeta):
     """
 
     def __init__(self):
-        S = self._session = requests.Session()
+        self._session = requests.Session()
         self._session.hooks['response'].append(self._response_hook)
-        S.headers['User-Agent'] = (
+        self._session.headers['User-Agent'] = (
             f"astroquery/{version.version} Python/{platform.python_version()} ({platform.system()}) "
-            f"{S.headers['User-Agent']}")
+            f"{self._session.headers['User-Agent']}")
 
         self.name = self.__class__.__name__.split("Class")[0]
         self._cache_location = None

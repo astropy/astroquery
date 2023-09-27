@@ -301,7 +301,9 @@ Infrastructure, Utility and Other Changes and Additions
 - New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
   added to help the testcleanup narrative in narrative documentations. [#2384]
 
-- Adding more system information to User-Agent. [#2762]
+- Adding new ``BaseVOQuery`` baseclass for modules using VO tools. [#2836]
+
+- Adding more system and package information to User-Agent. [#2762, #2836]
 
 - Removal of the non-functional ``nrao`` module as it was completely
   incompatible with the refactored upstream API. [#2546]
