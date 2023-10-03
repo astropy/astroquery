@@ -1,85 +1,109 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os.path
-import types
-
 import pytest
-from astropy.coordinates import SkyCoord
-from astropy.coordinates.name_resolve import NameResolveError
-from astropy import units as u
 
-from astroquery.utils.mocks import MockResponse
+from astropy.coordinates import SkyCoord
+from pyvo import registry
+
 from ...skyview import SkyView
 
-objcoords = {"Eta Carinae": SkyCoord(ra=161.264775 * u.deg, dec=-59.6844306 * u.deg,
-                                     frame="icrs")}
+
+# Monkeypatch Fixtures
+
+mock_valid_survey = {
+    'ivoid': 'ivo://nasa.heasarc/skyview/mockedsurvey',
+    'short_name': "mockedsurvey_shortname",
+    'res_title': "mockedsurvey_restitle"
+}
+
+
+def siasearch_mockreturn(*args, **kwargs):
+    class MockSiaServiceRegsearchResponse():
+        def __init__(self):
+            # Mock a random SIA survey response
+            self.ivoid = mock_valid_survey['ivoid']
+            self.short_name = mock_valid_survey['short_name']
+            self.res_title = mock_valid_survey['res_title']
+
+        def get_service(self):
+            """ Monkeypatch actually retrieving and calling a SIA survey """
+            class MockSiaService():
+                def search(self, *args, **kwargs):
+                    class MockSiaQueryResponse():
+                        def getdataurl(self):
+                            # This is just a random skyview response
+                            return "https://skyview.gsfc.nasa.gov/cgi-bin/images?position=161.26474075372%2C-59.6844587777&amp;survey=dss&amp;pixels=300%2C300&amp;sampler=LI&amp;size=1.0%2C1.0&amp;projection=Tan&amp;coordinates=J2000.0&amp;requestID=skv1696608093085&amp;return=FITS"  # noqa
+                    return [MockSiaQueryResponse()]
+            return MockSiaService()
+    return [MockSiaServiceRegsearchResponse()]
 
 
 @pytest.fixture
-def patch_fromname(request):
-
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
-
-    def fromname(self, name, frame=None):
-        if isinstance(name, str):
-            return objcoords[name]
-        else:
-            raise NameResolveError
-    mp.setattr(SkyCoord, "from_name", types.MethodType(fromname, SkyCoord))
-
-
-class MockResponseSkyView(MockResponse):
-    def __init__(self):
-        super().__init__()
-
-    def get_content(self):
-        return self.content
-
-
-class MockResponseSkyviewForm(MockResponse):
-    def __init__(self, method, url, cache=False, params=None, **kwargs):
-        super().__init__(**kwargs)
-        self.content = self.get_content(method, url)
-
-    def get_content(self, method, url):
-        if 'basicform.pl' in url and method == 'GET':
-            with open(data_path('query_page.html'), 'r') as f:
-                return f.read()
-        elif 'runquery.pl' in url and method == 'GET':
-            with open(data_path('results.html'), 'r') as f:
-                return f.read()
-        else:
-            raise ValueError("Invalid method/url passed to "
-                             "Mock Skyview request")
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
-
-
-@pytest.fixture
-def patch_get(request):
+def patch_siaregistry(request):
+    """ Monkeypatch (intercept and replace) registry.search with our own siasearch_mockreturn """
     mp = request.getfixturevalue("monkeypatch")
+    mp.setattr(registry, 'search', siasearch_mockreturn)
 
-    mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 
 
-def test_get_image_list_local(patch_get, patch_fromname):
-    urls = SkyView.get_image_list(position='Eta Carinae',
-                                  survey=['Fermi 5', 'HRI', 'DSS'])
-    assert len(urls) == 3
-    for url in urls:
-        assert url.startswith('../../tempspace/fits/')
+# Survey validation local tests
 
+def test_survey_validation(patch_siaregistry):
+    """ Test interal validation of provided Skyview survey """
+    # Test a valid response:
+    # As List
+    SkyView._validate_surveys([mock_valid_survey['short_name']])
+    # As String
+    SkyView._validate_surveys(mock_valid_survey['short_name'])
 
-def test_survey_validation(patch_get):
+    # Test an invalid survey:
+    fake_survey_name = 'not_a_valid_survey'
+    # Single Case:
+    with pytest.raises(ValueError) as ex:
+        SkyView._validate_surveys(fake_survey_name)
+
+    assert str(ex.value) == (f"Survey {fake_survey_name} is not "
+                             "among the surveys hosted at "
+                             "skyview.  See list_surveys or "
+                             "survey_dict for valid surveys.")
+    # Mixed Case:
+    with pytest.raises(ValueError) as ex:
+        SkyView._validate_surveys([mock_valid_survey['short_name'], fake_survey_name])
+
+    assert str(ex.value) == (f"Survey {fake_survey_name} is not "
+                             "among the surveys hosted at "
+                             "skyview.  See list_surveys or "
+                             "survey_dict for valid surveys.")
+
+    # Test invalid survey again, but higher up:
+    # Single Case:
     with pytest.raises(ValueError) as ex:
         SkyView.get_image_list(position='doesnt matter',
-                               survey=['not_a_valid_survey'])
-    assert str(ex.value) == ("Survey is not among the surveys hosted "
-                             "at skyview.  See list_surveys or "
+                               survey=[fake_survey_name])
+
+    assert str(ex.value) == (f"Survey {fake_survey_name} is not "
+                             "among the surveys hosted at "
+                             "skyview.  See list_surveys or "
                              "survey_dict for valid surveys.")
+    # Mixed Case:
+    with pytest.raises(ValueError) as ex:
+        SkyView.get_image_list(position='doesnt matter',
+                               survey=[mock_valid_survey['short_name'], fake_survey_name])
+
+    assert str(ex.value) == (f"Survey {fake_survey_name} is not "
+                             "among the surveys hosted at "
+                             "skyview.  See list_surveys or "
+                             "survey_dict for valid surveys.")
+
+
+# Test Mock SIA Query
+
+def test_get_image_list_local(patch_siaregistry):
+    """
+    Test retrieving the URL list for a Skyview Query, but offline (with a monkeypatched response)
+    """
+    urls = SkyView.get_image_list(position=SkyCoord(42, 42, unit="deg"),
+                                  survey=[mock_valid_survey['short_name']])
+    assert len(urls) == 1
+    for url in urls:
+        assert url.startswith('https://skyview.gsfc.nasa.gov/cgi-bin/images?')

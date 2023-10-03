@@ -41,6 +41,11 @@ esa.hubble
 - New methods to download single files ``download_file`` and download FITS associated to an observation ``download_fits_files``. [#2797]
 - New function to retrieve all the files associated to an observation. [#2797]
 
+skyview
+^^^^^^^
+- Under the hood refactor to use SIAP from pyVO for querying. [#2849]
+
+
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
 
