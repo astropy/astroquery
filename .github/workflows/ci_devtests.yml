@@ -32,7 +32,7 @@ jobs:
         include:
           - name: dev dependencies with all dependencies with coverage
             os: ubuntu-latest
-            python: '3.12-dev'
+            python: '3.12'
             toxenv: py312-test-alldeps-devdeps-cov
             toxargs: -v
 
