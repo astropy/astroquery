@@ -11,6 +11,7 @@ from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
 from astroquery.exceptions import BlankResponseWarning
+from pyvo.dal import DALOverflowWarning
 
 
 # M42 coordinates
@@ -252,3 +253,21 @@ class TestSimbad:
         assert ("ID_1" in response.keys())
         assert ("ID_2mass" in response.keys())
         assert ("ID_s" in response.keys())
+
+    def test_query_tap(self):
+        # a robust query about something that should not change in Simbad
+        filtername = Simbad.query_tap("select filtername from filter where filtername='B'")
+        assert 'B' == filtername.getvalue("filtername", 0)
+        # test uploads by joining two local tables
+        table_letters = Table([["a", "b", "c"]], names=["letters"])
+        table_numbers = Table([[1, 2, 3], ["a", "b", "c"]], names=["numbers", "letters"])
+        result = Simbad.query_tap("SELECT * FROM TAP_UPLOAD.numbers "
+                                  "JOIN TAP_UPLOAD.letters USING(letters)",
+                                  uploads={"numbers": table_numbers, "letters": table_letters})
+        expect = ("<Table length=3>\nletters numbers\n object  int64 \n------- -------"
+                  "\n      a       1\n      b       2\n      c       3")
+        assert expect in str(result)
+        # test of maxrec
+        with pytest.raises(DALOverflowWarning, match="Partial result set *"):
+            truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
+            assert len(truncated_result) == 2

@@ -17,9 +17,11 @@ import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
 
-from astroquery.query import BaseQuery
+from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils import commons, async_to_sync
 from astroquery.exceptions import TableParseError, LargeQueryWarning, BlankResponseWarning
+
+from pyvo.dal import TAPService
 from . import conf
 
 
@@ -260,7 +262,7 @@ class SimbadBaseQuery(BaseQuery):
 
 
 @async_to_sync
-class SimbadClass(SimbadBaseQuery):
+class SimbadClass(SimbadBaseQuery, BaseVOQuery):
     """
     The class for querying the Simbad web service.
 
@@ -300,6 +302,41 @@ class SimbadClass(SimbadBaseQuery):
     def __init__(self):
         super().__init__()
         self._VOTABLE_FIELDS = self._VOTABLE_FIELDS.copy()
+        self._mirror = conf.server
+        self._tap = None
+
+    @property
+    def simbad_mirrors(self):
+        """Set of the two Simbad mirrors domains."""
+        return {'simbad.cds.unistra.fr', 'simbad.harvard.edu'}
+
+    @property
+    def mirror(self):
+        """The Simbad mirror to use."""
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, server: str):
+        f"""Allows to switch server between Simbad mirrors.
+
+        Parameters
+        ----------
+        server : str
+            It should be one of {self.simbad_mirrors}.
+        """
+        if server in self.simbad_mirrors:
+            self._mirror = server
+        else:
+            raise ValueError(f"'{server}' does not correspond to a Simbad mirror, "
+                             f"the two existing ones are {self.simbad_mirrors}.")
+
+    @property
+    def tap(self):
+        """A ``~pyvo.dal.tap.TAPService`` service for Simbad."""
+        tap_url = "https://" + self.mirror + "/simbad/sim-tap"
+        if (not self._tap) or (self._tap.baseurl != tap_url):
+            self._tap = TAPService(baseurl=tap_url, session=self._session)
+        return self._tap
 
     def list_wildcards(self):
         """
@@ -935,6 +972,85 @@ class SimbadClass(SimbadBaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
 
         return response
+
+    def query_tap(self, query: str, maxrec=10000, uploads=None):
+        """Query Simbad TAP service.
+
+        Parameters
+        ----------
+        query : str
+            A string containing the query written in the
+            Astronomical Data Query Language (ADQL).
+        maxrec : int, optional
+            The number of records to be returned. Its maximum value is 2000000.
+        uploads : dict, optional
+            A dictionary of local tables to be used in the query. It should be
+            constructed as ``{"table_name": table}``.``table`` can be an
+            ``~astropy.table.table.Table``, an ``~astropy.io.votable.tree.VOTableFile``
+            or a ``~pyvo.dal.DALResults`` object. In the ``query``, these tables are referred
+            as ``TAP_UPLOAD.table_name`` where ``TAP_UPLOAD`` is imposed and ``table_name``
+            is the key of the ``uploads`` dictionary. The maximum number on lines for the
+            uploaded tables is 200000.
+
+        Returns
+        -------
+        `~pyvo.dal.TAPResults`
+            The response returned by Simbad.
+            It can be converted to astropy objects. To get an
+            `~astropy.io.votable.tree.Table` use `~pyvo.dal.TAPResults.votable``,
+            and to get an `~astropy.table.table.Table` use `~pyvo.dal.TAPResults.to_table()`.
+
+        Notes
+        -----
+        A TAP (Table Access Protocol) service allows to query data tables with
+        queries written in ADQL (Astronomical Data Query Language), a flavor
+        of the more general SQL (Structured Query Language).
+        For more documentation about writing ADQL queries, you can read its official
+        documentation (`ADQL documentation <https://ivoa.net/documents/ADQL/index.html>`)
+        or the `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`_.
+        See also: a `graphic representation of Simbad's tables and their relations
+        <http://simbad.cds.unistra.fr/simbad/tap/tapsearch.html>`_.
+
+        Examples
+        --------
+        To see the five oldest papers referenced in Simbad
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.query_tap("SELECT top 5 bibcode, title, nbobject"
+        ...                  "FROM ref ORDER BY bibcode") # doctest: +REMOTE_DATA
+        <Table length=5>
+              bibcode                                        title                                  nbobject
+               object                                        object                                  int32
+        ------------------- ----------------------------------------------------------------------- --------
+        1850CDT..1784....0A                                                                     ???        2
+        1850CDT..1784..227M                         Catalogue des nebuleuses et des amas d'etoiles.      111
+        1857AN.....45...89S                                             Ueber veranderliche Sterne.        1
+        1861MNRAS..21...68B On the three new variable stars, T Bootis, T Serpentis, and S Delphini.        3
+        1874MNRAS..34...75S        Nebulae discovered and observed at the observatory of Marseille.        1
+
+        Get the type of an object
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.query_tap("SELECT main_id, otype FROM basic WHERE main_id = 'm10'") # doctest: +REMOTE_DATA
+        <Table length=1>
+        main_id otype
+         object object
+        ------- ------
+          M  10    GlC
+
+        Upload a table to use in a query
+        >>> from astroquery.simbad import Simbad
+        >>> from astropy.table import Table
+        >>> objects_table = Table([["M101", "NGC1343", "Abell1656"]], names=["objectname"])
+        >>> Simbad.query_tap("SELECT * from TAP_UPLOAD.objects_table WHERE objectname = 'M101'",
+        ...                  uploads={"objects_table": objects_table}) # doctest: +REMOTE_DATA
+        <Table length=1>
+        objectname
+          object
+        ----------
+              M101
+        """
+        if maxrec > self.tap.hardlimit:
+            raise ValueError(f"The maximum number of records cannot exceed {self.tap.hardlimit}.")
+        return self.tap.run_async(query, maxrec=maxrec, uploads=uploads)
 
     def _get_query_header(self, get_raw=False):
         # if get_raw is set then don't fetch as votable

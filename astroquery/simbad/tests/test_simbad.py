@@ -74,6 +74,28 @@ def post_mockreturn(self, method, url, data, timeout, **kwargs):
     return response
 
 
+def test_simbad_mirror():
+    simbad_instance = simbad.SimbadClass()
+    # default value should be set at instantiation
+    assert simbad_instance.mirror == "simbad.cds.unistra.fr"
+    # it can be switched to harvard mirror
+    simbad_instance.mirror = "simbad.harvard.edu"
+    assert simbad_instance.mirror == "simbad.harvard.edu"
+    with pytest.raises(ValueError,
+                       match="'test' does not correspond to a Simbad mirror, *"):
+        # but not to an invalid mirror
+        simbad_instance.mirror = "test"
+
+
+def test_simbad_create_tap_service():
+    simbad_instance = simbad.Simbad()
+    # newly created should have no tap service
+    assert simbad_instance._tap is None
+    # then we create it
+    simbadtap = simbad_instance.tap
+    assert 'simbad/sim-tap' in simbadtap.baseurl
+
+
 @pytest.mark.parametrize(('radius', 'expected_radius'),
                          [('5d0m0s', '5.0d'),
                           ('5d', '5.0d'),
