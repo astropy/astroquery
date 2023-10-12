@@ -974,31 +974,32 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
         return response
 
     def query_tap(self, query: str, maxrec=10000, uploads=None):
-        """Query Simbad TAP service.
+        """
+        Query Simbad TAP service.
 
         Parameters
         ----------
         query : str
             A string containing the query written in the
             Astronomical Data Query Language (ADQL).
-        maxrec : int, optional
+        maxrec : int, default: 10000
             The number of records to be returned. Its maximum value is 2000000.
-        uploads : dict, optional
-            A dictionary of local tables to be used in the query. It should be
-            constructed as ``{"table_name": table}``.``table`` can be an
-            ``~astropy.table.table.Table``, an ``~astropy.io.votable.tree.VOTableFile``
-            or a ``~pyvo.dal.DALResults`` object. In the ``query``, these tables are referred
-            as ``TAP_UPLOAD.table_name`` where ``TAP_UPLOAD`` is imposed and ``table_name``
-            is the key of the ``uploads`` dictionary. The maximum number on lines for the
+        uploads : dict, default: None
+            A dictionary of local tables to be used in the *query*. It should be
+            constructed as *{"table_name": table}*.*table* can be an
+            `~astropy.table.table.Table`, an `~astropy.io.votable.tree.VOTableFile`
+            or a `~pyvo.dal.DALResults` object. In the *query*, these tables are referred
+            as *TAP_UPLOAD.table_name* where *TAP_UPLOAD* is imposed and *table_name*
+            is the key of the *uploads* dictionary. The maximum number on lines for the
             uploaded tables is 200000.
 
         Returns
         -------
         `~pyvo.dal.TAPResults`
             The response returned by Simbad.
-            It can be converted to astropy objects. To get an
-            `~astropy.io.votable.tree.Table` use `~pyvo.dal.TAPResults.votable``,
-            and to get an `~astropy.table.table.Table` use `~pyvo.dal.TAPResults.to_table()`.
+            It can be converted to astropy objects. To get a
+            `~astropy.io.votable.tree.Table` use *.votable*,
+            and to get a `~astropy.table.table.Table` use *.to_table()*.
 
         Notes
         -----
@@ -1006,14 +1007,16 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
         queries written in ADQL (Astronomical Data Query Language), a flavor
         of the more general SQL (Structured Query Language).
         For more documentation about writing ADQL queries, you can read its official
-        documentation (`ADQL documentation <https://ivoa.net/documents/ADQL/index.html>`)
-        or the `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`_.
+        documentation (`ADQL documentation <https://ivoa.net/documents/ADQL/index.html>`__)
+        or the `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`__.
         See also: a `graphic representation of Simbad's tables and their relations
-        <http://simbad.cds.unistra.fr/simbad/tap/tapsearch.html>`_.
+        <http://simbad.cds.unistra.fr/simbad/tap/tapsearch.html>`__.
 
         Examples
         --------
+
         To see the five oldest papers referenced in Simbad
+        
         >>> from astroquery.simbad import Simbad
         >>> Simbad.query_tap("SELECT top 5 bibcode, title, nbobject"
         ...                  "FROM ref ORDER BY bibcode") # doctest: +REMOTE_DATA
@@ -1028,6 +1031,7 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
         1874MNRAS..34...75S        Nebulae discovered and observed at the observatory of Marseille.        1
 
         Get the type of an object
+
         >>> from astroquery.simbad import Simbad
         >>> Simbad.query_tap("SELECT main_id, otype FROM basic WHERE main_id = 'm10'") # doctest: +REMOTE_DATA
         <Table length=1>
@@ -1037,6 +1041,7 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
           M  10    GlC
 
         Upload a table to use in a query
+
         >>> from astroquery.simbad import Simbad
         >>> from astropy.table import Table
         >>> objects_table = Table([["M101", "NGC1343", "Abell1656"]], names=["objectname"])

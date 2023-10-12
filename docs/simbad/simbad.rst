@@ -409,7 +409,15 @@ article specified by the bibcode:
 
 
 Query based on any criteria
-----------------------------
+---------------------------
+
+Query TAP
+^^^^^^^^^
+
+.. include:: query_tap.rst
+
+Query criteria
+^^^^^^^^^^^^^^
 
 Anything done in SIMBAD's `criteria interface`_ can be done via astroquery.
 See that link for details of how these queries are formed.
