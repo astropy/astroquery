@@ -16,15 +16,17 @@ formulated. If successful all the queries will return the results in a
 
 A warning about big queries
 ---------------------------
-The SIMBAD database has limited querying capacity.  If you spam the server with
-queries, you may be temporary blacklisted.  The rate limit may vary, but you
-should not submit more than ~5-10 queries per second.
 
-If you want to perform large queries, we suggest using vectorized queries
-when possible.  You can pass `~astroquery.simbad.SimbadClass.query_region`
+The SIMBAD database is largely used and had to limit the rate of incoming queries.
+If you spam the server with more that ~5-10 queries per second you will be
+blacklisted for a week. If it happens to you, you can use the section about
+:ref:`vectorized queries <vectorqueries>` below.  You can pass
+`~astroquery.simbad.SimbadClass.query_region`
 a vector of coordinates or `~astroquery.simbad.SimbadClass.query_objects`
 a list of object names, and SIMBAD will treat this submission as a single
-query.  See :ref:`vectorized queries <vectorqueries>` below.
+query.
+To get out of the blacklist, send an `email to the Simbad
+database <cds-questions@unistra.fr?Subject=Simbad>`__.
 
 Different ways to access Simbad
 -------------------------------
@@ -35,16 +37,19 @@ internally creates a `script query
 is also how the `Simbad web interface <https://simbad.cds.unistra.fr/simbad/>`__
 operates.
 
-Simbad provides another way to access its database via `TAP
-Service <https://simbad.cds.unistra.fr/simbad/sim-tap/>`__. This may be better
-suited for some usage. If you need a python client for TAP Services,
-check out `pyvo <https://pyvo.readthedocs.io/en/latest/>`__.
+A more versatile option is to query SIMBAD directly via Table Access Protocol
+(TAP) with the `~astroquery.simbad.SimbadClass.query_tap` method.
 
-Query an Identifier
--------------------
+Query modes
+===========
 
+Objects queries
+---------------
 
-This is useful if you want to query a known identifier. For instance to query
+Query by an Identifier
+^^^^^^^^^^^^^^^^^^^^^^
+
+This is useful if you want to query a known identifier (name). For instance to query
 the messier object M1:
 
 .. code-block:: python
@@ -96,14 +101,62 @@ their functions:
 
     [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
 
-Query a region
---------------
+Query to get all names (identifiers) for an object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+These queries can be used to retrieve all of the names (identifiers)
+associated with an object.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> result_table = Simbad.query_objectids("Polaris")
+    >>> print(result_table)
+               ID
+    -----------------------
+               NAME Polaris
+            NAME North Star
+              NAME Lodestar
+                   PLX  299
+                    SBC9 76
+                  *   1 UMi
+                  * alf UMi
+              AAVSO 0122+88
+                ADS  1477 A
+                 AG+89    4
+                BD+88     8
+          CCDM J02319+8915A
+            CSI+88     8  1
+                   FK5  907
+                   GC  2243
+                 GCRV  1037
+                        ...
+                 PPM    431
+                  ROT  3491
+                 SAO    308
+                 SBC7    51
+                 SKY#  3738
+                  TD1   835
+             TYC 4628-237-1
+                UBV   21589
+               UBV M   8201
+                 V* alf UMi
+                PLX  299.00
+       WDS J02318+8916Aa,Ab
+               ADS  1477 AP
+                ** WRH   39
+           WDS J02318+8916A
+               ** STF   93A
+    2MASS J02314822+8915503
+
+
+Query a region
+^^^^^^^^^^^^^^
 
 Queries that support a cone search with a specified radius - around an
 identifier or given coordinates are also supported. If an identifier is used
-then it will be resolved to coordinates using online name resolving services
-available in Astropy.
+then it will be resolved to coordinates using the `Sesame name resolver
+<https://cds.unistra.fr/cgi-bin/Sesame>`__.
 
 .. code-block:: python
 
@@ -238,7 +291,7 @@ to 2000.0. So here is a query with all the options utilized:
 
 
 Query a catalogue
------------------
+^^^^^^^^^^^^^^^^^
 
 Queries can also be formulated to return all the objects from a catalogue. For
 instance to query the ESO catalog:
@@ -260,10 +313,11 @@ instance to query the ESO catalog:
     ESO   1-4 07 49 28.813 ...              I 2006AJ....131.1163S
     ESO   1-5 08 53 05.006 ...              I 2006AJ....131.1163S
 
+Bibliographic queries
+---------------------
 
 Query a bibcode
----------------
-
+^^^^^^^^^^^^^^^^
 
 This retrieves the reference corresponding to a bibcode.
 
@@ -329,59 +383,8 @@ from a given journal in a given year:
     Aluminium oxide in the optical spectrum of VY Canis Majoris.
     Files: (abstract)
 
-Query object identifiers
-------------------------
-
-
-These queries can be used to retrieve all of the names (identifiers)
-associated with an object.
-
-.. code-block:: python
-
-    >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_objectids("Polaris")
-    >>> print(result_table)
-               ID
-    -----------------------
-               NAME Polaris
-            NAME North Star
-              NAME Lodestar
-                   PLX  299
-                    SBC9 76
-                  *   1 UMi
-                  * alf UMi
-              AAVSO 0122+88
-                ADS  1477 A
-                 AG+89    4
-                BD+88     8
-          CCDM J02319+8915A
-            CSI+88     8  1
-                   FK5  907
-                   GC  2243
-                 GCRV  1037
-                        ...
-                 PPM    431
-                  ROT  3491
-                 SAO    308
-                 SBC7    51
-                 SKY#  3738
-                  TD1   835
-             TYC 4628-237-1
-                UBV   21589
-               UBV M   8201
-                 V* alf UMi
-                PLX  299.00
-       WDS J02318+8916Aa,Ab
-               ADS  1477 AP
-                ** WRH   39
-           WDS J02318+8916A
-               ** STF   93A
-    2MASS J02314822+8915503
-
-
 Query a bibobj
---------------
-
+^^^^^^^^^^^^^^
 
 These queries can be used to retrieve all the objects that are contained in the
 article specified by the bibcode:
@@ -407,7 +410,6 @@ article specified by the bibcode:
 
 Query based on any criteria
 ----------------------------
-
 
 Anything done in SIMBAD's `criteria interface`_ can be done via astroquery.
 See that link for details of how these queries are formed.
@@ -440,7 +442,7 @@ See that link for details of how these queries are formed.
 
 
 Object type criteria
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 SIMBAD sets a ``maintype`` for each astronomical object that is related to the real type classification. Other object types (``otypes``) are given, which are related to some types coming from some surveys/observations. Depending on your needs, ``maintype`` or  ``otype`` fields can be used.
 To use all subcategories of an object type, ``maintypes`` or  ``otypes`` fields can also be used.
@@ -475,7 +477,7 @@ See the dedicated SIMBAD `documentation on object types <https://simbad.cds.unis
 .. _vectorqueries:
 
 Vectorized Queries
-------------------
+^^^^^^^^^^^^^^^^^^
 
 You can query multiple regions at once using vectorized queries.
 Each region must have the same radius.
@@ -558,8 +560,6 @@ You can also stitch together region queries by writing a sophisticated script:
       NAME Sgr A East     17 45 41     -29 00.8       4        4           --           --             0        D                2010ApJS..188..405A
                 W 49b 19 11 09.000 +09 06 24.00       7        7           --           --             0        D                2015ApJS..217....2M
     SNR G000.13-00.12      17 46.4       -28 53       3        3           --           --             0        E                2013MNRAS.434.1339H
-
-
 
 
 Customizing the default settings
@@ -676,6 +676,7 @@ the above example:
 
 Returning the queried name in the return table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You can include the name(s) queried in the output table by adding ``typed_id`` to
 the votable fields.  This was also mentioned in :ref:`vectorized queries
 <vectorqueries>` above, but we emphasize here that it works for all queries.
