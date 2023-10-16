@@ -8,6 +8,7 @@ of different lists and object information from ESA NEOCC portal.
 import os
 import re
 import pytest
+import warnings
 
 import numpy as np
 import requests
@@ -54,7 +55,6 @@ def get_mockreturn(name, timeout=TIMEOUT, verify=VERIFICATION):
     # Split name (the requested url) to obtain the name of the file location stored in \data
 
     fileloc = name.split(r'=')[1]
-    print(fileloc)
 
     # Exception for ephemerides
     if '&oc' in fileloc:
@@ -63,6 +63,7 @@ def get_mockreturn(name, timeout=TIMEOUT, verify=VERIFICATION):
     filename = data_path(fileloc)
     with open(filename, 'rb') as FLE:
         content = FLE.read()
+        content = content.replace(b"\r", b"")  # For windows tests
 
     return MockResponse(content)
 
@@ -86,7 +87,12 @@ def test_bad_list_names():
 
 def check_table_structure(data_table, table_len, table_cols, float_cols=[], int_cols=[], str_cols=[], time_cols=[]):
     """
-    TODO
+    Given a data table, checks:
+    - Table length matches given table_len
+    - Table column names match the given table_cols list
+    - All the columns with indices given in float_cols are of float type
+    - Equivalent checks for int_cols, and string_cols
+    - Checks that columns with indices given in time_cols are `~astropy.time.Time` objects
     """
 
     table_cols = np.array(table_cols)
@@ -96,15 +102,20 @@ def check_table_structure(data_table, table_len, table_cols, float_cols=[], int_
 
     assert all([x == y for x, y in zip(data_table.colnames, table_cols)])
 
-    assert all([data_table[x].dtype == np.dtype('float64') for x in table_cols[float_cols]])
-    assert all([data_table[x].dtype == np.dtype('int64') for x in table_cols[int_cols]])
-    assert all([data_table[x].dtype.type == np.str_ for x in table_cols[str_cols]])
+    # Ignore the FutureWarning that only comes up with the oldest dependencies
+    warnings.filterwarnings("ignore", category=FutureWarning,
+                            message="Conversion of the second argument of issubdtype*")
+    assert all([np.issubdtype(data_table[x].dtype, float) for x in table_cols[float_cols]])
+    assert all([np.issubdtype(data_table[x].dtype, int) for x in table_cols[int_cols]])
+    assert all([np.issubdtype(data_table[x].dtype, str) for x in table_cols[str_cols]])
+
     assert all([isinstance(data_table[x], Time) for x in table_cols[time_cols]])
 
 
 def check_table_values(data_table, true_value_dict):
     """
-    TODO
+    Checks data_table rows against true values given in true_value_dict.
+    The format of true_value_dict is {<row number>: [true row data], ...}
     """
 
     for row, values in true_value_dict.items():
@@ -178,8 +189,11 @@ def test_parse_nea(patch_get):
     assert re.match(r'\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \w{3} \d{4}', monthly_update["NEA"][0])
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 def test_parse_risk(patch_get):
     """Check data: risk_list, risk_list_special
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
     # Risk and risk special lists
     risk_list = neocc.neocc.query_list("risk_list")
@@ -293,8 +307,11 @@ def test_parse_pri(patch_get):
     check_table_values(faint_list, faint_dict)
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 def test_parse_encounter(patch_get):
     """Check data: encounter_list
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
 
     encounter_list = neocc.neocc.query_list("close_encounter")
@@ -377,8 +394,11 @@ def check_tab_result_basic(results, num_tabs):
     assert len(results) == num_tabs
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 def test_tabs_impacts(patch_get):
     """Check data: asteroid impacts tab
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
 
     # 433 Eros has no tab "impacts"
@@ -418,8 +438,11 @@ def test_tabs_impacts(patch_get):
     check_table_values(impact_table, impact_dict)
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 def test_tabs_close_approach(patch_get):
     """Check data: asteroid close approaches tab
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
 
     # Check opbject with no close approaches
@@ -503,8 +526,11 @@ def test_tabs_physical_properties(patch_get):
     check_table_values(phys_props, phys_dict)
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 def test_tabs_observations(patch_get):
     """Check data: asteroid observations tab
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
 
     with pytest.raises(ValueError):
