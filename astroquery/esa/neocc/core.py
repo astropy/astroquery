@@ -13,11 +13,11 @@ from astroquery.utils import async_to_sync
 
 from astroquery.esa.neocc import lists, tabs
 
-__all__ = ['neocc', 'ESAneoccClass']
+__all__ = ['neocc', 'NEOCCClass']
 
 
 @async_to_sync
-class ESAneoccClass(BaseQuery):
+class NEOCCClass(BaseQuery):
     """
     Class to init ESA NEOCC Python interface library
     """
@@ -130,7 +130,9 @@ class ESAneoccClass(BaseQuery):
             return neocc_list
 
     @staticmethod
-    def query_object(name, tab, **kwargs):
+    def query_object(name, tab, *,
+                     orbital_elements=None, orbit_epoch=None,
+                     observatory=None, start=None, stop=None, step=None, step_unit=None):
         """Get requested object data from ESA NEOCC.
 
         Parameters
@@ -141,22 +143,27 @@ class ESAneoccClass(BaseQuery):
             Name of the request tab. Valid names are: summary,
             orbit_properties, physical_properties, observations,
             ephemerides, close_approaches and impacts.
-        **kwargs : str
-            Tabs orbit_properties and ephemerides tabs required additional
-            arguments to work:
-
-            * *orbit_properties*: the required additional arguments are:
-
-                * *orbital_elements* : str (keplerian or equinoctial)
-                * *orbit_epoch* : str (present or middle)
-
-            * *ephemerides*: the required additional arguments are:
-
-                * *observatory* : str (observatory code, e.g. '500', 'J04', etc.)
-                * *start* : str (start date in YYYY-MM-DD HH:MM)
-                * *stop* : str (end date in YYYY-MM-DD HH:MM)
-                * *step* : str (time step, e.g. '2', '15', etc.)
-                * *step_unit* : str (e.g. 'days', 'minutes', etc.)
+        orbital_elements : str
+            Additional required argument for "orbit_properties" table.
+            Valid arguments are: keplerian, equinoctial
+        orbit_epoch : str
+            Additional required argument for "orbit_properties" table.
+            Valid arguments are: present, middle
+        observatory : str
+            Additional required argument for "ephemerides" table.
+            Observatory code, e.g. '500', 'J04', etc.
+        start : str
+            Additional required argument for "ephemerides" table.
+            Start date in YYYY-MM-DD HH:MM
+        stop : str
+            Additional required argument for "ephemerides" table.
+            End date in YYYY-MM-DD HH:MM
+        step : str
+            Additional required argument for "ephemerides" table.
+            Time step, e.g. '2', '15', etc.
+        step_unit : str
+            Additional required argument for "ephemerides" table.
+            Unit for time step e.g. 'days', 'minutes', etc.
 
         Returns
         -------
@@ -387,22 +394,14 @@ class ESAneoccClass(BaseQuery):
 
         # Orbit properties
         elif tab == 'orbit_properties':
-            # Raise error if no elements are provided
-            if 'orbital_elements' not in kwargs:
-                raise KeyError('Please specify type of orbital_elements: '
-                               'keplerian or equinoctial '
-                               '(e.g., orbital_elements="keplerian")')
 
-            # Raise error if no epoch is provided
-            if 'orbit_epoch' not in kwargs:
-                raise KeyError('Please specify type of orbit_epoch: '
-                               'present or middle '
-                               '(e.g., orbit_epoch="middle")')
+            # Raise error if  elements or epoch are not provided
+            if not all([orbital_elements, orbit_epoch]):
+                raise KeyError(("orbital_elements and orbit_epoch must be specified"
+                                "for an orbit_properties query."))
 
             # Get URL to obtain the data from NEOCC
-            url = tabs.get_object_url(name, tab,
-                                      orbital_elements=kwargs['orbital_elements'],
-                                      orbit_epoch=kwargs['orbit_epoch'])
+            url = tabs.get_object_url(name, tab, orbital_elements=orbital_elements, orbit_epoch=orbit_epoch)
 
             # Request data two times if the first attempt fails
             try:
@@ -423,21 +422,13 @@ class ESAneoccClass(BaseQuery):
 
         # Ephemerides
         elif tab == 'ephemerides':
-            # Create dictionary for kwargs
-            args_dict = {'observatory': 'observatory (e.g., observatory="500")',
-                         'start': 'start date (e.g., start="2021-05-17 00:00")',
-                         'stop': 'end date (e.g., stop="2021-05-18 00:00")',
-                         'step': 'time step (e.g., step="1")',
-                         'step_unit': 'step unit (e.g., step_unit="days")'}
 
-            # Check if any kwargs is missing
-            for element in args_dict:
-                if element not in kwargs:
-                    raise KeyError(f'Please specify {args_dict[element]} for ephemerides.')
+            if not all([observatory, start, stop, step, step_unit]):
+                raise KeyError(("Ephemerides queries require the following arguments:"
+                                "observatory, start, stop, step, and step_unit"))
 
-            resp_str = tabs.get_ephemerides_data(name, observatory=kwargs['observatory'],
-                                                 start=kwargs['start'], stop=kwargs['stop'],
-                                                 step=kwargs['step'], step_unit=kwargs['step_unit'])
+            resp_str = tabs.get_ephemerides_data(name, observatory=observatory, start=start, stop=stop,
+                                                 step=step, step_unit=step_unit)
             neocc_obj = tabs.parse_ephemerides(resp_str)
 
         elif tab == 'summary':
@@ -450,4 +441,4 @@ class ESAneoccClass(BaseQuery):
         return neocc_obj
 
 
-neocc = ESAneoccClass()
+neocc = NEOCCClass()

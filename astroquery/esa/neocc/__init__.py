@@ -18,11 +18,14 @@ class Conf(_config.ConfigNamespace):
 
     BASE_URL = 'https://' + os.getenv('NEOCC_PORTAL_IP', default='neo.ssa.esa.int')
 
-    API_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/download?file=')
+    API_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/download?file=',
+                                 "Main API URL")
 
-    EPHEM_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/ephemerides?des=')
+    EPHEM_URL = _config.ConfigItem(BASE_URL + '/PSDB-portlet/ephemerides?des=',
+                                   "Ephermerides URL")
 
-    SUMMARY_URL = _config.ConfigItem(BASE_URL + '/search-for-asteroids?sum=1&des=')
+    SUMMARY_URL = _config.ConfigItem(BASE_URL + '/search-for-asteroids?sum=1&des=',
+                                     "Object summary URL")
 
     TIMEOUT = 60
 
@@ -31,6 +34,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import neocc, ESAneoccClass
+from .core import neocc, NEOCCClass
 
-__all__ = ['neocc', 'ESAneoccClass', 'Conf', 'conf']
+__all__ = ['neocc', 'NEOCCClass', 'Conf', 'conf']

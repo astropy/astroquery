@@ -466,7 +466,6 @@ def parse_observations(resp_str, verbose=False):
     """
     Parse the close approach response string into the close approach tables.
 
-    TODO: document properly.
     Parameters
     ----------
     resp_str : str
