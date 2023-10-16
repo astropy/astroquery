@@ -10,12 +10,12 @@ tests is requested to ESA NEOCC portal.
 * Date: 21-08-2022
 """
 
-
 import os
 import re
 import random
 import pytest
 import requests
+import warnings
 
 import numpy as np
 
@@ -31,9 +31,12 @@ TIMEOUT = neocc.conf.TIMEOUT
 VERIFICATION = neocc.conf.SSL_CERT_VERIFICATION
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 @pytest.mark.remote_data
 class TestLists:
     """Class which contains the unitary tests for lists module.
+
+    Ignore ERFA 'dubious year' warnings because they are expected.
     """
     # Dictionary for lists
     lists_dict = {
@@ -51,6 +54,10 @@ class TestLists:
         "neo_catalogue_current": 'neo_kc.cat',
         "neo_catalogue_middle": 'neo_km.cat'
     }
+
+    # Ignore the FutureWarning that only comes up with the oldest dependencies
+    warnings.filterwarnings("ignore", category=FutureWarning,
+                            message="Conversion of the second argument of issubdtype*")
 
     def test_get_list_url(self):
         """Test for checking the URL termination for requested lists.
@@ -158,7 +165,7 @@ class TestLists:
             data_list = requests.get(API_URL + self.lists_dict[url],
                                      timeout=TIMEOUT,
                                      verify=VERIFICATION).content
-            # Decode the data using UTF-8
+            # Decode te data using UTF-8
             data_list_d = data_list.decode('utf-8')
 
             # Parse using parse_risk
@@ -175,15 +182,15 @@ class TestLists:
                 # Assert columns data types
                 # Floats
                 float_cols = ['Diameter in m', 'IP max', 'PS max', 'Vel in km/s', 'IP cum', 'PS cum']
-                assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+                assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
                 # int64
                 int_cols = ['TS', 'First Year', 'Last Year']
-                assert all([new_list[x].dtype == np.dtype('int64') for x in int_cols])
+                assert all([np.issubdtype(new_list[x].dtype, int) for x in int_cols])
 
                 # String
                 str_cols = ['Object Name', '*=Y']
-                assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
+                assert all([np.issubdtype(new_list[x].dtype, str) for x in str_cols])
 
                 # Datetime
                 assert isinstance(new_list['Date/Time'], Time)
@@ -196,15 +203,15 @@ class TestLists:
                 # Assert columns data types
                 # Floats
                 float_cols = ['IP max', 'PS max', 'Vel in km/s']
-                assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+                assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
-                # int64
+                # ints
                 int_cols = ['TS', 'Diameter in m']
-                assert all([new_list[x].dtype == np.dtype('int64') for x in int_cols])
+                assert all([np.issubdtype(new_list[x].dtype, int) for x in int_cols])
 
                 # String
                 str_cols = ['Object Name', '*=Y']
-                assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
+                assert all([np.issubdtype(new_list[x].dtype, str) for x in str_cols])
 
     def test_parse_clo(self):
         """Check data: close_approaches_upcoming,
@@ -241,14 +248,14 @@ class TestLists:
             # Floats
             float_cols = ['Miss Distance in au', 'Miss Distance in LD', 'Diameter in m',
                           'H', 'Max Bright', 'Rel. vel in km/s']
-            assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+            assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
             # int64
-            assert new_list['Miss Distance in km'].dtype == np.dtype('int64')
+            assert np.issubdtype(new_list['Miss Distance in km'].dtype, int)
 
             # Object
             str_cols = ['Object Name', '*=Yes']
-            assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
+            assert all([np.issubdtype(new_list[x].dtype, str) for x in str_cols])
 
             # Datetime
             assert isinstance(new_list['Date'], Time)
@@ -284,14 +291,14 @@ class TestLists:
             # Assert columns data types
             # Floats
             float_cols = ['R.A. in arcsec', 'Decl. in deg', 'V in mag']
-            assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+            assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
             # int64
             int_cols = ['Priority', 'Elong. in deg', 'Sky uncert.']
-            assert all([new_list[x].dtype == np.dtype('int64') for x in int_cols])
+            assert all([np.issubdtype(new_list[x].dtype, int) for x in int_cols])
 
             # Object
-            assert new_list["Object"].dtype.type == np.str_
+            assert np.issubdtype(new_list["Object"].dtype, str)
 
             # Datetime
             assert isinstance(new_list['End of Visibility'], Time)
@@ -328,11 +335,11 @@ class TestLists:
         # Assert columns data types
         # Floats
         float_cols = encounter_columns[3:]
-        assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+        assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
         # Str
         str_cols = ['Name/desig', 'Planet']
-        assert all([new_list[x].dtype.type == np.str_ for x in str_cols])
+        assert all([np.issubdtype(new_list[x].dtype, str) for x in str_cols])
 
         # Datetime
         assert isinstance(new_list['Date'], Time)
@@ -397,21 +404,26 @@ class TestLists:
             float_cols = ['Epoch (MJD)', 'a', 'e', 'i',
                           'long. node', 'arg. peric.', 'mean anomaly',
                           'absolute magnitude', 'slope param.']
-            assert all([new_list[x].dtype == np.dtype('float64') for x in float_cols])
+            assert all([np.issubdtype(new_list[x].dtype, float) for x in float_cols])
 
             # Object
-            assert new_list['Name'].dtype.type == np.str_
+            assert np.issubdtype(new_list['Name'].dtype, str)
 
             # Int
-            assert new_list['non-grav param.'].dtype == np.dtype('int64')
+            assert np.issubdtype(new_list['non-grav param.'].dtype, int)
 
 
+@pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
 @pytest.mark.remote_data
 class TestTabs:
     """Class which contains the unitary tests for tabs module.
     """
     path_nea = os.path.join(DATA_DIR, 'allnea.csv')
     nea_list = Table.read(path_nea, format="ascii.csv")
+
+    # Ignore the FutureWarning that only comes up with the oldest dependencies
+    warnings.filterwarnings("ignore", category=FutureWarning,
+                            message="Conversion of the second argument of issubdtype*")
 
     def test_get_object_url(self):
         """Test for checking the URL termination for requested object tab.
@@ -517,7 +529,7 @@ class TestTabs:
         assert all([x == y for x, y in zip(summary.colnames, summary_cols)])
 
         # Assert dtype
-        assert all([summary[x].dtype.type == np.str_ for x in summary_cols])
+        assert all([np.issubdtype(summary[x].dtype, str) for x in summary_cols])
 
         # Check specific asteroids that will remain inmutable
         ast_summ1 = neocc.neocc.query_object(name='433', tab='summary')[0]

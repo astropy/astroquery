@@ -1,9 +1,9 @@
 
 .. _astroquery.esa.neocc:
 
-************************************************************************************************
-ESA NEOCC Portal Python Interface Library (`astroquery.esa.neocc`/`astroquery.solarsystem.neocc`)
-************************************************************************************************
+***********************************************************************************************
+ESA NEOCC Portal Python Interface Library (`astroquery.esa.neocc`/astroquery.solarsystem.neocc)
+***********************************************************************************************
 
 The ESA NEO Coordination Centre (NEOCC) is the operational centre of ESA’s Planetary Defence Office
 PDO) within the Space Safety Programme (S2P). Its aim is to coordinate and contribute to the
@@ -27,6 +27,7 @@ Getting ESA NEOCC's products
 --------------------------------
 1. Direct download of list files
 --------------------------------
+
 This function allows the user to download the requested list data from ESA NEOCC.
 Different lists that can be requested are:
 
@@ -49,8 +50,9 @@ These lists are referenced in `<https://neo.ssa.esa.int/computer-access>`_.
 --------------------------------
 Examples
 --------------------------------
+
 **NEA list:** The output
-of this list is a `astropy.table.Table` which contains the list of all NEAs
+of this list is a `~astropy.table.Table` which contains the list of all NEAs
 currently considered in the NEOCC system.
 
 .. doctest-remote-data::
@@ -82,7 +84,7 @@ be used as input for *query_object* method.
     >>> print(list_data["NEA"][4])
     1221 Amor
 
-**Close approaches:**  The output of this list is a `astropy.table.Table` which
+**Close approaches:**  The output of this list is a `~astropy.table.Table` which
 contains information about asteroid close approaches.
 
 .. doctest-remote-data::
@@ -131,6 +133,7 @@ These properties are referenced in `<https://neo.ssa.esa.int/computer-access>`_.
 --------------------------------
 Examples
 --------------------------------
+
 **Impacts, Physical Properties and Observations**: This example
 tries to summarize how to access the data of this tabs and how to
 use it. Note that this classes only require as inputs the name of
@@ -221,7 +224,7 @@ in the 'meta' property, including information about the table columns.
 
 
 **Observations:** In this example we query for Observations tables, a query that
-returns a list containing 3-5 `astropy.table.Table`s depending if there are
+returns a list containing 3-5 `~astropy.table.Table` objects depending if there are
 "Roving observer" or satellite observations.
 
 
@@ -274,7 +277,7 @@ which results in a single data table.
 
 **Orbit Properties:** In order to access the orbital properties
 information, it is necessary to provide two additional inputs to
-*query_object* method: `orbital_elements` and `orbit_epoch`.
+*query_object* method: "orbital_elements" and "orbit_epoch".
 
 This query returns a list of three tables, the orbital properties, and the covariance
 and corotation matrices.
@@ -300,7 +303,7 @@ and corotation matrices.
 
 **Ephemerides:** In order to access ephemerides information, it
 is necessary to provide five additional inputs to *query_object*
-method: `observatory`, `start`, `stop`, `step` and `step_unit`.
+method: "observatory", "start", "stop", "step" and "step_unit".
 
 .. doctest-remote-data::
 
@@ -325,3 +328,9 @@ method: `observatory`, `start`, `stop`, `step` and `step_unit`.
     2019-05-22T01:30:00.000 58625.0625  7 34  4.357 ...    0.001    0.001       155.2
     2019-05-23T01:30:00.000 58626.0625  7 37 36.303 ...    0.001    0.001       158.7
 
+
+Reference/API
+=============
+
+.. automodapi:: astroquery.esa.neocc
+    :no-inheritance-diagram:
