@@ -211,4 +211,3 @@ def test_get_file_url():
     """Test generating file URL based on filename."""
     url = gemini.Observations.get_file_url("filename")
     assert url == "https://archive.gemini.edu/file/filename"
-
