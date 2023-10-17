@@ -132,19 +132,21 @@ the *NotFail* or *notengineering* terms respectively.
 Authenticated Sessions
 ----------------------
 
-The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you login
-with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login`
-method returns `True` if successful.
+The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you
+login with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The
+`astroquery.gemini.ObservationsClass.login` method returns `True` if successful. To logout, use the
+`astroquery.gemini.ObservationsClass.logout` method to remove the Gemini Observatory Archive session cookie.
 
 .. doctest-skip::
 
                 >>> from astroquery.gemini import Observations
                 >>> Observations.login(username, password)
                 >>> # do something with your elevated access
+                >>> Observations.logout()
 
 
-File Downloading
-----------------
+File Downloading and File Content Getting
+-----------------------------------------
 
 As a convenience, you can request file downloads directly from the Gemini module.  This constructs the appropriate
 URL and fetches the file.  It will use any authenticated session you may have, so it will retrieve any
@@ -154,6 +156,15 @@ proprietary data you may be permissioned for.
 
                 >>> from astroquery.gemini import Observations
                 >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp")  # doctest: +IGNORE_OUTPUT
+
+
+To get the file content without writing to disk, you can use the method
+`astroquery.gemini.ObservationsClass.get_file_content`. This constructs the appropriate url and fetches the
+file contents. This will use any authenticated session you have for proprietary data.
+
+.. doctest-remote-data::
+                >>> from astroquery.gemini import Observations
+                >>> Observations.get_file_content("GS2020AQ319-10.fits")  # doctest: +IGNORE_OUTPUT
 
 
 Reference/API

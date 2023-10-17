@@ -8,6 +8,7 @@ documentation at:
 https://astroquery.readthedocs.io/en/latest/testing.html
 """
 import pytest
+import requests
 
 import os
 import shutil
@@ -22,6 +23,10 @@ from astroquery import gemini
 
 """ Coordinates to use for testing """
 coords = SkyCoord(210.80242917, 54.34875, unit="deg")
+
+# Filename and url
+filename = "S20231016S0018.fits.bz2"  # Small file
+file_url = f"https://archive.gemini.edu/file{filename}"
 
 
 @pytest.mark.remote_data
@@ -78,3 +83,14 @@ class TestGemini:
             os.unlink(filepath)
         if os.path.exists(tempdir):
             shutil.rmtree(tempdir)
+
+    def test_get_file_content(self):
+        """Test the `get_file_content` function."""
+        content = gemini.Observations.get_file_content(filename)
+        assert isinstance(content, bytes)
+        assert len(content) > 0
+
+    def test_get_file_content_with_timeout(self):
+        """Test `get_file_content` with a timeout."""
+        with pytest.raises(requests.exceptions.Timeout):
+            gemini.Observations.get_file_content(filename, timeout=0.001)

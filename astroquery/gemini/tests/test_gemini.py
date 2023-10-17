@@ -24,9 +24,20 @@ class MockResponse:
 
     def __init__(self, text):
         self.text = text
+        self.headers = {'content-length': str(len(text))}
+        self.status_code = 200
 
     def json(self):
         return json.loads(self.text)
+
+    def raise_for_status(self):
+        pass
+
+    def iter_content(self, blocksize):
+        yield self.text
+
+    def close(self):
+        pass
 
 
 @pytest.fixture
@@ -35,7 +46,15 @@ def patch_get(request):
     mp = request.getfixturevalue("monkeypatch")
 
     mp.setattr(requests.Session, 'request', get_mockreturn)
-    return mp
+
+
+@pytest.fixture
+def patch_content(monkeypatch):
+    """Mock requests with encoded content."""
+    def mock_request(*args, **kwargs):
+        return MockResponse(b"mock_content")
+
+    monkeypatch.setattr(requests.Session, 'request', mock_request)
 
 
 # to inspect behavior, updated when the mock get call is made
@@ -171,3 +190,25 @@ def test_url_helper_eng_fail(test_arg):
     urlsplit = url.split('/')
     assert (('notengineering' in urlsplit) == should_have_noteng)
     assert (('NotFail' in urlsplit) == should_have_notfail)
+
+
+def test_logout():
+    """Test logout functionality."""
+    gemini.Observations._session.cookies = {"gemini_archive_session": "some_value"}
+    gemini.Observations._authenticated = True
+    gemini.Observations.logout()
+    assert "gemini_archive_session" not in gemini.Observations._session.cookies
+    assert gemini.Observations._authenticated is False
+
+
+def test_get_file_content(patch_content):
+    """Test wrapper around _download_file_content."""
+    content = gemini.Observations.get_file_content("filename", timeout=5)
+    assert content == b"mock_content"
+
+
+def test_get_file_url():
+    """Test generating file URL based on filename."""
+    url = gemini.Observations.get_file_url("filename")
+    assert url == "https://archive.gemini.edu/file/filename"
+
