@@ -51,12 +51,11 @@ class TestIrsa:
         # assert only selected columns are returned
         assert result.colnames == ['ra', 'dec', 'j_m']
 
-    @pytest.mark.skip("Upstream TAP doesn't support Box geometry yet")
     def test_query_region_box(self):
         result = Irsa.query_region(
-            "00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box',
-            width=2 * u.arcmin, cache=False)
+            "00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box', width=0.5 * u.arcmin)
         assert isinstance(result, Table)
+        assert len(result) == 24
 
     def test_query_region_polygon(self):
         polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
@@ -64,6 +63,7 @@ class TestIrsa:
             result = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon", polygon=polygon)
 
         assert isinstance(result, Table)
+        assert len(result) == 7
 
     def test_list_catalogs(self):
         catalogs = Irsa.list_catalogs()
