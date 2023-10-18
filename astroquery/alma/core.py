@@ -19,6 +19,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 try:
     from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
@@ -314,7 +315,16 @@ class AlmaClass(QueryWithLogin):
     archive_url = conf.archive_url
     USERNAME = conf.username
 
-    def __init__(self):
+    def __init__(self, enhanced_results=False):
+        """
+        Ctor.
+
+        Parameters
+        ----------
+        enhanced_results : bool
+            With enhanced results, the service returns table of Python objects
+            (Quantities, regions)
+        """
         # sia service does not need disambiguation but tap does
         super().__init__()
         self._sia = None
@@ -324,6 +334,7 @@ class AlmaClass(QueryWithLogin):
         self._tap_url = None
         self._datalink_url = None
         self._auth = AlmaAuth()
+        self._enhanced_results = enhanced_results
 
     @property
     def auth(self):
@@ -497,7 +508,10 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(query, maxrec=maxrec)
 
         if result is not None:
-            result = result.to_table()
+            if self._enhanced_results:
+                result = self.to_enhanced_table(result);
+            else:
+                result = result.to_table()
         else:
             # Should not happen
             raise RuntimeError('BUG: Unexpected result None')
@@ -521,6 +535,40 @@ class AlmaClass(QueryWithLogin):
                               .format(col_name, _OBSCORE_TO_ALMARESULT[col_name]))
             return legacy_result
         return result
+
+    def to_enhanced_table(self, result):
+        prep_table = result.to_qtable()
+        s_region_parser = None
+        for field in result.resultstable.fields:
+            if ('s_region' == field.ID) and ('adql:REGION' == field.xtype):
+                s_region_parser = self.parse_stcs_string
+                break
+        if (s_region_parser):
+            for row in prep_table:
+                row['s_region'] = s_region_parser(row['s_region'])
+        return prep_table
+
+    def parse_stcs_string(self, input):
+        import regions
+        tokens = input.split(' ')
+        csys = 'icrs'
+        if tokens[0].lower() == 'polygon':
+            if csys == tokens[1].lower():
+                tokens = tokens[2:]
+            else:
+                tokens = tokens[1:]
+            points = SkyCoord([(float(tokens[ii]), float(tokens[ii + 1])) * u.deg
+                               for ii in range(0, len(tokens), 2)],
+                              frame=csys)
+            return regions.PolygonSkyRegion(points)
+        elif tokens[0].lower == 'circle':
+            if csys == tokens[1].lower():
+                tokens = tokens[:2]
+            else:
+                tokens = tokens[:1]
+            return regions.CircleSkyRegion(SkyCoord(float(tokens[0]), float(tokens[1])), float(tokens[2]))
+
+
 
     def query_sia(self, *, pos=None, band=None, time=None, pol=None,
                   field_of_view=None, spatial_resolution=None,
