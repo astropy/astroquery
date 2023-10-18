@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+alma
+^^^^
+
+- Added method to return quantities instead of values and regions footprint in alma [#2855]
+
 mpc
 ^^^
 
