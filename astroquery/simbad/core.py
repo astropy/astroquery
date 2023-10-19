@@ -92,6 +92,39 @@ def strip_field(field, keep_filters=False):
     return field
 
 
+def _adql_parameter(entry: str):
+    """Replace single quotes by two single quotes.
+
+    This should be applied to parameters used in ADQL queries.
+    It is not a SQL injection protection: it just allows to search, for example,
+    for authors with quotes in their names or titles/descriptions with apostrophes.
+
+    Parameters
+    ----------
+    entry : str
+
+    Returns
+    -------
+    str
+    """
+    return entry.replace("'", "''")
+
+
+def _adql_name(name: str):
+    """Prepare a string to be used as a column or table name.
+
+    It prepends and appends a double quote to the elements of the name.
+    This allows to escape ADQL reserved vocabulary. It then applies the
+    SIMBAD-specific (not in ADQL) `lowercase` function.
+
+    Parameters
+    ----------
+    name : str
+        The column name.
+    """
+    return f'''lowercase("{'.'.join([f'"{element}"' for element in name.split(".")])}")'''
+
+
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
@@ -973,6 +1006,147 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
 
         return response
 
+    def tables(self, get_adql=False):
+        """The names and descriptions of the tables in SIMBAD.
+
+        Parameters
+        ----------
+        get_adql : bool, optional
+            Returns the ADQL string instead of querying SIMBAD.
+
+        Returns
+        -------
+        `~astropy.table.table.Table`
+        """
+        query = ("SELECT table_name, description"
+                 " FROM TAP_SCHEMA.tables"
+                 " WHERE schema_name = 'public'")
+        if get_adql:
+            return query
+        return self.query_tap(query)
+
+    def columns(self, *tables: str, get_adql=False):
+        """
+        Get the list of SIMBAD columns.
+
+        Add tables names to restrict to some tables. Call the function without
+        any parameter to get all columns names.
+
+        Parameters
+        ----------
+        tables : str, optional
+            Add tables names as strings to restrict to these tables columns.
+        get_adql : bool, optional
+            Returns the ADQL string instead of querying SIMBAD.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.columns("ids", "ident") # doctest: +REMOTE_DATA
+        <Table length=4>
+        table_name column_name datatype ...  unit    ucd
+          object      object    object  ... object  object
+        ---------- ----------- -------- ... ------ -------
+             ident          id  VARCHAR ...        meta.id
+             ident      oidref   BIGINT ...
+               ids         ids     CLOB ...        meta.id
+               ids      oidref   BIGINT ...
+        """
+        query = ("SELECT table_name, column_name, datatype, description, unit, ucd"
+                 " FROM TAP_SCHEMA.columns"
+                 " WHERE table_name NOT LIKE 'TAP_SCHEMA.%'")
+        if len(tables) == 1:
+            query += f" AND table_name = '{tables[0]}'"
+        elif len(tables) > 1:
+            query += f" AND table_name IN ({str(tables)[1:-1]})"
+        query += " ORDER BY table_name, principal DESC, column_name"
+        if get_adql:
+            return query
+        return self.query_tap(query)
+
+    def find_columns_by_keyword(self, keyword: str, get_adql=False):
+        """
+        Find columns by keyword.
+
+        This looks for columns in all Simbad tables that contain the
+        given keyword. The search is not case-sensitive.
+
+        Parameters
+        ----------
+        keyword : str
+            A keyword to look for in column names, table names, or descriptions.
+        get_adql : bool, optional
+            Returns the ADQL string instead of querying SIMBAD.
+
+        Returns
+        -------
+        `~astropy.table.table.Table`
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.find_columns_by_keyword("filter") # doctest: +REMOTE_DATA
+        <Table length=5>
+         table_name column_name   datatype  ...  unit           ucd
+           object      object      object   ... object         object
+        ----------- ----------- ----------- ... ------ ----------------------
+             filter description UNICODECHAR ...        meta.note;instr.filter
+             filter  filtername     VARCHAR ...                  instr.filter
+             filter        unit     VARCHAR ...                     meta.unit
+               flux      filter     VARCHAR ...                  instr.filter
+        mesDiameter      filter        CHAR ...                  instr.filter
+        """
+        condition = f"LIKE LOWERCASE('%{_adql_parameter(keyword)}%')"
+        query = ("SELECT table_name, column_name, datatype, description, unit, ucd"
+                 " FROM TAP_SCHEMA.columns"
+                 f" WHERE (LOWERCASE(column_name) {condition})"
+                 f" OR (LOWERCASE(description) {condition})"
+                 f" OR (LOWERCASE(table_name) {condition})"
+                 " ORDER BY table_name, principal DESC, column_name")
+        if get_adql:
+            return query
+        return self.query_tap(query)
+
+    def find_linked_tables(self, table: str, get_adql=False):
+        """
+        Expose the tables that can be non-obviously linked with the given table.
+
+        This is not exhaustive, this list contains only the links where the column names
+        are not the same in the two tables. For example every ``oidref`` column of any
+        table can be joined with any other ``oidref``. The same goes for every ``otype``
+        column even if this is not returned by this method.
+
+        Parameters
+        ----------
+        table : str
+            One of SIMBAD's tables name
+        get_adql : bool, optional
+            Returns the ADQL string instead of querying SIMBAD.
+
+        Returns
+        -------
+        `~astropy.table.table.Table`
+            The information necessary to join the given table to an other.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.find_linked_tables("otypes") # doctest: +REMOTE_DATA
+        <Table length=2>
+        from_table from_column target_table target_column
+          object      object      object        object
+        ---------- ----------- ------------ -------------
+          otypedef       otype       otypes         otype
+            otypes      oidref        basic           oid
+        """
+        query = ("SELECT from_table, from_column, target_table, target_column"
+                 " FROM TAP_SCHEMA.key_columns JOIN TAP_SCHEMA.keys USING (key_id)"
+                 f" WHERE (from_table = '{_adql_parameter(table)}')"
+                 f" OR (target_table = '{_adql_parameter(table)}')")
+        if get_adql:
+            return query
+        return self.query_tap(query)
+
     def query_tap(self, query: str, maxrec=10000, uploads=None):
         """
         Query Simbad TAP service.
@@ -986,10 +1160,10 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
             The number of records to be returned. Its maximum value is 2000000.
         uploads : dict, default: None
             A dictionary of local tables to be used in the *query*. It should be
-            constructed as *{"table_name": table}*.*table* can be an
+            constructed as *{"table_alias": table}*.*table* can be an
             `~astropy.table.table.Table`, an `~astropy.io.votable.tree.VOTableFile`
             or a `~pyvo.dal.DALResults` object. In the *query*, these tables are referred
-            as *TAP_UPLOAD.table_name* where *TAP_UPLOAD* is imposed and *table_name*
+            as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
             is the key of the *uploads* dictionary. The maximum number on lines for the
             uploaded tables is 200000.
 
@@ -1012,50 +1186,66 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
         See also: a `graphic representation of Simbad's tables and their relations
         <http://simbad.cds.unistra.fr/simbad/tap/tapsearch.html>`__.
 
+        See also
+        --------
+        Helper functions to build queries.
+        tables : The list of SIMBAD's tables.
+        columns : SIMBAD's columns, can be restricted to some tables.
+        find_columns_by_keyword : Find columns matching a keyword.
+        find_linked_tables : Given a table, expose non-obvious possible joins with other tables.
+
         Examples
         --------
 
         To see the five oldest papers referenced in Simbad
-        
+
         >>> from astroquery.simbad import Simbad
-        >>> Simbad.query_tap("SELECT top 5 bibcode, title, nbobject"
+        >>> Simbad.query_tap("SELECT top 5 bibcode, title "
         ...                  "FROM ref ORDER BY bibcode") # doctest: +REMOTE_DATA
         <Table length=5>
-              bibcode                                        title                                  nbobject
-               object                                        object                                  int32
-        ------------------- ----------------------------------------------------------------------- --------
-        1850CDT..1784....0A                                                                     ???        2
-        1850CDT..1784..227M                         Catalogue des nebuleuses et des amas d'etoiles.      111
-        1857AN.....45...89S                                             Ueber veranderliche Sterne.        1
-        1861MNRAS..21...68B On the three new variable stars, T Bootis, T Serpentis, and S Delphini.        3
-        1874MNRAS..34...75S        Nebulae discovered and observed at the observatory of Marseille.        1
+              bibcode       ...
+               object       ...
+        ------------------- ...
+        1850CDT..1784..227M ...
+        1857AN.....45...89S ...
+        1861MNRAS..21...68B ...
+        1874MNRAS..34...75S ...
+        1877AN.....89...13W ...
 
-        Get the type of an object
+        Get the type for a list of objects
 
         >>> from astroquery.simbad import Simbad
-        >>> Simbad.query_tap("SELECT main_id, otype FROM basic WHERE main_id = 'm10'") # doctest: +REMOTE_DATA
-        <Table length=1>
+        >>> Simbad.query_tap("SELECT main_id, otype"
+        ...                  " FROM basic WHERE main_id IN ('m10', 'm13')") # doctest: +REMOTE_DATA
+        <Table length=2>
         main_id otype
          object object
         ------- ------
           M  10    GlC
+          M  13    GlC
 
         Upload a table to use in a query
 
         >>> from astroquery.simbad import Simbad
         >>> from astropy.table import Table
-        >>> objects_table = Table([["M101", "NGC1343", "Abell1656"]], names=["objectname"])
-        >>> Simbad.query_tap("SELECT * from TAP_UPLOAD.objects_table WHERE objectname = 'M101'",
-        ...                  uploads={"objects_table": objects_table}) # doctest: +REMOTE_DATA
-        <Table length=1>
-        objectname
-          object
-        ----------
-              M101
+        >>> objects_table = Table([["a", "b", "c"]], names=["column_name"])
+        >>> Simbad.query_tap("SELECT TAP_UPLOAD.my_table_name.* from TAP_UPLOAD.my_table_name",
+        ...                  uploads={"my_table_name": objects_table}) # doctest: +REMOTE_DATA
+        <Table length=3>
+        column_name
+           object
+        -----------
+                  a
+                  b
+                  c
         """
         if maxrec > self.tap.hardlimit:
             raise ValueError(f"The maximum number of records cannot exceed {self.tap.hardlimit}.")
-        return self.tap.run_async(query, maxrec=maxrec, uploads=uploads)
+        if query.count("'") % 2:
+            raise ValueError("Query string contains an odd number of single quotes."
+                             " Escape the unpaired single quote by doubling it.\n"
+                             "ex: 'Barnard's galaxy' -> 'Barnard''s galaxy'.")
+        return self.tap.run_async(query, maxrec=maxrec, uploads=uploads).to_table()
 
     def _get_query_header(self, get_raw=False):
         # if get_raw is set then don't fetch as votable

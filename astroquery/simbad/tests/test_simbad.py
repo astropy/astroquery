@@ -461,3 +461,37 @@ def test_regression_issue388():
     truth = 'M   1'
     assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1
+
+# ---------------------------------------------------
+# Test the adql string for query_tap helper functions
+# ---------------------------------------------------
+
+
+def test_simbad_tables():
+    tables_adql = "SELECT table_name, description FROM TAP_SCHEMA.tables WHERE schema_name = 'public'"
+    assert simbad.Simbad.tables(get_adql=True) == tables_adql
+
+
+def test_simbad_columns():
+    columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd"
+                    " FROM TAP_SCHEMA.columns "
+                    "WHERE table_name NOT LIKE 'TAP_SCHEMA.%'"
+                    " AND table_name IN ('mesPM', 'otypedef', 'journals')"
+                    " ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.columns("mesPM", "otypedef", "journals", get_adql=True) == columns_adql
+
+
+def test_find_columns_by_keyword():
+    find_columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
+                         "FROM TAP_SCHEMA.columns WHERE (LOWERCASE(column_name) "
+                         "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(description) "
+                         "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(table_name) "
+                         "LIKE LOWERCASE('%stellar%')) ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.find_columns_by_keyword("stellar", get_adql=True) == find_columns_adql
+
+
+def test_find_linked_tables():
+    find_linked_tables_adql = ("SELECT from_table, from_column, target_table, target_column "
+                               "FROM TAP_SCHEMA.key_columns JOIN TAP_SCHEMA.keys USING (key_id) "
+                               "WHERE (from_table = 'basic') OR (target_table = 'basic')")
+    assert simbad.Simbad.find_linked_tables("basic", get_adql=True) == find_linked_tables_adql

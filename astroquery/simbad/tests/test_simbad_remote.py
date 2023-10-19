@@ -257,17 +257,40 @@ class TestSimbad:
     def test_query_tap(self):
         # a robust query about something that should not change in Simbad
         filtername = Simbad.query_tap("select filtername from filter where filtername='B'")
-        assert 'B' == filtername.getvalue("filtername", 0)
+        assert 'B' == filtername["filtername"][0]
         # test uploads by joining two local tables
         table_letters = Table([["a", "b", "c"]], names=["letters"])
         table_numbers = Table([[1, 2, 3], ["a", "b", "c"]], names=["numbers", "letters"])
         result = Simbad.query_tap("SELECT * FROM TAP_UPLOAD.numbers "
                                   "JOIN TAP_UPLOAD.letters USING(letters)",
                                   uploads={"numbers": table_numbers, "letters": table_letters})
-        expect = ("<Table length=3>\nletters numbers\n object  int64 \n------- -------"
-                  "\n      a       1\n      b       2\n      c       3")
-        assert expect in str(result)
-        # test of maxrec
+        expect = "letters numbers\n------- -------\n      a       1\n      b       2\n      c       3"
+        assert expect == str(result)
+        # Test query_tap raised errors
         with pytest.raises(DALOverflowWarning, match="Partial result set *"):
             truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
             assert len(truncated_result) == 2
+        with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
+            Simbad.query_tap("select top 5 * from basic", maxrec=10e10)
+        with pytest.raises(ValueError, match="Query string contains an odd number of single quotes.*"):
+            Simbad.query_tap("'''")
+
+    def test_simbad_tables(self):
+        tables = Simbad.tables()
+        # check the content
+        assert "basic" in str(tables)
+        # there might be new tables, we have 30 now.
+        assert len(tables) >= 30
+
+    def test_simbad_columns(self):
+        columns = Simbad.columns("ident", "biblio")
+        assert len(columns) == 4
+        assert "oidref" in str(columns)
+
+    def test_find_columns_by_keyword(self):
+        columns = Simbad.find_columns_by_keyword("herschel")
+        assert {"mesHerschel"} == set(columns["table_name"])
+
+    def test_find_linked_tables(self):
+        links = Simbad.find_linked_tables("h_link")
+        assert {"basic"} == set(links["target_table"])
