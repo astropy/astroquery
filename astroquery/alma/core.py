@@ -509,7 +509,7 @@ class AlmaClass(QueryWithLogin):
 
         if result is not None:
             if self._enhanced_results:
-                result = self.to_enhanced_table(result);
+                result = self.to_enhanced_table(result)
             else:
                 result = result.to_table()
         else:
