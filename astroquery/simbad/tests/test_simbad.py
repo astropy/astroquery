@@ -96,6 +96,15 @@ def test_simbad_create_tap_service():
     assert 'simbad/sim-tap' in simbadtap.baseurl
 
 
+def test_adql_parameter():
+    # escape single quotes
+    assert simbad.core._adql_parameter("Barnard's galaxy") == "Barnard''s galaxy"
+
+
+def test_adql_name():
+    assert simbad.core._adql_name("biblio.year") == 'lowercase("biblio"."year")'
+
+
 @pytest.mark.parametrize(('radius', 'expected_radius'),
                          [('5d0m0s', '5.0d'),
                           ('5d', '5.0d'),
@@ -473,12 +482,18 @@ def test_simbad_tables():
 
 
 def test_simbad_columns():
+    # with three table names
     columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd"
                     " FROM TAP_SCHEMA.columns "
                     "WHERE table_name NOT LIKE 'TAP_SCHEMA.%'"
                     " AND table_name IN ('mesPM', 'otypedef', 'journals')"
                     " ORDER BY table_name, principal DESC, column_name")
     assert simbad.Simbad.columns("mesPM", "otypedef", "journals", get_adql=True) == columns_adql
+    # with only one
+    columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
+                    "FROM TAP_SCHEMA.columns WHERE table_name NOT LIKE 'TAP_SCHEMA.%' "
+                    "AND table_name = 'basic' ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.columns("basic", get_adql=True) == columns_adql
 
 
 def test_find_columns_by_keyword():

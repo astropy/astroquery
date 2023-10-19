@@ -122,7 +122,7 @@ def _adql_name(name: str):
     name : str
         The column name.
     """
-    return f'''lowercase("{'.'.join([f'"{element}"' for element in name.split(".")])}")'''
+    return f'''lowercase({'.'.join([f'"{element}"' for element in name.split(".")])})'''
 
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
