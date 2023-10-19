@@ -47,6 +47,13 @@ esa.hubble
 - New methods to download single files ``download_file`` and download FITS associated to an observation ``download_fits_files``. [#2797]
 - New function to retrieve all the files associated to an observation. [#2797]
 
+simbad
+^^^^^^
+
+- new ``query_tap`` method to access SIMBAD. This comes with additional methods to explore SIMBAD's tables and 
+  their links: ``Simbad.tables``, ``Simbad.columns``, ``Simbad.find_columns_by_keyword``
+  and ``Simbad.find_linked_tables``. [#2856]
+
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
 
