@@ -19,14 +19,12 @@ A warning about big queries
 
 The SIMBAD database is largely used and had to limit the rate of incoming queries.
 If you spam the server with more that ~5-10 queries per second you will be
-blacklisted for a week. If it happens to you, you can use the section about
+blacklisted for an hour. If it happens to you, you can use the section about
 :ref:`vectorized queries <vectorqueries>` below.  You can pass
 `~astroquery.simbad.SimbadClass.query_region`
 a vector of coordinates or `~astroquery.simbad.SimbadClass.query_objects`
 a list of object names, and SIMBAD will treat this submission as a single
 query.
-To get out of the blacklist, send an `email to the Simbad
-database <cds-questions@unistra.fr?Subject=Simbad>`__.
 
 Different ways to access Simbad
 -------------------------------
@@ -407,17 +405,13 @@ article specified by the bibcode:
           NAME Lockman Hole   10 45 00.0    +58 00 00       5        5 ...           --             0        E                2011ApJ...734...99H
             NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E
 
-
-Query based on any criteria
----------------------------
-
 Query TAP
-^^^^^^^^^
+---------
 
 .. include:: query_tap.rst
 
-Query criteria
-^^^^^^^^^^^^^^
+Query based on any criteria
+---------------------------
 
 Anything done in SIMBAD's `criteria interface`_ can be done via astroquery.
 See that link for details of how these queries are formed.

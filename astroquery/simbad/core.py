@@ -1169,11 +1169,8 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
 
         Returns
         -------
-        `~pyvo.dal.TAPResults`
+        `~astropy.table.table.Table`
             The response returned by Simbad.
-            It can be converted to astropy objects. To get a
-            `~astropy.io.votable.tree.Table` use *.votable*,
-            and to get a `~astropy.table.table.Table` use *.to_table()*.
 
         Notes
         -----
@@ -1188,7 +1185,6 @@ class SimbadClass(SimbadBaseQuery, BaseVOQuery):
 
         See also
         --------
-        Helper functions to build queries.
         tables : The list of SIMBAD's tables.
         columns : SIMBAD's columns, can be restricted to some tables.
         find_columns_by_keyword : Find columns matching a keyword.
