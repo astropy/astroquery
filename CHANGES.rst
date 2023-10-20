@@ -205,6 +205,8 @@ mast
 
 - Resolved issue making PANSTARRS catalog queries when columns and sorting is specified. [#2727]
 
+- Updating documentation to address the difference between ``obsid`` and ``obs_id`` database fields. [#2857]
+
 nist
 ^^^^
 
