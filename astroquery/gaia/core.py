@@ -164,9 +164,10 @@ class GaiaClass(TapPlus):
             log.error("Error logging out data server")
 
     def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL',
-                  retrieval_type="ALL", linking_parameter=None, valid_data=False, band=None,
-                  avoid_datatype_check=False, format="votable", output_file=None,
-                  overwrite_output_file=False, verbose=False):
+                  retrieval_type="ALL", linking_parameter=None,
+                  valid_data=False,
+                  band=None, avoid_datatype_check=False, format="votable",
+                  output_file=None, overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -233,13 +234,15 @@ class GaiaClass(TapPlus):
 
         output_file_specified = False
         if output_file is None:
-            output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
+            output_file = os.path.join(os.getcwd(), temp_dirname,
+                                       downloadname_formated)
         else:
             output_file_specified = True
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
-                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='False' to "
-                                 f"overwrite output file.")
+                raise ValueError(
+                    f"{output_file} file already exists. Please use overwrite_output_file='False' to "
+                    f"overwrite output file.")
 
         path = os.path.dirname(output_file)
 
@@ -247,8 +250,9 @@ class GaiaClass(TapPlus):
             # we need to check params
             rt = str(retrieval_type).upper()
             if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
-                raise ValueError(f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
-                                 f"expected: 'ALL' or any of {self.VALID_DATALINK_RETRIEVAL_TYPES}")
+                raise ValueError(
+                    f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
+                    f"expected: 'ALL' or any of {self.VALID_DATALINK_RETRIEVAL_TYPES}")
 
         params_dict = {}
 
@@ -259,7 +263,8 @@ class GaiaClass(TapPlus):
 
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
-                raise ValueError(f"Invalid band value '{band}' (Valid values: 'G', 'BP' and 'RP)")
+                raise ValueError(
+                    f"Invalid band value '{band}' (Valid values: 'G', 'BP' and 'RP)")
             else:
                 params_dict['BAND'] = band
         if isinstance(ids, str):
@@ -279,7 +284,8 @@ class GaiaClass(TapPlus):
 
         if linking_parameter is not None:
             if linking_parameter != 'SOURCE_ID' and linking_parameter != 'TRANSIT_ID' and linking_parameter != 'IMAGE_ID':
-                raise ValueError(f"Invalid linking_parameter value '{linking_parameter}' (Valid values: 'SOURCE_ID', 'TRANSIT_ID' and 'IMAGE_ID)")
+                raise ValueError(
+                    f"Invalid linking_parameter value '{linking_parameter}' (Valid values: 'SOURCE_ID', 'TRANSIT_ID' and 'IMAGE_ID)")
             else:
                 if linking_parameter == 'TRANSIT_ID' or linking_parameter == 'IMAGE_ID':
                     params_dict['LINKING_PARAMETER'] = linking_parameter
@@ -374,7 +380,8 @@ class GaiaClass(TapPlus):
         """
         return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
-    def __query_object(self, coordinate, *, radius=None, width=None, height=None,
+    def __query_object(self, coordinate, *, radius=None, width=None,
+                       height=None,
                        async_job=False, verbose=False, columns=[]):
         """Launches a job
         TAP & TAP+
@@ -442,11 +449,15 @@ class GaiaClass(TapPlus):
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                                  'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
+                    """.format(**{'row_limit': "TOP {0}".format(
+                self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                                  'ra_column': self.MAIN_GAIA_TABLE_RA,
+                                  'dec_column': self.MAIN_GAIA_TABLE_DEC,
+                                  'columns': columns,
+                                  'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
                                   'ra': ra, 'dec': dec,
-                                  'width': widthDeg.value, 'height': heightDeg.value})
+                                  'width': widthDeg.value,
+                                  'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -506,7 +517,8 @@ class GaiaClass(TapPlus):
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius=radius, width=width,
-                                   height=height, async_job=True, verbose=verbose,
+                                   height=height, async_job=True,
+                                   verbose=verbose,
                                    columns=columns)
 
     def __cone_search(self, coordinate, radius, *, table_name=None,
@@ -558,7 +570,8 @@ class GaiaClass(TapPlus):
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
         if radius is not None:
-            radiusDeg = Angle(self.__getQuantityInput(radius, "radius")).to_value(u.deg)
+            radiusDeg = Angle(
+                self.__getQuantityInput(radius, "radius")).to_value(u.deg)
 
         if columns:
             columns = ','.join(map(str, columns))
@@ -583,8 +596,10 @@ class GaiaClass(TapPlus):
                 ORDER BY
                   dist ASC
                 """.format(**{'ra_column': ra_column_name,
-                              'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                              'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
+                              'row_limit': "TOP {0}".format(
+                                  self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                              'dec_column': dec_column_name, 'columns': columns,
+                              'ra': ra, 'dec': dec,
                               'radius': radiusDeg,
                               'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
@@ -705,13 +720,15 @@ class GaiaClass(TapPlus):
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy coordinates")
+            raise ValueError(
+                f"{msg} must be either a string or astropy coordinates")
 
     def __getQuantityInput(self, value, msg):
         if value is None:
             raise ValueError(f"Missing required argument: {msg}")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(
+                f"{msg} must be either a string or astropy.coordinates")
 
         if isinstance(value, str):
             q = Quantity(value)
@@ -722,12 +739,14 @@ class GaiaClass(TapPlus):
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(
+                f"{msg} must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(
+                f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
@@ -740,7 +759,8 @@ class GaiaClass(TapPlus):
             col = table[cn]
             if isinstance(col.unit, u.UnrecognizedUnit):
                 try:
-                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
+                    col.unit = u.Unit(
+                        col.unit.name.replace(".", " ").replace("'", ""))
                 except Exception:
                     pass
             elif isinstance(col.unit, str):
@@ -794,21 +814,25 @@ class GaiaClass(TapPlus):
         Boolean indicating if the specified user is valid
         """
         if radius < 0.1 or radius > 10.0:
-            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
+            raise ValueError(
+                f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
 
         schemaA = taputils.get_schema_name(full_qualified_table_name_a)
         if schemaA is None:
-            raise ValueError(f"Not found schema name in full qualified table A: '{full_qualified_table_name_a}'")
+            raise ValueError(
+                f"Not found schema name in full qualified table A: '{full_qualified_table_name_a}'")
         tableA = taputils.get_table_name(full_qualified_table_name_a)
         schemaB = taputils.get_schema_name(full_qualified_table_name_b)
 
         if schemaB is None:
-            raise ValueError(f"Not found schema name in full qualified table B: '{full_qualified_table_name_b}'")
+            raise ValueError(
+                f"Not found schema name in full qualified table B: '{full_qualified_table_name_b}'")
 
         tableB = taputils.get_table_name(full_qualified_table_name_b)
 
         if taputils.get_schema_name(results_table_name) is not None:
-            raise ValueError("Please, do not specify schema for 'results_table_name'")
+            raise ValueError(
+                "Please, do not specify schema for 'results_table_name'")
 
         query = f"SELECT crossmatch_positional('{schemaA}','{tableA}','{schemaB}','{tableB}',{radius}, " \
                 f"'{results_table_name}') FROM dual;"
