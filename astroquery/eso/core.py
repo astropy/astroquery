@@ -915,9 +915,7 @@ class EsoClass(QueryWithLogin):
                 elif tag.name == u"select":
                     options = []
                     for option in tag.select("option"):
-                        options += ["{0} ({1})"
-                                        .format(option['value'],
-                                                "".join(option.stripped_strings))]
+                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
                     name = tag[u"name"]
                     value = ", ".join(options)
                 else:
@@ -952,8 +950,7 @@ class EsoClass(QueryWithLogin):
         form = doc.select("html body form")[0]
 
         # hovertext from different labels are used to give more info on forms
-        helptext_dict = {abbr['title'].split(":")[0].strip():
-                             ":".join(abbr['title'].split(":")[1:])
+        helptext_dict = {abbr['title'].split(":")[0].strip(): ":".join(abbr['title'].split(":")[1:])
                          for abbr in form.findAll('abbr')
                          if 'title' in abbr.attrs and ":" in abbr['title']}
 
@@ -988,11 +985,8 @@ class EsoClass(QueryWithLogin):
                     elif tag.name == u"select":
                         options = []
                         for option in tag.select("option"):
-                            options += ["{0} ({1})"
-                                            .format(option['value']
-                                                    if 'value' in option
-                                                    else "",
-                                                    "".join(option.stripped_strings))]
+                            options += ["{0} ({1})".format(option['value'] if 'value' in option else "",
+                                                           "".join(option.stripped_strings))]
                         name = tag[u"name"]
                         value = ", ".join(options)
                     else:
