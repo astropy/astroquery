@@ -167,7 +167,8 @@ class GaiaClass(TapPlus):
                   retrieval_type="ALL", linking_parameter=None,
                   valid_data=False,
                   band=None, avoid_datatype_check=False, format="votable",
-                  output_file=None, overwrite_output_file=False, verbose=False):
+                  output_file=None, overwrite_output_file=False,
+                  verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -598,7 +599,8 @@ class GaiaClass(TapPlus):
                 """.format(**{'ra_column': ra_column_name,
                               'row_limit': "TOP {0}".format(
                                   self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                              'dec_column': dec_column_name, 'columns': columns,
+                              'dec_column': dec_column_name,
+                              'columns': columns,
                               'ra': ra, 'dec': dec,
                               'radius': radiusDeg,
                               'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
