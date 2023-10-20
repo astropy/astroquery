@@ -801,7 +801,12 @@ class EsoClass(QueryWithLogin):
         if with_calib:
             log.info(f"Retrieving associated '{with_calib}' calibration files ...")
             try:
-                associated_files = self.find_associated_files(datasets, with_calib)
+                # batch calselector requests to avoid possible issues on the ESO server
+                BATCH_SIZE = 100
+                sorted_datasets = sorted(datasets)
+                for i in range(0, len(sorted_datasets), BATCH_SIZE):
+                    associated_files += self.find_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
+                associated_files = list(set(associated_files))
                 log.info(f"Found {len(associated_files)} associated files")
             except Exception as ex:
                 log.error(f"Failed to retrieve associated files: {ex}")
@@ -911,8 +916,8 @@ class EsoClass(QueryWithLogin):
                     options = []
                     for option in tag.select("option"):
                         options += ["{0} ({1})"
-                                    .format(option['value'],
-                                            "".join(option.stripped_strings))]
+                                        .format(option['value'],
+                                                "".join(option.stripped_strings))]
                     name = tag[u"name"]
                     value = ", ".join(options)
                 else:
@@ -948,7 +953,7 @@ class EsoClass(QueryWithLogin):
 
         # hovertext from different labels are used to give more info on forms
         helptext_dict = {abbr['title'].split(":")[0].strip():
-                         ":".join(abbr['title'].split(":")[1:])
+                             ":".join(abbr['title'].split(":")[1:])
                          for abbr in form.findAll('abbr')
                          if 'title' in abbr.attrs and ":" in abbr['title']}
 
@@ -958,7 +963,7 @@ class EsoClass(QueryWithLogin):
                 raise ValueError("Form parsing error: too many legends.")
             elif len(legend) == 0:
                 continue
-            section_title = "\n\n"+"".join(legend[0].stripped_strings)+"\n"
+            section_title = "\n\n" + "".join(legend[0].stripped_strings) + "\n"
 
             result_string.append(section_title)
 
@@ -984,10 +989,10 @@ class EsoClass(QueryWithLogin):
                         options = []
                         for option in tag.select("option"):
                             options += ["{0} ({1})"
-                                        .format(option['value']
-                                                if 'value' in option
-                                                else "",
-                                                "".join(option.stripped_strings))]
+                                            .format(option['value']
+                                                    if 'value' in option
+                                                    else "",
+                                                    "".join(option.stripped_strings))]
                         name = tag[u"name"]
                         value = ", ".join(options)
                     else:
