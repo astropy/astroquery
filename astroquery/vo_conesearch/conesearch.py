@@ -175,7 +175,7 @@ def conesearch(center, radius, *, verb=1, catalog_db=None,
 
     return_astropy_table : bool
         Returned ``obj`` will be `astropy.table.Table` rather
-        than `astropy.io.votable.tree.Table`.
+        than `astropy.io.votable.tree.TableElement`.
 
     use_names_over_ids : bool
         When `True` use the ``name`` attributes of columns as the names
@@ -186,7 +186,7 @@ def conesearch(center, radius, *, verb=1, catalog_db=None,
 
     Returns
     -------
-    obj : `astropy.table.Table` or `astropy.io.votable.tree.Table`
+    obj : `astropy.table.Table` or `astropy.io.votable.tree.TableElement`
         First table from first successful VO service request.
         See ``return_astropy_table`` parameter for the kind of table returned.
 
@@ -312,7 +312,7 @@ def search_all(*args, **kwargs):
 
     Returns
     -------
-    result : dict of `astropy.io.votable.tree.Table` objects
+    result : dict of `astropy.io.votable.tree.TableElement` objects
         A dictionary of tables from successful VO service requests,
         with keys being the access URLs. If none is successful,
         an empty dictionary is returned.
@@ -513,7 +513,7 @@ def conesearch_timer(*args, **kwargs):
     t : float
         Run time in seconds.
 
-    obj : `astropy.io.votable.tree.Table`
+    obj : `astropy.io.votable.tree.TableElement`
         First table from first successful VO service request.
 
     """

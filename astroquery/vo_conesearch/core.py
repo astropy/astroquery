@@ -121,7 +121,7 @@ class ConeSearchClass(BaseQuery):
 
         return_astropy_table : bool
             Returned ``result`` will be `astropy.table.Table` rather
-            than `astropy.io.votable.tree.Table`.
+            than `astropy.io.votable.tree.TableElement`.
 
         use_names_over_ids : bool
             When `True` use the ``name`` attributes of columns as the names
@@ -132,7 +132,7 @@ class ConeSearchClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table` or `astropy.io.votable.tree.Table`
+        result : `astropy.table.Table` or `astropy.io.votable.tree.TableElement`
             Table from successful VO service request.
             See ``return_astropy_table`` option for the kind of table returned.
 

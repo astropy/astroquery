@@ -11,9 +11,9 @@ from pathlib import Path
 import os
 import sys
 
-from astropy.table import Table as AstroTable
+from astropy.table import Table
 from astropy.io.fits.hdu.hdulist import HDUList
-from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
+from astropy.io.votable.tree import VOTableFile, Resource, TableElement, Field
 from astropy.io.votable import parse
 from astropy.utils.diff import report_diff_values
 from astroquery.utils.commons import parse_coordinates, FileContainer
@@ -83,10 +83,10 @@ def test_get_collections():
         assert output_format is None
         assert maxrec is None
         assert output_file is None
-        table = AstroTable(rows=[('CFHT', 'Optical'), ('CFHT', 'Infrared'),
-                                 ('JCMT', 'Millimeter'), ('DAO', 'Optical'),
-                                 ('DAO', 'Infrared')],
-                           names=('collection', 'energy_emBand'))
+        table = Table(rows=[('CFHT', 'Optical'), ('CFHT', 'Infrared'),
+                            ('JCMT', 'Millimeter'), ('DAO', 'Optical'),
+                            ('DAO', 'Infrared')],
+                      names=('collection', 'energy_emBand'))
         return table
     cadc.exec_sync = mock_run_query
     result = cadc.get_collections()
@@ -367,7 +367,7 @@ def test_exec_sync(tmp_path):
     votable = VOTableFile()
     resource = Resource()
     votable.resources.append(resource)
-    table = Table(votable)
+    table = TableElement(votable)
     resource.tables.append(table)
     table.fields.extend([
         Field(votable, name="filename", datatype="char", arraysize="*"),

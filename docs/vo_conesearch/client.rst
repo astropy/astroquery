@@ -306,7 +306,7 @@ float64     bytes13     float64    float64   ... float64 float64 float64
 
 Unlike :func:`~astroquery.vo_conesearch.conesearch.conesearch`,
 :func:`~astroquery.vo_conesearch.vos_catalog.call_vo_service` is a low-level
-function and returns `astropy.io.votable.tree.Table`. To convert it to
+function and returns `astropy.io.votable.tree.TableElement`. To convert it to
 `astropy.table.Table`:
 
 >>> tab = result.to_table()  # doctest: +REMOTE_DATA
