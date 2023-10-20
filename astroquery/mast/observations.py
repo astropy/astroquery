@@ -410,7 +410,8 @@ class ObservationsClass(MastQueryWithLogin):
     def get_product_list_async(self, observations):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+        Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
+        an error. See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
 
         Parameters
         ----------

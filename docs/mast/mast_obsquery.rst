@@ -208,7 +208,7 @@ Getting Product Lists
 ---------------------
 
 Each observation returned from a MAST query can have one or more associated data products.
-Given one or more observations or observation ids ("obsid")
+Given one or more observations or MAST Product Group IDs ("obsid")
 `~astroquery.mast.ObservationsClass.get_product_list` will return
 a `~astropy.table.Table` containing the associated data products.
 The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`__.
@@ -278,6 +278,18 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
    >>> print((data_products_by_obs == data_products_by_id).all())
    True
 
+Note that the input to `~astroquery.mast.ObservationsClass.get_product_list` should be "obsid" and NOT "obs_id",
+which is a mission-specific identifier for a given observation, and cannot be used for querying the MAST database
+with `~astroquery.mast.ObservationsClass.get_product_list`
+(see `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__ for more details).
+Using "obs_id" instead of "obsid" from the previous example will result in the following error:
+
+.. doctest-remote-data::
+   >>> obs_ids = obs_table[0:2]['obs_id']
+   >>> data_products_by_id = Observations.get_product_list(obs_ids)
+   Traceback (most recent call last):
+   ...
+   RemoteServiceError: Error converting data type varchar to bigint.
 
 Filtering
 ---------
