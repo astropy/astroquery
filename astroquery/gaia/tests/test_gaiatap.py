@@ -194,6 +194,7 @@ def test_load_data(monkeypatch, tmp_path):
         verbose=True,
         output_file=tmp_path / "output_file")
 
+
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
 
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
