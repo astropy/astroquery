@@ -284,11 +284,13 @@ class GaiaClass(TapPlus):
         params_dict['USE_ZIP_ALWAYS'] = 'true'
 
         if linking_parameter is not None:
-            if linking_parameter != 'SOURCE_ID' and linking_parameter != 'TRANSIT_ID' and linking_parameter != 'IMAGE_ID':
+            valid_param = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
+            if linking_parameter not in valid_param:
                 raise ValueError(
-                    f"Invalid linking_parameter value '{linking_parameter}' (Valid values: 'SOURCE_ID', 'TRANSIT_ID' and 'IMAGE_ID)")
+                    f"Invalid linking_parameter value '{linking_parameter}' "
+                    f"(Valid values: {', '.join(valid_param)})")
             else:
-                if linking_parameter == 'TRANSIT_ID' or linking_parameter == 'IMAGE_ID':
+                if linking_parameter != 'SOURCE_ID':
                     params_dict['LINKING_PARAMETER'] = linking_parameter
 
         if path != '':
@@ -450,15 +452,11 @@ class GaiaClass(TapPlus):
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{'row_limit': "TOP {0}".format(
-                self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                                  'ra_column': self.MAIN_GAIA_TABLE_RA,
-                                  'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns,
-                                  'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
+                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                                  'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
                                   'ra': ra, 'dec': dec,
-                                  'width': widthDeg.value,
-                                  'height': heightDeg.value})
+                                  'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
