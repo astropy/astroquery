@@ -819,13 +819,13 @@ in downloading all products.
 .. code-block:: python
 
   >>> query = f"SELECT source_id, ra, dec, pmra, pmdec, parallax 
-      ... FROM gaiadr3.gaia_source 
-      ... WHERE has_epoch_photometry = 'True' 
-      ... AND has_xp_sampled = 'True'
-      ... AND has_rvs = 'True' 
-      ... AND has_mcmc_msc = 'True' 
-      ... AND has_mcmc_gspphot = 'True' 
-      ... AND random_index between 0 and 200000"
+  ... FROM gaiadr3.gaia_source
+  ... WHERE has_epoch_photometry = 'True'
+  ... AND has_xp_sampled = 'True'
+  ... AND has_rvs = 'True'
+  ... AND has_mcmc_msc = 'True'
+  ... AND has_mcmc_gspphot = 'True'
+  ... AND random_index between 0 and 200000"
 
   >>> job = Gaia.launch_job_async(query)
   >>> results = job.get_results()
