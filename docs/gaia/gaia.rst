@@ -774,14 +774,152 @@ Once you have your cross match finished, you can obtain the results::
 Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.
 
 
-2.7. Tables sharing
+2.7. Datalink service
+~~~~~~~~~~~~~~~~~~~~~
+
+DataLink_ is a data access protocol compliant with the IVOA_ architecture that provides a linking mechanism between
+datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
+data products available for each object outside the main catalogue(s).
+
+.. _IVOA: https://www.ivoa.net/
+.. _DataLink: https://www.ivoa.net/documents/DataLink/
+
+In each Gaia data release, the key parameters of all sources are stored in the gaia_source table that contains the (mean)
+astrometric, photometric, and radial-velocity data as well as astrophysical parameters. This table, along with the complementary
+tables, is accessible by means of the IVOA compliant `TAP+ <https://www.ivoa.net/documents/TAP>`_ table access protocol
+that allows to explore astronomical datasets stored in relational data bases using the ADQL query language. In addition
+to the *gaia_source* table, the Gaia archive includes vast amounts of non-tabular data such as mean spectra,
+epoch photometry, and Monte Carlo Markov Chain samples for millions of sources in Gaia DR3, while Gaia DR4 includes epoch
+astrometry and epoch photometry for the whole sample plus billions of mean and epoch spectra.
+
+These products are hosted by the datalink service, designed to handle massive data requests that is accessible via the DataLink_ protocol. 
+
+See also https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products#datalink_service for more information.
+
+
+**Important**: it is not possible to search for and retrieve the DataLink products associated to more than 5000 sources
+in one and the same call.
+However, it is possible to overcome this limit programmatically using a sequential download, as explained in
+this tutorial_.
+
+.. _tutorial: https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products#datalink_jntb_get_above_lim
+
+
+
+The method *load_data* in the class `Astroquery.Gaia <https://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_ Python package,
+provides the functionality to retrieve and inspect the DataLink products.
+
+
+
+The following example retrieves a random sample of Gaia (E)DR3 sources having all types of DataLink products. and then,
+retrieves *ALL* available DataLink products for the input sample of Gaia Source IDs. This option significantly increases
+the total download time. It is more convenient to specify the DataLink product in *retrieval_type*, if you are not interested
+in downloading all products.
+
+.. code-block:: python
+
+  >>> query = f"SELECT source_id, ra, dec, pmra, pmdec, parallax 
+      ... FROM gaiadr3.gaia_source 
+      ... WHERE has_epoch_photometry = 'True' 
+      ... AND has_xp_sampled = 'True'
+      ... AND has_rvs = 'True' 
+      ... AND has_mcmc_msc = 'True' 
+      ... AND has_mcmc_gspphot = 'True' 
+      ... AND random_index between 0 and 200000"
+
+  >>> job = Gaia.launch_job_async(query)
+  >>> results = job.get_results()
+  >>> print(f'Table size (rows): {len(results)}')
+  >>> results
+
+  INFO: Query finished. [astroquery.utils.tap.core]
+ <Table length=3>
+      source_id              ra                 dec                pmra              pmdec              parallax
+                            deg                 deg              mas / yr           mas / yr              mas
+        int64             float64             float64            float64            float64             float64
+ ------------------- ------------------ ------------------- ------------------ ------------------ -------------------
+ 6196457933368101888 202.80436078238418 -21.178991138861807  80.54562044679744 -32.95247075512294  10.167137280246173
+ 5924045608237672448   257.635024432604  -53.35065341915946 -4.404105752618793  -6.63122508730231 0.19938320884996538
+ 4911590910260264960 24.783541498908786 -55.317468647500505  40.64757827861938 10.758104689073546  6.2453699013330555
+
+
+
+
+
+.. code-block:: python
+
+  >>> retrieval_type = 'ALL'          # Options are: 'EPOCH_PHOTOMETRY', 'MCMC_GSPPHOT', 'MCMC_MSC', 'XP_SAMPLED', 'XP_CONTINUOUS', 'RVS', 'ALL'
+  >>> data_structure = 'INDIVIDUAL'   # Options are: 'INDIVIDUAL', 'COMBINED', 'RAW'
+  >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
+  >>> datalink = Gaia.load_data(ids=results['source_id'], data_release = data_release, retrieval_type=retrieval_type, data_structure = data_structure, verbose = False, output_file = None)
+  >>> dl_keys  = [inp for inp in datalink.keys()]
+  >>> dl_keys.sort()
+  >>> print()
+  >>> print(f'The following Datalink products have been downloaded:')
+  >>> for dl_key in dl_keys:
+        print(f' * {dl_key}')
+
+  The following Datalink products have been downloaded:
+ * EPOCH_PHOTOMETRY-Gaia DR3 4911590910260264960.xml
+ * EPOCH_PHOTOMETRY-Gaia DR3 5924045608237672448.xml
+ * EPOCH_PHOTOMETRY-Gaia DR3 6196457933368101888.xml
+ * MCMC_GSPPHOT-Gaia DR3 4911590910260264960.xml
+ * MCMC_GSPPHOT-Gaia DR3 5924045608237672448.xml
+ * MCMC_GSPPHOT-Gaia DR3 6196457933368101888.xml
+ * MCMC_MSC-Gaia DR3 4911590910260264960.xml
+ * MCMC_MSC-Gaia DR3 5924045608237672448.xml
+ * MCMC_MSC-Gaia DR3 6196457933368101888.xml
+ * RVS-Gaia DR3 4911590910260264960.xml
+ * RVS-Gaia DR3 5924045608237672448.xml
+ * RVS-Gaia DR3 6196457933368101888.xml
+ * XP_CONTINUOUS-Gaia DR3 4911590910260264960.xml
+ * XP_CONTINUOUS-Gaia DR3 5924045608237672448.xml
+ * XP_CONTINUOUS-Gaia DR3 6196457933368101888.xml
+ * XP_SAMPLED-Gaia DR3 4911590910260264960.xml
+ * XP_SAMPLED-Gaia DR3 5924045608237672448.xml
+ * XP_SAMPLED-Gaia DR3 6196457933368101888.xml
+
+Note that the DataLink products are stored inside a Python Dictionary, where each element (key) contains a one-element list.
+
+
+As it happens with the INDIVIDUAL example above, the following example retrieves *ALL* available DataLink products for the input sample of Gaia Source IDs. 
+If you are not interested in downloading all products we recommend you to specify the DataLink product in retrieval_type (e.g., retrieval_type = 'RVS')
+
+
+.. code-block:: python
+
+  >>> retrieval_type = 'ALL'          # Options are: 'EPOCH_PHOTOMETRY', 'MCMC_GSPPHOT', 'MCMC_MSC', 'XP_SAMPLED', 'XP_CONTINUOUS', 'RVS', 'ALL'
+  >>> data_structure = 'COMBINED'     # Options are: 'INDIVIDUAL', 'COMBINED', 'RAW'
+  >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
+  >>> datalink  = Gaia.load_data(ids=results['source_id'], data_release = data_release, retrieval_type=retrieval_type, data_structure = data_structure, verbose = False, output_file = None)
+  >>> dl_keys  = [inp for inp in datalink.keys()]
+  >>> dl_keys.sort()
+  >>> print()
+  >>> print(f'The following Datalink products have been downloaded:')
+  >>> for dl_key in dl_keys:
+        print(f' * {dl_key}')
+
+The following Datalink products have been downloaded:
+ * EPOCH_PHOTOMETRY_COMBINED.xml
+ * MCMC_GSPPHOT_COMBINED.xml
+ * MCMC_MSC_COMBINED.xml
+ * RVS_COMBINED.xml
+ * XP_CONTINUOUS_COMBINED.xml
+ * XP_SAMPLED_COMBINED.xml
+
+
+The DataLink products are stored inside a Python Dictionary, where each element (key) contains a one- or a multi-element list, depending on the product.
+
+
+
+2.8. Tables sharing
 ~~~~~~~~~~~~~~~~~~~
 
 It is possible to share tables with other users. You have to create a group, populate that
 group with users, and share your table to that group. Then, any user belonging to that group
 will be able to access to your shared table in a query.
 
-2.7.1. Creating a group
+2.8.1. Creating a group
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -790,7 +928,7 @@ will be able to access to your shared table in a query.
   >>> Gaia.login()
   >>> Gaia.share_group_create(group_name="my_group", description="description")
 
-2.7.2. Removing a group
+2.8.2. Removing a group
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -799,7 +937,7 @@ will be able to access to your shared table in a query.
   >>> Gaia.login()
   >>> Gaia.share_group_delete(group_name="my_group")
 
-2.7.3. Listing groups
+2.8.3. Listing groups
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -810,7 +948,7 @@ will be able to access to your shared table in a query.
   >>> for group in groups:
   ...     print(group.title)
 
-2.7.4. Adding users to a group
+2.8.4. Adding users to a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -819,7 +957,7 @@ will be able to access to your shared table in a query.
   >>> Gaia.login()
   >>> Gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
 
-2.7.5. Removing users from a group
+2.8.5. Removing users from a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -829,7 +967,7 @@ will be able to access to your shared table in a query.
   >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
 
-2.7.6. Sharing a table to a group
+2.8.6. Sharing a table to a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -841,7 +979,7 @@ will be able to access to your shared table in a query.
   ...                  description="description")
 
 
-2.7.7. Stop sharing a table
+2.8.7. Stop sharing a table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
