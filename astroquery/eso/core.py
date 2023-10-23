@@ -628,11 +628,16 @@ class EsoClass(QueryWithLogin):
             response.raise_for_status()
             filename = self._get_filename_from_response(response)
             filename = os.path.join(destination, filename)
+            part_filename = filename + ".part"
+            if os.path.exists(part_filename):
+                log.info(f"Removing partially downloaded file {part_filename}")
+                os.remove(part_filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
-                with open(filename, 'wb') as fd:
+                with open(part_filename, 'wb') as fd:
                     for chunk in response.iter_content(chunk_size=block_size):
                         fd.write(chunk)
+                os.rename(part_filename, filename)
         return filename, download_required
 
     def _download_eso_files(self, file_ids: List[str], destination: Optional[str],
