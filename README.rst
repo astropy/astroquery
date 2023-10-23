@@ -63,7 +63,7 @@ picking up released developer versions, and ``-U`` for upgrade):
     $ python -m pip install -U --pre astroquery
 
 To install all the mandatory and optional dependencies add the ``[all]``
-identifyer to the pip command above (or use ``[docs]`` or ``[test]`` for the
+identifier to the pip command above (or use ``[docs]`` or ``[test]`` for the
 dependencies required to build the documentation or run the tests):
 
 .. code-block:: bash
