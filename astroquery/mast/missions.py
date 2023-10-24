@@ -29,7 +29,7 @@ __all__ = ['MastMissionsClass', 'MastMissions']
 class MastMissionsClass(MastQueryWithLogin):
     """
     MastMissions search class.
-    Class that allows direct programatic access to retrieve metadata via the MAST search API for a given mission.
+    Class that allows direct programmatic access to retrieve metadata via the MAST search API for a given mission.
     """
 
     def __init__(self, *, mission='hst', service='search'):
@@ -86,7 +86,7 @@ class MastMissionsClass(MastQueryWithLogin):
             `~astropy.units` may also be used. Defaults to 3 arcminutes.
         limit : int
             Optional and default is 5000.
-            the maximun number of dataset IDs in the results.
+            the maximum number of dataset IDs in the results.
         offset : int
             Optional and default is 0
             the number of records you wish to skip before selecting records.
@@ -104,7 +104,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         self.limit = limit
 
-        # Put coordinates and radius into consistant format
+        # Put coordinates and radius into consistent format
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
@@ -147,7 +147,7 @@ class MastMissionsClass(MastQueryWithLogin):
             `~astropy.units` may also be used. Defaults to 3 arcminutes.
         limit : int
             Optional and default is 5000.
-            the maximun number of dataset IDs in the results.
+            the maximum number of dataset IDs in the results.
         offset : int
             Optional and default is 0.
             the number of records you wish to skip before selecting records.
@@ -211,7 +211,7 @@ class MastMissionsClass(MastQueryWithLogin):
             `~astropy.units` may also be used. Defaults to 3 arcminutes.
         limit : int
             Optional and default is 5000.
-            the maximun number of dataset IDs in the results.
+            the maximum number of dataset IDs in the results.
         offset : int
             Optional and default is 0.
             the number of records you wish to skip before selecting records.
@@ -255,7 +255,7 @@ class MastMissionsClass(MastQueryWithLogin):
             data_table = Table(rows=rows, names=('name', 'data_type', 'description'))
             return data_table
         except Exception:
-            raise Exception(f"Error occured while trying to get column list for mission {self.mission}")
+            raise Exception(f"Error occurred while trying to get column list for mission {self.mission}")
 
 
 MastMissions = MastMissionsClass()
