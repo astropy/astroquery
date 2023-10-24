@@ -77,13 +77,13 @@ def _json_to_table(json_obj, col_config=None):
         if col == "_selected_":
             continue
 
-        # reading the colum config if given
+        # reading the column config if given
         ignore_value = None
         if col_config:
             col_props = col_config.get(col, {})
             ignore_value = col_props.get("ignoreValue", None)
 
-        # regularlizing the type
+        # regularizing the type
         reg_type = utils.parse_type(atype)
         atype = reg_type[1]
         ignore_value = reg_type[2] if (ignore_value is None) else ignore_value
@@ -93,7 +93,7 @@ def _json_to_table(json_obj, col_config=None):
         if ignore_value is not None:
             col_data[np.where(np.equal(col_data, None))] = ignore_value
 
-        # no consistant way to make the mask because np.equal fails on ''
+        # no consistent way to make the mask because np.equal fails on ''
         # and array == value fails with None
         if atype == 'str':
             col_mask = (col_data == ignore_value)
@@ -109,9 +109,9 @@ def _json_to_table(json_obj, col_config=None):
 @async_to_sync
 class PortalAPI(BaseQuery):
     """
-    MAST Discovery Portal API calss.
+    MAST Discovery Portal API calls.
 
-    Class that allows direct programatic access to the MAST Portal.
+    Class that allows direct programmatic access to the MAST Portal.
     Should be used to facilitate all Portal API queries.
     """
 
@@ -254,7 +254,7 @@ class PortalAPI(BaseQuery):
             self._column_configs[service].update(json_response['data']['Tables'][0]
                                                  ['ExtendedProperties']['continuousHistogram'])
             for col, val in self._column_configs[service].items():
-                val.pop('hist', None)  # don't want to save all this unecessary data
+                val.pop('hist', None)  # don't want to save all this unnecessary data
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -302,7 +302,7 @@ class PortalAPI(BaseQuery):
     @class_or_instance
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
         """
-        Given a Mashup service and parameters, builds and excecutes a Mashup query.
+        Given a Mashup service and parameters, builds and executes a Mashup query.
         See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
         for information about how to build a Mashup request.
 
@@ -496,7 +496,7 @@ class PortalAPI(BaseQuery):
         examples = []
 
         for colname in column_dict:
-            # skipping the _selected column (gets rmoved in return table)
+            # skipping the _selected column (gets removed in return table)
             if colname == "_selected_":
                 continue
 

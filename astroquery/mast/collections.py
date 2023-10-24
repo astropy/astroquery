@@ -98,7 +98,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        # Put coordinates and radius into consistant format
+        # Put coordinates and radius into consistent format
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
@@ -255,7 +255,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        # Seperating any position info from the rest of the filters
+        # Separating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
@@ -339,7 +339,7 @@ class CatalogsClass(MastQueryWithLogin):
             E.g. when using a slow internet connection.
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
-            one sepcific page of results.
+            one specific page of results.
 
         Returns
         -------
@@ -375,7 +375,7 @@ class CatalogsClass(MastQueryWithLogin):
             E.g. when using a slow internet connection.
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
-            one sepcific page of results.
+            one specific page of results.
 
         Returns
         -------
