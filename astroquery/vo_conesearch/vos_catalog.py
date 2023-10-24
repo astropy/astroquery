@@ -745,7 +745,7 @@ def vo_tab_parse(tab, url, kwargs):
 
     Returns
     -------
-    out_tab : `astropy.io.votable.tree.Table`
+    out_tab : `astropy.io.votable.tree.TableElement`
 
     Raises
     ------
@@ -857,7 +857,7 @@ def call_vo_service(service_type, catalog_db=None, pedantic=None,
 
     Returns
     -------
-    obj : `astropy.io.votable.tree.Table`
+    obj : `astropy.io.votable.tree.TableElement`
         First table from first successful VO service request.
 
     Raises
