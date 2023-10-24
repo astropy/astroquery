@@ -10,23 +10,28 @@ from urllib.parse import urlsplit, parse_qs
 from pathlib import Path
 import os
 import sys
+from unittest.mock import Mock, patch, PropertyMock
+import pytest
+import requests
+import warnings
 
 from astropy.table import Table
 from astropy.io.fits.hdu.hdulist import HDUList
-from astropy.io.votable.tree import VOTableFile, Resource, TableElement, Field
+from astropy.io.votable.tree import VOTableFile, Resource, Field
 from astropy.io.votable import parse
 from astropy.utils.diff import report_diff_values
 from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy import units as u
-import pytest
-import requests
-import warnings
 
 from pyvo.auth import securitymethods
 from astroquery.cadc import Cadc, conf
 import astroquery.cadc.core as cadc_core
 
-from unittest.mock import Mock, patch, PropertyMock
+try:
+    # Workaround astropy deprecation, remove try/except once >=6.0 is required
+    from astropy.io.votable.tree import TableElement
+except ImportError:
+    from astropy.io.votable.tree import Table as TableElement
 
 try:
     # workaround for https://github.com/astropy/astroquery/issues/2523 to support bs4<4.11
