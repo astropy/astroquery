@@ -90,7 +90,7 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
     return MockResponse(text)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def patch_get(request):
     """
     If the mode is not remote, patch `requests.Session` to either return saved local data

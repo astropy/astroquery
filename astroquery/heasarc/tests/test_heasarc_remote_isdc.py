@@ -12,6 +12,10 @@ from .conftest import MockResponse, parametrization_local_save_remote, skycoord_
 @parametrization_local_save_remote
 class TestHeasarcISDC:
 
+    @pytest.fixture(autouse=True)
+    def _patch_get(self, patch_get):
+        return patch_get
+
     @property
     def isdc_context(self):
         return Conf.server.set_temp(
@@ -176,7 +180,7 @@ class TestHeasarcISDC:
         assert 'GOOD_ISGRI' in cols
         assert 'RA_X' in cols
         assert 'DEC_X' in cols
-        assert '_SEARCH_OFFSET' in cols
+        assert 'SEARCH_OFFSET_' in cols
 
     def test_query_object_async(self):
         mission = 'integral_rev3_scw'

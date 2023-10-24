@@ -15,6 +15,11 @@ from astropy import units as u
 
 @parametrization_local_save_remote
 class TestHeasarc:
+
+    @pytest.fixture(autouse=True)
+    def _patch_get(self, patch_get):
+        return patch_get
+
     def test_custom_args(self):
         object_name = 'Crab'
         mission = 'intscw'
