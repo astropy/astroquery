@@ -607,7 +607,7 @@ class EsoClass(QueryWithLogin):
         filename = re.findall(r"filename=(\S+)", content_disposition)
         if not filename:
             raise RemoteServiceError(f"Unable to find filename for {response.url}")
-        return filename[0].replace('"', '')
+        return os.path.basename(filename[0].replace('"', ''))
 
     @staticmethod
     def _find_cached_file(filename: str) -> bool:
