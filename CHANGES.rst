@@ -4,6 +4,16 @@
 New Tools and Services
 ----------------------
 
+eso
+^^^
+
+- Authenticate with ESO using APIs and tokens instead of HTML forms. [#2681]
+- Discontinue usage of old Request Handler for dataset retrieval in favor of new dataportal API. [#2681]
+- Local reimplementation of astroquery's ``_download_file`` to fix some issues and avoid sending a HEAD request
+  just to get the original filename. [#1580]
+- Restore support for .Z files. [#1818]
+- Update tests and documentation.
+
 ipac.irsa
 ^^^^^^^^^
 
