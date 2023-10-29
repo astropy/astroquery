@@ -115,7 +115,7 @@ The BibTeX entry is available from the package itself::
   astroquery.__citation__
 
 
-In addition you may also want to refer to specific versions of the
+In addition, you may also want to refer to specific versions of the
 package. We create a separate Zenodo DOI for each version, they can be
 looked up at the following `Zenodo page <https://doi.org/10.5281/zenodo.591669>`__
 
