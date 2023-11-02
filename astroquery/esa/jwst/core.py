@@ -765,8 +765,7 @@ class JwstClass(BaseQuery):
                 siblings = self.__get_sibling_planes(planeid=plane_id, cal_level=cal_level)
                 members = self.__get_member_planes(planeid=plane_id, cal_level=cal_level)
                 plane_id_table = vstack([siblings, members])
-                plane_list.extend(plane_id_table['product_planeid'].pformat(
-                    show_name=False))
+                plane_list.extend(plane_id_table['product_planeid'])
             if (not is_url):
                 list = "('{}')".format("', '".join(plane_list))
             else:
@@ -866,7 +865,7 @@ class JwstClass(BaseQuery):
                        f"'%{observation_id}%'")
         job = self.__jwsttap.launch_job(query=query_upper)
         if any(job.get_results()["observationid"]):
-            oids = job.get_results()["observationid"].pformat(show_name=False)
+            oids = job.get_results()["observationid"]
         else:
             query_members = (f"select m.members from {conf.JWST_MAIN_TABLE} "
                              f"m where m.observationid"
