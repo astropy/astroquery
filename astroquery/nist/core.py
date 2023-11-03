@@ -5,7 +5,7 @@ import html
 import re
 
 import astropy.units as u
-import astropy.io.ascii as asciitable
+from astropy.table import Table
 
 from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
@@ -172,8 +172,7 @@ class NistClass(BaseQuery):
             table = _strip_blanks(pre)
             table = links_re.sub(r'\1', table)
             table = html.unescape(table)
-            table = asciitable.read(table, Reader=asciitable.FixedWidth,
-                                    data_start=3, delimiter='|')
+            table = Table.read(table, format='ascii.fixed_width', data_start=3, delimiter='|')
             return table
         except Exception as ex:
             self.response = response
