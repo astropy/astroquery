@@ -5,8 +5,11 @@ For questions, contact ooberdorf@gemini.edu
 """
 
 import os
+from collections import defaultdict
 
 from datetime import date
+
+from bs4 import BeautifulSoup
 
 from astroquery import log
 from astropy import units
@@ -418,6 +421,271 @@ class ObservationsClass(QueryWithLogin):
         js = response.json()
         return _gemini_json_to_table(js)
 
+    @class_or_instance
+    def query_calibrations_for_region(self, coordinates, radius=0.3*units.deg):
+        """
+        search for Gemini calibrations for an ovservation query by target on the sky.
+
+        This call pairs with `query_region` and returns the calibrations for the
+        observations returned with a `query_region` search.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.3 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 0.3 deg.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+        return self.query_calibrations_for_criteria(coordinates=coordinates, radius=radius)
+
+    @class_or_instance
+    def query_calibrations_for_object(self, objectname, radius=0.3*units.deg):
+        """
+        search for calibrations relating to the given object search.
+
+        This is the calibration query for the `query_object` search.  This will find the
+        calibrations relating to the observations for that searc.
+
+        Parameters
+        ----------
+        objectname : str
+            The name of an object to search observations for.  This attempts to resolve
+            the object by name and do a search on that area of the sky.  This does not handle
+            moving targets.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.3 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 0.3 deg.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+        return self.query_calibrations_for_criteria(objectname=objectname, radius=radius)
+
+    @class_or_instance
+    def query_calibrations_for_criteria(self, *rawqueryargs, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
+                       instrument=None, observation_class=None, observation_type=None, mode=None,
+                       adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None,
+                       orderby=None, **rawquerykwargs):
+        """
+        This is the calibration query to match the `query_criteria` call.  If you pass the same arguments to this
+        method, it will return the associated calibrations for the observation search results.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.3 degrees if coordinates are set, else None
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 0.3 deg.
+        pi_name : str, optional
+            Default None.
+            Can be used to search for data by the PI's name.
+        program_id : str, optional
+            Default None.
+            Can be used to match on program ID
+        utc_date : date or (date,date) tuple, optional
+            Default None.
+            Can be used to search for observations on a particular day or range of days (inclusive).
+        instrument : str, optional
+            Can be used to search for a particular instrument.  Valid values are:
+                'GMOS',
+                'GMOS-N',
+                'GMOS-S',
+                'GNIRS',
+                'GRACES',
+                'NIRI',
+                'NIFS',
+                'GSAOI',
+                'F2',
+                'GPI',
+                'NICI',
+                'MICHELLE',
+                'TRECS',
+                'BHROS',
+                'HRWFS',
+                'OSCIR',
+                'FLAMINGOS',
+                'HOKUPAA+QUIRC',
+                'PHOENIX',
+                'TEXES',
+                'ABU',
+                'CIRPASS'
+        observation_class : str, optional
+            Specifies the class of observations to search for.  Valid values are:
+                'science',
+                'acq',
+                'progCal',
+                'dayCal',
+                'partnerCal',
+                'acqCal'
+        observation_type : str, optional
+            Search for a particular type of observation.  Valid values are:
+                'OBJECT',
+                'BIAS',
+                'DARK',
+                'FLAT',
+                'ARC',
+                'PINHOLE',
+                'RONCHI',
+                'CAL',
+                'FRINGE',
+                'MASK'
+        mode : str, optional
+            The mode of the observation.  Valid values are:
+                'imaging',
+                'spectroscopy',
+                'LS',
+                'MOS',
+                'IFS'
+        adaptive_optics : str, optional
+            Specify the presence of adaptive optics.  Valid values are:
+                'NOTAO',
+                'AO',
+                'NGS',
+                'LGS'
+        program_text : str, optional
+            Specify text in the information about the program.  This is free form text.
+        objectname : str, optional
+            Give the name of the target.
+        raw_reduced : str, optional
+            Indicate the raw or reduced status of the observations to search for.  Valid values are:
+                'RAW',
+                'PREPARED',
+                'PROCESSED_BIAS',
+                'PROCESSED_FLAT',
+                'PROCESSED_FRINGE',
+                'PROCESSED_ARC'
+        orderby : str, optional
+            Indicates how the results should be sorted.  Values should be like the ones used
+            in the archive website when sorting a column.  For example, ``data_label_desc`` would
+            sort by the data label in descending order.
+        rawqueryargs : list, optional
+            Additional arguments will be passed down to the raw query.  This covers any
+            additional parameters that would end up as '/parametervalue/' in the URL to the archive
+            webservice.
+        rawquerykwargs : dict, optional
+            Additional key/value arguments will also be passed down to the raw query.  This covers
+            any parameters that would end up as '/key=value/' in the URL to the archive webservice.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+
+        Raises
+        ------
+        ValueError: passed value is not recognized for the given field, see message for details
+        """
+
+        # Build parameters into raw query
+        #
+        # This consists of a set of unnamed arguments, args, and key/value pairs, kwargs
+
+        # These will hold the passed freeform parameters plus the explicit criteria
+        # for our eventual call to the raw query method
+        args = list()
+        kwargs = dict()
+
+        # Copy the incoming set of free-form arguments
+        if rawqueryargs:
+            for arg in rawqueryargs:
+                args.append(arg)
+        if rawquerykwargs:
+            for (k, v) in rawquerykwargs.items():
+                kwargs[k] = v
+
+        # If coordinates is set but we have no radius, set a default
+        if (coordinates or objectname) and radius is None:
+            radius = 0.3 * units.deg
+        # Now consider the canned criteria
+        if radius is not None:
+            kwargs["radius"] = radius
+        if coordinates is not None:
+            kwargs["coordinates"] = coordinates
+        if pi_name is not None:
+            kwargs["PIname"] = pi_name
+        if program_id is not None:
+            kwargs["progid"] = program_id.upper()
+        if utc_date is not None:
+            if isinstance(utc_date, date):
+                args.append(utc_date.strftime("YYYYMMdd"))
+            elif isinstance(utc_date, tuple):
+                if len(utc_date) != 2:
+                    raise ValueError("utc_date tuple should have two values")
+                if not isinstance(utc_date[0], date) or not isinstance(utc_date[1], date):
+                    raise ValueError("utc_date tuple should have date values in it")
+                args.append("{:%Y%m%d}-{:%Y%m%d}".format(*utc_date))
+        if instrument is not None:
+            if instrument.upper() not in __valid_instruments__:
+                raise ValueError("Unrecognized instrument: %s" % instrument)
+            args.append(instrument)
+        if observation_class is not None:
+            if observation_class not in __valid_observation_class__:
+                raise ValueError("Unrecognized observation class: %s" % observation_class)
+            args.append(observation_class)
+        if observation_type is not None:
+            if observation_type not in __valid_observation_types__:
+                raise ValueError("Unrecognized observation type: %s" % observation_type)
+            args.append(observation_type)
+        if mode is not None:
+            if mode not in __valid_modes__:
+                raise ValueError("Unrecognized mode: %s" % mode)
+            args.append(mode)
+        if adaptive_optics is not None:
+            if adaptive_optics not in __valid_adaptive_optics__:
+                raise ValueError("Unrecognized adaptive optics: %s" % adaptive_optics)
+            args.append(adaptive_optics)
+        if program_text is not None:
+            kwargs["ProgramText"] = program_text
+        if objectname is not None:
+            kwargs["object"] = objectname
+        if raw_reduced is not None:
+            if raw_reduced not in __valid_raw_reduced__:
+                raise ValueError("Unrecognized raw/reduced setting: %s" % raw_reduced)
+            args.append(raw_reduced)
+        if orderby is not None:
+            kwargs["orderby"] = orderby
+
+        return self.query_calibrations_raw(*args, **kwargs)
+
+    @class_or_instance
+    def query_calibrations_raw(self, *args, **kwargs):
+        """
+        perform flexible query against Gemini calibrations
+
+        This is a calibrations query to pair with `query_raw`.  If you pass it the same
+        parameters, it will find calibrations relating to those searched observations.
+
+        Parameters
+        ----------
+        args :
+            The list of parameters to be passed via the query path to the webserver
+        kwargs :
+            The dictionary of parameters to be passed by name=value within the query
+            path to the webserver.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+        url = self.url_helper.build_calibration_url(*args, **kwargs)
+
+        response = self._request(method="GET", url=url, data={}, timeout=180, cache=False)
+        return _gemini_cal_html_to_table(response.text)
+
     def get_file(self, filename, *, download_dir='.', timeout=None):
         """
         Download the requested file to the current directory
@@ -457,6 +725,83 @@ def _gemini_json_to_table(json):
 
         col_mask = np.equal(col_data, None)
         data_table.add_column(MaskedColumn(col_data.astype(atype), name=key, mask=col_mask))
+
+    return data_table
+
+
+def _gemini_cal_html_to_table(html):
+    """
+    takes a HTML table list of calibrations as returned from the Gemini archive webserver and turns it into an
+    `~astropy.table.Table`
+
+    Parameters
+    ----------
+    html : str
+        A HTML table with the calibration records
+
+    Returns
+    -------
+    response : `~astropy.table.Table`
+    """
+
+    data_table = Table(masked=True)
+
+    table = BeautifulSoup(html, features="html.parser").find("table")
+    # This is future-proofing, the existing page has a bug putting the header inside the body
+    # but if that gets fixed, we'll want this
+    cols = None
+    table_header = table.find("thead") if table is not None else None
+    header_in_body = True
+    if table_header is not None:
+        header_in_body = False
+        cols = dict()
+        idx = 0
+        for th in table_header.find_all("th"):
+            # Archive has a bug (no closing tag) that interferes with BeautifulSoup, chop at newline
+            val = th.text
+            if '\n' in val:
+                val = val[:val.find('\n')]
+            if val != 'Download':
+                cols[val] = idx
+            idx = idx+1
+
+    table_body = table.find("tbody")
+
+    if table_body is not None:
+        rows = table_body.findAll("tr")
+    else:
+        rows = table.findAll("tr")
+    if cols is None:
+        cols = dict()
+        idx = 0
+        for th in rows[0].findAll("th"):
+            # Archive has a bug (no closing tag) that interferes with BeautifulSoup, chop at newline
+            val = th.text
+            if '\n' in val:
+                val = val[:val.find('\n')]
+            if val != 'Download':
+                cols[val] = idx
+            idx = idx+1
+        rows = rows[1:]
+
+    coldata = defaultdict(list)
+    for row in rows:
+        tds = row.findAll("td")
+        for col, col_num in cols.items():
+            td = tds[col_num]
+            # Archive has a bug (no closing tag) that interferes with BeautifulSoup, chop at newline
+            val = td.text
+            if '\n' in val:
+                val = val[:val.find('\n')]
+            coldata[col].append(val)
+
+    for colname, data in coldata.items():
+        col_data = np.array([data])
+
+        atype = str
+
+        col_mask = np.equal(col_data, None)
+        data_table.add_column(MaskedColumn(col_data.astype(atype), name=colname, mask=col_mask))
 
     return data_table
 

@@ -23,6 +23,13 @@ gaia
   for example planned or our unplanned downtimes of the archive, etc. The notification
   will be also visible when accessing the archive through Astroquery. [#2376]
 
+gemini
+^^^^^^
+
+- Calibration query for calibrations relating to primay search results.  This works off of
+  the same search you would use for Gemini data and provides results corresponding to the
+  "Associated Calibrations" tab on the website.  [#2288]
+
 hsa
 ^^^
 

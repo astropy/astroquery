@@ -66,6 +66,11 @@ class TestGemini:
         assert isinstance(result, Table)
         assert len(result) > 0
 
+    def test_cal_query(self):
+        result = gemini.Observations.query_calibrations_raw(program_id='GN-2013B-Q-60-7-002')
+        assert isinstance(result, Table)
+        assert len(result) > 100
+
     def test_get_file(self):
         """ test querying raw against actual archive """
         tempdir = tempfile.mkdtemp('_gemini_test')
