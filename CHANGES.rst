@@ -23,6 +23,12 @@ gaia
   for example planned or our unplanned downtimes of the archive, etc. The notification
   will be also visible when accessing the archive through Astroquery. [#2376]
 
+- Datalink can be used with the new parameter linking_parameter. It provides an additional
+  meaning to the source identifiers: source_id, transit_id and image_id.
+  This parameter is optional, in order to be backward compatible, and
+  therefore, if the parameter is not set, the source identifiers are
+  considered as source_id. [#2859]
+
 hsa
 ^^^
 

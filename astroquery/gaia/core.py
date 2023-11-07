@@ -163,10 +163,10 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging out data server")
 
-    def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL',
-                  retrieval_type="ALL", valid_data=False, band=None,
-                  avoid_datatype_check=False, format="votable", output_file=None,
-                  overwrite_output_file=False, verbose=False):
+    def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
+                  linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
+                  format="votable",
+                  output_file=None, overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -194,6 +194,11 @@ class GaiaClass(TapPlus):
             For GAIA DR4, possible values will be ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RV_EPOCH_SINGLE', 'RV_EPOCH_DOUBLE', 'RVS_EPOCH' or
             'RVS_TRANSIT']
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
+            By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            TRANSIT_ID: the identifiers are considered as transit_id
+            IMAGE_ID: the identifiers are considered as sif_observation_id
         valid_data : bool, optional, default False
             By default, the epoch photometry service returns all available data, including
             data rows where flux is null and/or the rejected_by_photometry flag is set to True.
@@ -271,6 +276,14 @@ class GaiaClass(TapPlus):
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         params_dict['USE_ZIP_ALWAYS'] = 'true'
+
+        valid_param = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
+        if linking_parameter not in valid_param:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: {', '.join(valid_param)})")
+        else:
+            if linking_parameter != 'SOURCE_ID':
+                params_dict['LINKING_PARAMETER'] = linking_parameter
 
         if path != '':
             try:
