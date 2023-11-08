@@ -295,7 +295,7 @@ class SimbadBaseQuery(BaseQuery):
 
 
 @async_to_sync
-class SimbadClass(SimbadBaseQuery, BaseVOQuery):
+class SimbadClass(BaseVOQuery, SimbadBaseQuery):
     """
     The class for querying the Simbad web service.
 
