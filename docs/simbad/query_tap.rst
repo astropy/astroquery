@@ -60,12 +60,13 @@ Available tables
 SIMBAD is a relational database. This means that it is a collection of tables with
 links between them. You can access a `graphic representation of Simbad's tables and
 their relations <http://simbad.cds.unistra.fr/simbad/tap/tapsearch.html>`__ or print
-the names and descriptions of each table with the ``tables`` attribute:
+the names and descriptions of each table with the
+`~astroquery.simbad.SimbadClass.list_tables` method:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.tables() # doctest: +IGNORE_OUTPUT
+    >>> Simbad.list_tables() # doctest: +IGNORE_OUTPUT
     <Table length=30>
       table_name                                  description                                 
         object                                       object                                   
@@ -102,13 +103,13 @@ the names and descriptions of each table with the ``tables`` attribute:
          journals                             Description of all used journals in the database
 
 To join tables, any columns sharing the same name are possible links between tables.
-To find the other possible joins, the `~astroquery.simbad.SimbadClass.find_linked_tables` method
+To find the other possible joins, the `~astroquery.simbad.SimbadClass.list_linked_tables` method
 can be useful. Here we look for possible links with the ``mesDiameter`` table
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.find_linked_tables("mesDiameter")
+    >>> Simbad.list_linked_tables("mesDiameter")
     <Table length=1>
      from_table from_column target_table target_column
        object      object      object        object
@@ -122,23 +123,25 @@ join statement: ``[...] mesDiameter JOIN basic ON mesDiameter.oidref = basic.oid
 .. graphviz:: simbad-er.gv
     :layout: neato
     :caption: A quick view of SIMBAD's tables. Hover the links to see the linked columns.
-    :alt: This interactive graph summarizes the information that can be obtained with `~astroquery.simbad.SimbadClass.tables` and `~astroquery.simbad.SimbadClass.find_linked_tables`.
+    :alt: This interactive graph summarizes the information that can be obtained with `~astroquery.simbad.SimbadClass.list_tables` and `~astroquery.simbad.SimbadClass.list_linked_tables`.
 
 Available columns
 ^^^^^^^^^^^^^^^^^
 
-`~astroquery.simbad.SimbadClass.columns` lists the columns in all or a subset of SIMBAD tables.
+`~astroquery.simbad.SimbadClass.list_columns` lists the columns in all or a subset of SIMBAD tables.
 Calling it with no argument returns the 289 columns of SIMBAD. To restrict the output to
-some tables, add their name. To get the columns of the table ``ref``:
+some tables, add their name. To get the columns of the tables ``ref`` and ``biblio``:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.columns("ref")
-    <Table length=11>
+    >>> Simbad.list_columns("ref", "biblio")
+    <Table length=13>
     table_name column_name   datatype  ...  unit          ucd         
       object      object      object   ... object        object       
     ---------- ----------- ----------- ... ------ --------------------
+        biblio      biblio        TEXT ...        meta.record;meta.bib
+        biblio      oidref      BIGINT ...         meta.record;meta.id
            ref    abstract UNICODECHAR ...                 meta.record
            ref     bibcode        CHAR ...            meta.bib.bibcode
            ref         doi     VARCHAR ...          meta.code;meta.bib
@@ -151,25 +154,25 @@ some tables, add their name. To get the columns of the table ``ref``:
            ref      volume     INTEGER ...             meta.bib.volume
            ref        year    SMALLINT ...          meta.note;meta.bib
 
-`~astroquery.simbad.SimbadClass.find_columns_by_keyword` returns columns for witch the 
-given keyword is either in the table name, in the column name or in its description.
-This is not case-sensitive.
+`~astroquery.simbad.SimbadClass.list_columns` can also be called with a keyword argument.
+This returns columns from any table for witch the  given keyword is either in the table name,
+in the column name or in its description. This is not case-sensitive.
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.find_columns_by_keyword("Radial velocity")
+    >>> Simbad.list_columns(keyword="Radial velocity")
     <Table length=8>
-      table_name    column_name   ...  unit                  ucd                
-        object         object     ... object                object              
+      table_name    column_name   ...  unit                  ucd
+        object         object     ... object                object
     ------------- --------------- ... ------ -----------------------------------
             basic     rvz_bibcode ...        meta.bib.bibcode;spect.dopplerVeloc
             basic         rvz_err ... km.s-1       stat.error;spect.dopplerVeloc
             basic    rvz_err_prec ...                                           
             basic        rvz_qual ...          meta.code.qual;spect.dopplerVeloc
             basic      rvz_radvel ... km.s-1              spect.dopplerVeloc.opt
-            basic rvz_radvel_prec ...                                           
-            basic        rvz_type ...                                           
+            basic rvz_radvel_prec ...
+            basic        rvz_type ...
     mesVelocities          origin ...                                  meta.note
 
 Example TAP queries

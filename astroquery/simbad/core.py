@@ -1006,7 +1006,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         return response
 
-    def tables(self, get_adql=False):
+    def list_tables(self, get_adql=False):
         """The names and descriptions of the tables in SIMBAD.
 
         Parameters
@@ -1025,24 +1025,28 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             return query
         return self.query_tap(query)
 
-    def columns(self, *tables: str, get_adql=False):
+    def list_columns(self, *tables: str, keyword=None, get_adql=False):
         """
         Get the list of SIMBAD columns.
 
         Add tables names to restrict to some tables. Call the function without
-        any parameter to get all columns names.
+        any parameter to get all columns names from all tables. The keyword argument
+        looks for columns in the selected Simbad tables that contain the
+        given keyword. The keyword search is not case-sensitive.
 
         Parameters
         ----------
-        tables : str, optional
+        *tables : str, optional
             Add tables names as strings to restrict to these tables columns.
+        keyword : str, optional
+            A keyword to look for in column names, table names, or descriptions.
         get_adql : bool, optional
             Returns the ADQL string instead of querying SIMBAD.
 
         Examples
         --------
         >>> from astroquery.simbad import Simbad
-        >>> Simbad.columns("ids", "ident") # doctest: +REMOTE_DATA
+        >>> Simbad.list_columns("ids", "ident") # doctest: +REMOTE_DATA
         <Table length=4>
         table_name column_name datatype ...  unit    ucd
           object      object    object  ... object  object
@@ -1051,41 +1055,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
              ident      oidref   BIGINT ...
                ids         ids     CLOB ...        meta.id
                ids      oidref   BIGINT ...
-        """
-        query = ("SELECT table_name, column_name, datatype, description, unit, ucd"
-                 " FROM TAP_SCHEMA.columns"
-                 " WHERE table_name NOT LIKE 'TAP_SCHEMA.%'")
-        if len(tables) == 1:
-            query += f" AND table_name = '{tables[0]}'"
-        elif len(tables) > 1:
-            query += f" AND table_name IN ({str(tables)[1:-1]})"
-        query += " ORDER BY table_name, principal DESC, column_name"
-        if get_adql:
-            return query
-        return self.query_tap(query)
 
-    def find_columns_by_keyword(self, keyword: str, get_adql=False):
-        """
-        Find columns by keyword.
-
-        This looks for columns in all Simbad tables that contain the
-        given keyword. The search is not case-sensitive.
-
-        Parameters
-        ----------
-        keyword : str
-            A keyword to look for in column names, table names, or descriptions.
-        get_adql : bool, optional
-            Returns the ADQL string instead of querying SIMBAD.
-
-        Returns
-        -------
-        `~astropy.table.table.Table`
-
-        Examples
-        --------
         >>> from astroquery.simbad import Simbad
-        >>> Simbad.find_columns_by_keyword("filter") # doctest: +REMOTE_DATA
+        >>> Simbad.list_columns(keyword="filter") # doctest: +REMOTE_DATA
         <Table length=5>
          table_name column_name   datatype  ...  unit           ucd
            object      object      object   ... object         object
@@ -1095,26 +1067,45 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
              filter        unit     VARCHAR ...                     meta.unit
                flux      filter     VARCHAR ...                  instr.filter
         mesDiameter      filter        CHAR ...                  instr.filter
+
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.list_columns("basic", keyword="object") # doctest: +REMOTE_DATA
+        <Table length=4>
+        table_name column_name datatype ...  unit          ucd
+          object      object    object  ... object        object
+        ---------- ----------- -------- ... ------ -------------------
+             basic     main_id  VARCHAR ...          meta.id;meta.main
+             basic   otype_txt  VARCHAR ...                  src.class
+             basic         oid   BIGINT ...        meta.record;meta.id
+             basic       otype  VARCHAR ...                  src.class
         """
-        condition = f"LIKE LOWERCASE('%{_adql_parameter(keyword)}%')"
         query = ("SELECT table_name, column_name, datatype, description, unit, ucd"
                  " FROM TAP_SCHEMA.columns"
-                 f" WHERE (LOWERCASE(column_name) {condition})"
-                 f" OR (LOWERCASE(description) {condition})"
-                 f" OR (LOWERCASE(table_name) {condition})"
-                 " ORDER BY table_name, principal DESC, column_name")
+                 " WHERE table_name NOT LIKE 'TAP_SCHEMA.%'")
+        # select the tables
+        if len(tables) == 1:
+            query += f" AND table_name = '{tables[0]}'"
+        elif len(tables) > 1:
+            query += f" AND table_name IN ({str(tables)[1:-1]})"
+        # add the keyword condition
+        if keyword is not None:
+            condition = f"LIKE LOWERCASE('%{_adql_parameter(keyword)}%')"
+            query += (f" AND ( (LOWERCASE(column_name) {condition})"
+                      f" OR (LOWERCASE(description) {condition})"
+                      f" OR (LOWERCASE(table_name) {condition}))")
+        query += " ORDER BY table_name, principal DESC, column_name"
         if get_adql:
             return query
         return self.query_tap(query)
 
-    def find_linked_tables(self, table: str, get_adql=False):
+    def list_linked_tables(self, table: str, get_adql=False):
         """
         Expose the tables that can be non-obviously linked with the given table.
 
-        This is not exhaustive, this list contains only the links where the column names
-        are not the same in the two tables. For example every ``oidref`` column of any
-        table can be joined with any other ``oidref``. The same goes for every ``otype``
-        column even if this is not returned by this method.
+        This list contains only the links where the column names are not the same in the
+        two tables. For example every ``oidref`` column of any table can be joined with
+        any other ``oidref``. The same goes for every ``otype`` column even if this is not
+        returned by this method.
 
         Parameters
         ----------
@@ -1131,7 +1122,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         Examples
         --------
         >>> from astroquery.simbad import Simbad
-        >>> Simbad.find_linked_tables("otypes") # doctest: +REMOTE_DATA
+        >>> Simbad.list_linked_tables("otypes") # doctest: +REMOTE_DATA
         <Table length=2>
         from_table from_column target_table target_column
           object      object      object        object
@@ -1185,10 +1176,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         See also
         --------
-        tables : The list of SIMBAD's tables.
-        columns : SIMBAD's columns, can be restricted to some tables.
-        find_columns_by_keyword : Find columns matching a keyword.
-        find_linked_tables : Given a table, expose non-obvious possible joins with other tables.
+        list_tables : The list of SIMBAD's tables.
+        list_columns : SIMBAD's columns list, can be restricted to some tables and some keyword.
+        list_linked_tables : Given a table, expose non-obvious possible joins with other tables.
 
         Examples
         --------

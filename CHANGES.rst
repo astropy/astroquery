@@ -51,8 +51,7 @@ simbad
 ^^^^^^
 
 - new ``query_tap`` method to access SIMBAD. This comes with additional methods to explore SIMBAD's tables and 
-  their links: ``Simbad.tables``, ``Simbad.columns``, ``Simbad.find_columns_by_keyword``
-  and ``Simbad.find_linked_tables``. [#2856]
+  their links: ``Simbad.list_tables``, ``Simbad.list_columns``, and ``Simbad.list_linked_tables``. [#2856]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^

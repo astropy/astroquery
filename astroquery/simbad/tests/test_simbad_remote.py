@@ -283,22 +283,20 @@ class TestSimbad:
         with pytest.raises(ValueError, match="Query string contains an odd number of single quotes.*"):
             Simbad.query_tap("'''")
 
-    def test_simbad_tables(self):
-        tables = Simbad.tables()
+    def test_simbad_list_tables(self):
+        tables = Simbad.list_tables()
         # check the content
         assert "basic" in str(tables)
         # there might be new tables, we have 30 now.
         assert len(tables) >= 30
 
-    def test_simbad_columns(self):
-        columns = Simbad.columns("ident", "biblio")
+    def test_simbad_list_columns(self):
+        columns = Simbad.list_columns("ident", "biblio")
         assert len(columns) == 4
         assert "oidref" in str(columns)
-
-    def test_find_columns_by_keyword(self):
-        columns = Simbad.find_columns_by_keyword("herschel")
+        columns = Simbad.list_columns(keyword="herschel")
         assert {"mesHerschel"} == set(columns["table_name"])
 
-    def test_find_linked_tables(self):
-        links = Simbad.find_linked_tables("h_link")
+    def test_list_linked_tables(self):
+        links = Simbad.list_linked_tables("h_link")
         assert {"basic"} == set(links["target_table"])
