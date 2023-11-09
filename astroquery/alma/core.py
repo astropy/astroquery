@@ -20,6 +20,7 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
+import regions
 
 try:
     from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
@@ -213,6 +214,79 @@ def _gen_sql(payload):
     return sql + where
 
 
+def to_enhanced_table(result):
+
+    def _parse_stcs_string(input):
+        csys = 'icrs'
+
+        def _get_region(tokens):
+            if tokens[0] == 'polygon':
+                if csys == tokens[1].lower():
+                    tokens = tokens[2:]
+                else:
+                    tokens = tokens[1:]
+                try:
+                    points = SkyCoord(
+                        [(float(tokens[ii]), float(tokens[ii + 1])) * u.deg
+                        for ii in range(0, len(tokens), 2)], frame=csys)
+                except Exception as ex:
+                    print(ex)
+                return regions.PolygonSkyRegion(points)
+            elif tokens[0] == 'circle':
+                if csys == tokens[1].lower():
+                    tokens = tokens[2:]
+                else:
+                    tokens = tokens[1:]
+                return regions.CircleSkyRegion(
+                SkyCoord(float(tokens[0]), float(tokens[1]), unit=u.deg),
+                float(tokens[2]) * u.deg)
+            else:
+                raise ValueError("Unrecognized shape: " + tokens[0])
+        s_region = input.lower().strip()
+        if s_region.startswith('union'):
+            res = None
+            # skip the union operator
+            input_regions = re.split(r'\(|\)', s_region)[1]
+            # omit the first char in the string to force it look for the second
+            # occurrence
+            last_pos = None
+            for shape in re.finditer(r'polygon|circle', input_regions):
+                pos = shape.span()[0]
+                if last_pos is None:
+                    last_pos = pos
+                    continue  # this is the first elem
+                if res is not None:
+                    res | _get_region(input_regions[last_pos:pos-1].strip().split())
+                else:
+                    res = _get_region(input_regions[last_pos:pos-1].strip().split())
+                last_pos = pos
+            return res
+        elif "not" in s_region:
+            # shape with "holes"
+            comps = s_region.split('not')
+            result = _get_region(comps[0].strip().split())
+            for comp in comps[1:]:
+                hole = _get_region(comp.strip(' ()').split())
+                result = result | hole ^ hole
+            return result
+        else:
+            return _get_region(s_region.split())
+
+    prep_table = result.to_qtable()
+    s_region_parser = None
+    for field in result.resultstable.fields:
+        if ('s_region' == field.ID): #and \
+           #('Char.SpatialAxis.Coverage.Support.Area' == field.utype):
+            if 'adql:REGION' == field.xtype:
+                s_region_parser = _parse_stcs_string
+            # this is where to add other xtype parsers such as shape
+            break
+    if (s_region_parser):
+        for row in prep_table:
+            row['s_region'] = s_region_parser(row['s_region'])
+    return prep_table
+
+
 class AlmaAuth(BaseVOQuery, BaseQuery):
     """Authentication session information for passing credentials to an OIDC instance
 
@@ -315,16 +389,7 @@ class AlmaClass(QueryWithLogin):
     archive_url = conf.archive_url
     USERNAME = conf.username
 
-    def __init__(self, enhanced_results=False):
-        """
-        Ctor.
-
-        Parameters
-        ----------
-        enhanced_results : bool
-            With enhanced results, the service returns table of Python objects
-            (Quantities, regions)
-        """
+    def __init__(self):
         # sia service does not need disambiguation but tap does
         super().__init__()
         self._sia = None
@@ -334,7 +399,6 @@ class AlmaClass(QueryWithLogin):
         self._tap_url = None
         self._datalink_url = None
         self._auth = AlmaAuth()
-        self._enhanced_results = enhanced_results
 
     @property
     def auth(self):
@@ -392,7 +456,8 @@ class AlmaClass(QueryWithLogin):
         return self._tap_url
 
     def query_object_async(self, object_name, *, public=True,
-                           science=True, payload=None, **kwargs):
+                           science=True, payload=None, enhanced_results=False,
+                           **kwargs):
         """
         Query the archive for a source name.
 
@@ -414,10 +479,12 @@ class AlmaClass(QueryWithLogin):
         else:
             payload = {'source_name_resolver': object_name}
         return self.query_async(public=public, science=science,
-                                payload=payload, **kwargs)
+                                payload=payload, enhanced_results=enhanced_results,
+                                **kwargs)
 
     def query_region_async(self, coordinate, radius, *, public=True,
-                           science=True, payload=None, **kwargs):
+                           science=True, payload=None, enhanced_results=False,
+                           **kwargs):
         """
         Query the ALMA archive with a source name and radius
 
@@ -449,11 +516,12 @@ class AlmaClass(QueryWithLogin):
             payload['ra_dec'] = ra_dec
 
         return self.query_async(public=public, science=science,
-                                payload=payload, **kwargs)
+                                payload=payload, enhanced_results=enhanced_results,
+                                **kwargs)
 
     def query_async(self, payload, *, public=True, science=True,
                     legacy_columns=False, get_query_payload=False,
-                    maxrec=None, **kwargs):
+                    maxrec=None, enhanced_results=False, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -508,8 +576,8 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(query, maxrec=maxrec)
 
         if result is not None:
-            if self._enhanced_results:
-                result = self.to_enhanced_table(result)
+            if enhanced_results:
+                result = to_enhanced_table(result)
             else:
                 result = result.to_table()
         else:
@@ -535,40 +603,6 @@ class AlmaClass(QueryWithLogin):
                               .format(col_name, _OBSCORE_TO_ALMARESULT[col_name]))
             return legacy_result
         return result
-
-    def to_enhanced_table(self, result):
-        prep_table = result.to_qtable()
-        s_region_parser = None
-        for field in result.resultstable.fields:
-            if ('s_region' == field.ID) and ('adql:REGION' == field.xtype):
-                s_region_parser = self.parse_stcs_string
-                break
-        if (s_region_parser):
-            for row in prep_table:
-                row['s_region'] = s_region_parser(row['s_region'])
-        return prep_table
-
-    def parse_stcs_string(self, input):
-        import regions
-        tokens = input.split(' ')
-        csys = 'icrs'
-        if tokens[0].lower() == 'polygon':
-            if csys == tokens[1].lower():
-                tokens = tokens[2:]
-            else:
-                tokens = tokens[1:]
-            points = SkyCoord([(float(tokens[ii]), float(tokens[ii + 1])) * u.deg
-                               for ii in range(0, len(tokens), 2)],
-                              frame=csys)
-            return regions.PolygonSkyRegion(points)
-        elif tokens[0].lower == 'circle':
-            if csys == tokens[1].lower():
-                tokens = tokens[:2]
-            else:
-                tokens = tokens[:1]
-            return regions.CircleSkyRegion(SkyCoord(float(tokens[0]), float(tokens[1])), float(tokens[2]))
-
-
 
     def query_sia(self, *, pos=None, band=None, time=None, pol=None,
                   field_of_view=None, spatial_resolution=None,

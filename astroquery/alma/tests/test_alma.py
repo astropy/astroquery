@@ -8,11 +8,14 @@ from unittest.mock import patch, Mock
 from astropy import units as u
 from astropy import coordinates as coord
 from astropy.table import Table
+from astropy.io import votable
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
+import regions
+import pyvo
 
 from astroquery.alma import Alma
-from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT
+from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, to_enhanced_table
 from astroquery.alma.tapsql import _val_parse
 
 
@@ -352,6 +355,37 @@ def test_query():
         "t_exptime=25 AND science_observation='F'",
         language='ADQL', maxrec=None
     )
+
+
+@pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
+def test_enhanced_table():
+    data = votable.parse(os.path.join(DATA_DIR, 'alma-shapes.xml'))
+    result = pyvo.dal.DALResults(data)
+    assert len(result) == 4
+    enhanced_result = to_enhanced_table(result)
+    assert len(enhanced_result) == 4
+    for row in enhanced_result:
+        s_region = row['s_region']
+        if isinstance(s_region, regions.CircleSkyRegion):
+            assert s_region.center.name == 'icrs'
+            assert s_region.center.ra.value == 337.250736
+            assert s_region.center.ra.unit == u.deg
+            assert s_region.center.dec.value == -69.175076
+            assert s_region.center.dec.unit == u.deg
+            assert s_region.radius.unit == u.deg
+            assert s_region.radius.value == 0.008223
+        elif isinstance(s_region, regions.PolygonSkyRegion):
+            assert len(s_region.vertices) in [4, 8]
+            assert s_region.vertices.name == 'icrs'
+        elif isinstance(s_region, regions.CompoundSkyRegion):
+            # not sure how to test here
+            pass
+        else:
+            assert false, "Unsupported shape"
+        # check other quantities
+        assert row['s_ra'].unit == u.deg
+        assert row['s_dec'].unit == u.deg
+        assert row['frequency'].unit == u.GHz
 
 
 def test_sia():

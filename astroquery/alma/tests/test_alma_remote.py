@@ -9,6 +9,7 @@ from unittest.mock import Mock, MagicMock, patch
 from astropy import coordinates
 from astropy import units as u
 import numpy as np
+import regions
 import pytest
 try:
     # This requires pyvo 1.4
@@ -17,6 +18,7 @@ except ImportError:
     pass
 
 from astroquery.exceptions import CorruptDataWarning
+import astroquery
 from .. import Alma
 
 # ALMA tests involving staging take too long, leading to travis timeouts
@@ -66,12 +68,31 @@ class TestAlma:
         for row in results:
             assert row['data_rights'] == 'Proprietary'
 
+    @pytest.mark.filterwarnings(
+        "ignore::astropy.utils.exceptions.AstropyUserWarning")
+    def test_s_region(self, tmp_path, alma):
+
+        alma.help_tap()
+        result = alma.query_tap("select top 3 s_region from ivoa.obscore")
+        enhanced_result = astroquery.alma.core.to_enhanced_table(result)
+        for row in enhanced_result:
+            assert isinstance(row['s_region'], (regions.CircleSkyRegion,
+                                                regions.PolygonSkyRegion,
+                                                regions.CompoundSkyRegion))
+
+    @pytest.mark.filterwarnings(
+        "ignore::astropy.utils.exceptions.AstropyUserWarning")
     def test_SgrAstar(self, tmp_path, alma):
         alma.cache_location = tmp_path
 
-        result_s = alma.query_object('Sgr A*', legacy_columns=True)
+        result_s = alma.query_object('Sgr A*', legacy_columns=True, enhanced_results=True)
 
         assert '2013.1.00857.S' in result_s['Project code']
+        for row in result_s:
+            assert isinstance(row['Footprint'], (regions.CircleSkyRegion,
+                                                regions.PolygonSkyRegion,
+                                                regions.CompoundSkyRegion))
+
         # "The Brick", g0.253, is in this one
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
 
