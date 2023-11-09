@@ -124,7 +124,7 @@ class TestXMMNewtonRemote:
                       'level': "ODF",
                       'filename': 'file',
                       'verbose': False}
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa = XMMNewtonClass()
         xsa.download_data(**parameters)
 
     def test_download_data_single_file(self, tmp_cwd):
@@ -135,7 +135,7 @@ class TestXMMNewtonRemote:
                       'instname': 'OM',
                       'extension': 'FTZ',
                       'verbose': False}
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa = XMMNewtonClass()
         xsa.download_data(**parameters)
 
     def test_get_postcard(self, tmp_cwd):
@@ -143,7 +143,7 @@ class TestXMMNewtonRemote:
                       'image_type': "OBS_EPIC",
                       'filename': None,
                       'verbose': False}
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa = XMMNewtonClass()
         xsa.get_postcard(**parameters)
 
     def test_get_postcard_filename(self, tmp_cwd):
@@ -151,7 +151,7 @@ class TestXMMNewtonRemote:
                       'image_type': "OBS_EPIC",
                       'filename': "test",
                       'verbose': False}
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa = XMMNewtonClass()
         xsa.get_postcard(**parameters)
 
     def test_get_epic_metadata(self):
