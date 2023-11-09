@@ -19,12 +19,12 @@ ADQL query.
   (here 5).*/
   SELECT TOP 5 basic.ra, basic.dec, main_id, nbref
   /*Then comes the declaration of the tables to be included in the query. Here *basic* and
-  *ids*. Their common column is *oid* in *basic* and *oidref* in *ident*.*/
+  *ident*. Their common column is named *oid* in *basic* and *oidref* in *ident*.*/
   FROM basic JOIN ident ON basic.oid = ident.oidref
-  /*The conditions come after. This query filters otypes that are not in any star
-  category, specific redshifts, and the results should have an NGC name in their
-  list of names.*/
-  WHERE (otype != 'star..') AND (rvz_redshift < 1) AND (id LIKE 'NGC%')
+  /*The conditions come after. This query filters otypes that are not in any
+  cluster of star (Cl*) sub-category (..), specific redshifts, and the results should
+  have an NGC name in their list of names.*/
+  WHERE (otype != 'Cl*..') AND (rvz_redshift < 1) AND (id LIKE 'NGC%')
   /*The result is then sorted so that the top 5 selected corresponds to
   the objects cited by the largest number of papers.*/
   ORDER BY nbref DESC
@@ -37,7 +37,7 @@ This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`:
     >>> from astroquery.simbad import Simbad
     >>> Simbad.query_tap("""SELECT TOP 5 basic.ra, basic.dec, main_id, nbref
                          FROM basic JOIN ident ON basic.oid = ident.oidref
-                         WHERE (otype != 'star..') AND (rvz_redshift < 1)
+                         WHERE (otype != 'Cl*..') AND (rvz_redshift < 1)
                          AND (id LIKE 'NGC%')
                          ORDER BY nbref DESC""")
         <Table length=5>
@@ -51,8 +51,9 @@ This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`:
     148.96845833333333  69.67970277777778    M  82  5769
         23.46206906218 30.660175111980003    M  33  5737
 
-The following sections cover a range of methods that help build ADQL queries.
-A showcase of more complex queries comes after.
+And voilà, we get the 5 NGC objects that are the most cited in literature, are not cluster
+of stars, and have a redshift < 1. The following sections cover methods that help build ADQL
+queries. A showcase of more complex queries comes after.
 
 Available tables
 ^^^^^^^^^^^^^^^^
@@ -180,8 +181,8 @@ Example TAP queries
 
 This section lists more complex queries by looking at use cases from former astroquery issues.
 
-`Getting all bibcodes containing a certain type of measurement for a given object. <https://github.com/astropy/astroquery/issues/243>`__
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Getting all bibcodes containing a certain type of measurement for a given object
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The measurement tables -- the ones with names starting with ``mes``-- have a bibcode column
 that corresponds to the paper in which the information was found.
@@ -210,8 +211,8 @@ that is the measurement table for rotations. Their common column is ``oidref``.
 
 This returns six papers in which the SIMBAD team found rotation data for Sirius.
 
-`Criteria on region, measurements and object types <https://github.com/astropy/astroquery/issues/2845>`__
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Criteria on region, measurements and object types
+"""""""""""""""""""""""""""""""""""""""""""""""""
 
 Here we search for objects that are not stars and have a redshift<0.4 in a cone search. All this information
 is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
@@ -244,8 +245,8 @@ is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
         
 This returns a few galaxies 'G' and emission-line galaxies 'EmG'.
 
-`Get the members of a galaxy cluster <https://github.com/astropy/astroquery/issues/2753>`__
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Get the members of a galaxy cluster
+"""""""""""""""""""""""""""""""""""
 
 All membership information is in the ``h_link`` table. We first need to retrieve the ``oidref``
 corresponding to the parent cluster SDSSCGB 350. This is done is the sub-query between parenthesis.
