@@ -31,15 +31,15 @@ ADQL query.
 
 This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`: 
 
-.. a bit long due to the ordering
-.. doctest-skip::
+.. nbref changes often so we ignore the output here
+.. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.query_tap("""SELECT TOP 5 basic.ra, basic.dec, main_id, nbref
-                         FROM basic JOIN ident ON basic.oid = ident.oidref
-                         WHERE (otype != 'Cl*..') AND (rvz_redshift < 1)
-                         AND (id LIKE 'NGC%')
-                         ORDER BY nbref DESC""")
+    ...                  FROM basic JOIN ident ON basic.oid = ident.oidref
+    ...                  WHERE (otype != 'Cl*..') AND (rvz_redshift < 1)
+    ...                  AND (id LIKE 'NGC%')
+    ...                  ORDER BY nbref DESC""") # doctest: +IGNORE_OUTPUT
         <Table length=5>
             ra                dec         main_id  nbref
            deg                deg                       
