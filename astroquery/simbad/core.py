@@ -1006,7 +1006,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         return response
 
-    def list_tables(self, get_adql=False):
+    def list_tables(self, *, get_adql=False):
         """The names and descriptions of the tables in SIMBAD.
 
         Parameters
@@ -1098,7 +1098,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             return query
         return self.query_tap(query)
 
-    def list_linked_tables(self, table: str, get_adql=False):
+    def list_linked_tables(self, table: str, *, get_adql=False):
         """
         Expose the tables that can be non-obviously linked with the given table.
 
@@ -1138,7 +1138,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             return query
         return self.query_tap(query)
 
-    def query_tap(self, query: str, maxrec=10000, uploads=None):
+    def query_tap(self, query: str, *, maxrec=10000, uploads=None):
         """
         Query Simbad TAP service.
 
