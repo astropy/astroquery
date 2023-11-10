@@ -9,6 +9,7 @@ import json
 import os
 from collections import namedtuple
 from io import BytesIO
+from functools import lru_cache, cached_property
 import warnings
 import astropy.units as u
 from astropy.utils import isiterable
@@ -370,6 +371,15 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         if (not self._tap) or (self._tap.baseurl != tap_url):
             self._tap = TAPService(baseurl=tap_url, session=self._session)
         return self._tap
+
+    @cached_property
+    def hardlimit(self):
+        """The maximum number of lines for Simbad's output.
+
+        This property is cached to avoid calls to simbad's capability
+        page each time `query_tap` is called.
+        """
+        return self.tap.hardlimit
 
     def list_wildcards(self):
         """
@@ -1138,7 +1148,31 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             return query
         return self.query_tap(query)
 
-    def query_tap(self, query: str, *, maxrec=10000, uploads=None):
+    @lru_cache(256)
+    def _cached_query_tap(self, query: str, *, maxrec=10000):
+        """Cache version of query TAP
+
+        This private method is called when query_tap is executed without an
+        ``uploads`` extra keyword argument. This is a work around because
+        `~astropy.table.table.Table` objects are not hashable and thus cannot
+        be used as arguments for a function decorated with lru_cache.
+
+        Parameters
+        ----------
+        query : str
+            A string containing the query written in the
+            Astronomical Data Query Language (ADQL).
+        maxrec : int, optional
+            The number of records to be returned. Its maximum value is 2000000.
+
+        Returns
+        -------
+        `~astropy.table.table.Table`
+            The response returned by Simbad.
+        """
+        return self.tap.run_async(query, maxrec=maxrec).to_table()
+
+    def query_tap(self, query: str, *, maxrec=10000, **uploads):
         """
         Query Simbad TAP service.
 
@@ -1148,15 +1182,12 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             A string containing the query written in the
             Astronomical Data Query Language (ADQL).
         maxrec : int, default: 10000
-            The number of records to be returned. Its maximum value is 2000000.
-        uploads : dict, default: None
-            A dictionary of local tables to be used in the *query*. It should be
-            constructed as *{"table_alias": table}*.*table* can be an
-            `~astropy.table.table.Table`, an `~astropy.io.votable.tree.VOTableFile`
-            or a `~pyvo.dal.DALResults` object. In the *query*, these tables are referred
-            as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
-            is the key of the *uploads* dictionary. The maximum number on lines for the
-            uploaded tables is 200000.
+            The number of records to be returned. Its maximum value is given by
+            `~astroquery.simbad.SimbadClass.hardlimit`.
+        uploads : `~astropy.table.table.Table` | `~astropy.io.votable.tree.VOTableFile` | `~pyvo.dal.DALResults`
+            Any number of local tables to be used in the *query*. In the *query*, these tables
+            are referred as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
+            is the keyword name you chose. The maximum number of lines for the uploaded tables is 200000.
 
         Returns
         -------
@@ -1214,23 +1245,25 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         >>> from astroquery.simbad import Simbad
         >>> from astropy.table import Table
-        >>> objects_table = Table([["a", "b", "c"]], names=["column_name"])
+        >>> letters_table = Table([["a", "b", "c"]], names=["alphabet"])
         >>> Simbad.query_tap("SELECT TAP_UPLOAD.my_table_name.* from TAP_UPLOAD.my_table_name",
-        ...                  uploads={"my_table_name": objects_table}) # doctest: +REMOTE_DATA
+        ...                  my_table_name=letters_table) # doctest: +REMOTE_DATA
         <Table length=3>
-        column_name
-           object
-        -----------
-                  a
-                  b
-                  c
+        alphabet
+         object
+        --------
+               a
+               b
+               c
         """
-        if maxrec > self.tap.hardlimit:
-            raise ValueError(f"The maximum number of records cannot exceed {self.tap.hardlimit}.")
+        if maxrec > Simbad.hardlimit:
+            raise ValueError(f"The maximum number of records cannot exceed {Simbad.hardlimit}.")
         if query.count("'") % 2:
             raise ValueError("Query string contains an odd number of single quotes."
                              " Escape the unpaired single quote by doubling it.\n"
                              "ex: 'Barnard's galaxy' -> 'Barnard''s galaxy'.")
+        if uploads == {}:
+            return self._cached_query_tap(query, maxrec=maxrec)
         return self.tap.run_async(query, maxrec=maxrec, uploads=uploads).to_table()
 
     def _get_query_header(self, get_raw=False):

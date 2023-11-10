@@ -269,7 +269,7 @@ class TestSimbad:
         table_numbers = Table([[1, 2, 3], ["a", "b", "c"]], names=["numbers", "letters"])
         result = Simbad.query_tap("SELECT * FROM TAP_UPLOAD.numbers "
                                   "JOIN TAP_UPLOAD.letters USING(letters)",
-                                  uploads={"numbers": table_numbers, "letters": table_letters})
+                                  numbers=table_numbers, letters=table_letters)
         expect = "letters numbers\n------- -------\n      a       1\n      b       2\n      c       3"
         assert expect == str(result)
         # Test query_tap raised errors
