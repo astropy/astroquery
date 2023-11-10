@@ -9,7 +9,7 @@ import json
 import os
 from collections import namedtuple
 from io import BytesIO
-from functools import lru_cache, cached_property
+from functools import lru_cache
 import warnings
 import astropy.units as u
 from astropy.utils import isiterable
@@ -372,13 +372,16 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             self._tap = TAPService(baseurl=tap_url, session=self._session)
         return self._tap
 
-    @cached_property
+    @property
+    @lru_cache(1)
     def hardlimit(self):
         """The maximum number of lines for Simbad's output.
 
         This property is cached to avoid calls to simbad's capability
-        page each time `query_tap` is called.
+        webpage each time the getter is called.
         """
+        # replace stack of property and lru_cache by functools.cache_property when
+        # astroquery drops python 3.7 support
         return self.tap.hardlimit
 
     def list_wildcards(self):
