@@ -276,3 +276,47 @@ Then, the ``basic`` table is joined with ``h_link`` and the sub-query result.
                SDSSCGB 350.1      G 243.18618110644002 ...        100    SDSSCGB 350
                 LEDA 1831614      G         243.189153 ...        100    SDSSCGB 350
 
+Query a long list of object
+"""""""""""""""""""""""""""
+
+To query a list of objects (or coordinates, of bibliographic references), we can use the
+ADQL criteria ``IN`` like so:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.query_tap("SELECT main_id, otype FROM basic WHERE main_id IN ('M1', 'M2', 'M3')")
+    <Table length=3>
+    main_id otype
+     object object
+    ------- ------
+      M   1    SNR
+      M   2    GlC
+      M   3    GlC
+
+
+And that would work perfectly... until we reach the character limit for the ADQL query. This
+is one of the example use case where the upload table capability is very useful. You can create/use
+an `~astropy.table.table.Table` containing the desired list and use it in a ``JOIN`` to replace an ``IN``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> from astropy.table import Table
+    >>> list_of_objects = Table([["M1", "M2", "M3"]], names=["Messier_objects"])
+    >>> query = """SELECT main_id, otype FROM basic
+    ...            JOIN TAP_UPLOAD.messiers 
+    ...            ON basic.main_id = TAP_UPLOAD.messiers.Messier_objects
+    ...         """
+    >>> Simbad.query_tap(query, messiers=list_of_objects) 
+    <Table length=3>
+    main_id otype
+     object object
+    ------- ------
+      M   1    SNR
+      M   2    GlC
+      M   3    GlC
+
+.. note::
+   The uploaded tables are limited to 200000 lines. You might need to break your query into smaller
+   chunks if you have longer tables.
