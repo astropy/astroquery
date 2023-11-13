@@ -336,38 +336,35 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
     def __init__(self):
         super().__init__()
         self._VOTABLE_FIELDS = self._VOTABLE_FIELDS.copy()
-        self._mirror = conf.server
+        self._server = conf.server
         self._tap = None
 
     @property
-    def simbad_mirrors(self):
-        """Set of the two Simbad mirrors domains."""
-        return {'simbad.cds.unistra.fr', 'simbad.harvard.edu'}
-
-    @property
-    def mirror(self):
+    def server(self):
         """The Simbad mirror to use."""
-        return self._mirror
+        return self._server
 
-    @mirror.setter
-    def mirror(self, server: str):
-        f"""Allows to switch server between Simbad mirrors.
+    @server.setter
+    def server(self, server: str):
+        """Allows to switch server between Simbad mirrors.
 
         Parameters
         ----------
         server : str
-            It should be one of {self.simbad_mirrors}.
+            It should be one of `~astroquery.simbad.conf.servers_list`.
         """
-        if server in self.simbad_mirrors:
-            self._mirror = server
+        if server in conf.servers_list:
+            self._server = server
         else:
-            raise ValueError(f"'{server}' does not correspond to a Simbad mirror, "
-                             f"the two existing ones are {self.simbad_mirrors}.")
+            raise ValueError(f"'{server}' does not correspond to a Simbad server, "
+                             f"the two existing ones are {conf.servers_list}.")
 
     @property
     def tap(self):
         """A ``~pyvo.dal.tap.TAPService`` service for Simbad."""
-        tap_url = "https://" + self.mirror + "/simbad/sim-tap"
+        tap_url = f"https://{self.server}/simbad/sim-tap"
+        # only creates a new tap instance if there are no existing one
+        # or if the server property changed since the last getter call.
         if (not self._tap) or (self._tap.baseurl != tap_url):
             self._tap = TAPService(baseurl=tap_url, session=self._session)
         return self._tap

@@ -77,14 +77,14 @@ def post_mockreturn(self, method, url, data, timeout, **kwargs):
 def test_simbad_mirror():
     simbad_instance = simbad.SimbadClass()
     # default value should be set at instantiation
-    assert simbad_instance.mirror == "simbad.cds.unistra.fr"
+    assert simbad_instance.server == "simbad.cds.unistra.fr"
     # it can be switched to harvard mirror
-    simbad_instance.mirror = "simbad.harvard.edu"
-    assert simbad_instance.mirror == "simbad.harvard.edu"
+    simbad_instance.server = "simbad.harvard.edu"
+    assert simbad_instance.server == "simbad.harvard.edu"
+    # but not to an invalid mirror
     with pytest.raises(ValueError,
-                       match="'test' does not correspond to a Simbad mirror, *"):
-        # but not to an invalid mirror
-        simbad_instance.mirror = "test"
+                       match="'test' does not correspond to a Simbad server, *"):
+        simbad_instance.server = "test"
 
 
 def test_simbad_create_tap_service():
