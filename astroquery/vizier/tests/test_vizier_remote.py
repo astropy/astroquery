@@ -85,6 +85,10 @@ class TestVizierRemote:
         result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
         assert isinstance(result, commons.TableList)
 
+    def test_get_catalog_metadata(self):
+        meta = vizier.core.Vizier(catalog="I/324").get_catalog_metadata()
+        assert meta['title'] == "The Initial Gaia Source List (IGSL)"
+
     def test_query_two_wavelengths(self):
         v = vizier.core.Vizier(
             columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
