@@ -205,7 +205,7 @@ def test_sdss_sql(patch_request, patch_get_readable_fileobj, dr):
         data = Table.read(data_path(DATA_FILES['images_id']),
                           format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+        data['objid'] = data['objid'].astype(np.uint64)
         compare_xid_data(xid, data)
         url_tester(dr)
 
@@ -248,8 +248,8 @@ def test_sdss_specobj(patch_request, dr):
                                     message=r'OverflowError converting.*')
         data = Table.read(data_path(DATA_FILES['spectra_id']),
                           format='ascii.csv', comment='#')
-        data['objid'] = data['objid'].astype(np.int64)
-        data['specobjid'] = data['specobjid'].astype(np.int64)
+        data['objid'] = data['objid'].astype(np.uint64)
+        data['specobjid'] = data['specobjid'].astype(np.uint64)
         compare_xid_data(xid, data)
         url_tester(dr)
 
@@ -266,7 +266,7 @@ def test_sdss_photoobj(patch_request, dr):
         data = Table.read(data_path(DATA_FILES['images_id']),
                           format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+        data['objid'] = data['objid'].astype(np.uint64)
         compare_xid_data(xid, data)
         url_tester(dr)
 
@@ -293,7 +293,7 @@ def test_list_coordinates(patch_request, dr, radius, width):
             data = Table.read(data_path(DATA_FILES['images_id']),
                               format='ascii.csv', comment='#')
 
-            data['objid'] = data['objid'].astype(np.int64)
+            data['objid'] = data['objid'].astype(np.uint64)
 
             compare_xid_data(xid, data)
             if width is None:
@@ -331,7 +331,7 @@ def test_list_coordinates_with_height(patch_request, width, height):
             data = Table.read(data_path(DATA_FILES['images_id']),
                               format='ascii.csv', comment='#')
 
-            data['objid'] = data['objid'].astype(np.int64)
+            data['objid'] = data['objid'].astype(np.uint64)
 
             compare_xid_data(xid, data)
 
@@ -347,7 +347,7 @@ def test_column_coordinates(patch_request, dr):
         data = Table.read(data_path(DATA_FILES['images_id']),
                           format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+        data['objid'] = data['objid'].astype(np.uint64)
 
         compare_xid_data(xid, data)
         url_tester_crossid(dr)
@@ -379,7 +379,7 @@ def test_query_crossid(patch_request, dr):
         data = Table.read(data_path(DATA_FILES['images_id']),
                           format='ascii.csv', comment='#')
 
-        data['objid'] = data['objid'].astype(np.int64)
+        data['objid'] = data['objid'].astype(np.uint64)
 
         compare_xid_data(xid, data)
         url_tester_crossid(dr)
