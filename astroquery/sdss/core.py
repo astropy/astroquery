@@ -1042,7 +1042,7 @@ class SDSSClass(BaseQuery):
             arr = Table.read(response.text, format='ascii.csv', comment="#")
             for id_column in ('objid', 'specobjid', 'objID', 'specobjID', 'specObjID'):
                 if id_column in arr.columns:
-                    arr[id_column] = arr[id_column].astype(np.int64)
+                    arr[id_column] = arr[id_column].astype(np.uint64)
 
         if len(arr) == 0:
             return None
