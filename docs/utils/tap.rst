@@ -15,15 +15,15 @@
 TAP/TAP+ (`astroquery.utils.tap`)
 *********************************
 
-Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
-International Virtual Observatory Alliance (IVOA: http://www.ivoa.net) defines
+Table Access Protocol (TAP: https://www.ivoa.net/documents/TAP/) specified by the
+International Virtual Observatory Alliance (IVOA: https://www.ivoa.net) defines
 a service protocol for accessing general table data.
 
-TAP+ is the ESAC Space Data Centre (ESDC: http://www.cosmos.esa.int/web/esdc/)
+TAP+ is the ESAC Space Data Centre (ESDC: https://www.cosmos.esa.int/web/esdc/)
 extension of the Table Access Protocol.
 
 The TAP query language is Astronomical Data Query Language (ADQL:
-http://www.ivoa.net/documents/ADQL/2.0), which is similar
+https://www.ivoa.net/documents/ADQL/2.0), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:
@@ -91,7 +91,7 @@ To load table names (TAP compatible)
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables()
   >>> for table in (tables):
   >>>   print(table.get_qualified_name())
@@ -123,7 +123,7 @@ To load only a table (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
   >>> print(table)
 
@@ -141,7 +141,7 @@ Once a table is loaded, columns can be inspected
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
   >>> for column in (table.columns):
   >>>   print(column.name)
@@ -223,7 +223,7 @@ Query saving results in a file:
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job("select top 100 \
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
@@ -275,7 +275,7 @@ A table can be uploaded to the server in order to be used in a query.
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>>
   >>> upload_resource = 'my_table.xml'
   >>> j = gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
@@ -303,7 +303,7 @@ Query without saving results in a file:
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
   >>>
   >>> print(job)
@@ -349,7 +349,7 @@ Query saving results in a file:
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
   >>>
   >>> print(job)
@@ -398,7 +398,7 @@ To remove asynchronous
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
@@ -429,7 +429,7 @@ Graphic interface
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
 
 
@@ -439,7 +439,7 @@ Command line
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(user='userName', password='userPassword')
 
 
@@ -450,7 +450,7 @@ It is possible to use a file where the credentials are stored:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
 
 
@@ -470,7 +470,7 @@ To perform a logout
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
   >>> ...
   >>>
@@ -484,7 +484,7 @@ To perform a logout
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
   >>> tables = gaia.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
@@ -523,7 +523,7 @@ Your uploaded table can be referenced as 'user_joe.table_name'
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> # Provide a URL pointing to a valid VOTable resource
   >>> url = "https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
@@ -548,7 +548,7 @@ Now, you can query your table as follows:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> job = gaia.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
 
@@ -571,7 +571,7 @@ Now, you can query your table as follows:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> j1 = gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
   >>> job = gaia.upload_table_from_job(j1)
@@ -595,7 +595,7 @@ Now, you can query your table as follows:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> from astropy.table import Table
   >>> a=[1,2,3]
   >>> b=['a','b','c']
@@ -621,7 +621,7 @@ Now, you can query your table as follows:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
   >>> job = gaia.delete_user_table("table_test_from_file")
 
@@ -652,7 +652,7 @@ This is done by putting each of the changes in a list. See example below.
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
   >>> gaia.update_user_table(table_name="user_<user_login_name>.my_table", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
 
@@ -673,7 +673,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_group_create(group_name="my_group", description="description")
 
@@ -683,7 +683,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_group_delete(group_name="my_group")
 
@@ -693,7 +693,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
 
@@ -704,7 +704,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
@@ -715,7 +715,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
 
@@ -726,7 +726,7 @@ Then, any user belonging to that group will be able to user your shared table in
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login()
   >>> gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
@@ -739,7 +739,7 @@ TAP+ services may provide a data access entry point.
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> params_dict = {}
   >>> params_dict['VALID_DATA'] = "true"
   >>> params_dict['ID'] = "1000103304040175360"
@@ -762,7 +762,7 @@ This service provides links to data:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> ids="1000103304040175360,1000117258390464896"
   >>> results = gaia.get_datalink(ids=ids)
 
@@ -841,7 +841,7 @@ Example 1: TAPVizieR.cds.unistra.fr
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
+  >>> tap = TapPlus(url="https://irsa.ipac.caltech.edu/TAP")
   >>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
   >>> r = job.get_results()
   >>> r.pprint()

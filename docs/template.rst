@@ -7,4 +7,4 @@ module for a new online service.
    :language: python
    
 
-.. _Madhura Parikh: http://github.com/jdnc
+.. _Madhura Parikh: https://github.com/jdnc

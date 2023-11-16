@@ -3,7 +3,7 @@
 Besancon Query Tool
 -------------------
 A tool to query the Besancon model of the galaxy
-http://model.obs-besancon.fr/
+https://model.obs-besancon.fr/
 
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
@@ -21,7 +21,7 @@ class Conf(_config.ConfigNamespace):
          ],
         'Besancon download URL.  Changed to modele2003 in 2013.')
     model_form = _config.ConfigItem(
-        ['http://model.obs-besancon.fr/modele_form.php'],
+        ['https://model.obs-besancon.fr/modele_form.php'],
         'Besancon model form URL')
     ping_delay = _config.ConfigItem(
         30.0,

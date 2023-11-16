@@ -3,7 +3,7 @@ Contributing to Astroquery
 The first official release of astroquery occurred in September 2013.
 
 Please see `astropy's contributing guildelines
-<http://www.astropy.org/contribute.html>`__ for a general guide to the
+<https://www.astropy.org/contribute.html>`__ for a general guide to the
 workflow involving git, etc.  Everything below is astroquery-specific.
 
 We strongly encourage draft pull requests to be opened early in development.
@@ -73,4 +73,4 @@ handling.
 
 .. _astroquery API: docs/api.rst
 .. _template: docs/template.rst
-.. _requests: http://docs.python-requests.org/en/master/
+.. _requests: https://docs.python-requests.org/en/latest/

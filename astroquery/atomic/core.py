@@ -147,7 +147,7 @@ class AtomicLineListClass(BaseQuery):
 
         References
         ----------
-        .. [1] http://www.pa.uky.edu/~peter/atomic/instruction.html
+        .. [1] https://linelist.pa.uky.edu/atomic/instruction.html
         """
         response = self.query_object_async(
             wavelength_range=wavelength_range, wavelength_type=wavelength_type,

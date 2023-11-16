@@ -26,6 +26,6 @@ archivePrefix = "arXiv",
       eid = {98},
     pages = {98},
       doi = {10.3847/1538-3881/aafc33},
-   adsurl = {http://adsabs.harvard.edu/abs/2019AJ....157...98G},
+   adsurl = {https://adsabs.harvard.edu/abs/2019AJ....157...98G},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }

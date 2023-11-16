@@ -182,7 +182,7 @@ class BesanconClass(BaseQuery):
         """
         Perform a query on the Besancon model of the galaxy.
 
-        http://model.obs-besancon.fr/
+        https://model.obs-besancon.fr/
 
         Parameters
         ----------

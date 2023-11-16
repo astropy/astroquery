@@ -368,7 +368,7 @@ def test_get_image_list():
 def test_exec_sync(tmp_path):
     # save results in a file
     # create the VOTable result
-    # example from http://docs.astropy.org/en/stable/io/votable/
+    # example from https://docs.astropy.org/en/stable/io/votable/
     votable = VOTableFile()
     resource = Resource()
     votable.resources.append(resource)

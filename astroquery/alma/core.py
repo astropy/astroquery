@@ -1021,7 +1021,7 @@ class AlmaClass(QueryWithLogin):
         List the file contents of a UID from Cycle 0.  Will raise an error
         if the UID is from cycle 1+, since those data have been released in
         a different and more consistent format.  See
-        http://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+        https://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
         for details.
         """
 
