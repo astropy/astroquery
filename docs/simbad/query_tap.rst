@@ -1,5 +1,5 @@
 `~astroquery.simbad.SimbadClass.query_tap` (for Table Access Protocol) is the one
-query to rule them all. It allows to interrogate all the information in SIMBAD with the
+query to rule them all. It allows one to access all the information in SIMBAD with the
 Astronomical Data Query Language (ADQL). ADQL is a flavor of the Structured
 Query Language (SQL) adapted to astronomy. To learn more about this language,
 see the `ADQL documentation <https://ivoa.net/documents/ADQL/index.html>`__
@@ -51,7 +51,7 @@ This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`:
     148.96845833333333  69.67970277777778    M  82  5769
         23.46206906218 30.660175111980003    M  33  5737
 
-And voilà, we get the 5 NGC objects that are the most cited in literature, are not cluster
+And voilà, we get the 5 NGC objects that are the most cited in literature, are not clusters
 of stars, and have a redshift < 1. The following sections cover methods that help build ADQL
 queries. A showcase of more complex queries comes after.
 
@@ -156,7 +156,7 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
            ref        year    SMALLINT ...          meta.note;meta.bib
 
 `~astroquery.simbad.SimbadClass.list_columns` can also be called with a keyword argument.
-This returns columns from any table for witch the  given keyword is either in the table name,
+This returns columns from any table for witch the given keyword is either in the table name,
 in the column name or in its description. This is not case-sensitive.
 
 .. doctest-remote-data::

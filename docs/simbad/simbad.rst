@@ -17,7 +17,7 @@ formulated. If successful all the queries will return the results in a
 A warning about big queries
 ---------------------------
 
-The SIMBAD database is largely used and had to limit the rate of incoming queries.
+The SIMBAD database is widely used and has to limit the rate of incoming queries.
 If you spam the server with more that ~5-10 queries per second you will be
 blacklisted for an hour. If it happens to you, you can use the section about
 :ref:`vectorized queries <vectorqueries>` below.  You can pass
