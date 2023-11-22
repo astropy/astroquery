@@ -120,7 +120,6 @@ can be useful. Here we look for possible links with the ``mesDiameter`` table
 The output indicates that the ``mesDiameter`` table can be linked to ``basic`` with the following
 join statement: ``[...] mesDiameter JOIN basic ON mesDiameter.oidref = basic.oid [...]``.
 
-
 .. graphviz:: simbad-er.gv
     :layout: neato
     :caption: A quick view of SIMBAD's tables. Hover the links to see the linked columns.
@@ -163,18 +162,19 @@ in the column name or in its description. This is not case-sensitive.
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_columns(keyword="Radial velocity")
-    <Table length=8>
-      table_name    column_name   ...  unit                  ucd
-        object         object     ... object                object
-    ------------- --------------- ... ------ -----------------------------------
-            basic     rvz_bibcode ...        meta.bib.bibcode;spect.dopplerVeloc
-            basic         rvz_err ... km.s-1       stat.error;spect.dopplerVeloc
-            basic    rvz_err_prec ...                                           
-            basic        rvz_qual ...          meta.code.qual;spect.dopplerVeloc
-            basic      rvz_radvel ... km.s-1              spect.dopplerVeloc.opt
+    <Table length=9>
+      table_name    column_name   ...  unit                   ucd
+        object         object     ... object                 object
+    ------------- --------------- ... ------ -------------------------------------
+            basic     rvz_bibcode ...          meta.bib.bibcode;spect.dopplerVeloc
+            basic         rvz_err ... km.s-1         stat.error;spect.dopplerVeloc
+            basic    rvz_err_prec ...
+            basic        rvz_qual ...            meta.code.qual;spect.dopplerVeloc
+            basic      rvz_radvel ... km.s-1                spect.dopplerVeloc.opt
             basic rvz_radvel_prec ...
             basic        rvz_type ...
-    mesVelocities          origin ...                                  meta.note
+            basic  rvz_wavelength ...        instr.bandpass;spect.dopplerVeloc.opt
+    mesVelocities          origin ...                                    meta.note
 
 Example TAP queries
 ^^^^^^^^^^^^^^^^^^^
