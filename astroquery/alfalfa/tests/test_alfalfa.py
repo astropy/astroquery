@@ -79,4 +79,4 @@ def test_alfalfa_crossID(patch_get, patch_get_readable_fileobj, coords=coords):
     agc = ALFALFA.query_region(coordsOC, optical_counterpart=False)
     assert agc == 12920
     agc = ALFALFA.query_region(coordsOC, optical_counterpart=False, radius='0 arcmin')
-    assert agc == None
+    assert agc is None
