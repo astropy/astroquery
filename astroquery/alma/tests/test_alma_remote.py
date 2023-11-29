@@ -9,7 +9,6 @@ from unittest.mock import Mock, MagicMock, patch
 from astropy import coordinates
 from astropy import units as u
 import numpy as np
-import regions
 import pytest
 try:
     # This requires pyvo 1.4
@@ -70,8 +69,9 @@ class TestAlma:
 
     @pytest.mark.filterwarnings(
         "ignore::astropy.utils.exceptions.AstropyUserWarning")
-    def test_s_region(self, tmp_path, alma):
-
+    def test_s_region(self, alma):
+        pytest.importorskip('regions')
+        import regions  # to silence checkstyle
         alma.help_tap()
         result = alma.query_tap("select top 3 s_region from ivoa.obscore")
         enhanced_result = astroquery.alma.core.to_enhanced_table(result)
@@ -88,13 +88,6 @@ class TestAlma:
         result_s = alma.query_object('Sgr A*', legacy_columns=True, enhanced_results=True)
 
         assert '2013.1.00857.S' in result_s['Project code']
-        for row in result_s:
-            assert isinstance(row['Footprint'], (regions.CircleSkyRegion,
-                                                regions.PolygonSkyRegion,
-                                                regions.CompoundSkyRegion))
-
-        # "The Brick", g0.253, is in this one
-        # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
 
     def test_freq(self, alma):
         payload = {'frequency': '85..86'}

@@ -294,6 +294,55 @@ their types.
       velocity_resolution  double          m/s        Estimated velocity resolution from all the spectral windows, from frequency resolution.
 
 
+Query Results
+=============
+
+Results of queries are returned in tabular format. For convenience,
+the ''to_enhanced_table'' function can be used to have the initial result
+in a more useful format, i.e turn values into quantities, footprint into
+shape, etc. (Note: this require the ''shapes'' Python package to be installed.
+
+
+.. doctest-remote-data::
+
+    >>> from astroquery.alma import Alma, to_enhanced_table
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> res = alma.query_tap("select top 1 * from ivoa.ObsCore where obs_publisher_did='ADS/JAO.ALMA#2021.1.00547.S'")
+    >>> enhanced_res = to_enhanced_table(res)
+    >>> enhanced_res[0]['s_ra']
+        <MaskedQuantity 53.11983109 deg>
+    >>> enhanced_res[0]['s_region']
+        <CompoundSkyRegion(region1=Region: PolygonSkyRegion
+        vertices: <SkyCoord (ICRS): (ra, dec) in deg
+            [(53.095155, -27.862094), (53.079461, -27.86835 ),
+             (53.070554, -27.864641), (53.071634, -27.854716),
+             (53.063795, -27.848756), (53.065662, -27.840191),
+             (53.05783 , -27.834233), (53.059697, -27.825669),
+             (53.051864, -27.819711), (53.053728, -27.811149),
+             (53.045898, -27.805188), (53.047766, -27.796624),
+             (53.040165, -27.791131), (53.040727, -27.783321),
+             (53.168803, -27.740304), (53.176556, -27.741168),
+             (53.180746, -27.747006), (53.178683, -27.754479),
+             (53.186636, -27.761019), (53.183259, -27.768949),
+             (53.192133, -27.774067), (53.189238, -27.783465),
+             (53.198118, -27.788584), (53.196264, -27.797148),
+             (53.204102, -27.8031  ), (53.202244, -27.811668),
+             (53.209857, -27.817148), (53.209307, -27.824959)]>, region2=Region: PolygonSkyRegion
+        vertices: <SkyCoord (ICRS): (ra, dec) in deg
+            [(53.16047 , -27.801462), (53.170993, -27.798574),
+             (53.173032, -27.789459), (53.183944, -27.785173),
+             (53.175851, -27.781416), (53.177962, -27.770657),
+             (53.168833, -27.764876), (53.148836, -27.77082 ),
+             (53.146803, -27.779935), (53.136929, -27.783386),
+             (53.144761, -27.78934 ), (53.143267, -27.798785),
+             (53.153398, -27.795816)]>, operator=<built-in function xor>)>
+
+The above footprint could be transformed into a pixel region and have the mask
+extracted or plotted. Refer to the Astropy affiliated ''regions'' package
+for more details.
+
+
 Downloading Data
 ================
 

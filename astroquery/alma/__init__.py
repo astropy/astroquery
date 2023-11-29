@@ -38,8 +38,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Alma, AlmaClass, ALMA_BANDS
+from .core import Alma, AlmaClass, ALMA_BANDS, to_enhanced_table
 
 __all__ = ['Alma', 'AlmaClass',
-           'Conf', 'conf', 'ALMA_BANDS'
+           'Conf', 'conf', 'ALMA_BANDS', 'to_enhanced_table'
            ]

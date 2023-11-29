@@ -20,7 +20,6 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
-import regions
 
 try:
     from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
@@ -39,7 +38,7 @@ from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
 from . import conf, auth_urls
 from astroquery.exceptions import CorruptDataWarning
 
-__all__ = {'AlmaClass', 'ALMA_BANDS'}
+__all__ = {'AlmaClass', 'ALMA_BANDS', 'to_enhanced_table'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
@@ -215,6 +214,12 @@ def _gen_sql(payload):
 
 
 def to_enhanced_table(result):
+    try:
+        import regions
+    except ImportError:
+        print(
+            "Could not import astropy-regions, which is a requirement for to_enhanced_table method in alma"
+            "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
 
     def _parse_stcs_string(input):
         csys = 'icrs'
@@ -228,7 +233,7 @@ def to_enhanced_table(result):
                 try:
                     points = SkyCoord(
                         [(float(tokens[ii]), float(tokens[ii + 1])) * u.deg
-                        for ii in range(0, len(tokens), 2)], frame=csys)
+                            for ii in range(0, len(tokens), 2)], frame=csys)
                 except Exception as ex:
                     print(ex)
                 return regions.PolygonSkyRegion(points)
@@ -238,8 +243,8 @@ def to_enhanced_table(result):
                 else:
                     tokens = tokens[1:]
                 return regions.CircleSkyRegion(
-                SkyCoord(float(tokens[0]), float(tokens[1]), unit=u.deg),
-                float(tokens[2]) * u.deg)
+                    SkyCoord(float(tokens[0]), float(tokens[1]), unit=u.deg),
+                    float(tokens[2]) * u.deg)
             else:
                 raise ValueError("Unrecognized shape: " + tokens[0])
         s_region = input.lower().strip()
@@ -256,27 +261,30 @@ def to_enhanced_table(result):
                     last_pos = pos
                     continue  # this is the first elem
                 if res is not None:
-                    res | _get_region(input_regions[last_pos:pos-1].strip().split())
+                    next_shape = _get_region(input_regions[last_pos:pos-1].strip().split())
+                    res = res | next_shape
                 else:
                     res = _get_region(input_regions[last_pos:pos-1].strip().split())
                 last_pos = pos
+            if last_pos:
+                next_shape = _get_region(input_regions[last_pos:].strip().split())
+                res = res | next_shape
             return res
         elif "not" in s_region:
             # shape with "holes"
             comps = s_region.split('not')
-            result = _get_region(comps[0].strip().split())
+            result = _get_region(comps[0].strip(' ()').split())
             for comp in comps[1:]:
                 hole = _get_region(comp.strip(' ()').split())
-                result = result | hole ^ hole
+                result = (result or hole) ^ hole
             return result
         else:
             return _get_region(s_region.split())
-
     prep_table = result.to_qtable()
     s_region_parser = None
     for field in result.resultstable.fields:
-        if ('s_region' == field.ID): #and \
-           #('Char.SpatialAxis.Coverage.Support.Area' == field.utype):
+        if ('s_region' == field.ID) and \
+                ('obscore:Char.SpatialAxis.Coverage.Support.Area' == field.utype):
             if 'adql:REGION' == field.xtype:
                 s_region_parser = _parse_stcs_string
             # this is where to add other xtype parsers such as shape
