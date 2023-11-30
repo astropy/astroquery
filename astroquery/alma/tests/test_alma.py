@@ -15,7 +15,7 @@ from astropy.time import Time
 import pyvo
 
 from astroquery.alma import Alma
-from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, to_enhanced_table
+from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, get_enhanced_table
 from astroquery.alma.tapsql import _val_parse
 
 
@@ -364,7 +364,7 @@ def test_enhanced_table():
     data = votable.parse(os.path.join(DATA_DIR, 'alma-shapes.xml'))
     result = pyvo.dal.DALResults(data)
     assert len(result) == 4
-    enhanced_result = to_enhanced_table(result)
+    enhanced_result = get_enhanced_table(result)
     assert len(enhanced_result) == 4
     # generic ALMA WCS
     ww = wcs.WCS(naxis=2)

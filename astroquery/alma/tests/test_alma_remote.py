@@ -74,7 +74,7 @@ class TestAlma:
         import regions  # to silence checkstyle
         alma.help_tap()
         result = alma.query_tap("select top 3 s_region from ivoa.obscore")
-        enhanced_result = astroquery.alma.core.to_enhanced_table(result)
+        enhanced_result = astroquery.alma.core.get_enhanced_table(result)
         for row in enhanced_result:
             assert isinstance(row['s_region'], (regions.CircleSkyRegion,
                                                 regions.PolygonSkyRegion,

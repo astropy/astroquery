@@ -38,7 +38,7 @@ from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
 from . import conf, auth_urls
 from astroquery.exceptions import CorruptDataWarning
 
-__all__ = {'AlmaClass', 'ALMA_BANDS', 'to_enhanced_table'}
+__all__ = {'AlmaClass', 'ALMA_BANDS', 'get_enhanced_table'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
@@ -213,12 +213,12 @@ def _gen_sql(payload):
     return sql + where
 
 
-def to_enhanced_table(result):
+def get_enhanced_table(result):
     try:
         import regions
     except ImportError:
         print(
-            "Could not import astropy-regions, which is a requirement for to_enhanced_table method in alma"
+            "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma"
             "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
 
     def _parse_stcs_string(input):
@@ -585,7 +585,7 @@ class AlmaClass(QueryWithLogin):
 
         if result is not None:
             if enhanced_results:
-                result = to_enhanced_table(result)
+                result = get_enhanced_table(result)
             else:
                 result = result.to_table()
         else:
