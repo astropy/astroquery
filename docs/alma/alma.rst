@@ -298,9 +298,9 @@ Query Results
 =============
 
 Results of queries are returned in tabular format. For convenience,
-the ''to_enhanced_table'' function can be used to have the initial result
-in a more useful format, i.e turn values into quantities, footprint into
-shape, etc. (Note: this require the ''shapes'' Python package to be installed.
+the ``to_enhanced_table`` function can be used to have the initial result
+in a more useful format, i.e., turn values into quantities, footprint into
+shape, etc. (Note: this require the `regions` Python package to be installed.
 
 
 .. doctest-remote-data::
