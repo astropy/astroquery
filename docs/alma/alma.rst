@@ -300,7 +300,7 @@ Query Results
 Results of queries are returned in tabular format. For convenience,
 the ''get_enhanced_table'' function can be used to have the initial result
 in a more useful format, i.e turn values into quantities, footprint into
-shape, etc. (Note: this requires the ''shapes'' Python package to be installed.
+shape, etc. (Note: this requires the ''regions'' Python package to be installed.
 
 
 .. doctest-remote-data::
