@@ -109,11 +109,14 @@ class ServiceAPI(BaseQuery):
     REQUEST_URL = conf.server + "/api/v0.1/"
     SERVICES = {}
 
-    def __init__(self, session=None):
+    def __init__(self, session=None, name=None):
 
         super().__init__()
         if session:
             self._session = session
+
+        if name:
+            self.name = name
 
         self.TIMEOUT = conf.timeout
 
@@ -143,7 +146,7 @@ class ServiceAPI(BaseQuery):
         self.SERVICES = service_dict
 
     def _request(self, method, url, params=None, data=None, headers=None,
-                 files=None, stream=False, auth=None, cache=False, use_json=False):
+                 files=None, stream=False, auth=None, cache=None, use_json=False):
         """
         Override of the parent method:
         A generic HTTP request method, similar to `~requests.Session.request`
@@ -168,7 +171,7 @@ class ServiceAPI(BaseQuery):
         stream : bool
             See `~requests.request`
         cache : bool
-            Default False. Use of built in caching
+            Optional, if specified, overrides global cache settings.
         use_json: bool
             Default False. if True then data is already in json format.
 

@@ -10,6 +10,7 @@ import warnings
 import uuid
 import json
 import time
+import re
 
 import numpy as np
 
@@ -17,7 +18,8 @@ from urllib.parse import quote as urlencode
 
 from astropy.table import Table, vstack, MaskedColumn
 
-from ..query import BaseQuery
+from astroquery import cache_conf 
+from ..query import BaseQuery, AstroQuery, to_cache
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InputWarning, NoResultsWarning, RemoteServiceError
@@ -126,14 +128,17 @@ class PortalAPI(BaseQuery):
     _column_configs = dict()
     _current_service = None
 
-    def __init__(self, session=None):
+    def __init__(self, session=None, name=None):
 
         super().__init__()
         if session:
             self._session = session
 
+        if name:
+            self.name = name
+
     def _request(self, method, url, params=None, data=None, headers=None,
-                 files=None, stream=False, auth=None, retrieve_all=True):
+                 files=None, cache=None, stream=False, auth=None, retrieve_all=True):
         """
         Override of the parent method:
         A generic HTTP request method, similar to `~requests.Session.request`
@@ -160,6 +165,8 @@ class PortalAPI(BaseQuery):
         files : None or dict
         stream : bool
             See `~requests.request`
+        cache : bool
+            Optional, if specified, overrides global cache settings.
         retrieve_all : bool
             Default True. Retrieve all pages of data or just the one indicated in the params value.
 
@@ -169,6 +176,18 @@ class PortalAPI(BaseQuery):
             The response from the server.
         """
 
+        if cache is None:  # Global caching not overridden
+            cache = cache_conf.cache_active
+
+        
+        if cache:  # cache active, look for cached file
+            cacher = self._get_cacher(method, url, data, headers, retrieve_all)
+            response = cacher.from_cache(self.cache_location, cache_conf.cache_timeout)
+            if response:
+                return response
+            
+
+        # Either cache is not active or a cached file was not found, proceed with query
         start_time = time.time()
         all_responses = []
         total_pages = 1
@@ -208,7 +227,29 @@ class PortalAPI(BaseQuery):
 
             data = data.replace("page%22%3A%20"+str(cur_page)+"%2C", "page%22%3A%20"+str(cur_page+1)+"%2C")
 
+        if cache:  # cache is active, so cache response before returning
+            to_cache(all_responses, cacher.request_file(self.cache_location))
+
         return all_responses
+
+
+    def _get_cacher(self, method, url, data, headers, retrieve_all):
+        """
+        Return an object that can cache the HTTP request based on the supplied arguments
+        """
+
+        # cacheBreaker parameter (to underlying MAST service) is not relevant (and breaks) local caching
+        # remove it from part of the cache key
+        data_no_cache_breaker = re.sub(r'^(.+)cacheBreaker%22%3A%20%22.+%22', r'\1', data)
+        
+        # include retrieve_all as part of the cache key by appending it to data
+        # it cannot be added as part of req_kwargs dict, as it will be rejected by AstroQuery
+        data_w_retrieve_all = data_no_cache_breaker + " retrieve_all={}".format(retrieve_all)
+        req_kwargs = dict(
+            data=data_no_cache_breaker,
+            headers=headers
+        )
+        return AstroQuery(method, url, **req_kwargs)
 
     def _get_col_config(self, service, fetch_name=None):
         """
@@ -320,6 +361,10 @@ class PortalAPI(BaseQuery):
             Default None.
             Can be used to override the default behavior of all results being returned to obtain
             a specific page of results.
+        cache : Boolean, optional
+            try to use cached the query result if set to True
+        cache_opts : dict, optional
+            cache options, details TBD, e.g., cache expiration policy, etc.
         **kwargs :
             See MashupRequest properties
             `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
@@ -333,7 +378,7 @@ class PortalAPI(BaseQuery):
         # setting self._current_service
         if service not in self._column_configs.keys():
             fetch_name = kwargs.pop('fetch_name', None)
-            self._get_col_config(service, fetch_name)
+            self._get_col_config(service, fetch_name, cache)
         self._current_service = service
 
         # setting up pagination
@@ -364,7 +409,7 @@ class PortalAPI(BaseQuery):
 
         return response
 
-    def build_filter_set(self, column_config_name, service_name=None, **filters):
+    def build_filter_set(self, column_config_name, service_name=None, cache=False, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
 
@@ -392,7 +437,7 @@ class PortalAPI(BaseQuery):
             service_name = column_config_name
 
         if not self._column_configs.get(service_name):
-            self._get_col_config(service_name, fetch_name=column_config_name)
+            self._get_col_config(service_name, fetch_name=column_config_name, cache=cache)
 
         caom_col_config = self._column_configs[service_name]
 

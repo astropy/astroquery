@@ -10,6 +10,7 @@ from astropy.config import paths
 from astroquery.query import QueryWithLogin
 from astroquery import cache_conf
 
+
 URL1 = "http://fakeurl.edu"
 URL2 = "http://fakeurl.ac.uk"
 

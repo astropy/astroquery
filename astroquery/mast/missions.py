@@ -40,7 +40,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.service = service
         self.mission = mission
         self.limit = 5000
-
+        
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")
 

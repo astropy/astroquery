@@ -246,7 +246,7 @@ class ObservationsClass(MastQueryWithLogin):
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, *, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, *, pagesize=None, page=None, cache=False, cache_opts=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
@@ -291,7 +291,7 @@ class ObservationsClass(MastQueryWithLogin):
             params = {"columns": "*",
                       "filters": mashup_filters}
 
-        return self._portal_api_connection.service_request_async(service, params)
+        return self._portal_api_connection.service_request_async(service, params, cache=cache, cache_opts=cache_opts)
 
     def query_region_count(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """

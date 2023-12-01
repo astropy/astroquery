@@ -76,6 +76,25 @@ def patch_post(request):
     return mp
 
 
+_num_mockreturn = 0
+
+
+def _get_num_mockreturn():
+    global _num_mockreturn
+    return _num_mockreturn
+
+
+def _reset_mockreturn_counter():
+    global _num_mockreturn
+    _num_mockreturn = 0
+
+
+def _inc_num_mockreturn():
+    global _num_mockreturn
+    _num_mockreturn += 1
+    return _num_mockreturn
+
+
 def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
@@ -101,6 +120,9 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
     filename = data_path(DATA_FILES[service])
     with open(filename, 'rb') as infile:
         content = infile.read()
+
+    # For cache tests
+    _inc_num_mockreturn()
 
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
@@ -363,6 +385,34 @@ def test_query_observations_criteria_async(patch_post):
     responses = mast.Observations.query_criteria_async(filters=["NUV", "FUV"],
                                                        objectname="M101")
     assert isinstance(responses, list)
+
+
+def test_query_observations_criteria_async_cache(patch_post):
+    _reset_mockreturn_counter()
+    assert 0 == _get_num_mockreturn(), "Mock HTTP call counter reset to 0"
+
+    responses_cache_miss = mast.Observations.query_criteria_async(dataproduct_type=["image"],
+                                                                  proposal_pi="Ost*",
+                                                                  s_dec=[43.5, 45.5], cache=True)
+    assert isinstance(responses_cache_miss, list)
+    num_mockreturn_after_first_call = _get_num_mockreturn()
+    assert num_mockreturn_after_first_call > 0, "Cache miss, some underlying HTTP call"
+
+    responses_cache_hit = mast.Observations.query_criteria_async(dataproduct_type=["image"],
+                                                                 proposal_pi="Ost*",
+                                                                 s_dec=[43.5, 45.5], cache=True)
+    # assert the cached response is the same
+    assert len(responses_cache_hit) == len(responses_cache_miss)
+    assert responses_cache_hit[0].text == responses_cache_miss[0].text
+    # ensure the response really comes from the cache
+    assert num_mockreturn_after_first_call == _get_num_mockreturn(), \
+        'Cache hit: should reach cache only, i.e., no HTTP call'
+
+    responses_no_cache = mast.Observations.query_criteria_async(dataproduct_type=["image"],
+                                                                proposal_pi="Ost*",
+                                                                s_dec=[43.5, 45.5], cache=False)
+    assert isinstance(responses_no_cache, list)
+    assert _get_num_mockreturn() > num_mockreturn_after_first_call, "Cache off , some underlying HTTP call"
 
 
 def test_observations_query_criteria(patch_post):

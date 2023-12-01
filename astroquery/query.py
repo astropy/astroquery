@@ -122,10 +122,12 @@ class AstroQuery:
                 current_time = datetime.now(timezone.utc)
                 cache_time = datetime.fromtimestamp(request_file.stat().st_mtime, timezone.utc)
                 expired = current_time-cache_time > timedelta(seconds=cache_timeout)
+
             if not expired:
                 with open(request_file, "rb") as f:
                     response = pickle.load(f)
-                if not isinstance(response, requests.Response):
+                if not isinstance(response, requests.Response)and not isinstance(response, list):
+                    # MAST query response is a list of Response
                     response = None
             else:
                 log.debug(f"Cache expired for {request_file}...")
@@ -257,6 +259,20 @@ class BaseQuery(metaclass=LoginABCMeta):
                     f"{response.text}\n"
                     f"-----------------------------------------", '\t')
             log.log(5, f"HTTP response\n{response_log}")
+     
+    def clear_cache():
+        """Removes all cache files."""
+
+        cache_files = [x for x in os.listdir(self.cache_location) if x.endswidth("pickle")]
+        for fle in cache_files:
+            os.remove(fle)
+
+    def reset_cache_preferences():
+        """Resets cache preferences to default values"""
+
+        self.reset_cache_location()
+        self.cache_active = conf.default_cache_active
+        self.cache_timeout = conf.default_cache_timeout
 
     @property
     def cache_location(self):
@@ -365,12 +381,14 @@ class BaseQuery(metaclass=LoginABCMeta):
                                files=files, timeout=timeout, json=json)
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
+
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
                 response = query.from_cache(self.cache_location, cache_conf.cache_timeout)
+
                 if not response:
                     response = query.request(self._session,
                                              self.cache_location,
@@ -522,6 +540,7 @@ class suspend_cache:
     def __exit__(self, exc_type, exc_value, traceback):
         cache_conf.cache_active = self.original_cache_setting
         return False
+
 
 
 class QueryWithLogin(BaseQuery):
