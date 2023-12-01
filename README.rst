@@ -25,7 +25,7 @@
 Accessing Online Astronomical Data
 ==================================
 
-Astroquery is an `astropy <http://www.astropy.org>`_ affiliated package that
+Astroquery is an `astropy <https://www.astropy.org>`_ affiliated package that
 contains a collection of tools to access online Astronomical data. Each web
 service has its own sub-package. For example, to interface with the `SIMBAD
 website <https://simbad.cds.unistra.fr/simbad/>`_, use the ``simbad`` sub-package:
@@ -47,12 +47,12 @@ As an `astropy`_ affiliate, astroquery requires `astropy`_ version 4.2.1 or late
 
 astroquery uses the `requests <https://requests.readthedocs.io/en/latest/>`_
 module to communicate with the internet.  `BeautifulSoup
-<http://www.crummy.com/software/BeautifulSoup/>`_ and `html5lib'
+<https://www.crummy.com/software/BeautifulSoup/>`_ and `html5lib'
 <https://html5lib.readthedocs.io/en/latest/>`_ are needed for HTML parsing for
 some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_ module is
 also required for accessing services that require a login.  These can all be
 installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
-<http://continuum.io/>`_.  Running the tests requires `curl
+<https://www.anaconda.com/>`_.  Running the tests requires `curl
 <https://curl.haxx.se/>`_ to be installed.
 
 The latest version of astroquery can be pip installed (note the ``--pre`` for
@@ -107,7 +107,7 @@ Citing Astroquery
 -----------------
 
 If you use ``astroquery``, please cite the paper we published in `The
-Astronomical Journal <http://adsabs.harvard.edu/abs/2019AJ....157...98G>`__.
+Astronomical Journal <https://adsabs.harvard.edu/abs/2019AJ....157...98G>`__.
 
 The BibTeX entry is available from the package itself::
 
@@ -133,8 +133,8 @@ Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>
 .. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
 .. _Download Stable TAR: https://github.com/astropy/astroquery/tarball/stable
 .. _View on Github: https://github.com/astropy/astroquery/
-.. _Documentation: http://astroquery.readthedocs.io
+.. _Documentation: https://astroquery.readthedocs.io
 .. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
-.. _Adam Ginsburg: http://www.adamgginsburg.com
+.. _Adam Ginsburg: https://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
-.. _API: http://astroquery.readthedocs.io/en/latest/api.html
+.. _API: https://astroquery.readthedocs.io/en/latest/api.html

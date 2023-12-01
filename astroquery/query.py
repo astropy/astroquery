@@ -316,7 +316,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             Optional, if specified, overrides global cache settings.
         verify : bool
             Verify the server's TLS certificate?
-            (see http://docs.python-requests.org/en/master/_modules/requests/sessions/?highlight=verify)
+            (see https://docs.python-requests.org/en/master/_modules/requests/sessions/?highlight=verify)
         continuation : bool
             If the file is partly downloaded to the target location, this
             parameter will try to continue the download where it left off.

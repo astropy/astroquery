@@ -13,7 +13,7 @@ def async_to_sync(cls):
     Convert all query_x_async methods to query_x methods
 
     (see
-    http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
+    https://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
     for help understanding)
     """
 

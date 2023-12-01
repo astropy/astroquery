@@ -7,8 +7,8 @@ CDS MOCServer Query Tool
 
 This package is for querying the CDS MOC service, primarily hosted at:
 
-* http://alasky.unistra.fr/MocServer/query
-* http://alaskybis.unistra.fr/MocServer/query (mirror)
+* https://alasky.unistra.fr/MocServer/query
+* https://alaskybis.unistra.fr/MocServer/query (mirror)
 
 Note: If the access to MOCs with the MOCServer tool was helpful for your research
 work, the following acknowledgment would be appreciated::

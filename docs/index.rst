@@ -2,7 +2,7 @@ Astroquery
 ==========
 
 This is the documentation for the Astroquery coordinated package of `astropy
-<http://www.astropy.org>`__.
+<https://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -99,8 +99,8 @@ Astroquery works with Python 3.7 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <http://www.numpy.org>`_ >= 1.18
-* `astropy <http://www.astropy.org>`__ (>=4.2.1)
+* `numpy <https://numpy.org>`_ >= 1.18
+* `astropy <https://www.astropy.org>`__ (>=4.2.1)
 * `pyVO`_ (>=1.1)
 * `requests <https://requests.readthedocs.io/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
