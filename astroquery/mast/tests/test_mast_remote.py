@@ -403,14 +403,15 @@ class TestMast:
 
         assert len(uri) > 0, f'Product for OBSID {test_obs_id} was not found in the cloud.'
 
-    def test_get_cloud_uris(self):
+    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411"])
+    def test_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
-        test_obs_id = '25568122'
 
         # get a product list
-        products = mast.Observations.get_product_list(test_obs_id)[24:]
+        index = 24 if test_obs_id == "25568122" else 0
+        products = mast.Observations.get_product_list(test_obs_id)[index:]
 
-        assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
+        assert len(products) > 0, (f'No products found for OBSID {test_obs_id}.'
                                    'Unable to move forward with getting URIs from the cloud.')
 
         # enable access to public AWS S3 bucket
@@ -427,6 +428,7 @@ class TestMast:
 
     # query functions
     def test_catalogs_query_region_async(self):
+
         responses = mast.Catalogs.query_region_async("158.47924 -7.30962", catalog="Galex")
         assert isinstance(responses, list)
 

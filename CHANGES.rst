@@ -299,6 +299,12 @@ xmatch
 - Minor internal change to use VOTable as the response format that include
   units, too. [#1375]
 
+mast
+^^^^
+
+- Increased the speed of ``Observations.get_cloud_uris`` by obtaining multiple
+  URIs from MAST at once. [#2145]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
