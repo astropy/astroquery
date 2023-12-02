@@ -343,7 +343,7 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
     >>> plt.show()
 
 
-.. image::footprint.png
+.. image:: footprint.png
    :alt: observation footpring
 
 
