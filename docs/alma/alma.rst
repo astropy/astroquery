@@ -344,6 +344,8 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
 
 
 .. image:: footprint.png
+   :width: 200px
+   :height: 200px
    :scale: 50 %
    :alt: observation footprint
 
