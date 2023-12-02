@@ -344,7 +344,8 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
 
 
 .. image:: footprint.png
-   :alt: observation footpring
+   :scale: 50 %
+   :alt: observation footprint
 
 
 The above footprint could be transformed into a pixel region and have the mask
