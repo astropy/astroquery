@@ -306,76 +306,50 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
 .. doctest-remote-data::
 
     >>> from astroquery.alma import Alma, get_enhanced_table
-        >>> alma = Alma()
-        >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
-        >>> res = alma.query_tap("select top 1 * from ivoa.ObsCore where obs_publisher_did='ADS/JAO.ALMA#2021.1.00547.S'")
-        >>> enhanced_res = get_enhanced_table(res)
-        >>> enhanced_res[0]['s_ra']
-            <MaskedQuantity 53.11983109 deg>
-        >>> enhanced_res[0]['s_region']
-            <CompoundSkyRegion(region1=Region: PolygonSkyRegion
-            vertices: <SkyCoord (ICRS): (ra, dec) in deg
-                [(53.095155, -27.862094), (53.079461, -27.86835 ),
-                 (53.070554, -27.864641), (53.071634, -27.854716),
-                 (53.063795, -27.848756), (53.065662, -27.840191),
-                 (53.05783 , -27.834233), (53.059697, -27.825669),
-                 (53.051864, -27.819711), (53.053728, -27.811149),
-                 (53.045898, -27.805188), (53.047766, -27.796624),
-                 (53.040165, -27.791131), (53.040727, -27.783321),
-                 (53.168803, -27.740304), (53.176556, -27.741168),
-                 (53.180746, -27.747006), (53.178683, -27.754479),
-                 (53.186636, -27.761019), (53.183259, -27.768949),
-                 (53.192133, -27.774067), (53.189238, -27.783465),
-                 (53.198118, -27.788584), (53.196264, -27.797148),
-                 (53.204102, -27.8031  ), (53.202244, -27.811668),
-                 (53.209857, -27.817148), (53.209307, -27.824959)]>, region2=Region: PolygonSkyRegion
-            vertices: <SkyCoord (ICRS): (ra, dec) in deg
-                [(53.16047 , -27.801462), (53.170993, -27.798574),
-                 (53.173032, -27.789459), (53.183944, -27.785173),
-                 (53.175851, -27.781416), (53.177962, -27.770657),
-                 (53.168833, -27.764876), (53.148836, -27.77082 ),
-                 (53.146803, -27.779935), (53.136929, -27.783386),
-                 (53.144761, -27.78934 ), (53.143267, -27.798785),
-                 (53.153398, -27.795816)]>, operator=<built-in function xor>)>
-
-    The above footprint could be transformed into a pixel region and have the mask
-    extracted or plotted. Refer to the Astropy affiliated ''regions'' package
-    for more details.
     >>> alma = Alma()
     >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
-    >>> res = alma.query_tap("select top 1 * from ivoa.ObsCore where obs_publisher_did='ADS/JAO.ALMA#2021.1.00547.S'")
+    >>> res = alma.query_tap("select top 1 * from ivoa.ObsCore where obs_publisher_did='ADS/JAO.ALMA#2011.0.00087.S'")
     >>> enhanced_res = get_enhanced_table(res)
     >>> enhanced_res[0]['s_ra']
-        <MaskedQuantity 53.11983109 deg>
+        <MaskedQuantity 86.82119735 deg>
     >>> enhanced_res[0]['s_region']
-        <CompoundSkyRegion(region1=Region: PolygonSkyRegion
-        vertices: <SkyCoord (ICRS): (ra, dec) in deg
-            [(53.095155, -27.862094), (53.079461, -27.86835 ),
-             (53.070554, -27.864641), (53.071634, -27.854716),
-             (53.063795, -27.848756), (53.065662, -27.840191),
-             (53.05783 , -27.834233), (53.059697, -27.825669),
-             (53.051864, -27.819711), (53.053728, -27.811149),
-             (53.045898, -27.805188), (53.047766, -27.796624),
-             (53.040165, -27.791131), (53.040727, -27.783321),
-             (53.168803, -27.740304), (53.176556, -27.741168),
-             (53.180746, -27.747006), (53.178683, -27.754479),
-             (53.186636, -27.761019), (53.183259, -27.768949),
-             (53.192133, -27.774067), (53.189238, -27.783465),
-             (53.198118, -27.788584), (53.196264, -27.797148),
-             (53.204102, -27.8031  ), (53.202244, -27.811668),
-             (53.209857, -27.817148), (53.209307, -27.824959)]>, region2=Region: PolygonSkyRegion
-        vertices: <SkyCoord (ICRS): (ra, dec) in deg
-            [(53.16047 , -27.801462), (53.170993, -27.798574),
-             (53.173032, -27.789459), (53.183944, -27.785173),
-             (53.175851, -27.781416), (53.177962, -27.770657),
-             (53.168833, -27.764876), (53.148836, -27.77082 ),
-             (53.146803, -27.779935), (53.136929, -27.783386),
-             (53.144761, -27.78934 ), (53.143267, -27.798785),
-             (53.153398, -27.795816)]>, operator=<built-in function xor>)>
+        <PolygonSkyRegion(vertices=<SkyCoord (ICRS): (ra, dec) in deg
+        [(86.823884, -51.067761), (86.820804, -51.069956),
+         (86.818262, -51.069702), (86.81656 , -51.068489),
+         (86.816655, -51.066594), (86.820904, -51.063002),
+         (86.823701, -51.063002), (86.825834, -51.064343),
+         (86.825915, -51.065959)]>)>
+
+    >>> # plot the footprint
+    >>> from astropy import wcs
+    >>> import matplotlib.pyplot as plt
+    >>> ww = wcs.WCS(naxis=2)
+    >>> ww.wcs.crpix = [250.0, 250.0]
+    >>> ww.wcs.cdelt = [-7.500000005754e-05, 7.500000005754e-05]
+    >>> ww.wcs.ctype = ['RA---SIN', 'DEC--SIN']
+    >>> ww.wcs.crval = [enhanced_res[0]['s_ra'].value, enhanced_res[0]['s_dec'].value]
+    >>> pix_region = enhanced_res[0]['s_region'].to_pixel(ww)
+    >>> x_min = pix_region.vertices.x.min()
+    >>> x_max = pix_region.vertices.x.max()
+    >>> y_min = pix_region.vertices.y.min()
+    >>> y_max = pix_region.vertices.y.max()
+    >>> artist = pix_region.as_artist()
+    >>> axes = plt.subplot(projection=ww)
+    >>> axes.set_aspect('equal')
+    >>> axes.add_artist(artist)
+    >>> axes.set_xlim([x_min, x_max])
+    >>> axes.set_ylim([y_min, y_max])
+    >>> pix_region.plot()
+    >>> plt.show()
+
+
+.. image::footprint.png
+   :alt: observation footpring
+
 
 The above footprint could be transformed into a pixel region and have the mask
-extracted or plotted. Refer to the Astropy affiliated ''regions'' package
-for more details.
+extracted or combined with other regions. Refer to the Astropy affiliated
+''regions'' package for more details.
 
 
 Downloading Data

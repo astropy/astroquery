@@ -435,15 +435,15 @@ def test_enhanced_table():
 
         # example of how to plot the footprints
 
-        # artist = pix_region.as_artist()
-        # import matplotlib.pyplot as plt
-        # axes = plt.subplot(projection=ww)
-        # axes.set_aspect('equal')
-        # axes.add_artist(artist)
-        # axes.set_xlim([x_min, x_max])
-        # axes.set_ylim([y_min, y_max])
-        # pix_region.plot()
-        # plt.show()
+        #artist = pix_region.as_artist()
+        import matplotlib.pyplot as plt
+        axes = plt.subplot(projection=ww)
+        axes.set_aspect('equal')
+        #axes.add_artist(artist)
+        axes.set_xlim([x_min, x_max])
+        axes.set_ylim([y_min, y_max])
+        pix_region.plot()
+        plt.show()
 
 
 def test_sia():
