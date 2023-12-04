@@ -323,6 +323,7 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
     >>> # plot the footprint
     >>> from astropy import wcs
     >>> import matplotlib.pyplot as plt
+    >>> # Create a WCS; for plotting, all that matters is that it is centered on our target region
     >>> ww = wcs.WCS(naxis=2)
     >>> ww.wcs.crpix = [250.0, 250.0]
     >>> ww.wcs.cdelt = [-7.500000005754e-05, 7.500000005754e-05]
