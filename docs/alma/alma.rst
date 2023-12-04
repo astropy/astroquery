@@ -329,16 +329,11 @@ shape, etc. (Note: this requires the ''regions'' Python package to be installed.
     >>> ww.wcs.ctype = ['RA---SIN', 'DEC--SIN']
     >>> ww.wcs.crval = [enhanced_res[0]['s_ra'].value, enhanced_res[0]['s_dec'].value]
     >>> pix_region = enhanced_res[0]['s_region'].to_pixel(ww)
-    >>> x_min = pix_region.vertices.x.min()
-    >>> x_max = pix_region.vertices.x.max()
-    >>> y_min = pix_region.vertices.y.min()
-    >>> y_max = pix_region.vertices.y.max()
     >>> artist = pix_region.as_artist()
     >>> axes = plt.subplot(projection=ww)
     >>> axes.set_aspect('equal')
     >>> axes.add_artist(artist)
-    >>> axes.set_xlim([x_min, x_max])
-    >>> axes.set_ylim([y_min, y_max])
+    >>> axes.axis(pix_region.bounding_box.extent)
     >>> pix_region.plot()
     >>> plt.show()
 
