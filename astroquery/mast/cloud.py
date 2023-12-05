@@ -52,7 +52,7 @@ class CloudAccess:  # pragma:no-cover
         import boto3
         import botocore
 
-        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex"]
+        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex", "mast:ps1"]
 
         self.boto3 = boto3
         self.botocore = botocore
@@ -117,6 +117,8 @@ class CloudAccess:  # pragma:no-cover
 
         if 'galex' in path:
             path = path.lstrip("/mast/")
+        elif '/ps1/' in path:
+            path = path.replace("/ps1/", "panstarrs/ps1/public/")
         else:
             path = path.lstrip("/")
 
