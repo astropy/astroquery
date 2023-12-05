@@ -294,7 +294,8 @@ class VizierClass(BaseQuery):
             A table with the following columns:
             - title
             - authors
-            - description
+            - abstract (the abstract of the article, modified to explain the data
+            more specifically)
             - origin_article (the bibcode of the associated article)
             - webpage (a link to VizieR, contains more information about the catalog)
             - created (date of creation of the catalog *in VizieR*)
@@ -303,22 +304,22 @@ class VizierClass(BaseQuery):
             webpage but sometimes also data erratum, which will appear in the
             history tab)
             - waveband
-            - other_identifier (the catalog doi when it exists, otherwise the article bibcode)
+            - doi (the catalog doi when it exists)
 
         Examples
         --------
         >>> from astroquery.vizier import Vizier
         >>> Vizier(catalog="I/324").get_catalog_metadata() # doctest: +REMOTE_DATA
         <Table length=1>
-                       title                        authors         ... waveband             doi
-                       object                        object         ...  object             object
-        ----------------------------------- ----------------------- ... -------- ---------------------------
-        The Initial Gaia Source List (IGSL) Smart R.L.; Nicastro L. ...          bibcode:2014A&A...570A..87S
+                       title                        authors         ... waveband  doi
+                       object                        object         ...  object  object
+        ----------------------------------- ----------------------- ... -------- ------
+        The Initial Gaia Source List (IGSL) Smart R.L.; Nicastro L. ...              --
 
         >>> from astroquery.vizier import Vizier
         >>> Vizier.get_catalog_metadata(catalog="J/ApJS/173/185") # doctest: +REMOTE_DATA
         <Table length=1>
-                          title                    ...               doi
+                          title                    ...              doi
                           object                   ...              object
         ------------------------------------------ ... --------------------------------
         GALEX ultraviolet atlas of nearby galaxies ... doi:10.26093/cds/vizier.21730185
@@ -330,12 +331,12 @@ class VizierClass(BaseQuery):
             raise ValueError("No catalog name was provided.")
         query = f"""SELECT TOP 1 res_title as title,
                 creator_seq as authors,
-                res_description as description,
+                res_description as abstract,
                 source_value as origin_article,
                 reference_url as webpage,
                 created, updated,
                 waveband,
-                alt_identifier as other_identifier
+                alt_identifier as doi
                 FROM rr.resource NATURAL LEFT OUTER JOIN rr.capability
                 NATURAL LEFT OUTER JOIN rr.interface
                 NATURAL LEFT OUTER JOIN rr.alt_identifier
@@ -343,7 +344,10 @@ class VizierClass(BaseQuery):
         metadata = registry.regtap.RegistryQuery(registry.regtap.REGISTRY_BASEURL, query)
         if get_query_payload:
             return metadata
-        return metadata.execute().to_table()
+        result = metadata.execute().to_table()
+        # apply mask if the `alt_identifier` value is not a doi
+        result["doi"].mask = True if "doi:" not in result["doi"][0] else False
+        return result
 
     def query_object_async(self, object_name, *, catalog=None, radius=None,
                            coordinate_frame=None, get_query_payload=False,
