@@ -622,6 +622,10 @@ class VizierClass(BaseQuery):
                 body['-source'] = catalog.name
             else:
                 raise TypeError("Catalog must be specified as list, string, or Resource")
+
+        # take row_limit in account
+        body['-out.max'] = self.ROW_LIMIT
+
         # process: columns
         columns = kwargs.get('columns', copy.copy(self.columns))
 
