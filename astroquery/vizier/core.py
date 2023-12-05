@@ -28,8 +28,6 @@ from ..exceptions import TableParseError
 
 __all__ = ['Vizier', 'VizierClass']
 
-__doctest_skip__ = ['VizierClass.*']
-
 
 @async_to_sync
 class VizierClass(BaseQuery):
@@ -207,13 +205,15 @@ class VizierClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.vizier import Vizier
-        >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print(catalog_list)
-        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
-         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.items()})
-        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
-         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+        >>> catalog_list = Vizier.find_catalogs('Kang W51') # doctest: +REMOTE_DATA +IGNORE_WARNINGS
+        >>> catalog_list # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        OrderedDict([('J/ApJ/684/1143', </>), ('J/ApJ/736/87', </>) ... ])
+        >>> print({k:v.description for k,v in catalog_list.items()}) # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        {'J/ApJ/684/1143': 'BHB candidates in the Milky Way (Xue+, 2008)',
+         'J/ApJ/736/87': 'Abundances in G-type stars with exoplanets (Kang+, 2011)',
+         'J/ApJ/738/79': "SDSS-DR8 BHB stars in the Milky Way's halo (Xue+, 2011)",
+         'J/ApJ/760/12': 'LIGO/Virgo gravitational-wave (GW) bursts with GRBs (Abadie+, 2012)',
+         ...}
         """
 
         if isinstance(keywords, list):
@@ -561,31 +561,15 @@ class VizierClass(BaseQuery):
         --------
         >>> from astroquery.vizier import Vizier
         >>> # note that glon/glat constraints here *must* be floats
-        >>> result = Vizier.query_constraints(catalog='J/ApJ/723/492/table1',
-        ...                                   GLON='>49.0 & <51.0', GLAT='<0')
-        >>> result[result.keys()[0]].pprint()
-            GRSMC      GLON   GLAT   VLSR  ... RD09 _RA.icrs _DE.icrs
-        ------------- ------ ------ ------ ... ---- -------- --------
-        G049.49-00.41  49.49  -0.41  56.90 ... RD09   290.95    14.50
-        G049.39-00.26  49.39  -0.26  50.94 ... RD09   290.77    14.48
-        G049.44-00.06  49.44  -0.06  62.00 ... RD09   290.61    14.62
-        G049.04-00.31  49.04  -0.31  66.25 ... RD09   290.64    14.15
-        G049.74-00.56  49.74  -0.56  67.95 ... RD09   291.21    14.65
-        G050.39-00.41  50.39  -0.41  41.17 ... RD09   291.39    15.29
-        G050.24-00.61  50.24  -0.61  41.17 ... RD09   291.50    15.06
-        G050.94-00.61  50.94  -0.61  40.32 ... RD09   291.85    15.68
-        G049.99-00.16  49.99  -0.16  46.27 ... RD09   290.97    15.06
-        G049.44-00.06  49.44  -0.06  46.27 ... RD09   290.61    14.62
-        G049.54-00.01  49.54  -0.01  56.05 ... RD09   290.61    14.73
-        G049.74-00.01  49.74  -0.01  48.39 ... RD09   290.71    14.91
-        G049.54-00.91  49.54  -0.91  43.29 ... RD09   291.43    14.31
-        G049.04-00.46  49.04  -0.46  58.60 ... RD09   290.78    14.08
-        G049.09-00.06  49.09  -0.06  46.69 ... RD09   290.44    14.31
-        G050.84-00.11  50.84  -0.11  50.52 ... RD09   291.34    15.83
-        G050.89-00.11  50.89  -0.11  59.45 ... RD09   291.37    15.87
-        G050.44-00.41  50.44  -0.41  64.12 ... RD09   291.42    15.34
-        G050.84-00.76  50.84  -0.76  61.15 ... RD09   291.94    15.52
-        G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
+        >>> result = Vizier(row_limit=3).query_constraints(catalog='J/ApJ/723/492/table1',
+        ...                                   GLON='>49.0 & <51.0', GLAT='<0.0') # doctest: +REMOTE_DATA
+        >>> result[result.keys()[0]].pprint() # doctest: +REMOTE_DATA
+            GRSMC      GLON   GLAT   VLSR   DelV  ... alpha  Note RD09 _RA.icrs _DE.icrs
+                       deg    deg   km / s km / s ...                    deg      deg
+        ------------- ------ ------ ------ ------ ... ------ ---- ---- -------- --------
+        G049.49-00.41  49.49  -0.41  56.90   9.12 ...   0.73    i RD09 290.9536  14.4992
+        G049.39-00.26  49.39  -0.26  50.94   3.51 ...   0.16    i RD09 290.7682  14.4819
+        G049.44-00.06  49.44  -0.06  62.00   3.67 ...   0.17    i RD09 290.6104  14.6203
         """
 
         catalog = VizierClass._schema_catalog.validate(catalog)
