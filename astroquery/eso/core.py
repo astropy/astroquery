@@ -43,6 +43,9 @@ def _check_response(content):
 
 
 class CalSelectorError(Exception):
+    """
+    Raised on failure to parse CalSelector's response.
+    """
     pass
 
 
@@ -706,21 +709,21 @@ class EsoClass(QueryWithLogin):
         with open(filename, "wb") as fd:
             fd.write(payload)
 
-    def find_associated_files(self, datasets: List[str], *, mode: str = "raw",
-                              savexml: bool = False, destination: str = None) -> List[str]:
+    def get_associated_files(self, datasets: List[str], *, mode: str = "raw",
+                             savexml: bool = False, destination: str = None) -> List[str]:
         """
         Invoke Calselector service to find calibration files associated to the provided datasets.
 
         Parameters
         ----------
-        datasets :
+        datasets : list of strings
             List of datasets for which calibration files should be retrieved.
-        mode :
+        mode : string
             Calselector mode: 'raw' (default) for raw calibrations,
              or 'processed' for processed calibrations.
-        savexml :
+        savexml : bool
             If true, save to disk the XML association tree returned by Calselector.
-        destination :
+        destination : string
             Directory where the XML files are saved (default = astropy cache).
 
         Returns
@@ -810,7 +813,7 @@ class EsoClass(QueryWithLogin):
                 BATCH_SIZE = 100
                 sorted_datasets = sorted(datasets)
                 for i in range(0, len(sorted_datasets), BATCH_SIZE):
-                    associated_files += self.find_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
+                    associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
                 associated_files = list(set(associated_files))
                 log.info(f"Found {len(associated_files)} associated files")
             except Exception as ex:

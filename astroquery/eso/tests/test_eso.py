@@ -144,7 +144,7 @@ def test_calselector(monkeypatch):
     eso = Eso()
     dataset = 'FORS2.2021-01-02T00:59:12.533'
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.find_associated_files([dataset], savexml=False, destination=data_path('downloads'))
+    result = eso.get_associated_files([dataset], savexml=False, destination=data_path('downloads'))
     assert isinstance(result, list)
     assert len(result) == 50
     assert dataset not in result
@@ -154,7 +154,7 @@ def test_calselector_multipart(monkeypatch):
     eso = Eso()
     datasets = ['FORS2.2021-01-02T00:59:12.533', 'FORS2.2021-01-02T00:59:12.534']
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.find_associated_files(datasets, savexml=False, destination=data_path('downloads'))
+    result = eso.get_associated_files(datasets, savexml=False, destination=data_path('downloads'))
     assert isinstance(result, list)
     assert len(result) == 99
     assert datasets[0] not in result and datasets[1] not in result
