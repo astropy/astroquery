@@ -103,8 +103,13 @@ class TestVizierRemote:
             keywords=['Radio', 'IR'], row_limit=5000)
         C = SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame="galactic")
 
-        with pytest.warns(UserWarning, match="VOTABLE parsing raised exception"):
+        # With newer versions UnitsWarning may be issued as well
+        with pytest.warns() as w:
             V.query_region(C, radius=2 * u.arcmin)
+
+        for i in w:
+            message = str(i.message)
+            assert ("VOTABLE parsing raised exception" in message or "not supported by the VOUnit standard" in message)
 
     def test_multicoord(self):
 
