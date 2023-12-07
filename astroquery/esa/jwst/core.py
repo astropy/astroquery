@@ -197,7 +197,7 @@ class JwstClass(BaseQuery):
         -------
         A Job object
         """
-        return self.__jwsttap.load_async_job(jobid, name, verbose)
+        return self.__jwsttap.load_async_job(jobid=jobid, name=name, verbose=verbose)
 
     def search_async_jobs(self, *, jobfilter=None, verbose=False):
         """Searches for jobs applying the specified filter
@@ -229,7 +229,7 @@ class JwstClass(BaseQuery):
         -------
         A list of Job objects
         """
-        return self.__jwsttap.list_async_jobs(verbose)
+        return self.__jwsttap.list_async_jobs(verbose=verbose)
 
     def query_region(self, coordinate, *,
                      radius=None,
@@ -623,7 +623,7 @@ class JwstClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__jwsttap.save_results(job, verbose)
+        return self.__jwsttap.save_results(job, verbose=verbose)
 
     def login(self, *, user=None, password=None, credentials_file=None,
               token=None, verbose=False):
@@ -663,7 +663,7 @@ class JwstClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__jwsttap.logout(verbose)
+        return self.__jwsttap.logout(verbose=verbose)
 
     def set_token(self, token):
         """Links a MAST token to the logged user
