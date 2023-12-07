@@ -238,7 +238,7 @@ class GaiaClass(TapPlus):
             output_file_specified = True
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
-                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='False' to "
+                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
                                  f"overwrite output file.")
 
         path = os.path.dirname(output_file)
