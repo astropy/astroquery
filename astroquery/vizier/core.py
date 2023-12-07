@@ -278,13 +278,13 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        catalog: str, optional
+        catalog : str, optional
             The catalog identifier. It usually looks like 'III/55' for big surveys
             or 'J/ApJ/811/67' for catalogs linked to a published paper. When this
             parameter is not provided, the function looks for the metadata of the
             catalog property of the Vizier class instance
             (`~astroquery.vizier.VizierClass.catalog`).
-        get_query_payload: bool, optional
+        get_query_payload : bool, optional
             When True, returns the dict of HTTP request parameters. This does not
             execute the search for metadata.
 
