@@ -264,6 +264,13 @@ svo_fps
 - The default wavelength range used by ``get_filter_index()`` was far too
   large. The user must now always specify both upper and lower limits. [#2509]
 
+vizier
+^^^^^^
+
+- A new method ``astroquery.vizier.VizierClass.get_catalog_metadata`` allows to retrieve
+  information about VizieR catalogs such as origin_article, description, or last modified
+  date. [#2878]
+
 xmatch
 ^^^^^^
 

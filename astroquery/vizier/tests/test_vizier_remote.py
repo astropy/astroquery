@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
+import numpy as np
 
 import astropy.units as u
 from astropy.coordinates import SkyCoord
@@ -85,6 +86,10 @@ class TestVizierRemote:
         result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
         assert isinstance(result, commons.TableList)
 
+    def test_get_catalog_metadata(self):
+        meta = vizier.core.Vizier(catalog="I/324").get_catalog_metadata()
+        assert meta['title'] == "The Initial Gaia Source List (IGSL)"
+
     def test_query_two_wavelengths(self):
         v = vizier.core.Vizier(
             columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
@@ -142,3 +147,11 @@ class TestVizierRemote:
 
         assert isinstance(result, list)
         assert len(result) == 3
+
+    def test_query_constraints(self):
+        V = vizier.core.Vizier(row_limit=3)
+        result = V.query_constraints(catalog="I/130/main", mB2="=14.7")[0]
+        # row_limit is taken in account
+        assert len(result) == 3
+        # the criteria is respected
+        assert np.all(np.isclose(result["mB2"], 14.7, rtol=1e-09, atol=1e-09))

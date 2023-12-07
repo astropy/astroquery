@@ -86,6 +86,42 @@ complete catalog, you need to change that:
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
     >>> Vizier.ROW_LIMIT = 50
 
+Get a catalog's associated metadata
+-----------------------------------
+
+The method `~astroquery.vizier.VizierClass.get_catalog_metadata` retrieves information
+about VizieR's catalogs. It returns a table with the following columns:
+
+- title
+- authors
+- description
+- origin_article -- the bibcode of the associated article
+- webpage -- a link to VizieR, contains more information about the catalog
+- created -- date of creation of the catalog *in VizieR*
+- updated -- date of the last modification applied to the entry, this is often about
+  metadata, with no appearance in the history on the webpage but sometimes it is about
+  a data erratum, which will appear in the history tab
+
+  .. note::
+     This value can be extra useful to check if you need to download some catalog
+     again from VizieR or if you can work safely with a result you saved previously
+     on disk. Also note that the VizieR team actively maintains the catalogs but if
+     a published erratum was missed we'd gladly receive a notification from you!
+
+- waveband
+- other_identifier -- the catalog doi when it exists, otherwise the article bibcode
+
+.. doctest-remote-data::
+
+    >>> from astroquery.vizier import Vizier
+    >>> Vizier(catalog="VII/74A").get_catalog_metadata()
+    <Table length=1>
+              title            authors  ... waveband  doi  
+              object            object  ...  object  object
+    -------------------------- -------- ... -------- ------
+    Atlas of Peculiar Galaxies Arp H.C. ...  optical
+      
+
 Query an object
 ---------------
 

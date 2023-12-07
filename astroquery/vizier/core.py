@@ -16,6 +16,7 @@ import astropy.utils.data as aud
 from collections import OrderedDict
 import astropy.io.votable as votable
 from astropy.io import ascii, fits
+from pyvo import registry
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -26,8 +27,6 @@ from ..exceptions import TableParseError
 
 
 __all__ = ['Vizier', 'VizierClass']
-
-__doctest_skip__ = ['VizierClass.*']
 
 
 @async_to_sync
@@ -206,13 +205,15 @@ class VizierClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.vizier import Vizier
-        >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print(catalog_list)
-        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
-         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.items()})
-        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
-         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+        >>> catalog_list = Vizier.find_catalogs('Kang W51') # doctest: +REMOTE_DATA +IGNORE_WARNINGS
+        >>> catalog_list # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        OrderedDict([('J/ApJ/684/1143', </>), ('J/ApJ/736/87', </>) ... ])
+        >>> print({k:v.description for k,v in catalog_list.items()}) # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        {'J/ApJ/684/1143': 'BHB candidates in the Milky Way (Xue+, 2008)',
+         'J/ApJ/736/87': 'Abundances in G-type stars with exoplanets (Kang+, 2011)',
+         'J/ApJ/738/79': "SDSS-DR8 BHB stars in the Milky Way's halo (Xue+, 2011)",
+         'J/ApJ/760/12': 'LIGO/Virgo gravitational-wave (GW) bursts with GRBs (Abadie+, 2012)',
+         ...}
         """
 
         if isinstance(keywords, list):
@@ -271,6 +272,82 @@ class VizierClass(BaseQuery):
             data=data_payload, timeout=self.TIMEOUT)
 
         return response
+
+    def get_catalog_metadata(self, *, catalog=None, get_query_payload=False):
+        """Get a VizieR's catalog metadata.
+
+        Parameters
+        ----------
+        catalog : str, optional
+            The catalog identifier. It usually looks like 'III/55' for big surveys
+            or 'J/ApJ/811/67' for catalogs linked to a published paper. When this
+            parameter is not provided, the function looks for the metadata of the
+            catalog property of the Vizier class instance
+            (`~astroquery.vizier.VizierClass.catalog`).
+        get_query_payload : bool, optional
+            When True, returns the dict of HTTP request parameters. This does not
+            execute the search for metadata.
+
+        Returns
+        -------
+        `~astropy.table.table.Table`
+            A table with the following columns:
+            - title
+            - authors
+            - abstract (the abstract of the article, modified to explain the data
+            more specifically)
+            - origin_article (the bibcode of the associated article)
+            - webpage (a link to VizieR, contains more information about the catalog)
+            - created (date of creation of the catalog *in VizieR*)
+            - updated (date of the last modification applied to the entry,
+            this is often metadata, with no appearance in the history tap on the
+            webpage but sometimes also data erratum, which will appear in the
+            history tab)
+            - waveband
+            - doi (the catalog doi when it exists)
+
+        Examples
+        --------
+        >>> from astroquery.vizier import Vizier
+        >>> Vizier(catalog="I/324").get_catalog_metadata() # doctest: +REMOTE_DATA
+        <Table length=1>
+                       title                        authors         ... waveband  doi
+                       object                        object         ...  object  object
+        ----------------------------------- ----------------------- ... -------- ------
+        The Initial Gaia Source List (IGSL) Smart R.L.; Nicastro L. ...              --
+
+        >>> from astroquery.vizier import Vizier
+        >>> Vizier.get_catalog_metadata(catalog="J/ApJS/173/185") # doctest: +REMOTE_DATA
+        <Table length=1>
+                          title                    ...              doi
+                          object                   ...              object
+        ------------------------------------------ ... --------------------------------
+        GALEX ultraviolet atlas of nearby galaxies ... doi:10.26093/cds/vizier.21730185
+        """
+        # searches the instance catalog property if the keyword argument is not provided
+        if not catalog:
+            catalog = self.catalog
+        if not catalog:
+            raise ValueError("No catalog name was provided.")
+        query = f"""SELECT TOP 1 res_title as title,
+                creator_seq as authors,
+                res_description as abstract,
+                source_value as origin_article,
+                reference_url as webpage,
+                created, updated,
+                waveband,
+                alt_identifier as doi
+                FROM rr.resource NATURAL LEFT OUTER JOIN rr.capability
+                NATURAL LEFT OUTER JOIN rr.interface
+                NATURAL LEFT OUTER JOIN rr.alt_identifier
+                WHERE ivoid = 'ivo://cds.vizier/{catalog.lower()}'"""
+        metadata = registry.regtap.RegistryQuery(registry.regtap.REGISTRY_BASEURL, query)
+        if get_query_payload:
+            return metadata
+        result = metadata.execute().to_table()
+        # apply mask if the `alt_identifier` value is not a doi
+        result["doi"].mask = True if "doi:" not in result["doi"][0] else False
+        return result
 
     def query_object_async(self, object_name, *, catalog=None, radius=None,
                            coordinate_frame=None, get_query_payload=False,
@@ -484,31 +561,15 @@ class VizierClass(BaseQuery):
         --------
         >>> from astroquery.vizier import Vizier
         >>> # note that glon/glat constraints here *must* be floats
-        >>> result = Vizier.query_constraints(catalog='J/ApJ/723/492/table1',
-        ...                                   GLON='>49.0 & <51.0', GLAT='<0')
-        >>> result[result.keys()[0]].pprint()
-            GRSMC      GLON   GLAT   VLSR  ... RD09 _RA.icrs _DE.icrs
-        ------------- ------ ------ ------ ... ---- -------- --------
-        G049.49-00.41  49.49  -0.41  56.90 ... RD09   290.95    14.50
-        G049.39-00.26  49.39  -0.26  50.94 ... RD09   290.77    14.48
-        G049.44-00.06  49.44  -0.06  62.00 ... RD09   290.61    14.62
-        G049.04-00.31  49.04  -0.31  66.25 ... RD09   290.64    14.15
-        G049.74-00.56  49.74  -0.56  67.95 ... RD09   291.21    14.65
-        G050.39-00.41  50.39  -0.41  41.17 ... RD09   291.39    15.29
-        G050.24-00.61  50.24  -0.61  41.17 ... RD09   291.50    15.06
-        G050.94-00.61  50.94  -0.61  40.32 ... RD09   291.85    15.68
-        G049.99-00.16  49.99  -0.16  46.27 ... RD09   290.97    15.06
-        G049.44-00.06  49.44  -0.06  46.27 ... RD09   290.61    14.62
-        G049.54-00.01  49.54  -0.01  56.05 ... RD09   290.61    14.73
-        G049.74-00.01  49.74  -0.01  48.39 ... RD09   290.71    14.91
-        G049.54-00.91  49.54  -0.91  43.29 ... RD09   291.43    14.31
-        G049.04-00.46  49.04  -0.46  58.60 ... RD09   290.78    14.08
-        G049.09-00.06  49.09  -0.06  46.69 ... RD09   290.44    14.31
-        G050.84-00.11  50.84  -0.11  50.52 ... RD09   291.34    15.83
-        G050.89-00.11  50.89  -0.11  59.45 ... RD09   291.37    15.87
-        G050.44-00.41  50.44  -0.41  64.12 ... RD09   291.42    15.34
-        G050.84-00.76  50.84  -0.76  61.15 ... RD09   291.94    15.52
-        G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
+        >>> result = Vizier(row_limit=3).query_constraints(catalog='J/ApJ/723/492/table1',
+        ...                                   GLON='>49.0 & <51.0', GLAT='<0.0') # doctest: +REMOTE_DATA
+        >>> result[result.keys()[0]].pprint() # doctest: +REMOTE_DATA
+            GRSMC      GLON   GLAT   VLSR   DelV  ... alpha  Note RD09 _RA.icrs _DE.icrs
+                       deg    deg   km / s km / s ...                    deg      deg
+        ------------- ------ ------ ------ ------ ... ------ ---- ---- -------- --------
+        G049.49-00.41  49.49  -0.41  56.90   9.12 ...   0.73    i RD09 290.9536  14.4992
+        G049.39-00.26  49.39  -0.26  50.94   3.51 ...   0.16    i RD09 290.7682  14.4819
+        G049.44-00.06  49.44  -0.06  62.00   3.67 ...   0.17    i RD09 290.6104  14.6203
         """
 
         catalog = VizierClass._schema_catalog.validate(catalog)
@@ -545,6 +606,10 @@ class VizierClass(BaseQuery):
                 body['-source'] = catalog.name
             else:
                 raise TypeError("Catalog must be specified as list, string, or Resource")
+
+        # take row_limit in account
+        body['-out.max'] = self.ROW_LIMIT
+
         # process: columns
         columns = kwargs.get('columns', copy.copy(self.columns))
 
