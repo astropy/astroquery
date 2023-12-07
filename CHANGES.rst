@@ -405,6 +405,8 @@ mast
 
 - Optional keyword arguments are now keyword only. [#2317]
 
+- PanSTARRS data is now available to download anonymously from the public STScI S3 buckets. [#2893]
+
 sdss
 ^^^^
 

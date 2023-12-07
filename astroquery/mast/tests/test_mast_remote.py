@@ -385,23 +385,26 @@ class TestMast:
         result = mast.Observations.download_file(uri, local_path=local_path)
         assert result == ('COMPLETE', None, None)
 
-    def test_get_cloud_uri(self):
+    @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
+        ("mast:HST/product/u24r0102t_c1f.fits",
+         "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
+        ("mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits",
+         "s3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/"
+         "rings.v3.skycell.1334.061.stk.r.unconv.exp.fits")
+    ])
+    def test_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
         pytest.importorskip("boto3")
-        test_obs_id = '25568122'
-
         # get a product list
-        product = mast.Observations.get_product_list(test_obs_id)[24]
-
-        assert len(product) > 0, (f'No product found for OBSID {test_obs_id}. '
-                                  'Unable to move forward with getting URIs from the cloud.')
-
+        product = Table()
+        product['dataURI'] = [test_data_uri]
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
 
         # get uri
-        uri = mast.Observations.get_cloud_uri(product)
+        uri = mast.Observations.get_cloud_uri(product[0])
 
-        assert len(uri) > 0, f'Product for OBSID {test_obs_id} was not found in the cloud.'
+        assert len(uri) > 0, f'Product for dataURI {test_data_uri} was not found in the cloud.'
+        assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
     def test_get_cloud_uris(self):
         pytest.importorskip("boto3")
