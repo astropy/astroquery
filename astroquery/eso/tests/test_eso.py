@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+import sys
+
+import pytest
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
@@ -140,6 +143,7 @@ def test_download(monkeypatch):
     assert fileid in filename
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="gunzip not available on Windows")
 def test_unzip():
     eso = Eso()
     filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
