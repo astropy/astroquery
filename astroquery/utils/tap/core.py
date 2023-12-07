@@ -926,7 +926,7 @@ class TapPlus(Tap):
         """
         if group_name is None:
             raise ValueError("'group_name' must be specified")
-        groups = self.load_groups(verbose)
+        groups = self.load_groups(verbose=verbose)
         group = None
         for g in groups:
             if str(g.title) == str(group_name):
@@ -986,7 +986,7 @@ class TapPlus(Tap):
             raise ValueError("Both 'group_name' and 'table_name' must be specified")
         if description is None:
             description = ""
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' not found.")
         table = self.load_table(table=table_name, verbose=verbose)
@@ -1024,10 +1024,10 @@ class TapPlus(Tap):
         """
         if group_name is None or table_name is None:
             raise ValueError("Both 'group_name' and 'table_name' must be specified")
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' not found.")
-        shared_items = self.load_shared_items(verbose)
+        shared_items = self.load_shared_items(verbose=verbose)
         shared_item = None
         for s in shared_items:
             if str(s.title) == str(table_name):
@@ -1073,7 +1073,7 @@ class TapPlus(Tap):
             raise ValueError("'group_name' must be specified")
         if description is None:
             description = ""
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is not None:
             raise ValueError(f"Group {group_name} already exists")
         data = (f"action=CreateOrUpdateGroup&resource_type=0&title="
@@ -1105,7 +1105,7 @@ class TapPlus(Tap):
         """
         if group_name is None:
             raise ValueError("'group_name' must be specified")
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' doesn't exist")
         data = (f"action=RemoveGroup&resource_type=0&group_id={group.id}")
@@ -1137,7 +1137,7 @@ class TapPlus(Tap):
         """
         if group_name is None or user_id is None:
             raise ValueError("Both 'group_name' and 'user_id' must be specified")
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' doesn't exist")
         user_found_in_group = False
@@ -1147,7 +1147,7 @@ class TapPlus(Tap):
                 break
         if user_found_in_group is True:
             raise ValueError(f"User id '{user_id}' found in group '{group_name}'")
-        if self.is_valid_user(user_id, verbose) is False:
+        if self.is_valid_user(user_id=user_id, verbose=verbose) is False:
             raise ValueError(f"User id '{user_id}' not found.")
         users = ""
         for u in group.users:
@@ -1186,7 +1186,7 @@ class TapPlus(Tap):
         """
         if group_name is None or user_id is None:
             raise ValueError("Both 'group_name' and 'user_id' must be specified")
-        group = self.load_group(group_name, verbose)
+        group = self.load_group(group_name=group_name, verbose=verbose)
         if group is None:
             raise ValueError(f"Group '{group_name}' doesn't exist")
         user_found_in_group = False
@@ -1959,7 +1959,7 @@ class TapPlus(Tap):
             self.__user = loginDialog.get_user()
             self.__pwd = loginDialog.get_password()
             # execute login
-            self.__dologin(verbose)
+            self.__dologin(verbose=verbose)
         else:
             self.__isLoggedIn = False
 
