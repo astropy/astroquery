@@ -140,6 +140,15 @@ def test_download(monkeypatch):
     assert fileid in filename
 
 
+def test_unzip():
+    eso = Eso()
+    filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
+    uncompressed_filename = os.path.join(DATA_DIR, 'testfile.fits')
+    uncompressed_files = eso._unzip_files([filename])
+    assert len(uncompressed_files) == 1
+    assert uncompressed_files[0] == uncompressed_filename
+
+
 def test_calselector(monkeypatch):
     eso = Eso()
     dataset = 'FORS2.2021-01-02T00:59:12.533'
