@@ -208,7 +208,7 @@ class TapConn:
         An HTTP(s) response object
         """
         context = self.__get_data_context(query)
-        return self.__execute_get(context, verbose)
+        return self.__execute_get(context, verbose=verbose)
 
     def execute_datalinkget(self, subcontext, query, *, verbose=False):
         """Executes a datalink GET request
@@ -228,8 +228,8 @@ class TapConn:
         -------
         An HTTP(s) response object
         """
-        context = self.__get_datalink_context(subcontext, query)
-        return self.__execute_get(context, verbose)
+        context = self.__get_datalink_context(subcontext, encodedData=query)
+        return self.__execute_get(context, verbose=verbose)
 
     def __execute_get(self, context, *, verbose=False):
         conn = self.__get_connection(verbose=verbose)

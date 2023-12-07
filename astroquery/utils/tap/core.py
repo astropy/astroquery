@@ -615,7 +615,7 @@ class Tap:
         response = self.__connHandler.execute_tappost(context,
                                                       body,
                                                       contentType,
-                                                      verbose)
+                                                      verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
