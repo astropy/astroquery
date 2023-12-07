@@ -594,10 +594,9 @@ def test_data():
 
     # error
     responseResultsJob.set_status_code(500)
-    params_dict = {}
-    params_dict['ID'] = "1,2"
+    params_dict = {'ID': "1,2"}
     with pytest.raises(Exception):
-        tap.load_data(params_dict)
+        tap.load_data(params_dict=params_dict)
 
     # OK
     responseResultsJob.set_status_code(200)
@@ -608,7 +607,7 @@ def test_data():
     # error: no params dictionary
     with pytest.raises(Exception):
         # no dictionary: exception
-        tap.load_data("1,2")
+        tap.load_data(params_dict="1,2")
     params_dict['format'] = "votable"
     results = tap.load_data(params_dict=params_dict)
     assert len(results) == 3
