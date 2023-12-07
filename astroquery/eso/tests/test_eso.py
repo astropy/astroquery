@@ -153,6 +153,13 @@ def test_unzip():
     assert uncompressed_files[0] == uncompressed_filename
 
 
+def test_cached_file():
+    eso = Eso()
+    filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
+    assert eso._find_cached_file(filename) is True
+    assert eso._find_cached_file("non_existent_filename") is False
+
+
 def test_calselector(monkeypatch):
     eso = Eso()
     dataset = 'FORS2.2021-01-02T00:59:12.533'
