@@ -94,7 +94,7 @@ about VizieR's catalogs. It returns a table with the following columns:
 
 - title
 - authors
-- description
+- abstract
 - origin_article -- the bibcode of the associated article
 - webpage -- a link to VizieR, contains more information about the catalog
 - created -- date of creation of the catalog *in VizieR*
@@ -109,7 +109,7 @@ about VizieR's catalogs. It returns a table with the following columns:
      a published erratum was missed we'd gladly receive a notification from you!
 
 - waveband
-- other_identifier -- the catalog doi when it exists, otherwise the article bibcode
+- doi -- the catalog doi when it exists
 
 .. doctest-remote-data::
 
