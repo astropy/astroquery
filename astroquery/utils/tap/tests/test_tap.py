@@ -558,7 +558,7 @@ def test_job_parameters():
     assert job.get_phase() == 'QUEUED'
     # try to send a parameter after execution
     with pytest.raises(Exception):
-        job.send_parameter("param2", "value2")
+        job.send_parameter(name="param2", value="value2")
 
 
 def test_list_async_jobs():
