@@ -144,7 +144,7 @@ def test_calselector(monkeypatch):
     eso = Eso()
     dataset = 'FORS2.2021-01-02T00:59:12.533'
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.get_associated_files([dataset], savexml=False, destination=data_path('downloads'))
+    result = eso.get_associated_files([dataset], savexml=True, destination=data_path('downloads'))
     assert isinstance(result, list)
     assert len(result) == 50
     assert dataset not in result

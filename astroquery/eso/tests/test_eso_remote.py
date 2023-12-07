@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import warnings
 
 import numpy as np
 import pytest
@@ -150,14 +149,13 @@ class TestEso:
         instruments = eso.list_instruments(cache=False)
 
         for instrument in instruments:
-            with warnings.catch_warnings(record=True) as record:
-                result_i = eso.query_instrument(instrument, coord1=266.41681662,
-                                                coord2=-29.00782497, cache=False)
+            try:
+                result = eso.query_instrument(instrument, coord1=266.41681662, coord2=-29.00782497, cache=False)
+            except NoResultsWarning:
                 # Sometimes there are ResourceWarnings, we ignore those for this test
-                if len(record) > 0 and NoResultsWarning in {record[i].category for i in range(len(record))}:
-                    assert result_i is None
-                else:
-                    assert len(result_i) > 0
+                pass
+            else:
+                assert len(result) > 0
 
     def test_each_survey_and_SgrAstar(self, tmp_path):
         eso = Eso()
