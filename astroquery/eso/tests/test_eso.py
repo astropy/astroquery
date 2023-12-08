@@ -132,15 +132,15 @@ def test_authenticate(monkeypatch):
 
 
 def test_download(monkeypatch):
-    fileid = 'testfile'
-    url = Eso.DOWNLOAD_URL + fileid
     eso = Eso()
+    fileid = 'testfile'
     destination = os.path.join(DATA_DIR, 'downloads')
+    filename = os.path.join(destination, f"{fileid}.fits.Z")
     os.makedirs(destination, exist_ok=True)
     monkeypatch.setattr(eso._session, 'get', download_request)
-    filename, downloaded = eso._download_eso_file(url, destination=destination, overwrite=True)
-    assert downloaded is True
-    assert fileid in filename
+    downloaded_files = eso.retrieve_data([fileid], destination=destination, unzip=False)
+    assert len(downloaded_files) == 1
+    assert downloaded_files[0] == filename
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="gunzip not available on Windows")
