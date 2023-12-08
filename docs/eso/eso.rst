@@ -379,7 +379,7 @@ The default location (in the astropy cache) of the decompressed datasets can be 
 a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
 By default, if a requested dataset is already found, it is not downloaded again from the archive.
-To force the retrieval of data that are present in the destination directory, use ``overwrite=True``
+To force the retrieval of data that are present in the destination directory, use ``continuation=True``
 in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
 

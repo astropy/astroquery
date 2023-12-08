@@ -18,6 +18,7 @@ import astropy.utils.data
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
+from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 
 from astroquery import log
@@ -760,8 +761,9 @@ class EsoClass(QueryWithLogin):
         # remove input datasets from calselector results
         return list(associated_files.difference(set(datasets)))
 
-    def retrieve_data(self, datasets, *, overwrite=False, destination=None,
-                      with_calib=None, unzip=True):
+    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None), since=['0.4.7', '0.4.7'])
+    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None,
+                      request_all_objects=False, unzip=True, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -772,9 +774,9 @@ class EsoClass(QueryWithLogin):
         destination: string
             Directory where the files are copied.
             Files already found in the destination directory are skipped,
-            unless overwrite=True.
+            unless continuation=True.
             Default to astropy cache.
-        overwrite : bool
+        continuation : bool
             Force the retrieval of data that are present in the destination
             directory.
         with_calib : string
@@ -821,7 +823,7 @@ class EsoClass(QueryWithLogin):
 
         all_datasets = datasets + associated_files
         log.info("Downloading datasets ...")
-        files = self._download_eso_files(all_datasets, destination, overwrite)
+        files = self._download_eso_files(all_datasets, destination, continuation)
         if unzip:
             files = self._unzip_files(files)
         log.info("Done!")
