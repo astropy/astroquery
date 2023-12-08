@@ -1,8 +1,8 @@
 .. _astroquery.esa.hsa:
 
-***********************************************
-Herschel Science Archive (`astroquery.esa.hsa`)
-***********************************************
+***************************************************
+ESA Herschel Science Archive (`astroquery.esa.hsa`)
+***************************************************
 
 `Herschel <https://www.cosmos.esa.int/web/herschel/home/>`__ was the fourth
 cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe.

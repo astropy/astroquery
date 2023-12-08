@@ -969,7 +969,7 @@ class TestTap:
         parameters = {}
         parameters['jobs_list'] = job_list
         parameters['verbose'] = False
-        tap.remove_jobs(job_list)
+        tap.remove_jobs(jobs_list=job_list)
         dummyTapHandler.check_call('remove_jobs', parameters)
 
     def test_save_results(self):
