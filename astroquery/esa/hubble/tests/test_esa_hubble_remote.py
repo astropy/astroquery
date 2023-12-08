@@ -97,7 +97,7 @@ class TestEsaHubbleRemoteData:
     def test_hst_simple_to_hst_composite(self):
         esa_hubble = ESAHubble()
         result = esa_hubble.get_member_observations(observation_id='jdrz0cjxq')
-        assert result == ['jdrz0c010']
+        assert 'jdrz0c010' in result
 
     def test_hap_composite_to_hap_simple(self):
         esa_hubble = ESAHubble()

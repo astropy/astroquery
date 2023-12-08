@@ -184,7 +184,7 @@ class ESAHubbleClass(BaseQuery):
             query = ("select observation_id from ehst.observation where obs_type='HAP Simple' "
                      f"and members like '%{observation_id}%'")
             job = self.query_tap(query=query)
-            oids = job["observation_id"].pformat(show_name=False)
+            oids = job["observation_id"]
         else:
             raise ValueError("Invalid observation id")
         return oids
@@ -224,7 +224,7 @@ class ESAHubbleClass(BaseQuery):
     def _select_related_composite(self, observation_id):
         query = f"select observation_id from ehst.observation where members like '%{observation_id}%'"
         job = self.query_tap(query=query)
-        oids = job["observation_id"].pformat(show_name=False)
+        oids = job["observation_id"]
         return oids
 
     def __validate_product_type(self, product_type):

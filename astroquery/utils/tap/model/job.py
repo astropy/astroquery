@@ -314,7 +314,7 @@ class Job:
         if self._phase == 'PENDING':
             log.info("Job in PENDING phase, sending phase=RUN request.")
             try:
-                self.start(verbose)
+                self.start(verbose=verbose)
             except Exception as ex:
                 # ignore
                 if verbose:
@@ -350,7 +350,7 @@ class Job:
                                          200)
         self._phase = phase
         if phase == 'ERROR':
-            errMsg = self.get_error(debug)
+            errMsg = self.get_error(verbose=debug)
             raise SystemError(errMsg)
         else:
             if isError:
@@ -415,7 +415,7 @@ class Job:
                 response = self.connHandler.\
                     execute_tapget(relativeLocationSubContext)
                 response = self.__handle_redirect_if_required(response,
-                                                              verbose)
+                                                              verbose=verbose)
                 isError = self.connHandler.\
                     check_launch_response_status(response, verbose, 200)
                 if isError:

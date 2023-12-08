@@ -161,7 +161,7 @@ class JwstClass(BaseQuery):
         A Job object
         """
         if async_job:
-            return (self.__jwsttap.launch_job_async(query,
+            return (self.__jwsttap.launch_job_async(query=query,
                                                     name=name,
                                                     output_file=output_file,
                                                     output_format=output_format,
@@ -171,7 +171,7 @@ class JwstClass(BaseQuery):
                                                     upload_resource=upload_resource,
                                                     upload_table_name=upload_table_name))
         else:
-            return self.__jwsttap.launch_job(query,
+            return self.__jwsttap.launch_job(query=query,
                                              name=name,
                                              output_file=output_file,
                                              output_format=output_format,
@@ -197,7 +197,7 @@ class JwstClass(BaseQuery):
         -------
         A Job object
         """
-        return self.__jwsttap.load_async_job(jobid, name, verbose)
+        return self.__jwsttap.load_async_job(jobid=jobid, name=name, verbose=verbose)
 
     def search_async_jobs(self, *, jobfilter=None, verbose=False):
         """Searches for jobs applying the specified filter
@@ -214,7 +214,7 @@ class JwstClass(BaseQuery):
         -------
         A list of Job objects
         """
-        return self.__jwsttap.search_async_jobs(jobfilter, verbose)
+        return self.__jwsttap.search_async_jobs(jobfilter=jobfilter, verbose=verbose)
 
     def list_async_jobs(self, *, verbose=False):
         """Returns all the asynchronous jobs
@@ -229,7 +229,7 @@ class JwstClass(BaseQuery):
         -------
         A list of Job objects
         """
-        return self.__jwsttap.list_async_jobs(verbose)
+        return self.__jwsttap.list_async_jobs(verbose=verbose)
 
     def query_region(self, coordinate, *,
                      radius=None,
@@ -350,9 +350,9 @@ class JwstClass(BaseQuery):
             if verbose:
                 print(query)
             if async_job:
-                job = self.__jwsttap.launch_job_async(query, verbose=verbose)
+                job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
             else:
-                job = self.__jwsttap.launch_job(query, verbose=verbose)
+                job = self.__jwsttap.launch_job(query=query, verbose=verbose)
         return job.get_results()
 
     def cone_search(self, coordinate, radius, *,
@@ -610,7 +610,7 @@ class JwstClass(BaseQuery):
             flag to display information about the process
 
         """
-        return self.__jwsttap.remove_jobs(jobs_list, verbose=verbose)
+        return self.__jwsttap.remove_jobs(jobs_list=jobs_list, verbose=verbose)
 
     def save_results(self, job, *, verbose=False):
         """Saves job results
@@ -623,7 +623,7 @@ class JwstClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__jwsttap.save_results(job, verbose)
+        return self.__jwsttap.save_results(job=job, verbose=verbose)
 
     def login(self, *, user=None, password=None, credentials_file=None,
               token=None, verbose=False):
@@ -663,7 +663,7 @@ class JwstClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__jwsttap.logout(verbose)
+        return self.__jwsttap.logout(verbose=verbose)
 
     def set_token(self, token):
         """Links a MAST token to the logged user

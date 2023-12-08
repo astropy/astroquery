@@ -557,10 +557,10 @@ class TestESAHubble:
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
         oids = ehst._select_related_composite(observation_id=dummy_obs_id)
-        assert oids == ['x', 'y']
+        assert set(['x', 'y']).issubset(set(oids))
 
     @patch.object(ESAHubbleClass, 'query_tap')
-    def test__select_related_members(self, mock_query):
+    def test_select_related_members(self, mock_query):
         arr = {'a': np.array([1, 4], dtype=np.int32),
                'b': [2.0, 5.0],
                'members': ['caom:HST/test', 'y']}
