@@ -1,24 +1,31 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import time
-import sys
+import base64
+import email
+import json
 import os.path
-import shutil
-import webbrowser
-import warnings
-import keyring
-import numpy as np
 import re
+import shutil
+import subprocess
+import time
+import warnings
+import webbrowser
+import xml.etree.ElementTree as ET
+from io import BytesIO
+from typing import List, Optional, Tuple, Dict, Set
+
+import astropy.utils.data
+import keyring
+import requests.exceptions
+from astropy.table import Table, Column
+from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 
-from io import BytesIO
-from astropy.table import Table, Column
 from astroquery import log
-
-from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning
-from ..utils import schema, system_tools
-from ..query import QueryWithLogin, suspend_cache
 from . import conf
+from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
+from ..query import QueryWithLogin
+from ..utils import schema
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -36,17 +43,44 @@ def _check_response(content):
         return True
 
 
-class EsoClass(QueryWithLogin):
+class CalSelectorError(Exception):
+    """
+    Raised on failure to parse CalSelector's response.
+    """
+    pass
 
+
+class AuthInfo:
+    def __init__(self, username: str, password: str, token: str):
+        self.username = username
+        self.password = password
+        self.token = token
+        self.expiration_time = self._get_exp_time_from_token()
+
+    def _get_exp_time_from_token(self) -> int:
+        # "manual" decoding since jwt is not installed
+        decoded_token = base64.b64decode(self.token.split(".")[1] + "==")
+        return int(json.loads(decoded_token)['exp'])
+
+    def expired(self) -> bool:
+        # we anticipate the expiration time by 10 minutes to avoid issues
+        return time.time() > self.expiration_time - 600
+
+
+class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
+    CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
+    DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
+    AUTH_URL = "https://www.eso.org/sso/oidc/token"
+    GUNZIP = "gunzip"
 
     def __init__(self):
         super().__init__()
         self._instrument_list = None
         self._survey_list = None
-        self.username = None
+        self._auth_info: Optional[AuthInfo] = None
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
@@ -191,8 +225,54 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, *, username=None, store_password=False,
-               reenter_password=False):
+    def _authenticate(self, *, username: str, password: str) -> bool:
+        """
+        Get the access token from ESO SSO provider
+        """
+        self._auth_info = None
+        url_params = {"response_type": "id_token token",
+                      "grant_type": "password",
+                      "client_id": "clientid",
+                      "client_secret": "clientSecret",
+                      "username": username,
+                      "password": password}
+        log.info(f"Authenticating {username} on 'www.eso.org' ...")
+        response = self._request('GET', self.AUTH_URL, params=url_params)
+        if response.status_code == 200:
+            token = json.loads(response.content)['id_token']
+            self._auth_info = AuthInfo(username=username, password=password, token=token)
+            log.info("Authentication successful!")
+            return True
+        else:
+            log.error("Authentication failed!")
+            return False
+
+    def _get_auth_info(self, username: str, *, store_password: bool = False,
+                       reenter_password: bool = False) -> Tuple[str, str]:
+        """
+        Get the auth info (user, password) for use in another function
+        """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        service_name = "astroquery:www.eso.org"
+        # Get password from keyring or prompt
+        password, password_from_keyring = self._get_password(
+            service_name, username, reenter=reenter_password)
+
+        # When authenticated, save password in keyring if needed
+        if password_from_keyring is None and store_password:
+            keyring.set_password(service_name, username, password)
+
+        return username, password
+
+    def _login(self, *, username: str = None, store_password: bool = False,
+               reenter_password: bool = False) -> bool:
         """
         Login to the ESO User Portal.
 
@@ -208,54 +288,22 @@ class EsoClass(QueryWithLogin):
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
         """
-        if username is None:
-            if self.USERNAME != "":
-                username = self.USERNAME
-            elif self.username is not None:
-                username = self.username
-            else:
-                raise LoginError("If you do not pass a username to login(), "
-                                 "you should configure a default one!")
+
+        username, password = self._get_auth_info(username=username,
+                                                 store_password=store_password,
+                                                 reenter_password=reenter_password)
+
+        return self._authenticate(username=username, password=password)
+
+    def _get_auth_header(self) -> Dict[str, str]:
+        if self._auth_info and self._auth_info.expired():
+            log.info("Authentication token has expired! Re-authenticating ...")
+            self._authenticate(username=self._auth_info.username,
+                               password=self._auth_info.password)
+        if self._auth_info and not self._auth_info.expired():
+            return {'Authorization': 'Bearer ' + self._auth_info.token}
         else:
-            # store username as we may need it to re-authenticate
-            self.username = username
-
-        # Get password from keyring or prompt
-        password, password_from_keyring = self._get_password(
-            "astroquery:www.eso.org", username, reenter=reenter_password)
-
-        # Authenticate
-        log.info("Authenticating {0} on www.eso.org...".format(username))
-
-        # Do not cache pieces of the login process
-        login_response = self._request("GET", "https://www.eso.org/sso/login",
-                                       cache=False)
-        root = BeautifulSoup(login_response.content, 'html5lib')
-        login_input = root.find(name='input', attrs={'name': 'execution'})
-        if login_input is None:
-            raise ValueError("ESO login page did not have the correct attributes.")
-        execution = login_input.get('value')
-
-        login_result_response = self._request("POST", "https://www.eso.org/sso/login",
-                                              data={'username': username,
-                                                    'password': password,
-                                                    'execution': execution,
-                                                    '_eventId': 'submit',
-                                                    'geolocation': '',
-                                                    })
-        login_result_response.raise_for_status()
-        root = BeautifulSoup(login_result_response.content, 'html5lib')
-        authenticated = root.find('h4').text == 'Login successful'
-
-        if authenticated:
-            log.info("Authentication successful!")
-        else:
-            log.exception("Authentication failed!")
-
-        # When authenticated, save password in keyring if needed
-        if authenticated and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:www.eso.org", username, password)
-        return authenticated
+            return {}
 
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -399,7 +447,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
-        url = self.QUERY_INSTRUMENT_URL+"/eso_archive_main/form"
+        url = self.QUERY_INSTRUMENT_URL + "/eso_archive_main/form"
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -437,7 +485,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = self.QUERY_INSTRUMENT_URL+'/{0}/form'.format(instrument.lower())
+        url = self.QUERY_INSTRUMENT_URL + '/{0}/form'.format(instrument.lower())
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -557,80 +605,165 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def _check_existing_files(self, datasets, *, continuation=False,
-                              destination=None):
-        """Detect already downloaded datasets."""
+    @staticmethod
+    def _get_filename_from_response(response: requests.Response) -> str:
+        content_disposition = response.headers.get("Content-Disposition", "")
+        filename = re.findall(r"filename=(\S+)", content_disposition)
+        if not filename:
+            raise RemoteServiceError(f"Unable to find filename for {response.url}")
+        return os.path.basename(filename[0].replace('"', ''))
 
-        datasets_to_download = []
-        files = []
+    @staticmethod
+    def _find_cached_file(filename: str) -> bool:
+        files_to_check = [filename]
+        if filename.endswith(('fits.Z', 'fits.gz')):
+            files_to_check.append(filename.rsplit(".", 1)[0])
+        for file in files_to_check:
+            if os.path.exists(file):
+                log.info(f"Found cached file {file}")
+                return True
+        return False
 
-        for dataset in datasets:
-            ext = os.path.splitext(dataset)[1].lower()
-            if ext in ('.fits', '.tar'):
-                local_filename = dataset
-            elif ext == '.fz':
-                local_filename = dataset[:-3]
-            elif ext == '.z':
-                local_filename = dataset[:-2]
-            else:
-                local_filename = dataset + ".fits"
+    def _download_eso_file(self, file_link: str, destination: str,
+                           overwrite: bool) -> Tuple[str, bool]:
+        block_size = astropy.utils.data.conf.download_block_size
+        headers = self._get_auth_header()
+        with self._session.get(file_link, stream=True, headers=headers) as response:
+            response.raise_for_status()
+            filename = self._get_filename_from_response(response)
+            filename = os.path.join(destination, filename)
+            part_filename = filename + ".part"
+            if os.path.exists(part_filename):
+                log.info(f"Removing partially downloaded file {part_filename}")
+                os.remove(part_filename)
+            download_required = overwrite or not self._find_cached_file(filename)
+            if download_required:
+                with open(part_filename, 'wb') as fd:
+                    for chunk in response.iter_content(chunk_size=block_size):
+                        fd.write(chunk)
+                os.rename(part_filename, filename)
+        return filename, download_required
 
-            if destination is not None:
-                local_filename = os.path.join(destination,
-                                              local_filename)
-            elif self.cache_location is not None:
-                local_filename = os.path.join(self.cache_location,
-                                              local_filename)
-            if os.path.exists(local_filename):
-                log.info("Found {0}.fits...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
+    def _download_eso_files(self, file_ids: List[str], destination: Optional[str],
+                            overwrite: bool) -> List[str]:
+        destination = destination or self.cache_location
+        destination = os.path.abspath(destination)
+        os.makedirs(destination, exist_ok=True)
+        nfiles = len(file_ids)
+        log.info(f"Downloading {nfiles} files ...")
+        downloaded_files = []
+        for i, file_id in enumerate(file_ids, 1):
+            file_link = self.DOWNLOAD_URL + file_id
+            log.info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            try:
+                filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
+                downloaded_files.append(filename)
+                if downloaded:
+                    log.info(f"Successfully downloaded dataset"
+                             f" {file_id} to {filename}")
+            except requests.HTTPError as http_error:
+                if http_error.response.status_code == 401:
+                    log.error(f"Access denied to {file_link}")
                 else:
-                    files.append(local_filename)
-            elif os.path.exists(local_filename + ".Z"):
-                log.info("Found {0}.fits.Z...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".Z")
-            elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
-                log.info("Found {0}.fits.fz...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".fz")
-            else:
-                datasets_to_download.append(dataset)
+                    log.error(f"Failed to download {file_link}. {http_error}")
+            except Exception as ex:
+                log.error(f"Failed to download {file_link}. {ex}")
+        return downloaded_files
 
-        return datasets_to_download, files
-
-    def _download_file(self, url, local_filepath, **kwargs):
-        """ Wraps QueryWithLogin._download_file to detect if the
-        authentication expired.
+    def _unzip_file(self, filename: str) -> str:
         """
-        trials = 1
-        while trials <= 2:
-            resp = super(EsoClass, self)._download_file(url, local_filepath,
-                                                        **kwargs)
+        Uncompress the provided file with gunzip.
 
-            # trying to detect the failing authentication:
-            # - content type should not be html
-            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8'
-                    and resp.url.startswith('https://www.eso.org/sso/login')):
-                if trials == 1:
-                    log.warning("Session expired, trying to re-authenticate")
-                    self.login()
-                    trials += 1
-                else:
-                    raise LoginError("Could not authenticate")
-            else:
-                break
+        Note: ``system_tools.gunzip`` does not work with .Z files
+        """
+        uncompressed_filename = None
+        if filename.endswith(('fits.Z', 'fits.gz')):
+            uncompressed_filename = filename.rsplit(".", 1)[0]
+            if not os.path.exists(uncompressed_filename):
+                log.info(f"Uncompressing file {filename}")
+                try:
+                    subprocess.run([self.GUNZIP, filename], check=True)
+                except Exception as ex:
+                    uncompressed_filename = None
+                    log.error(f"Failed to unzip {filename}: {ex}")
+        return uncompressed_filename or filename
 
-        return resp
+    def _unzip_files(self, files: List[str]) -> List[str]:
+        if shutil.which(self.GUNZIP):
+            files = [self._unzip_file(file) for file in files]
+        else:
+            warnings.warn("Unable to unzip files "
+                          "(gunzip is not available on this system)")
+        return files
 
-    def retrieve_data(self, datasets, *, continuation=False, destination=None,
-                      with_calib='none', request_all_objects=False,
-                      unzip=True, request_id=None):
+    @staticmethod
+    def _get_unique_files_from_association_tree(xml: str) -> Set[str]:
+        tree = ET.fromstring(xml)
+        return {element.attrib['name'] for element in tree.iter('file')}
+
+    def _save_xml(self, payload: bytes, filename: str, destination: str):
+        destination = destination or self.cache_location
+        destination = os.path.abspath(destination)
+        os.makedirs(destination, exist_ok=True)
+        filename = os.path.join(destination, filename)
+        log.info(f"Saving Calselector association tree to {filename}")
+        with open(filename, "wb") as fd:
+            fd.write(payload)
+
+    def get_associated_files(self, datasets: List[str], *, mode: str = "raw",
+                             savexml: bool = False, destination: str = None) -> List[str]:
+        """
+        Invoke Calselector service to find calibration files associated to the provided datasets.
+
+        Parameters
+        ----------
+        datasets : list of strings
+            List of datasets for which calibration files should be retrieved.
+        mode : string
+            Calselector mode: 'raw' (default) for raw calibrations,
+             or 'processed' for processed calibrations.
+        savexml : bool
+            If true, save to disk the XML association tree returned by Calselector.
+        destination : string
+            Directory where the XML files are saved (default = astropy cache).
+
+        Returns
+        -------
+        files :
+            List of unique datasets associated to the input datasets.
+        """
+        mode = "Raw2Raw" if mode == "raw" else "Raw2Master"
+        post_data = {"dp_id": datasets, "mode": mode}
+        response = self._session.post(self.CALSELECTOR_URL, data=post_data)
+        response.raise_for_status()
+        associated_files = set()
+        content_type = response.headers['Content-Type']
+        # Calselector can return one or more XML association trees depending on the input.
+        # For a single dataset it returns one XML and content-type = 'application/xml'
+        if 'application/xml' in content_type:
+            filename = self._get_filename_from_response(response)
+            xml = response.content
+            associated_files.update(self._get_unique_files_from_association_tree(xml))
+            if savexml:
+                self._save_xml(xml, filename, destination)
+        # For multiple datasets it returns a multipart message
+        elif 'multipart/form-data' in content_type:
+            msg = email.message_from_string(f'Content-Type: {content_type}\r\n' + response.content.decode())
+            for part in msg.get_payload():
+                filename = part.get_filename()
+                xml = part.get_payload(decode=True)
+                associated_files.update(self._get_unique_files_from_association_tree(xml))
+                if savexml:
+                    self._save_xml(xml, filename, destination)
+        else:
+            raise CalSelectorError(f"Unexpected content-type '{content_type}' for {response.url}")
+
+        # remove input datasets from calselector results
+        return list(associated_files.difference(set(datasets)))
+
+    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None), since=['0.4.7', '0.4.7'])
+    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None,
+                      request_all_objects=False, unzip=True, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -647,23 +780,11 @@ class EsoClass(QueryWithLogin):
             Force the retrieval of data that are present in the destination
             directory.
         with_calib : string
-            Retrieve associated calibration files: 'none' (default), 'raw' for
+            Retrieve associated calibration files: None (default), 'raw' for
             raw calibrations, or 'processed' for processed calibrations.
-        request_all_objects : bool
-            When retrieving associated calibrations (``with_calib != 'none'``),
-            this allows to request all the objects included the already
-            downloaded ones, to be sure to retrieve all calibration files.
-            This is useful when the download was interrupted. `False` by
-            default.
         unzip : bool
             Unzip compressed files from the archive after download. `True` by
             default.
-        request_id : str, int
-            Retrieve from an existing request number rather than sending a new
-            query, with the identifier from the URL in the email sent from
-            the archive from the earlier request as in:
-
-                https://dataportal.eso.org/rh/requests/[USERNAME]/[request_id]
 
         Returns
         -------
@@ -677,219 +798,36 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
-        calib_options = {'none': '', 'raw': 'CalSelectorRaw2Raw',
-                         'processed': 'CalSelectorRaw2Master'}
-
-        if with_calib not in calib_options:
-            raise ValueError("invalid value for 'with_calib', "
-                             "it must be 'none', 'raw' or 'processed'")
-
+        return_string = False
         if isinstance(datasets, str):
-            return_list = False
+            return_string = True
             datasets = [datasets]
-        else:
-            return_list = True
-        if not isinstance(datasets, (list, tuple, np.ndarray)):
-            raise TypeError("Datasets must be given as a list of strings.")
 
-        # First: Detect datasets already downloaded
-        if with_calib != 'none' and request_all_objects:
-            datasets_to_download, files = list(datasets), []
-        else:
-            log.info("Detecting already downloaded datasets...")
-            datasets_to_download, files = self._check_existing_files(
-                datasets, continuation=continuation, destination=destination)
+        if with_calib and with_calib not in ('raw', 'processed'):
+            raise ValueError("Invalid value for 'with_calib'. "
+                             "It must be 'raw' or 'processed'")
 
-        # Second: Check that the datasets to download are in the archive
-        if request_id is None:
-            log.info("Checking availability of datasets to download...")
-            valid_datasets = [self.verify_data_exists(ds)
-                              for ds in datasets_to_download]
-        else:
-            # Assume all valid if a request_id was provided
-            valid_datasets = [(ds, True) for ds in datasets_to_download]
+        associated_files = []
+        if with_calib:
+            log.info(f"Retrieving associated '{with_calib}' calibration files ...")
+            try:
+                # batch calselector requests to avoid possible issues on the ESO server
+                BATCH_SIZE = 100
+                sorted_datasets = sorted(datasets)
+                for i in range(0, len(sorted_datasets), BATCH_SIZE):
+                    associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
+                associated_files = list(set(associated_files))
+                log.info(f"Found {len(associated_files)} associated files")
+            except Exception as ex:
+                log.error(f"Failed to retrieve associated files: {ex}")
 
-        if not all(valid_datasets):
-            invalid_datasets = [ds for ds, v in zip(datasets_to_download,
-                                                    valid_datasets) if not v]
-            raise ValueError("The following data sets were not found on the "
-                             "ESO servers: {0}".format(invalid_datasets))
-
-        # Third: Download the other datasets
-        log.info("Downloading datasets...")
-        if datasets_to_download:
-            if not self.authenticated():
-                self.login()
-            url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
-            with suspend_cache(self):  # Never cache staging operations
-                if request_id is None:
-                    log.info("Contacting retrieval server...")
-                    retrieve_data_form = self._request("GET", url,
-                                                       cache=False)
-                    retrieve_data_form.raise_for_status()
-                    log.info("Staging request...")
-                    inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
-                    data_confirmation_form = self._activate_form(
-                        retrieve_data_form, form_index=-1, inputs=inputs,
-                        cache=False)
-
-                    data_confirmation_form.raise_for_status()
-
-                    root = BeautifulSoup(data_confirmation_form.content,
-                                         'html5lib')
-                    login_button = root.select('input[value=LOGIN]')
-                    if login_button:
-                        raise LoginError("Not logged in. "
-                                         "You must be logged in to download data.")
-                    inputs = {}
-                    if with_calib != 'none':
-                        inputs['requestCommand'] = calib_options[with_calib]
-
-                    # TODO: There may be another screen for Not Authorized;
-                    # that should be included too
-                    # form name is "retrieve"; no id
-                    data_download_form = self._activate_form(
-                        data_confirmation_form, form_index=-1, inputs=inputs,
-                        cache=False)
-                else:
-                    # Build URL by hand
-                    request_url = 'https://dataportal.eso.org/rh/requests/'
-                    request_url += f'{self.USERNAME}/{request_id}'
-                    data_download_form = self._request("GET", request_url,
-                                                       cache=False)
-
-                    _content = data_download_form.content.decode('utf-8')
-                    if ('Request Handler - Error' in _content):
-                        # Likely a problem with the request_url
-                        msg = (f"The form at {request_url} returned an error."
-                               " See your recent requests at "
-                               "https://dataportal.eso.org/rh/requests/"
-                               f"{self.USERNAME}/recentRequests")
-
-                        raise RemoteServiceError(msg)
-
-                log.info("Staging form is at {0}"
-                         .format(data_download_form.url))
-                root = BeautifulSoup(data_download_form.content, 'html5lib')
-                state = root.select('span[id=requestState]')[0].text
-                t0 = time.time()
-                while state not in ('COMPLETE', 'ERROR'):
-                    time.sleep(2.0)
-                    data_download_form = self._request("GET",
-                                                       data_download_form.url,
-                                                       cache=False)
-                    root = BeautifulSoup(data_download_form.content,
-                                         'html5lib')
-                    state = root.select('span[id=requestState]')[0].text
-                    log.info("{0:20.0f}s elapsed".format(time.time() - t0), end='\r')
-                    sys.stdout.flush()
-                if state == 'ERROR':
-                    raise RemoteServiceError("There was a remote service "
-                                             "error; perhaps the requested "
-                                             "file could not be found?")
-
-            if with_calib != 'none':
-                # when requested files with calibrations, some javascript is
-                # used to display the files, which prevent retrieving the files
-                # directly. So instead we retrieve the download script provided
-                # in the web page, and use it to extract the list of files.
-                # The benefit of this is also that in the download script the
-                # list of files is de-duplicated, whereas on the web page the
-                # calibration files would be duplicated for each exposure.
-                link = root.select('a[href$="/script"]')[0]
-                if 'downloadRequest' not in link.text:
-                    # Make sure that we found the correct link
-                    raise RemoteServiceError(
-                        "A link was found in the download file for the "
-                        "calibrations that is not a downloadRequest link "
-                        "and therefore appears invalid.")
-
-                href = link.attrs['href']
-                script = self._request("GET", href, cache=False)
-                fileLinks = re.findall(
-                    r'"(https://dataportal\.eso\.org/dataPortal/api/requests/.*)"',
-                    script.text)
-
-                # urls with api/ require using Basic Authentication, though
-                # it's easier for us to reuse the existing requests session (to
-                # avoid asking agin for a username/password if it is not
-                # stored). So we remove api/ from the urls:
-                fileLinks = [
-                    f.replace('https://dataportal.eso.org/dataPortal/api/requests',
-                              'https://dataportal.eso.org/dataPortal/requests')
-                    for f in fileLinks]
-
-                log.info("Detecting already downloaded datasets, "
-                         "including calibrations...")
-                fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
-                filteredIds, files = self._check_existing_files(
-                    fileIds, continuation=continuation,
-                    destination=destination)
-
-                fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
-                             if fileId in filteredIds]
-            else:
-                fileIds = root.select('input[name=fileId]')
-                fileLinks = ["http://dataportal.eso.org/dataPortal"
-                             + fileId.attrs['value'].split()[1]
-                             for fileId in fileIds]
-
-            nfiles = len(fileLinks)
-            log.info("Downloading {} files...".format(nfiles))
-            log.debug("Files:\n{}".format('\n'.join(fileLinks)))
-            for i, fileLink in enumerate(fileLinks, 1):
-                fileId = fileLink.rsplit('/', maxsplit=1)[1]
-
-                if request_id is not None:
-                    # Since we fetched the script directly without sending
-                    # a new request, check here that the file in the list
-                    # is among those requested in the input list
-                    if fileId.split('.fits')[0] not in datasets_to_download:
-                        continue
-
-                log.info("Downloading file {}/{}: {}..."
-                         .format(i, nfiles, fileId))
-                filename = self._request("GET", fileLink, save=True,
-                                         continuation=True)
-
-                if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')) and unzip:
-                    log.info("Unzipping file {0}...".format(fileId))
-                    filename = system_tools.gunzip(filename)
-
-                if destination is not None:
-                    log.info("Copying file {0} to {1}...".format(fileId, destination))
-                    destfile = os.path.join(destination, os.path.basename(filename))
-                    shutil.move(filename, destfile)
-                    files.append(destfile)
-                else:
-                    files.append(filename)
-
-        # Empty the redirect cache of this request session
-        # Only available and needed for requests versions < 2.17
-        try:
-            self._session.redirect_cache.clear()
-        except AttributeError:
-            pass
+        all_datasets = datasets + associated_files
+        log.info("Downloading datasets ...")
+        files = self._download_eso_files(all_datasets, destination, continuation)
+        if unzip:
+            files = self._unzip_files(files)
         log.info("Done!")
-        if (not return_list) and (len(files) == 1):
-            files = files[0]
-        return files
-
-    def verify_data_exists(self, dataset):
-        """
-        Given a data set name, return 'True' if ESO has the file and 'False'
-        otherwise
-        """
-        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
-        payload = {'dp_id': dataset,
-                   'ascii_out_mode': 'true',
-                   }
-        # Never cache this as it is verifying the existence of remote content
-        response = self._request("POST", url, params=payload, cache=False)
-
-        content = response.text
-
-        return 'No data returned' not in content
+        return files[0] if files and len(files) == 1 and return_string else files
 
     def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):
@@ -987,9 +925,7 @@ class EsoClass(QueryWithLogin):
                 elif tag.name == u"select":
                     options = []
                     for option in tag.select("option"):
-                        options += ["{0} ({1})"
-                                    .format(option['value'],
-                                            "".join(option.stripped_strings))]
+                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
                     name = tag[u"name"]
                     value = ", ".join(options)
                 else:
@@ -1024,8 +960,7 @@ class EsoClass(QueryWithLogin):
         form = doc.select("html body form")[0]
 
         # hovertext from different labels are used to give more info on forms
-        helptext_dict = {abbr['title'].split(":")[0].strip():
-                         ":".join(abbr['title'].split(":")[1:])
+        helptext_dict = {abbr['title'].split(":")[0].strip(): ":".join(abbr['title'].split(":")[1:])
                          for abbr in form.findAll('abbr')
                          if 'title' in abbr.attrs and ":" in abbr['title']}
 
@@ -1035,7 +970,7 @@ class EsoClass(QueryWithLogin):
                 raise ValueError("Form parsing error: too many legends.")
             elif len(legend) == 0:
                 continue
-            section_title = "\n\n"+"".join(legend[0].stripped_strings)+"\n"
+            section_title = "\n\n" + "".join(legend[0].stripped_strings) + "\n"
 
             result_string.append(section_title)
 
@@ -1060,11 +995,8 @@ class EsoClass(QueryWithLogin):
                     elif tag.name == u"select":
                         options = []
                         for option in tag.select("option"):
-                            options += ["{0} ({1})"
-                                        .format(option['value']
-                                                if 'value' in option
-                                                else "",
-                                                "".join(option.stripped_strings))]
+                            options += ["{0} ({1})".format(option['value'] if 'value' in option else "",
+                                                           "".join(option.stripped_strings))]
                         name = tag[u"name"]
                         value = ", ".join(options)
                     else:

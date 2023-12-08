@@ -1,10 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
 import numpy as np
 import pytest
-import warnings
 
-from astroquery.exceptions import LoginError, NoResultsWarning
 from astroquery.eso import Eso
+from astroquery.exceptions import NoResultsWarning
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
@@ -68,18 +68,6 @@ class TestEso:
         assert 'b333_414_58214' in result_s['Object']
         assert 'Pistol-Star' in result_s['Object']
 
-    def test_nologin(self):
-        # WARNING: this test will fail if you haven't cleared your cache and
-        # you have downloaded this file!
-        eso = Eso()
-
-        with pytest.raises(LoginError) as exc:
-            eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
-
-        assert (exc.value.args[0]
-                == ("If you do not pass a username to login(), you should "
-                    "configure a default one!"))
-
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
@@ -112,40 +100,28 @@ class TestEso:
         # we only care about the sets matching
         assert set(inst) == set(instrument_list)
 
-    @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data(self):
         eso = Eso()
-        eso.login()
-        result = eso.retrieve_data(["MIDI.2014-07-25T02:03:11.561"])
-        assert len(result) > 0
-        assert "MIDI.2014-07-25T02:03:11.561" in result[0]
-        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        file_id = 'AMBER.2006-03-14T07:40:19.830'
+        result = eso.retrieve_data(file_id)
         assert isinstance(result, str)
-        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561",
-                                   request_all_objects=True)
-        assert isinstance(result, str)
+        assert file_id in result
 
     @pytest.mark.skipif('not Eso.USERNAME')
-    def test_retrieve_data_twice(self):
+    def test_retrieve_data_authenticated(self):
         eso = Eso()
         eso.login()
-        eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
-        eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
+        file_id = 'AMBER.2006-03-14T07:40:19.830'
+        result = eso.retrieve_data(file_id)
+        assert isinstance(result, str)
+        assert file_id in result
 
-    @pytest.mark.skipif('not Eso.USERNAME')
-    def test_retrieve_data_and_calib(self):
+    def test_retrieve_data_list(self):
         eso = Eso()
-        eso.login()
-        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
-                                   with_calib='raw')
-        assert len(result) == 59
-        # Try again, from cache this time
-        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
-                                   with_calib='raw')
-        # Here we get only 1 file path for the science file: as this file
-        # exists, no request is made to get the associated calibrations file
-        # list.
-        assert len(result) == 1
+        datasets = ['MIDI.2014-07-25T02:03:11.561', 'AMBER.2006-03-14T07:40:19.830']
+        result = eso.retrieve_data(datasets)
+        assert isinstance(result, list)
+        assert len(result) == 2
 
     # TODO: remove filter when https://github.com/astropy/astroquery/issues/2539 is fixed
     @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
@@ -173,14 +149,13 @@ class TestEso:
         instruments = eso.list_instruments(cache=False)
 
         for instrument in instruments:
-            with warnings.catch_warnings(record=True) as record:
-                result_i = eso.query_instrument(instrument, coord1=266.41681662,
-                                                coord2=-29.00782497, cache=False)
+            try:
+                result = eso.query_instrument(instrument, coord1=266.41681662, coord2=-29.00782497, cache=False)
+            except NoResultsWarning:
                 # Sometimes there are ResourceWarnings, we ignore those for this test
-                if len(record) > 0 and NoResultsWarning in {record[i].category for i in range(len(record))}:
-                    assert result_i is None
-                else:
-                    assert len(result_i) > 0
+                pass
+            else:
+                assert len(result) > 0
 
     def test_each_survey_and_SgrAstar(self, tmp_path):
         eso = Eso()

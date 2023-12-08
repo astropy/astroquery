@@ -1,7 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from astroquery.utils.mocks import MockResponse
+import sys
 
+import pytest
+
+from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -11,26 +14,52 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 
-DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form':
-                      'main_query_form.html',
-                      'http://archive.eso.org/wdb/wdb/eso/amber/form':
-                      'amber_query_form.html',
-                      'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
-                      'vvv_sgra_form.html',
-                      },
-              'POST': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query':
-                       'main_sgra_query.tbl',
-                       'http://archive.eso.org/wdb/wdb/eso/amber/query':
-                       'amber_sgra_query.tbl',
-                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
-                       'vvv_sgra_survey_response.tbl',
-                       }
-              }
+DATA_FILES = {
+    'GET':
+        {
+            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form': 'main_query_form.html',
+            'http://archive.eso.org/wdb/wdb/eso/amber/form': 'amber_query_form.html',
+            'http://archive.eso.org/wdb/wdb/adp/phase3_main/form': 'vvv_sgra_form.html',
+            Eso.AUTH_URL: 'oidc_token.json',
+        },
+    'POST':
+        {
+            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query': 'main_sgra_query.tbl',
+            'http://archive.eso.org/wdb/wdb/eso/amber/query': 'amber_sgra_query.tbl',
+            'http://archive.eso.org/wdb/wdb/adp/phase3_main/query': 'vvv_sgra_survey_response.tbl',
+        }
+}
 
 
 def eso_request(request_type, url, **kwargs):
     with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
+    return response
+
+
+def download_request(url, **kwargs):
+    filename = 'testfile.fits.Z'
+    with open(data_path(filename), 'rb') as f:
+        header = {'Content-Disposition': f'filename={filename}'}
+        response = MockResponse(content=f.read(), url=url, headers=header)
+    return response
+
+
+def calselector_request(url, **kwargs):
+    is_multipart = len(kwargs['data']['dp_id']) > 1
+    if is_multipart:
+        filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw_multipart.xml'
+        header = {
+            'Content-Type': 'multipart/form-data; boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
+        }
+    else:
+        filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw.xml'
+        header = {
+            'Content-Disposition': f'filename="{filename}"',
+            'Content-Type': 'application/xml; content=calselector'
+        }
+    with open(data_path(filename), 'rb') as f:
+        response = MockResponse(content=f.read(), url=url, headers=header)
     return response
 
 
@@ -92,3 +121,60 @@ def test_vvv(monkeypatch):
     assert result_s is not None
     assert 'Object' in result_s.colnames
     assert 'b333' in result_s['Object']
+
+
+def test_authenticate(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, '_request', eso_request)
+    eso.cache_location = DATA_DIR
+    authenticated = eso._authenticate(username="someuser", password="somepassword")
+    assert authenticated is True
+
+
+def test_download(monkeypatch):
+    eso = Eso()
+    fileid = 'testfile'
+    destination = os.path.join(DATA_DIR, 'downloads')
+    filename = os.path.join(destination, f"{fileid}.fits.Z")
+    os.makedirs(destination, exist_ok=True)
+    monkeypatch.setattr(eso._session, 'get', download_request)
+    downloaded_files = eso.retrieve_data([fileid], destination=destination, unzip=False)
+    assert len(downloaded_files) == 1
+    assert downloaded_files[0] == filename
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="gunzip not available on Windows")
+def test_unzip():
+    eso = Eso()
+    filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
+    uncompressed_filename = os.path.join(DATA_DIR, 'testfile.fits')
+    uncompressed_files = eso._unzip_files([filename])
+    assert len(uncompressed_files) == 1
+    assert uncompressed_files[0] == uncompressed_filename
+
+
+def test_cached_file():
+    eso = Eso()
+    filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
+    assert eso._find_cached_file(filename) is True
+    assert eso._find_cached_file("non_existent_filename") is False
+
+
+def test_calselector(monkeypatch):
+    eso = Eso()
+    dataset = 'FORS2.2021-01-02T00:59:12.533'
+    monkeypatch.setattr(eso._session, 'post', calselector_request)
+    result = eso.get_associated_files([dataset], savexml=True, destination=data_path('downloads'))
+    assert isinstance(result, list)
+    assert len(result) == 50
+    assert dataset not in result
+
+
+def test_calselector_multipart(monkeypatch):
+    eso = Eso()
+    datasets = ['FORS2.2021-01-02T00:59:12.533', 'FORS2.2021-01-02T00:59:12.534']
+    monkeypatch.setattr(eso._session, 'post', calselector_request)
+    result = eso.get_associated_files(datasets, savexml=False, destination=data_path('downloads'))
+    assert isinstance(result, list)
+    assert len(result) == 99
+    assert datasets[0] not in result and datasets[1] not in result

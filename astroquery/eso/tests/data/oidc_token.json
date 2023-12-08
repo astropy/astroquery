@@ -1,0 +1,7 @@
+{
+  "access_token": "some-access-token",
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Nzg2Mjg5NTl9.qqKrC1MesQQmLtqsFOm2kxe4f_Nqo4EPqgpup30c6Mg",
+  "token_type": "bearer",
+  "expires_in": 28800,
+  "scope": ""
+}
