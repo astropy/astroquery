@@ -466,27 +466,39 @@ class HeasarcXaminClass(BaseQuery):
         """Return a dictionay of all available table in the
         form {name: description}
 
-        Parameters:
+        Parameters
+        ----------
         master: bool
             Select only master tables. Default is False
+
+        Return
+        ------
+        `~astropy.table.Table` with columns: name, description
 
         """
 
         # use 'mast' to include both 'master' and 'mastr'
-        tables = {k: g.description for k, g in self.tap.tables.items()
-                  if not master or (master and 'mast' in k)}
+        names, desc = [], []
+        for lab, tab in self.tap.tables.items():
+            if 'TAP' in lab or (master and 'mast' not in lab):
+                continue
+            names.append(lab)
+            desc.append(tab.description)
+        return Table({'name': names, 'description':desc})
 
-        return tables
 
     def columns(self, table_name, full=False):
         """Return a dictionay of the columns available in table_name
 
-        Parameters:
+        Parameters
+        ----------
         table_name: str
             The name of table as a str
         full: bool
-            If True, return the underlying list of columns as a vo
+            If True, return the full list of columns as a vo
             TableParam objects. May be useful to check units etc.
+            If False, return a `~astropy.table.Table` (name, description)
+            for each table column.
 
         """
         tables = self.tap.tables
@@ -498,7 +510,11 @@ class HeasarcXaminClass(BaseQuery):
         if full:
             cols = tables[table_name].columns
         else:
-            cols = {c.name: c.description for c in tables[table_name].columns}
+            names, desc = [], []
+            for col in tables[table_name].columns:
+                names.append(col.name)
+                desc.append(col.description)
+            cols = Table({'name': names, 'description':desc})
 
         return cols
 
@@ -670,7 +686,7 @@ class HeasarcXaminClass(BaseQuery):
 
         if tablename is None:
             tablename = self._tablename
-        if not (isinstance(tablename, str) and tablename in self.tables()):
+        if not (isinstance(tablename, str) and tablename in self.tap.tables.keys()):
             raise ValueError(f'Unknown table name: {tablename}')
 
         # datalink url
