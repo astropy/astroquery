@@ -11,7 +11,193 @@ This is a python interface for querying the
 `HEASARC <https://heasarc.gsfc.nasa.gov/>`__
 archive web service.
 
-The capabilities are currently very limited ... feature requests and contributions welcome!
+There are two interfaces for the Heasarc services:``heasarc.Heasac`` and 
+``heasarc.Xamin``. The first uses the old Browse interface, and offers 
+limited search capabilities. The second uses the new ``Xamin`` interface, 
+which relies on the Virtual Observatory protocols. It offser more powerful
+search options.
+
+- :ref:`Heasarc Xamin Interface`.
+- :ref:`Old Browse Interface`.
+
+.. _Heasarc Xamin Interface:
+
+Heasarc Xamin Interface
+=======================
+
+Query a Table
+-------------
+The basic use case is one where I want to query a table from some position in the sky.
+In this example, we query the NuSTAR master table ``numaster`` table for all observations
+of the AGN ``NGC 3783``. We use `astropy.coordinates.SkyCoord` to obtain the coordinates
+and then pass them to ``Xamin.query_region``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> from astropy.coordinates import SkyCoord
+    >>> pos = SkyCoord.from_name('ngc 3783')
+    >>> tab = Xamin.query_region(pos, table='numaster')
+    >>> tab['name', 'obsid', 'ra', 'dec'][:3].pprint()
+      name    obsid      ra      dec   
+                        deg      deg   
+    -------- -------- -------- --------
+    NGC_3783 80701617 174.7573 -37.7386
+    NGC_3783 60901023 174.7571 -37.7385
+    NGC_3783 60902005 174.7571 -37.7385
+
+To query a region around some position, specifying the search radius.
+We use `astropy.units`:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> from astropy.coordinates import SkyCoord
+    >>> from astropy import units as u
+    >>> pos = SkyCoord('120 38', unit=u.deg)
+    >>> tab = Xamin.query_region(pos, table='chanmaster', radius=2*u.deg)
+    >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint()
+               name           obsid     ra      dec   
+                                       deg      deg   
+    ------------------------- ----- --------- --------
+                    ABELL 611  3194 120.23708 36.05722
+                   B2 0755+37   858 119.61750 37.78667
+    WISEA J080357.73+390823.1 28213 120.99060 39.13980
+        1RXS J075526.1+391111 13008 118.85875 39.18639
+     SDSS J080040.77+391700.5 18110 120.17000 39.28344
+
+The list of requested tables can also be passed to ``query_region``:
+
+    >>> Xamin.query_region(pos, table='chanmaster', radius=2*u.deg, 
+                   columns='obsid, name, time, pi_lname')
+
+Links to Data Products
+----------------------
+Once the query result is obtained, we can query any data products associated
+with those results.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> from astropy.coordinates import SkyCoord
+    >>> pos = SkyCoord.from_name('ngc 3783')
+    >>> tab = Xamin.query_region(pos, table='nicermastr')
+    >>> links = Xamin.get_links(tab[:3])
+    >>> links.pprint(max_width=120)
+      ID                                access_url                              ... content_length
+                                                                                ...      byte     
+    ----- --------------------------------------------------------------------- ... --------------
+    39818 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_04//2518010701/ ...       38185018
+    39819 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_05//2518011301/ ...       58539848
+    39820 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_05//2518011702/ ...       44604193
+
+The ``links`` table has three relevant columns: ``access_url``, ``sciserver`` and ``aws``.
+The first gives the url to the data from the main heasarc server. The second gives
+the local path to the data on Sciserver. The last gives the S3 URI to the data in the cloud.
+Depending where 
+
+Advanced Queries
+----------------
+Behind the scenes, ``Xamin.query_region`` constructs an query in the 
+Astronomical Data Query Language ADQL, which powerful in constructing
+complex queries. Passing ``get_query_payload=True`` to ``query_region`` returns
+the constructed ADQL query.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> from astropy.coordinates import SkyCoord
+    >>> from astropy import units as u
+    >>> pos = SkyCoord('120 38', unit=u.deg)
+    >>> query = Xamin.query_region(pos, table='xmmmaster', radius=2*u.deg, 
+    >>>                            get_query_payload=True)
+    >>> query
+    "SELECT * FROM xmmmaster WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"
+
+The query can be modified as then submitted using:
+
+    >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster 
+    >>> WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
+    >>> tab = Xamin.query_tap(query).to_table()
+    >>> tab[:10].pprint()
+        ra      dec            name           obsid   
+       deg      deg                                   
+    --------- -------- -------------------- ----------
+    120.22707 36.04139            Abell 611 0781590301
+    120.25583 36.04944            Abell 611 0781590501
+    120.23300 36.06100                 A611 0605000601
+    120.21750 36.06500            Abell 611 0781590401
+    120.24624 36.07305            Abell 611 0781590201
+    120.39708 36.46875 RMJ080135.3+362807.5 0881901001
+    119.61710 37.78661           B2 0755+37 0602390101
+    121.92084 39.00417              UGC4229 0138951401
+    121.92084 39.00417              UGC4229 0138950101
+    121.92099 39.00422              MRK 622 0852180501
+
+Complex Regions
+---------------
+In additon to a cone search (some position and search radius), ```Xamin.query_region``` accepts
+other options too, including ``'box'``, ``'polygon'`` and ``'all-sky'``. Details can be found
+in `~astroquery.heasarc.HeasarcXaminClass.query_region`. Examples include:
+
+    >>> # query box region
+    >>> pos = SkyCoord('226.2 10.6', unit=u.deg)
+    >>> Xamin.query_region(pos, table='xmmmaster', spatial='box', width=0.5*u.deg)
+
+for ``'box'`` and:
+    >>> Xamin.query_region(table='xmmmaster', spatial='polygon',
+                  polygon=[(226.2,10.6),(225.9,10.5),(225.8,10.2),(226.2,10.3)])
+
+for ``'polygon'``.
+
+List Available Tables
+---------------------
+The collection of available tables can be obtained by calling the ``tables()`` method
+of ``Xamin``. In this example, we query the master tables only by passing ``master=True``.
+which is ``False`` by default (i.e. query all table). ``Xamin.tables()`` returns an 
+`~astropy.table.Table` with two columns containing the names and description of the available
+tables.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tables = Xamin.tables(master=True)
+    >>> tables.pprint(align='<')
+       name                             description                         
+    ---------- -------------------------------------------------------------
+    ascamaster ASCA Master Catalog                                          
+    chanmaster Chandra Observations                                         
+    cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
+    erosmaster eROSITA Observations Master Catalog      
+
+List Table Columns
+------------------
+To list the columns of some table, use ``Xamin.columns()``. Here we list the columns
+in the XMM master table ``xmmmaster``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> columns = Xamin.columns(table_name='xmmmaster')
+    >>> columns[:10].pprint(align='<')
+         name                                description                          
+    -------------- ---------------------------------------------------------------
+    rgs2_time      Total RGS-2 Exposure Time (s)                                  
+    ra             Right Ascension of Target                                      
+    pn_mode        Flags Indicate PN Instrument Modes                             
+    obsid          Unique Observation Identifier                                  
+    pps_flag       Flag Indicates PPS Products Available                          
+    om_time        Total OM Exposure Time (s)                                     
+    rgs2_num       Number of RGS-2 Exposures                                      
+    name           Target Designation                                             
+    xmm_revolution XMM-Newton Revolution (Orbit) Number                           
+    status         Status of Observation: scheduled, observed, processed, archived
+
+
+.. _Old Browse Interface:
+
+Old Browse Interface
+====================
 
 Getting lists of available datasets
 -----------------------------------
