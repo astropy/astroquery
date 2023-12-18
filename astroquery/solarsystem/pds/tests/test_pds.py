@@ -39,14 +39,14 @@ def nonremote_request(self, request_type, url, **kwargs):
 def patch_request(request):
     mp = request.getfixturevalue("monkeypatch")
 
-    mp.setattr(pds.core.RingNodeClass, "_request", nonremote_request)
+    mp.setattr(pds.core.RMSNodeClass, "_request", nonremote_request)
     return mp
 
 
 # --------------------------------- actual test functions
 
 def test_parse_result(patch_request):
-    q = pds.RingNode()
+    q = pds.RMSNode()
     # need _last_query to be defined
     q._last_query = AstroQuery('GET', 'http://dummy')
     with pytest.raises(ValueError):
@@ -55,7 +55,7 @@ def test_parse_result(patch_request):
 
 def test_ephemeris_query_Uranus(patch_request):
 
-    pds_inst = pds.RingNode()
+    pds_inst = pds.RMSNode()
     pds_inst._last_query = AstroQuery('GET', 'http://dummy')
     bodytable, ringtable = pds_inst.ephemeris(
         planet="Uranus",
@@ -99,7 +99,7 @@ NAIF ID,Body, RA,Dec,RA (deg),Dec (deg),dRA,dDec,sub_obs_lon,sub_obs_lat,sub_sun
 
 def test_ephemeris_query_Pluto(patch_request):
 
-    pds_inst = pds.RingNode()
+    pds_inst = pds.RMSNode()
     pds_inst._last_query = AstroQuery('GET', 'http://dummy')
     bodytable, ringtable = pds_inst.ephemeris(
         planet="Pluto",
@@ -136,7 +136,7 @@ def test_ephemeris_query_Pluto(patch_request):
 def test_ephemeris_query_Neptune(patch_request):
     '''Verify that the Neptune ring arcs are queried properly'''
 
-    pds_inst = pds.RingNode()
+    pds_inst = pds.RMSNode()
     pds_inst._last_query = AstroQuery('GET', 'http://dummy')
     bodytable, ringtable = pds_inst.ephemeris(
         planet="Neptune",
@@ -158,7 +158,7 @@ Fraternite,26.41978,36.01978
 
 def test_ephemeris_query_Saturn(patch_request):
     '''Check Saturn F ring is queried properly'''
-    pds_inst = pds.RingNode()
+    pds_inst = pds.RMSNode()
     pds_inst._last_query = AstroQuery('GET', 'http://dummy')
     bodytable, ringtable = pds_inst.ephemeris(
         planet="Saturn",
@@ -174,7 +174,7 @@ F,249.23097,250.34081
 
 
 def test_ephemeris_query_payload():
-    pds_inst = pds.RingNode()
+    pds_inst = pds.RMSNode()
     pds_inst._last_query = AstroQuery('GET', 'http://dummy')
     res = pds_inst.ephemeris(
         planet="Neptune",
@@ -238,4 +238,4 @@ def test_ephemeris_query_payload():
 def test_bad_query_raise():
 
     with pytest.raises(ValueError):
-        bodytable, ringtable = pds.RingNode.ephemeris(planet="Venus", epoch="2021-10-07 07:25")
+        bodytable, ringtable = pds.RMSNode.ephemeris(planet="Venus", epoch="2021-10-07 07:25")

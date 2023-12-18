@@ -64,15 +64,15 @@ neptune_arcmodels = {
 
 
 @async_to_sync
-class RingNodeClass(BaseQuery):
+class RMSNodeClass(BaseQuery):
     """
-    a class for querying the Planetary Ring Node ephemeris tools
+    a class for querying the PDS Ring-Moon Systems (RMS) Node ephemeris tools
     <https://pds-rings.seti.org/tools/>
     """
 
     def __init__(self, url='', timeout=None):
         '''
-        Instantiate Planetary Ring Node query
+        Instantiate RMS Node query
         '''
         super().__init__()
         self.url = url
@@ -84,12 +84,12 @@ class RingNodeClass(BaseQuery):
 
     def __str__(self):
 
-        return "PDSRingNode instance"
+        return "RMSNode instance"
 
     def ephemeris_async(self, planet, *, epoch=None, location=None, neptune_arcmodel=3,
                         get_query_payload=False, cache=True):
         """
-        send query to Planetary Ring Node server
+        send query to Ring-Moon Systems Node server
 
         Parameters
         ----------
@@ -99,7 +99,7 @@ class RingNodeClass(BaseQuery):
                 If str is provided then UTC is assumed.
                 If no epoch is provided, the current time is used.
         location : str, or array-like, or `~astropy.coordinates.EarthLocation`, optional
-            If str, named observeratory supported by the ring node, e.g. JWST.
+            If str, named observeratory supported by the RMS node, e.g. JWST.
             If array-like, observer's location as a
             3-element array of Earth longitude, latitude, altitude
             that istantiates an
@@ -127,9 +127,9 @@ class RingNodeClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.solarsystem.pds import RingNode
+        >>> from astroquery.solarsystem.pds import RMSNode
         >>> import astropy.units as u
-        >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
+        >>> bodytable, ringtable = RMSNode.ephemeris(planet='Uranus',
         ...                 epoch='2024-05-08 22:39',
         ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
         >>> print(ringtable)  # doctest: +REMOTE_DATA
@@ -240,11 +240,11 @@ class RingNodeClass(BaseQuery):
 
     def _parse_result(self, response, verbose=None):
         """
-        Routine for parsing data from ring node
+        Routine for parsing data from RMS node
 
         Parameters
         ----------
-        self : RingNodeClass instance
+        self : RMSNodeClass instance
         response : list
             raw response from server
 
@@ -399,4 +399,4 @@ class RingNodeClass(BaseQuery):
         return bodytable, ringtable
 
 
-RingNode = RingNodeClass()
+RMSNode = RMSNodeClass()
