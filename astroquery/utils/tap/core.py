@@ -230,7 +230,7 @@ class Tap:
         if isError:
             log.info(f"{response.status} {response.reason}")
             raise requests.exceptions.HTTPError(response.reason)
-            return None
+
         log.info("Parsing tables...")
         tsp = TableSaxParser()
         tsp.parseData(response)
@@ -238,9 +238,9 @@ class Tap:
         return tsp.get_tables()
 
     def launch_job(self, query, *, name=None, output_file=None,
-                   output_format="votable", verbose=False,
+                   output_format="votable_gzip", verbose=False,
                    dump_to_file=False, upload_resource=None,
-                   upload_table_name=None, maxrec=None):
+                   upload_table_name=None, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
         """Launches a synchronous job
 
         Parameters
@@ -265,13 +265,17 @@ class Tap:
             This argument is required if upload_resource is provided.
         maxrec : int, optional, default None
             maximum number of rows to return (TAP ``MAXREC`` parameter)
+        format_with_results_compressed: tuple, zipped result formats
+            list of result formats that are returned as zipped files
 
         Returns
         -------
         A Job object
         """
         output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
-                                                                                               output_format)
+                                                                                               output_format,
+                                                                                               format_with_results_compressed=format_with_results_compressed)
+
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
             print(f"Launched query: '{query}'")
@@ -322,6 +326,7 @@ class Tap:
                                                                headers,
                                                                isError,
                                                                output_format)
+
         job.outputFile = suitableOutputFile
         job.outputFileUser = output_file
         job.parameters['format'] = output_format
@@ -356,10 +361,10 @@ class Tap:
         return job
 
     def launch_job_async(self, query, *, name=None, output_file=None,
-                         output_format="votable", verbose=False,
+                         output_format="votable_gzip", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,
-                         autorun=True, maxrec=None):
+                         autorun=True, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
         """Launches an asynchronous job
 
         Parameters
@@ -372,7 +377,7 @@ class Tap:
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            result formats
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -390,6 +395,8 @@ class Tap:
             so the framework can start the job.
         maxrec : int, optional, default None
             maximum number of rows to return (TAP ``MAXREC`` parameter)
+        format_with_results_compressed: tuple, zipped result formats
+            list of result formats that are returned as zipped files
 
         Returns
         -------
@@ -397,7 +404,8 @@ class Tap:
         """
 
         output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
-                                                                                               output_format)
+                                                                                               output_format,
+                                                                                               format_with_results_compressed=format_with_results_compressed)
 
         if verbose:
             print(f"Launched query: '{query}'")
@@ -512,7 +520,7 @@ class Tap:
         if isError:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
-            return None
+
         # parse job
         jsp = JobSaxParser(async_job=True)
         job = jsp.parseData(response)[0]
@@ -546,7 +554,7 @@ class Tap:
         if isError:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
-            return None
+
         # parse jobs
         jsp = JobListSaxParser(async_job=True)
         jobs = jsp.parseData(response)
@@ -1507,7 +1515,7 @@ class TapPlus(Tap):
             j = self.load_async_job(jobid=job, load_results=False)
             if j is None:
                 raise ValueError(f"Job {job} not found")
-                return
+
             description = j.parameters['query']
         if table_name is None:
             table_name = f"t{j.jobid}"
@@ -1652,7 +1660,7 @@ class TapPlus(Tap):
             }
         return args
 
-    def update_user_table(self, *, table_name=None, list_of_changes=[],
+    def update_user_table(self, *, table_name=None, list_of_changes=(),
                           verbose=False):
         """Updates a user table
 

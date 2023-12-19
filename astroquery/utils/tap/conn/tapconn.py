@@ -587,11 +587,14 @@ class TapConn:
             if p >= 0:
                 filename = os.path.basename(content_disposition[p+10:len(content_disposition)-1])
                 content_encoding = self.find_header(headers, 'Content-Encoding')
+
                 if content_encoding is not None:
-                    if "gzip" == content_encoding.lower():
-                        filename += ".gz"
-                    elif "zip" == content_encoding.lower():
-                        filename += ".zip"
+                    if not (filename.endswith('.gz') or filename.endswith('.zip')):
+                        if "gzip" == content_encoding.lower():
+                            filename += ".gz"
+                        elif "zip" == content_encoding.lower():
+                            filename += ".zip"
+
                 return filename
         return None
 
