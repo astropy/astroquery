@@ -1,29 +1,29 @@
 .. _astroquery.solarsystem.pds:
 
 ***********************************************************************************
-PDS Planetary Ring Node Queries (`astroquery.solarsystem.pds`)
+PDS Ring-Moon Systems (RMS) Node Queries (`astroquery.solarsystem.pds`)
 ***********************************************************************************
 
 Overview
 ========
 
 
-The :class:`~astroquery.solarsystem.pds.RingNodeClass` provides an
-interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring Node System <https://pds-rings.seti.org/>`_ hosted by SETI institute.
+The :class:`~astroquery.solarsystem.pds.RMSNodeClass` provides an
+interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring-Moon Systems (RMS) Node <https://pds-rings.seti.org/>`_ hosted by the SETI institute.
 
 
 Ephemeris
 -----------
 
 In order to query information for a specific Solar System body, a
-``RingNode`` object is instantiated and the :meth:`~astroquery.solarsystem.pds.RingNodeClass.ephemeris` method is called. The following example queries the
+``RMSNode`` object is instantiated and the :meth:`~astroquery.solarsystem.pds.RMSNodeClass.ephemeris` method is called. The following example queries the
 ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 .. doctest-remote-data::
 
-   >>> from astroquery.solarsystem.pds import RingNode
+   >>> from astroquery.solarsystem.pds import RMSNode
    >>> import astropy.units as u
-   >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
+   >>> bodytable, ringtable = RMSNode.ephemeris(planet='Uranus',
    ...                 epoch='2024-05-08 22:39',
    ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))
    >>> print(ringtable)
@@ -46,7 +46,7 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 .. doctest-remote-data::
 
-   >>> bodytable, ringtable = RingNode.ephemeris(planet='Venus',
+   >>> bodytable, ringtable = RMSNode.ephemeris(planet='Venus',
    ...                 epoch='2024-05-08 22:39',
    ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))
    Traceback (most recent call last):
@@ -77,12 +77,12 @@ Outputs
 	>>> print(ringtable.columns)
 	<TableColumns names=('ring','pericenter','ascending node')>
 
-Note that the behavior of ``ringtable`` changes depending on the planet you query. For Uranus and Saturn the table columns are as above. For Jupiter, Mars, and Pluto, there are no individual named rings returned by the Ring Node, so ``ringtable`` returns None; ephemeris for the ring systems of these bodies is still contained in ``systemtable`` as usual. For Neptune, the ring table shows the minimum and maximum longitudes (from the ring plane ascending node) of the five ring arcs according to the orbital evolution assumed by ``neptune_arcmodel``, e.g.:
+Note that the behavior of ``ringtable`` changes depending on the planet you query. For Uranus and Saturn the table columns are as above. For Jupiter, Mars, and Pluto, there are no individual named rings returned by the RMS Node, so ``ringtable`` returns None; ephemeris for the ring systems of these bodies is still contained in ``systemtable`` as usual. For Neptune, the ring table shows the minimum and maximum longitudes (from the ring plane ascending node) of the five ring arcs according to the orbital evolution assumed by ``neptune_arcmodel``, e.g.:
 
 
 .. doctest-remote-data::
 
-	>>> bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00')
+	>>> bodytable, ringtable = RMSNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00')
 	>>> print(ringtable)
     	   ring    min_angle max_angle
     	              deg       deg

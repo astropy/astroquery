@@ -6,10 +6,10 @@ from ... import pds
 
 
 @pytest.mark.remote_data
-class TestRingNodeClass:
+class TestRMSNodeClass:
     def test_ephemeris_query(self):
 
-        bodytable, ringtable = pds.RingNode.ephemeris(
+        bodytable, ringtable = pds.RMSNode.ephemeris(
             planet="Uranus",
             epoch="2022-05-03 00:00",
             location=(-120.355 * u.deg, 10.0 * u.deg, 1000 * u.m),

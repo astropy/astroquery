@@ -1,5 +1,5 @@
 """
-RingNode
+RMSNode
 --------
 
 :author: Ned Molter (emolter@berkeley.edu)
@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
 
     # server settings
     url = _config.ConfigItem(
-        "https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?", "Ring Node"
+        "https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?", "RMS Node"
     )
 
     # implement later: other pds tools
@@ -25,11 +25,11 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import RingNode, RingNodeClass
+from .core import RMSNode, RMSNodeClass
 
 __all__ = [
-    "RingNode",
-    "RingNodeClass",
+    "RMSNode",
+    "RMSNodeClass",
     "Conf",
     "conf",
 ]
