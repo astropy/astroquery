@@ -153,7 +153,7 @@ def test_launch_sync_job():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": quote_plus(query)}
@@ -207,7 +207,7 @@ def test_launch_sync_job_secure():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": quote_plus(query)}
@@ -267,7 +267,7 @@ def test_launch_sync_job_redirect():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": quote_plus(query)}
@@ -347,7 +347,7 @@ def test_launch_async_job():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "tapclient": str(tap.tap_client_id),
         "PHASE": "RUN",
         "QUERY": str(query)}
@@ -428,7 +428,7 @@ def test_start_job():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -483,7 +483,7 @@ def test_abort_job():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "MAXREC": 10,
         "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
@@ -517,7 +517,7 @@ def test_job_parameters():
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
-        "FORMAT": "votable",
+        "FORMAT": "votable_gzip",
         "MAXREC": 10,
         "tapclient": str(tap.tap_client_id),
         "QUERY": str(query)}
