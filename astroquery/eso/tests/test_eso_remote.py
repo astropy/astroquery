@@ -20,8 +20,17 @@ SGRA_SURVEYS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
                 'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
 
 
+@pytest.fixture()
+def all_surveys():
+    surveys = Eso().list_surveys(cache=False)
+    assert len(surveys) > 0
+    assert 'VVV' in surveys
+    return surveys
+
+
 @pytest.mark.remote_data
 class TestEso:
+
     def test_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -33,8 +42,6 @@ class TestEso:
         result_i = eso.query_instrument('midi', coord1=266.41681662,
                                         coord2=-29.00782497, cache=False)
 
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
         # result_s = eso.query_surveys('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         result_s = eso.query_surveys(surveys='VVV', coord1=266.41681662,
@@ -44,7 +51,6 @@ class TestEso:
 
         assert 'midi' in instruments
         assert result_i is not None
-        assert 'VVV' in surveys
         assert result_s is not None
         assert 'Object' in result_s.colnames
         assert 'b333' in result_s['Object']
@@ -68,15 +74,13 @@ class TestEso:
         assert 'b333_414_58214' in result_s['Object']
         assert 'Pistol-Star' in result_s['Object']
 
-    def test_empty_return(self):
+    def test_empty_return(self, all_surveys):
         # test for empty return with an object from the North
         eso = Eso()
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_surveys(surveys=surveys[0], coord1=202.469575,
+            result_s = eso.query_surveys(surveys=all_surveys.items()[0], coord1=202.469575,
                                          coord2=47.195258, cache=False)
 
         assert result_s is None
@@ -157,29 +161,28 @@ class TestEso:
             else:
                 assert len(result) > 0
 
-    def test_each_survey_and_SgrAstar(self, tmp_path):
+    @pytest.mark.parametrize("survey", [all_surveys])
+    def test_each_survey_and_SgrAstar(self, tmp_path, survey):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        surveys = eso.list_surveys(cache=False)
-        for survey in surveys:
-            if survey in SGRA_SURVEYS:
+        if survey in SGRA_SURVEYS:
+            result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)
+            assert len(result_s) > 0
+        else:
+            with pytest.warns(NoResultsWarning):
                 result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
                                              coord2=-29.00782497,
                                              box='01 00 00',
                                              cache=False)
-                assert len(result_s) > 0
-            else:
-                with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
-                                                 coord2=-29.00782497,
-                                                 box='01 00 00',
-                                                 cache=False)
-                    assert result_s is None
+                assert result_s is None
 
-                    generic_result = eso.query_surveys(surveys=survey)
-                    assert len(generic_result) > 0
+                generic_result = eso.query_surveys(surveys=survey)
+                assert len(generic_result) > 0
 
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
