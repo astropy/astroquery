@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+import shutil
 import sys
 
 import pytest
@@ -131,26 +132,27 @@ def test_authenticate(monkeypatch):
     assert authenticated is True
 
 
-def test_download(monkeypatch):
+def test_download(monkeypatch, tmp_path):
     eso = Eso()
+    eso.cache_location = tmp_path
     fileid = 'testfile'
-    destination = os.path.join(DATA_DIR, 'downloads')
-    filename = os.path.join(destination, f"{fileid}.fits.Z")
-    os.makedirs(destination, exist_ok=True)
+    filename = os.path.join(tmp_path, f"{fileid}.fits.Z")
     monkeypatch.setattr(eso._session, 'get', download_request)
-    downloaded_files = eso.retrieve_data([fileid], destination=destination, unzip=False)
+    downloaded_files = eso.retrieve_data([fileid], unzip=False)
     assert len(downloaded_files) == 1
     assert downloaded_files[0] == filename
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="gunzip not available on Windows")
-def test_unzip():
+def test_unzip(tmp_path):
     eso = Eso()
     filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
-    uncompressed_filename = os.path.join(DATA_DIR, 'testfile.fits')
-    uncompressed_files = eso._unzip_files([filename])
+    tmp_filename = tmp_path / 'testfile.fits.Z'
+    uncompressed_filename = tmp_path / 'testfile.fits'
+    shutil.copy(filename, tmp_filename)
+    uncompressed_files = eso._unzip_files([str(tmp_filename)])
     assert len(uncompressed_files) == 1
-    assert uncompressed_files[0] == uncompressed_filename
+    assert uncompressed_files[0] == str(uncompressed_filename)
 
 
 def test_cached_file():
@@ -160,21 +162,23 @@ def test_cached_file():
     assert eso._find_cached_file("non_existent_filename") is False
 
 
-def test_calselector(monkeypatch):
+def test_calselector(monkeypatch, tmp_path):
     eso = Eso()
+    eso.cache_location = tmp_path
     dataset = 'FORS2.2021-01-02T00:59:12.533'
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.get_associated_files([dataset], savexml=True, destination=data_path('downloads'))
+    result = eso.get_associated_files([dataset], savexml=True)
     assert isinstance(result, list)
     assert len(result) == 50
     assert dataset not in result
 
 
-def test_calselector_multipart(monkeypatch):
+def test_calselector_multipart(monkeypatch, tmp_path):
     eso = Eso()
+    eso.cache_location = tmp_path
     datasets = ['FORS2.2021-01-02T00:59:12.533', 'FORS2.2021-01-02T00:59:12.534']
     monkeypatch.setattr(eso._session, 'post', calselector_request)
-    result = eso.get_associated_files(datasets, savexml=False, destination=data_path('downloads'))
+    result = eso.get_associated_files(datasets, savexml=False)
     assert isinstance(result, list)
     assert len(result) == 99
     assert datasets[0] not in result and datasets[1] not in result
