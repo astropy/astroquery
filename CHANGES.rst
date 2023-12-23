@@ -39,6 +39,11 @@ gaia
   therefore, if the parameter is not set, the source identifiers are
   considered as source_id. [#2859]
 
+- New output formats. votable, to get an uncompressed votable file (Content-Type: application/x-votable+xml).
+  new votable_gzip, to get a compressed votable file (Content-Encoding: gzip and Content-Type: application/x-votable+gzip).
+  ecsv, to get an ecsv compressed file (Content-Encoding: gzip and Content-Type: text/ecsv+gzip). [#2907]
+
+
 hsa
 ^^^
 
