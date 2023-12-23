@@ -273,8 +273,7 @@ class Tap:
         A Job object
         """
         output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
-                                                                                               output_format,
-                                                                                               format_with_results_compressed=format_with_results_compressed)
+            output_format,format_with_results_compressed=format_with_results_compressed)
 
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
