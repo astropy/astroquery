@@ -238,7 +238,7 @@ class Tap:
         return tsp.get_tables()
 
     def launch_job(self, query, *, name=None, output_file=None,
-                   output_format="votable_gzip", verbose=False,
+                   output_format="votable", verbose=False,
                    dump_to_file=False, upload_resource=None,
                    upload_table_name=None, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
         """Launches a synchronous job
@@ -362,7 +362,7 @@ class Tap:
         return job
 
     def launch_job_async(self, query, *, name=None, output_file=None,
-                         output_format="votable_gzip", verbose=False,
+                         output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,
                          autorun=True, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
