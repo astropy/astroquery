@@ -14,6 +14,7 @@ from urllib.parse import urlencode
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
+from numpy.ma import MaskedArray
 
 from astroquery.utils.tap import TapPlus
 from astroquery.query import BaseQuery
@@ -38,9 +39,9 @@ def _check_rename_to_gz(filename):
     if rename:
         output = os.path.splitext(filename)[0] + '.fits.gz'
         os.rename(filename, output)
-        return output
+        return os.path.basename(output)
     else:
-        return filename
+        return os.path.basename(filename)
 
 
 class ESAHubbleClass(BaseQuery):
@@ -63,7 +64,7 @@ class ESAHubbleClass(BaseQuery):
             self.get_status_messages()
 
     def download_product(self, observation_id, *, calibration_level=None,
-                         filename=None, verbose=False, product_type=None):
+                         filename=None, folder=os.getcwd(), verbose=False, product_type=None):
         """
         Download products from EHST based on their observation ID and the
         calibration level or the product type.
@@ -80,9 +81,11 @@ class ESAHubbleClass(BaseQuery):
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
         filename : string
-            file name to be used to store the artifact, optional, default
+            File name to be used to store the artifact, optional, default
             None
-            File name for the observation.
+        folder : string
+            optional, default current folder
+            Local folder to store the file
         verbose : bool
             optional, default 'False'
             flag to display information about the process
@@ -121,9 +124,10 @@ class ESAHubbleClass(BaseQuery):
             params["PRODUCTTYPE"] = product_type
 
         filename = self._get_product_filename(product_type, filename)
-        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
+        output_file = os.path.join(folder, filename)
+        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
 
-        return _check_rename_to_gz(filename=filename)
+        return _check_rename_to_gz(filename=output_file)
 
     def __set_product_type(self, product_type):
         if product_type:
@@ -215,6 +219,85 @@ class ESAHubbleClass(BaseQuery):
             raise ValueError("Invalid Observation ID")
         return obs_type
 
+    def get_observations_from_program(self, program, *, output_file=None,
+                                      output_format="votable", verbose=False):
+        """
+        Retrieves all the observations associated to a program/proposal ID
+
+        Parameters
+        ----------
+        program : int
+            Program or Proposal ID associated to the observations
+        output_file : string
+            optional, default None
+            file name to be used to store the result
+        output_format : string
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        None. It downloads the artifact indicated
+        """
+        return self.query_criteria(proposal=program, output_file=output_file,
+                                   output_format=output_format, async_job=False, verbose=verbose)
+
+    def download_files_from_program(self, program, *, folder=os.getcwd(), calibration_level=None,
+                                    data_product_type=None, intent=None,
+                                    obs_collection=None, instrument_name=None,
+                                    filters=None, only_fits=False):
+        """
+        Download artifacts from EHST. Artifact is a single Hubble product file.
+
+        Parameters
+        ----------
+        program : int
+            Program or Proposal ID associated to the observations
+        folder : string
+            optional, default current path
+            Local folder to store the file
+        calibration_level : str or int, optional
+            The identifier of the data reduction/processing applied to the
+            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+        data_product_type : str, optional
+            High level description of the product.
+            image, spectrum or timeseries.
+        intent : str, optional
+            The intent of the original observer in acquiring this observation.
+            SCIENCE or CALIBRATION
+        obs_collection : list of str, optional
+            List of collections that are available in eHST catalogue.
+            HLA, HST, HAP
+        instrument_name : str or list of str, optional
+            Name(s) of the instrument(s) used to generate the dataset
+        filters : list of str, optional
+            Name(s) of the filter(s) used to generate the dataset
+        only_fits : bool
+            optional, default 'False'
+            flag to download only FITS files
+
+        Returns
+        -------
+        None. It downloads the artifact indicated
+        """
+        observations = self.query_criteria(calibration_level=calibration_level,
+                                           data_product_type=data_product_type,
+                                           intent=intent, obs_collection=obs_collection,
+                                           instrument_name=instrument_name,
+                                           filters=filters,
+                                           proposal=program,
+                                           async_job=False)
+        if only_fits:
+            self.download_fits_files(observation_id=observations['observation_id'], folder=folder)
+        else:
+            files = self.get_associated_files(observation_id=observations['observation_id'])
+            for file in files['filename']:
+                self.download_file(file=file, folder=folder)
+
     def _select_related_members(self, observation_id):
         query = f"select members from ehst.observation where observation_id='{observation_id}'"
         job = self.query_tap(query=query)
@@ -239,7 +322,7 @@ class ESAHubbleClass(BaseQuery):
         else:
             return f"{filename}.zip"
 
-    def get_artifact(self, artifact_id, *, filename=None, verbose=False):
+    def get_artifact(self, artifact_id, *, filename=None, folder=os.getcwd(), verbose=False):
         """
         Download artifacts from EHST. Artifact is a single Hubble product file.
 
@@ -251,6 +334,9 @@ class ESAHubbleClass(BaseQuery):
         filename : string
             file name to be used to store the artifact, optional, default None
             File name for the artifact
+        folder : string
+            optional, default current path
+            Local folder to store the file
         verbose : bool
             optional, default 'False'
             flag to display information about the process
@@ -260,7 +346,7 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        return self.download_file(file=artifact_id, filename=filename, verbose=verbose)
+        return self.download_file(file=artifact_id, filename=filename, folder=folder, verbose=verbose)
 
     def get_associated_files(self, observation_id, *, verbose=False):
         """
@@ -268,8 +354,8 @@ class ESAHubbleClass(BaseQuery):
 
         Parameters
         ----------
-        observation_id : string
-            id of the observation to be downloaded, mandatory
+        observation_id : string or list of strings
+            id(s) of the observation(s) to be downloaded, mandatory
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
         verbose : bool
@@ -280,22 +366,28 @@ class ESAHubbleClass(BaseQuery):
         -------
         None. The file is associated
         """
+        if isinstance(observation_id, list) or isinstance(observation_id, MaskedArray):
+            observation_id = "', '".join(observation_id)
+
         query = (f"select art.artifact_id as filename, p.calibration_level, art.archive_class as type, "
                  f"pg_size_pretty(art.size_uncompr) as size_uncompressed from ehst.artifact art "
                  f"join ehst.plane p on p.plane_id = art.plane_id where "
-                 f"art.observation_id = '{observation_id}'")
+                 f"art.observation_id in ('{observation_id}')")
         return self.query_tap(query=query)
 
-    def download_fits_files(self, observation_id, *, verbose=False):
+    def download_fits_files(self, observation_id, *, folder=os.getcwd(), verbose=False):
         """
         Retrieves all the FITS files associated to an observation
 
         Parameters
         ----------
-        observation_id : string
+        observation_id : string or list of strings
             id of the observation to be downloaded, mandatory
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
+        folder : string
+            optional, default current path
+            Local folder to store the file
         verbose : bool
             optional, default 'False'
             flag to display information about the process
@@ -308,9 +400,9 @@ class ESAHubbleClass(BaseQuery):
         for file in [i['filename'] for i in results if i['filename'].endswith('.fits')]:
             if verbose:
                 print(f"Downloading {file} ...")
-            self.download_file(file=file, filename=file, verbose=verbose)
+            self.download_file(file=file, filename=file, folder=folder, verbose=verbose)
 
-    def download_file(self, file, *, filename=None, verbose=False):
+    def download_file(self, file, *, filename=None, folder=os.getcwd(), verbose=False):
         """
         Download a file from eHST based on its filename.
 
@@ -321,6 +413,9 @@ class ESAHubbleClass(BaseQuery):
 
         filename : string
             file name to be used to store the file, optional, default None
+        folder : string
+            optional, default current path
+            Local folder to store the file
         verbose : bool
             optional, default 'False'
             flag to display information about the process
@@ -334,9 +429,10 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = file
 
-        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
+        output_file = os.path.join(folder, filename)
+        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
 
-        return _check_rename_to_gz(filename=filename)
+        return _check_rename_to_gz(filename=output_file)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -726,7 +822,7 @@ class ESAHubbleClass(BaseQuery):
         obs_collection : list of str, optional
             List of collections that are available in eHST catalogue.
             HLA, HST, HAP
-        instrument_name : list of str, optional
+        instrument_name : str or list of str, optional
             Name(s) of the instrument(s) used to generate the dataset
         filters : list of str, optional
             Name(s) of the filter(s) used to generate the dataset
@@ -776,12 +872,14 @@ class ESAHubbleClass(BaseQuery):
                 "%' OR collection LIKE '%".join(obs_collection)
             ))
         if self.__check_list_strings(instrument_name):
+            if isinstance(instrument_name, str):
+                instrument_name = [instrument_name]
             parameters.append("(instrument_name LIKE '%{}%')".format(
                 "%' OR instrument_name LIKE '%".join(instrument_name)
             ))
         if self.__check_list_strings(filters):
-            parameters.append("(instrument_configuration LIKE '%{}%')"
-                              .format("%' OR instrument_configuration "
+            parameters.append("(filter LIKE '%{}%')"
+                              .format("%' OR filter "
                                       "LIKE '%".join(filters)))
         query = "select * from ehst.archive"
         if parameters:

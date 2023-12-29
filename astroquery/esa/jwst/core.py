@@ -39,6 +39,21 @@ from .data_access import JwstDataHandler
 __all__ = ['Jwst', 'JwstClass']
 
 
+def _check_rename_to_gz(filename):
+    rename = False
+    if os.path.exists(filename):
+        with open(filename, 'rb') as test_f:
+            if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
+                rename = True
+
+    if rename:
+        output = os.path.splitext(filename)[0] + '.fits.gz'
+        os.rename(filename, output)
+        return output
+    else:
+        return filename
+
+
 # We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
 # https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
 if hasattr(esatar, "fully_trusted_filter"):
@@ -923,7 +938,8 @@ class JwstClass(BaseQuery):
         except Exception as exx:
             log.info("error")
             raise ValueError(f"Error retrieving product for {err_msg}: {exx}")
-        return output_file_name
+
+        return _check_rename_to_gz(filename=output_file_name)
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
         if file_name:

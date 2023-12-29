@@ -120,8 +120,8 @@ This is an example of a query with all the parameters and the verbose flag activ
   ...                                   output_format="votable",
   ...                                   verbose = True,
   ...                                   get_query = False)    # doctest: +IGNORE_OUTPUT
-  INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
-  Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR o.instrument_configuration LIKE '%F606W%'))'
+  INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.filter LIKE '%F555W%' OR o.filter LIKE '%F606W%')) [astroquery.esa.hubble.core]
+  Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%' AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name LIKE '%WFC3%') AND (o.filter LIKE '%F555W%' OR o.filter LIKE '%F606W%'))'
   ------>http
   host = hst.esac.esa.int:80
   context = /tap-server/tap//sync
@@ -258,7 +258,7 @@ This last example will provide the ADQL query based on the criteria defined by t
   ...                                   filters = ['F555W', 'F606W'],
   ...                                   get_query = True)
   >>> print(result)
-  select * from ehst.archive where(calibration_level=3 AND data_product_type LIKE '%image%' AND intent LIKE '%science%' AND (collection LIKE '%HLA%') AND (instrument_name LIKE '%WFC3%') AND (instrument_configuration LIKE '%F555W%' OR instrument_configuration LIKE '%F606W%'))
+  select * from ehst.archive where(calibration_level=3 AND data_product_type LIKE '%image%' AND intent LIKE '%science%' AND (collection LIKE '%HLA%') AND (instrument_name LIKE '%WFC3%') AND (filter LIKE '%F555W%' OR filter LIKE '%F606W%'))
 
 --------------------------------------
 3. Cone searches in the Hubble archive
@@ -544,6 +544,54 @@ returns the corresponding HAP or HST observation
   >>> result
   ['jec071i9q']
 
+
+-----------------------------------------------------------
+10. Retrieve metadata and data from a program / proposal ID
+-----------------------------------------------------------
+
+It is possible to retrieve all the observations associated to a specific program ID using the following method:
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.get_observations_from_program(program=5773)
+  <Table length=68>
+  band_name calibration_level collection ...      wave_max      wave_min
+  object        int32         str64    ...      float64       float64
+  --------- ----------------- ---------- ... ------------------ --------
+  Optical                 2        HST ... 502.58000000000004   499.89
+  Optical                 2        HST ...  570.9399999999999   522.62
+  Optical                 2        HST ...             675.58   670.86
+  Optical                 2        HST ...             657.46    655.3
+  Optical                 2        HST ...  570.9399999999999   522.62
+  Optical                 1        HST ... 502.58000000000004   499.89
+  Optical                 2        HST ...             657.46    655.3
+  Optical                 1        HST ...             657.46    655.3
+  Optical                 2        HST ... 502.58000000000004   499.89
+  Optical                 1        HST ...             675.58   670.86
+      ...               ...        ... ...                ...      ...
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+
+
+Using the different functions described in Section 5, it is possible to get the list of files, filter and download them.
+Another alternative is using 'download_files_from_program'. By specifying a program ID, users can define other
+filters (in a similar way to query_criteria) and download only FITS or all the files associated.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_files_from_program(program=5410,instrument_name='WFPC2',obs_collection='HLA',filters=['F814W/F450W'], only_fits=True)
 
 
 Reference/API

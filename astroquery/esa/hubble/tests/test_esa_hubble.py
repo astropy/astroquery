@@ -78,14 +78,14 @@ class MockResponse:
 
 class TestESAHubble:
 
-    def get_dummy_tap_handler(self, query=None):
+    def get_dummy_tap_handler(self, method='launch_job', query=None):
         if query is None:
             query = "select top 10 * from hsc_v2.hubble_sc2"
         parameterst = {'query': query,
                        'output_file': "test2.vot",
                        'output_format': "votable",
                        'verbose': False}
-        dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
+        dummyTapHandler = DummyHubbleTapHandler(method, parameterst)
         return dummyTapHandler
 
     def test_download_product_errors(self):
@@ -271,7 +271,7 @@ class TestESAHubble:
     def test_is_not_gz(self, tmp_path):
         target_file = data_path('cone_search.vot')
         ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
-        assert _check_rename_to_gz(target_file) == target_file
+        assert _check_rename_to_gz(target_file) in target_file
 
     def test_is_gz(self, tmp_path):
         ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
@@ -282,7 +282,7 @@ class TestESAHubble:
             f.write(b'')
         # with open(test_file, 'rb') as f_in, gzip.open(target_file, 'wb') as f_out:
         #     f_out.writelines(f_in)
-        assert _check_rename_to_gz(target_file) == target_file + '.fits.gz'
+        assert _check_rename_to_gz(target_file) in f"{target_file}.fits.gz"
 
     def test_get_columns(self):
         parameters = {'table_name': "table",
@@ -320,6 +320,41 @@ class TestESAHubble:
         dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters2)
         dummy_tap_handler.check_call("launch_job", parameters3)
 
+    def test_retrieve_observations_from_proposal(self):
+        program = 12345
+        parameters1 = {'proposal': program,
+                       'async_job': False,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': True,
+                       'get_query': True}
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
+        ehst.get_observations_from_program(program=parameters1['proposal'])
+        dummy_tap_handler = DummyHubbleTapHandler("launch_job", None)
+        dummy_tap_handler.check_method("launch_job")
+
+    @patch.object(ESAHubbleClass, 'get_associated_files')
+    @patch.object(ESAHubbleClass, 'query_criteria')
+    def test_download_fits_from_proposal(self, mock_observations, mock_files):
+        observation_id = 'test'
+        mock_observations.return_value = {'observation_id': ['test']}
+        mock_files.return_value = [{'filename': 'test.fits'}]
+        tap_handler = self.get_dummy_tap_handler("load_data")
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler("load_data"), show_messages=False)
+        ehst.download_files_from_program(program=12345, only_fits=True)
+        tap_handler.check_method("load_data")
+
+    @patch.object(ESAHubbleClass, 'get_associated_files')
+    @patch.object(ESAHubbleClass, 'query_criteria')
+    def test_download_all_from_proposal(self, mock_observations, mock_files):
+        observation_id = 'test'
+        mock_observations.return_value = {'observation_id': ['test']}
+        mock_files.return_value = {'filename': ['test.fits']}
+        tap_handler = self.get_dummy_tap_handler("load_data")
+        ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler("load_data"), show_messages=False)
+        ehst.download_files_from_program(program=12345, only_fits=False)
+        tap_handler.check_method("load_data")
+
     def test_query_criteria(self):
         parameters1 = {'calibration_level': "PRODUCT",
                        'data_product_type': "image",
@@ -353,7 +388,7 @@ class TestESAHubble:
                                 "data_product_type LIKE '%image%' AND "
                                 "intent LIKE '%science%' AND (collection "
                                 "LIKE '%HST%') AND (instrument_name LIKE "
-                                "'%WFC3%') AND (instrument_configuration "
+                                "'%WFC3%') AND (filter "
                                 "LIKE '%F555W%'))",
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -394,7 +429,7 @@ class TestESAHubble:
                                 "data_product_type LIKE '%image%' AND "
                                 "intent LIKE '%science%' AND (collection "
                                 "LIKE '%HST%') AND (instrument_name LIKE "
-                                "'%WFC3%') AND (instrument_configuration "
+                                "'%WFC3%') AND (filter "
                                 "LIKE '%F555W%'))",
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -433,7 +468,7 @@ class TestESAHubble:
                      "uuid JOIN ehst.position as pos on p.plane_id = " \
                      "pos.plane_id where((o.collection LIKE '%HST%') AND " \
                      "(o.instrument_name LIKE '%WFPC2%') AND " \
-                     "(o.instrument_configuration LIKE '%F606W%') AND " \
+                     "(o.filter LIKE '%F606W%') AND " \
                      "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec)," \
                      "CIRCLE('ICRS', 10.6847083, 41.26875, " \
                      "0.11666666666666667)))"
@@ -449,7 +484,7 @@ class TestESAHubble:
                                "JOIN ehst.position as pos on p.plane_id = " \
                                "pos.plane_id where((o.collection LIKE " \
                                "'%HST%') AND (o.instrument_name LIKE " \
-                               "'%WFPC2%') AND (o.instrument_configuration " \
+                               "'%WFPC2%') AND (o.filter " \
                                "LIKE '%F606W%'))"
         ehst.query_criteria = MagicMock(return_value=query_criteria_query)
         target = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
