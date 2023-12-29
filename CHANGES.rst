@@ -56,6 +56,7 @@ esa.hubble
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
 - New methods to download single files ``download_file`` and download FITS associated to an observation ``download_fits_files``. [#2797]
 - New function to retrieve all the files associated to an observation. [#2797]
+- New methods to retrieve metadata and files associated to a proposal. [#2910]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
@@ -342,6 +343,10 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of astropy <4.2.1 and numpy <1.18 are no longer supported. [#2602]
 
+utils.tap
+^^^^^^^^^
+
+- Data downloads are now executed in streaming mode. [#2910]
 
 
 0.4.6 (2022-03-22)

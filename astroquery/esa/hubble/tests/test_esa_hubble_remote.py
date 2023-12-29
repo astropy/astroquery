@@ -129,5 +129,3 @@ class TestEsaHubbleRemoteData:
                                                filters=['F814W/F450W'],
                                                folder=str(self.temp_folder_for_fits.name))
         assert len(os.listdir(self.temp_folder_for_fits.name)) > 0
-
-
