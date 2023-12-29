@@ -860,10 +860,13 @@ class TapPlus(Tap):
                                                  200)
         if verbose:
             print("Reading...")
+        chunk = True
         if output_file is not None:
             with open(output_file, 'wb') as file:
-                while chunk := response.read(8 * 1024):
-                    file.write(chunk)
+                while chunk:
+                    chunk = response.read(8 * 1024)
+                    if chunk:
+                        file.write(chunk)
             if verbose:
                 print("Done.")
             return None

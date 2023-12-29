@@ -336,7 +336,6 @@ class TestESAHubble:
     @patch.object(ESAHubbleClass, 'get_associated_files')
     @patch.object(ESAHubbleClass, 'query_criteria')
     def test_download_fits_from_proposal(self, mock_observations, mock_files):
-        observation_id = 'test'
         mock_observations.return_value = {'observation_id': ['test']}
         mock_files.return_value = [{'filename': 'test.fits'}]
         tap_handler = self.get_dummy_tap_handler("load_data")
@@ -347,7 +346,6 @@ class TestESAHubble:
     @patch.object(ESAHubbleClass, 'get_associated_files')
     @patch.object(ESAHubbleClass, 'query_criteria')
     def test_download_all_from_proposal(self, mock_observations, mock_files):
-        observation_id = 'test'
         mock_observations.return_value = {'observation_id': ['test']}
         mock_files.return_value = {'filename': ['test.fits']}
         tap_handler = self.get_dummy_tap_handler("load_data")
