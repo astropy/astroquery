@@ -83,7 +83,7 @@ It is possible to choose which data release to query, by default the Gaia DR3 ca
   >>> Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"  # Reselect Data Release 3, default
 
 The following example searches for all the sources contained in an squared region of side = 0.1
-degrees around an specific point in RA/Dec coordinates.
+degrees around an specific point in RA/Dec coordinates. The results are sorted by distance (``dist``) in ascending order.
 
 .. doctest-remote-data::
 
@@ -853,7 +853,7 @@ will be able to access to your shared table in a query.
   >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
-
+----------------------------------------------
 3. Datalink service (Public and Authenticated)
 ----------------------------------------------
 
