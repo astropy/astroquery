@@ -63,13 +63,13 @@ This python module provides an Astroquery API access that implements the
 The Gaia Archive table used for the methods where no table is specified is
 the latest data release catalogue.
 
-========
+
 Examples
 ========
 
----------------------------
+
 1. Public access
----------------------------
+----------------
 
 1.1. Query object
 ^^^^^^^^^^^^^^^^^
@@ -150,7 +150,6 @@ To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
     0.05321040019668312 1636148068921376768 Gaia DR3 6633086847005369088 ...                 0.0003                 0.0043           MARCS
   Length = 184 rows
 
-
 1.2. Cone search
 ^^^^^^^^^^^^^^^^
 
@@ -182,7 +181,6 @@ radius argument.
   1636148068921376768 Gaia DR3 6636089514478677504 ...  0.019967388048343956
   1636148068921376768 Gaia DR3 6636066871411763968 ...  0.020149893249057697
   Length = 50 rows
-
 
 1.3. Getting public tables metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -359,7 +357,6 @@ Note: you can inspect the status of the job by typing:
   Output file: 1668864127567O-result.vot.gz
   Results: None
 
-
 1.5. Synchronous query on an 'on-the-fly' uploaded table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -434,7 +431,6 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   Output file: 1611860482314O-result.vot.gz
   Results: None
 
-
 1.7. Asynchronous job removal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -444,9 +440,8 @@ To remove asynchronous jobs::
   >>> Gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
----------------------------
 2. Authenticated access
----------------------------
+-----------------------
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
 In order to authenticate a user, ``login`` or ``login_gui`` methods must be called. After a
@@ -459,7 +454,6 @@ The main differences are:
 
 * Asynchronous results are kept at server side for ever (until the user decides to remove one of them).
 * Users can access to shared tables.
-
 
 2.1. Login/Logout
 ^^^^^^^^^^^^^^^^^
@@ -510,8 +504,6 @@ To logout::
 
   >>> Gaia.logout()
 
-
-
 2.2. Listing shared tables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -549,7 +541,6 @@ Each user has a database schema described as: 'user_<user_login_name>'. For inst
 login name is 'joe', the database schema is 'user_joe'. Your uploaded table can be
 referenced as 'user_joe.table_name'
 
-
 2.3.1. Uploading table from URL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -578,7 +569,6 @@ i.e.: *user_<your_login_name>.<table_name>*)::
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
 
-
 2.3.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -606,7 +596,6 @@ i.e.: *user_<your_login_name>.<table_name>*)::
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
 
-
 2.3.3. Uploading table from an astropy Table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -633,8 +622,6 @@ i.e.: *user_<your_login_name>.<table_name>*)::
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
-
-
 
 2.3.4. Uploading table from job
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -668,7 +655,6 @@ A table from the user private area can be deleted as follows::
   >>> Gaia.login_gui()
   >>> job = Gaia.delete_user_table("table_test_from_file")
   Table 'table_test_from_file' deleted.
-
 
 2.5. Updating table metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -774,8 +760,6 @@ Once you have your cross match finished, you can obtain the results::
 
 Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.
 
-
-
 2.7. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
 
@@ -830,7 +814,6 @@ will be able to access to your shared table in a query.
   >>> Gaia.login()
   >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
-
 2.7.6. Sharing a table to a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -842,7 +825,6 @@ will be able to access to your shared table in a query.
   ...                  table_name="user_<user_login_name>.my_table",
   ...                  description="description")
 
-
 2.7.7. Stop sharing a table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -853,10 +835,8 @@ will be able to access to your shared table in a query.
   >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
-----------------------------------------------
 3. Datalink service (Public and Authenticated)
 ----------------------------------------------
-
 
 DataLink_ is a data access protocol compliant with the IVOA_ architecture that provides a linking mechanism between
 datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
