@@ -256,7 +256,8 @@ def get_suitable_output_file_name_for_current_output_format(output_file, output_
         'fits', 'csv', 'ecsv' and 'json'. Default is 'votable'.
         Returned results for formats 'votable' 'ecsv' and 'fits' are compressed
         gzip files.
-    format_with_results_compressed: a set of output formats
+    format_with_results_compressed : tuple of str, optional
+        a set of output formats
 
     Returns
     -------
