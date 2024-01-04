@@ -58,6 +58,10 @@ esa.hubble
 - New function to retrieve all the files associated to an observation. [#2797]
 - New methods to retrieve metadata and files associated to a proposal. [#2910]
 
+esa.xmm_newton
+^^^^^^^^^^^^^^
+- New version of RMF matrices (v21). [#2910]
+
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
 
