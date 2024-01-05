@@ -242,7 +242,8 @@ def get_suitable_output_file(conn_handler, async_job, output_file, headers,
     return file_name
 
 
-def get_suitable_output_file_name_for_current_output_format(output_file, output_format):
+def get_suitable_output_file_name_for_current_output_format(output_file, output_format, *,
+                                                            format_with_results_compressed=('votable', 'fits', 'ecsv')):
     """
     Renames the name given for the output_file if the results for current_output
     format are returned compressed by default
@@ -255,22 +256,23 @@ def get_suitable_output_file_name_for_current_output_format(output_file, output_
         'fits', 'csv', 'ecsv' and 'json'. Default is 'votable'.
         Returned results for formats 'votable' 'ecsv' and 'fits' are compressed
         gzip files.
+    format_with_results_compressed : tuple of str, optional
+        a set of output formats
 
     Returns
     -------
     A string with the new name for the file.
     """
     compressed_extension = ".gz"
-    format_with_results_compressed = ['votable', 'fits', 'ecsv']
     output_file_with_extension = output_file
 
     if output_file is not None:
         if output_format in format_with_results_compressed:
             # In this case we will have to take also into account the .fits format
             if not output_file.endswith(compressed_extension):
-                warnings.warn('By default, results in "votable", "ecsv" and "fits" format are returned in '
-                              f'compressed format therefore your file {output_file} '
-                              f'will be renamed to {output_file}.gz')
+                warnings.warn('By default, results in ' + ", ".join(
+                    format_with_results_compressed) + f' format are returned in compressed format therefore your file '
+                                                      f'{output_file} will be renamed to {output_file}.gz')
                 if output_format == 'votable':
                     if output_file.endswith('.vot'):
                         output_file_with_extension = output_file + '.gz'
