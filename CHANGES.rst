@@ -55,8 +55,9 @@ esa.hubble
 - Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [#2567][#2597]
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
 - New methods to download single files ``download_file`` and download FITS associated to an observation ``download_fits_files``. [#2797]
-- New function to retrieve all the files associated to an observation. [#2797]
-- New methods to retrieve metadata and files associated to a proposal. [#2910]
+- New function to retrieve all the files associated to an observation ``get_associated_files``. [#2797]
+- New methods to retrieve metadata (``get_observations_from_program``) and files (``download_files_from_program``)
+  associated to a proposal. [#2910]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^

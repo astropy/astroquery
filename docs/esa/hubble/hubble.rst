@@ -558,29 +558,29 @@ It is possible to retrieve all the observations associated to a specific program
   >>> esahubble.get_observations_from_program(program=5773)
   <Table length=68>
   band_name calibration_level collection ...      wave_max      wave_min
-    object        int32         str64    ...      float64       float64
+  object        int32         str64    ...      float64       float64
   --------- ----------------- ---------- ... ------------------ --------
-    Optical                 2        HST ... 502.58000000000004   499.89
-    Optical                 1        HST ...             657.46    655.3
-    Optical                 2        HST ...             657.46    655.3
-    Optical                 2        HST ...             675.58   670.86
-    Optical                 2        HST ... 502.58000000000004   499.89
-    Optical                 2        HST ... 502.58000000000004   499.89
-    Optical                 2        HST ...  570.9399999999999   522.62
-    Optical                 1        HST ...  570.9399999999999   522.62
-    Optical                 2        HST ...             657.46    655.3
-    Optical                 2        HST ...             675.58   670.86
-        ...               ...        ... ...                ...      ...
-    Optical                 3        HLA ...             570.94   522.62
-    Optical                 3        HLA ...             570.94   522.62
-    Optical                 3        HLA ...             570.94   522.62
-    Optical                 3        HLA ...             570.94   522.62
-    Optical                 3        HLA ... 502.58000000000004   499.89
-    Optical                 3        HLA ... 502.58000000000004   499.89
-    Optical                 3        HLA ... 502.58000000000004   499.89
-    Optical                 3        HLA ... 502.58000000000004   499.89
-    Optical                 3        HLA ... 502.58000000000004   499.89
-    Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 2        HST ... 502.58000000000004   499.89
+  Optical                 2        HST ...  570.9399999999999   522.62
+  Optical                 2        HST ...             675.58   670.86
+  Optical                 2        HST ...             657.46    655.3
+  Optical                 2        HST ...  570.9399999999999   522.62
+  Optical                 1        HST ... 502.58000000000004   499.89
+  Optical                 2        HST ...             657.46    655.3
+  Optical                 1        HST ...             657.46    655.3
+  Optical                 2        HST ... 502.58000000000004   499.89
+  Optical                 1        HST ...             675.58   670.86
+      ...               ...        ... ...                ...      ...
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ...             570.94   522.62
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
+  Optical                 3        HLA ... 502.58000000000004   499.89
 
 
 Using the different functions described in Section 5, it is possible to get the list of files, filter and download them.

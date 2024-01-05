@@ -11,6 +11,8 @@ European Space Agency (ESA)
 import os
 from urllib.parse import urlencode
 
+import astroquery.esa.utils.utils as esautils
+
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
@@ -28,20 +30,6 @@ from astroquery import log
 
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
-
-def _check_rename_to_gz(filename):
-    rename = False
-    if os.path.exists(filename):
-        with open(filename, 'rb') as test_f:
-            if test_f.read(2) == b'\x1f\x8b' and not filename.endswith('.fits.gz'):
-                rename = True
-
-    if rename:
-        output = os.path.splitext(filename)[0] + '.fits.gz'
-        os.rename(filename, output)
-        return os.path.basename(output)
-    else:
-        return os.path.basename(filename)
 
 
 class ESAHubbleClass(BaseQuery):
@@ -124,10 +112,15 @@ class ESAHubbleClass(BaseQuery):
             params["PRODUCTTYPE"] = product_type
 
         filename = self._get_product_filename(product_type, filename)
-        output_file = os.path.join(folder, filename)
+        output_file = self.__get_download_path(folder, filename)
         self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
 
-        return _check_rename_to_gz(filename=output_file)
+        return esautils.check_rename_to_gz(filename=output_file)
+
+    def __get_download_path(self, folder, filename):
+        if folder is not None:
+            return os.path.join(folder, filename)
+        return filename
 
     def __set_product_type(self, product_type):
         if product_type:
@@ -241,12 +234,12 @@ class ESAHubbleClass(BaseQuery):
 
         Returns
         -------
-        None. It downloads the artifact indicated
+        A table object
         """
         return self.query_criteria(proposal=program, output_file=output_file,
                                    output_format=output_format, async_job=False, verbose=verbose)
 
-    def download_files_from_program(self, program, *, folder=os.getcwd(), calibration_level=None,
+    def download_files_from_program(self, program, *, folder=None, calibration_level=None,
                                     data_product_type=None, intent=None,
                                     obs_collection=None, instrument_name=None,
                                     filters=None, only_fits=False):
@@ -322,7 +315,7 @@ class ESAHubbleClass(BaseQuery):
         else:
             return f"{filename}.zip"
 
-    def get_artifact(self, artifact_id, *, filename=None, folder=os.getcwd(), verbose=False):
+    def get_artifact(self, artifact_id, *, filename=None, folder=None, verbose=False):
         """
         Download artifacts from EHST. Artifact is a single Hubble product file.
 
@@ -375,7 +368,7 @@ class ESAHubbleClass(BaseQuery):
                  f"art.observation_id in ('{observation_id}')")
         return self.query_tap(query=query)
 
-    def download_fits_files(self, observation_id, *, folder=os.getcwd(), verbose=False):
+    def download_fits_files(self, observation_id, *, folder=None, verbose=False):
         """
         Retrieves all the FITS files associated to an observation
 
@@ -402,7 +395,7 @@ class ESAHubbleClass(BaseQuery):
                 print(f"Downloading {file} ...")
             self.download_file(file=file, filename=file, folder=folder, verbose=verbose)
 
-    def download_file(self, file, *, filename=None, folder=os.getcwd(), verbose=False):
+    def download_file(self, file, *, filename=None, folder=None, verbose=False):
         """
         Download a file from eHST based on its filename.
 
@@ -428,11 +421,10 @@ class ESAHubbleClass(BaseQuery):
         params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file, "TAPCLIENT": "ASTROQUERY"}
         if filename is None:
             filename = file
-
-        output_file = os.path.join(folder, filename)
+        output_file = self.__get_download_path(folder, filename)
         self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
 
-        return _check_rename_to_gz(filename=output_file)
+        return esautils.check_rename_to_gz(filename=output_file)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
