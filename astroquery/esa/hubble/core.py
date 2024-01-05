@@ -31,7 +31,6 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
-
 class ESAHubbleClass(BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
