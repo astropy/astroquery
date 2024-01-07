@@ -88,15 +88,15 @@ class NistClass(BaseQuery):
         linename = kwargs["linename"]
         request_payload["spectra"] = linename if isinstance(linename, str) else "; ".join(linename)
         (min_wav, max_wav, wav_unit) = _parse_wavelength(args[0], args[1])
-        request_payload["low_wl"] = min_wav
-        request_payload["upp_wl"] = max_wav
+        request_payload["low_w"] = min_wav
+        request_payload["upp_w"] = max_wav
         request_payload["unit"] = wav_unit
         request_payload["submit"] = "Retrieve Data"
         request_payload["format"] = 1  # ascii
         request_payload["line_out"] = 0  # All lines
         request_payload["en_unit"] = Nist.energy_level_code[
             kwargs["energy_level_unit"]]
-        request_payload["output"] = 0  # entirely rather than pagewise
+        request_payload["output_type"] = 0  # entirely rather than pagewise
         request_payload["bibrefs"] = 1
         request_payload["show_obs_wl"] = 1
         request_payload["show_calc_wl"] = 1
