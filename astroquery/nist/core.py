@@ -88,8 +88,8 @@ class NistClass(BaseQuery):
         linename = kwargs["linename"]
         request_payload["spectra"] = linename if isinstance(linename, str) else "; ".join(linename)
         (min_wav, max_wav, wav_unit) = _parse_wavelength(args[0], args[1])
-        request_payload["low_wl"] = min_wav
-        request_payload["upp_wl"] = max_wav
+        request_payload["low_w"] = min_wav
+        request_payload["upp_w"] = max_wav
         request_payload["unit"] = wav_unit
         request_payload["submit"] = "Retrieve Data"
         request_payload["format"] = 1  # ascii
