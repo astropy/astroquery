@@ -22,7 +22,8 @@ class TestNist:
 
         # check that no javascript was left in the table
         # (regression test for 1355)
-        assert set(result['TP']) == set(['T8637', 'T7771'])
+
+        assert set(result['TP'].filled()) == set(['T8637', 'T7771', 'N/A'])
 
     def test_unescape_html(self):
         response = Nist.query_async(4333 * u.AA, 4334 * u.AA, linename="V I")
