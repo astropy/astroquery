@@ -231,8 +231,9 @@ mast
 nist
 ^^^^
 
-- Vectoized ``linename`` option to query multiple spectral lines with one call
+- Vectorized ``linename`` option to query multiple spectral lines with one call
   of ``Nist.query``. [#2678]
+- Fix wavelength keywords, which were changed upstream [#2918]
 
 oac
 ^^^
