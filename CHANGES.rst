@@ -228,6 +228,8 @@ mast
 
 - Updating documentation to address the difference between ``obsid`` and ``obs_id`` database fields. [#2857]
 
+- Bug fix in ``Observations.query_criteria()`` to use ``page`` and ``pagesize`` parameters [#2915]
+
 nist
 ^^^^
 

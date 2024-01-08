@@ -291,7 +291,7 @@ class ObservationsClass(MastQueryWithLogin):
             params = {"columns": "*",
                       "filters": mashup_filters}
 
-        return self._portal_api_connection.service_request_async(service, params)
+        return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     def query_region_count(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
