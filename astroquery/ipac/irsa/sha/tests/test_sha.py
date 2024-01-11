@@ -18,6 +18,7 @@ pytest.skip(allow_module_level=True,
             reason="Skip tests in this file until as the upstream API has changed and is scheduled to be removed."
             "https://github.com/astropy/astroquery/issues/2834")
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
