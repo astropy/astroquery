@@ -346,6 +346,9 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed deprecated function ``utils.download_list_of_fitsfiles()``. [#2594]
 
+- Deprecation of the module ``ipac.irsa.sha`` due to upstream API changes
+  and in favour of recommending using ``ipac.irsa`` instead. [#2924]
+
 - Versions of astropy <4.2.1 and numpy <1.18 are no longer supported. [#2602]
 
 
