@@ -11,8 +11,8 @@ found at: https://sha.ipac.caltech.edu/applications/Spitzer/SHA.
 from .core import query, save_file, get_file
 
 import warnings
-warnings.warn("Experimental: SHA has not yet been refactored to have its "
-              "API match the rest of astroquery.")
+warnings.warn("The upstream SHA API has been changed resulting this module to be broken. "
+              "Please use the main IRSA module to access Spitzer data.")
 
 
 __all__ = ['query', 'save_file', 'get_file']
