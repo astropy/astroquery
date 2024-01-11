@@ -2,7 +2,7 @@ Astroquery
 ==========
 
 This is the documentation for the Astroquery coordinated package of `astropy
-<https://www.astropy.org>`__.
+<http://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -99,8 +99,8 @@ Astroquery works with Python 3.7 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <https://numpy.org>`_ >= 1.18
-* `astropy <https://www.astropy.org>`__ (>=4.2.1)
+* `numpy <http://www.numpy.org>`_ >= 1.18
+* `astropy <http://www.astropy.org>`__ (>=4.2.1)
 * `pyVO`_ (>=1.1)
 * `requests <https://requests.readthedocs.io/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
@@ -296,7 +296,6 @@ These others are functional, but do not follow a common & consistent API:
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
-  ipac/irsa/sha/sha.rst
 
 There are also subpackages that serve as the basis of others.
 
@@ -334,7 +333,6 @@ for each source)
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
   simbad/simbad.rst
-  ipac/irsa/sha/sha.rst
   ukidss/ukidss.rst
   vizier/vizier.rst
   vo_conesearch/vo_conesearch.rst
@@ -370,7 +368,6 @@ generally return a table listing the available data first.
   nvas/nvas.rst
   sdss/sdss.rst
   skyview/skyview.rst
-  ipac/irsa/sha/sha.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
 
