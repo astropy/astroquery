@@ -16,6 +16,8 @@ Created on 30 jun. 2016
 """
 
 import os
+import json
+import pandas as pd
 
 from astropy.table import Table as APTable
 
@@ -36,11 +38,27 @@ def read_results_table_from_file(file_name, output_format, *, correct_units=True
 
     if check_file_exists(file_name):
 
-        result = APTable.read(file_name, format=astropy_format)
+        if output_format == 'json':
+            files = {}
+            with open(file_name) as f:
+                data = json.load(f)
 
-        if correct_units:
-            utils.modify_unrecognized_table_units(result)
+                if data.get('data') and data.get('metadata'):
+                    df_data = pd.DataFrame.from_dict({"data": data['data']})
+                    df_metadata = pd.DataFrame.from_dict({"metadata": data['metadata']})
 
-        return result
+                    files['data'] = APTable.read(df_data.to_json(orient='records'), format=astropy_format)
+                    files['metadata'] = APTable.read(df_metadata.to_json(orient='records'), format=astropy_format)
+
+                    return files
+                else:
+                    return APTable.read(file_name, format=astropy_format)
+        else:
+            result = APTable.read(file_name, format=astropy_format)
+
+            if correct_units:
+                utils.modify_unrecognized_table_units(result)
+
+            return result
     else:
         return None

@@ -18,6 +18,9 @@ import shutil
 import zipfile
 from collections.abc import Iterable
 from datetime import datetime, timezone
+import json
+import pandas as pd
+
 
 from astropy import units
 from astropy import units as u
@@ -308,14 +311,9 @@ class GaiaClass(TapPlus):
             if output_file_specified:
                 log.info("output_file = %s" % output_file)
 
-        log.debug("List of products available:")
-        # for key, value in files.items():
-        # print("Product =", key)
-
-        items = sorted([key for key in files.keys()])
-        for item in items:
-            # print(f'* {item}')
-            if verbose:
+        if log.isEnabledFor('DEBUG'):
+            log.debug("List of products available:")
+            for item in sorted([key for key in files.keys()]):
                 log.debug("Product = " + item)
 
         return files
@@ -356,6 +354,25 @@ class GaiaClass(TapPlus):
                                    fast_reader=False)
                 tables.append(table)
                 files[key] = tables
+
+            elif '.json' in key:
+                tables = []
+                with open(value) as f:
+                    data = json.load(f)
+
+                    if data.get('data') and data.get('metadata'):
+                        files_gaia = {}
+                        df_data = pd.DataFrame.from_dict({"data": data['data']})
+                        df_metadata = pd.DataFrame.from_dict({"metadata": data['metadata']})
+
+                        tables.append(Table.read(df_data.to_json(orient='records'), format='pandas.json'))
+                        tables.append(Table.read(df_metadata.to_json(orient='records'), format='pandas.json'))
+
+                        files[key] = tables
+                    else:
+                        tables.append(Table.read(value, format='pandas.json'))
+                        files[key] = tables
+
         return files
 
     def get_datalinks(self, ids, *, verbose=False):
