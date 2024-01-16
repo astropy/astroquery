@@ -556,7 +556,7 @@ class GaiaClass(TapPlus):
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -644,7 +644,7 @@ class GaiaClass(TapPlus):
         dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -698,7 +698,7 @@ class GaiaClass(TapPlus):
             specifies whether
             the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -864,7 +864,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',
@@ -909,7 +909,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',
