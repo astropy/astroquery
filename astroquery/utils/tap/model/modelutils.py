@@ -17,7 +17,6 @@ Created on 30 jun. 2016
 
 import os
 import json
-import pandas as pd
 
 from astropy.table import Table as APTable
 
@@ -44,11 +43,9 @@ def read_results_table_from_file(file_name, output_format, *, correct_units=True
                 data = json.load(f)
 
                 if data.get('data') and data.get('metadata'):
-                    df_data = pd.DataFrame.from_dict({"data": data['data']})
-                    df_metadata = pd.DataFrame.from_dict({"metadata": data['metadata']})
 
-                    files['data'] = APTable.read(df_data.to_json(orient='records'), format=astropy_format)
-                    files['metadata'] = APTable.read(df_metadata.to_json(orient='records'), format=astropy_format)
+                    files['data'] = APTable.read(json.dumps({"data": data['data']}), format=astropy_format)
+                    files['metadata'] = APTable.read(json.dumps({"metadata": data['metadata']}), format=astropy_format)
 
                     return files
                 else:
