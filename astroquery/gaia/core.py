@@ -361,7 +361,6 @@ class GaiaClass(TapPlus):
                     data = json.load(f)
 
                     if data.get('data') and data.get('metadata'):
-                        files_gaia = {}
                         df_data = pd.DataFrame.from_dict({"data": data['data']})
                         df_metadata = pd.DataFrame.from_dict({"metadata": data['metadata']})
 
