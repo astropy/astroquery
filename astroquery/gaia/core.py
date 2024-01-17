@@ -310,7 +310,7 @@ class GaiaClass(TapPlus):
             if output_file_specified:
                 log.info("output_file = %s" % output_file)
 
-        if log.isEnabledFor(log.level):
+        if log.isEnabledFor(20):
             log.debug("List of products available:")
             for item in sorted([key for key in files.keys()]):
                 log.debug("Product = " + item)
