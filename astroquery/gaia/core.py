@@ -19,7 +19,6 @@ import zipfile
 from collections.abc import Iterable
 from datetime import datetime, timezone
 import json
-import pandas as pd
 
 
 from astropy import units
@@ -361,11 +360,9 @@ class GaiaClass(TapPlus):
                     data = json.load(f)
 
                     if data.get('data') and data.get('metadata'):
-                        df_data = pd.DataFrame.from_dict({"data": data['data']})
-                        df_metadata = pd.DataFrame.from_dict({"metadata": data['metadata']})
 
-                        tables.append(Table.read(df_data.to_json(orient='records'), format='pandas.json'))
-                        tables.append(Table.read(df_metadata.to_json(orient='records'), format='pandas.json'))
+                        tables.append(Table.read(json.dumps({"data": data['data']}), format='pandas.json'))
+                        tables.append(Table.read(json.dumps({"metadata": data['metadata']}), format='pandas.json'))
 
                         files[key] = tables
                     else:
