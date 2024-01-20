@@ -52,8 +52,6 @@ class OgleClass(BaseQuery):
     algorithms = ['NG', 'NN']
     quality_codes = ['GOOD', 'ALL']
     coord_systems = ['RD', 'LB']
-    result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8',
-                     'a2', 'f8']
 
     @_validate_params
     def _args_to_payload(self, *, coord=None, algorithm='NG', quality='GOOD',
@@ -144,13 +142,8 @@ class OgleClass(BaseQuery):
         return response
 
     def _parse_result(self, response, *, verbose=False):
-        # Parse table, ignore last two (blank) lines
-        raw_data = response.text.split('\n')[:-2]
-        # Select first row and skip first character ('#') to find column
-        # headers
-        header = raw_data[0][1:].split()
-        data = self._parse_raw(raw_data)
-        t = Table(data, names=header, dtype=self.result_dtypes)
+        # Header is in first row starting with #, this works with the default
+        t = Table.read(response.text.split('\n'), format='ascii')
         return t
 
     def _parse_coords(self, coord, coord_sys):
