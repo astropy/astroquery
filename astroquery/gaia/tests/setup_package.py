@@ -9,7 +9,7 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.vot'),
              os.path.join('data', '*.vot.gz'),
-             os.path.join('data', '*.json'),
+             os.path.join('data', '*.json')
              ]  # etc, add other extensions
     # you can also enlist files individually by names
     # finally construct and return a dict for the sub module
