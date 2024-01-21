@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 import gzip
 import io
+
 from astropy import units as u
 from astropy.table import Table as APTable
 

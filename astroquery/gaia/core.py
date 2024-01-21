@@ -13,13 +13,13 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 18 Ene. 2022 by mhsarmiento
 """
+import json
 import os
 import shutil
 import zipfile
 from collections.abc import Iterable
 from datetime import datetime, timezone
-import json
-
+from pathlib import Path
 
 from astropy import units
 from astropy import units as u
@@ -215,7 +215,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable_gzip'
-            loading format. Other available formats are 'votable', 'csv', 'ecsv','json','votable_plain' and 'fits'
+            loading format. Other available formats are 'votable', 'csv', 'ecsv','votable_plain' and 'fits'
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -238,6 +238,14 @@ class GaiaClass(TapPlus):
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
         else:
             output_file_specified = True
+
+            if isinstance(output_file, str):
+                if not output_file.lower().endswith('.zip'):
+                    output_file = output_file + '.zip'
+            elif isinstance(output_file, Path):
+                if not output_file.suffix.endswith('.zip'):
+                    output_file.with_suffix('.zip')
+
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
                 raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
@@ -327,7 +335,7 @@ class GaiaClass(TapPlus):
         # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
             for file in f:
-                if '.fits' in file or '.xml' in file or '.csv' in file:
+                if file.lower().endswith(('.fits', '.xml', '.csv', '.ecsv')):
                     files[file] = os.path.join(r, file)
 
         for key, value in files.items():
@@ -361,10 +369,19 @@ class GaiaClass(TapPlus):
 
                     if data.get('data') and data.get('metadata'):
 
-                        tables.append(Table.read(json.dumps({"data": data['data']}), format='pandas.json'))
-                        tables.append(Table.read(json.dumps({"metadata": data['metadata']}), format='pandas.json'))
+                        column_name = []
+                        for name in data['metadata']:
+                            column_name.append(name['name'])
 
-                        files[key] = tables
+                        result = Table(rows=data['data'], names=column_name, masked=True)
+
+                        for v in data['metadata']:
+                            col_name = v['name']
+                            result[col_name].unit = v['unit']
+                            result[col_name].description = v['description']
+                            result[col_name].meta = {'metadata': v}
+
+                        files[key] = result
                     else:
                         tables.append(Table.read(value, format='pandas.json'))
                         files[key] = tables
