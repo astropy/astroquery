@@ -385,16 +385,12 @@ def test_load_data(monkeypatch, tmp_path):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    tmp_path.rmdir()
-
     GAIA_QUERIER.load_data(
         ids="1,2,3,4",
         retrieval_type="epoch_photometry",
         valid_data=True,
         verbose=True,
         output_file=tmp_path / "output_file")
-
-    tmp_path.rmdir()
 
 
 def test_load_data_ecsv(monkeypatch, tmp_path):
@@ -411,8 +407,6 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    tmp_path.rmdir()
-
     GAIA_QUERIER.load_data(
         ids="1,2,3,4",
         retrieval_type="epoch_photometry",
@@ -420,8 +414,6 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
         verbose=True,
         format='ecsv',
         output_file=str(tmp_path / "output_file"))
-
-    tmp_path.rmdir()
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
@@ -439,8 +431,6 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    tmp_path.rmdir()
-
     GAIA_QUERIER.load_data(
         ids="1,2,3,4",
         retrieval_type="epoch_photometry",
@@ -448,8 +438,6 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         valid_data=True,
         verbose=True,
         output_file=tmp_path / "output_file")
-
-    tmp_path.rmdir()
 
 
 def test_get_datalinks(monkeypatch):
