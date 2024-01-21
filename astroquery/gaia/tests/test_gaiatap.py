@@ -331,7 +331,7 @@ def test_launch_job_async_json_format(column_launch_json, mock_querier_async_jso
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_async_json_format(column_launch_json, mock_querier_json):
+def test_launch_job_json_format(column_launch_json, mock_querier_json):
     dump_to_file = True
     output_format = 'json'
     output_file = 'data/launch_job_async.json'
