@@ -256,10 +256,13 @@ def test_cone_search_async(column_attrs, mock_querier_async):
         assert results[colname].attrs_equal(attrs)
 
 
-def test_cone_search_async_json_format(column_attrs_conesearch_json, mock_cone_search_async_json):
+def test_cone_search_async_json_format(tmp_path_factory, column_attrs_conesearch_json, mock_cone_search_async_json):
+    d = tmp_path_factory.mktemp("data") / 'cone_search_async.json'
+    d.write_text(JOB_DATA_CONE_SEARCH_ASYNC_JSON, encoding="utf-8")
+
+    output_file = str(d)
     dump_to_file = True
     output_format = 'json'
-    output_file = 'data/cone_search_async.json'
 
     job = mock_cone_search_async_json.cone_search_async(SKYCOORD, radius=RADIUS, output_file=output_file,
                                                         output_format=output_format, dump_to_file=dump_to_file,
@@ -280,10 +283,13 @@ def test_cone_search_async_json_format(column_attrs_conesearch_json, mock_cone_s
         assert results[colname].dtype == attrs.dtype
 
 
-def test_cone_search_json_format(column_attrs_conesearch_json, mock_cone_search_json):
+def test_cone_search_json_format(tmp_path_factory, column_attrs_conesearch_json, mock_cone_search_json):
+    d = tmp_path_factory.mktemp("data") / 'cone_search.json'
+    d.write_text(JOB_DATA_CONE_SEARCH_ASYNC_JSON, encoding="utf-8")
+
+    output_file = str(d)
     dump_to_file = True
     output_format = 'json'
-    output_file = 'data/cone_search.json'
 
     job = mock_cone_search_json.cone_search(SKYCOORD, radius=RADIUS, output_file=output_file,
                                             output_format=output_format, dump_to_file=dump_to_file,
@@ -305,11 +311,13 @@ def test_cone_search_json_format(column_attrs_conesearch_json, mock_cone_search_
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_async_json_format(column_launch_json, mock_querier_async_json):
+def test_launch_job_async_json_format(tmp_path_factory, column_launch_json, mock_querier_async_json):
+    d = tmp_path_factory.mktemp("data") / 'launch_job_async.json'
+    d.write_text(JOB_DATA_QUERIER_ASYNC_JSON, encoding="utf-8")
+
+    output_file = str(d)
     dump_to_file = True
     output_format = 'json'
-    output_file = 'data/launch_job_async.json'
-
     query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
 
     job = mock_querier_async_json.launch_job_async(query, output_file=output_file, output_format=output_format,
@@ -331,11 +339,13 @@ def test_launch_job_async_json_format(column_launch_json, mock_querier_async_jso
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_json_format(column_launch_json, mock_querier_json):
+def test_launch_job_json_format(tmp_path_factory, column_launch_json, mock_querier_json, ):
+    d = tmp_path_factory.mktemp("data") / 'launch_job.json'
+    d.write_text(JOB_DATA_QUERIER_ASYNC_JSON, encoding="utf-8")
+
+    output_file = str(d)
     dump_to_file = True
     output_format = 'json'
-    output_file = 'data/launch_job_async.json'
-
     query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
 
     job = mock_querier_json.launch_job(query, output_file=output_file, output_format=output_format,
