@@ -14,6 +14,7 @@ Created on 30 jun. 2016
 
 
 """
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,6 +23,7 @@ import numpy as np
 import pytest
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
+from astropy.utils.data import get_pkg_data_filename
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -31,9 +33,16 @@ from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
 
 GAIA_QUERIER = GaiaClass(show_server_messages=False)
-JOB_DATA = (Path(__file__).with_name("data") / "job_1.vot").read_text()
-JOB_DATA_CONE_SEARCH_ASYNC_JSON = (Path(__file__).with_name("data") / "cone_search_async.json").read_text()
-JOB_DATA_QUERIER_ASYNC_JSON = (Path(__file__).with_name("data") / "launch_job_async.json").read_text()
+
+package = "astroquery.gaia.tests"
+JOB_DATA_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'job_1.vot'), package=package)
+JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'cone_search_async.json'),
+                                                                  package=package)
+JOB_DATA_QUERIER_ASYNC_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'launch_job_async.json'), package=package)
+
+JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
+JOB_DATA_CONE_SEARCH_ASYNC_JSON = Path(JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME).read_text()
+JOB_DATA_QUERIER_ASYNC_JSON = Path(JOB_DATA_QUERIER_ASYNC_FILE_NAME).read_text()
 
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
@@ -190,6 +199,7 @@ def cross_match_kwargs():
 
 
 def test_show_message():
+    print(JOB_DATA_FILE_NAME)
     connHandler = DummyConnHandler()
 
     dummy_response = DummyResponse(200)
