@@ -49,6 +49,7 @@ class TestEsaHubbleRemoteData:
                          "where a.observation_id = 'iexn02e9q'"
 
     temp_folder = create_temp_folder()
+    temp_folder_for_fits = create_temp_folder()
 
     def test_query_tap_async(self):
         result = esa_hubble.query_tap(query=self.top_obs_query, async_job=True)
@@ -79,7 +80,6 @@ class TestEsaHubbleRemoteData:
         assert any([os.path.exists(f) for f in possible_values])
 
     def test_cone_search(self):
-        esa_hubble = ESAHubble()
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         compressed_temp_file = os.path.join(self.temp_folder.name, "cone_search_m31_5.vot.gz")
         # open & extracting the file
@@ -90,32 +90,26 @@ class TestEsaHubbleRemoteData:
 
     # tests for get_related_members
     def test_hst_composite_to_hst_simple(self):
-        esa_hubble = ESAHubble()
         result = esa_hubble.get_member_observations('jdrz0c010')
         assert result == ['jdrz0cjxq', 'jdrz0cjyq']
 
     def test_hst_simple_to_hst_composite(self):
-        esa_hubble = ESAHubble()
-        result = esa_hubble.get_member_observations(observation_id='jdrz0cjxq')
-        assert 'jdrz0c010' in result
+        result = esa_hubble.get_member_observations(observation_id='hst_12069_b2_acs_wfc_f775w_jbf6b2')
+        assert 'hst_12069_b2_acs_wfc_f775w_jbf6b2cf' in result
 
     def test_hap_composite_to_hap_simple(self):
-        esa_hubble = ESAHubble()
         result = esa_hubble.get_member_observations(observation_id='hst_15446_4v_acs_wfc_f606w_jdrz4v')
         assert result == ['hst_15446_4v_acs_wfc_f606w_jdrz4vkv', 'hst_15446_4v_acs_wfc_f606w_jdrz4vkw']
 
     def test_hap_simple_to_hap_composite(self):
-        esa_hubble = ESAHubble()
         result = esa_hubble.get_member_observations(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
         assert result == ['hst_16316_71_acs_sbc_f150lp_jec071']
 
     def test_hap_simple_to_hst_simple(self):
-        esa_hubble = ESAHubble()
         result = esa_hubble.get_hap_hst_link(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
         assert result == ['jec071i9q']
 
     def test_hst_simple_to_hap_simple(self):
-        esa_hubble = ESAHubble()
         result = esa_hubble.get_hap_hst_link(observation_id='jec071i9q')
         assert result == ['hst_16316_71_acs_sbc_f150lp_jec071i9']
 
@@ -123,3 +117,15 @@ class TestEsaHubbleRemoteData:
         compressed_temp_file = os.path.join(self.temp_folder.name, "m31_query.xml.gz")
         table = esa_hubble.query_target(name="m3", filename=compressed_temp_file)
         assert 'observation_id' in table.columns
+
+    def test_retrieve_observations_from_program(self):
+        results = esa_hubble.get_observations_from_program(program=5773)
+        assert 'u2lx0507t' in results['observation_id']
+
+    def test_retrieve_fits_from_program(self):
+        esa_hubble.download_files_from_program(program=5410,
+                                               instrument_name='WFPC2',
+                                               obs_collection='HLA',
+                                               filters=['F814W/F450W'],
+                                               folder=str(self.temp_folder_for_fits.name))
+        assert len(os.listdir(self.temp_folder_for_fits.name)) > 0

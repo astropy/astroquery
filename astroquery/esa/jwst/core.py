@@ -18,6 +18,8 @@ import zipfile
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 
+import astroquery.esa.utils.utils as esautils
+
 from astropy import log
 from astropy import units
 from astropy.coordinates import Angle, SkyCoord
@@ -923,7 +925,8 @@ class JwstClass(BaseQuery):
         except Exception as exx:
             log.info("error")
             raise ValueError(f"Error retrieving product for {err_msg}: {exx}")
-        return output_file_name
+
+        return esautils.check_rename_to_gz(filename=output_file_name)
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
         if file_name:

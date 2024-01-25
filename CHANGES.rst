@@ -60,7 +60,13 @@ esa.hubble
 - Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [#2567][#2597]
 - Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [#2597]
 - New methods to download single files ``download_file`` and download FITS associated to an observation ``download_fits_files``. [#2797]
-- New function to retrieve all the files associated to an observation. [#2797]
+- New function to retrieve all the files associated to an observation ``get_associated_files``. [#2797]
+- New methods to retrieve metadata (``get_observations_from_program``) and files (``download_files_from_program``)
+  associated to a proposal. [#2910]
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+- New version of RMF matrices (v21). [#2910]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
@@ -353,6 +359,10 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of astropy <4.2.1 and numpy <1.18 are no longer supported. [#2602]
 
+utils.tap
+^^^^^^^^^
+
+- Data downloads are now executed in streaming mode. [#2910]
 
 
 0.4.6 (2022-03-22)

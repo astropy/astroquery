@@ -848,6 +848,7 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
+
         Returns
         -------
         A table object if output_file is None.
@@ -869,10 +870,13 @@ class TapPlus(Tap):
                                                  200)
         if verbose:
             print("Reading...")
+        chunk = True
         if output_file is not None:
-            file = open(output_file, "wb")
-            file.write(response.read())
-            file.close()
+            with open(output_file, 'wb') as file:
+                while chunk:
+                    chunk = response.read(8 * 1024)
+                    if chunk:
+                        file.write(chunk)
             if verbose:
                 print("Done.")
             return None
