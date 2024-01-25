@@ -66,7 +66,7 @@ esa.hubble
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
-- New version of RMF matrices (v21). [#2910]
+- New version of RMF matrices (v21). [#2910] [#2932]
 
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
