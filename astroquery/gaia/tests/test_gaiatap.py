@@ -76,7 +76,7 @@ def column_attrs_conesearch_json():
 
 
 @pytest.fixture(scope="module")
-def column_launch_json():
+def column_attrs_launch_json():
     columns = {}
     columns["source_id"] = Column(name="source_id",
                                   description='Unique source identifier (unique within a particular Data Release)',
@@ -321,7 +321,7 @@ def test_cone_search_json_format(tmp_path_factory, column_attrs_conesearch_json,
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_async_json_format(tmp_path_factory, column_launch_json, mock_querier_async_json):
+def test_launch_job_async_json_format(tmp_path_factory, column_attrs_launch_json, mock_querier_async_json):
     d = tmp_path_factory.mktemp("data") / 'launch_job_async.json'
     d.write_text(JOB_DATA_QUERIER_ASYNC_JSON, encoding="utf-8")
 
@@ -342,14 +342,14 @@ def test_launch_job_async_json_format(tmp_path_factory, column_launch_json, mock
     assert type(results) is Table
     assert 1 == len(results), len(results)
 
-    for colname, attrs in column_launch_json.items():
+    for colname, attrs in column_attrs_launch_json.items():
         assert results[colname].name == attrs.name
         assert results[colname].description == attrs.description
         assert results[colname].unit == attrs.unit
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_json_format(tmp_path_factory, column_launch_json, mock_querier_json, ):
+def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock_querier_json, ):
     d = tmp_path_factory.mktemp("data") / 'launch_job.json'
     d.write_text(JOB_DATA_QUERIER_ASYNC_JSON, encoding="utf-8")
 
@@ -370,7 +370,7 @@ def test_launch_job_json_format(tmp_path_factory, column_launch_json, mock_queri
     assert type(results) is Table
     assert 1 == len(results), len(results)
 
-    for colname, attrs in column_launch_json.items():
+    for colname, attrs in column_attrs_launch_json.items():
         assert results[colname].name == attrs.name
         assert results[colname].description == attrs.description
         assert results[colname].unit == attrs.unit
