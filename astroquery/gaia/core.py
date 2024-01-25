@@ -216,7 +216,7 @@ class GaiaClass(TapPlus):
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable_gzip'
             loading format. Other available formats are 'votable', 'csv', 'ecsv','votable_plain' and 'fits'
-        output_file : string, optional, default None
+        output_file : string or pathlib.PosixPath, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
         overwrite_output_file : boolean, optional, default False
