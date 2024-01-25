@@ -51,7 +51,7 @@ class ESAHubbleClass(BaseQuery):
             self.get_status_messages()
 
     def download_product(self, observation_id, *, calibration_level=None,
-                         filename=None, folder=os.getcwd(), verbose=False, product_type=None):
+                         filename=None, folder=None, verbose=False, product_type=None):
         """
         Download products from EHST based on their observation ID and the
         calibration level or the product type.
