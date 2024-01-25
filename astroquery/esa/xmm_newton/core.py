@@ -422,7 +422,7 @@ class XMMNewtonClass(BaseQuery):
         try:
             with esatar.open(filename, "r") as tar:
                 ret = {}
-                for member in tar.getmembers():
+                for member in [x for x in tar.getmembers() if not x.name.lower().endswith('png')]:
                     paths = os.path.split(member.name)
                     fname = paths[1]
                     paths = os.path.split(paths[0])
