@@ -1097,7 +1097,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         if len(tables) == 1:
             query += f" AND table_name = '{tables[0]}'"
         elif len(tables) > 1:
-            query += f" AND table_name IN ({str(tables)[1:-1]})"
+            query += f" AND table_name IN {tables}"
         # add the keyword condition
         if keyword is not None:
             condition = f"LIKE LOWERCASE('%{_adql_parameter(keyword)}%')"
