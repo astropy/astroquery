@@ -297,7 +297,7 @@ ADQL criteria ``IN`` like so:
 
 And that would work perfectly... until we reach the character limit for the ADQL query. This
 is one of the example use case where the upload table capability is very useful. You can create/use
-an `~astropy.table.table.Table` containing the desired list and use it in a ``JOIN`` to replace an ``IN``:
+an `~astropy.table.Table` containing the desired list and use it in a ``JOIN`` to replace an ``IN``:
 
 .. doctest-remote-data::
 

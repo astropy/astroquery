@@ -361,7 +361,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
     @property
     def tap(self):
-        """A ``~pyvo.dal.tap.TAPService`` service for Simbad."""
+        """A `~pyvo.dal.TAPService` service for Simbad."""
         tap_url = f"https://{self.server}/simbad/sim-tap"
         # only creates a new tap instance if there are no existing one
         # or if the server property changed since the last getter call.
@@ -1026,7 +1026,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         Returns
         -------
-        `~astropy.table.table.Table`
+        `~astropy.table.Table`
         """
         query = ("SELECT table_name, description"
                  " FROM TAP_SCHEMA.tables"
@@ -1127,7 +1127,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         Returns
         -------
-        `~astropy.table.table.Table`
+        `~astropy.table.Table`
             The information necessary to join the given table to an other.
 
         Examples
@@ -1155,7 +1155,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         This private method is called when query_tap is executed without an
         ``uploads`` extra keyword argument. This is a work around because
-        `~astropy.table.table.Table` objects are not hashable and thus cannot
+        `~astropy.table.Table` objects are not hashable and thus cannot
         be used as arguments for a function decorated with lru_cache.
 
         Parameters
@@ -1168,7 +1168,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
 
         Returns
         -------
-        `~astropy.table.table.Table`
+        `~astropy.table.Table`
             The response returned by Simbad.
         """
         return self.tap.run_async(query, maxrec=maxrec).to_table()
@@ -1185,14 +1185,14 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         maxrec : int, default: 10000
             The number of records to be returned. Its maximum value is given by
             `~astroquery.simbad.SimbadClass.hardlimit`.
-        uploads : `~astropy.table.table.Table` | `~astropy.io.votable.tree.VOTableFile` | `~pyvo.dal.DALResults`
+        uploads : `~astropy.table.Table` | `~astropy.io.votable.tree.VOTableFile` | `~pyvo.dal.DALResults`
             Any number of local tables to be used in the *query*. In the *query*, these tables
             are referred as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
             is the keyword name you chose. The maximum number of lines for the uploaded tables is 200000.
 
         Returns
         -------
-        `~astropy.table.table.Table`
+        `~astropy.table.Table`
             The response returned by Simbad.
 
         Notes
