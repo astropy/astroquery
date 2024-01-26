@@ -68,6 +68,12 @@ esa.xmm_newton
 ^^^^^^^^^^^^^^
 - New version of RMF matrices (v21). [#2910] [#2932]
 
+simbad
+^^^^^^
+
+- new ``query_tap`` method to access SIMBAD. This comes with additional methods to explore SIMBAD's tables and 
+  their links: ``Simbad.list_tables``, ``Simbad.list_columns``, and ``Simbad.list_linked_tables``. [#2856]
+
 solarsystem.neodys
 ^^^^^^^^^^^^^^^^^^
 

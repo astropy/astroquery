@@ -290,7 +290,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        `~astropy.table.table.Table`
+        `~astropy.table.Table`
             A table with the following columns:
             - title
             - authors

@@ -11,6 +11,13 @@ from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
 from astroquery.exceptions import BlankResponseWarning
+from packaging import version
+from pyvo import __version__ as pyvo_version
+try:
+    # This requires pyvo 1.4
+    from pyvo.dal.exceptions import DALOverflowWarning
+except ImportError:
+    pass
 
 
 # M42 coordinates
@@ -252,3 +259,44 @@ class TestSimbad:
         assert ("ID_1" in response.keys())
         assert ("ID_2mass" in response.keys())
         assert ("ID_s" in response.keys())
+
+    def test_query_tap(self):
+        # a robust query about something that should not change in Simbad
+        filtername = Simbad.query_tap("select filtername from filter where filtername='B'")
+        assert 'B' == filtername["filtername"][0]
+        # test uploads by joining two local tables
+        table_letters = Table([["a", "b", "c"]], names=["letters"])
+        table_numbers = Table([[1, 2, 3], ["a", "b", "c"]], names=["numbers", "letters"])
+        result = Simbad.query_tap("SELECT * FROM TAP_UPLOAD.numbers "
+                                  "JOIN TAP_UPLOAD.letters USING(letters)",
+                                  numbers=table_numbers, letters=table_letters)
+        expect = "letters numbers\n------- -------\n      a       1\n      b       2\n      c       3"
+        assert expect == str(result)
+        # Test query_tap raised errors
+        # DALOverflowWarning exists since pyvo 1.4
+        if version.parse(pyvo_version) > version.parse('1.4'):
+            with pytest.raises(DALOverflowWarning, match="Partial result set *"):
+                truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
+                assert len(truncated_result) == 2
+        with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
+            Simbad.query_tap("select top 5 * from basic", maxrec=10e10)
+        with pytest.raises(ValueError, match="Query string contains an odd number of single quotes.*"):
+            Simbad.query_tap("'''")
+
+    def test_simbad_list_tables(self):
+        tables = Simbad.list_tables()
+        # check the content
+        assert "basic" in str(tables)
+        # there might be new tables, we have 30 now.
+        assert len(tables) >= 30
+
+    def test_simbad_list_columns(self):
+        columns = Simbad.list_columns("ident", "biblio")
+        assert len(columns) == 4
+        assert "oidref" in str(columns)
+        columns = Simbad.list_columns(keyword="herschel")
+        assert {"mesHerschel"} == set(columns["table_name"])
+
+    def test_list_linked_tables(self):
+        links = Simbad.list_linked_tables("h_link")
+        assert {"basic"} == set(links["target_table"])

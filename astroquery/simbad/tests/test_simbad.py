@@ -74,6 +74,33 @@ def post_mockreturn(self, method, url, data, timeout, **kwargs):
     return response
 
 
+def test_simbad_mirror():
+    simbad_instance = simbad.SimbadClass()
+    # default value should be set at instantiation
+    assert simbad_instance.server == "simbad.cds.unistra.fr"
+    # it can be switched to harvard mirror
+    simbad_instance.server = "simbad.harvard.edu"
+    assert simbad_instance.server == "simbad.harvard.edu"
+    # but not to an invalid mirror
+    with pytest.raises(ValueError,
+                       match="'test' does not correspond to a Simbad server, *"):
+        simbad_instance.server = "test"
+
+
+def test_simbad_create_tap_service():
+    simbad_instance = simbad.Simbad()
+    # newly created should have no tap service
+    assert simbad_instance._tap is None
+    # then we create it
+    simbadtap = simbad_instance.tap
+    assert 'simbad/sim-tap' in simbadtap.baseurl
+
+
+def test_adql_parameter():
+    # escape single quotes
+    assert simbad.core._adql_parameter("Barnard's galaxy") == "Barnard''s galaxy"
+
+
 @pytest.mark.parametrize(('radius', 'expected_radius'),
                          [('5d0m0s', '5.0d'),
                           ('5d', '5.0d'),
@@ -439,3 +466,42 @@ def test_regression_issue388():
     truth = 'M   1'
     assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1
+
+# ---------------------------------------------------
+# Test the adql string for query_tap helper functions
+# ---------------------------------------------------
+
+
+def test_simbad_list_tables():
+    tables_adql = "SELECT table_name, description FROM TAP_SCHEMA.tables WHERE schema_name = 'public'"
+    assert simbad.Simbad.list_tables(get_adql=True) == tables_adql
+
+
+def test_simbad_list_columns():
+    # with three table names
+    columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd"
+                    " FROM TAP_SCHEMA.columns "
+                    "WHERE table_name NOT LIKE 'TAP_SCHEMA.%'"
+                    " AND table_name IN ('mesPM', 'otypedef', 'journals')"
+                    " ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.list_columns("mesPM", "otypedef", "journals", get_adql=True) == columns_adql
+    # with only one
+    columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
+                    "FROM TAP_SCHEMA.columns WHERE table_name NOT LIKE 'TAP_SCHEMA.%' "
+                    "AND table_name = 'basic' ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.list_columns("basic", get_adql=True) == columns_adql
+    # with only a keyword
+    list_columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
+                         "FROM TAP_SCHEMA.columns WHERE table_name NOT LIKE 'TAP_SCHEMA.%' "
+                         "AND ( (LOWERCASE(column_name) "
+                         "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(description) "
+                         "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(table_name) "
+                         "LIKE LOWERCASE('%stellar%'))) ORDER BY table_name, principal DESC, column_name")
+    assert simbad.Simbad.list_columns(keyword="stellar", get_adql=True) == list_columns_adql
+
+
+def test_list_linked_tables():
+    list_linked_tables_adql = ("SELECT from_table, from_column, target_table, target_column "
+                               "FROM TAP_SCHEMA.key_columns JOIN TAP_SCHEMA.keys USING (key_id) "
+                               "WHERE (from_table = 'basic') OR (target_table = 'basic')")
+    assert simbad.Simbad.list_linked_tables("basic", get_adql=True) == list_linked_tables_adql
