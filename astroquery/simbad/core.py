@@ -1063,8 +1063,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         ---------- ----------- -------- ... ------ -------
              ident          id  VARCHAR ...        meta.id
              ident      oidref   BIGINT ...
-               ids         ids     CLOB ...        meta.id
+               ids         ids  VARCHAR ...        meta.id
                ids      oidref   BIGINT ...
+
 
         >>> from astroquery.simbad import Simbad
         >>> Simbad.list_columns(keyword="filter") # doctest: +REMOTE_DATA

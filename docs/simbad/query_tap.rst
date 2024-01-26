@@ -150,7 +150,7 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
            ref    nbobject     INTEGER ...                 meta.number
            ref      oidbib      BIGINT ...        meta.record;meta.bib
            ref        page     INTEGER ...               meta.bib.page
-           ref       title        CLOB ...                  meta.title
+           ref       title UNICODECHAR ...                  meta.title
            ref      volume     INTEGER ...             meta.bib.volume
            ref        year    SMALLINT ...          meta.note;meta.bib
 
