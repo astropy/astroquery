@@ -111,21 +111,6 @@ def _adql_parameter(entry: str):
     return entry.replace("'", "''")
 
 
-def _adql_name(name: str):
-    """Prepare a string to be used as a column or table name.
-
-    It prepends and appends a double quote to the elements of the name.
-    This allows to escape ADQL reserved vocabulary. It then applies the
-    SIMBAD-specific (not in ADQL) `lowercase` function.
-
-    Parameters
-    ----------
-    name : str
-        The column name.
-    """
-    return f'''lowercase({'.'.join([f'"{element}"' for element in name.split(".")])})'''
-
-
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))

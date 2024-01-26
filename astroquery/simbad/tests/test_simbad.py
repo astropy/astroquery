@@ -101,10 +101,6 @@ def test_adql_parameter():
     assert simbad.core._adql_parameter("Barnard's galaxy") == "Barnard''s galaxy"
 
 
-def test_adql_name():
-    assert simbad.core._adql_name("biblio.year") == 'lowercase("biblio"."year")'
-
-
 @pytest.mark.parametrize(('radius', 'expected_radius'),
                          [('5d0m0s', '5.0d'),
                           ('5d', '5.0d'),
