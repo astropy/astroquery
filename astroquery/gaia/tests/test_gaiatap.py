@@ -50,11 +50,12 @@ ids_ints = [1104405489608579584, '1104405489608579584, 1809140662896080256', (11
             ('4295806720-38655544960', '549755818112-1275606125952')]
 
 ids_designator = ['Gaia DR3 1104405489608579584', 'Gaia DR3 1104405489608579584, Gaia DR3 1809140662896080256',
-           ('Gaia DR3 1104405489608579584', 'Gaia DR3 1809140662896080256'), 'Gaia DR3 4295806720-Gaia DR3 38655544960',
-           'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR3 549755818112-Gaia DR3 1275606125952',
-           ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR3 549755818112-Gaia DR3 1275606125952'),
-           'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2 1275606125952',
-           ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2 1275606125952')]
+                  ('Gaia DR3 1104405489608579584', 'Gaia DR3 1809140662896080256'),
+                  'Gaia DR3 4295806720-Gaia DR3 38655544960',
+                  'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR3 549755818112-Gaia DR3 1275606125952',
+                  ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR3 549755818112-Gaia DR3 1275606125952'),
+                  'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2 1275606125952',
+                  ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2 1275606125952')]
 
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
@@ -533,6 +534,7 @@ def test_get_datalinks_linking_parameter_ids_int(monkeypatch, id_int):
     result = GAIA_QUERIER.get_datalinks(ids=id_int, verbose=True)
     assert isinstance(result, Table)
 
+
 @pytest.mark.parametrize("id_des", ids_designator)
 def test_get_datalinks_linking_parameter_ids_designator(monkeypatch, id_des):
     def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
@@ -544,6 +546,7 @@ def test_get_datalinks_linking_parameter_ids_designator(monkeypatch, id_des):
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
     result = GAIA_QUERIER.get_datalinks(ids=id_des, verbose=True)
     assert isinstance(result, Table)
+
 
 def test_get_datalinks_exception(monkeypatch):
     def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
