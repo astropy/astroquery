@@ -45,6 +45,8 @@ gaia
 
 - For the functions cone_search, cone_search_async, launch_job and launch_job_async the data can be retrieved for the json output_format [##2927]
 
+- The method ``get_datalinks`` can be used with the new parameter linking_parameter. It completes PR #2859 [#2859]
+
 
 hsa
 ^^^
