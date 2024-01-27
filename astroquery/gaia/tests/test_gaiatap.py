@@ -473,7 +473,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
-def test_load_data_linking_parameter(monkeypatch, tmp_path, linking_param):
+def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param):
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
