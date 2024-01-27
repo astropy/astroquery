@@ -202,6 +202,7 @@ To load only table names metadata (TAP+ capability):
   >>> for table in (tables):
   ...   print(table.get_qualified_name())
   external.external.apassdr9
+  external.external.catwise2020
   external.external.gaiadr2_astrophysical_parameters
   external.external.gaiadr2_geometric_distance
   external.external.gaiaedr3_distance
