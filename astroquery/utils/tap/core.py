@@ -849,7 +849,6 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
-
         Returns
         -------
         A table object if output_file is None.
@@ -1299,7 +1298,7 @@ class TapPlus(Tap):
                 ids_arg = f"ID={','.join(str(item) for item in ids)}"
 
         if linking_parameter is not None:
-            ids_arg = f'{ids_arg}?LINKING_PARAMETER={linking_parameter}'
+            ids_arg = f'{ids_arg}&LINKING_PARAMETER={linking_parameter}'
 
         if verbose:
             print(f"Datalink request: {ids_arg}")
