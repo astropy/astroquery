@@ -849,7 +849,6 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
-
         Returns
         -------
         A table object if output_file is None.
@@ -1266,13 +1265,18 @@ class TapPlus(Tap):
             print(f"USER response = {user}")
         return user.startswith(f"{user_id}:") and user.count("\\n") == 0
 
-    def get_datalinks(self, ids, *, verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter=None, verbose=False):
         """Gets datalinks associated to the provided identifiers
 
         Parameters
         ----------
         ids : str list, mandatory
             list of identifiers
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
+            By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            TRANSIT_ID: the identifiers are considered as transit_id
+            IMAGE_ID: the identifiers are considered as sif_observation_id
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1282,15 +1286,20 @@ class TapPlus(Tap):
         """
         if verbose:
             print("Retrieving datalink.")
+
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
         if isinstance(ids, str):
             ids_arg = f"ID={ids}"
         else:
             if isinstance(ids, int):
-                ids_arg = f"ID={ids}"
+                ids_arg = f"ID={str(ids)}"
             else:
                 ids_arg = f"ID={','.join(str(item) for item in ids)}"
+
+        if linking_parameter is not None:
+            ids_arg = f'{ids_arg}&LINKING_PARAMETER={linking_parameter}'
+
         if verbose:
             print(f"Datalink request: {ids_arg}")
         connHandler = self.__getconnhandler()

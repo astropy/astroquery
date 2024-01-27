@@ -37,6 +37,8 @@ class Conf(_config.ConfigNamespace):
                                       'RVS_EPOCH',
                                       'RVS_TRANSIT']
 
+    VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
+
 
 conf = Conf()
 
