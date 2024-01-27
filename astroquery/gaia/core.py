@@ -627,7 +627,7 @@ class GaiaClass(TapPlus):
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if `dump_to_file` is True.
+            file name where the results are saved if ``dump_to_file`` is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -715,7 +715,7 @@ class GaiaClass(TapPlus):
         dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         output_file : str, optional, default None
-            file name where the results are saved if `dump_to_file` is True.
+            file name where the results are saved if ``dump_to_file`` is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -769,7 +769,7 @@ class GaiaClass(TapPlus):
             specifies whether
             the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if `dump_to_file` is True.
+            file name where the results are saved if ``dump_to_file`` is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -835,7 +835,7 @@ class GaiaClass(TapPlus):
 
         Parameters
         ----------
-        table :Table, mandatory
+        table : `~astropy.table.Table`, mandatory
             change the format of the units in the columns of the input table: '.' by ' ' and "'" by ""
         """
 
@@ -944,7 +944,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if `dump_to_file` is True.
+            file name where the results are saved if ``dump_to_file`` is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',
@@ -959,7 +959,7 @@ class GaiaClass(TapPlus):
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name : str, optional, default None
             resource temporary table name associated to the uploaded resource.
-            This argument is required if `upload_resource` is provided.
+            This argument is required if ``upload_resource`` is provided.
 
         Returns
         -------
@@ -989,7 +989,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if `dump_to_file` is True.
+            file name where the results are saved if ``dump_to_file`` is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',
@@ -1007,7 +1007,7 @@ class GaiaClass(TapPlus):
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name : str, optional, default None
             resource temporary table name associated to the uploaded resource.
-            This argument is required if `upload_resource` is provided.
+            This argument is required if ``upload_resource`` is provided.
         autorun : boolean, optional, default True
             if 'True', sets 'phase' parameter to 'RUN',
             so the framework can start the job.
