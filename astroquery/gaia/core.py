@@ -13,11 +13,13 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 18 Ene. 2022 by mhsarmiento
 """
+import json
 import os
 import shutil
 import zipfile
 from collections.abc import Iterable
 from datetime import datetime, timezone
+from pathlib import Path
 
 from astropy import units
 from astropy import units as u
@@ -213,8 +215,8 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable_gzip'
-            loading format. Other available formats are 'votable', 'csv', 'ecsv','json','votable_plain' and 'fits'
-        output_file : string, optional, default None
+            loading format. Other available formats are 'votable', 'csv', 'ecsv','votable_plain' and 'fits'
+        output_file : string or pathlib.PosixPath, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
         overwrite_output_file : boolean, optional, default False
@@ -236,6 +238,14 @@ class GaiaClass(TapPlus):
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
         else:
             output_file_specified = True
+
+            if isinstance(output_file, str):
+                if not output_file.lower().endswith('.zip'):
+                    output_file = output_file + '.zip'
+            elif isinstance(output_file, Path):
+                if not output_file.suffix.endswith('.zip'):
+                    output_file.with_suffix('.zip')
+
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
                 raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
@@ -308,14 +318,9 @@ class GaiaClass(TapPlus):
             if output_file_specified:
                 log.info("output_file = %s" % output_file)
 
-        log.debug("List of products available:")
-        # for key, value in files.items():
-        # print("Product =", key)
-
-        items = sorted([key for key in files.keys()])
-        for item in items:
-            # print(f'* {item}')
-            if verbose:
+        if log.isEnabledFor(20):
+            log.debug("List of products available:")
+            for item in sorted([key for key in files.keys()]):
                 log.debug("Product = " + item)
 
         return files
@@ -330,7 +335,7 @@ class GaiaClass(TapPlus):
         # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
             for file in f:
-                if '.fits' in file or '.xml' in file or '.csv' in file:
+                if file.lower().endswith(('.fits', '.xml', '.csv', '.ecsv')):
                     files[file] = os.path.join(r, file)
 
         for key, value in files.items():
@@ -356,6 +361,31 @@ class GaiaClass(TapPlus):
                                    fast_reader=False)
                 tables.append(table)
                 files[key] = tables
+
+            elif '.json' in key:
+                tables = []
+                with open(value) as f:
+                    data = json.load(f)
+
+                    if data.get('data') and data.get('metadata'):
+
+                        column_name = []
+                        for name in data['metadata']:
+                            column_name.append(name['name'])
+
+                        result = Table(rows=data['data'], names=column_name, masked=True)
+
+                        for v in data['metadata']:
+                            col_name = v['name']
+                            result[col_name].unit = v['unit']
+                            result[col_name].description = v['description']
+                            result[col_name].meta = {'metadata': v}
+
+                        files[key] = result
+                    else:
+                        tables.append(Table.read(value, format='pandas.json'))
+                        files[key] = tables
+
         return files
 
     def get_datalinks(self, ids, *, verbose=False):
@@ -539,7 +569,7 @@ class GaiaClass(TapPlus):
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -627,7 +657,7 @@ class GaiaClass(TapPlus):
         dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -681,7 +711,7 @@ class GaiaClass(TapPlus):
             specifies whether
             the execution will wait until results are available
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable', 'votable_plain',
@@ -847,7 +877,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',
@@ -892,7 +922,7 @@ class GaiaClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
+            file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable_gzip'
             results format. Available formats are: 'votable_gzip', 'votable', 'votable_plain',

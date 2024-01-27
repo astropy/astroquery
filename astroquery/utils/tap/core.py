@@ -13,25 +13,26 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 1 jun. 2021 by mhsarmiento
 """
-from urllib.parse import urlencode
-
-from astroquery.utils.tap import taputils
-from astroquery.utils.tap.conn.tapconn import TapConn
-from astroquery.utils.tap.xmlparser.tableSaxParser import TableSaxParser
-from astroquery.utils.tap.model.job import Job
-from astroquery.utils.tap.gui.login import LoginDialog
-from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
-from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
-from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
-from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser  # noqa
-from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap.model.filter import Filter
-import requests
-from astroquery import log
 import getpass
 import os
-from astropy.table.table import Table
 import tempfile
+from urllib.parse import urlencode
+
+import requests
+from astropy.table.table import Table
+
+from astroquery import log
+from astroquery.utils.tap import taputils
+from astroquery.utils.tap.conn.tapconn import TapConn
+from astroquery.utils.tap.gui.login import LoginDialog
+from astroquery.utils.tap.model.filter import Filter
+from astroquery.utils.tap.model.job import Job
+from astroquery.utils.tap.xmlparser import utils
+from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
+from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
+from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser  # noqa
+from astroquery.utils.tap.xmlparser.tableSaxParser import TableSaxParser
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -510,8 +511,8 @@ class Tap:
         if jobid is None:
             log.info("No job identifier found")
             return None
-        subContext = f"async/{jobid}"
-        response = self.__connHandler.execute_tapget(subContext,
+        sub_context = f"async/{jobid}"
+        response = self.__connHandler.execute_tapget(sub_context,
                                                      verbose=verbose)
         if verbose:
             print(response.status, response.reason)

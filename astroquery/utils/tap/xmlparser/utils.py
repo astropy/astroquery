@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 import gzip
 import io
+
 from astropy import units as u
 from astropy.table import Table as APTable
 
@@ -50,6 +51,8 @@ def get_suitable_astropy_format(output_format):
         return 'ascii.csv'
     elif 'votable_plain' == output_format or 'votable_gzip' == output_format:
         return 'votable'
+    elif 'json' == output_format:
+        return 'pandas.json'
     return output_format
 
 

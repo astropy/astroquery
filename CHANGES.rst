@@ -43,6 +43,8 @@ gaia
   new votable_gzip (which is now the default), to get a compressed votable file (Content-Encoding: gzip and Content-Type: application/x-votable+gzip).
   ecsv, to get an ecsv compressed file (Content-Encoding: gzip and Content-Type: text/ecsv+gzip). [#2907]
 
+- For the functions cone_search, cone_search_async, launch_job and launch_job_async the data can be retrieved for the json output_format [##2927]
+
 
 hsa
 ^^^
