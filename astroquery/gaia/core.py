@@ -413,29 +413,40 @@ class GaiaClass(TapPlus):
         --------
         Id formats.
 
-        >>> Gaia.get_datalinks(iids=1104405489608579584) # single id as an int
-        >>> Gaia.get_datalinks(ids='1104405489608579584, 1809140662896080256') # multiple ids as a str
-        >>> Gaia.get_datalinks(ids=(1104405489608579584, 1809140662896080256)) # multiple ids as an int list
-        >>> Gaia.get_datalinks(ids=('1104405489608579584','1809140662896080256')) # multiple ids as str list
-        >>> Gaia.get_datalinks(ids='4295806720-38655544960') # range of ids as a str
-        >>> Gaia.get_datalinks(ids='4295806720-38655544960, 549755818112-1275606125952') # multiple ranges of ids as
+        -- Gaia.get_datalinks(iids=1104405489608579584) # single id as an int
+
+        -- Gaia.get_datalinks(ids='1104405489608579584, 1809140662896080256') # multiple ids as a str
+
+        -- Gaia.get_datalinks(ids=(1104405489608579584, 1809140662896080256)) # multiple ids as an int list
+
+        -- Gaia.get_datalinks(ids=('1104405489608579584','1809140662896080256')) # multiple ids as str list
+        -- Gaia.get_datalinks(ids='4295806720-38655544960') # range of ids as a str
+
+        -- Gaia.get_datalinks(ids='4295806720-38655544960, 549755818112-1275606125952') # multiple ranges of ids as
         a str
-        >>> Gaia.get_datalinks(ids=('4295806720-38655544960', '549755818112-1275606125952') # multiple ranges of ids
+
+        -- Gaia.get_datalinks(ids=('4295806720-38655544960', '549755818112-1275606125952') # multiple ranges of ids
         as a str list
 
-        >>> Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584') # single designator
-        >>> Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584, Gaia DR3 1809140662896080256') # multiple
+        -- Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584') # single designator
+        -- Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584, Gaia DR3 1809140662896080256') # multiple
         designators as a str
-        >>> Gaia.get_datalinks(ids=('Gaia DR3 1104405489608579584','Gaia DR3 1809140662896080256')) # multiple
+
+        -- Gaia.get_datalinks(ids=('Gaia DR3 1104405489608579584','Gaia DR3 1809140662896080256')) # multiple
         designators as a str list
-        >>> Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960') # range of designators as a str
-        >>> Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR3 549755818112-Gaia DR3
+
+        -- Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960') # range of designators as a str
+
+        -- Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR3 549755818112-Gaia DR3
         1275606125952') # multiple ranges of designators as a str
-        >>> Gaia.get_datalinks(ids=('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR3 549755818112-Gaia DR3
+
+        -- Gaia.get_datalinks(ids=('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR3 549755818112-Gaia DR3
         1275606125952')) # multiple ranges of designators as a str list
-        >>> Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2
+
+        -- Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2
         1275606125952') # multiple ranges of designators with difference releases as a str
-        >>> Gaia.get_datalinks(ids=('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2
+
+        -- Gaia.get_datalinks(ids=('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2
         1275606125952')) # multiple ranges of designators with difference releases as a str list
         """
 
