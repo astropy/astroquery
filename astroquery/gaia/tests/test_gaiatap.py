@@ -44,6 +44,18 @@ JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
 JOB_DATA_CONE_SEARCH_ASYNC_JSON = Path(JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME).read_text()
 JOB_DATA_QUERIER_ASYNC_JSON = Path(JOB_DATA_QUERIER_ASYNC_FILE_NAME).read_text()
 
+ids_ints = [1104405489608579584, '1104405489608579584, 1809140662896080256', (1104405489608579584, 1809140662896080256),
+            ('1104405489608579584', '1809140662896080256'), '4295806720-38655544960',
+            '4295806720-38655544960, 549755818112-1275606125952',
+            ('4295806720-38655544960', '549755818112-1275606125952')]
+
+ids_designator = ['Gaia DR3 1104405489608579584', 'Gaia DR3 1104405489608579584, Gaia DR3 1809140662896080256',
+           ('Gaia DR3 1104405489608579584', 'Gaia DR3 1809140662896080256'), 'Gaia DR3 4295806720-Gaia DR3 38655544960',
+           'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR3 549755818112-Gaia DR3 1275606125952',
+           ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR3 549755818112-Gaia DR3 1275606125952'),
+           'Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2 1275606125952',
+           ('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2 1275606125952')]
+
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
@@ -444,7 +456,6 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
             "FORMAT": "votable_gzip",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
-            "LINKING_PARAMETER": "TRANSIT_ID",
             "USE_ZIP_ALWAYS": "true"}
         assert output_file == str(tmp_path / "output_file")
         assert verbose is True
@@ -454,14 +465,39 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
     GAIA_QUERIER.load_data(
         ids="1,2,3,4",
         retrieval_type="epoch_photometry",
-        linking_parameter="TRANSIT_ID",
+        linking_parameter="SOURCE_ID",
+        valid_data=True,
+        verbose=True,
+        output_file=tmp_path / "output_file")
+
+
+@pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
+def test_load_data_linking_parameter(monkeypatch, tmp_path, linking_param):
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
+            "VALID_DATA": "true",
+            "ID": "1,2,3,4",
+            "FORMAT": "votable_gzip",
+            "RETRIEVAL_TYPE": "epoch_photometry",
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "LINKING_PARAMETER": linking_param,
+            "USE_ZIP_ALWAYS": "true"}
+        assert output_file == str(tmp_path / "output_file")
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    GAIA_QUERIER.load_data(
+        ids="1,2,3,4",
+        retrieval_type="epoch_photometry",
+        linking_parameter=linking_param,
         valid_data=True,
         verbose=True,
         output_file=tmp_path / "output_file")
 
 
 def test_get_datalinks(monkeypatch):
-    def get_datalinks_monkeypatched(self, ids, verbose):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
         return Table()
 
     # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
@@ -470,6 +506,57 @@ def test_get_datalinks(monkeypatch):
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
     result = GAIA_QUERIER.get_datalinks(ids=["1", "2", "3", "4"], verbose=True)
     assert isinstance(result, Table)
+
+
+@pytest.mark.parametrize("linking_param", ['SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'])
+def test_get_datalinks_linking_parameter(monkeypatch, linking_param):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+        return Table()
+
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    result = GAIA_QUERIER.get_datalinks(ids=["1", "2", "3", "4"], linking_parameter=linking_param, verbose=True)
+    assert isinstance(result, Table)
+
+
+@pytest.mark.parametrize("id_int", ids_ints)
+def test_get_datalinks_linking_parameter_ids_int(monkeypatch, id_int):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+        return Table()
+
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    result = GAIA_QUERIER.get_datalinks(ids=id_int, verbose=True)
+    assert isinstance(result, Table)
+
+@pytest.mark.parametrize("id_des", ids_designator)
+def test_get_datalinks_linking_parameter_ids_designator(monkeypatch, id_des):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+        return Table()
+
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    result = GAIA_QUERIER.get_datalinks(ids=id_des, verbose=True)
+    assert isinstance(result, Table)
+
+def test_get_datalinks_exception(monkeypatch):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+        return Table()
+
+    linking_parameter = 'NOT_VALID'
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+
+    with pytest.raises(ValueError, match=f"^Invalid linking_parameter value '{linking_parameter}' .*"):
+        GAIA_QUERIER.get_datalinks(ids=["1", "2", "3", "4"], linking_parameter=linking_parameter, verbose=True)
 
 
 @pytest.mark.parametrize("background", [False, True])
