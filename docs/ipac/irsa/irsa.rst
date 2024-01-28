@@ -223,7 +223,7 @@ returned as a `~pyvo.dal.TAPResults` object. Its ``to_table`` or ``to_qtable`` m
 Simple image access queries
 ---------------------------
 
-`~astroquery.ipac.irsa.query_sia` provides a way to access IRSA's Simple
+`~astroquery.ipac.irsa.IrsaClass.query_sia` provides a way to access IRSA's Simple
 Image Access VO service. In the following example we are looking for Spitzer
 Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.table.Table`.
 
