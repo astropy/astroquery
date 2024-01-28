@@ -15,9 +15,10 @@ from astropy.utils.decorators import deprecated_renamed_argument
 from pyvo.dal import TAPService
 
 try:
-    from pyvo.dal.sia2 import SIA2Service
+    from pyvo.dal.sia2 import SIA2Service, SIA2_PARAMETERS_DESC
 except ImportError:
     # Can be removed once min version of pyvo is 1.5
+    from pyvo.dal.sia2 import SIA_PARAMETERS_DESC as SIA2_PARAMETERS_DESC
     from pyvo.dal.sia2 import SIAService as SIA2Service
 
 from astroquery import log
@@ -117,6 +118,13 @@ class IrsaClass(BaseVOQuery):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+    # SIA2_PARAMETERS_DESC contains links that Sphinx can't resolve.
+    # SIA2_PARAMETERS_DESC contains links that Sphinx can't resolve.
+    for var in ('POLARIZATION_STATES', 'CALIBRATION_LEVELS'):
+        SIA2_PARAMETERS_DESC = SIA2_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
+                                                            f'pyvo.dam.obscore.{var}')
+    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',

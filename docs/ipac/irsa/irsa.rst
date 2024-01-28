@@ -238,7 +238,8 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
 
 Now open a cutout image for one of the science images. You could either use
 the the IRSA on-premise data or the cloud version of it using the
-``access_url`` or ``cloud_access`` columns:
+``access_url`` or ``cloud_access`` columns. For more info about fits
+cutouts, please visit :ref:`astropy:fits_io_cloud`.
 
 .. doctest-remote-data::
 
