@@ -909,6 +909,64 @@ class MastClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
 
+    def mast_query(self, service, columns=None, **kwargs):
+        """
+        Given a Mashup service and parameters as keyword arguments, builds and excecutes a Mashup query.
+
+        Parameters
+        ----------
+        service : str
+            The Mashup service to query.
+        columns : str, optional
+            Specifies the columns to be returned as a comma-separated list, e.g. "ID, ra, dec".
+        **kwargs :
+            Service-specific parameters and MashupRequest properties. See the
+            `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__ and the
+            `MashupRequest Class Reference <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
+            for valid keyword arguments.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+        # Specific keywords related to positional and MashupRequest parameters.
+        position_keys = ['ra', 'dec', 'radius', 'position']
+        request_keys = ['format', 'data', 'filename', 'timeout', 'clearcache',
+                        'removecache', 'removenullcolumns', 'page', 'pagesize']
+
+        # Explicit formatting for Mast's filtered services
+        if 'filtered' in service.lower():
+
+            # Separating the filter params from the positional and service_request method params.
+            filters = [{'paramName': k, 'values': kwargs[k]} for k in kwargs
+                       if k.lower() not in position_keys+request_keys]
+            position_params = {k: v for k, v in kwargs.items() if k.lower() in position_keys}
+            request_params = {k: v for k, v in kwargs.items() if k.lower() in request_keys}
+
+            # Mast's filtered services require at least one filter
+            if filters == []:
+                raise InvalidQueryError("Please provide at least one filter.")
+
+            # Building 'params' for Mast.service_request
+            if columns is None:
+                columns = '*'
+
+            params = {'columns': columns,
+                      'filters': filters,
+                      **position_params
+                      }
+        else:
+
+            # Separating service specific params from service_request method params
+            params = {k: v for k, v in kwargs.items() if k.lower() not in request_keys}
+            request_params = {k: v for k, v in kwargs.items() if k.lower() in request_keys}
+
+            # Warning for wrong input
+            if columns is not None:
+                warnings.warn("'columns' parameter will not mask non-filtered services", InputWarning)
+
+        return self.service_request(service, params, **request_params)
+
 
 Observations = ObservationsClass()
 Mast = MastClass()

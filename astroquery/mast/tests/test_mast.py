@@ -299,6 +299,29 @@ def test_mast_service_request(patch_post):
     assert isinstance(result, Table)
 
 
+def test_mast_query(patch_post):
+    # cone search
+    result = mast.Mast.mast_query('Mast.Caom.Cone', ra=23.34086, dec=60.658, radius=0.2)
+    assert isinstance(result, Table)
+
+    # filtered search
+    result = mast.Mast.mast_query('Mast.Caom.Filtered',
+                                  dataproduct_type=['image'],
+                                  proposal_pi=['Osten, Rachel A.'],
+                                  s_dec=[{'min': 43.5, 'max': 45.5}])
+    pp_list = result['proposal_pi']
+    sd_list = result['s_dec']
+    assert isinstance(result, Table)
+    assert len(set(pp_list)) == 1
+    assert max(sd_list) < 45.5
+    assert min(sd_list) > 43.5
+
+    # error handling
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Mast.mast_query('Mast.Caom.Filtered')
+    assert "Please provide at least one filter." in str(invalid_query.value)
+
+
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
     print(m103_loc)
