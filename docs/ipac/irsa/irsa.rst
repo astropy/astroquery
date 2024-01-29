@@ -289,20 +289,6 @@ change the setting only for the ongoing python session, you could also do:
     >>> Irsa.ROW_LIMIT = 1000   # 1000 is the new value for row limit here.
 
 
-Troubleshooting
-===============
-
-If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
-
-.. code-block:: python
-
-    >>> from astroquery.ipac.irsa import Irsa
-    >>> Irsa.clear_cache()
-
-If this function is unavailable, upgrade your version of astroquery. 
-The `clear_cache` function was introduced in version 0.4.7.dev8479.
-
-
 Reference/API
 =============
 

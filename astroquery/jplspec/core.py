@@ -66,7 +66,7 @@ class JPLSpecClass(BaseQuery):
             parameters as a dict. Default value is set to False
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

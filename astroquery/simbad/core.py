@@ -554,7 +554,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             (e.g., {'otype':'SNR'} will be rendered as otype=SNR)
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -617,7 +617,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -678,7 +678,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -713,7 +713,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -791,7 +791,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -820,7 +820,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -877,7 +877,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -913,7 +913,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -949,7 +949,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -984,7 +984,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Defaults to `False`.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -1012,7 +1012,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             name of object to be queried
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

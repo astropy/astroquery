@@ -86,7 +86,7 @@ class OACClass(BaseQuery):
             The default value is False.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -179,7 +179,7 @@ class OACClass(BaseQuery):
             The default value is False.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -299,7 +299,7 @@ class OACClass(BaseQuery):
             https://github.com/astrocatalogs/OACAPI. The default is None.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -341,7 +341,7 @@ class OACClass(BaseQuery):
             exact. The closest spectrum will be returned.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -380,7 +380,7 @@ class OACClass(BaseQuery):
             list of events.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

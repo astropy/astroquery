@@ -182,6 +182,8 @@ uncomment the relevant configuration item(s), and insert your desired value(s).
   configuration
 
 
+.. _astroquery_cache:
+ 
 Caching
 -------
 
@@ -197,7 +199,7 @@ Service specific settings
 The Astroquery cache location is specific to individual services,
 so each service's cache should be managed invidually.
 The cache location can be viewed with the following command
-(using `Simbad <simbad/simbad.rst>`_ as an example):
+(using :ref:`Simbad <astroquery_simbad>` as an example):
 
 .. code-block:: python
 

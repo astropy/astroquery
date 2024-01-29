@@ -43,7 +43,7 @@ class HeasarcClass(BaseQuery):
         control of the query to be submitted.
 
         cache (bool) defaults to True. If set overrides global caching behavior.
-        See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+        See :ref:`caching documentation <astroquery_cache>`.
         """
 
         if url is None:
@@ -58,7 +58,7 @@ class HeasarcClass(BaseQuery):
         Returns a list of all available mission tables with descriptions
 
         cache (bool) defaults to True. If set overrides global caching behavior.
-        See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+        See :ref:`caching documentation <astroquery_cache>`.
         """
         request_payload = self._args_to_payload(
             entry='none',
@@ -99,7 +99,7 @@ class HeasarcClass(BaseQuery):
             * <custom>      : User defined csv list of columns to be returned
         cache : bool, optional
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         All other parameters have no effect
         """
 
@@ -132,7 +132,7 @@ class HeasarcClass(BaseQuery):
             Mission table to search from
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         **kwargs :
             see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
             of additional parameters that can be used to refine search query
@@ -173,7 +173,7 @@ class HeasarcClass(BaseQuery):
             e.g., '1 degree' or 1*u.degree.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         **kwargs :
             see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
             of additional parameters that can be used to refine search query

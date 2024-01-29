@@ -112,7 +112,7 @@ class ConeSearchClass(BaseQuery):
             websites referenced by the database still needs internet
             connection.
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         verbose : bool, optional
             Verbose output, including VO table warnings.

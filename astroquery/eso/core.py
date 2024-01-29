@@ -313,7 +313,7 @@ class EsoClass(QueryWithLogin):
         instrument_list : list of strings
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         """
         if self._instrument_list is None:
@@ -337,7 +337,7 @@ class EsoClass(QueryWithLogin):
         survey_list : list of strings
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         """
         if self._survey_list is None:
             survey_list_response = self._request(
@@ -375,7 +375,7 @@ class EsoClass(QueryWithLogin):
             survey names.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -440,7 +440,7 @@ class EsoClass(QueryWithLogin):
             ``instrument``.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -478,7 +478,7 @@ class EsoClass(QueryWithLogin):
             ``instrument``.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -556,7 +556,7 @@ class EsoClass(QueryWithLogin):
             List of data product IDs.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

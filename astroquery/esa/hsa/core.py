@@ -67,7 +67,7 @@ class HSAClass(BaseQuery):
             The directory in which the file will be downloaded
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

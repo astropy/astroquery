@@ -372,7 +372,7 @@ class VizierClass(BaseQuery):
             B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -446,7 +446,7 @@ class VizierClass(BaseQuery):
             box requests.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -559,7 +559,7 @@ class VizierClass(BaseQuery):
             as additional column filters.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

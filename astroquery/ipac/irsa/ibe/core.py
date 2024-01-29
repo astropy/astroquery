@@ -259,7 +259,7 @@ class IbeClass(BaseQuery):
         ----------
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest
+            See :ref:`caching documentation <astroquery_cache>`.
         """
         if hasattr(self, '_missions') and cache:
             # extra level caching to avoid redoing the BeautifulSoup parsing
@@ -290,7 +290,7 @@ class IbeClass(BaseQuery):
             configured Mission
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -334,7 +334,7 @@ class IbeClass(BaseQuery):
             ``list_datsets(mission)``.  Defaults to the configured Dataset
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

@@ -125,7 +125,7 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Raises
         ------
@@ -290,7 +290,7 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Raises
         ------
@@ -433,7 +433,7 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -514,7 +514,7 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -577,7 +577,7 @@ class SDSSClass(BaseQuery):
             The data release of the SDSS to use.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -669,7 +669,7 @@ class SDSSClass(BaseQuery):
             only supports DR8 or later.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         show_progress : bool, optional
             If False, do not display download progress.
 
@@ -837,7 +837,7 @@ class SDSSClass(BaseQuery):
             but does not actually do the query.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
-            See [caching documentation](https://astroquery.readthedocs.io/en/latest/index.html#caching).
+            See :ref:`caching documentation <astroquery_cache>`.
         data_release : int, optional
             The data release of the SDSS to use.
         show_progress : bool, optional
