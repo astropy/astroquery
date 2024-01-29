@@ -420,6 +420,7 @@ class GaiaClass(TapPlus):
         -- Gaia.get_datalinks(ids=(1104405489608579584, 1809140662896080256)) # multiple ids as an int list
 
         -- Gaia.get_datalinks(ids=('1104405489608579584','1809140662896080256')) # multiple ids as str list
+
         -- Gaia.get_datalinks(ids='4295806720-38655544960') # range of ids as a str
 
         -- Gaia.get_datalinks(ids='4295806720-38655544960, 549755818112-1275606125952') # multiple ranges of ids as
@@ -429,6 +430,7 @@ class GaiaClass(TapPlus):
         as a str list
 
         -- Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584') # single designator
+
         -- Gaia.get_datalinks(ids='Gaia DR3 1104405489608579584, Gaia DR3 1809140662896080256') # multiple
         designators as a str
 
@@ -444,10 +446,10 @@ class GaiaClass(TapPlus):
         1275606125952')) # multiple ranges of designators as a str list
 
         -- Gaia.get_datalinks(ids='Gaia DR3 4295806720-Gaia DR3 38655544960, Gaia DR2 549755818112-Gaia DR2
-        1275606125952') # multiple ranges of designators with difference releases as a str
+        1275606125952') # multiple ranges of designators with different releases as a str
 
         -- Gaia.get_datalinks(ids=('Gaia DR3 4295806720-Gaia DR3 38655544960', 'Gaia DR2 549755818112-Gaia DR2
-        1275606125952')) # multiple ranges of designators with difference releases as a str list
+        1275606125952')) # multiple ranges of designators with different releases as a str list
         """
 
         if linking_parameter not in self.VALID_LINKING_PARAMETERS:
@@ -897,7 +899,7 @@ class GaiaClass(TapPlus):
 
         Returns
         -------
-        Boolean indicating if the specified user is valid
+        A Job object
         """
         if radius < 0.1 or radius > 10.0:
             raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
