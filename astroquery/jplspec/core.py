@@ -238,9 +238,9 @@ JPLSpec = JPLSpecClass()
 def build_lookup():
 
     result = JPLSpec.get_species_table()
-    keys = list(result[1][:])  # convert NAME column to list
-    values = list(result[0][:])  # convert TAG column to list
-    dictionary = dict(zip(keys, values))  # make k,v dictionary
+    keys = list(result['NAME'])
+    values = list(result['TAG'])
+    dictionary = dict(zip(keys, values))
     lookuptable = lookup_table.Lookuptable(dictionary)  # apply the class above
 
     return lookuptable
