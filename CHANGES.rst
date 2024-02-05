@@ -216,6 +216,12 @@ jplsbdb
 - Fix a bug for jplsdbd query when the returned physical quantity contains
   a unit with exponential. [#2377]
 
+jplspec
+^^^^^^^
+
+- Fix a bug in lookup-table generation when using ``parse_name_locally``
+  option. [#2945]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
