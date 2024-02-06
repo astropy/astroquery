@@ -20,9 +20,9 @@ The main functionality of this library is to allow a programmer to easily retrie
 * All basic and advanced information regarding a NEA
 * An ephemeris service for NEAs
 
-==============================
+============================
 Getting ESA NEOCC's products
-==============================
+============================
 
 --------------------------------
 1. Direct download of list files
@@ -31,28 +31,30 @@ Getting ESA NEOCC's products
 This function allows the user to download the requested list data from ESA NEOCC.
 Different lists that can be requested are:
 
-* All NEA list: *nea_list*
-* Catalogue of NEAs (current date): *neo_catalogue_current*
-* Catalogue of NEAs (middle arc): *neo_catalogue_middle*
-* Updated NEA list: *updated_nea*
-* Monthly computation date: *monthly_update*
-* Risk list (normal): *risk_list*
-* Risk list (special): *risk_list_special*
-* Close approaches (upcoming): *close_approaches_upcoming*
-* Close approaches (recent): *close_approaches_recent*
-* Priority list (normal): *priority_list*
-* Priority list (faint): *priority_list_faint*
-* Close encounter list: *close_encounter*
-* Impacted objects: *impacted_objects*
+* All NEA list: ``nea_list``
+* Catalogue of NEAs (current date): ``neo_catalogue_current``
+* Catalogue of NEAs (middle arc): ``neo_catalogue_middle``
+* Updated NEA list: ``updated_nea``
+* Monthly computation date: ``monthly_update``
+* Risk list (normal): ``risk_list``
+* Risk list (special): ``risk_list_special``
+* Close approaches (upcoming): ``close_approaches_upcoming``
+* Close approaches (recent): ``close_approaches_recent``
+* Priority list (normal): ``priority_list``
+* Priority list (faint): ``priority_list_faint``
+* Close encounter list: ``close_encounter``
+* Impacted objects: ``impacted_objects``
  
 These lists are referenced in `<https://neo.ssa.esa.int/computer-access>`_.
 
---------------------------------
+--------
 Examples
---------------------------------
+--------
 
-**NEA list:** The output
-of this list is a `~astropy.table.Table` which contains the list of all NEAs
+NEA list
+^^^^^^^^
+
+The output of this list is a `~astropy.table.Table` which contains the list of all NEAs
 currently considered in the NEOCC system.
 
 .. doctest-remote-data::
@@ -77,14 +79,17 @@ currently considered in the NEOCC system.
 
 
 Each asteroid can be accessed using its index. This information can
-be used as input for *query_object* method.
+be used as input for :meth:`~astroquery.esa.neocc.NEOCCClass.query_object` method.
 
 .. doctest-remote-data::
 
     >>> print(list_data["NEA"][4])
     1221 Amor
 
-**Close approaches:**  The output of this list is a `~astropy.table.Table` which
+Close approaches
+^^^^^^^^^^^^^^^^
+
+The output of this list is a `~astropy.table.Table` which
 contains information about asteroid close approaches.
 
 .. doctest-remote-data::
@@ -121,27 +126,29 @@ Then a second request will be automatically sent to the NEOCC portal.
 This function allows the user to download the requested data tabe for a designated object.
 The list of data properties that can be requested is:
 
-* Asteroid orbit properties: *orbit_properties*
-* Asteroid physical properties: *physical_properties*
-* Asteroid observation records: *observations*
-* Generation of observational ephemerides for an object: *ephemerides*
-* Asteroid close approach report: *close_approaches*
-* Possible impacts: *impacts*
+* Asteroid orbit properties: ``orbit_properties``
+* Asteroid physical properties: ``physical_properties``
+* Asteroid observation records: ``observations``
+* Generation of observational ephemerides for an object: ``ephemerides``
+* Asteroid close approach report: ``close_approaches``
+* Possible impacts: ``impacts``
 
 These properties are referenced in `<https://neo.ssa.esa.int/computer-access>`_.
 
---------------------------------
+--------
 Examples
---------------------------------
+--------
 
-**Impacts, Physical Properties and Observations**: This example
-tries to summarize how to access the data of this tabs and how to
+Impacts, Physical Properties and Observations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example tries to summarize how to access the data of this tabs and how to
 use it. Note that this classes only require as inputs the name of
 the object and the requested tab.
 
 The information can be obtained introducing directly the name of
 the object, but it can be also added from the output of a
-*query_list* search:
+:meth:`~astroquery.esa.neocc.NEOCCClass.query_list` search:
 
 .. doctest-remote-data::
 
@@ -180,7 +187,7 @@ This query returns a list containing a single table:
 
 
 **Note:** Most of the tables returned by this tye of query contain additional information
-in the 'meta' property, including information about the table columns.
+in the ``meta`` property, including information about the table columns.
 
 .. doctest-remote-data::
    
@@ -188,7 +195,10 @@ in the 'meta' property, including information about the table columns.
    odict_keys(['Column Info', 'observation_accepted', 'observation_rejected', 'arc_start', 'arc_end', 'info', 'computation'])
 
 
- **Physical Properties:** This example shows how to obtain the physical properties table.
+Physical Properties
+^^^^^^^^^^^^^^^^^^^
+
+This example shows how to obtain the physical properties table.
 
 .. doctest-remote-data::
 
@@ -223,7 +233,10 @@ in the 'meta' property, including information about the table columns.
              Taxonomy (all) ...
 
 
-**Observations:** In this example we query for Observations tables, a query that
+Observations
+^^^^^^^^^^^^
+
+In this example we query for Observations tables, a query that
 returns a list containing 3-5 `~astropy.table.Table` objects depending if there are
 "Roving observer" or satellite observations.
 
@@ -253,7 +266,10 @@ returns a list containing 3-5 `~astropy.table.Table` objects depending if there 
       99942   S   s  -- ... -4144.5939 5319.084499999999          1219.4675      C51
     Length = 1357 rows
 
-**Close Approaches**: This example queris for close approaches, another query
+Close Approaches
+^^^^^^^^^^^^^^^^
+
+This example queris for close approaches, another query
 which results in a single data table.
 
 .. doctest-remote-data::
@@ -275,9 +291,12 @@ which results in a single data table.
     EARTH 2116-04-07T12:48:42.912  94009.53382919 ...    0.7074 9.723e-08      0.0943
     [18 rows x 10 columns]
 
-**Orbit Properties:** In order to access the orbital properties
+Orbit Properties
+^^^^^^^^^^^^^^^^
+
+In order to access the orbital properties
 information, it is necessary to provide two additional inputs to
-*query_object* method: "orbital_elements" and "orbit_epoch".
+:meth:`~astroquery.esa.neocc.NEOCCClass.query_object` method: ``orbital_elements`` and ``orbit_epoch``.
 
 This query returns a list of three tables, the orbital properties, and the covariance
 and corotation matrices.
@@ -301,9 +320,11 @@ and corotation matrices.
       HEADER  rectype                      ML
 
 
-**Ephemerides:** In order to access ephemerides information, it
-is necessary to provide five additional inputs to *query_object*
-method: "observatory", "start", "stop", "step" and "step_unit".
+Ephemerides
+^^^^^^^^^^^
+In order to access ephemerides information, it
+is necessary to provide five additional inputs to :meth:`~astroquery.esa.neocc.NEOCCClass.query_object`
+method: ``observatory``, ``start``, ``stop``, ``step`` and ``step_unit``.
 
 .. doctest-remote-data::
 
@@ -327,6 +348,7 @@ method: "observatory", "start", "stop", "step" and "step_unit".
     2019-05-21T01:30:00.000 58624.0625  7 30 31.891 ...    0.001      0.0       151.5
     2019-05-22T01:30:00.000 58625.0625  7 34  4.357 ...    0.001    0.001       155.2
     2019-05-23T01:30:00.000 58626.0625  7 37 36.303 ...    0.001    0.001       158.7
+
 
 
 Reference/API
