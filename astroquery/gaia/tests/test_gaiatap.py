@@ -389,8 +389,8 @@ def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock
         assert results[colname].unit == attrs.unit
         assert results[colname].dtype == attrs.dtype
 
-def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_json, mock_querier_json):
 
+def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_json, mock_querier_json):
     dump_to_file = False
     output_format = 'json'
     query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
@@ -411,6 +411,7 @@ def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_js
         assert results[colname].description == attrs.description
         assert results[colname].unit == attrs.unit
         assert results[colname].dtype == attrs.dtype
+
 
 def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
     # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
