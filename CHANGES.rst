@@ -49,7 +49,8 @@ gaia
 
 - The method ``get_datalinks`` can be used with the new parameter linking_parameter. It completes PR #2859. [#2936]
 
-- Fix the thrown exception when the functions launch_job and launch_job_async retrieve the data for the json output_format but do not dump the results to a file . [#]
+- Fix the exception thrown when the functions launch_job and launch_job_async retrieve the data for the json output_format but
+  do not dump the results to a file . [#]
 
 
 hsa
