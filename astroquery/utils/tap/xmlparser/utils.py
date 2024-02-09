@@ -40,7 +40,7 @@ def read_http_response(response, output_format, *, correct_units=True):
 
         if output_format == 'json':
 
-            data = json.load(data)
+            data = json.load(response)
 
             if data.get('data') and data.get('metadata'):
 
