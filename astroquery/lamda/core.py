@@ -75,6 +75,10 @@ class LamdaClass(BaseQuery):
             Molecule or atom designation. For a list of valid designations see
             the :meth:`print_mols` method.
 
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+
         Returns
         -------
         Tuple of tables: ({rateid: Table, },
@@ -110,7 +114,14 @@ class LamdaClass(BaseQuery):
     def get_molecules(self, *, cache=True):
         """
         Scrape the list of valid molecules
+
+        Parameters
+        ----------
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
         """
+
         if cache and hasattr(self, '_molecule_dict'):
             return self._molecule_dict
         elif cache and os.path.isfile(self.moldict_path):

@@ -123,8 +123,9 @@ class SDSSClass(BaseQuery):
             but does not actually do the query.
         data_release : int, optional
             The data release of the SDSS to use.
-        cache : bool, optional
-            If ``True`` use the request caching mechanism.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Raises
         ------
@@ -287,8 +288,9 @@ class SDSSClass(BaseQuery):
             but does not actually do the query.
         data_release : int, optional
             The data release of the SDSS to use.
-        cache : bool, optional
-            If ``True`` use the request caching mechanism.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Raises
         ------
@@ -429,8 +431,9 @@ class SDSSClass(BaseQuery):
             but does not actually do the query.
         data_release : int, optional
             The data release of the SDSS to use.
-        cache : bool, optional
-            If ``True`` use the request caching mechanism.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -509,8 +512,9 @@ class SDSSClass(BaseQuery):
             but does not actually do the query.
         data_release : int, optional
             The data release of the SDSS to use.
-        cache : bool, optional
-            If ``True`` use the request caching mechanism.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -571,8 +575,9 @@ class SDSSClass(BaseQuery):
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
         data_release : int, optional
             The data release of the SDSS to use.
-        cache : bool, optional
-            If ``True`` use the request caching mechanism.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Examples
         --------
@@ -662,8 +667,9 @@ class SDSSClass(BaseQuery):
         data_release : int, optional
             The data release of the SDSS to use. With the default server, this
             only supports DR8 or later.
-        cache : bool, optional
-            Cache the spectra using astropy's caching system
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
         show_progress : bool, optional
             If False, do not display download progress.
 
@@ -829,8 +835,9 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool, optional
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        cache : bool, optional
-            Cache the images using astropy's caching system
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
         data_release : int, optional
             The data release of the SDSS to use.
         show_progress : bool, optional

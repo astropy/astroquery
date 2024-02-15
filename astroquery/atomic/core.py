@@ -140,6 +140,10 @@ class AtomicLineListClass(BaseQuery):
             Angular momentum, Transition probability and Level energies
             respectively.
 
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+
         Returns
         -------
         result : `~astropy.table.Table`

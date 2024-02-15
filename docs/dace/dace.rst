@@ -31,6 +31,20 @@ If you need to get radial velocities data for an object you can do the following
     Length = 600 rows
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.dace import Dace
+    >>> Dace.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

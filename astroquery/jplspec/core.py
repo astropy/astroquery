@@ -64,6 +64,9 @@ class JPLSpecClass(BaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method should return the HTTP request
             parameters as a dict. Default value is set to False
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

@@ -33,6 +33,21 @@ For instance the image size may be specified by setting the ``image_size``
 parameter. It defaults to 1 arcmin, but may be set to another value using the
 appropriate `~astropy.units.Quantity` object.
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.image_cutouts.first import First
+    >>> First.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

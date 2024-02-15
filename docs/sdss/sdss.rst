@@ -119,6 +119,21 @@ The variable "template" is a list of `~astropy.io.fits.HDUList` objects
 result, but in a few cases there are multiple templates available to choose
 from (*e.g.*, the "galaxy" spectral template will actually return 3 templates).
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.sdss import SDSS
+    >>> SDSS.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

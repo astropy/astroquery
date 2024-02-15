@@ -107,6 +107,9 @@ class SBDBClass(BaseQuery):
         get_uri : boolean, optional
             Add the query URI to the output as ``query_uri`` field.
             Default: ``False``
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

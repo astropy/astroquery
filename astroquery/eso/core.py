@@ -312,7 +312,8 @@ class EsoClass(QueryWithLogin):
         -------
         instrument_list : list of strings
         cache : bool
-            Cache the response for faster subsequent retrieval
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         """
         if self._instrument_list is None:
@@ -335,7 +336,8 @@ class EsoClass(QueryWithLogin):
         -------
         survey_list : list of strings
         cache : bool
-            Cache the response for faster subsequent retrieval
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
         """
         if self._survey_list is None:
             survey_list_response = self._request(
@@ -372,7 +374,8 @@ class EsoClass(QueryWithLogin):
             specified as a string, should be a comma-separated list of
             survey names.
         cache : bool
-            Cache the response for faster subsequent retrieval
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -436,7 +439,8 @@ class EsoClass(QueryWithLogin):
             ``column_filters`` and ``columns`` for the requested
             ``instrument``.
         cache : bool
-            Cache the response for faster subsequent retrieval.
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -473,7 +477,8 @@ class EsoClass(QueryWithLogin):
             ``column_filters`` and ``columns`` for the requested
             ``instrument``.
         cache : bool
-            Cache the response for faster subsequent retrieval.
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -549,6 +554,9 @@ class EsoClass(QueryWithLogin):
         ----------
         product_ids : either a list of strings or a `~astropy.table.Column`
             List of data product IDs.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

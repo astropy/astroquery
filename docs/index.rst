@@ -182,6 +182,8 @@ uncomment the relevant configuration item(s), and insert your desired value(s).
   configuration
 
 
+.. _astroquery_cache:
+ 
 Caching
 -------
 
@@ -191,19 +193,46 @@ and change the cache location. Caching persists between Astroquery sessions.
 If you know the service you are using has released new data recently, or if you believe you are
 not recieving the newest data, try clearing the cache.
 
+Service specific settings
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Astroquery cache location is divided by service, so each service's cache should be managed invidually,
-however whether the cache is active and the expiration time are controlled centrally through the
-astroquery ``cache_conf`` module. Astroquery uses the Astropy configuration infrastructure, information about
-temporarily or permanently changing configuration values can be found
-`here <https://docs.astropy.org/en/latest/config/index.html>`_.
-
-Shown here are the cache properties, using Simbad as an example:
+The Astroquery cache location is specific to individual services,
+so each service's cache should be managed invidually.
+The cache location can be viewed with the following command
+(using :ref:`Simbad <astroquery_simbad>` as an example):
 
 .. code-block:: python
 
-  >>> from astroquery import cache_conf
-  >>> from astroquery.simbad import Simbad
+    >>> from astroquery.simbad import Simbad
+    >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    /Users/username/.astropy/cache/astroquery/Simbad
+
+Each service's cache is cleared with the ``clear_cache`` function within that service.
+
+.. code-block:: python
+
+    >>> import os
+    >>> from astroquery.simbad import Simbad
+    ...
+    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    ['8abafe54f49661237bdbc2707179df53b6ee0d74ca6b7679c0e4fac0.pickle',
+    '0e4766a7673ddfa4adaee2cfa27a924ed906badbfae8cc4a4a04256c.pickle']
+    >>> Simbad.clear_cache()
+    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    []
+
+Astroquery-wide settings
+^^^^^^^^^^^^^^^^^^^^^^^^
+    
+Whether caching is active and when cached files expire are controlled centrally through the
+astroquery ``cache_conf`` module, and shared among all services.
+Astroquery uses the Astropy configuration infrastructure, information about
+temporarily or permanently changing configuration values can be found
+`here <https://docs.astropy.org/en/latest/config/index.html>`_.
+
+.. code-block:: python
+
+  >>> from astroquery import cache_conf 
   ...
   >>> # Is the cache active?
   >>> print(cache_conf.cache_active)
@@ -211,17 +240,6 @@ Shown here are the cache properties, using Simbad as an example:
   >>> # Cache timout in seconds
   >>> print(cache_conf.cache_timeout)
   604800
-  >>> # Cache location
-  >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
-  /Users/username/.astropy/cache/astroquery/Simbad
-
-
-To clear the cache:
-
-.. code-block:: python
-
-    >>> Simbad.clear_cache()
-
 
 
 

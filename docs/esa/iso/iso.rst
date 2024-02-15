@@ -399,6 +399,20 @@ And spectra can be displayed by using the following code:
    :alt: Dynamic exploration of ISO spectra in python
 
 
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.esa.iso import ISO
+    >>> ISO.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

@@ -82,8 +82,8 @@ class CDMSClass(BaseQuery):
             parameters as a dict. Default value is set to False
 
         cache : bool
-            Cache the request and, for repeat identical requests, reuse the
-            cache?
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

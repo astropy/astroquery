@@ -50,6 +50,21 @@ first 100 spectroscopic objects in the database:
     1031448324500121600   SDSS           1 212.70039 ... 0.05        0       0
     Length = 100 rows
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.gama import GAMA
+    >>> GAMA.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+    
 Reference/API
 =============
 

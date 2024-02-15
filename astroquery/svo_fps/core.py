@@ -51,7 +51,8 @@ class SvoFpsClass(BaseQuery):
             responded VOTable. Use this to make error message verbose in context
             of the query made (default is 'No data found for requested query')
         cache : bool
-            Cache the results?  Defaults to True
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

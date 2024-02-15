@@ -540,7 +540,7 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_criteria_async(self, *args, **kwargs):
+    def query_criteria_async(self, *args, cache=True, **kwargs):
         """
         Query SIMBAD based on any criteria.
 
@@ -553,14 +553,14 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
             Keyword / value pairs passed to SIMBAD's script engine
             (e.g., {'otype':'SNR'} will be rendered as otype=SNR)
         cache : bool
-            Cache the query?
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
         response : `requests.Response`
             Response of the query from the server
         """
-        cache = kwargs.pop('cache', True)
 
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
@@ -615,6 +615,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -673,6 +676,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -705,6 +711,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -780,6 +789,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -806,6 +818,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -860,6 +875,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -893,6 +911,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -926,6 +947,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -958,6 +982,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters.
             Defaults to `False`.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -983,6 +1010,9 @@ class SimbadClass(BaseVOQuery, SimbadBaseQuery):
         ----------
         object_name : str
             name of object to be queried
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

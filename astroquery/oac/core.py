@@ -84,6 +84,9 @@ class OACClass(BaseQuery):
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -174,6 +177,9 @@ class OACClass(BaseQuery):
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -291,6 +297,9 @@ class OACClass(BaseQuery):
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
             https://github.com/astrocatalogs/OACAPI. The default is None.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -330,6 +339,9 @@ class OACClass(BaseQuery):
         time : float, required
             A single MJD time to query. This time does not need to be
             exact. The closest spectrum will be returned.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -366,6 +378,9 @@ class OACClass(BaseQuery):
         event : str, required
             Name of the event to query. Can be a single event or a
             list of events.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

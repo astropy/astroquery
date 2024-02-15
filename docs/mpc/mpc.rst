@@ -485,6 +485,21 @@ Palomar-Leiden Survey designations, and individual comet fragments. In
 case an object name cannot be resolved, a ``ValueError`` is raised. If
 a query returns no results, a ``RuntimeError`` is raised.
 
+
+Troubleshooting
+===============
+
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+
+.. code-block:: python
+
+    >>> from astroquery.mpc import MPC
+    >>> MPC.clear_cache()
+
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+
 Reference/API
 =============
 

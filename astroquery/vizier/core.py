@@ -370,6 +370,9 @@ class VizierClass(BaseQuery):
             `~astroquery.vizier.VizierClass.query_region`, but you can
             specify a coordinate frame here instead (today, J2000, B1975,
             B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -441,6 +444,9 @@ class VizierClass(BaseQuery):
             The frame to use for the request. It should be 'fk5', 'icrs',
             or 'galactic'. This choice influences the the orientation of
             box requests.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -551,6 +557,9 @@ class VizierClass(BaseQuery):
         kwargs : dict
             Any key/value pairs besides "catalog" will be parsed
             as additional column filters.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

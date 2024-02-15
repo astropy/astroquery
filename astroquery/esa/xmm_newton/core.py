@@ -104,6 +104,9 @@ class XMMNewtonClass(BaseQuery):
         extension : string
             file format, optional, by default all formats
             values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------

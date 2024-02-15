@@ -24,18 +24,18 @@ query, use:
 
 The dictionary is created dynamically from the LAMDA website the first time it
 is called, then cached for future use.  If there has been an update and you
-want to reload the cache, you can find the cache file ``'molecules.json'`` and
-remove it:
+want to reload the cache, clear the cache and remove the molecule dictionary as follows:
 
 .. doctest-skip::
 
+    >>> from astroquery.lamda import Lamda
     >>> import os
-    >>> Lamda.cache_location
-    '/Users/your_username/.astropy/cache/astroquery/Lamda'
-    >>> Lamda.moldict_path
-    '/Users/your_username/.astropy/cache/astroquery/Lamda/molecules.json'
+    ...
+    >>> Lamda.clear_cache()
     >>> os.remove(Lamda.moldict_path)
 
+If this function is unavailable, upgrade your version of astroquery. 
+The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 You can query for any molecule in that dictionary.
 

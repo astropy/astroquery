@@ -580,6 +580,10 @@ class HorizonsClass(BaseQuery):
         extra_precision : boolean, optional
             Enables extra precision in RA and DEC values; default: False
 
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+
 
         Returns
         -------
@@ -825,6 +829,10 @@ class HorizonsClass(BaseQuery):
             Return raw data as obtained by JPL Horizons without parsing the data
             into a table, default: False
 
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+
 
         Returns
         -------
@@ -1057,6 +1065,10 @@ class HorizonsClass(BaseQuery):
         delta_T : boolean, optional
             Triggers output of time-varying difference between TDB and UT
             time-scales. Default: False
+
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
 
         Returns

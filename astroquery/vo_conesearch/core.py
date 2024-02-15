@@ -111,6 +111,8 @@ class ConeSearchClass(BaseQuery):
             Use caching for VO Service database. Access to actual VO
             websites referenced by the database still needs internet
             connection.
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         verbose : bool, optional
             Verbose output, including VO table warnings.

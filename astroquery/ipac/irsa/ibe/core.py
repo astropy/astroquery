@@ -258,7 +258,8 @@ class IbeClass(BaseQuery):
         Parameters
         ----------
         cache : bool
-            Cache the query result
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
         """
         if hasattr(self, '_missions') and cache:
             # extra level caching to avoid redoing the BeautifulSoup parsing
@@ -288,7 +289,8 @@ class IbeClass(BaseQuery):
             `~astroquery.ipac.irsa.ibe.IbeClass.list_missions`.  Defaults to the
             configured Mission
         cache : bool
-            Cache the query result
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
@@ -331,7 +333,8 @@ class IbeClass(BaseQuery):
             A dataset name.  Must be one of the valid dataset from
             ``list_datsets(mission)``.  Defaults to the configured Dataset
         cache : bool
-            Cache the query result
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
 
         Returns
         -------
