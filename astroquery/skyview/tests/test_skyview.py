@@ -83,3 +83,20 @@ def test_survey_validation(patch_get):
     assert str(ex.value) == ("Survey is not among the surveys hosted "
                              "at skyview.  See list_surveys or "
                              "survey_dict for valid surveys.")
+
+
+def test_get_image_list_size(patch_get, patch_fromname):
+    # Test with Quantities (as expected)
+    SkyView.get_image_list(position='Eta Carinae',
+                           survey='DSS',
+                           width=1 * u.deg, height=1 * u.deg)
+    with pytest.raises(u.UnitConversionError):
+        # Test with invalid Quantities
+        SkyView.get_image_list(position='Eta Carinae',
+                               survey='DSS',
+                               width=1, height='1 meter')
+    with pytest.raises(ValueError):
+        # Test with incomplete input
+        SkyView.get_image_list(position='Eta Carinae',
+                               survey='DSS',
+                               width=1 * u.deg, height=None)
