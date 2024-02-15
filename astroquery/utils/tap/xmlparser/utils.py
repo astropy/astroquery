@@ -16,9 +16,11 @@ Created on 30 jun. 2016
 """
 import gzip
 import io
+import json
 
 from astropy import units as u
 from astropy.table import Table as APTable
+from astropy.table.table import Table
 
 
 def util_create_string_from_buffer(buffer):
@@ -35,8 +37,29 @@ def read_http_response(response, output_format, *, correct_units=True):
         result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format)
     except OSError:
         # data is not a valid gzip file by BadGzipFile.
-        result = APTable.read(data, format=astropy_format)
-        pass
+
+        if output_format == 'json':
+
+            data = json.load(response)
+
+            if data.get('data') and data.get('metadata'):
+
+                column_name = []
+                for name in data['metadata']:
+                    column_name.append(name['name'])
+
+                result = Table(rows=data['data'], names=column_name, masked=True)
+
+                for v in data['metadata']:
+                    col_name = v['name']
+                    result[col_name].unit = v['unit']
+                    result[col_name].description = v['description']
+                    result[col_name].meta = {'metadata': v}
+
+            else:
+                result = APTable.read(data, format=astropy_format)
+        else:
+            result = APTable.read(data, format=astropy_format)
 
     if correct_units:
         modify_unrecognized_table_units(result)

@@ -362,7 +362,7 @@ def test_launch_job_async_json_format(tmp_path_factory, column_attrs_launch_json
         assert results[colname].dtype == attrs.dtype
 
 
-def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock_querier_json, ):
+def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock_querier_json):
     d = tmp_path_factory.mktemp("data") / 'launch_job.json'
     d.write_text(JOB_DATA_QUERIER_ASYNC_JSON, encoding="utf-8")
 
@@ -373,6 +373,29 @@ def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock
 
     job = mock_querier_json.launch_job(query, output_file=output_file, output_format=output_format,
                                        dump_to_file=dump_to_file)
+
+    assert job.async_ is False
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    # results
+    results = job.get_results()
+
+    assert type(results) is Table
+    assert 1 == len(results), len(results)
+
+    for colname, attrs in column_attrs_launch_json.items():
+        assert results[colname].name == attrs.name
+        assert results[colname].description == attrs.description
+        assert results[colname].unit == attrs.unit
+        assert results[colname].dtype == attrs.dtype
+
+
+def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_json, mock_querier_json):
+    dump_to_file = False
+    output_format = 'json'
+    query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
+
+    job = mock_querier_json.launch_job(query, output_format=output_format, dump_to_file=dump_to_file)
 
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
