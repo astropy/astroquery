@@ -26,7 +26,10 @@ ipac.irsa
   ``columns``, and the ``cache`` and ``verbose`` kwargs have been
   deprecated as they have no effect. [#2823]
 
-- Method to run SIAv2 VO queries is added. [#2837]
+- Method to run SIAv2 VO queries, ``query_sia``, is added. [#2837]
+
+- Method to list available collections for SIA queries,
+  ``list_collections``, is added. [#2952]
 
 gaia
 ^^^^
