@@ -126,6 +126,19 @@ class IrsaClass(BaseVOQuery):
                                                             f'pyvo.dam.obscore.{var}')
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
+    def list_collections(self):
+        """
+        Return information of available IRSA SIAv2 collections to be used in ``query_sia`` queries.
+
+        Returns
+        -------
+        collections : A `~astropy.table.Table` object.
+            A table listing all the possible collections for IRSA SIA queries.
+        """
+        query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
+        collections = self.query_tap(query=query)
+        return collections.to_table()
+
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,

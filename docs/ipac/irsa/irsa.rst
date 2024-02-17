@@ -236,6 +236,31 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
    >>> coord = SkyCoord('150.01d 2.2d', frame='icrs')
    >>> spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip').to_table()
 
+To list available collections for SIA queries, the
+`~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
+will return a `~astropy.table.Table`:
+
+.. doctest-remote-data::
+
+   >>> from astroquery.ipac.irsa import Irsa
+   >>> Irsa.list_collections()
+   <Table length=110>
+         collection
+           object
+   ---------------------
+        akari_allskymaps
+                   blast
+             bolocam_gps
+              bolocam_lh
+       bolocam_planck_sz
+                     ...
+             wise_allsky
+            wise_allwise
+             wise_prelim
+   wise_prelim_2bandcryo
+             wise_unwise
+              wise_z0mgs
+
 Now open a cutout image for one of the science images. You could either use
 the the IRSA on-premise data or the cloud version of it using the
 ``access_url`` or ``cloud_access`` columns. For more info about fits
