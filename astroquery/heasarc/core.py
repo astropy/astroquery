@@ -8,7 +8,10 @@ HEASARC
 Module to query the NASA High Energy Archive HEASARC.
 """
 
+import os
 from typing import Union
+import shutil
+import tarfile
 import warnings
 from io import StringIO, BytesIO
 from astropy.table import Table
@@ -444,6 +447,7 @@ class HeasarcXaminClass(BaseQuery):
     # we can move url to Config later
     VO_URL = conf.VO_URL
     TAR_URL = conf.TAR_URL
+    S3_BUCKET = conf.S3_BUCKET
     timeout = conf.timeout
 
     def __init__(self):
@@ -705,31 +709,108 @@ class HeasarcXaminClass(BaseQuery):
         newcol = [f"/FTP/{row.split('FTP/')[1]}".replace('//', '/')
                   for row in dl_result['access_url']]
         dl_result.add_column(newcol, name='sciserver', index=2)
-        newcol = [f"s3://nasa-heasarc/{row[5:]}" for row in dl_result['sciserver']]
+        newcol = [f"s3://{self.S3_BUCKET}/{row[5:]}" for row in dl_result['sciserver']]
         dl_result.add_column(newcol, name='aws', index=3)
 
         return dl_result
 
-    def download_data(self, links, local_filepath='xamin.tar', cache=False):
-        """Download data products in links.
-        This currently downloads data from the main heasarc server.
+    def enable_cloud(self, provider='aws', profile=None):
+        """
+        Enable downloading public files from the cloud.
+        Requires the boto3 library to function.
+
+        Parameters
+        ----------
+        provider : str
+            Which cloud data provider to use. Currently, only 'aws' is supported
+        profile : str
+            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
+        """
+
+        try:
+            import boto3
+            import botocore
+        except ImportError:
+            raise ImportError('The cloud feature requires the boto3 package. Install it first.')
+
+        if profile is None:
+            log.info('Enabling annonymous cloud data access ...')
+            config = botocore.client.Config(signature_version=botocore.UNSIGNED)
+            self.s3_resource = boto3.resource('s3', config=config)
+        else:
+            log.info('Enabling cloud data access with profile: {profile} ...')
+            session = boto3.session.Session(profile_name=profile)
+            self.s3_resource = session.resource(service_name='s3')
+            s3_resource.meta.client
+
+        self.s3_client = self.s3_resource.meta.client
+        self.bkt = self.s3_resource.Bucket(self.S3_BUCKET)
+
+
+    def download_data(self, links, host='heasarc', location='.'):
+        """Download data products in links with a choice of getting the
+        data from either the heasarc server, sciserver, or the cloud in AWS.
+
 
         Parameters
         ----------
         links : `astropy.table.Table`
             The result from get_links
-        local_filepath : str
-            local path to where the downloaded file will be saved.
-            Default is ./xamin.tar
-        cache : bool
-            Cache downloaded file. Defaults to False.
+        host : str
+            The data host. The options are: heasarc (defaul), sciserver, aws.
+            If host == 'sciserver', data is copied from the local mounted data drive.
+            If host == 'aws', data is downloaded from Amazon S3 Open Data Repository.
+        location : str
+            local folder where the downloaded file will be saved.
+            Default is current working directory
 
-        Returns
-        -------
-        path : path to downloaded tar file
+        Note
+        ----
+        Downloading more than ~10 observations from the HEASARC will likely fail.
+        If you have more than 10 links, group them and make several requests.
         """
+
         if len(links) == 0:
             raise ValueError('Input links table is empty')
+
+        if host not in ['heasarc', 'sciserver', 'aws']:
+            raise ValueError('host has to be one of heasarc, sciserver, aws ')
+
+        host_column = 'access_url' if host == 'heasarc' else host
+        if not host_column in links.colnames:
+            raise ValueError(
+                f'No {host_column} column found in the table. Call ~get_links first'
+            )
+
+        if host == 'heasarc':
+
+            log.info('Downloading data from the HEASARC ...')
+            self._download_heasarc(links, location)
+
+        elif host == 'sciserver':
+
+            log.info('Copying data on Sciserver ...')
+            self._copy_sciserver(links, location)
+
+        elif host == 'aws':
+
+            log.info('Downloading data AWS S3 ...')
+            self._download_s3(links, location)
+
+
+    def _download_heasarc(self, links, location='.'):
+        """Download data from the heasarc main server using xamin's tar servlet
+
+        Do not call directly.
+        Users should be using ~self.download_data instead
+
+        """
+        max_download = 10
+        if len(links) > max_download:
+            raise ValueError(
+                'Too many links requested for download. Consider splitting the list '
+                f'into smaller chunks {max_download} links each'
+            )
 
         file_list = [f"/FTP/{link.split('FTP/')[1]}"
                      for link in links['access_url']]
@@ -738,16 +819,101 @@ class HeasarcXaminClass(BaseQuery):
             'filter': ''
         }
 
-        log.info('List of files to be downloaded:')
-        for file in file_list:
-            log.info(file)
+        # get local_filepath name
+        local_filepath = f'{location}/xamin.tar'
+        iname = 1
+        while os.path.exists(local_filepath):
+            local_filepath = f'{location}/xamin.{iname}.tar'
+            iname += 1
 
+        log.info(f'Downloading to {local_filepath} ...')
         self._download_file(self.TAR_URL, local_filepath,
                             timeout=self.timeout,
-                            continuation=False, cache=cache, method="POST",
+                            continuation=False, cache=False, method="POST",
                             head_safe=False, params=params)
 
-        return local_filepath
+        # if all good and we have a tar file untar it
+        if tarfile.is_tarfile(local_filepath):
+            log.info(f'Untar {local_filepath} to {location} ...')
+            tfile = tarfile.TarFile(local_filepath)
+            tfile.extractall(path=location)
+            os.remove(local_filepath)
+        else:
+            raise ValueError('An error ocurred when downloading the data. Retry again.')
+
+
+    def _copy_sciserver(self, links, location='.'):
+        """Copy data from the local archive on sciserver
+
+        Do not call directly.
+        Users should be using ~self.download_data instead
+
+        """
+        if not os.path.exists('/FTP/'):
+            raise FileNotFoundError(
+                'No data archive found. This should be run on Sciserver '
+                'with the data drive mounted.'
+            )
+
+        if not os.path.exists(location):
+            os.mkdir(location)
+
+        for link in links['sciserver']:
+            log.info(f'Copying to {link} from the data drive ...')
+            if not os.path.exists(link):
+                raise ValueError(
+                    f'No data found in {link}. '
+                    'Make sure you are running this on Sciserver. '
+                    'If you think data is missing, please contact the Heasarc Help desk'
+                )
+            if os.path.isdir(link):
+                shutil.copytree(link, location)
+            else:
+                shutil.copy(link, location)
+
+
+    def _download_s3(self, links, locaiton='.'):
+        """Download data from AWS S3
+        Assuming open access.
+
+        Do not call directly.
+        Users should be using ~self.download_data instead
+
+        """
+        keys_list = [link for link in links['aws']]
+        if not hasattr(self, 's3_resource'):
+            # all the data is public for now; no profile is needed
+            self.enable_cloud(provider='aws', profile=None)
+
+        def _s3_download_dir(client, bkt, path, local):
+            """call bkt.download_file several times to download a directory"""
+            paginator = client.get_paginator('list_objects')
+            for result in paginator.paginate(Bucket=self.S3_BUCKET,
+                                             Delimiter='/', Prefix=path):
+                pref = result.get('CommonPrefixes', None)
+                if pref is not None:
+                    for subdir in pref:
+                        # loop over subdirectories
+                        new_path = subdir['Prefix']
+                        base = path.strip('/').split('/')[-1]
+                        new_base = new_path.strip('/').split('/')[-1]
+                        new_local = f"{local}/{base}/{new_base}"
+                        _s3_download_dir(client, bkt, new_path, new_local)
+
+                content = result.get('Contents', [])
+                for file in content:
+                    key = file.get('Key')
+                    dest = os.path.join(local, key.split('/')[-1])
+                    destdir = os.path.dirname(dest)
+                    if not os.path.exists(destdir):
+                        os.makedirs(destdir)
+                    if not key.endswith('/'):
+                        bkt.download_file(key, dest)
+
+        for key in keys_list:
+            print(f'downloading {key}')
+            path = key.replace(f's3://{self.S3_BUCKET}/', '')
+            _s3_download_dir(self.s3_client, self.bkt, path, locaiton)
 
 
 Xamin = HeasarcXaminClass()

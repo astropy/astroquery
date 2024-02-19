@@ -39,6 +39,11 @@ class Conf(_config.ConfigNamespace):
         'URL for the xamin tar servlet'
     )
 
+    S3_BUCKET = _config.ConfigItem(
+        'nasa-heasarc',
+        'The name of the AWS S3 bucket that contain the HEASARC data'
+    )
+
 
 conf = Conf()
 
