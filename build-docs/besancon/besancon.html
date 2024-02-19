@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Besancon Queries (astroquery.besancon) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="parse_besancon_model_file" href="../api/astroquery.besancon.parse_besancon_model_file.html" />
+    <link rel="prev" title="Transition" href="../api/astroquery.atomic.Transition.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.besancon.parse_besancon_model_file.html" title="parse_besancon_model_file">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.atomic.Transition.html" title="Transition">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Besancon Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.besancon</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="besancon-queries-astroquery-besancon">
+<span id="astroquery-besancon"></span><h1>Besancon Queries (<a class="reference internal" href="#module-astroquery.besancon" title="astroquery.besancon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.besancon</span></code></a>)<a class="headerlink" href="#besancon-queries-astroquery-besancon" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>The following example illustrates an Besancon catalog/image query.  The API describes the
+relevant keyword arguments (of which there are many)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These examples are improperly formatted because they are not safe to run
+generally!  The Besancon servers are hosted by individuals and not mean to
+handle large or repeated requests, so we disable <em>all</em> automated testing.</p>
+</div>
+<p>A successful run should look something like this</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.besancon</span> <span class="kn">import</span> <span class="n">Besancon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#besancon_model = Besancon.query(glon=10.5, glat=0.0, email=&#39;your@email.net&#39;)</span>
+
+<span class="go">Waiting 30s for model to finish (elapsed wait time 30s, total 32)</span>
+<span class="go">Loading page...</span>
+<span class="go">Waiting 30s for model to finish (elapsed wait time 60s, total 198)</span>
+<span class="go">Loading page...</span>
+<span class="go">Waiting 30s for model to finish (elapsed wait time 90s, total 362)</span>
+<span class="go">Loading page...</span>
+<span class="go">Waiting 30s for model to finish (elapsed wait time 120s, total 456)</span>
+<span class="go">Loading page...</span>
+<span class="go">Awaiting Besancon file...</span>
+<span class="go">Downloading ftp://sasftp.obs-besancon.fr/modele/modele2003/1407398212.212272.resu</span>
+<span class="go">|========================================================================================================================================| 2.5M/2.5M (100.00%)         0s</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># B.pprint()</span>
+<span class="go"> Dist  Mv   CL Typ   LTef logg Age Mass  J-K   J-H   V-K    H-K    K    [Fe/H]   l     b     Av   Mbol</span>
+<span class="go">----- ---- --- ---- ----- ---- --- ---- ----- ----- ------ ----- ------ ------ ----- ----- ----- ------</span>
+<span class="go"> 0.87 12.5   5  7.5 3.515 4.99   5 0.24 0.966 0.649  5.408 0.318  17.44  -0.02 10.62 -0.38 0.637 10.844</span>
+<span class="go"> 0.91 13.0   5  7.5 3.506 5.03   1 0.21 0.976 0.671  5.805 0.305 17.726   0.13 10.62 -0.38 0.669 11.312</span>
+<span class="go"> 0.97 18.5   5  7.9  3.39 5.32   7 0.08 0.804 0.634  8.634  0.17 20.518  -0.46 10.62 -0.38 0.716    0.0</span>
+<span class="go"> 1.01 15.2   5  7.9 3.465 5.14   1 0.13 1.045 0.649  7.015 0.396 18.957   0.22 10.62 -0.38 0.748 13.353</span>
+<span class="go"> 1.01 16.5   5  7.8 3.435 5.27   5 0.09 1.024 0.701  7.545 0.323 19.642  -0.09 10.62 -0.38 0.748    0.0</span>
+<span class="go"> 1.03 17.0   5 7.85 3.424 5.29   1 0.09 1.133 0.701  8.132 0.432 19.631   0.07 10.62 -0.38 0.764    0.0</span>
+<span class="go"> 1.09 13.5   5  7.6 3.497 5.05   7 0.18 0.995  0.69  5.829 0.305 18.629  -0.43 10.62 -0.38 0.812  11.78</span>
+<span class="go"> 1.17 13.7   5 7.65 3.493  5.0   2 0.17 1.025  0.68  6.319 0.345 18.552    0.2 10.62 -0.38 0.876 11.948</span>
+<span class="go"> 1.17 18.5   5  7.9  3.39 5.32   5 0.08 0.927  0.69  8.876 0.237 20.763  -0.27 10.62 -0.38 0.876    0.0</span>
+<span class="go"> 1.25 20.0   5  7.9 3.353 5.36   3 0.08 1.533 0.883 10.202  0.65 21.215   0.15 10.62 -0.38 0.941    0.0</span>
+<span class="go"> 1.29  9.3   5  7.1  3.58 4.74   2 0.56 0.997 0.777  4.592 0.219 16.263   0.21 10.62 -0.38 0.974  7.834</span>
+<span class="go"> 1.29 13.5   6  9.0 3.853  8.0   7  0.6 0.349 0.283  1.779 0.066 23.266  -0.17 10.62 -0.38 0.974    0.0</span>
+<span class="go"> 1.33  6.9   5  6.4 3.656 4.62   5 0.77 0.857  0.69  3.604 0.167 14.889   0.25 10.62 -0.38 1.006  5.795</span>
+<span class="go"> 1.35  7.5   5  6.5 3.633 4.62   5  0.7 0.902 0.729  3.885 0.172  15.22   0.08 10.62 -0.38 1.023  6.225</span>
+<span class="go">  ...  ... ...  ...   ...  ... ...  ...   ...   ...    ...   ...    ...    ...   ...   ...   ...    ...</span>
+<span class="go">40.19 17.1   6  9.0 3.515 8.19   9  0.7 2.013 1.481 11.166 0.532 35.816  -1.99 10.62 -0.38  11.8    0.0</span>
+<span class="go">41.01 17.1   6  9.0 3.515 8.19   9  0.7 2.013 1.481 11.166 0.532 35.899  -2.14 10.62 -0.38  11.8    0.0</span>
+<span class="go">41.21 17.3   6  9.0 3.485 8.19   9  0.7 1.933 1.471 10.826 0.462 36.312  -1.36 10.62 -0.38  11.8    0.0</span>
+<span class="go">41.41 16.9   6  9.0 3.542 8.19   9  0.7 1.893 1.301 11.436 0.592 35.358  -0.92 10.62 -0.38  11.8    0.0</span>
+<span class="go">41.87 16.7   6  9.0 3.568 8.19   9  0.7 1.783 1.141 11.686 0.642 34.917  -1.79 10.62 -0.38  11.8    0.0</span>
+<span class="go">42.05 16.7   6  9.0 3.568 8.19   9  0.7 1.783 1.141 11.686 0.642 34.936  -2.06 10.62 -0.38  11.8    0.0</span>
+<span class="go">44.19 16.9   6  9.0 3.542 8.19   9  0.7 1.893 1.301 11.436 0.592 35.494  -3.04 10.62 -0.38  11.8    0.0</span>
+<span class="go">45.39 17.3   6  9.0 3.485 8.19   9  0.7 1.933 1.471 10.826 0.462 36.497  -1.28 10.62 -0.38  11.8    0.0</span>
+<span class="go">46.01 18.5   6  9.0 3.297 8.19   9  0.7 0.813 1.381  8.016 0.568 40.611  -2.01 10.62 -0.38  11.8    0.0</span>
+<span class="go">46.71 16.7   6  9.0 3.568 8.19   9  0.7 1.783 1.141 11.686 0.642 35.087  -2.59 10.62 -0.38  11.8    0.0</span>
+<span class="go">46.97 17.9   6  9.0 3.389 8.19   9  0.7 1.233 1.161  9.536 0.072 38.563  -1.42 10.62 -0.38  11.8    0.0</span>
+<span class="go">47.45 17.3   6  9.0 3.485 8.19   9  0.7 1.933 1.471 10.826 0.462 36.579  -2.25 10.62 -0.38  11.8    0.0</span>
+<span class="go">48.05  5.2   5 4.82 3.786 4.54   9 0.74  2.42 1.563 11.919 0.857 23.548  -1.45 10.62 -0.38  11.8   5.08</span>
+<span class="go">49.39 16.9   6  9.0 3.542 8.19   9  0.7 1.893 1.301 11.436 0.592 35.813  -1.19 10.62 -0.38  11.8    0.0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These tests are commented out (and will fail) because I don’t want to put
+unnecessary strain on the Besancon servers by running queries every time we
+test.</p>
+</div>
+<section id="reading-a-previously-downloaded-file">
+<h3>Reading a previously downloaded file<a class="headerlink" href="#reading-a-previously-downloaded-file" title="Link to this heading">¶</a></h3>
+<p>If you’ve downloaded a <code class="docutils literal notranslate"><span class="pre">.resu</span></code>, you can parse it with the custom parser in astroquery:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.besancon</span> <span class="kn">import</span> <span class="n">parse_besancon_model_file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">parse_besancon_model_file</span><span class="p">(</span><span class="s1">&#39;file.resu&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">  Dist   Mv   CL Typ  LTef logg Age Mass  J-H   H-K   J-K   V-K    V    [Fe/H]   l     b     Av   Mbol</span>
+<span class="go"> ------ ---- --- --- ----- ---- --- ---- ----- ----- ----- ----- ------ ------ ----- ----- ----- ------</span>
+<span class="go">  0.091 10.2   5 7.2 3.559 4.85   7 0.48 0.601 0.223 0.824 4.175 15.133   0.02 10.62 -0.38 0.056  8.671</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.besancon">
+<span id="astroquery-besancon-package"></span><h3>astroquery.besancon Package<a class="headerlink" href="#module-astroquery.besancon" title="Link to this heading">¶</a></h3>
+<section id="besancon-query-tool">
+<h4>Besancon Query Tool<a class="headerlink" href="#besancon-query-tool" title="Link to this heading">¶</a></h4>
+<p>A tool to query the Besancon model of the galaxy
+<a class="reference external" href="https://model.obs-besancon.fr/">https://model.obs-besancon.fr/</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Adam Ginsburg (<a class="reference external" href="mailto:adam&#46;g&#46;ginsburg&#37;&#52;&#48;gmail&#46;com">adam<span>&#46;</span>g<span>&#46;</span>ginsburg<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+</dd>
+</dl>
+</section>
+<section id="functions">
+<h4>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.besancon.parse_besancon_model_file.html#astroquery.besancon.parse_besancon_model_file" title="astroquery.besancon.parse_besancon_model_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_besancon_model_file</span></code></a>(filename)</p></td>
+<td><p>Parse a besancon model from a file on disk</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.besancon.parse_besancon_model_string.html#astroquery.besancon.parse_besancon_model_string" title="astroquery.besancon.parse_besancon_model_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_besancon_model_string</span></code></a>(bms)</p></td>
+<td><p>Given an entire Besancon model result in <em>string</em> form, parse it into an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.besancon.BesanconClass.html#astroquery.besancon.BesanconClass" title="astroquery.besancon.BesanconClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BesanconClass</span></code></a>(*[, email])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.besancon.Conf.html#astroquery.besancon.Conf" title="astroquery.besancon.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.besancon" title="astroquery.besancon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.besancon</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Besancon Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.besancon</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#reading-a-previously-downloaded-file">Reading a previously downloaded file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.besancon">astroquery.besancon Package</a><ul>
+<li><a class="reference internal" href="#besancon-query-tool">Besancon Query Tool</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/besancon/besancon.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+NedClass
+========
+
+.. currentmodule:: astroquery.ipac.ned
+
+.. autoclass:: NedClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~NedClass.ALL_SKY_URL
+      ~NedClass.BASE_URL
+      ~NedClass.DATA_SEARCH_URL
+      ~NedClass.IMG_DATA_URL
+      ~NedClass.OBJ_SEARCH_URL
+      ~NedClass.PHOTOMETRY_OUT
+      ~NedClass.SPECTRA_URL
+      ~NedClass.TIMEOUT
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NedClass.get_image_list
+      ~NedClass.get_images
+      ~NedClass.get_images_async
+      ~NedClass.get_spectra
+      ~NedClass.get_spectra_async
+      ~NedClass.get_table
+      ~NedClass.get_table_async
+      ~NedClass.query_object
+      ~NedClass.query_object_async
+      ~NedClass.query_refcode
+      ~NedClass.query_refcode_async
+      ~NedClass.query_region
+      ~NedClass.query_region_async
+      ~NedClass.query_region_iau
+      ~NedClass.query_region_iau_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: ALL_SKY_URL
+   .. autoattribute:: BASE_URL
+   .. autoattribute:: DATA_SEARCH_URL
+   .. autoattribute:: IMG_DATA_URL
+   .. autoattribute:: OBJ_SEARCH_URL
+   .. autoattribute:: PHOTOMETRY_OUT
+   .. autoattribute:: SPECTRA_URL
+   .. autoattribute:: TIMEOUT
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_image_list
+   .. automethod:: get_images
+   .. automethod:: get_images_async
+   .. automethod:: get_spectra
+   .. automethod:: get_spectra_async
+   .. automethod:: get_table
+   .. automethod:: get_table_async
+   .. automethod:: query_object
+   .. automethod:: query_object_async
+   .. automethod:: query_refcode
+   .. automethod:: query_refcode_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async
+   .. automethod:: query_region_iau
+   .. automethod:: query_region_iau_async

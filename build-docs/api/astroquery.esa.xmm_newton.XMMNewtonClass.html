@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>XMMNewtonClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.esa.xmm_newton.Conf.html" />
+    <link rel="prev" title="ESA XMM-Newton Archive (astroquery.esa.xmm_newton)" href="../esa/xmm_newton/xmm_newton.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.esa.xmm_newton.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../esa/xmm_newton/xmm_newton.html" title="ESA XMM-Newton Archive (astroquery.esa.xmm_newton)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../esa/xmm_newton/xmm_newton.html" accesskey="U">ESA XMM-Newton Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.xmm_newton</span></code>)</a> &#187;</li>
+      
+      <li>XMMNewtonClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="xmmnewtonclass">
+<h1>XMMNewtonClass<a class="headerlink" href="#xmmnewtonclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.esa.xmm_newton.</span></span><span class="sig-name descname"><span class="pre">XMMNewtonClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tap_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.TIMEOUT" title="astroquery.esa.xmm_newton.XMMNewtonClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_aio_url" title="astroquery.esa.xmm_newton.XMMNewtonClass.data_aio_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_aio_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_url" title="astroquery.esa.xmm_newton.XMMNewtonClass.data_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.metadata_url" title="astroquery.esa.xmm_newton.XMMNewtonClass.metadata_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.download_data" title="astroquery.esa.xmm_newton.XMMNewtonClass.download_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_data</span></code></a>(observation_id, *[, filename, ...])</p></td>
+<td><p>Download data from XMM-Newton</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_columns" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_columns</span></code></a>(table_name, *[, only_names, verbose])</p></td>
+<td><p>Get the available columns for a table in XSA TAP service</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_images" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_epic_images</span></code></a>(filename[, band, ...])</p></td>
+<td><p>Extracts the EPIC images from a given TAR file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_lightcurve" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_lightcurve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_epic_lightcurve</span></code></a>(filename, source_number, *)</p></td>
+<td><p>Extracts the EPIC sources light curve products from a given TAR file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_metadata" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_epic_metadata</span></code></a>(*[, target_name, ...])</p></td>
+<td><p>Downloads the European Photon Imaging Camera (EPIC) metadata from a given target</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_spectra" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_epic_spectra</span></code></a>(filename, source_number, *)</p></td>
+<td><p>Extracts in path (when set) the EPIC sources spectral products from a given TAR file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_postcard" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_postcard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_postcard</span></code></a>(observation_id, *[, ...])</p></td>
+<td><p>Download postcards from XSA</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_tables" title="astroquery.esa.xmm_newton.XMMNewtonClass.get_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tables</span></code></a>(*[, only_names, verbose])</p></td>
+<td><p>Get the available table in XSA TAP service</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.query_xsa_tap" title="astroquery.esa.xmm_newton.XMMNewtonClass.query_xsa_tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_xsa_tap</span></code></a>(query, *[, output_file, ...])</p></td>
+<td><p>Launches a synchronous job to query the XSA tap</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.data_aio_url">
+<span class="sig-name descname"><span class="pre">data_aio_url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?'</span></em><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_aio_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.data_url">
+<span class="sig-name descname"><span class="pre">data_url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action?'</span></em><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.metadata_url">
+<span class="sig-name descname"><span class="pre">metadata_url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://nxsa.esac.esa.int/nxsa-sl/servlet/metadata-action?'</span></em><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.metadata_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.download_data">
+<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.download_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.download_data" title="Link to this definition">¶</a></dt>
+<dd><p>Download data from XMM-Newton</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observation_id</strong><span class="classifier">string</span></dt><dd><p>id of the observation to be downloaded, mandatory
+The identifier of the observation we want to retrieve, 10 digits
+example: 0144090201</p>
+</dd>
+<dt><strong>filename</strong><span class="classifier">string</span></dt><dd><p>file name to be used to store the file</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>optional, default ‘False’
+flag to display information about the process</p>
+</dd>
+<dt><strong>prop: boolean</strong></dt><dd><p>optional, default ‘False’
+flag to download proprietary data, the method will then ask the user to
+input their username and password either manually or using the credentials_file</p>
+</dd>
+<dt><strong>credentials_file: string</strong></dt><dd><p>optional, default None
+path to where the users config.ini file is stored with their username and password</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">string</span></dt><dd><p>level to download, optional, by default everything is downloaded
+values: ODF, PPS</p>
+</dd>
+<dt><strong>instname</strong><span class="classifier">string</span></dt><dd><p>instrument name, optional, two characters, by default everything
+values: OM, R1, R2, M1, M2, PN</p>
+</dd>
+<dt><strong>instmode</strong><span class="classifier">string</span></dt><dd><p>instrument mode, optional
+examples: Fast, FlatFieldLow, Image, PrimeFullWindow</p>
+</dd>
+<dt><strong>filter</strong><span class="classifier">string</span></dt><dd><p>filter, optional
+examples: Closed, Open, Thick, UVM2, UVW1, UVW2, V</p>
+</dd>
+<dt><strong>expflag</strong><span class="classifier">string</span></dt><dd><p>exposure flag, optional, by default everything
+values: S, U, X(not applicable)</p>
+</dd>
+<dt><strong>expno</strong><span class="classifier">integer</span></dt><dd><p>exposure number with 3 digits, by default all exposures
+examples: 001, 003</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">string</span></dt><dd><p>product type, optional, 6 characters, by default all product types
+examples: 3COLIM, ATTTSR, EVENLI, SBSPEC, EXPMAP, SRCARF</p>
+</dd>
+<dt><strong>datasubsetno</strong><span class="classifier">character</span></dt><dd><p>data subset number, optional, by default all
+examples: 0, 1</p>
+</dd>
+<dt><strong>sourceno</strong><span class="classifier">hex value</span></dt><dd><p>source number, optional, by default all sources
+example: 00A, 021, 001</p>
+</dd>
+<dt><strong>extension</strong><span class="classifier">string</span></dt><dd><p>file format, optional, by default all formats
+values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None if not verbose. It downloads the observation indicated</dt><dd></dd>
+<dt>If verbose returns the filename</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_columns">
+<span class="sig-name descname"><span class="pre">get_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Get the available columns for a table in XSA TAP service</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table_name</strong><span class="classifier">string, mandatory, default None</span></dt><dd><p>table name of which, columns will be returned</p>
+</dd>
+<dt><strong>only_names</strong><span class="classifier">bool, TAP+ only, optional, default ‘True’</span></dt><dd><p>True to load table names only</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of columns</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_images">
+<span class="sig-name descname"><span class="pre">get_epic_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_detmask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exposure_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_epic_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_images" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts the EPIC images from a given TAR file</p>
+<p>This function extracts the EPIC images in a given band (or bands) and
+instrument (or instruments) from it</p>
+<p>The result is a dictionary containing the paths to the extracted EPIC
+images with keys being the band and the instrument</p>
+<p>If the band or the instrument are not specified this function will
+return all the available bands and instruments</p>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">get_detmask</span></code> and <code class="docutils literal notranslate"><span class="pre">get_exposure_map</span></code> can be set to True.
+If so, this function will also extract the exposure maps and detector
+masks within the specified bands and instruments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">string, mandatory</span></dt><dd><p>The name of the tarfile to be proccessed</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">array of integers, optional, default []</span></dt><dd><p>An array of intergers indicating the desired bands</p>
+</dd>
+<dt><strong>instruments</strong><span class="classifier">array of strings, optional, default []</span></dt><dd><p>An array of strings indicating the desired instruments</p>
+</dd>
+<dt><strong>get_detmask</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, also extracts the detector masks</p>
+</dd>
+<dt><strong>get_exposure_map</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, also extracts the exposure maps</p>
+</dd>
+<dt><strong>path: string, optional</strong></dt><dd><p>If set, extracts the EPIC images in the indicated path</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A dictionary of dictionaries with the full paths of the extracted</dt><dd></dd>
+<dt>EPIC images. The keys of each dictionary are the band for the first</dt><dd></dd>
+<dt>level dictionary and the instrument for the second level dictionaries</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The structure and the content of the extracted compressed FITS files
+are described in details in the Pipeline Products Description
+[XMM-SOC-GEN-ICD-0024](<a class="reference external" href="https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf">https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_lightcurve">
+<span class="sig-name descname"><span class="pre">get_epic_lightcurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_number</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_epic_lightcurve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_lightcurve" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts the EPIC sources light curve products from a given TAR file</p>
+<p>For a given TAR file obtained with <code class="docutils literal notranslate"><span class="pre">XMMNewton.download_data</span></code>.</p>
+<p>This function extracts the EPIC sources light curve products in a given
+instrument (or instruments) from said TAR file</p>
+<p>The result is a dictionary containing the paths to the extracted EPIC
+sources light curve products with the key being the instrument</p>
+<p>If the instrument is not specified, this function will
+return all available instruments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">string, mandatory</span></dt><dd><p>The name of the tarfile to be proccessed</p>
+</dd>
+<dt><strong>source_number</strong><span class="classifier">integer, mandatory</span></dt><dd><p>The source number, in decimal, in the observation</p>
+</dd>
+<dt><strong>instruments</strong><span class="classifier">array of strings, optional, default []</span></dt><dd><p>An array of strings indicating the desired instruments</p>
+</dd>
+<dt><strong>path: string, optional</strong></dt><dd><p>If set, extracts the EPIC images in the indicated path</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A dictionary with the full paths of the extracted EPIC sources</dt><dd></dd>
+<dt>light curve products. The key is the instrument</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The filenames will contain the source number in hexadecimal,
+as this is the convention used by the pipeline.</p>
+<p>The structure and the content of the extracted compressed FITS files
+are described in details in the Pipeline Products Description
+[XMM-SOC-GEN-ICD-0024](<a class="reference external" href="https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf">https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_metadata">
+<span class="sig-name descname"><span class="pre">get_epic_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_epic_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Downloads the European Photon Imaging Camera (EPIC)
+metadata from a given target</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>target_name</strong><span class="classifier">string, optional, default None</span></dt><dd><p>The name of the target</p>
+</dd>
+<dt><strong>coordinates</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.SkyCoord.html#astropy.coordinates.SkyCoord" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkyCoord</span></code></a>, optinal, default None</span></dt><dd><p>The coordinates of the target in a SkyCoord object</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">float, optional, default None</span></dt><dd><p>The radius to query the target in degrees</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>epic_source,  cat_4xmm, stack_4xmm, slew_source</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> objects</span></dt><dd><p>Tables containing the metadata of the target</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_spectra">
+<span class="sig-name descname"><span class="pre">get_epic_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_number</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_epic_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_spectra" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts in path (when set) the EPIC sources spectral products from a
+given TAR file.</p>
+<p>This function extracts the EPIC sources spectral products in a given
+instrument (or instruments) from it
+The result is a dictionary containing the paths to the extracted EPIC
+sources spectral products with key being the instrument
+If the instrument is not specified this function will
+return all the available instruments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">string, mandatory</span></dt><dd><p>The name of the tarfile to be processed</p>
+</dd>
+<dt><strong>source_number</strong><span class="classifier">integer, mandatory</span></dt><dd><p>The source number, in decimal, in the observation</p>
+</dd>
+<dt><strong>instruments</strong><span class="classifier">array of strings, optional, default []</span></dt><dd><p>An array of strings indicating the desired instruments</p>
+</dd>
+<dt><strong>path: string, optional</strong></dt><dd><p>If set, extracts the EPIC images in the indicated path</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>optional, default ‘False’
+flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A dictionary with the full paths of the extracted EPIC sources</dt><dd></dd>
+<dt>spectral products. The key is the instrument</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The filenames will contain the source number in hexadecimal,
+as this is the convention used by the pipeline.
+The structure and the content of the extracted compressed FITS files
+are described in details in the Pipeline Products Description
+[XMM-SOC-GEN-ICD-0024](<a class="reference external" href="https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf">https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_postcard">
+<span class="sig-name descname"><span class="pre">get_postcard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OBS_EPIC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_postcard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_postcard" title="Link to this definition">¶</a></dt>
+<dd><p>Download postcards from XSA</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observation_id</strong><span class="classifier">string</span></dt><dd><p>id of the observation for which download the postcard, mandatory
+The identifier of the observation we want to retrieve, regardless
+of whether it is simple or composite.</p>
+</dd>
+<dt><strong>image_type</strong><span class="classifier">string</span></dt><dd><p>image type, optional, default ‘OBS_EPIC’
+The image_type to be returned. It can be: OBS_EPIC,
+OBS_RGS_FLUXED, OBS_RGS_FLUXED_2, OBS_RGS_FLUXED_3, OBS_EPIC_MT,
+OBS_RGS_FLUXED_MT, OBS_OM_V, OBS_OM_B, OBS_OM_U, OBS_OM_L,
+OBS_OM_M, OBS_OM_S, OBS_OM_W</p>
+</dd>
+<dt><strong>filename</strong><span class="classifier">string</span></dt><dd><p>file name to be used to store the postcard, optional, default None</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>optional, default ‘False’
+Flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None. It downloads the observation postcard indicated</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.get_tables">
+<span class="sig-name descname"><span class="pre">get_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.get_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Get the available table in XSA TAP service</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>only_names</strong><span class="classifier">bool, TAP+ only, optional, default ‘True’</span></dt><dd><p>True to load table names only</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of tables</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.xmm_newton.XMMNewtonClass.query_xsa_tap">
+<span class="sig-name descname"><span class="pre">query_xsa_tap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/xmm_newton/core.html#XMMNewtonClass.query_xsa_tap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.xmm_newton.XMMNewtonClass.query_xsa_tap" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a synchronous job to query the XSA tap</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query (adql) to be executed</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>possible values ‘votable’ or ‘csv’</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A table object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">XMMNewtonClass</a><ul>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_aio_url"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.data_aio_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.data_url"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.data_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.metadata_url"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.metadata_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.download_data"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.download_data()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_columns"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_columns()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_images"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_epic_images()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_lightcurve"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_epic_lightcurve()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_metadata"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_epic_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_epic_spectra"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_epic_spectra()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_postcard"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_postcard()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.get_tables"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.get_tables()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.xmm_newton.XMMNewtonClass.query_xsa_tap"><code class="docutils literal notranslate"><span class="pre">XMMNewtonClass.query_xsa_tap()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.esa.xmm_newton.XMMNewtonClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

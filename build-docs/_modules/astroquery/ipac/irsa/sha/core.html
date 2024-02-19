@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.ipac.irsa.sha.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../../irsa.html" accesskey="U">astroquery.ipac.irsa</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.ipac.irsa.sha.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="k">as</span> <span class="nn">fits</span>
+
+<span class="kn">from</span> <span class="nn">astroquery.exceptions</span> <span class="kn">import</span> <span class="n">NoResultsWarning</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;save_file&#39;</span><span class="p">,</span> <span class="s1">&#39;get_file&#39;</span><span class="p">]</span>
+<span class="n">id_parse</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;ID\=(\d+)&#39;</span><span class="p">)</span>
+
+<span class="c1"># should skip only if remote_data = False</span>
+<span class="n">__doctest_skip__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;save_file&#39;</span><span class="p">,</span> <span class="s1">&#39;get_file&#39;</span><span class="p">]</span>
+
+<span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;https://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?&#39;</span>
+
+
+<div class="viewcode-block" id="query">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.sha.query.html#astroquery.ipac.irsa.sha.query">[docs]</a>
+<span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">naifid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">reqkey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">return_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">return_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query the Spitzer Heritage Archive (SHA).</span>
+
+<span class="sd">    Four query types are valid to search by position, NAIFID, PID, and ReqKey::</span>
+
+<span class="sd">        position -&gt; search a region</span>
+<span class="sd">        naifid   -&gt; NAIF ID, which is a unique number allocated to solar</span>
+<span class="sd">                    system objects (e.g. planets, asteroids, comets,</span>
+<span class="sd">                    spacecraft) by the NAIF at JPL.</span>
+<span class="sd">        pid      -&gt; program ID</span>
+<span class="sd">        reqkey   -&gt; AOR ID: Astronomical Observation Request ID</span>
+
+
+<span class="sd">    For a valid query, enter only parameters related to a single query type::</span>
+
+<span class="sd">        position -&gt; ra, dec, size</span>
+<span class="sd">        naifid   -&gt; naifid</span>
+<span class="sd">        pid      -&gt; pid</span>
+<span class="sd">        reqkey   -&gt; reqkey</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coord : astropy.coordinates.builtin_systems</span>
+<span class="sd">        Astropy coordinate object. (query_type = &#39;position&#39;)</span>
+<span class="sd">    ra : number</span>
+<span class="sd">        Right ascension in degrees, alternative to using ``coord``.</span>
+<span class="sd">        (query_type = &#39;position&#39;)</span>
+<span class="sd">    dec : number</span>
+<span class="sd">        Declination in degrees, alternative to using ``coord``.</span>
+<span class="sd">        (query_type = &#39;position&#39;)</span>
+<span class="sd">    size : number</span>
+<span class="sd">        Region size in degrees. (query_type = &#39;position&#39;)</span>
+<span class="sd">    naifid : number</span>
+<span class="sd">        NAIF ID. (query_type = &#39;naifid&#39;)</span>
+<span class="sd">    pid : number</span>
+<span class="sd">        Program ID. (query_type = &#39;pid&#39;)</span>
+<span class="sd">    reqkey : number</span>
+<span class="sd">        Astronomical Observation Request ID. (query_type = &#39;reqkey&#39;)</span>
+<span class="sd">    dataset : number, default 2</span>
+<span class="sd">        Data set. Valid options::</span>
+
+<span class="sd">            1 -&gt; BCD data</span>
+<span class="sd">            2 -&gt; PBCD data</span>
+
+<span class="sd">    verbosity : number, default 3</span>
+<span class="sd">        Verbosity level, controls the number of columns to output.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    table : `~astropy.table.Table`</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Position query using an astropy coordinate object</span>
+
+<span class="sd">    &gt;&gt;&gt; import astropy.coordinates as coord</span>
+<span class="sd">    &gt;&gt;&gt; import astropy.units as u</span>
+<span class="sd">    &gt;&gt;&gt; from astroquery import sha</span>
+<span class="sd">    &gt;&gt;&gt; pos_t = sha.query(coord=coord.SkyCoord(ra=163.6136, dec=-11.784,</span>
+<span class="sd">    ... unit=(u.degree, u.degree)), size=0.5)</span>
+
+<span class="sd">    Position query with optional ``ra`` and ``dec`` parameters</span>
+
+<span class="sd">    &gt;&gt;&gt; pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)</span>
+
+<span class="sd">    NAIFID query</span>
+
+<span class="sd">    &gt;&gt;&gt; nid_t = sha.query(naifid=2003226)</span>
+
+<span class="sd">    PID query</span>
+
+<span class="sd">    &gt;&gt;&gt; pid_t = sha.query(pid=30080)</span>
+
+<span class="sd">    ReqKey query</span>
+
+<span class="sd">    &gt;&gt;&gt; rqk_t = sha.query(reqkey=21641216)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For column descriptions, metadata, and other information visit the SHA</span>
+<span class="sd">    query API_ help page</span>
+
+<span class="sd">    .. _API: https://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use Coordinate instance if supplied</span>
+    <span class="k">if</span> <span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ra</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">degree</span>
+            <span class="n">dec</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">degree</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot parse `coord` variable.&#39;</span><span class="p">)</span>
+    <span class="c1"># Query parameters</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;RA&#39;</span><span class="p">:</span> <span class="n">ra</span><span class="p">,</span>
+               <span class="s1">&#39;DEC&#39;</span><span class="p">:</span> <span class="n">dec</span><span class="p">,</span>
+               <span class="s1">&#39;SIZE&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+               <span class="s1">&#39;NAIFID&#39;</span><span class="p">:</span> <span class="n">naifid</span><span class="p">,</span>
+               <span class="s1">&#39;PID&#39;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span>
+               <span class="s1">&#39;REQKEY&#39;</span><span class="p">:</span> <span class="n">reqkey</span><span class="p">,</span>
+               <span class="s1">&#39;VERB&#39;</span><span class="p">:</span> <span class="n">verbosity</span><span class="p">,</span>
+               <span class="s1">&#39;DATASET&#39;</span><span class="p">:</span> <span class="s1">&#39;ivo://irsa.ipac.spitzer.level</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">return_payload</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">payload</span>
+    <span class="c1"># Make request</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_response</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="c1"># Parse output</span>
+    <span class="c1"># requests returns unicode strings, encode back to ascii</span>
+    <span class="c1"># because of &#39;|foo|bar|&#39; delimiters, remove first and last empty columns</span>
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+    <span class="n">field_widths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">col_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">type_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">field_widths</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">parse_line</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">cs</span><span class="o">=</span><span class="n">cs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="c1"># Parse type names</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_map_dtypes</span><span class="p">(</span><span class="n">type_names</span><span class="p">,</span> <span class="n">field_widths</span><span class="p">)</span>
+    <span class="c1"># To table</span>
+    <span class="c1"># transpose data for appropriate table instance handling</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)),</span> <span class="n">names</span><span class="o">=</span><span class="n">col_names</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">NoResultsWarning</span><span class="p">(</span><span class="s2">&quot;No matching rows were found in the query.&quot;</span><span class="p">))</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">table</span></div>
+
+
+
+<div class="viewcode-block" id="save_file">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.sha.save_file.html#astroquery.ipac.irsa.sha.save_file">[docs]</a>
+<span class="k">def</span> <span class="nf">save_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="s1">&#39;sha_tmp/&#39;</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download image to output directory given a URL from a SHA query.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        Access URL from SHA query. Requires complete URL, valid URLs from the</span>
+<span class="sd">        SHA query include columns::</span>
+
+<span class="sd">            accessUrl -&gt; The URL to be used to retrieve an image or table</span>
+<span class="sd">            withAnc1  -&gt; The URL to be used to retrieve the image or spectra</span>
+<span class="sd">                         with important ancillary products (mask, uncertainty,</span>
+<span class="sd">                         etc.) as a zip archive</span>
+
+<span class="sd">    out_dir : str</span>
+<span class="sd">        Path for output table or image</span>
+<span class="sd">    out_name : str</span>
+<span class="sd">        Name for output table or image, if None use the file ID as name.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from astroquery import sha</span>
+<span class="sd">    &gt;&gt;&gt; url = sha.query(pid=30080)[&#39;accessUrl&#39;][0]</span>
+<span class="sd">    &gt;&gt;&gt; sha.save_file(url)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">exten_types</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;image/fits&#39;</span><span class="p">:</span> <span class="s1">&#39;.fits&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;text/plain; charset=UTF-8&#39;</span><span class="p">:</span> <span class="s1">&#39;.tbl&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;application/zip&#39;</span><span class="p">:</span> <span class="s1">&#39;.zip&#39;</span><span class="p">,</span>
+                   <span class="p">}</span>
+    <span class="c1"># Make request</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="c1"># Name file using ID at end</span>
+    <span class="k">if</span> <span class="n">out_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;shaID_&#39;</span> <span class="o">+</span> <span class="n">id_parse</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Determine extension</span>
+    <span class="n">exten</span> <span class="o">=</span> <span class="n">exten_types</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]]</span>
+    <span class="c1"># Check if path exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+    <span class="c1"># Write file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">+</span> <span class="n">out_name</span> <span class="o">+</span> <span class="n">exten</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="mi">1024</span><span class="p">):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">block</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_file">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.sha.get_file.html#astroquery.ipac.irsa.sha.get_file">[docs]</a>
+<span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return object from SHA query URL.</span>
+
+<span class="sd">    Currently only supports FITS files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        Access URL from SHA query. Requires complete URL, valid URLs from the</span>
+<span class="sd">        SHA query include columns::</span>
+
+<span class="sd">            accessUrl -&gt; The URL to be used to retrieve an image or table</span>
+<span class="sd">            withAnc1  -&gt; The URL to be used to retrieve the image or spectra</span>
+<span class="sd">                         with important ancillary products (mask, uncertainty,</span>
+<span class="sd">                         etc.) as a zip archive</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    obj : `~astropy.table.Table`, `astropy.io.fits`, list</span>
+<span class="sd">        Return object depending if link points to a table, fits image, or zip</span>
+<span class="sd">        file of products.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from astroquery import sha</span>
+<span class="sd">    &gt;&gt;&gt; url = sha.query(pid=30080)[&#39;accessUrl&#39;][0]</span>
+<span class="sd">    &gt;&gt;&gt; img = sha.get_file(url)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make request</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="c1"># Read fits</span>
+    <span class="n">iofile</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s1">&#39;image/fits&#39;</span><span class="p">:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">iofile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown content type: </span><span class="si">{0}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">content_type</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_map_dtypes</span><span class="p">(</span><span class="n">type_names</span><span class="p">,</span> <span class="n">field_widths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create dtype string based on column lengths and field type names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_names : list</span>
+<span class="sd">        List of type names from file header</span>
+<span class="sd">    field_widths : list</span>
+<span class="sd">        List of field width values</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dtypes : list</span>
+<span class="sd">        List of dtype for each column in data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">type_names</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;i8&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;double&#39;</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;f8&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;char&#39;</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;a</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">field_widths</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unexpected type name: </span><span class="si">{0}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">dtypes</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

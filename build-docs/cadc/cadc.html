@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CADC (astroquery.cadc) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CadcClass" href="../api/astroquery.cadc.CadcClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.besancon.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.cadc.CadcClass.html" title="CadcClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.besancon.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>CADC (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.cadc</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="cadc-astroquery-cadc">
+<span id="astroquery-cadc"></span><h1>CADC (<a class="reference internal" href="#module-astroquery.cadc" title="astroquery.cadc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.cadc</span></code></a>)<a class="headerlink" href="#cadc-astroquery-cadc" title="Link to this heading">¶</a></h1>
+<p>The Canadian Astronomy Data Centre (CADC) is a world-wide distribution
+centre for astronomical data obtained from telescopes. The CADC
+specializes in data mining, processing, distribution and transferring
+of very large astronomical datasets.</p>
+<p>This package allows the access to the data at the <a class="reference external" href="https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/">CADC</a>.</p>
+<section id="basic-access">
+<h2>Basic Access<a class="headerlink" href="#basic-access" title="Link to this heading">¶</a></h2>
+<p>The CADC hosts a number of collections and
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.get_collections" title="astroquery.cadc.CadcClass.get_collections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collections</span></code></a> returns a list of all
+these collections:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">collection</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cadc</span><span class="o">.</span><span class="n">get_collections</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="n">details</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">APASS : {&#39;Description&#39;: &#39;The APASS collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;, &#39;Infrared|Optical&#39;, &#39;&#39;]}</span>
+<span class="go">BLAST : {&#39;Description&#39;: &#39;The BLAST collection at the CADC&#39;, &#39;Bands&#39;: [&#39;&#39;, &#39;Millimeter&#39;]}</span>
+<span class="go">BRITE-Constellation : {&#39;Description&#39;: &#39;The BRITE-Constellation collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;]}</span>
+<span class="go">CFHT : {&#39;Description&#39;: &#39;The CFHT collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Infrared|Optical&#39;, &#39;Optical|UV|EUV|X-ray|Gamma-ray&#39;, &#39;Infrared|Optical|UV&#39;, &#39;&#39;, &#39;Optical&#39;, &#39;Infrared&#39;]}</span>
+<span class="go">CFHTMEGAPIPE : {&#39;Description&#39;: &#39;The CFHTMEGAPIPE collection at the CADC&#39;, &#39;Bands&#39;: [&#39;&#39;, &#39;Infrared|Optical&#39;, &#39;Optical&#39;]}</span>
+<span class="go">CFHTTERAPIX : {&#39;Description&#39;: &#39;The CFHTTERAPIX collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Infrared|Optical&#39;, &#39;Optical&#39;, &#39;Infrared&#39;]}</span>
+<span class="go">CFHTWIRWOLF : {&#39;Description&#39;: &#39;The CFHTWIRWOLF collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Infrared&#39;]}</span>
+<span class="go">CGPS : {&#39;Description&#39;: &#39;The CGPS collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Infrared&#39;, &#39;Radio&#39;, &#39;Millimeter&#39;, &#39;&#39;, &#39;Millimeter|Infrared&#39;]}</span>
+<span class="go">...</span>
+<span class="go">SUBARU : {&#39;Description&#39;: &#39;The SUBARU collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;]}</span>
+<span class="go">SUBARUCADC : {&#39;Description&#39;: &#39;The SUBARUCADC collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;, &#39;Infrared|Optical&#39;]}</span>
+<span class="go">TESS : {&#39;Description&#39;: &#39;The TESS collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;]}</span>
+<span class="go">UKIRT : {&#39;Description&#39;: &#39;The UKIRT collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Infrared|Optical&#39;, &#39;&#39;, &#39;Optical&#39;, &#39;Infrared&#39;]}</span>
+<span class="go">VGPS : {&#39;Description&#39;: &#39;The VGPS collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Radio&#39;]}</span>
+<span class="go">VLASS : {&#39;Description&#39;: &#39;The VLASS collection at the CADC&#39;, &#39;Bands&#39;: [&#39;&#39;, &#39;Radio&#39;]}</span>
+<span class="go">WALLABY : {&#39;Description&#39;: &#39;The WALLABY collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Radio&#39;]}</span>
+<span class="go">XMM : {&#39;Description&#39;: &#39;The XMM collection at the CADC&#39;, &#39;Bands&#39;: [&#39;Optical&#39;, &#39;UV&#39;, &#39;X-ray&#39;]}</span>
+</pre></div>
+</div>
+<p>The most basic ways to access the CADC data and metadata is by
+region or by name. The following example queries CADC for Canada
+France Hawaii Telescope (CFHT) data for a given region and resolves
+the URLs for downloading the corresponding data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s1">&#39;08h45m07.5s +54d18m00s&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;CFHT&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  
+<span class="go">  observationURI  sequenceNumber ...     maxLastModified2</span>
+<span class="go">                                 ...</span>
+<span class="go">----------------- -------------- ... -----------------------</span>
+<span class="go">caom:CFHT/2366432        2366432 ... 2020-09-14T04:24:28.932</span>
+<span class="go">caom:CFHT/2366188        2366188 ... 2020-09-14T06:58:23.094</span>
+<span class="go">caom:CFHT/2366432        2366432 ... 2020-09-14T04:24:28.932</span>
+<span class="go">caom:CFHT/2480747        2480747 ... 2020-09-09T12:47:39.890</span>
+<span class="go">caom:CFHT/2366188        2366188 ... 2020-09-14T06:58:23.094</span>
+<span class="go">caom:CFHT/2480747        2480747 ... 2021-02-26T14:40:21.695</span>
+<span class="go">caom:CFHT/2583703        2583703 ... 2021-02-18T01:32:51.542</span>
+<span class="go">caom:CFHT/2583527        2583527 ... 2021-09-01T20:37:05.647</span>
+<span class="go">caom:CFHT/2583527        2583527 ... 2021-09-01T20:37:05.647</span>
+<span class="go">caom:CFHT/2583703        2583703 ... 2021-02-26T10:37:42.355</span>
+<span class="go">caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790</span>
+<span class="go">caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">urls</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_data_urls</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>   
+<span class="gp">...</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432o.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432p.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188p.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188o.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747o.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747p.fits.fz?RUNID=queoo1qg8y4pgiep</span>
+</pre></div>
+</div>
+<p>The next example queries all the data in the same region and filters
+the results on the name of the target (as an example - any other
+filtering possible) and resolves the URLs for both the primary and
+auxiliary data (in this case preview files)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s1">&#39;08h45m07.5s +54d18m00s&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">urls</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_data_urls</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;target_name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Nr3491_1&#39;</span><span class="p">],</span>
+<span class="gp">... </span>                          <span class="n">include_auxiliaries</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  
+<span class="gp">...</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o_preview_zoom_1024.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o_preview_256.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o_preview_1024.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o.fits.fz?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p_preview_1024.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p_preview_256.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p_preview_zoom_1024.jpg?RUNID=tqlxhnxndjs1xhd3</span>
+<span class="go">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p.fits.fz?RUNID=tqlxhnxndjs1xhd3</span>
+</pre></div>
+</div>
+<p>CADC data can also be queried on the target name. Note that the name
+is not resolved. Instead it is matched against the target name in
+the CADC metadata.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result_m31</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">query_name</span><span class="p">(</span><span class="s1">&#39;M31&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">query_name</span><span class="p">(</span><span class="s1">&#39;Nr3491_1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  
+<span class="go">  observationURI  sequenceNumber ...     maxLastModified2</span>
+<span class="go">                                 ...</span>
+<span class="go">----------------- -------------- ... -----------------------</span>
+<span class="go">caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790</span>
+<span class="go">caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790</span>
+</pre></div>
+</div>
+<p>If only a subsection of the FITS file is needed, CADC can query an
+area and resolve the cutout of a result.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="s1">&#39;01h45m07.5s +23d18m00s&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">radius</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;CFHT&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span>  
+<span class="go">[&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805a06ef0&gt;]</span>
+<span class="go">[&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805b23b38&gt;]</span>
+</pre></div>
+</div>
+<p>Alternatively, if the query result is large and data does not need to be
+in memory, lazy access to the downloaded FITS file can be used.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">radius</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">readable_objs</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_images_async</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;CFHT&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">readable_objs</span>  
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234132o.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451168112</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451142576</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383o.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045452176880</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228675o.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045452234864</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234131o.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451147584</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228675p.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451345584</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383p.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451344912</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234131p.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451345104</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234132p.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451343808</span>
+<span class="go">Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&amp;RUNID=pot39nwwtaht03wc&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451344768</span>
+</pre></div>
+</div>
+<p>If the cutout URLs from a complicated query
+are needed, the result table can be passed into the
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.get_image_list" title="astroquery.cadc.CadcClass.get_image_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_image_list</span></code></a> function, along with the
+cutout coordinates and radius.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="s1">&#39;01h45m07.5s +23d18m00s&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;CFHT&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filtered_results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;time_exposure&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">120.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_list</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_image_list</span><span class="p">(</span><span class="n">filtered_results</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">image_list</span><span class="p">)</span>   
+<span class="go">[&#39;https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278o.fits.fz&amp;RUNID=dbuswaj4zwruzi92&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.1&#39;,</span>
+<span class="go">&#39;https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278p.fits.fz&amp;RUNID=dbuswaj4zwruzi92&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.1&#39;,</span>
+<span class="go">&#39;https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&amp;RUNID=dbuswaj4zwruzi92&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.1&#39;,</span>
+<span class="go">&#39;https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&amp;RUNID=dbuswaj4zwruzi92&amp;POS=CIRCLE+26.2812589776878+23.299999818906816+0.1&#39;]</span>
+</pre></div>
+</div>
+<p>Note that the examples above are for accessing data anonymously. Users
+with access to proprietary data can use authenticated sessions
+to instantiate the <a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass" title="astroquery.cadc.CadcClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CadcClass</span></code></a> class or call
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.login" title="astroquery.cadc.CadcClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a> on it before querying or accessing
+the data.</p>
+<p>CADC metadata is available through a TAP service. While the above
+interfaces offer a quick and simple access to the data, the TAP
+interface presented in the next sections allows for more complex
+queries.</p>
+</section>
+<section id="query-cadc-metadata-using-tap">
+<h2>Query CADC metadata using TAP<a class="headerlink" href="#query-cadc-metadata-using-tap" title="Link to this heading">¶</a></h2>
+<p>Cadc TAP access is based on a TAP+ REST service. TAP+ is an extension
+of <a class="reference external" href="http://www.ivoa.net/documents/TAP">Table Access Protocol (TAP)</a>
+specified by the <a class="reference external" href="http://www.ivoa.net">International Virtual Observatory Alliance (IVOA)</a>.</p>
+<p>The TAP query language is <a class="reference external" href="http://www.ivoa.net/documents/ADQL/2.0">Astronomical Data Query Language (ADQL)</a>, which is similar to
+Structured Query Language (SQL), widely used to query databases.</p>
+<p>TAP provides two operation modes:</p>
+<ul class="simple">
+<li><p>Synchronous: the response to the request will be generated as soon
+as the request received by the server.  (In general, avoid using
+this method for queries that take a long time to run before the first
+rows are returned as it might lead to timeouts on the client side.)</p></li>
+<li><p>Asynchronous: the server will start a job that will execute the
+request.  The first response to the request is the required
+information (a link) to obtain the job status.  Once the job is
+finished, the results can be retrieved.</p></li>
+</ul>
+<p>The functions can be run as an authenticated user, the
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.list_async_jobs" title="astroquery.cadc.CadcClass.list_async_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_async_jobs</span></code></a> function will error if
+not authenticated. For authentication you need an account with the
+CADC, go to <a class="reference external" href="http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/">http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/</a>, choose a
+language, click on Login in the top right area, click on the Request
+an Account link, enter your information and wait for confirmation of
+your account creation.</p>
+<p>There are two types of authentication:</p>
+<ul class="simple">
+<li><p>Username/Password:
+<code class="code docutils literal notranslate"><span class="pre">Cadc().login(user='yourusername',</span> <span class="pre">password='yourpassword')</span></code></p></li>
+<li><p>Certificate:
+<code class="code docutils literal notranslate"><span class="pre">Cadc().login(certificate_file='path/to/certificate/file')</span></code></p></li>
+</ul>
+<p>For certificate authentication to get a certificate go to
+<a class="reference external" href="https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/</a>, choose a language,
+login, click on your name where the login button used to be,
+from the drop-down menu click Obtain a Certificate and save the
+certificate. When adding authentication used the path to where you
+saved the certificate. Remember that certificates expire and you will
+need to get a new one.</p>
+<p>When logging in, both forms of authentication are
+allowed. Authentication will be applied to each subsequent call. When
+a job is created with authentication any further calls will require
+authentication.</p>
+<p>There is one way to logout which will cancel any kind of authentication
+that was used:</p>
+<ul class="simple">
+<li><p>Logout:
+<code class="code docutils literal notranslate"><span class="pre">Cadc.logout()</span></code></p></li>
+</ul>
+<p>CADC metadata is modeled using the <a class="reference external" href="https://www.opencadc.org/caom2/">CAOM (Common Archive Observation
+Model)</a>.</p>
+</section>
+<section id="examples-of-tap-access">
+<h2>Examples of TAP access<a class="headerlink" href="#examples-of-tap-access" title="Link to this heading">¶</a></h2>
+<section id="non-authenticated-access">
+<h3>1. Non authenticated access<a class="headerlink" href="#non-authenticated-access" title="Link to this heading">¶</a></h3>
+<section id="get-tables">
+<h4>1.1. Get tables<a class="headerlink" href="#get-tables" title="Link to this heading">¶</a></h4>
+<p>To get a list of table objects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">get_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">caom2.Observation</span>
+<span class="go">caom2.Plane</span>
+<span class="go">caom2.Artifact</span>
+<span class="go">caom2.Part</span>
+<span class="go">caom2.Chunk</span>
+<span class="go">caom2.ObservationMember</span>
+<span class="go">caom2.ProvenanceInput</span>
+<span class="go">caom2.EnumField</span>
+<span class="go">caom2.ObsCoreEnumField</span>
+<span class="go">caom2.distinct_proposal_id</span>
+<span class="go">caom2.distinct_proposal_pi</span>
+<span class="go">caom2.distinct_proposal_title</span>
+<span class="go">caom2.HarvestSkipURI</span>
+<span class="go">caom2.HarvestState</span>
+<span class="go">caom2.SIAv1</span>
+<span class="go">ivoa.ObsCore</span>
+<span class="go">ivoa.ObsFile</span>
+<span class="go">ivoa.ObsPart</span>
+<span class="go">tap_schema.schemas</span>
+<span class="go">tap_schema.tables</span>
+<span class="go">tap_schema.columns</span>
+<span class="go">tap_schema.keys</span>
+<span class="go">tap_schema.key_columns</span>
+</pre></div>
+</div>
+</section>
+<section id="get-table">
+<h4>1.2. Get table<a class="headerlink" href="#get-table" title="Link to this heading">¶</a></h4>
+<p>To get a single table object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">=</span><span class="n">cadc</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="s1">&#39;caom2.Observation&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">observationURI</span>
+<span class="go">obsID</span>
+<span class="go">collection</span>
+<span class="go">observationID</span>
+<span class="go">algorithm_name</span>
+<span class="go">type</span>
+<span class="go">intent</span>
+<span class="go">sequenceNumber</span>
+<span class="go">metaRelease</span>
+<span class="go">metaReadGroups</span>
+<span class="go">proposal_id</span>
+<span class="go">proposal_pi</span>
+<span class="go">proposal_project</span>
+<span class="go">proposal_title</span>
+<span class="go">proposal_keywords</span>
+<span class="go">target_name</span>
+<span class="go">target_targetID</span>
+<span class="go">target_type</span>
+<span class="go">target_standard</span>
+<span class="go">target_redshift</span>
+<span class="go">target_moving</span>
+<span class="go">target_keywords</span>
+<span class="go">targetPosition_coordsys</span>
+<span class="go">targetPosition_coordinates_cval1</span>
+<span class="go">targetPosition_equinox</span>
+<span class="go">targetPosition_coordinates_cval2</span>
+<span class="go">telescope_name</span>
+<span class="go">telescope_geoLocationX</span>
+<span class="go">telescope_geoLocationY</span>
+<span class="go">telescope_geoLocationZ</span>
+<span class="go">telescope_keywords</span>
+<span class="go">requirements_flag</span>
+<span class="go">instrument_name</span>
+<span class="go">instrument_keywords</span>
+<span class="go">environment_seeing</span>
+<span class="go">environment_humidity</span>
+<span class="go">environment_elevation</span>
+<span class="go">environment_tau</span>
+<span class="go">environment_wavelengthTau</span>
+<span class="go">environment_ambientTemp</span>
+<span class="go">environment_photometric</span>
+<span class="go">members</span>
+<span class="go">typeCode</span>
+<span class="go">metaProducer</span>
+<span class="go">lastModified</span>
+<span class="go">maxLastModified</span>
+<span class="go">metaChecksum</span>
+<span class="go">accMetaChecksum</span>
+</pre></div>
+</div>
+</section>
+<section id="run-synchronous-query">
+<h4>1.3 Run synchronous query<a class="headerlink" href="#run-synchronous-query" title="Link to this heading">¶</a></h4>
+<p>A synchronous query will not store the results at server side. These
+queries must be used when the amount of data to be retrieved is
+‘small’.</p>
+<p>There is a limit of 2000 rows. If you need more than that, you must
+use asynchronous queries.</p>
+<p>The results can be saved in memory (default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">exec_sync</span><span class="p">(</span><span class="s2">&quot;SELECT top 100 observationID, intent FROM caom2.Observation&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>  
+<span class="go">          observationID               intent</span>
+<span class="go">---------------------------------- -----------</span>
+<span class="go">    VLASS2.2.T18t28.J204443+293000     science</span>
+<span class="go">        c4d_141029_044031_oki_g_v1     science</span>
+<span class="go">    VLASS2.2.T18t28.J203534+293000     science</span>
+<span class="go">                               ...         ...</span>
+<span class="go">                      C170323_0155 calibration</span>
+<span class="go">                      C180513_0208     science</span>
+<span class="go">                     2019101223440     science</span>
+<span class="go"> Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Query saving results in a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">exec_sync</span><span class="p">(</span><span class="s2">&quot;SELECT TOP 10 observationID, obsID FROM caom2.Observation&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="n">output_file</span><span class="o">=</span><span class="s1">&#39;test_output_noauth.xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-query-with-temporary-uploaded-table">
+<h4>1.5 Synchronous query with temporary uploaded table<a class="headerlink" href="#synchronous-query-with-temporary-uploaded-table" title="Link to this heading">¶</a></h4>
+<p>A temporary table can be uploaded to the server from a local file and used in a query.
+The <code class="docutils literal notranslate"><span class="pre">uploads</span></code> argument in <code class="docutils literal notranslate"><span class="pre">exec_sync</span></code> is a map where the key is the name of the
+table and the value is the name of the <code class="docutils literal notranslate"><span class="pre">VOTable</span></code> temporary file with the content.
+In the query, the temporary table is referred to as <code class="docutils literal notranslate"><span class="pre">tap_upload.table_name</span></code>.
+For example, if <code class="docutils literal notranslate"><span class="pre">uploads</span> <span class="pre">=</span> <span class="pre">{'temp_table':</span> <span class="pre">'table_file_name'}</span></code>, then the simplest query
+to return the content of that table would be <code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">*</span> <span class="pre">FROM</span> <span class="pre">tap_upload.temp_table</span></code>.
+Multiple temporary tables to be used at once can be specified as such.</p>
+<p>More details about temporary table upload can be found in the IVOA TAP specification.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># save a few observations on a local file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">exec_sync</span><span class="p">(</span><span class="s2">&quot;SELECT TOP 3 observationID FROM caom2.Observation&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="n">output_file</span><span class="o">=</span><span class="s1">&#39;my_observations.xml&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>  
+<span class="go">              observationID</span>
+<span class="go">----------------------------------</span>
+<span class="go">            c13a_060826_044314_ori</span>
+<span class="go">tess2021167190903-s0039-1-3-0210-s</span>
+<span class="go">                         tu1657207</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now use them to join with the remote table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">exec_sync</span><span class="p">(</span><span class="s2">&quot;SELECT o.observationID, intent FROM caom2.Observation o &quot;</span>
+<span class="gp">... </span>                         <span class="s2">&quot;JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="n">uploads</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;test_upload&#39;</span><span class="p">:</span> <span class="s1">&#39;my_observations.xml&#39;</span><span class="p">})</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>  
+<span class="go">          observationID             intent</span>
+<span class="go">---------------------------------- -------</span>
+<span class="go">            c13a_060826_044314_ori science</span>
+<span class="go">tess2021167190903-s0039-1-3-0210-s science</span>
+<span class="go">                         tu1657207 science</span>
+</pre></div>
+</div>
+<p>The feature allows a user to save the results of a query to use them later or
+correlate them with data in other TAP services.</p>
+</section>
+<section id="asynchronous-query">
+<h4>1.6 Asynchronous query<a class="headerlink" href="#asynchronous-query" title="Link to this heading">¶</a></h4>
+<p>Asynchronous queries save results at server side. These queries can
+be accessed at any time.</p>
+<p>The results can be saved in memory (default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">create_async</span><span class="p">(</span><span class="s2">&quot;SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span><span class="o">.</span><span class="n">raise_if_error</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">fetch_result</span><span class="p">()</span><span class="o">.</span><span class="n">to_table</span><span class="p">())</span>  
+<span class="go">                 observationID                     intent</span>
+<span class="go">----------------------------------------------- -----------</span>
+<span class="go">                                      j8eh03boq     science</span>
+<span class="go">                                      j8f635020     science</span>
+<span class="go">                                      jbfkb1peq     science</span>
+<span class="go">                                      j8ff06s2q     science</span>
+<span class="go">                                      icdx40oxq     science</span>
+<span class="go">                                      j8fd13rgq     science</span>
+<span class="go">                                      j8ff03020     science</span>
+<span class="go">                        GN-2014B-SV-101-761-010     science</span>
+<span class="go">                                      j8ff07020     science</span>
+<span class="go">                                      jbfh14020     science</span>
+<span class="go">                                            ...         ...</span>
+<span class="go">           hst_10476_50_acs_wfc_f850lp_j9fo50ul     science</span>
+<span class="go">                   GS-CAL20181018-10-026-G-BIAS calibration</span>
+<span class="go">                          GN-2020B-Q-120-40-050 calibration</span>
+<span class="go">                   GS-CAL20181018-10-021-G-BIAS calibration</span>
+<span class="go">                   GS-CAL20181018-10-036-G-BIAS calibration</span>
+<span class="go">                   GS-CAL20181018-10-061-G-BIAS calibration</span>
+<span class="go">                                      icdx13u2q     science</span>
+<span class="go">                    GS-CAL20181117-2-046-G-BIAS calibration</span>
+<span class="go">tess2019357164649-s0020-0000000159539617-0165-s     science</span>
+<span class="go">                    GS-CAL20181117-2-061-G-BIAS calibration</span>
+<span class="go">                   GS-CAL20181018-10-086-G-BIAS calibration</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="load-job">
+<h4>1.7 Load job<a class="headerlink" href="#load-job" title="Link to this heading">¶</a></h4>
+<p>Asynchronous jobs can be loaded. You need the jobid in order to load
+the job.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">create_async</span><span class="p">(</span><span class="s2">&quot;SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span><span class="o">.</span><span class="n">raise_if_error</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_job</span> <span class="o">=</span> <span class="n">cadc</span><span class="o">.</span><span class="n">load_async_job</span><span class="p">(</span><span class="n">jobid</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">loaded_job</span><span class="o">.</span><span class="n">fetch_result</span><span class="p">()</span><span class="o">.</span><span class="n">to_table</span><span class="p">())</span>     
+<span class="go">       observationID         instrument_name            target_name</span>
+<span class="go">---------------------------- ---------------- --------------------------------</span>
+<span class="go">                C090503_0500           CPAPIR                             SH87</span>
+<span class="go">  c4d_151207_032018_opd_u_v3            decam                          Field14</span>
+<span class="go">                   ct3264072          andicam                          2227-08</span>
+<span class="go">                    tu558265         mosaic_2                    xcs0058940301</span>
+<span class="go">                   ct2318747         ccd_spec                             test</span>
+<span class="go">                   tu1826354            decam                               B1</span>
+<span class="go">       c4d_150601_015113_ori            decam                             junk</span>
+<span class="go">                    tu212518          newfirm Mask for K4N09B_20091129_783db2b</span>
+<span class="go">       k4i_041101_174620_zri        ir_imager                        TEST bias</span>
+<span class="go">                    tu072083          newfirm Mask for K4N07B_20071113_776684b</span>
+<span class="go">       psg_170118_012214_ori          goodman                          NGC1672</span>
+<span class="go">k4n_131022_051755_opd_KXs_v3          newfirm Mask for K4N13B_20131020_89c812c</span>
+<span class="go">      c15s_080828_031158_ori         ccd_spec                              082</span>
+<span class="go">  c4d_160214_072405_opi_r_v1            decam        MAGLITES field: 5354-01-r</span>
+<span class="go">  c4d_141122_004603_oki_u_v3            decam                           Field4</span>
+<span class="go"> c4d_140505_000543_opw_VR_v1            decam                          AiYN1Qv</span>
+<span class="go">                         ...              ...                              ...</span>
+<span class="go">      c09i_140321_044944_ori       ccd_imager twhya filter1 = dia, filter2 = g</span>
+<span class="go">  c4d_150902_000343_opd_i_v1            decam                         C6p13c1A</span>
+<span class="go">      c09i_141005_231309_sri       ccd_imager                            sflat</span>
+<span class="go">      kcfs_081028_074111_ori         ccd_spec                         HD 22780</span>
+<span class="go">                    tu802011       mosaic_1_1                            86326</span>
+<span class="go">  c4d_141122_004603_oow_u_v3            decam                           Field4</span>
+<span class="go">      c15s_071230_081528_ori         ccd_spec                         HD 95578</span>
+<span class="go">      c15s_070924_203941_zri         ccd_spec                             Bias</span>
+<span class="go">                   tu1116697         mosaic_2                             sm43</span>
+<span class="go">                   ct3429663         mosaic_2                             test</span>
+<span class="go">        dao_c182_2020_005631 Newtonian Imager                  s2020ihc(150@0)</span>
+<span class="go">        dao_c182_2020_005632 Newtonian Imager                  s2020ihc(150@0)</span>
+<span class="go">                C090317_0114           CPAPIR                           2M1106</span>
+<span class="go">                    cp828585          spartan             WISEJ1741+2533 x-6y5</span>
+<span class="go">      c09i_060720_044639_ori       ccd_imager                    G2239n05d1243</span>
+<span class="go">        GS-2004A-Q-27-43-006           GMOS-S                            LMCF4</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="authenticated-access">
+<h3>2. Authenticated access<a class="headerlink" href="#authenticated-access" title="Link to this heading">¶</a></h3>
+<p>Some capabilities (shared tables, persistent jobs, etc.) are only
+available to authenticated users.</p>
+<p>One authentication option is to instantiate the
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass" title="astroquery.cadc.CadcClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CadcClass</span></code></a> class with a pre-existing,
+<a class="reference external" href="https://pyvo.readthedocs.io/en/stable/api/pyvo.auth.AuthSession.html#pyvo.auth.AuthSession" title="(in pyvo v1.4.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyvo.auth.authsession.AuthSession</span></code></a> or <a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Session" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code></a> object that
+contains the necessary credentials. Note that the session will be
+used for all the service interaction. The former session attempts to
+pair the credentials with the auth methods in the service capabilities
+while the latter sends the credentials with all requests.</p>
+<p>The second option is to use the <a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.login" title="astroquery.cadc.CadcClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>
+method.</p>
+<p>After a successful authentication, user credentials will be used
+until the <a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.logout" title="astroquery.cadc.CadcClass.logout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logout</span></code></a> method is called.</p>
+<p>All previous methods (<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.get_tables" title="astroquery.cadc.CadcClass.get_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tables</span></code></a>,
+<a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass.get_table" title="astroquery.cadc.CadcClass.get_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_table</span></code></a>) explained for non authenticated
+users are applicable for authenticated ones.</p>
+<section id="login-logout">
+<h4>2.1 Login/Logout<a class="headerlink" href="#login-logout" title="Link to this heading">¶</a></h4>
+<p>Login with username and password:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="s1">&#39;userName&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;userPassword&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Login with certificate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">certificate_file</span><span class="o">=</span><span class="s1">&#39;/path/to/cert/file&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To perform a logout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.cadc</span> <span class="kn">import</span> <span class="n">Cadc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span> <span class="o">=</span> <span class="n">Cadc</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cadc</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="reference-api">
+<h5>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h5>
+<section id="module-astroquery.cadc">
+<span id="astroquery-cadc-package"></span><h6>astroquery.cadc Package<a class="headerlink" href="#module-astroquery.cadc" title="Link to this heading">¶</a></h6>
+<p>Canadian Astronomy Data Centre (CADC).</p>
+<section id="classes">
+<h6 aria-level="7">Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h6>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.cadc.CadcClass.html#astroquery.cadc.CadcClass" title="astroquery.cadc.CadcClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CadcClass</span></code></a>(*[, url, auth_session])</p></td>
+<td><p>Class for accessing CADC data.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">CADC (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.cadc</span></code>)</a><ul>
+<li><a class="reference internal" href="#basic-access">Basic Access</a></li>
+<li><a class="reference internal" href="#query-cadc-metadata-using-tap">Query CADC metadata using TAP</a></li>
+<li><a class="reference internal" href="#examples-of-tap-access">Examples of TAP access</a><ul>
+<li><a class="reference internal" href="#non-authenticated-access">1. Non authenticated access</a><ul>
+<li><a class="reference internal" href="#get-tables">1.1. Get tables</a></li>
+<li><a class="reference internal" href="#get-table">1.2. Get table</a></li>
+<li><a class="reference internal" href="#run-synchronous-query">1.3 Run synchronous query</a></li>
+<li><a class="reference internal" href="#synchronous-query-with-temporary-uploaded-table">1.5 Synchronous query with temporary uploaded table</a></li>
+<li><a class="reference internal" href="#asynchronous-query">1.6 Asynchronous query</a></li>
+<li><a class="reference internal" href="#load-job">1.7 Load job</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authenticated-access">2. Authenticated access</a><ul>
+<li><a class="reference internal" href="#login-logout">2.1 Login/Logout</a><ul>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.cadc">astroquery.cadc Package</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/cadc/cadc.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

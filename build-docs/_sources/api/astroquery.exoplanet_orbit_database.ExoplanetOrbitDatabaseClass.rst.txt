@@ -1,0 +1,29 @@
+ExoplanetOrbitDatabaseClass
+===========================
+
+.. currentmodule:: astroquery.exoplanet_orbit_database
+
+.. autoclass:: ExoplanetOrbitDatabaseClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ExoplanetOrbitDatabaseClass.param_units
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ExoplanetOrbitDatabaseClass.get_table
+      ~ExoplanetOrbitDatabaseClass.query_planet
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: param_units
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_table
+   .. automethod:: query_planet

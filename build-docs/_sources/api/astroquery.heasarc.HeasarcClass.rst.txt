@@ -1,0 +1,45 @@
+HeasarcClass
+============
+
+.. currentmodule:: astroquery.heasarc
+
+.. autoclass:: HeasarcClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~HeasarcClass.TIMEOUT
+      ~HeasarcClass.URL
+      ~HeasarcClass.coord_systems
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~HeasarcClass.query
+      ~HeasarcClass.query_async
+      ~HeasarcClass.query_mission_cols
+      ~HeasarcClass.query_mission_list
+      ~HeasarcClass.query_object
+      ~HeasarcClass.query_object_async
+      ~HeasarcClass.query_region
+      ~HeasarcClass.query_region_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL
+   .. autoattribute:: coord_systems
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query
+   .. automethod:: query_async
+   .. automethod:: query_mission_cols
+   .. automethod:: query_mission_list
+   .. automethod:: query_object
+   .. automethod:: query_object_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async

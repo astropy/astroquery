@@ -1,0 +1,6 @@
+save_file
+=========
+
+.. currentmodule:: astroquery.ipac.irsa.sha
+
+.. autofunction:: save_file

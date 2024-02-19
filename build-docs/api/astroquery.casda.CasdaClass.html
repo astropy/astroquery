@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CasdaClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cologne Database for Molecular Spectroscopy (CDMS) Queries (astroquery.linelists.cdms)" href="../linelists/cdms/cdms.html" />
+    <link rel="prev" title="CASDA Queries (astroquery.casda)" href="../casda/casda.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../linelists/cdms/cdms.html" title="Cologne Database for Molecular Spectroscopy (CDMS) Queries (astroquery.linelists.cdms)">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../casda/casda.html" title="CASDA Queries (astroquery.casda)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../casda/casda.html" accesskey="U">CASDA Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.casda</span></code>)</a> &#187;</li>
+      
+      <li>CasdaClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="casdaclass">
+<h1>CasdaClass<a class="headerlink" href="#casdaclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.casda.</span></span><span class="sig-name descname"><span class="pre">CasdaClass</span></span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.QueryWithLogin.html#astroquery.query.QueryWithLogin" title="astroquery.query.QueryWithLogin"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryWithLogin</span></code></a></p>
+<p>Class for accessing ASKAP data through the CSIRO ASKAP Science Data Archive (CASDA). Typical usage:</p>
+<p>result = Casda.query_region(‘22h15m38.2s -45d50m30.5s’, radius=0.5 * u.deg)</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.POLL_INTERVAL" title="astroquery.casda.CasdaClass.POLL_INTERVAL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POLL_INTERVAL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.TIMEOUT" title="astroquery.casda.CasdaClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.URL" title="astroquery.casda.CasdaClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.USERNAME" title="astroquery.casda.CasdaClass.USERNAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">USERNAME</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.cutout" title="astroquery.casda.CasdaClass.cutout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutout</span></code></a>(table, *[, coordinates, radius, ...])</p></td>
+<td><p>Produce a cutout from each selected file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.download_files" title="astroquery.casda.CasdaClass.download_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_files</span></code></a>(urls, *[, savedir])</p></td>
+<td><p>Download a series of files</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.filter_out_unreleased" title="astroquery.casda.CasdaClass.filter_out_unreleased"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_out_unreleased</span></code></a>(table)</p></td>
+<td><p>Return a subset of the table which only includes released (public) data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.login" title="astroquery.casda.CasdaClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>(*[, username, store_password, ...])</p></td>
+<td><p>login to non-public data as a known user</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.query_region" title="astroquery.casda.CasdaClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.query_region_async" title="astroquery.casda.CasdaClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Queries a region around the specified coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.casda.CasdaClass.stage_data" title="astroquery.casda.CasdaClass.stage_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_data</span></code></a>(table, *[, verbose])</p></td>
+<td><p>Request access to a set of data files.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.POLL_INTERVAL">
+<span class="sig-name descname"><span class="pre">POLL_INTERVAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#astroquery.casda.CasdaClass.POLL_INTERVAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#astroquery.casda.CasdaClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://casda.csiro.au/casda_vo_tools/sia2/query'</span></em><a class="headerlink" href="#astroquery.casda.CasdaClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.USERNAME">
+<span class="sig-name descname"><span class="pre">USERNAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#astroquery.casda.CasdaClass.USERNAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.cutout">
+<span class="sig-name descname"><span class="pre">cutout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=&lt;Quantity</span> <span class="pre">1.</span> <span class="pre">arcmin&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass.cutout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass.cutout" title="Link to this definition">¶</a></dt>
+<dd><p>Produce a cutout from each selected file. All requests for data must use authentication. If you have access to
+the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to
+download the cutouts will be returned.</p>
+<p>If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will
+produce a spatial cutout at that location from each data file specified in the table. If a band or channel pair
+is provided then CASDA will produce a spectral cutout of that range from each data file. These can be combined
+to produce subcubes with restrictions in both spectral and spatial axes.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>table: `astropy.table.Table`</strong></dt><dd><p>A table describing the files to be staged, such as produced by query_region. It must include an
+access_url column.</p>
+</dd>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>, optional</span></dt><dd><p>coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is
+provided.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the radius of the cutout</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the height for a box cutout</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the width for a box cutout</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">list of <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a> with two elements, optional</span></dt><dd><p>the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in
+Hertz. Use None for an open bound.</p>
+</dd>
+<dt><strong>channel</strong><span class="classifier">list of int with two elements, optional</span></dt><dd><p>the spectral range to be included, the low and high channels (i.e. planes of a cube) inclusive</p>
+</dd>
+<dt><strong>verbose: bool, optional</strong></dt><dd><p>Should status messages be logged periodically, defaults to False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of urls of both the requested files/cutouts and the checksums for the files/cutouts</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.download_files">
+<span class="sig-name descname"><span class="pre">download_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savedir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass.download_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass.download_files" title="Link to this definition">¶</a></dt>
+<dd><p>Download a series of files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>urls: list of strings</strong></dt><dd><p>The list of URLs of the files to be downloaded.</p>
+</dd>
+<dt><strong>savedir: str, optional</strong></dt><dd><p>The directory in which to save the files.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of the full filenames of the downloaded files.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.filter_out_unreleased">
+<span class="sig-name descname"><span class="pre">filter_out_unreleased</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass.filter_out_unreleased"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass.filter_out_unreleased" title="Link to this definition">¶</a></dt>
+<dd><p>Return a subset of the table which only includes released (public) data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table: `astropy.table.Table`</strong></dt><dd><p>A table of results as returned by query_region. Must include an obs_release_date column.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a></span></dt><dd><p>The table with all unreleased (non public) data products filtered out.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reenter_password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.casda.CasdaClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>login to non-public data as a known user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>username</strong><span class="classifier">str, optional</span></dt><dd><p>Username to the CASDA archive, uses ATNF OPAL credentials. If not given, it should be
+specified in the config file.</p>
+</dd>
+<dt><strong>store_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Stores the password securely in your keyring. Default is False.</p>
+</dd>
+<dt><strong>reenter_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Asks for the password even if it is already stored in the
+keyring. This is the way to overwrite an already stored passwork
+on the keyring. Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.casda.CasdaClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Queries a region around the specified coordinates. Either a radius or both a height and a width
+must be provided.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>.</span></dt><dd><p>coordinates around which to query</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the radius of the cone search</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the height for a box region</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the width for a box region</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters.</p>
+</dd>
+<dt><strong>cache: bool, optional</strong></dt><dd><p>Use the astroquery internal query result cache</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=&lt;Quantity</span> <span class="pre">1.</span> <span class="pre">arcmin&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Queries a region around the specified coordinates. Either a radius or both a height and a width
+must be provided.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>.</span></dt><dd><p>coordinates around which to query</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the radius of the cone search</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the height for a box region</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>the width for a box region</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters.</p>
+</dd>
+<dt><strong>cache: bool, optional</strong></dt><dd><p>Use the astroquery internal query result cache</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The HTTP response returned from the service.
+All async methods should return the raw HTTP response.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.casda.CasdaClass.stage_data">
+<span class="sig-name descname"><span class="pre">stage_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/casda/core.html#CasdaClass.stage_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.casda.CasdaClass.stage_data" title="Link to this definition">¶</a></dt>
+<dd><p>Request access to a set of data files. All requests for data must use authentication. If you have access to the
+data, the requested files will be brought online and a set of URLs to download the files will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table: `astropy.table.Table`</strong></dt><dd><p>A table describing the files to be staged, such as produced by query_region. It must include an
+access_url column.</p>
+</dd>
+<dt><strong>verbose: bool, optional</strong></dt><dd><p>Should status message be logged periodically, defaults to False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of urls of both the requested files/cutouts and the checksums for the files/cutouts</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">CasdaClass</a><ul>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass"><code class="docutils literal notranslate"><span class="pre">CasdaClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.POLL_INTERVAL"><code class="docutils literal notranslate"><span class="pre">CasdaClass.POLL_INTERVAL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">CasdaClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.URL"><code class="docutils literal notranslate"><span class="pre">CasdaClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.USERNAME"><code class="docutils literal notranslate"><span class="pre">CasdaClass.USERNAME</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.cutout"><code class="docutils literal notranslate"><span class="pre">CasdaClass.cutout()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.download_files"><code class="docutils literal notranslate"><span class="pre">CasdaClass.download_files()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.filter_out_unreleased"><code class="docutils literal notranslate"><span class="pre">CasdaClass.filter_out_unreleased()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.login"><code class="docutils literal notranslate"><span class="pre">CasdaClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.query_region"><code class="docutils literal notranslate"><span class="pre">CasdaClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">CasdaClass.query_region_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.casda.CasdaClass.stage_data"><code class="docutils literal notranslate"><span class="pre">CasdaClass.stage_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.casda.CasdaClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+approximate_primary_beam_sizes
+==============================
+
+.. currentmodule:: astroquery.alma.utils
+
+.. autofunction:: approximate_primary_beam_sizes

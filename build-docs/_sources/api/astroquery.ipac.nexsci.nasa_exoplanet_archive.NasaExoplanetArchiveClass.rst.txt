@@ -1,0 +1,47 @@
+NasaExoplanetArchiveClass
+=========================
+
+.. currentmodule:: astroquery.ipac.nexsci.nasa_exoplanet_archive
+
+.. autoclass:: NasaExoplanetArchiveClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~NasaExoplanetArchiveClass.CACHE
+      ~NasaExoplanetArchiveClass.TAP_TABLES
+      ~NasaExoplanetArchiveClass.TIMEOUT
+      ~NasaExoplanetArchiveClass.URL_API
+      ~NasaExoplanetArchiveClass.URL_TAP
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NasaExoplanetArchiveClass.query_aliases
+      ~NasaExoplanetArchiveClass.query_criteria
+      ~NasaExoplanetArchiveClass.query_criteria_async
+      ~NasaExoplanetArchiveClass.query_object
+      ~NasaExoplanetArchiveClass.query_object_async
+      ~NasaExoplanetArchiveClass.query_region
+      ~NasaExoplanetArchiveClass.query_region_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: CACHE
+   .. autoattribute:: TAP_TABLES
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL_API
+   .. autoattribute:: URL_TAP
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query_aliases
+   .. automethod:: query_criteria
+   .. automethod:: query_criteria_async
+   .. automethod:: query_object
+   .. automethod:: query_object_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async

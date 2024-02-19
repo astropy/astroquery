@@ -1,0 +1,29 @@
+SkybotClass
+===========
+
+.. currentmodule:: astroquery.imcce
+
+.. autoclass:: SkybotClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SkybotClass.uri
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SkybotClass.cone_search
+      ~SkybotClass.cone_search_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: uri
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: cone_search
+   .. automethod:: cone_search_async

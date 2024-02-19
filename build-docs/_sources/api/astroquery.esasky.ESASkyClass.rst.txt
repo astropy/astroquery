@@ -1,0 +1,79 @@
+ESASkyClass
+===========
+
+.. currentmodule:: astroquery.esasky
+
+.. autoclass:: ESASkyClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ESASkyClass.DEFAULT_ROW_LIMIT
+      ~ESASkyClass.SSO_TYPES
+      ~ESASkyClass.TIMEOUT
+      ~ESASkyClass.URLbase
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ESASkyClass.find_sso
+      ~ESASkyClass.get_columns
+      ~ESASkyClass.get_images
+      ~ESASkyClass.get_images_sso
+      ~ESASkyClass.get_maps
+      ~ESASkyClass.get_spectra
+      ~ESASkyClass.get_spectra_from_table
+      ~ESASkyClass.get_tables
+      ~ESASkyClass.get_tap
+      ~ESASkyClass.list_catalogs
+      ~ESASkyClass.list_maps
+      ~ESASkyClass.list_spectra
+      ~ESASkyClass.list_sso
+      ~ESASkyClass.query
+      ~ESASkyClass.query_ids_catalogs
+      ~ESASkyClass.query_ids_maps
+      ~ESASkyClass.query_ids_spectra
+      ~ESASkyClass.query_object_catalogs
+      ~ESASkyClass.query_object_maps
+      ~ESASkyClass.query_object_spectra
+      ~ESASkyClass.query_region_catalogs
+      ~ESASkyClass.query_region_maps
+      ~ESASkyClass.query_region_spectra
+      ~ESASkyClass.query_sso
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: DEFAULT_ROW_LIMIT
+   .. autoattribute:: SSO_TYPES
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URLbase
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: find_sso
+   .. automethod:: get_columns
+   .. automethod:: get_images
+   .. automethod:: get_images_sso
+   .. automethod:: get_maps
+   .. automethod:: get_spectra
+   .. automethod:: get_spectra_from_table
+   .. automethod:: get_tables
+   .. automethod:: get_tap
+   .. automethod:: list_catalogs
+   .. automethod:: list_maps
+   .. automethod:: list_spectra
+   .. automethod:: list_sso
+   .. automethod:: query
+   .. automethod:: query_ids_catalogs
+   .. automethod:: query_ids_maps
+   .. automethod:: query_ids_spectra
+   .. automethod:: query_object_catalogs
+   .. automethod:: query_object_maps
+   .. automethod:: query_object_spectra
+   .. automethod:: query_region_catalogs
+   .. automethod:: query_region_maps
+   .. automethod:: query_region_spectra
+   .. automethod:: query_sso

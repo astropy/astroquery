@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>UKIDSS Queries (astroquery.ukidss) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="UkidssClass" href="../api/astroquery.ukidss.UkidssClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.svo_fps.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.ukidss.UkidssClass.html" title="UkidssClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.svo_fps.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>UKIDSS Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ukidss</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ukidss-queries-astroquery-ukidss">
+<span id="astroquery-ukidss"></span><h1>UKIDSS Queries (<a class="reference internal" href="#module-astroquery.ukidss" title="astroquery.ukidss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ukidss</span></code></a>)<a class="headerlink" href="#ukidss-queries-astroquery-ukidss" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>This module allows searching catalogs and retrieving images from the UKIDSS web
+service. Some data can on UKIDSS can be accessed only after a valid login. For
+accessing such data a UKIDSS object must first be instantiated with valid
+credentials. On the other hand, to access the public data, the various query
+functions may just be called without logging in. Below are examples that
+illustrate both the means for accessing the data.</p>
+<p><strong>Case 1 : Access only public data - No login</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="s2">&quot;m1&quot;</span><span class="p">)</span>
+
+<span class="go">Found 1 targets</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01818_sf_st.fit&amp;mfid=1737581&amp;extNo=4&amp;lx=1339&amp;hx=1638&amp;ly=1953&amp;hy=2252&amp;rf=0&amp;flip=1&amp;uniq=5348_573_21_31156_1&amp;xpos=150.7&amp;ypos=150.3&amp;band=K&amp;ra=83.633083&amp;dec=22.0145</span>
+<span class="go">|===========================================| 174k/174k (100.00%)        02s</span>
+</pre></div>
+</div>
+<p><strong>Case 2 : Login to access non-public data</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+
+<span class="go"># Now first instantiate a new Ukidss object with login credentials</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u_obj</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;secret&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>               <span class="n">community</span><span class="o">=</span><span class="s1">&#39;your_community&#39;</span><span class="p">)</span>        
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The prompt appears indicating successful login</span>
+</pre></div>
+</div>
+<p>Note that at login time you may also optionally set the database and the survey
+that you would like to query. By default the database is set to ‘UKIDSSDR7PLUS’
+and the <code class="docutils literal notranslate"><span class="pre">programme_id</span></code> is set to ‘all’ - which includes all the surveys. A
+word of warning - for region queries you should explicitly set the
+<code class="docutils literal notranslate"><span class="pre">programme_id</span></code> to the survey you wish to query. Querying all surveys is
+permitted only for image queries.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u_obj</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;secret&#39;</span><span class="p">,</span>                    
+<span class="gp">... </span>               <span class="n">community</span><span class="o">=</span><span class="s1">&#39;your_community&#39;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;UKIDSSDR8PLUS&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>               <span class="n">programme_id</span><span class="o">=</span><span class="s1">&#39;GPS&#39;</span><span class="p">)</span>                                   
+<span class="gp">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>At any given time you may if you wish check your login status (continuing from
+the above example):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u_obj</span><span class="o">.</span><span class="n">logged_in</span><span class="p">()</span> 
+
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>If you want to change your programme_id and database after you have already instantiated the
+object - say <code class="docutils literal notranslate"><span class="pre">u_obj</span></code> then you should do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u_obj</span><span class="o">.</span><span class="n">programme_id</span> <span class="o">=</span> <span class="s1">&#39;new_id_here&#39;</span>   
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u_obj</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="s1">&#39;new_database_here&#39;</span> 
+</pre></div>
+</div>
+<p>The above examples mention <code class="docutils literal notranslate"><span class="pre">programme_id</span></code> that specifies the catalog
+or survey you wish to query. If you would like to get a list of the commonly
+available UKIDSS survey - either the abbreviations or the complete names, you
+can do so by using <a class="reference internal" href="../api/astroquery.ukidss.UkidssClass.html#astroquery.ukidss.UkidssClass.list_catalogs" title="astroquery.ukidss.UkidssClass.list_catalogs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list_catalogs()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ukidss</span><span class="o">.</span><span class="n">list_catalogs</span><span class="p">()</span>
+
+<span class="go">[&#39;UDS&#39;, &#39;GCS&#39;, &#39;GPS&#39;, &#39;DXS&#39;, &#39;LAS&#39;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ukidss</span><span class="o">.</span><span class="n">list_catalogs</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;long&#39;</span><span class="p">)</span>
+
+<span class="go">[&#39;Galactic Plane Survey&#39;,</span>
+<span class="go"> &#39;Deep Extragalactic Survey&#39;,</span>
+<span class="go"> &#39;Galactic Clusters Survey&#39;,</span>
+<span class="go"> &#39;Ultra Deep Survey&#39;,</span>
+<span class="go"> &#39;Large Area Survey&#39;]</span>
+</pre></div>
+</div>
+<p>Now we look at examples of the actual queries that can be performed.</p>
+<section id="get-images-around-a-target">
+<h3>Get images around a target<a class="headerlink" href="#get-images-around-a-target" title="Link to this heading">¶</a></h3>
+<p>You can fetch images around the specified target or coordinates. When a target
+name is used rather than the coordinates, this will be resolved to coordinates
+using astropy name resolving methods that utilize online services like
+SESAME. Coordinates may be entered using the suitable object from
+<a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>. The images are returned as a list of
+<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="s2">&quot;m1&quot;</span><span class="p">)</span>
+
+<span class="go">Found 1 targets</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01818_sf_st.fit&amp;mfid=1737581&amp;extNo=4&amp;lx=1339&amp;hx=1638&amp;ly=1953&amp;hy=2252&amp;rf=0&amp;flip=1&amp;uniq=142_292_19_31199_1&amp;xpos=150.7&amp;ypos=150.3&amp;band=K&amp;ra=83.633083&amp;dec=22.0145</span>
+<span class="go">|===========================================| 174k/174k (100.00%)        07s</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+
+<span class="go">[[&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x40f8b10&gt;, &lt;astropy.io.fits.hdu.image.ImageHDU object at 0x41026d0&gt;]]</span>
+</pre></div>
+</div>
+<p>Note if you have logged in using the procedure described earlier and assuming
+that you already have a <a class="reference internal" href="../api/astroquery.ukidss.UkidssClass.html#astroquery.ukidss.UkidssClass" title="astroquery.ukidss.UkidssClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UkidssClass</span></code></a> object <code class="docutils literal notranslate"><span class="pre">u_obj</span></code> instantiated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">u_obj</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="s2">&quot;m1&quot;</span><span class="p">)</span> 
+</pre></div>
+</div>
+<p>There are several optional parameters that you can specify in image
+queries. For instance to specify the image size you should set the
+<code class="docutils literal notranslate"><span class="pre">image_width</span></code> and the <code class="docutils literal notranslate"><span class="pre">image_height</span></code> keyword arguments. If only the
+<code class="docutils literal notranslate"><span class="pre">image_width</span></code> is set then the <code class="docutils literal notranslate"><span class="pre">image_height</span></code> is taken to be the same as this
+width. By default the <code class="docutils literal notranslate"><span class="pre">image_width</span></code> is set to 1 arcmin. To set this to your
+desired value, you should enter it using a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object
+with appropriate units or as a string that is parsable by
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. Another parameter you may set is
+<code class="docutils literal notranslate"><span class="pre">radius</span></code>. This may be specified in the same way as the <code class="docutils literal notranslate"><span class="pre">image_height</span></code> and
+<code class="docutils literal notranslate"><span class="pre">image_width</span></code> with the <code class="docutils literal notranslate"><span class="pre">radius</span></code> keyword. By specifying this multi-frame FITS
+images will be retrieved. Note that in this case the image height and width
+parameters will no longer be effective.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mf">49.489</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.27</span><span class="p">,</span>
+<span class="gp">... </span>                                          <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+<span class="gp">... </span>                                          <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;galactic&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                           <span class="n">image_width</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">)</span>
+
+<span class="go">    Found 6 targets</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01510_sf_st_two.fit&amp;mfid=2514752&amp;extNo=1&amp;lx=862&amp;hx=1460&amp;ly=1539&amp;hy=2137&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_1&amp;xpos=300.1&amp;ypos=299.7&amp;band=J&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 518k/518k (100.00%)        06s</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01510_sf_st.fit&amp;mfid=966724&amp;extNo=1&amp;lx=862&amp;hx=1460&amp;ly=1539&amp;hy=2137&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_2&amp;xpos=300&amp;ypos=299.8&amp;band=J&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 517k/517k (100.00%)        06s</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01544_sf_st_two.fit&amp;mfid=2514753&amp;extNo=1&amp;lx=863&amp;hx=1461&amp;ly=1538&amp;hy=2136&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_3&amp;xpos=300&amp;ypos=300&amp;band=H&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 654k/654k (100.00%)        06s</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01544_sf_st.fit&amp;mfid=965662&amp;extNo=1&amp;lx=863&amp;hx=1461&amp;ly=1538&amp;hy=2136&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_4&amp;xpos=300&amp;ypos=300.1&amp;band=H&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 647k/647k (100.00%)        06s</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01577_sf_st.fit&amp;mfid=952046&amp;extNo=1&amp;lx=863&amp;hx=1460&amp;ly=1538&amp;hy=2135&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_5&amp;xpos=299.2&amp;ypos=299.7&amp;band=K&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 586k/586k (100.00%)        06s</span>
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01577_sf_st_two.fit&amp;mfid=2514749&amp;extNo=1&amp;lx=863&amp;hx=1460&amp;ly=1538&amp;hy=2135&amp;rf=270&amp;flip=1&amp;uniq=575_115_31_31555_6&amp;xpos=299.5&amp;ypos=299.3&amp;band=K&amp;ra=290.8256247&amp;dec=14.56435</span>
+<span class="go">|===========================================| 587k/587k (100.00%)        04s</span>
+</pre></div>
+</div>
+<p>Again the query may be performed similarly with a log-in.</p>
+<p>If you haven’t logged-in then you could also specify the <code class="docutils literal notranslate"><span class="pre">programme_id</span></code> as a
+keyword argument. By default this is set to ‘all’. But you can change it to a
+specific survey as mentioned earlier. The same goes for the <code class="docutils literal notranslate"><span class="pre">database</span></code> which
+is set by default to ‘UKIDSSDR7PLUS’. Some more parameters you can set are the
+<code class="docutils literal notranslate"><span class="pre">frame_type</span></code> which may be one of</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;stack&#39;</span> <span class="s1">&#39;normal&#39;</span> <span class="s1">&#39;interleave&#39;</span> <span class="s1">&#39;deep_stack&#39;</span> <span class="s1">&#39;confidence&#39;</span> <span class="s1">&#39;difference&#39;</span>
+<span class="s1">&#39;leavstack&#39;</span> <span class="s1">&#39;all&#39;</span>
+</pre></div>
+</div>
+<p>and the <code class="docutils literal notranslate"><span class="pre">waveband</span></code> that decides the color filter to download. This must be
+chosen from</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;all&#39;</span> <span class="s1">&#39;J&#39;</span> <span class="s1">&#39;H&#39;</span> <span class="s1">&#39;K&#39;</span> <span class="s1">&#39;H2&#39;</span> <span class="s1">&#39;Z&#39;</span> <span class="s1">&#39;Y&#39;</span> <span class="s1">&#39;Br&#39;</span>
+</pre></div>
+</div>
+<p>Note that rather than fetching the actual images, you could also get the URLs of the downloadable
+images. To do this simply replace the call to
+<a class="reference internal" href="../api/astroquery.ukidss.UkidssClass.html#astroquery.ukidss.UkidssClass.get_images" title="astroquery.ukidss.UkidssClass.get_images"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_images()</span></code></a> by a call to
+<a class="reference internal" href="../api/astroquery.ukidss.UkidssClass.html#astroquery.ukidss.UkidssClass.get_image_list" title="astroquery.ukidss.UkidssClass.get_image_list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_image_list()</span></code></a> with exactly the same
+parameters. Let us now see a complete example to illustrate these points.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_urls</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="o">.</span><span class="n">get_image_list</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mf">83.633083</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="n">dec</span><span class="o">=</span><span class="mf">22.0145</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">),</span>
+<span class="gp">... </span>         <span class="n">frame_type</span><span class="o">=</span><span class="s1">&#39;interleave&#39;</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="n">programme_id</span><span class="o">=</span><span class="s2">&quot;GCS&quot;</span><span class="p">,</span> <span class="n">waveband</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_urls</span>
+
+<span class="go">    [&#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01802_sf.fit&amp;MFID=1737551&amp;rID=2544&#39;,</span>
+<span class="go"> &#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01802_sf_st.fit&amp;MFID=1737553&amp;rID=2544&#39;,</span>
+<span class="go"> &#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01806_sf.fit&amp;MFID=1737559&amp;rID=2544&#39;,</span>
+<span class="go"> &#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01818_sf_st.fit&amp;MFID=1737581&amp;rID=2544&#39;,</span>
+<span class="go"> &#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01818_sf.fit&amp;MFID=1737579&amp;rID=2544&#39;,</span>
+<span class="go"> &#39;http://surveys.roe.ac.uk/wsa/cgi-bin/fits_download.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01822_sf.fit&amp;MFID=1737587&amp;rID=2544&#39;]</span>
+</pre></div>
+</div>
+</section>
+<section id="query-a-region">
+<h3>Query a region<a class="headerlink" href="#query-a-region" title="Link to this heading">¶</a></h3>
+<p>Another type of query is to search a catalog for objects within a specified
+radius of a source. Again the source may be either a named identifier or it may
+be specified via coordinates. The radius may be specified as in the previous
+cases by using a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> or a string parsable via
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. If this is missing, then it defaults to 1 arcmin.
+As before you may also mention the <code class="docutils literal notranslate"><span class="pre">programme_id</span></code> and the <code class="docutils literal notranslate"><span class="pre">database</span></code>. The query
+results are returned in a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ukidss</span> <span class="kn">import</span> <span class="n">Ukidss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">Ukidss</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mf">10.625</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.38</span><span class="p">,</span>
+<span class="gp">... </span>                                           <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+<span class="gp">... </span>                                           <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;galactic&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                            <span class="n">radius</span><span class="o">=</span><span class="mi">6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">)</span>
+
+<span class="go">Downloading http://surveys.roe.ac.uk/wsa/tmp/tmp_sql/results1_4_45_58_24651.xml</span>
+<span class="go">|===========================================| 4.6k/4.6k (100.00%)        00s</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+<span class="go">     sourceID    framesetID        RA      ... H2AperMag3Err     distance</span>
+<span class="go">------------ ------------ ------------- ... ------------- ---------------</span>
+<span class="go">438758381345 438086690175 272.615581037 ...  -9.99999e+08 0.0864656469768</span>
+<span class="go">438758381157 438086690175   272.6178395 ...  -9.99999e+08 0.0717893063941</span>
+<span class="go">438758381256 438086690175 272.616581639 ...  -9.99999e+08 0.0725261678319</span>
+<span class="go">438758399768 438086690175 272.618154346 ...  -9.99999e+08 0.0800819201056</span>
+<span class="go">438758399809 438086690175 272.617630209 ...  -9.99999e+08 0.0996951205267</span>
+<span class="go">438758399828 438086690175 272.617238438 ...  -9.99999e+08 0.0435480204348</span>
+<span class="go">438758399832 438086690175 272.617034836 ...  -9.99999e+08 0.0665854385804</span>
+<span class="go">438758414982 438086690175 272.616576986 ...  -9.99999e+08 0.0214102038115</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.ukidss">
+<span id="astroquery-ukidss-package"></span><h3>astroquery.ukidss Package<a class="headerlink" href="#module-astroquery.ukidss" title="Link to this heading">¶</a></h3>
+<section id="ukidss-image-and-catalog-query-tool">
+<h4>UKIDSS Image and Catalog Query Tool<a class="headerlink" href="#ukidss-image-and-catalog-query-tool" title="Link to this heading">¶</a></h4>
+<aside class="topic">
+<p class="topic-title">Revision History</p>
+<p>Refactored using common API as a part of Google Summer of Code 2013.</p>
+<dl class="field-list">
+<dt class="field-odd">Originally contributed by<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Thomas Robitalle (<a class="reference external" href="mailto:thomas&#46;robitaille&#37;&#52;&#48;gmail&#46;com">thomas<span>&#46;</span>robitaille<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+<p>Adam Ginsburg (<a class="reference external" href="mailto:adam&#46;g&#46;ginsburg&#37;&#52;&#48;gmail&#46;com">adam<span>&#46;</span>g<span>&#46;</span>ginsburg<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+</dd>
+</dl>
+</aside>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.ukidss.UkidssClass.html#astroquery.ukidss.UkidssClass" title="astroquery.ukidss.UkidssClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UkidssClass</span></code></a>(*[, username, password, ...])</p></td>
+<td><p>The UKIDSSQuery class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.ukidss.Conf.html#astroquery.ukidss.Conf" title="astroquery.ukidss.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.ukidss" title="astroquery.ukidss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ukidss</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">UKIDSS Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ukidss</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#get-images-around-a-target">Get images around a target</a></li>
+<li><a class="reference internal" href="#query-a-region">Query a region</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.ukidss">astroquery.ukidss Package</a><ul>
+<li><a class="reference internal" href="#ukidss-image-and-catalog-query-tool">UKIDSS Image and Catalog Query Tool</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/ukidss/ukidss.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

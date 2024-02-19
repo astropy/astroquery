@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.solarsystem.pds.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../pds.html" accesskey="U">astroquery.solarsystem.pds</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.solarsystem.pds.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># 1. standard library imports</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># 2. third party imports</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">QTable</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">Angle</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="c1"># 3. local imports - use relative imports</span>
+<span class="c1"># all Query classes should inherit from BaseQuery.</span>
+<span class="kn">from</span> <span class="nn">...query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">...utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+
+<span class="c1"># import configurable items declared in __init__.py, e.g. hardcoded dictionaries</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+<span class="n">planet_defaults</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mars&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 MAR097 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;402 Phobos, Deimos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;Phobos Ring&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;Phobos, Deimos&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;jupiter&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 JUP365 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;516 All inner moons (J1-J5,J14-J16)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;Main Ring&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;Main &amp; Gossamer&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;saturn&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 SAT389 + SAT393 + SAT427 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;653 All inner moons (S1-S18,S32-S35,S49,S53)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;A,B,C,F,G,E&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;uranus&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 URA111 + URA115 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;727 All inner moons (U1-U15,U25-U27)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;Epsilon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;All rings&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;neptune&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 NEP081 + NEP095 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;814 All inner moons (N1-N8,N14)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;Adams Ring&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;Galle, LeVerrier, Arago, Adams&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pluto&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ephem&quot;</span><span class="p">:</span> <span class="s2">&quot;000 PLU058 + DE440&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;moons&quot;</span><span class="p">:</span> <span class="s2">&quot;905 All moons (P1-P5)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;center_ansa&quot;</span><span class="p">:</span> <span class="s2">&quot;Hydra&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rings&quot;</span><span class="p">:</span> <span class="s2">&quot;Styx, Nix, Kerberos, Hydra&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">neptune_arcmodels</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;#1 (820.1194 deg/day)&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;#2 (820.1118 deg/day)&quot;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;#3 (820.1121 deg/day)&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="RingNodeClass">
+<a class="viewcode-back" href="../../../../api/astroquery.solarsystem.pds.RingNodeClass.html#astroquery.solarsystem.pds.RingNodeClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">RingNodeClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a class for querying the Planetary Ring Node ephemeris tools</span>
+<span class="sd">    &lt;https://pds-rings.seti.org/tools/&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate Planetary Ring Node query</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">or</span> <span class="n">conf</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s2">&quot;PDSRingNode instance&quot;</span>
+
+<div class="viewcode-block" id="RingNodeClass.ephemeris_async">
+<a class="viewcode-back" href="../../../../api/astroquery.solarsystem.pds.RingNodeClass.html#astroquery.solarsystem.pds.RingNodeClass.ephemeris_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">ephemeris_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">planet</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neptune_arcmodel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        send query to Planetary Ring Node server</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        planet : str</span>
+<span class="sd">            One of &quot;Mars&quot;, &quot;Jupiter&quot;, &quot;Saturn&quot;, &quot;Uranus&quot;, &quot;Neptune&quot;, or &quot;Pluto&quot;.</span>
+<span class="sd">        epoch : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.</span>
+<span class="sd">                If str is provided then UTC is assumed.</span>
+<span class="sd">                If no epoch is provided, the current time is used.</span>
+<span class="sd">        location : str, or array-like, or `~astropy.coordinates.EarthLocation`, optional</span>
+<span class="sd">            If str, named observeratory supported by the ring node, e.g. JWST.</span>
+<span class="sd">            If array-like, observer&#39;s location as a</span>
+<span class="sd">            3-element array of Earth longitude, latitude, altitude</span>
+<span class="sd">            that istantiates an</span>
+<span class="sd">            `~astropy.coordinates.EarthLocation`.  Longitude and</span>
+<span class="sd">            latitude should be anything that initializes an</span>
+<span class="sd">            `~astropy.coordinates.Angle` object, and altitude should</span>
+<span class="sd">            initialize an `~astropy.units.Quantity` object (with units</span>
+<span class="sd">            of length).  If ``None``, then the geofocus is used.</span>
+<span class="sd">        neptune_arcmodel : int, optional.</span>
+<span class="sd">            which ephemeris to assume for Neptune&#39;s ring arcs</span>
+<span class="sd">            Must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)</span>
+<span class="sd">            has no effect if planet != &#39;Neptune&#39;</span>
+<span class="sd">        get_query_payload : boolean, optional</span>
+<span class="sd">            When set to `True` the method returns the HTTP request parameters as</span>
+<span class="sd">            a dict, default: False</span>
+<span class="sd">        cache : boolean, optional</span>
+<span class="sd">            When set to `True` the method caches the download, default: True</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.solarsystem.pds import RingNode</span>
+<span class="sd">        &gt;&gt;&gt; import astropy.units as u</span>
+<span class="sd">        &gt;&gt;&gt; bodytable, ringtable = RingNode.ephemeris(planet=&#39;Uranus&#39;,</span>
+<span class="sd">        ...                 epoch=&#39;2024-05-08 22:39&#39;,</span>
+<span class="sd">        ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; print(ringtable)  # doctest: +REMOTE_DATA</span>
+<span class="sd">              ring  pericenter ascending node</span>
+<span class="sd">                       deg          deg</span>
+<span class="sd">            ------- ---------- --------------</span>
+<span class="sd">                Six    293.129           52.0</span>
+<span class="sd">               Five    109.438           81.1</span>
+<span class="sd">               Four    242.882           66.9</span>
+<span class="sd">              Alpha    184.498          253.9</span>
+<span class="sd">               Beta     287.66          299.2</span>
+<span class="sd">                Eta        0.0            0.0</span>
+<span class="sd">              Gamma     50.224            0.0</span>
+<span class="sd">              Delta        0.0            0.0</span>
+<span class="sd">             Lambda        0.0            0.0</span>
+<span class="sd">            Epsilon    298.022            0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">planet</span> <span class="o">=</span> <span class="n">planet</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">planet</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">planet_defaults</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;illegal value for &#39;planet&#39; parameter &quot;</span>
+                             <span class="s2">&quot;(must be &#39;Mars&#39;, &#39;Jupiter&#39;, &#39;Saturn&#39;, &#39;Uranus&#39;, &#39;Neptune&#39;, or &#39;Pluto&#39;)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">epoch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">viewpoint</span> <span class="o">=</span> <span class="s2">&quot;observatory&quot;</span>
+            <span class="n">observatory</span> <span class="o">=</span> <span class="s2">&quot;Earth&#39;s center&quot;</span>
+            <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">altitude</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">viewpoint</span> <span class="o">=</span> <span class="s2">&quot;observatory&quot;</span>
+            <span class="n">observatory</span> <span class="o">=</span> <span class="n">location</span>
+            <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">altitude</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">viewpoint</span> <span class="o">=</span> <span class="s2">&quot;latlon&quot;</span>
+            <span class="n">observatory</span> <span class="o">=</span> <span class="s2">&quot;Earth&#39;s center&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">):</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">geodetic</span>
+                <span class="n">longitude</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deg</span>
+                <span class="n">latitude</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">deg</span>
+                <span class="n">altitude</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
+                <span class="n">longitude</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">deg</span>
+                <span class="n">latitude</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">deg</span>
+                <span class="n">altitude</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">neptune_arcmodel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;illegal Neptune arc model </span><span class="si">{</span><span class="n">neptune_arcmodel</span><span class="si">}</span><span class="s2">. must be one of 1, 2, or 3 &quot;</span>
+                             <span class="s2">&quot;(see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># configure request_payload for ephemeris query</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;abbrev&quot;</span><span class="p">,</span> <span class="n">planet</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;ephem&quot;</span><span class="p">,</span> <span class="n">planet_defaults</span><span class="p">[</span><span class="n">planet</span><span class="p">][</span><span class="s2">&quot;ephem&quot;</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">iso</span><span class="p">[:</span><span class="mi">16</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;fov&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>  <span class="c1"># figure option - hardcode ok</span>
+                <span class="p">(</span><span class="s2">&quot;fov_unit&quot;</span><span class="p">,</span> <span class="n">planet</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; radii&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;body&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center_body&quot;</span><span class="p">,</span> <span class="n">planet</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()),</span>
+                <span class="p">(</span><span class="s2">&quot;center_ansa&quot;</span><span class="p">,</span> <span class="n">planet_defaults</span><span class="p">[</span><span class="n">planet</span><span class="p">][</span><span class="s2">&quot;center_ansa&quot;</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;center_ew&quot;</span><span class="p">,</span> <span class="s2">&quot;east&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center_ra&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center_ra_type&quot;</span><span class="p">,</span> <span class="s2">&quot;hours&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center_dec&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;center_star&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;viewpoint&quot;</span><span class="p">,</span> <span class="n">viewpoint</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;observatory&quot;</span><span class="p">,</span> <span class="n">observatory</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">latitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">longitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;lon_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;east&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;altitude&quot;</span><span class="p">,</span> <span class="n">altitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;moons&quot;</span><span class="p">,</span> <span class="n">planet_defaults</span><span class="p">[</span><span class="n">planet</span><span class="p">][</span><span class="s2">&quot;moons&quot;</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;rings&quot;</span><span class="p">,</span> <span class="n">planet_defaults</span><span class="p">[</span><span class="n">planet</span><span class="p">][</span><span class="s2">&quot;rings&quot;</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;arcmodel&quot;</span><span class="p">,</span> <span class="n">neptune_arcmodels</span><span class="p">[</span><span class="n">neptune_arcmodel</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;extra_ra&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>  <span class="c1"># figure options below this line, can all be hardcoded and ignored</span>
+                <span class="p">(</span><span class="s2">&quot;extra_ra_type&quot;</span><span class="p">,</span> <span class="s2">&quot;hours&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;extra_dec&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;extra_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="s2">&quot;Small (6 points)&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;moonpts&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;blank&quot;</span><span class="p">,</span> <span class="s2">&quot;No&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;opacity&quot;</span><span class="p">,</span> <span class="s2">&quot;Transparent&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;peris&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;peripts&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;arcpts&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;meridians&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># return request_payload if desired</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="c1"># query and parse</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Routine for parsing data from ring node</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self : RingNodeClass instance</span>
+<span class="sd">        response : list</span>
+<span class="sd">            raw response from server</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bodytable : `~astropy.table.QTable`</span>
+<span class="sd">        ringtable : `~astropy.table.QTable`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html5lib&quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+        <span class="c1"># need regex because some blank lines have spacebar and some do not</span>
+        <span class="n">textgroups</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">|</span><span class="se">\n</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">ringtable</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">textgroups</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="c1"># input parameters. only thing needed is epoch</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Observation&quot;</span><span class="p">):</span>
+                <span class="n">epoch</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;e: &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="c1"># minor body table part 1</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Body&quot;</span><span class="p">):</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="s2">&quot;NAIF &quot;</span> <span class="o">+</span> <span class="n">group</span>  <span class="c1"># fixing lack of header for NAIF ID</span>
+                <span class="n">bodytable_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;NAIF ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Body&quot;</span><span class="p">,</span> <span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;RA (deg)&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec (deg)&quot;</span><span class="p">,</span> <span class="s2">&quot;dRA&quot;</span><span class="p">,</span> <span class="s2">&quot;dDec&quot;</span><span class="p">)</span>
+                <span class="n">bodytable_units</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">]</span>
+                <span class="n">bodytable</span> <span class="o">=</span> <span class="n">QTable</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ascii.fixed_width&quot;</span><span class="p">,</span>
+                                        <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">91</span><span class="p">),</span>
+                                        <span class="n">col_ends</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">91</span><span class="p">,</span> <span class="mi">102</span><span class="p">),</span>
+                                        <span class="n">names</span><span class="o">=</span><span class="n">bodytable_names</span><span class="p">,</span>
+                                        <span class="n">units</span><span class="o">=</span><span class="p">(</span><span class="n">bodytable_units</span><span class="p">))</span>
+
+            <span class="c1"># minor body table part 2</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Sub-&quot;</span><span class="p">):</span>
+
+                <span class="n">group</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">2</span><span class="p">:])</span>  <span class="c1"># removing two-row header entirely</span>
+                <span class="n">bodytable2_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;NAIF ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Body&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;sub_obs_lon&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_obs_lat&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_sun_lon&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_sun_lat&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;phase&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+                <span class="n">bodytable2_units</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">]</span>
+                <span class="n">bodytable2</span> <span class="o">=</span> <span class="n">QTable</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ascii.fixed_width&quot;</span><span class="p">,</span>
+                                         <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">71</span><span class="p">),</span>
+                                         <span class="n">col_ends</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>
+                                         <span class="n">names</span><span class="o">=</span><span class="n">bodytable2_names</span><span class="p">,</span>
+                                         <span class="n">data_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                         <span class="n">units</span><span class="o">=</span><span class="p">(</span><span class="n">bodytable2_units</span><span class="p">))</span>
+
+            <span class="c1"># ring plane data</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Ring s&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                    <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;Ring sub-solar latitude&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">sub_sun_lat</span><span class="p">,</span> <span class="n">sub_sun_lat_min</span><span class="p">,</span> <span class="n">sub_sun_lat_max</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(|to&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="p">]</span>
+                        <span class="n">systemtable</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;sub_sun_lat&quot;</span><span class="p">:</span> <span class="n">sub_sun_lat</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                            <span class="s2">&quot;sub_sun_lat_min&quot;</span><span class="p">:</span> <span class="n">sub_sun_lat_min</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                            <span class="s2">&quot;sub_sun_lat_max&quot;</span><span class="p">:</span> <span class="n">sub_sun_lat_min</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                        <span class="p">}</span>
+
+                    <span class="k">elif</span> <span class="s2">&quot;Ring plane opening angle&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;opening_angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[a-zA-Z]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">))</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Ring center phase angle&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;phase_angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Sub-solar longitude&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;sub_sun_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[a-zA-Z]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">))</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Sub-observer longitude&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;sub_obs_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+
+            <span class="c1"># basic info about the planet</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Sun-planet&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                    <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;Sun-planet distance (AU)&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="c1"># this is redundant with sun distance in km</span>
+                        <span class="k">pass</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Observer-planet distance (AU)&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="c1"># this is redundant with observer distance in km</span>
+                        <span class="k">pass</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Sun-planet distance (km)&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;d_sun&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Observer-planet distance (km)&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;d_obs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Light travel time&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;light_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">second</span>
+
+            <span class="c1"># --------- below this line, planet-specific info ------------</span>
+            <span class="c1"># Uranus individual rings data</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Ring    &quot;</span><span class="p">):</span>
+                <span class="n">ringtable_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ring&quot;</span><span class="p">,</span> <span class="s2">&quot;pericenter&quot;</span><span class="p">,</span> <span class="s2">&quot;ascending node&quot;</span><span class="p">)</span>
+                <span class="n">ringtable_units</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">]</span>
+                <span class="n">ringtable</span> <span class="o">=</span> <span class="n">QTable</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;     &quot;</span> <span class="o">+</span> <span class="n">group</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ascii.fixed_width&quot;</span><span class="p">,</span>
+                                        <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">29</span><span class="p">),</span>
+                                        <span class="n">col_ends</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">36</span><span class="p">),</span>
+                                        <span class="n">names</span><span class="o">=</span><span class="n">ringtable_names</span><span class="p">,</span>
+                                        <span class="n">units</span><span class="o">=</span><span class="p">(</span><span class="n">ringtable_units</span><span class="p">))</span>
+
+            <span class="c1"># Saturn F-ring data</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;F Ring&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                    <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;F Ring pericenter&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">peri</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[a-zA-Z]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="s2">&quot;F Ring ascending node&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">ascn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">ringtable_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ring&quot;</span><span class="p">,</span> <span class="s2">&quot;pericenter&quot;</span><span class="p">,</span> <span class="s2">&quot;ascending node&quot;</span><span class="p">)</span>
+                <span class="n">ringtable_units</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">]</span>
+                <span class="n">ringtable</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">([[</span><span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">peri</span><span class="p">],</span> <span class="p">[</span><span class="n">ascn</span><span class="p">]],</span>
+                                   <span class="n">names</span><span class="o">=</span><span class="n">ringtable_names</span><span class="p">,</span>
+                                   <span class="n">units</span><span class="o">=</span><span class="p">(</span><span class="n">ringtable_units</span><span class="p">))</span>
+
+            <span class="c1"># Neptune ring arcs data</span>
+            <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Courage&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+                    <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="n">ring</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="p">[</span><span class="n">min_angle</span><span class="p">,</span> <span class="n">max_angle</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[a-zA-Z]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">ringtable_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ring&quot;</span><span class="p">,</span> <span class="s2">&quot;min_angle&quot;</span><span class="p">,</span> <span class="s2">&quot;max_angle&quot;</span><span class="p">)</span>
+                        <span class="n">ringtable_units</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">]</span>
+                        <span class="n">ringtable</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">([[</span><span class="n">ring</span><span class="p">],</span> <span class="p">[</span><span class="n">min_angle</span><span class="p">],</span> <span class="p">[</span><span class="n">max_angle</span><span class="p">]],</span>
+                                           <span class="n">names</span><span class="o">=</span><span class="n">ringtable_names</span><span class="p">,</span>
+                                           <span class="n">units</span><span class="o">=</span><span class="n">ringtable_units</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ringtable</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">ring</span><span class="p">,</span> <span class="n">min_angle</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">max_angle</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">])</span>
+
+        <span class="c1"># do some cleanup from the parsing job</span>
+        <span class="c1"># and make system-wide parameters metadata of bodytable and ringtable</span>
+        <span class="n">systemtable</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span><span class="p">)</span>  <span class="c1"># add obs time to systemtable</span>
+        <span class="k">if</span> <span class="n">ringtable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ringtable</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s2">&quot;ring&quot;</span><span class="p">)</span>
+            <span class="n">ringtable</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">systemtable</span>
+
+        <span class="n">bodytable</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">bodytable</span><span class="p">,</span> <span class="n">bodytable2</span><span class="p">)</span>  <span class="c1"># concatenate minor body table</span>
+        <span class="n">bodytable</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s2">&quot;Body&quot;</span><span class="p">)</span>
+        <span class="n">bodytable</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">systemtable</span>
+
+        <span class="k">return</span> <span class="n">bodytable</span><span class="p">,</span> <span class="n">ringtable</span></div>
+
+
+
+<span class="n">RingNode</span> <span class="o">=</span> <span class="n">RingNodeClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

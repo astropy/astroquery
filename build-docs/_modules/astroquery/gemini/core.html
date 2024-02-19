@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.gemini.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.gemini.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Search functionality for the Gemini archive of observations.</span>
+
+<span class="sd">For questions, contact ooberdorf@gemini.edu</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="kn">from</span> <span class="nn">astroquery</span> <span class="kn">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">MaskedColumn</span>
+
+<span class="kn">from</span> <span class="nn">astroquery.gemini.urlhelper</span> <span class="kn">import</span> <span class="n">URLHelper</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">QueryWithLogin</span>
+<span class="kn">from</span> <span class="nn">..utils.class_or_instance</span> <span class="kn">import</span> <span class="n">class_or_instance</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Observations&#39;</span><span class="p">,</span> <span class="s1">&#39;ObservationsClass&#39;</span><span class="p">]</span>  <span class="c1"># specifies what to import</span>
+
+
+<span class="n">__valid_instruments__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;GMOS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GMOS-N&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GMOS-S&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GNIRS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GRACES&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NIRI&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NIFS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GSAOI&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;F2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GPI&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NICI&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MICHELLE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TRECS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BHROS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HRWFS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;OSCIR&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;FLAMINGOS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HOKUPAA+QUIRC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PHOENIX&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TEXES&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ABU&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CIRPASS&#39;</span>
+<span class="p">]</span>
+
+
+<span class="n">__valid_observation_class__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;science&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;acq&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;progCal&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dayCal&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;partnerCal&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;acqCal&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">__valid_observation_types__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;OBJECT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BIAS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DARK&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;FLAT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ARC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PINHOLE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;RONCHI&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CAL&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;FRINGE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MASK&#39;</span>
+<span class="p">]</span>
+
+<span class="n">__valid_modes__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;imaging&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;spectroscopy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MOS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;IFS&#39;</span>
+<span class="p">]</span>
+
+<span class="n">__valid_adaptive_optics__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;NOTAO&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AO&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NGS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LGS&#39;</span>
+<span class="p">]</span>
+
+<span class="n">__valid_raw_reduced__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;RAW&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PREPARED&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PROCESSED_BIAS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PROCESSED_FLAT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PROCESSED_FRINGE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PROCESSED_ARC&#39;</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="ObservationsClass">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass">[docs]</a>
+<span class="k">class</span> <span class="nc">ObservationsClass</span><span class="p">(</span><span class="n">QueryWithLogin</span><span class="p">):</span>
+
+    <span class="n">server</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">url_helper</span> <span class="o">=</span> <span class="n">URLHelper</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query class for observations in the Gemini archive.</span>
+
+<span class="sd">        This class provides query capabilities against the gemini archive.  Queries</span>
+<span class="sd">        can be done by cone search, by name, or by a set of criteria.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Login to the Gemini Archive website.</span>
+
+<span class="sd">        This method will authenticate the session as a particular user.  This may give you access</span>
+<span class="sd">        to additional information or access based on your credentials</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            The username to login as</span>
+<span class="sd">        password : str</span>
+<span class="sd">            The password for the given account</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;https://archive.gemini.edu/login/&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="sa">b</span><span class="s1">&#39;&lt;P&gt;Welcome, you are sucessfully logged in&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unable to login, please check your credentials&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ObservationsClass.query_region">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass.query_region">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.3</span><span class="o">*</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        search for Gemini observations by target on the sky.</span>
+
+<span class="sd">        Given a sky position and radius, returns a `~astropy.table.Table` of Gemini observations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `~astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `~astropy.coordinates` object.</span>
+<span class="sd">        radius : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0.3 degrees.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `~astropy.units` may also be used. Defaults to 0.3 deg.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObservationsClass.query_object">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass.query_object">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.3</span><span class="o">*</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        search for Gemini observations by target on the sky.</span>
+
+<span class="sd">        Given an object name and optional radius, returns a `~astropy.table.Table` of Gemini observations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectname : str</span>
+<span class="sd">            The name of an object to search for.  This attempts to resolve the object</span>
+<span class="sd">            by name and do a search on that area of the sky.  This does not handle</span>
+<span class="sd">            moving targets.</span>
+<span class="sd">        radius : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0.3 degrees.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `~astropy.units` may also be used. Defaults to 0.3 deg.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="n">objectname</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObservationsClass.query_criteria">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass.query_criteria">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_criteria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">rawqueryargs</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pi_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">program_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">utc_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">instrument</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observation_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observation_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">adaptive_optics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">program_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw_reduced</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">orderby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">rawquerykwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        search a variety of known parameters against the Gemini observations.</span>
+
+<span class="sd">        Given various criteria, search the Gemini archive for matching observations.  Note that</span>
+<span class="sd">        ``rawqueryargs`` and ``rawquerykwargs`` will pick up additional positional and key=value</span>
+<span class="sd">        arguments and pass then on to the raw query as is.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `~astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `~astropy.coordinates` object.</span>
+<span class="sd">        radius : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0.3 degrees if coordinates are set, else None</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `~astropy.units` may also be used. Defaults to 0.3 deg.</span>
+<span class="sd">        pi_name : str, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to search for data by the PI&#39;s name.</span>
+<span class="sd">        program_id : str, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to match on program ID</span>
+<span class="sd">        utc_date : date or (date,date) tuple, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to search for observations on a particular day or range of days (inclusive).</span>
+<span class="sd">        instrument : str, optional</span>
+<span class="sd">            Can be used to search for a particular instrument.  Valid values are:</span>
+<span class="sd">                &#39;GMOS&#39;,</span>
+<span class="sd">                &#39;GMOS-N&#39;,</span>
+<span class="sd">                &#39;GMOS-S&#39;,</span>
+<span class="sd">                &#39;GNIRS&#39;,</span>
+<span class="sd">                &#39;GRACES&#39;,</span>
+<span class="sd">                &#39;NIRI&#39;,</span>
+<span class="sd">                &#39;NIFS&#39;,</span>
+<span class="sd">                &#39;GSAOI&#39;,</span>
+<span class="sd">                &#39;F2&#39;,</span>
+<span class="sd">                &#39;GPI&#39;,</span>
+<span class="sd">                &#39;NICI&#39;,</span>
+<span class="sd">                &#39;MICHELLE&#39;,</span>
+<span class="sd">                &#39;TRECS&#39;,</span>
+<span class="sd">                &#39;BHROS&#39;,</span>
+<span class="sd">                &#39;HRWFS&#39;,</span>
+<span class="sd">                &#39;OSCIR&#39;,</span>
+<span class="sd">                &#39;FLAMINGOS&#39;,</span>
+<span class="sd">                &#39;HOKUPAA+QUIRC&#39;,</span>
+<span class="sd">                &#39;PHOENIX&#39;,</span>
+<span class="sd">                &#39;TEXES&#39;,</span>
+<span class="sd">                &#39;ABU&#39;,</span>
+<span class="sd">                &#39;CIRPASS&#39;</span>
+<span class="sd">        observation_class : str, optional</span>
+<span class="sd">            Specifies the class of observations to search for.  Valid values are:</span>
+<span class="sd">                &#39;science&#39;,</span>
+<span class="sd">                &#39;acq&#39;,</span>
+<span class="sd">                &#39;progCal&#39;,</span>
+<span class="sd">                &#39;dayCal&#39;,</span>
+<span class="sd">                &#39;partnerCal&#39;,</span>
+<span class="sd">                &#39;acqCal&#39;</span>
+<span class="sd">        observation_type : str, optional</span>
+<span class="sd">            Search for a particular type of observation.  Valid values are:</span>
+<span class="sd">                &#39;OBJECT&#39;,</span>
+<span class="sd">                &#39;BIAS&#39;,</span>
+<span class="sd">                &#39;DARK&#39;,</span>
+<span class="sd">                &#39;FLAT&#39;,</span>
+<span class="sd">                &#39;ARC&#39;,</span>
+<span class="sd">                &#39;PINHOLE&#39;,</span>
+<span class="sd">                &#39;RONCHI&#39;,</span>
+<span class="sd">                &#39;CAL&#39;,</span>
+<span class="sd">                &#39;FRINGE&#39;,</span>
+<span class="sd">                &#39;MASK&#39;</span>
+<span class="sd">        mode : str, optional</span>
+<span class="sd">            The mode of the observation.  Valid values are:</span>
+<span class="sd">                &#39;imaging&#39;,</span>
+<span class="sd">                &#39;spectroscopy&#39;,</span>
+<span class="sd">                &#39;LS&#39;,</span>
+<span class="sd">                &#39;MOS&#39;,</span>
+<span class="sd">                &#39;IFS&#39;</span>
+<span class="sd">        adaptive_optics : str, optional</span>
+<span class="sd">            Specify the presence of adaptive optics.  Valid values are:</span>
+<span class="sd">                &#39;NOTAO&#39;,</span>
+<span class="sd">                &#39;AO&#39;,</span>
+<span class="sd">                &#39;NGS&#39;,</span>
+<span class="sd">                &#39;LGS&#39;</span>
+<span class="sd">        program_text : str, optional</span>
+<span class="sd">            Specify text in the information about the program.  This is free form text.</span>
+<span class="sd">        objectname : str, optional</span>
+<span class="sd">            Give the name of the target.</span>
+<span class="sd">        raw_reduced : str, optional</span>
+<span class="sd">            Indicate the raw or reduced status of the observations to search for.  Valid values are:</span>
+<span class="sd">                &#39;RAW&#39;,</span>
+<span class="sd">                &#39;PREPARED&#39;,</span>
+<span class="sd">                &#39;PROCESSED_BIAS&#39;,</span>
+<span class="sd">                &#39;PROCESSED_FLAT&#39;,</span>
+<span class="sd">                &#39;PROCESSED_FRINGE&#39;,</span>
+<span class="sd">                &#39;PROCESSED_ARC&#39;</span>
+<span class="sd">        orderby : str, optional</span>
+<span class="sd">            Indicates how the results should be sorted.  Values should be like the ones used</span>
+<span class="sd">            in the archive website when sorting a column.  For example, ``data_label_desc`` would</span>
+<span class="sd">            sort by the data label in descending order.</span>
+<span class="sd">        rawqueryargs : list, optional</span>
+<span class="sd">            Additional arguments will be passed down to the raw query.  This covers any</span>
+<span class="sd">            additional parameters that would end up as &#39;/parametervalue/&#39; in the URL to the archive</span>
+<span class="sd">            webservice.</span>
+<span class="sd">        rawquerykwargs : dict, optional</span>
+<span class="sd">            Additional key/value arguments will also be passed down to the raw query.  This covers</span>
+<span class="sd">            any parameters that would end up as &#39;/key=value/&#39; in the URL to the archive webservice.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError: passed value is not recognized for the given field, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Build parameters into raw query</span>
+        <span class="c1">#</span>
+        <span class="c1"># This consists of a set of unnamed arguments, args, and key/value pairs, kwargs</span>
+
+        <span class="c1"># These will hold the passed freeform parameters plus the explicit criteria</span>
+        <span class="c1"># for our eventual call to the raw query method</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="c1"># Copy the incoming set of free-form arguments</span>
+        <span class="k">if</span> <span class="n">rawqueryargs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">rawqueryargs</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rawquerykwargs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rawquerykwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="c1"># If coordinates is set but we have no radius, set a default</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">coordinates</span> <span class="ow">or</span> <span class="n">objectname</span><span class="p">)</span> <span class="ow">and</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+        <span class="c1"># Now consider the canned criteria</span>
+        <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span>
+        <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span>
+        <span class="k">if</span> <span class="n">pi_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;PIname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi_name</span>
+        <span class="k">if</span> <span class="n">program_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;progid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_id</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">utc_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">utc_date</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">utc_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;YYYYMMdd&quot;</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">utc_date</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">utc_date</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;utc_date tuple should have two values&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">utc_date</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">utc_date</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">date</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;utc_date tuple should have date values in it&quot;</span><span class="p">)</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;{:%Y%m</span><span class="si">%d</span><span class="s2">}-{:%Y%m</span><span class="si">%d</span><span class="s2">}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">utc_date</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">instrument</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">instrument</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_instruments__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized instrument: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">instrument</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">observation_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">observation_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_observation_class__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized observation class: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">observation_class</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation_class</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">observation_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">observation_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_observation_types__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized observation type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">observation_type</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_modes__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adaptive_optics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">adaptive_optics</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_adaptive_optics__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized adaptive optics: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">adaptive_optics</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adaptive_optics</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">program_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;ProgramText&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_text</span>
+        <span class="k">if</span> <span class="n">objectname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objectname</span>
+        <span class="k">if</span> <span class="n">raw_reduced</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">raw_reduced</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__valid_raw_reduced__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized raw/reduced setting: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">raw_reduced</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_reduced</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">orderby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;orderby&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orderby</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_raw</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObservationsClass.query_raw">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass.query_raw">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        perform flexible query against Gemini observations</span>
+
+<span class="sd">        This is a more flexible query method.  This method will do special handling for</span>
+<span class="sd">        coordinates and radius if present in kwargs.  However, for the remaining arguments</span>
+<span class="sd">        it assumes all of args are useable as query path elements.  For kwargs, it assumes</span>
+<span class="sd">        all of the elements can be passed as name=value within the query path to Gemini.</span>
+
+<span class="sd">        This method does not do any validation checking or attempt to interperet the</span>
+<span class="sd">        values being passed, aside from coordinates and radius.</span>
+
+<span class="sd">        This method is most useful when the query_criteria and query_region do not</span>
+<span class="sd">        meet your needs and you can build the appropriate search in the website.  When</span>
+<span class="sd">        you see the URL that is generated by the archive, you can translate that into</span>
+<span class="sd">        an equivalent python call with this method.  For example, if the URL in the</span>
+<span class="sd">        website is:</span>
+
+<span class="sd">        https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail</span>
+
+<span class="sd">        You can disregard NotFail, cols=x and notengineering.  You would run this query as</span>
+
+<span class="sd">        query_raw(&#39;GMOS-N&#39;, PIname=&#39;Hirst&#39;)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args :</span>
+<span class="sd">            The list of parameters to be passed via the query path to the webserver</span>
+<span class="sd">        kwargs :</span>
+<span class="sd">            The dictionary of parameters to be passed by name=value within the query</span>
+<span class="sd">            path to the webserver.  The ``orderby`` key value pair has a special</span>
+<span class="sd">            intepretation and is appended as a query parameter like the one used</span>
+<span class="sd">            in the archive website for sorting results.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">url_helper</span><span class="o">.</span><span class="n">build_url</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{},</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">js</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">_gemini_json_to_table</span><span class="p">(</span><span class="n">js</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObservationsClass.get_file">
+<a class="viewcode-back" href="../../../api/astroquery.gemini.ObservationsClass.html#astroquery.gemini.ObservationsClass.get_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">download_dir</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download the requested file to the current directory</span>
+
+<span class="sd">        filename : str</span>
+<span class="sd">            Name of the file to download</span>
+<span class="sd">        download_dir : str, optional</span>
+<span class="sd">            Name of the directory to download to</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Timeout of the request in milliseconds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://archive.gemini.edu/file/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span>
+        <span class="n">local_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">local_filepath</span><span class="o">=</span><span class="n">local_filepath</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span> <span class="nf">_gemini_json_to_table</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    takes a JSON object as returned from the Gemini archive webserver and turns it into an `~astropy.table.Table`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json : dict</span>
+<span class="sd">        A JSON object from the Gemini archive webserver</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    response : `~astropy.table.Table`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">masked</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">__keys__</span><span class="p">:</span>
+        <span class="n">col_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">json</span><span class="p">])</span>
+
+        <span class="n">atype</span> <span class="o">=</span> <span class="nb">str</span>
+
+        <span class="n">col_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">col_data</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">data_table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">MaskedColumn</span><span class="p">(</span><span class="n">col_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">atype</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">col_mask</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">data_table</span>
+
+
+<span class="n">__keys__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;exposure_time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_roi_setting&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_welldepth_setting&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;telescope&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mdready&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;requested_bg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;engineering&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cass_rotator_pa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ut_datetime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;file_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;types&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;requested_wv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_readspeed_setting&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;laser_guide_star&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observation_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;science_verification&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;raw_cc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;instrument&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reduction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;camera&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_binning&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lastmod&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wavelength_band&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mode&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;raw_iq&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;airmass&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;elevation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_label&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;requested_iq&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;requested_cc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;program_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;file_md5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;central_wavelength&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;raw_wv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;compressed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filter_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_gain_setting&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observation_class&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qa_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observation_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;calibration_program&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;md5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;adaptive_optics&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;focal_plane_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_md5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;raw_bg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disperser&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wavefront_sensor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gcal_lamp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;detector_readmode_setting&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_standard&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;local_time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spectroscopy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;azimuth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;release&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dec&quot;</span><span class="p">]</span>
+
+<span class="n">Observations</span> <span class="o">=</span> <span class="n">ObservationsClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

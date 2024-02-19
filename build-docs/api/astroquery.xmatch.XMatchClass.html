@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>XMatchClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.xmatch.Conf.html" />
+    <link rel="prev" title="xMatch Queries (astroquery.xmatch)" href="../xmatch/xmatch.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.xmatch.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../xmatch/xmatch.html" title="xMatch Queries (astroquery.xmatch)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../xmatch/xmatch.html" accesskey="U">xMatch Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.xmatch</span></code>)</a> &#187;</li>
+      
+      <li>XMatchClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="xmatchclass">
+<h1>XMatchClass<a class="headerlink" href="#xmatchclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.xmatch.</span></span><span class="sig-name descname"><span class="pre">XMatchClass</span></span><a class="reference internal" href="../_modules/astroquery/xmatch/core.html#XMatchClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.xmatch.XMatchClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.TIMEOUT" title="astroquery.xmatch.XMatchClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.URL" title="astroquery.xmatch.XMatchClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.get_available_tables" title="astroquery.xmatch.XMatchClass.get_available_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_tables</span></code></a>(*[, cache])</p></td>
+<td><p>Get the list of the VizieR tables which are available in the xMatch service and return them as a list of strings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.is_table_available" title="astroquery.xmatch.XMatchClass.is_table_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_table_available</span></code></a>(table_id)</p></td>
+<td><p>Return True if the passed CDS table identifier is one of the available VizieR tables, otherwise False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.query" title="astroquery.xmatch.XMatchClass.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a>(cat1, cat2, max_distance, *[, colRA1, ...])</p></td>
+<td><p>Query the <a class="reference external" href="http://cdsxmatch.u-strasbg.fr/xmatch">CDS cross-match service</a> by finding matches between two (potentially big) catalogues.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.xmatch.XMatchClass.query_async" title="astroquery.xmatch.XMatchClass.query_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_async</span></code></a>(cat1, cat2, max_distance, *[, ...])</p></td>
+<td><p><p>Query the <a class="reference external" href="http://cdsxmatch.u-strasbg.fr/xmatch">CDS cross-match service</a> by finding matches between two (potentially big) catalogues.</p>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">300</span></em><a class="headerlink" href="#astroquery.xmatch.XMatchClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync'</span></em><a class="headerlink" href="#astroquery.xmatch.XMatchClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.get_available_tables">
+<span class="sig-name descname"><span class="pre">get_available_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/xmatch/core.html#XMatchClass.get_available_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.xmatch.XMatchClass.get_available_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Get the list of the VizieR tables which are available in the
+xMatch service and return them as a list of strings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.is_table_available">
+<span class="sig-name descname"><span class="pre">is_table_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/xmatch/core.html#XMatchClass.is_table_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.xmatch.XMatchClass.is_table_available" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the passed CDS table identifier is one of the
+available VizieR tables, otherwise False.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colRA1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colDec1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colRA2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colDec2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'allsky'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/xmatch/core.html#XMatchClass.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.xmatch.XMatchClass.query" title="Link to this definition">¶</a></dt>
+<dd><p>Query the <a class="reference external" href="http://cdsxmatch.u-strasbg.fr/xmatch">CDS cross-match service</a> by finding matches between
+two (potentially big) catalogues.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>cat1</strong><span class="classifier">str, file or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>Identifier of the first table. It can either be a URL, the
+payload of a local file being uploaded, a CDS table
+identifier (either <em>simbad</em> for a view of SIMBAD data / to
+point out a given VizieR table) or a an AstroPy table.
+If the table is uploaded or accessed through a URL, it must be
+in VOTable or CSV format with the positions in J2000
+equatorial frame and as decimal degrees numbers.</p>
+</dd>
+<dt><strong>cat2</strong><span class="classifier">str or file</span></dt><dd><p>Identifier of the second table. Follows the same rules as <em>cat1</em>.</p>
+</dd>
+<dt><strong>max_distance</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>Maximum distance to look for counterparts.
+Maximum allowed value is 180 arcsec.</p>
+</dd>
+<dt><strong>colRA1</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the right ascension. Only required
+if <code class="docutils literal notranslate"><span class="pre">cat1</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colDec1</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the declination. Only required if
+<code class="docutils literal notranslate"><span class="pre">cat1</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colRA2</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the right ascension. Only required
+if <code class="docutils literal notranslate"><span class="pre">cat2</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colDec2</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the declination. Only required if
+<code class="docutils literal notranslate"><span class="pre">cat2</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>area</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code> or ‘allsky’ str</span></dt><dd><p>Restrict the area taken into account when performing the xmatch
+Default value is ‘allsky’ (no restriction). If a
+<code class="docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code> object is given, only sources in
+this region will be considered.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>Query results table</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.xmatch.XMatchClass.query_async">
+<span class="sig-name descname"><span class="pre">query_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colRA1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colDec1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colRA2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colDec2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'allsky'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/xmatch/core.html#XMatchClass.query_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.xmatch.XMatchClass.query_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query the <a class="reference external" href="http://cdsxmatch.u-strasbg.fr/xmatch">CDS cross-match service</a> by finding matches between
+two (potentially big) catalogues.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>cat1</strong><span class="classifier">str, file or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>Identifier of the first table. It can either be a URL, the
+payload of a local file being uploaded, a CDS table
+identifier (either <em>simbad</em> for a view of SIMBAD data / to
+point out a given VizieR table) or a an AstroPy table.
+If the table is uploaded or accessed through a URL, it must be
+in VOTable or CSV format with the positions in J2000
+equatorial frame and as decimal degrees numbers.</p>
+</dd>
+<dt><strong>cat2</strong><span class="classifier">str or file</span></dt><dd><p>Identifier of the second table. Follows the same rules as <em>cat1</em>.</p>
+</dd>
+<dt><strong>max_distance</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>Maximum distance to look for counterparts.
+Maximum allowed value is 180 arcsec.</p>
+</dd>
+<dt><strong>colRA1</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the right ascension. Only required
+if <code class="docutils literal notranslate"><span class="pre">cat1</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colDec1</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the declination. Only required if
+<code class="docutils literal notranslate"><span class="pre">cat1</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colRA2</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the right ascension. Only required
+if <code class="docutils literal notranslate"><span class="pre">cat2</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>colDec2</strong><span class="classifier">str</span></dt><dd><p>Name of the column holding the declination. Only required if
+<code class="docutils literal notranslate"><span class="pre">cat2</span></code> is an uploaded table or a pointer to a URL.</p>
+</dd>
+<dt><strong>area</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code> or ‘allsky’ str</span></dt><dd><p>Restrict the area taken into account when performing the xmatch
+Default value is ‘allsky’ (no restriction). If a
+<code class="docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code> object is given, only sources in
+this region will be considered.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Response</span></code></a></span></dt><dd><p>The HTTP response returned from the service.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">XMatchClass</a><ul>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass"><code class="docutils literal notranslate"><span class="pre">XMatchClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">XMatchClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.URL"><code class="docutils literal notranslate"><span class="pre">XMatchClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.get_available_tables"><code class="docutils literal notranslate"><span class="pre">XMatchClass.get_available_tables()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.is_table_available"><code class="docutils literal notranslate"><span class="pre">XMatchClass.is_table_available()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.query"><code class="docutils literal notranslate"><span class="pre">XMatchClass.query()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.xmatch.XMatchClass.query_async"><code class="docutils literal notranslate"><span class="pre">XMatchClass.query_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.xmatch.XMatchClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

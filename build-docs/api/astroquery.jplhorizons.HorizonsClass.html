@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>HorizonsClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.jplhorizons.Conf.html" />
+    <link rel="prev" title="JPL Horizons Queries (astroquery.jplhorizons/astroquery.solarsystem.jpl.horizons)" href="../jplhorizons/jplhorizons.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.jplhorizons.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../jplhorizons/jplhorizons.html" title="JPL Horizons Queries (astroquery.jplhorizons/astroquery.solarsystem.jpl.horizons)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../jplhorizons/jplhorizons.html" accesskey="U">JPL Horizons Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.jplhorizons</span></code>/astroquery.solarsystem.jpl.horizons)</a> &#187;</li>
+      
+      <li>HorizonsClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="horizonsclass">
+<h1>HorizonsClass<a class="headerlink" href="#horizonsclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.jplhorizons.</span></span><span class="sig-name descname"><span class="pre">HorizonsClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/jplhorizons/core.html#HorizonsClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>Query the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/">JPL Horizons</a> service.</p>
+<p>Initialize JPL query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>id</strong><span class="classifier">str or dict, required</span></dt><dd><p>Name, number, or designation of target object. Uses the same codes
+as JPL Horizons. Arbitrary topocentric coordinates can be added in a
+dict. The dict has to be of the form {<code class="docutils literal notranslate"><span class="pre">'lon'</span></code>: longitude in deg
+(East positive, West negative), <code class="docutils literal notranslate"><span class="pre">'lat'</span></code>: latitude in deg (North
+positive, South negative), <code class="docutils literal notranslate"><span class="pre">'elevation'</span></code>: elevation in km above
+the reference ellipsoid, [<code class="docutils literal notranslate"><span class="pre">'body'</span></code>: Horizons body ID of the
+central body; optional; if this value is not provided it is assumed
+that this location is on Earth]}.  Float values are assumed to have
+units of degrees and kilometers.</p>
+</dd>
+<dt><strong>location</strong><span class="classifier">str or dict, optional</span></dt><dd><p>Observer’s location for ephemerides queries or center body name for
+orbital element or vector queries. Uses the same codes as JPL
+Horizons. If no location is provided, Earth’s center is used for
+ephemerides queries and the Sun’s center for elements and vectors
+queries. Arbitrary topocentric coordinates for ephemerides queries
+can be provided in the format of a dictionary. The dictionary has to
+be of the form {<code class="docutils literal notranslate"><span class="pre">'lon'</span></code>: longitude (East positive, West negative),
+<code class="docutils literal notranslate"><span class="pre">'lat'</span></code>: latitude (North positive, South negative),
+<code class="docutils literal notranslate"><span class="pre">'elevation'</span></code>: elevation above the reference ellipsoid,
+[<code class="docutils literal notranslate"><span class="pre">'body'</span></code>: Horizons body ID of the central body; optional; if this
+value is not provided it is assumed that this location is on
+Earth]}.  Float values are assumed to have units of degrees and
+kilometers.</p>
+</dd>
+<dt><strong>epochs</strong><span class="classifier">scalar, list-like, or dictionary, optional</span></dt><dd><p>Either a list of epochs in JD or MJD format or a dictionary defining
+a range of times and dates; the range dictionary has to be of the
+form {<code class="docutils literal notranslate"><span class="pre">'start'</span></code>: ‘YYYY-MM-DD [HH:MM:SS]’, <code class="docutils literal notranslate"><span class="pre">'stop'</span></code>: ‘YYYY-MM-DD
+[HH:MM:SS]’, <code class="docutils literal notranslate"><span class="pre">'step'</span></code>: ‘n[y|d|m|s]’}. Epoch timescales depend on
+the type of query performed: UTC for ephemerides queries, TDB for
+element and vector queries. If no epochs are provided, the current
+time is used.</p>
+</dd>
+<dt><strong>id_type</strong><span class="classifier">str, optional</span></dt><dd><p>Controls Horizons’s object selection for <code class="docutils literal notranslate"><span class="pre">id</span></code>
+<a class="reference internal" href="#ra5896e396939-horizonsdoc-selection" id="id1">[HORIZONSDOC_SELECTION]</a> .  Options: <code class="docutils literal notranslate"><span class="pre">'designation'</span></code> (small body
+designation), <code class="docutils literal notranslate"><span class="pre">'name'</span></code> (asteroid or comet name),
+<code class="docutils literal notranslate"><span class="pre">'asteroid_name'</span></code>, <code class="docutils literal notranslate"><span class="pre">'comet_name'</span></code>, <code class="docutils literal notranslate"><span class="pre">'smallbody'</span></code> (asteroid and
+comet search), or <code class="docutils literal notranslate"><span class="pre">None</span></code> (first search search planets, natural
+satellites, spacecraft, and special cases, and if no matches, then
+search small bodies).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ra5896e396939-horizonsdoc-selection" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">HORIZONSDOC_SELECTION</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#select">https://ssd.jpl.nasa.gov/horizons/manual.html#select</a>
+(retrieved 2021 Sep 23).</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eros</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;433&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="s1">&#39;stop&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-02-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="s1">&#39;1d&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eros</span><span class="p">)</span>
+<span class="go">JPLHorizons instance &quot;433&quot;; location=568,</span>
+<span class="go">epochs={&#39;start&#39;: &#39;2017-01-01&#39;, &#39;stop&#39;: &#39;2017-02-01&#39;, &#39;step&#39;: &#39;1d&#39;}, id_type=None</span>
+</pre></div>
+</div>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.TIMEOUT" title="astroquery.jplhorizons.HorizonsClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.id" title="astroquery.jplhorizons.HorizonsClass.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.location" title="astroquery.jplhorizons.HorizonsClass.location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">location</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.raw_response" title="astroquery.jplhorizons.HorizonsClass.raw_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_response</span></code></a></p></td>
+<td><p><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7.</span></p>
+</div>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements" title="astroquery.jplhorizons.HorizonsClass.elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements_async" title="astroquery.jplhorizons.HorizonsClass.elements_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements_async</span></code></a>(*[, get_query_payload, ...])</p></td>
+<td><p>Query JPL Horizons for osculating orbital elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides" title="astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ephemerides</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides_async" title="astroquery.jplhorizons.HorizonsClass.ephemerides_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ephemerides_async</span></code></a>(*[, airmass_lessthan, ...])</p></td>
+<td><p>Query JPL Horizons for ephemerides.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors" title="astroquery.jplhorizons.HorizonsClass.vectors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectors</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors_async" title="astroquery.jplhorizons.HorizonsClass.vectors_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectors_async</span></code></a>(*[, get_query_payload, ...])</p></td>
+<td><p>Query JPL Horizons for state vectors.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.location">
+<span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.location" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.raw_response">
+<span class="sig-name descname"><span class="pre">raw_response</span></span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.raw_response" title="Link to this definition">¶</a></dt>
+<dd><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The raw_response attribute is deprecated and may be removed in a future version.
+    Use an <code class="docutils literal notranslate"><span class="pre">_async</span></code> method (e.g., <code class="docutils literal notranslate"><span class="pre">ephemerides_async</span></code>) to return a response object, and access the content with <code class="docutils literal notranslate"><span class="pre">response.text</span></code> instead.</p>
+</div>
+<p></p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.elements">
+<span class="sig-name descname"><span class="pre">elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.elements" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query JPL Horizons for osculating orbital elements.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements_async" title="astroquery.jplhorizons.HorizonsClass.elements_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the center body relative to which the elements are provided.</p>
+<p>The following table lists the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch Date (str, <code class="docutils literal notranslate"><span class="pre">Calendar</span> <span class="pre">Date</span> <span class="pre">(TDB)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float, <code class="docutils literal notranslate"><span class="pre">JDTDB</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>e</p></td>
+<td><p>eccentricity (float, <code class="docutils literal notranslate"><span class="pre">EC</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>q</p></td>
+<td><p>periapsis distance (float, au, <code class="docutils literal notranslate"><span class="pre">QR</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>a</p></td>
+<td><p>semi-major axis (float, au, <code class="docutils literal notranslate"><span class="pre">A</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>incl</p></td>
+<td><p>inclination (float, deg, <code class="docutils literal notranslate"><span class="pre">IN</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Omega</p></td>
+<td><p>longitude of Asc. Node (float, deg, <code class="docutils literal notranslate"><span class="pre">OM</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>w</p></td>
+<td><p>argument of the perifocus (float, deg, <code class="docutils literal notranslate"><span class="pre">W</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tp_jd</p></td>
+<td><p>time of periapsis (float, Julian Date, <code class="docutils literal notranslate"><span class="pre">Tp</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>mean motion (float, deg/d, <code class="docutils literal notranslate"><span class="pre">N</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M</p></td>
+<td><p>mean anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">MA</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>nu</p></td>
+<td><p>true anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">TA</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>period</p></td>
+<td><p>orbital period (float, (Earth) d, <code class="docutils literal notranslate"><span class="pre">PR</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Q</p></td>
+<td><p>apoapsis distance (float, au, <code class="docutils literal notranslate"><span class="pre">AD</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>refsystem</strong><span class="classifier">string</span></dt><dd><p>Element reference system for geometric and astrometric quantities:
+<code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code> or <code class="docutils literal notranslate"><span class="pre">'B1950'</span></code>; default: <code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code></p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">string</span></dt><dd><p>Reference plane for all output quantities: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code> (ecliptic
+and mean equinox of reference epoch), <code class="docutils literal notranslate"><span class="pre">'earth'</span></code> (Earth mean
+equator and equinox of reference epoch), or <code class="docutils literal notranslate"><span class="pre">'body'</span></code> (body mean
+equator and node of date); default: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code></p>
+</dd>
+<dt><strong>tp_type</strong><span class="classifier">string</span></dt><dd><p>Representation for time-of-perihelion passage: <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'relative'</span></code> (to epoch); default: <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code></p>
+</dd>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the method returns the HTTP request parameters
+as a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response: boolean, optional</strong></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;433&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;500@10&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="mf">2458133.33546</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">elements</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>  
+<span class="go">    targetname      datetime_jd  ...       Q            P</span>
+<span class="go">        ---              d       ...       AU           d</span>
+<span class="go">------------------ ------------- ... ------------- ------------</span>
+<span class="go">433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.elements_async">
+<span class="sig-name descname"><span class="pre">elements_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refsystem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ICRF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refplane</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ecliptic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'absolute'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closest_apparition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_fragments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_raw_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/jplhorizons/core.html#HorizonsClass.elements_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.elements_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query JPL Horizons for osculating orbital elements.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements_async" title="astroquery.jplhorizons.HorizonsClass.elements_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the center body relative to which the elements are provided.</p>
+<p>The following table lists the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch Date (str, <code class="docutils literal notranslate"><span class="pre">Calendar</span> <span class="pre">Date</span> <span class="pre">(TDB)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float, <code class="docutils literal notranslate"><span class="pre">JDTDB</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>e</p></td>
+<td><p>eccentricity (float, <code class="docutils literal notranslate"><span class="pre">EC</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>q</p></td>
+<td><p>periapsis distance (float, au, <code class="docutils literal notranslate"><span class="pre">QR</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>a</p></td>
+<td><p>semi-major axis (float, au, <code class="docutils literal notranslate"><span class="pre">A</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>incl</p></td>
+<td><p>inclination (float, deg, <code class="docutils literal notranslate"><span class="pre">IN</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Omega</p></td>
+<td><p>longitude of Asc. Node (float, deg, <code class="docutils literal notranslate"><span class="pre">OM</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>w</p></td>
+<td><p>argument of the perifocus (float, deg, <code class="docutils literal notranslate"><span class="pre">W</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tp_jd</p></td>
+<td><p>time of periapsis (float, Julian Date, <code class="docutils literal notranslate"><span class="pre">Tp</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>mean motion (float, deg/d, <code class="docutils literal notranslate"><span class="pre">N</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M</p></td>
+<td><p>mean anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">MA</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>nu</p></td>
+<td><p>true anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">TA</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>period</p></td>
+<td><p>orbital period (float, (Earth) d, <code class="docutils literal notranslate"><span class="pre">PR</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Q</p></td>
+<td><p>apoapsis distance (float, au, <code class="docutils literal notranslate"><span class="pre">AD</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>refsystem</strong><span class="classifier">string</span></dt><dd><p>Element reference system for geometric and astrometric quantities:
+<code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code> or <code class="docutils literal notranslate"><span class="pre">'B1950'</span></code>; default: <code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code></p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">string</span></dt><dd><p>Reference plane for all output quantities: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code> (ecliptic
+and mean equinox of reference epoch), <code class="docutils literal notranslate"><span class="pre">'earth'</span></code> (Earth mean
+equator and equinox of reference epoch), or <code class="docutils literal notranslate"><span class="pre">'body'</span></code> (body mean
+equator and node of date); default: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code></p>
+</dd>
+<dt><strong>tp_type</strong><span class="classifier">string</span></dt><dd><p>Representation for time-of-perihelion passage: <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'relative'</span></code> (to epoch); default: <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code></p>
+</dd>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the method returns the HTTP request parameters
+as a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response: boolean, optional</strong></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;433&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;500@10&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="mf">2458133.33546</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">elements</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>  
+<span class="go">    targetname      datetime_jd  ...       Q            P</span>
+<span class="go">        ---              d       ...       AU           d</span>
+<span class="go">------------------ ------------- ... ------------- ------------</span>
+<span class="go">433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.ephemerides">
+<span class="sig-name descname"><span class="pre">ephemerides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.ephemerides" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query JPL Horizons for ephemerides.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides_async" title="astroquery.jplhorizons.HorizonsClass.ephemerides_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ephemerides_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the location of the observer.</p>
+<p>The following tables list the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch (str, <code class="docutils literal notranslate"><span class="pre">Date__(UT)__HR:MN:SC.fff</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float,
+<code class="docutils literal notranslate"><span class="pre">Date_________JDUT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>solar_presence</p></td>
+<td><p>information on Sun’s presence (str)</p></td>
+</tr>
+<tr class="row-odd"><td><p>flags</p></td>
+<td><p>information on Moon, target status (str)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA</p></td>
+<td><p>target RA (float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(XXX)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC</p></td>
+<td><p>target DEC (float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(XXX)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA_app</p></td>
+<td><p>target apparent RA (float, deg,
+<code class="docutils literal notranslate"><span class="pre">R.A._(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC_app</p></td>
+<td><p>target apparent DEC (float, deg,
+<code class="docutils literal notranslate"><span class="pre">DEC_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA_rate</p></td>
+<td><p>target rate RA (float, arcsec/hr, <code class="docutils literal notranslate"><span class="pre">RA*cosD</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC_rate</p></td>
+<td><p>target RA (float, arcsec/hr, <code class="docutils literal notranslate"><span class="pre">d(DEC)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>AZ</p></td>
+<td><p>Azimuth (float, deg, EoN, <code class="docutils literal notranslate"><span class="pre">Azi_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EL</p></td>
+<td><p>Elevation (float, deg, <code class="docutils literal notranslate"><span class="pre">Elev_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>AZ_rate</p></td>
+<td><p>Azimuth rate (float, arcsec/minute,
+<code class="docutils literal notranslate"><span class="pre">dAZ*cosE</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EL_rate</p></td>
+<td><p>Elevation rate (float, arcsec/minute,
+<code class="docutils literal notranslate"><span class="pre">d(ELV)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_X</p></td>
+<td><p>satellite X position (arcsec,
+<code class="docutils literal notranslate"><span class="pre">X_(sat-prim)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_Y</p></td>
+<td><p>satellite Y position (arcsec,
+<code class="docutils literal notranslate"><span class="pre">Y_(sat-prim)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_PANG</p></td>
+<td><p>satellite position angle (deg,
+<code class="docutils literal notranslate"><span class="pre">SatPANG</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>siderealtime</p></td>
+<td><p>local apparent sidereal time (str,
+<code class="docutils literal notranslate"><span class="pre">L_Ap_Sid_Time</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>airmass</p></td>
+<td><p>target optical airmass (float, <code class="docutils literal notranslate"><span class="pre">a-mass</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>magextinct</p></td>
+<td><p>V-mag extinction (float, mag, <code class="docutils literal notranslate"><span class="pre">mag_ex</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>V</p></td>
+<td><p>V magnitude (float, mag, <code class="docutils literal notranslate"><span class="pre">APmag</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tmag</p></td>
+<td><p>comet Total magnitude (float, mag, <code class="docutils literal notranslate"><span class="pre">T-mag</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Nmag</p></td>
+<td><p>comet Nucleaus magnitude (float, mag,
+<code class="docutils literal notranslate"><span class="pre">N-mag</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>surfbright</p></td>
+<td><p>surf brightness (float, mag/arcsec^2,
+<code class="docutils literal notranslate"><span class="pre">S-brt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>illumination</p></td>
+<td><p>frac of illumination (float, percent,
+<code class="docutils literal notranslate"><span class="pre">Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>illum_defect</p></td>
+<td><p>Defect of illumination (float, arcsec,
+<code class="docutils literal notranslate"><span class="pre">Dec_illu</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_sep</p></td>
+<td><p>Target-primary angular separation (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">ang-sep</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_vis</p></td>
+<td><p>Target-primary visibility (str, <code class="docutils literal notranslate"><span class="pre">v</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>ang_width</p></td>
+<td><p>Angular width of target (float, arcsec,
+<code class="docutils literal notranslate"><span class="pre">Ang-diam</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PDObsLon</p></td>
+<td><p>Apparent planetodetic longitude (float, deg,
+<code class="docutils literal notranslate"><span class="pre">ObsSub-LON</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PDObsLat</p></td>
+<td><p>Apparent planetodetic latitude  (float, deg,
+<code class="docutils literal notranslate"><span class="pre">ObsSub-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PDSunLon</p></td>
+<td><p>Subsolar planetodetic longitude (float, deg,
+<code class="docutils literal notranslate"><span class="pre">SunSub-LON</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PDSunLat</p></td>
+<td><p>Subsolar planetodetic latitude  (float, deg,
+<code class="docutils literal notranslate"><span class="pre">SunSub-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>SubSol_ang</p></td>
+<td><p>Target sub-solar point position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">SN.ang</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SubSol_dist</p></td>
+<td><p>Target sub-solar point position angle distance
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SN.dist</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>NPole_ang</p></td>
+<td><p>Target’s North Pole position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">NP.ang</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>NPole_dist</p></td>
+<td><p>Target’s North Pole position angle distance
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">NP.dist</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EclLon</p></td>
+<td><p>heliocentr ecl long (float, deg, <code class="docutils literal notranslate"><span class="pre">hEcl-Lon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>EclLat</p></td>
+<td><p>heliocentr ecl lat (float, deg, <code class="docutils literal notranslate"><span class="pre">hEcl-Lat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ObsEclLon</p></td>
+<td><p>obscentr ecl long (float, deg, <code class="docutils literal notranslate"><span class="pre">ObsEcLon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>ObsEclLat</p></td>
+<td><p>obscentr ecl lat (float, deg, <code class="docutils literal notranslate"><span class="pre">ObsEcLat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>r</p></td>
+<td><p>heliocentric distance (float, au, <code class="docutils literal notranslate"><span class="pre">r</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>r_rate</p></td>
+<td><p>heliocentric radial rate (float, km/s,
+<code class="docutils literal notranslate"><span class="pre">rdot</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>delta</p></td>
+<td><p>distance from observer (float, au, <code class="docutils literal notranslate"><span class="pre">delta</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>delta_rate</p></td>
+<td><p>obs-centric rad rate (float, km/s, <code class="docutils literal notranslate"><span class="pre">deldot</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lighttime</p></td>
+<td><p>one-way light time (float, min, <code class="docutils literal notranslate"><span class="pre">1-way_LT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vel_sun</p></td>
+<td><p>Target center velocity wrt Sun
+(float, km/s, <code class="docutils literal notranslate"><span class="pre">VmagSn</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>vel_obs</p></td>
+<td><p>Target center velocity wrt Observer
+(float, km/s, <code class="docutils literal notranslate"><span class="pre">VmagOb</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>elong</p></td>
+<td><p>solar elongation (float, deg, <code class="docutils literal notranslate"><span class="pre">S-O-T</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>elongFlag</p></td>
+<td><p>app. position relative to Sun (str, <code class="docutils literal notranslate"><span class="pre">/r</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha</p></td>
+<td><p>solar phase angle (float, deg, <code class="docutils literal notranslate"><span class="pre">S-T-O</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lunar_elong</p></td>
+<td><p>Apparent lunar elongation angle wrt target
+(float, deg, <code class="docutils literal notranslate"><span class="pre">T-O-M</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>lunar_illum</p></td>
+<td><p>Lunar illumination percentage
+(float, percent, <code class="docutils literal notranslate"><span class="pre">MN_Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>IB_elong</p></td>
+<td><p>Apparent interfering body elongation angle
+wrt target (float, deg, <code class="docutils literal notranslate"><span class="pre">T-O-I</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>IB_illum</p></td>
+<td><p>Interfering body illumination percentage
+(float, percent, <code class="docutils literal notranslate"><span class="pre">IB_Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_alpha</p></td>
+<td><p>Observer-Primary-Target angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">O-P-T</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>OrbPlaneAng</p></td>
+<td><p>orbital plane angle (float, deg, <code class="docutils literal notranslate"><span class="pre">PlAng</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sunTargetPA</p></td>
+<td><p>-Sun vector PA (float, deg, EoN, <code class="docutils literal notranslate"><span class="pre">PsAng</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>velocityPA</p></td>
+<td><p>-velocity vector PA (float, deg, EoN,
+<code class="docutils literal notranslate"><span class="pre">PsAMV</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>constellation</p></td>
+<td><p>constellation ID containing target (str,
+<code class="docutils literal notranslate"><span class="pre">Cnst</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>TDB-UT</p></td>
+<td><p>difference between TDB and UT (float,
+seconds, <code class="docutils literal notranslate"><span class="pre">TDB-UT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>NPole_RA</p></td>
+<td><p>Target’s North Pole RA (float, deg,
+<code class="docutils literal notranslate"><span class="pre">N.Pole-RA</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>NPole_DEC</p></td>
+<td><p>Target’s North Pole DEC (float, deg,
+<code class="docutils literal notranslate"><span class="pre">N.Pole-DC</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>GlxLon</p></td>
+<td><p>galactic longitude (float, deg, <code class="docutils literal notranslate"><span class="pre">GlxLon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>GlxLat</p></td>
+<td><p>galactic latitude  (float, deg, <code class="docutils literal notranslate"><span class="pre">GlxLat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>solartime</p></td>
+<td><p>local apparent solar time (string,
+<code class="docutils literal notranslate"><span class="pre">L_Ap_SOL_Time</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>earth_lighttime</p></td>
+<td><p>observer lighttime from center of Earth
+(float, minutes, <code class="docutils literal notranslate"><span class="pre">399_ins_LT</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_3sigma</p></td>
+<td><p>3 sigma positional uncertainty in RA (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">RA_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_3sigma</p></td>
+<td><p>3 sigma positional uncertainty in  DEC (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">DEC_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>SMAA_3sigma</p></td>
+<td><p>3sig pos unc error ellipse semi-major axis
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SMAA_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SMIA_3sigma</p></td>
+<td><p>3sig pos unc error ellipse semi-minor axis
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SMIA_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Theta_3sigma</p></td>
+<td><p>pos unc error ellipse position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">Theta</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Area_3sigma</p></td>
+<td><p>3sig pos unc error ellipse are
+(float, arcsec^2, <code class="docutils literal notranslate"><span class="pre">Area_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RSS_3sigma</p></td>
+<td><p>3sig pos unc error ellipse root-sum-square
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">POS_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>r_3sigma</p></td>
+<td><p>3sig range uncertainty
+(float, km, <code class="docutils literal notranslate"><span class="pre">RNG_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>r_rate_3sigma</p></td>
+<td><p>3sig range rate uncertainty
+(float, km/second, <code class="docutils literal notranslate"><span class="pre">RNGRT_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SBand_3sigma</p></td>
+<td><p>3sig Doppler radar uncertainties at S-band
+(float, Hertz, <code class="docutils literal notranslate"><span class="pre">DOP_S_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>XBand_3sigma</p></td>
+<td><p>3sig Doppler radar uncertainties at X-band
+(float, Hertz, <code class="docutils literal notranslate"><span class="pre">DOP_X_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DoppDelay_3sigma</p></td>
+<td><p>3sig Doppler radar round-trip delay
+unc (float, second, <code class="docutils literal notranslate"><span class="pre">RT_delay_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>true_anom</p></td>
+<td><p>True Anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">Tru_Anom</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>hour_angle</p></td>
+<td><p>local apparent hour angle (float,
+hour, <code class="docutils literal notranslate"><span class="pre">L_Ap_Hour_Ang</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>alpha_true</p></td>
+<td><p>true phase angle (float, deg, <code class="docutils literal notranslate"><span class="pre">phi</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PABLon</p></td>
+<td><p>phase angle bisector longitude
+(float, deg, <code class="docutils literal notranslate"><span class="pre">PAB-LON</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PABLat</p></td>
+<td><p>phase angle bisector latitude
+(float, deg, <code class="docutils literal notranslate"><span class="pre">PAB-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>App_Lon_Sun</p></td>
+<td><p>apparent target-centered longitude of the Sun
+(float, hour, <code class="docutils literal notranslate"><span class="pre">App_Lon_Sun</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_ICRF_app</p></td>
+<td><p>airless apparent right ascension of the target
+in the ICRF
+(float, hour, <code class="docutils literal notranslate"><span class="pre">RA_(ICRF-a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_ICRF_app</p></td>
+<td><p>airless apparent declination of the target
+in the ICRF
+(float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(ICRF-a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_ICRF_rate_app</p></td>
+<td><p>RA rate of change in the targets’ ICRF
+multiplied by the cosine of declination
+(float, arcsec/hour, <code class="docutils literal notranslate"><span class="pre">I_dRA*cosD</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_ICRF_rate_app</p></td>
+<td><p>DEC rate of change in the targets’ ICRF
+(float, arcsec/hour, <code class="docutils literal notranslate"><span class="pre">I_d(DEC)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sky_motion</p></td>
+<td><p>Total apparent angular rate in the plane-of-
+sky
+(float, arcsec/minute, <code class="docutils literal notranslate"><span class="pre">Sky_motion</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Sky_mot_PA</p></td>
+<td><p>position angle direction of motion in the
+plane-of-sky
+(float, deg, <code class="docutils literal notranslate"><span class="pre">Sky_mot_PA</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RelVel-ANG</p></td>
+<td><p>flight path angle of the target’s relative
+motion with respect to the observer’s
+line-of-sight
+(float, deg, <code class="docutils literal notranslate"><span class="pre">RelVel-ANG</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Lun_Sky_Brt</p></td>
+<td><p>Sky brightness due to moonlight
+(float, mag, <code class="docutils literal notranslate"><span class="pre">Lun_Sky_Brt</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sky_SNR</p></td>
+<td><p>approximate visual signal-to-noise ratio of
+the target’s brightness divided by lunar sky
+brightness
+(float, unitless, <code class="docutils literal notranslate"><span class="pre">sky_SNR</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>airmass_lessthan</strong><span class="classifier">float, optional</span></dt><dd><p>Defines a maximum airmass for the query, default: 99</p>
+</dd>
+<dt><strong>solar_elongation</strong><span class="classifier">tuple, optional</span></dt><dd><p>Permissible solar elongation range: (minimum, maximum); default:
+(0,180)</p>
+</dd>
+<dt><strong>max_hour_angle</strong><span class="classifier">float, optional</span></dt><dd><p>Defines a maximum hour angle for the query, default: 0</p>
+</dd>
+<dt><strong>rate_cutoff</strong><span class="classifier">float, optional</span></dt><dd><p>Angular range rate upper limit cutoff in arcsec/h; default: disabled</p>
+</dd>
+<dt><strong>skip_daylight</strong><span class="classifier">boolean, optional</span></dt><dd><p>Crop daylight epochs in query, default: False</p>
+</dd>
+<dt><strong>refraction</strong><span class="classifier">boolean</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates account for a standard atmosphere
+refraction model; if <code class="docutils literal notranslate"><span class="pre">False</span></code>, coordinates do not account for
+refraction (airless model); default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>refsystem</strong><span class="classifier">string</span></dt><dd><p>Coordinate reference system: <code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code> or <code class="docutils literal notranslate"><span class="pre">'B1950'</span></code>; default:
+<code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code></p>
+</dd>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>quantities</strong><span class="classifier">integer or string, optional</span></dt><dd><p>Single integer or comma-separated list in the form of a string
+corresponding to all the quantities to be queried from JPL Horizons
+using the coding according to the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities">JPL Horizons User Manual
+Definition of Observer Table Quantities</a>;
+default: all quantities</p>
+</dd>
+<dt><strong>optional_settings: dict, optional</strong></dt><dd><p>key-value based dictionary to inject some additional optional settings
+See <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons.cgi?s_tset=1">Optional observer-table settings”</a>;
+default: empty optional setting</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request parameters as
+a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response</strong><span class="classifier">boolean, optional</span></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+<dt><strong>extra_precision</strong><span class="classifier">boolean, optional</span></dt><dd><p>Enables extra precision in RA and DEC values; default: False</p>
+</dd>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Ceres&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="s1">&#39;2010-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="s1">&#39;stop&#39;</span><span class="p">:</span><span class="s1">&#39;2010-03-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="s1">&#39;10d&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>  
+<span class="go">    targetname       datetime_str   datetime_jd ...  PABLon  PABLat</span>
+<span class="go">       ---               ---             d      ...   deg     deg</span>
+<span class="go">----------------- ----------------- ----------- ... -------- ------</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ... 238.2494 4.5532</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ... 241.3339 4.2832</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-21 00:00   2455217.5 ... 244.3394 4.0089</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ... 247.2518 3.7289</span>
+<span class="go">1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ... 250.0576 3.4415</span>
+<span class="go">1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ... 252.7383 3.1451</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.ephemerides_async">
+<span class="sig-name descname"><span class="pre">ephemerides_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airmass_lessthan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_elongation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">180)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_hour_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_daylight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refsystem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ICRF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closest_apparition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_fragments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_raw_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/jplhorizons/core.html#HorizonsClass.ephemerides_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.ephemerides_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query JPL Horizons for ephemerides.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides_async" title="astroquery.jplhorizons.HorizonsClass.ephemerides_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ephemerides_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the location of the observer.</p>
+<p>The following tables list the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch (str, <code class="docutils literal notranslate"><span class="pre">Date__(UT)__HR:MN:SC.fff</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float,
+<code class="docutils literal notranslate"><span class="pre">Date_________JDUT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>solar_presence</p></td>
+<td><p>information on Sun’s presence (str)</p></td>
+</tr>
+<tr class="row-odd"><td><p>flags</p></td>
+<td><p>information on Moon, target status (str)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA</p></td>
+<td><p>target RA (float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(XXX)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC</p></td>
+<td><p>target DEC (float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(XXX)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA_app</p></td>
+<td><p>target apparent RA (float, deg,
+<code class="docutils literal notranslate"><span class="pre">R.A._(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC_app</p></td>
+<td><p>target apparent DEC (float, deg,
+<code class="docutils literal notranslate"><span class="pre">DEC_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>RA_rate</p></td>
+<td><p>target rate RA (float, arcsec/hr, <code class="docutils literal notranslate"><span class="pre">RA*cosD</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEC_rate</p></td>
+<td><p>target RA (float, arcsec/hr, <code class="docutils literal notranslate"><span class="pre">d(DEC)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>AZ</p></td>
+<td><p>Azimuth (float, deg, EoN, <code class="docutils literal notranslate"><span class="pre">Azi_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EL</p></td>
+<td><p>Elevation (float, deg, <code class="docutils literal notranslate"><span class="pre">Elev_(a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>AZ_rate</p></td>
+<td><p>Azimuth rate (float, arcsec/minute,
+<code class="docutils literal notranslate"><span class="pre">dAZ*cosE</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EL_rate</p></td>
+<td><p>Elevation rate (float, arcsec/minute,
+<code class="docutils literal notranslate"><span class="pre">d(ELV)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_X</p></td>
+<td><p>satellite X position (arcsec,
+<code class="docutils literal notranslate"><span class="pre">X_(sat-prim)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_Y</p></td>
+<td><p>satellite Y position (arcsec,
+<code class="docutils literal notranslate"><span class="pre">Y_(sat-prim)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_PANG</p></td>
+<td><p>satellite position angle (deg,
+<code class="docutils literal notranslate"><span class="pre">SatPANG</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>siderealtime</p></td>
+<td><p>local apparent sidereal time (str,
+<code class="docutils literal notranslate"><span class="pre">L_Ap_Sid_Time</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>airmass</p></td>
+<td><p>target optical airmass (float, <code class="docutils literal notranslate"><span class="pre">a-mass</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>magextinct</p></td>
+<td><p>V-mag extinction (float, mag, <code class="docutils literal notranslate"><span class="pre">mag_ex</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>V</p></td>
+<td><p>V magnitude (float, mag, <code class="docutils literal notranslate"><span class="pre">APmag</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tmag</p></td>
+<td><p>comet Total magnitude (float, mag, <code class="docutils literal notranslate"><span class="pre">T-mag</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Nmag</p></td>
+<td><p>comet Nucleaus magnitude (float, mag,
+<code class="docutils literal notranslate"><span class="pre">N-mag</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>surfbright</p></td>
+<td><p>surf brightness (float, mag/arcsec^2,
+<code class="docutils literal notranslate"><span class="pre">S-brt</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>illumination</p></td>
+<td><p>frac of illumination (float, percent,
+<code class="docutils literal notranslate"><span class="pre">Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>illum_defect</p></td>
+<td><p>Defect of illumination (float, arcsec,
+<code class="docutils literal notranslate"><span class="pre">Dec_illu</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>sat_sep</p></td>
+<td><p>Target-primary angular separation (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">ang-sep</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_vis</p></td>
+<td><p>Target-primary visibility (str, <code class="docutils literal notranslate"><span class="pre">v</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>ang_width</p></td>
+<td><p>Angular width of target (float, arcsec,
+<code class="docutils literal notranslate"><span class="pre">Ang-diam</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PDObsLon</p></td>
+<td><p>Apparent planetodetic longitude (float, deg,
+<code class="docutils literal notranslate"><span class="pre">ObsSub-LON</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PDObsLat</p></td>
+<td><p>Apparent planetodetic latitude  (float, deg,
+<code class="docutils literal notranslate"><span class="pre">ObsSub-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PDSunLon</p></td>
+<td><p>Subsolar planetodetic longitude (float, deg,
+<code class="docutils literal notranslate"><span class="pre">SunSub-LON</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PDSunLat</p></td>
+<td><p>Subsolar planetodetic latitude  (float, deg,
+<code class="docutils literal notranslate"><span class="pre">SunSub-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>SubSol_ang</p></td>
+<td><p>Target sub-solar point position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">SN.ang</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SubSol_dist</p></td>
+<td><p>Target sub-solar point position angle distance
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SN.dist</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>NPole_ang</p></td>
+<td><p>Target’s North Pole position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">NP.ang</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>NPole_dist</p></td>
+<td><p>Target’s North Pole position angle distance
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">NP.dist</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EclLon</p></td>
+<td><p>heliocentr ecl long (float, deg, <code class="docutils literal notranslate"><span class="pre">hEcl-Lon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>EclLat</p></td>
+<td><p>heliocentr ecl lat (float, deg, <code class="docutils literal notranslate"><span class="pre">hEcl-Lat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ObsEclLon</p></td>
+<td><p>obscentr ecl long (float, deg, <code class="docutils literal notranslate"><span class="pre">ObsEcLon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>ObsEclLat</p></td>
+<td><p>obscentr ecl lat (float, deg, <code class="docutils literal notranslate"><span class="pre">ObsEcLat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>r</p></td>
+<td><p>heliocentric distance (float, au, <code class="docutils literal notranslate"><span class="pre">r</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>r_rate</p></td>
+<td><p>heliocentric radial rate (float, km/s,
+<code class="docutils literal notranslate"><span class="pre">rdot</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>delta</p></td>
+<td><p>distance from observer (float, au, <code class="docutils literal notranslate"><span class="pre">delta</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>delta_rate</p></td>
+<td><p>obs-centric rad rate (float, km/s, <code class="docutils literal notranslate"><span class="pre">deldot</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lighttime</p></td>
+<td><p>one-way light time (float, min, <code class="docutils literal notranslate"><span class="pre">1-way_LT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vel_sun</p></td>
+<td><p>Target center velocity wrt Sun
+(float, km/s, <code class="docutils literal notranslate"><span class="pre">VmagSn</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>vel_obs</p></td>
+<td><p>Target center velocity wrt Observer
+(float, km/s, <code class="docutils literal notranslate"><span class="pre">VmagOb</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>elong</p></td>
+<td><p>solar elongation (float, deg, <code class="docutils literal notranslate"><span class="pre">S-O-T</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>elongFlag</p></td>
+<td><p>app. position relative to Sun (str, <code class="docutils literal notranslate"><span class="pre">/r</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha</p></td>
+<td><p>solar phase angle (float, deg, <code class="docutils literal notranslate"><span class="pre">S-T-O</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lunar_elong</p></td>
+<td><p>Apparent lunar elongation angle wrt target
+(float, deg, <code class="docutils literal notranslate"><span class="pre">T-O-M</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>lunar_illum</p></td>
+<td><p>Lunar illumination percentage
+(float, percent, <code class="docutils literal notranslate"><span class="pre">MN_Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>IB_elong</p></td>
+<td><p>Apparent interfering body elongation angle
+wrt target (float, deg, <code class="docutils literal notranslate"><span class="pre">T-O-I</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>IB_illum</p></td>
+<td><p>Interfering body illumination percentage
+(float, percent, <code class="docutils literal notranslate"><span class="pre">IB_Illu%</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sat_alpha</p></td>
+<td><p>Observer-Primary-Target angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">O-P-T</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>OrbPlaneAng</p></td>
+<td><p>orbital plane angle (float, deg, <code class="docutils literal notranslate"><span class="pre">PlAng</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sunTargetPA</p></td>
+<td><p>-Sun vector PA (float, deg, EoN, <code class="docutils literal notranslate"><span class="pre">PsAng</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>velocityPA</p></td>
+<td><p>-velocity vector PA (float, deg, EoN,
+<code class="docutils literal notranslate"><span class="pre">PsAMV</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>constellation</p></td>
+<td><p>constellation ID containing target (str,
+<code class="docutils literal notranslate"><span class="pre">Cnst</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>TDB-UT</p></td>
+<td><p>difference between TDB and UT (float,
+seconds, <code class="docutils literal notranslate"><span class="pre">TDB-UT</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>NPole_RA</p></td>
+<td><p>Target’s North Pole RA (float, deg,
+<code class="docutils literal notranslate"><span class="pre">N.Pole-RA</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>NPole_DEC</p></td>
+<td><p>Target’s North Pole DEC (float, deg,
+<code class="docutils literal notranslate"><span class="pre">N.Pole-DC</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>GlxLon</p></td>
+<td><p>galactic longitude (float, deg, <code class="docutils literal notranslate"><span class="pre">GlxLon</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>GlxLat</p></td>
+<td><p>galactic latitude  (float, deg, <code class="docutils literal notranslate"><span class="pre">GlxLat</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>solartime</p></td>
+<td><p>local apparent solar time (string,
+<code class="docutils literal notranslate"><span class="pre">L_Ap_SOL_Time</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>earth_lighttime</p></td>
+<td><p>observer lighttime from center of Earth
+(float, minutes, <code class="docutils literal notranslate"><span class="pre">399_ins_LT</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_3sigma</p></td>
+<td><p>3 sigma positional uncertainty in RA (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">RA_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_3sigma</p></td>
+<td><p>3 sigma positional uncertainty in  DEC (float,
+arcsec, <code class="docutils literal notranslate"><span class="pre">DEC_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>SMAA_3sigma</p></td>
+<td><p>3sig pos unc error ellipse semi-major axis
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SMAA_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SMIA_3sigma</p></td>
+<td><p>3sig pos unc error ellipse semi-minor axis
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">SMIA_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Theta_3sigma</p></td>
+<td><p>pos unc error ellipse position angle
+(float, deg, <code class="docutils literal notranslate"><span class="pre">Theta</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Area_3sigma</p></td>
+<td><p>3sig pos unc error ellipse are
+(float, arcsec^2, <code class="docutils literal notranslate"><span class="pre">Area_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RSS_3sigma</p></td>
+<td><p>3sig pos unc error ellipse root-sum-square
+(float, arcsec, <code class="docutils literal notranslate"><span class="pre">POS_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>r_3sigma</p></td>
+<td><p>3sig range uncertainty
+(float, km, <code class="docutils literal notranslate"><span class="pre">RNG_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>r_rate_3sigma</p></td>
+<td><p>3sig range rate uncertainty
+(float, km/second, <code class="docutils literal notranslate"><span class="pre">RNGRT_3sigma</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>SBand_3sigma</p></td>
+<td><p>3sig Doppler radar uncertainties at S-band
+(float, Hertz, <code class="docutils literal notranslate"><span class="pre">DOP_S_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>XBand_3sigma</p></td>
+<td><p>3sig Doppler radar uncertainties at X-band
+(float, Hertz, <code class="docutils literal notranslate"><span class="pre">DOP_X_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DoppDelay_3sigma</p></td>
+<td><p>3sig Doppler radar round-trip delay
+unc (float, second, <code class="docutils literal notranslate"><span class="pre">RT_delay_3sig</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>true_anom</p></td>
+<td><p>True Anomaly (float, deg, <code class="docutils literal notranslate"><span class="pre">Tru_Anom</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>hour_angle</p></td>
+<td><p>local apparent hour angle (float,
+hour, <code class="docutils literal notranslate"><span class="pre">L_Ap_Hour_Ang</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>alpha_true</p></td>
+<td><p>true phase angle (float, deg, <code class="docutils literal notranslate"><span class="pre">phi</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>PABLon</p></td>
+<td><p>phase angle bisector longitude
+(float, deg, <code class="docutils literal notranslate"><span class="pre">PAB-LON</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PABLat</p></td>
+<td><p>phase angle bisector latitude
+(float, deg, <code class="docutils literal notranslate"><span class="pre">PAB-LAT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>App_Lon_Sun</p></td>
+<td><p>apparent target-centered longitude of the Sun
+(float, hour, <code class="docutils literal notranslate"><span class="pre">App_Lon_Sun</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_ICRF_app</p></td>
+<td><p>airless apparent right ascension of the target
+in the ICRF
+(float, hour, <code class="docutils literal notranslate"><span class="pre">RA_(ICRF-a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_ICRF_app</p></td>
+<td><p>airless apparent declination of the target
+in the ICRF
+(float, deg, <code class="docutils literal notranslate"><span class="pre">DEC_(ICRF-a-app)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RA_ICRF_rate_app</p></td>
+<td><p>RA rate of change in the targets’ ICRF
+multiplied by the cosine of declination
+(float, arcsec/hour, <code class="docutils literal notranslate"><span class="pre">I_dRA*cosD</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>DEC_ICRF_rate_app</p></td>
+<td><p>DEC rate of change in the targets’ ICRF
+(float, arcsec/hour, <code class="docutils literal notranslate"><span class="pre">I_d(DEC)/dt</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sky_motion</p></td>
+<td><p>Total apparent angular rate in the plane-of-
+sky
+(float, arcsec/minute, <code class="docutils literal notranslate"><span class="pre">Sky_motion</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Sky_mot_PA</p></td>
+<td><p>position angle direction of motion in the
+plane-of-sky
+(float, deg, <code class="docutils literal notranslate"><span class="pre">Sky_mot_PA</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RelVel-ANG</p></td>
+<td><p>flight path angle of the target’s relative
+motion with respect to the observer’s
+line-of-sight
+(float, deg, <code class="docutils literal notranslate"><span class="pre">RelVel-ANG</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Lun_Sky_Brt</p></td>
+<td><p>Sky brightness due to moonlight
+(float, mag, <code class="docutils literal notranslate"><span class="pre">Lun_Sky_Brt</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>sky_SNR</p></td>
+<td><p>approximate visual signal-to-noise ratio of
+the target’s brightness divided by lunar sky
+brightness
+(float, unitless, <code class="docutils literal notranslate"><span class="pre">sky_SNR</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>airmass_lessthan</strong><span class="classifier">float, optional</span></dt><dd><p>Defines a maximum airmass for the query, default: 99</p>
+</dd>
+<dt><strong>solar_elongation</strong><span class="classifier">tuple, optional</span></dt><dd><p>Permissible solar elongation range: (minimum, maximum); default:
+(0,180)</p>
+</dd>
+<dt><strong>max_hour_angle</strong><span class="classifier">float, optional</span></dt><dd><p>Defines a maximum hour angle for the query, default: 0</p>
+</dd>
+<dt><strong>rate_cutoff</strong><span class="classifier">float, optional</span></dt><dd><p>Angular range rate upper limit cutoff in arcsec/h; default: disabled</p>
+</dd>
+<dt><strong>skip_daylight</strong><span class="classifier">boolean, optional</span></dt><dd><p>Crop daylight epochs in query, default: False</p>
+</dd>
+<dt><strong>refraction</strong><span class="classifier">boolean</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates account for a standard atmosphere
+refraction model; if <code class="docutils literal notranslate"><span class="pre">False</span></code>, coordinates do not account for
+refraction (airless model); default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>refsystem</strong><span class="classifier">string</span></dt><dd><p>Coordinate reference system: <code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code> or <code class="docutils literal notranslate"><span class="pre">'B1950'</span></code>; default:
+<code class="docutils literal notranslate"><span class="pre">'ICRF'</span></code></p>
+</dd>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>quantities</strong><span class="classifier">integer or string, optional</span></dt><dd><p>Single integer or comma-separated list in the form of a string
+corresponding to all the quantities to be queried from JPL Horizons
+using the coding according to the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities">JPL Horizons User Manual
+Definition of Observer Table Quantities</a>;
+default: all quantities</p>
+</dd>
+<dt><strong>optional_settings: dict, optional</strong></dt><dd><p>key-value based dictionary to inject some additional optional settings
+See <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons.cgi?s_tset=1">Optional observer-table settings”</a>;
+default: empty optional setting</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request parameters as
+a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response</strong><span class="classifier">boolean, optional</span></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+<dt><strong>extra_precision</strong><span class="classifier">boolean, optional</span></dt><dd><p>Enables extra precision in RA and DEC values; default: False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Ceres&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="s1">&#39;2010-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="s1">&#39;stop&#39;</span><span class="p">:</span><span class="s1">&#39;2010-03-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="s1">&#39;10d&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>  
+<span class="go">    targetname       datetime_str   datetime_jd ...  PABLon  PABLat</span>
+<span class="go">       ---               ---             d      ...   deg     deg</span>
+<span class="go">----------------- ----------------- ----------- ... -------- ------</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ... 238.2494 4.5532</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ... 241.3339 4.2832</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-21 00:00   2455217.5 ... 244.3394 4.0089</span>
+<span class="go">1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ... 247.2518 3.7289</span>
+<span class="go">1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ... 250.0576 3.4415</span>
+<span class="go">1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ... 252.7383 3.1451</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.vectors">
+<span class="sig-name descname"><span class="pre">vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.vectors" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query JPL Horizons for state vectors.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors_async" title="astroquery.jplhorizons.HorizonsClass.vectors_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectors_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the center body relative to which the vectors are provided.</p>
+<p>The following table lists the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch Date (str, <code class="docutils literal notranslate"><span class="pre">Calendar</span> <span class="pre">Date</span> <span class="pre">(TDB)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float, <code class="docutils literal notranslate"><span class="pre">JDTDB</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>delta_T</p></td>
+<td><p>time-varying difference between TDB and UT
+(float, <code class="docutils literal notranslate"><span class="pre">delta-T</span></code>, optional)</p></td>
+</tr>
+<tr class="row-odd"><td><p>x</p></td>
+<td><p>x-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">X</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>y</p></td>
+<td><p>y-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">Y</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>z</p></td>
+<td><p>z-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">Z</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vx</p></td>
+<td><p>x-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VX</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>vy</p></td>
+<td><p>y-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VY</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vz</p></td>
+<td><p>z-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VZ</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lighttime</p></td>
+<td><p>one-way lighttime (float, d, <code class="docutils literal notranslate"><span class="pre">LT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>range</p></td>
+<td><p>range from coordinate center (float, au,
+<code class="docutils literal notranslate"><span class="pre">RG</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>range_rate</p></td>
+<td><p>range rate (float, au/d, <code class="docutils literal notranslate"><span class="pre">RR</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request parameters as
+a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response: boolean, optional</strong></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">string</span></dt><dd><p>Reference plane for all output quantities: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code> (ecliptic
+and mean equinox of reference epoch), <code class="docutils literal notranslate"><span class="pre">'earth'</span></code> (Earth mean
+equator and equinox of reference epoch), or <code class="docutils literal notranslate"><span class="pre">'body'</span></code> (body mean
+equator and node of date); default: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code>.</p>
+<p>See <a class="reference internal" href="../jplhorizons/jplhorizons.html#jpl-horizons-reference-frames"><span class="std std-ref">Horizons Reference Frames</span></a>
+in the astroquery documentation for details.</p>
+</dd>
+<dt><strong>aberrations</strong><span class="classifier">string, optional</span></dt><dd><p>Aberrations to be accounted for: [<code class="docutils literal notranslate"><span class="pre">'geometric'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'astrometric'</span></code>, <code class="docutils literal notranslate"><span class="pre">'apparent'</span></code>]. Default: <code class="docutils literal notranslate"><span class="pre">'geometric'</span></code></p>
+</dd>
+<dt><strong>delta_T</strong><span class="classifier">boolean, optional</span></dt><dd><p>Triggers output of time-varying difference between TDB and UT
+time-scales. Default: False</p>
+</dd>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;2012 TC4&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;257&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-10-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;stop&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-10-02&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="s1">&#39;10m&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vec</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">vectors</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>  
+<span class="go">targetname  datetime_jd  ...      range          range_rate</span>
+<span class="go">   ---           d       ...        AU             AU / d</span>
+<span class="go">---------- ------------- ... --------------- -----------------</span>
+<span class="go">(2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862</span>
+<span class="go">(2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527</span>
+<span class="go">(2012 TC4) 2458027.51389 ... 0.0428765385796 -0.00408020747595</span>
+<span class="go">(2012 TC4) 2458027.52083 ... 0.0428482057142  -0.0040795878561</span>
+<span class="go">(2012 TC4) 2458027.52778 ...  0.042819878607 -0.00407854931543</span>
+<span class="go">(2012 TC4) 2458027.53472 ... 0.0427915601617  -0.0040770935665</span>
+<span class="go">       ...           ... ...             ...               ...</span>
+<span class="go">(2012 TC4) 2458028.45833 ... 0.0392489462501 -0.00405496595173</span>
+<span class="go">(2012 TC4) 2458028.46528 ...   0.03922077771 -0.00405750632914</span>
+<span class="go">(2012 TC4) 2458028.47222 ...  0.039192592935 -0.00405964084539</span>
+<span class="go">(2012 TC4) 2458028.47917 ...  0.039164394759 -0.00406136516755</span>
+<span class="go">(2012 TC4) 2458028.48611 ... 0.0391361860433 -0.00406267574646</span>
+<span class="go">(2012 TC4) 2458028.49306 ... 0.0391079696711  -0.0040635698239</span>
+<span class="go">(2012 TC4)     2458028.5 ... 0.0390797485422 -0.00406404543822</span>
+<span class="go">Length = 145 rows</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.jplhorizons.HorizonsClass.vectors_async">
+<span class="sig-name descname"><span class="pre">vectors_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closest_apparition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_fragments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_raw_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refplane</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ecliptic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aberrations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometric'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/jplhorizons/core.html#HorizonsClass.vectors_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.jplhorizons.HorizonsClass.vectors_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query JPL Horizons for state vectors.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.4.7: </span>The <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> keyword argument is deprecated.  The
+<a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors_async" title="astroquery.jplhorizons.HorizonsClass.vectors_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectors_async</span></code></a> method will return a raw response.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code> refers in this case to
+the center body relative to which the vectors are provided.</p>
+<p>The following table lists the values queried, their definitions, data
+types, units, and original Horizons designations (where available). For
+more information on the definitions of these quantities, please refer to
+the <a class="reference external" href="https://ssd.jpl.nasa.gov/?horizons_doc">Horizons User Manual</a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>targetname</p></td>
+<td><p>official number, name, designation (string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p>absolute magnitude in V band (float, mag)</p></td>
+</tr>
+<tr class="row-even"><td><p>G</p></td>
+<td><p>photometric slope parameter (float)</p></td>
+</tr>
+<tr class="row-odd"><td><p>M1</p></td>
+<td><p>comet total abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>M2</p></td>
+<td><p>comet nuclear abs mag (float, mag, <code class="docutils literal notranslate"><span class="pre">M2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>k1</p></td>
+<td><p>total mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k1</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>k2</p></td>
+<td><p>nuclear mag scaling factor (float, <code class="docutils literal notranslate"><span class="pre">k2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>phasecoeff</p></td>
+<td><p>comet phase coeff (float, mag/deg, <code class="docutils literal notranslate"><span class="pre">PHCOFF</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>datetime_str</p></td>
+<td><p>epoch Date (str, <code class="docutils literal notranslate"><span class="pre">Calendar</span> <span class="pre">Date</span> <span class="pre">(TDB)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime_jd</p></td>
+<td><p>epoch Julian Date (float, <code class="docutils literal notranslate"><span class="pre">JDTDB</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>delta_T</p></td>
+<td><p>time-varying difference between TDB and UT
+(float, <code class="docutils literal notranslate"><span class="pre">delta-T</span></code>, optional)</p></td>
+</tr>
+<tr class="row-odd"><td><p>x</p></td>
+<td><p>x-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">X</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>y</p></td>
+<td><p>y-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">Y</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>z</p></td>
+<td><p>z-component of position vector
+(float, au, <code class="docutils literal notranslate"><span class="pre">Z</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vx</p></td>
+<td><p>x-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VX</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>vy</p></td>
+<td><p>y-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VY</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>vz</p></td>
+<td><p>z-component of velocity vector (float, au/d,
+<code class="docutils literal notranslate"><span class="pre">VZ</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>lighttime</p></td>
+<td><p>one-way lighttime (float, d, <code class="docutils literal notranslate"><span class="pre">LT</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>range</p></td>
+<td><p>range from coordinate center (float, au,
+<code class="docutils literal notranslate"><span class="pre">RG</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>range_rate</p></td>
+<td><p>range rate (float, au/d, <code class="docutils literal notranslate"><span class="pre">RR</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>closest_apparition</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. This option will choose the closest
+apparition available in time to the selected epoch; default: False.
+Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>no_fragments</strong><span class="classifier">boolean, optional</span></dt><dd><p>Only applies to comets. Reject all comet fragments from selection;
+default: False. Do not use this option for non-cometary objects.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">boolean, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request parameters as
+a dict, default: False</p>
+</dd>
+<dt><strong>get_raw_response: boolean, optional</strong></dt><dd><p>Return raw data as obtained by JPL Horizons without parsing the data
+into a table, default: False</p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">string</span></dt><dd><p>Reference plane for all output quantities: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code> (ecliptic
+and mean equinox of reference epoch), <code class="docutils literal notranslate"><span class="pre">'earth'</span></code> (Earth mean
+equator and equinox of reference epoch), or <code class="docutils literal notranslate"><span class="pre">'body'</span></code> (body mean
+equator and node of date); default: <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code>.</p>
+<p>See <a class="reference internal" href="../jplhorizons/jplhorizons.html#jpl-horizons-reference-frames"><span class="std std-ref">Horizons Reference Frames</span></a>
+in the astroquery documentation for details.</p>
+</dd>
+<dt><strong>aberrations</strong><span class="classifier">string, optional</span></dt><dd><p>Aberrations to be accounted for: [<code class="docutils literal notranslate"><span class="pre">'geometric'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'astrometric'</span></code>, <code class="docutils literal notranslate"><span class="pre">'apparent'</span></code>]. Default: <code class="docutils literal notranslate"><span class="pre">'geometric'</span></code></p>
+</dd>
+<dt><strong>delta_T</strong><span class="classifier">boolean, optional</span></dt><dd><p>Triggers output of time-varying difference between TDB and UT
+time-scales. Default: False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;2012 TC4&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;257&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-10-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;stop&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-10-02&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="s1">&#39;10m&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vec</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">vectors</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>  
+<span class="go">targetname  datetime_jd  ...      range          range_rate</span>
+<span class="go">   ---           d       ...        AU             AU / d</span>
+<span class="go">---------- ------------- ... --------------- -----------------</span>
+<span class="go">(2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862</span>
+<span class="go">(2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527</span>
+<span class="go">(2012 TC4) 2458027.51389 ... 0.0428765385796 -0.00408020747595</span>
+<span class="go">(2012 TC4) 2458027.52083 ... 0.0428482057142  -0.0040795878561</span>
+<span class="go">(2012 TC4) 2458027.52778 ...  0.042819878607 -0.00407854931543</span>
+<span class="go">(2012 TC4) 2458027.53472 ... 0.0427915601617  -0.0040770935665</span>
+<span class="go">       ...           ... ...             ...               ...</span>
+<span class="go">(2012 TC4) 2458028.45833 ... 0.0392489462501 -0.00405496595173</span>
+<span class="go">(2012 TC4) 2458028.46528 ...   0.03922077771 -0.00405750632914</span>
+<span class="go">(2012 TC4) 2458028.47222 ...  0.039192592935 -0.00405964084539</span>
+<span class="go">(2012 TC4) 2458028.47917 ...  0.039164394759 -0.00406136516755</span>
+<span class="go">(2012 TC4) 2458028.48611 ... 0.0391361860433 -0.00406267574646</span>
+<span class="go">(2012 TC4) 2458028.49306 ... 0.0391079696711  -0.0040635698239</span>
+<span class="go">(2012 TC4)     2458028.5 ... 0.0390797485422 -0.00406404543822</span>
+<span class="go">Length = 145 rows</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">HorizonsClass</a><ul>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass"><code class="docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.id"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.id</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.location"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.location</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.raw_response"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.raw_response</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.elements()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.elements_async"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.elements_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.ephemerides()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.ephemerides_async"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.ephemerides_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.vectors()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.jplhorizons.HorizonsClass.vectors_async"><code class="docutils literal notranslate"><span class="pre">HorizonsClass.vectors_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.jplhorizons.HorizonsClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

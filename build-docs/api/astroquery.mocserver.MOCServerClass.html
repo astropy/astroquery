@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MOCServerClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Minor Planet Center Queries (astroquery.mpc/astroquery.solarsystem.MPC)" href="../mpc/mpc.html" />
+    <link rel="prev" title="Conf" href="astroquery.mocserver.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../mpc/mpc.html" title="Minor Planet Center Queries (astroquery.mpc/astroquery.solarsystem.MPC)">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.mocserver.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../mocserver/mocserver.html" accesskey="U">CDS MOC Service (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mocserver</span></code>)</a> &#187;</li>
+      
+      <li>MOCServerClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mocserverclass">
+<h1>MOCServerClass<a class="headerlink" href="#mocserverclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.mocserver.</span></span><span class="sig-name descname"><span class="pre">MOCServerClass</span></span><a class="reference internal" href="../_modules/astroquery/mocserver/core.html#MOCServerClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mocserver.MOCServerClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>Query the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a></p>
+<p>The <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a> allows the user to retrieve all the data sets (with
+their meta-datas) having sources in a specific region. This region can be a <a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.CircleSkyRegion.html#regions.CircleSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code></a>, a
+<a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.PolygonSkyRegion.html#regions.PolygonSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.PolygonSkyRegion</span></code></a> or a <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a> object.</p>
+<p>This package implements two methods:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_region()</span></code></a> retrieving data-sets
+(their associated MOCs and meta-datas) having sources in a given region.</p></li>
+<li><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.find_datasets" title="astroquery.mocserver.MOCServerClass.find_datasets"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_datasets()</span></code></a> retrieving data-sets
+(their associated MOCs and meta-datas) based on the values of their meta-datas.</p></li>
+</ul>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.TIMEOUT" title="astroquery.mocserver.MOCServerClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.URL" title="astroquery.mocserver.MOCServerClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.find_datasets" title="astroquery.mocserver.MOCServerClass.find_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_datasets</span></code></a>(meta_data, *[, ...])</p></td>
+<td><p><p>Query the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a> to retrieve the data-sets based on their meta data values.</p>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*[, region, get_query_payload, ...])</p></td>
+<td><p><p>Query the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a> with a region.</p>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region_async" title="astroquery.mocserver.MOCServerClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(*[, get_query_payload])</p></td>
+<td><p>Serves the same purpose as <a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_region()</span></code></a> but only returns the HTTP response rather than the parsed result.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#astroquery.mocserver.MOCServerClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://alasky.unistra.fr/MocServer/query'</span></em><a class="headerlink" href="#astroquery.mocserver.MOCServerClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass.find_datasets">
+<span class="sig-name descname"><span class="pre">find_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mocserver/core.html#MOCServerClass.find_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mocserver.MOCServerClass.find_datasets" title="Link to this definition">¶</a></dt>
+<dd><p>Query the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a> to retrieve the data-sets based on their
+meta data values. This method does not need any region argument but it requires an expression on the meta datas.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>meta_data</strong><span class="classifier">str</span></dt><dd><p>Algebraic expression on meta-datas for filtering the data-sets at the server side.
+Examples of meta data expressions:</p>
+<ul class="simple">
+<li><p>Retrieve all the Hubble surveys: “ID=*HST*”</p></li>
+<li><p>Provides the records of HiPS distributed simultaneously by saada and alasky http server:
+“(hips_service_url*=http://saada*)&amp;&amp;(hips_service_url*=http://alasky.*)”</p></li>
+</ul>
+<p>More example of expressions can be found following this <a class="reference external" href="http://alasky.unistra.fr/MocServer/example">link</a> (especially see the urls).</p>
+</dd>
+<dt><strong>fields</strong><span class="classifier">[str], optional</span></dt><dd><p>Has sense only if <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to False. Specifies which meta datas to retrieve. The returned
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> table will only contain the column names given in <code class="docutils literal notranslate"><span class="pre">fields</span></code>.</p>
+<p>Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
+data moving from the MOCServer to the client.</p>
+<p>Some meta-datas such as <code class="docutils literal notranslate"><span class="pre">obs_collection</span></code> or <code class="docutils literal notranslate"><span class="pre">data_ucd</span></code> do not keep a constant type throughout all the
+MOCServer’s data-sets and this lead to problems because <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> supposes values in a column
+to have an unique type. This case is not common: it is mainly linked to a typing error in the text files
+describing the meta-datas of the data-sets. When we encounter this for a specific meta-data, we link the
+generic type <code class="docutils literal notranslate"><span class="pre">object</span></code> to the column. Therefore, keep in mind that <code class="docutils literal notranslate"><span class="pre">object</span></code> typed columns can contain
+values of different types (e.g. lists and singletons or string and floats).</p>
+</dd>
+<dt><strong>max_rec</strong><span class="classifier">int, optional</span></dt><dd><p>Maximum number of data-sets to return. By default, there is no upper limit.</p>
+</dd>
+<dt><strong>return_moc</strong><span class="classifier">bool, optional</span></dt><dd><p>Specifies if we want a <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a> object in return. This MOC corresponds to the union of the MOCs of all
+the matching data-sets. By default it is set to False and
+<a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_region()</span></code></a> returns an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> object.</p>
+</dd>
+<dt><strong>max_norder</strong><span class="classifier">int, optional</span></dt><dd><p>Has sense only if <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to True. Specifies the maximum precision order of the returned MOC.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, returns a dictionary of the query payload instead of the parsed response.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> or <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a></span></dt><dd><p>By default an astropy table of the data-sets matching the query. If <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to True, it gives
+a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mocserver/core.html#MOCServerClass.query_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mocserver.MOCServerClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Query the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a> with a region.</p>
+<p>Can be a <a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.CircleSkyRegion.html#regions.CircleSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code></a>, <a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.PolygonSkyRegion.html#regions.PolygonSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.PolygonSkyRegion</span></code></a> or <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a> object. Returns the data-sets
+having at least one source in the region.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>region</strong><span class="classifier"><a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.CircleSkyRegion.html#regions.CircleSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code></a>, <a class="reference external" href="https://astropy-regions.readthedocs.io/en/stable/api/regions.PolygonSkyRegion.html#regions.PolygonSkyRegion" title="(in regions v0.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regions.PolygonSkyRegion</span></code></a> or <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a></span></dt><dd><p>The region to query the MOCServer with.
+Can be one of the following types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">regions.CircleSkyRegion</span></code> : defines an astropy cone region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">regions.PolygonSkyRegion</span></code> : defines an astropy polygon region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mocpy.moc.MOC</span></code> : defines a MOC from the MOCPy library. See the <a class="reference external" href="https://cds-astro.github.io/mocpy/">MOCPy’s documentation</a> for how to instantiate a MOC object.</p></li>
+</ul>
+</dd>
+<dt><strong>intersect</strong><span class="classifier">str, optional</span></dt><dd><p>This parameter can take only three different values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">overlaps</span></code> (default). Returned data-sets are those overlapping the MOC region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">covers</span></code>. Returned data-sets are those covering the MOC region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">encloses</span></code>. Returned data-sets are those enclosing the MOC region.</p></li>
+</ul>
+</dd>
+<dt><strong>max_rec</strong><span class="classifier">int, optional</span></dt><dd><p>Maximum number of data-sets to return. By default, there is no upper limit.</p>
+</dd>
+<dt><strong>return_moc</strong><span class="classifier">bool, optional</span></dt><dd><p>Specifies if we want a <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a> object in return. This MOC corresponds to the union
+of the MOCs of all the matching data-sets. By default it is set to False and
+<a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_region()</span></code></a> returns an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> object.</p>
+</dd>
+<dt><strong>max_norder</strong><span class="classifier">int, optional</span></dt><dd><p>Has sense only if <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to True. Specifies the maximum precision order of the returned MOC.</p>
+</dd>
+<dt><strong>fields</strong><span class="classifier">[str], optional</span></dt><dd><p>Has sense only if <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to False. Specifies which meta datas to retrieve. The returned
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> table will only contain the column names given in <code class="docutils literal notranslate"><span class="pre">fields</span></code>.</p>
+<p>Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
+data moving from the MOCServer to the client.</p>
+<p>Some meta-datas as <code class="docutils literal notranslate"><span class="pre">obs_collection</span></code> or <code class="docutils literal notranslate"><span class="pre">data_ucd</span></code> do not keep a constant type throughout all the
+MOCServer’s data-sets and this lead to problems because <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> supposes values in a column
+to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
+column from the returned astropy table.</p>
+</dd>
+<dt><strong>meta_data</strong><span class="classifier">str, optional</span></dt><dd><p>Algebraic expression on meta-datas for filtering the data-sets at the server side.
+Examples of meta data expressions:</p>
+<ul class="simple">
+<li><p>Retrieve all the Hubble surveys: “ID=*HST*”</p></li>
+<li><p>Provides the records of HiPS distributed simultaneously by saada and alasky http server:
+“(hips_service_url*=http://saada*)&amp;&amp;(hips_service_url*=http://alasky.*)”</p></li>
+</ul>
+<p>More example of expressions can be found following this <a class="reference external" href="http://alasky.unistra.fr/MocServer/example">link</a> (especially see the urls).</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, returns a dictionary of the query payload instead of the parsed response.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> or <a class="reference external" href="https://cds-astro.github.io/mocpy/stubs/mocpy.MOC.html#mocpy.MOC" title="(in MOCPy v0.13.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mocpy.MOC</span></code></a></span></dt><dd><p>By default an astropy table of the data-sets matching the query. If <code class="docutils literal notranslate"><span class="pre">return_moc</span></code> is set to True, it gives
+a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mocserver.MOCServerClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mocserver/core.html#MOCServerClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mocserver.MOCServerClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Serves the same purpose as <a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region" title="astroquery.mocserver.MOCServerClass.query_region"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_region()</span></code></a>
+but only returns the HTTP response rather than the parsed result.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>get_query_payload</strong><span class="classifier">bool</span></dt><dd><p>If True, returns a dictionary of the query payload instead of the parsed response.</p>
+</dd>
+<dt><strong>**kwargs</strong></dt><dd><p>Arbitrary keyword arguments.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Response</span></code></a>:</span></dt><dd><p>The HTTP response from the <a class="reference external" href="http://alasky.unistra.fr/MocServer/query">CDS MOCServer</a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">MOCServerClass</a><ul>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass"><code class="docutils literal notranslate"><span class="pre">MOCServerClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">MOCServerClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.URL"><code class="docutils literal notranslate"><span class="pre">MOCServerClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.find_datasets"><code class="docutils literal notranslate"><span class="pre">MOCServerClass.find_datasets()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region"><code class="docutils literal notranslate"><span class="pre">MOCServerClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mocserver.MOCServerClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">MOCServerClass.query_region_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.mocserver.MOCServerClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

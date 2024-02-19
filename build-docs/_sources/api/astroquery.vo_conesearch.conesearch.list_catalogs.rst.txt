@@ -1,0 +1,6 @@
+list_catalogs
+=============
+
+.. currentmodule:: astroquery.vo_conesearch.conesearch
+
+.. autofunction:: list_catalogs

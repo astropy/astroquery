@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>AstrometryNetClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (astroquery.imcce/astroquery.solarsystem.imcce)" href="../imcce/imcce.html" />
+    <link rel="prev" title="Astrometry.net plate solutions (astroquery.astrometry_net)" href="../astrometry_net/astrometry_net.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../imcce/imcce.html" title="Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (astroquery.imcce/astroquery.solarsystem.imcce)">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../astrometry_net/astrometry_net.html" title="Astrometry.net plate solutions (astroquery.astrometry_net)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../astrometry_net/astrometry_net.html" accesskey="U">Astrometry.net plate solutions (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code>)</a> &#187;</li>
+      
+      <li>AstrometryNetClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="astrometrynetclass">
+<h1>AstrometryNetClass<a class="headerlink" href="#astrometrynetclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.astrometry_net.</span></span><span class="sig-name descname"><span class="pre">AstrometryNetClass</span></span><a class="reference internal" href="../_modules/astroquery/astrometry_net/core.html#AstrometryNetClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>Perform queries to the astrometry.net service to fit WCS to images
+or source lists.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.API_URL" title="astroquery.astrometry_net.AstrometryNetClass.API_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">API_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT" title="astroquery.astrometry_net.AstrometryNetClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.URL" title="astroquery.astrometry_net.AstrometryNetClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.api_key" title="astroquery.astrometry_net.AstrometryNetClass.api_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">api_key</span></code></a></p></td>
+<td><p>Return the Astrometry.net API key.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.empty_settings" title="astroquery.astrometry_net.AstrometryNetClass.empty_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">empty_settings</span></code></a></p></td>
+<td><p>Construct a dict of settings using the defaults</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.login" title="astroquery.astrometry_net.AstrometryNetClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.monitor_submission" title="astroquery.astrometry_net.AstrometryNetClass.monitor_submission"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monitor_submission</span></code></a>(submission_id, *[, ...])</p></td>
+<td><p>Monitor the submission for completion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.show_allowed_settings" title="astroquery.astrometry_net.AstrometryNetClass.show_allowed_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_allowed_settings</span></code></a>()</p></td>
+<td><p>There are a ton of options available for solving.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_image</span></code></a>(image_file_path, *[, ...])</p></td>
+<td><p>Plate solve from an image, either by uploading the image to astrometry.net or by finding sources locally using <a class="reference external" href="https://photutils.rtfd.io">photutils</a> and solving with source locations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_source_list</span></code></a>(x, y, image_width, ...)</p></td>
+<td><p>Plate solve from a list of source positions.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.API_URL">
+<span class="sig-name descname"><span class="pre">API_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://nova.astrometry.net/api'</span></em><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.API_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">120</span></em><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://nova.astrometry.net'</span></em><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.api_key">
+<span class="sig-name descname"><span class="pre">api_key</span></span><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Astrometry.net API key.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.empty_settings">
+<span class="sig-name descname"><span class="pre">empty_settings</span></span><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.empty_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Construct a dict of settings using the defaults</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.login" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.monitor_submission">
+<span class="sig-name descname"><span class="pre">monitor_submission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">submission_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_submission_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/astrometry_net/core.html#AstrometryNetClass.monitor_submission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.monitor_submission" title="Link to this definition">¶</a></dt>
+<dd><p>Monitor the submission for completion.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>submission_id</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>Submission ID number from astrometry.net.</p>
+</dd>
+<dt><strong>solve_timeout</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Time, in seconds, to wait for the astrometry.net solver to find
+a solution.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to print out information about the solving.</p>
+</dd>
+<dt><strong>return_submission_id</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return the Submission ID number.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None or <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Header</span></code></a> or (<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Header</span></code></a>, str)</dt><dd><p>The contents of the returned object depend on whether the solve
+succeeds or fails. If the solve succeeds the header with
+the WCS solution generated by astrometry.net is returned. A tuple
+containing WCS solution and Submission ID is return if the
+return_submission_id parameter is set True. If the solve
+fails then an empty dictionary is returned. See below for the outcome
+if the solve times out.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code></dt><dd><p>Raised if <a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT" title="astroquery.astrometry_net.AstrometryNetClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net.AstrometryNetClass.TIMEOUT</span></code></a> is
+exceeded before the solve either succeeds or fails. The second
+argument in the exception is the submission ID.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.show_allowed_settings">
+<span class="sig-name descname"><span class="pre">show_allowed_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/astrometry_net/core.html#AstrometryNetClass.show_allowed_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.show_allowed_settings" title="Link to this definition">¶</a></dt>
+<dd><p>There are a ton of options available for solving. This displays
+them in a nice way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.solve_from_image">
+<span class="sig-name descname"><span class="pre">solve_from_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_file_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_image_upload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_dec_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_submission_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/astrometry_net/core.html#AstrometryNetClass.solve_from_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="Link to this definition">¶</a></dt>
+<dd><p>Plate solve from an image, either by uploading the image to
+astrometry.net or by finding sources locally using
+<a class="reference external" href="https://photutils.rtfd.io">photutils</a> and solving with source
+locations.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>image_file_path</strong><span class="classifier">str or Path object</span></dt><dd><p>Path to the image.</p>
+</dd>
+<dt><strong>force_image_upload</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, upload the image to astrometry.net even if it is
+possible to detect sources in the image locally. This option will
+almost always take longer than finding sources locally. It will even
+take longer than installing photutils and then rerunning this.</p>
+<p>Even if this is <code class="docutils literal notranslate"><span class="pre">False</span></code> the image will be upload unless
+photutils is installed.</p>
+</dd>
+<dt><strong>ra_key</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the key in the FITS header that contains right ascension of the image.
+The ra can be specified using the <code class="docutils literal notranslate"><span class="pre">center_ra</span></code> setting instead if
+desired.</p>
+</dd>
+<dt><strong>dec_key</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the key in the FITS header that contains declination of the image.
+The dec can be specified using the <code class="docutils literal notranslate"><span class="pre">center_dec</span></code> setting instead if
+desired.</p>
+</dd>
+<dt><strong>ra_dec_units</strong><span class="classifier">tuple, optional</span></dt><dd><p>Tuple specifying the units of the right ascension and declination in
+the header. The default value is <code class="docutils literal notranslate"><span class="pre">('hour',</span> <span class="pre">'degree')</span></code>.</p>
+</dd>
+<dt><strong>solve_timeout</strong><span class="classifier">int</span></dt><dd><p>Time, in seconds, to wait for the astrometry.net solver to find
+a solution.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to print out information about the solving.</p>
+</dd>
+<dt><strong>return_submission_id</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return the Submission ID number.</p>
+</dd>
+<dt><strong>For a list of the remaining settings, use the method</strong></dt><dd></dd>
+<dt><strong>`~AstrometryNetClass.show_allowed_settings`.</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list">
+<span class="sig-name descname"><span class="pre">solve_from_source_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_submission_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/astrometry_net/core.html#AstrometryNetClass.solve_from_source_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list" title="Link to this definition">¶</a></dt>
+<dd><p>Plate solve from a list of source positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>x</strong><span class="classifier">list-like</span></dt><dd><p>List of x-coordinate of source positions.</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">list-like</span></dt><dd><p>List of y-coordinate of source positions.</p>
+</dd>
+<dt><strong>image_width</strong><span class="classifier">int</span></dt><dd><p>Size of the image in the x-direction.</p>
+</dd>
+<dt><strong>image_height</strong><span class="classifier">int</span></dt><dd><p>Size of the image in the y-direction.</p>
+</dd>
+<dt><strong>solve_timeout</strong><span class="classifier">int</span></dt><dd><p>Time, in seconds, to wait for the astrometry.net solver to find
+a solution.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to print out information about the solving.</p>
+</dd>
+<dt><strong>return_submission_id</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to return the Submission ID number.</p>
+</dd>
+<dt><strong>For a list of the remaining settings, use the method</strong></dt><dd></dd>
+<dt><strong>`~AstrometryNetClass.show_allowed_settings`.</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">AstrometryNetClass</a><ul>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.API_URL"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.API_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.URL"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.api_key"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.api_key</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.empty_settings"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.empty_settings</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.login"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.monitor_submission"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.monitor_submission()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.show_allowed_settings"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.show_allowed_settings()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.solve_from_image()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list"><code class="docutils literal notranslate"><span class="pre">AstrometryNetClass.solve_from_source_list()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.astrometry_net.AstrometryNetClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

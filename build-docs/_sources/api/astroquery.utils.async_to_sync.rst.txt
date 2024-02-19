@@ -1,0 +1,6 @@
+async_to_sync
+=============
+
+.. currentmodule:: astroquery.utils
+
+.. autofunction:: async_to_sync

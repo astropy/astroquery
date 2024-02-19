@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Exoplanet Orbit Database (astroquery.exoplanet_orbit_database) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ExoplanetOrbitDatabaseClass" href="../api/astroquery.exoplanet_orbit_database.ExoplanetOrbitDatabaseClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.cosmosim.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.exoplanet_orbit_database.ExoplanetOrbitDatabaseClass.html" title="ExoplanetOrbitDatabaseClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.cosmosim.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Exoplanet Orbit Database (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.exoplanet_orbit_database</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="exoplanet-orbit-database-astroquery-exoplanet-orbit-database">
+<span id="astroquery-exoplanet-orbit-database"></span><h1>Exoplanet Orbit Database (<a class="reference internal" href="#module-astroquery.exoplanet_orbit_database" title="astroquery.exoplanet_orbit_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.exoplanet_orbit_database</span></code></a>)<a class="headerlink" href="#exoplanet-orbit-database-astroquery-exoplanet-orbit-database" title="Link to this heading">¶</a></h1>
+<section id="accessing-the-planet-table">
+<h2>Accessing the planet table<a class="headerlink" href="#accessing-the-planet-table" title="Link to this heading">¶</a></h2>
+<p>You can access the complete tables from each table source, with units assigned
+to columns wherever possible.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.exoplanet_orbit_database</span> <span class="kn">import</span> <span class="n">ExoplanetOrbitDatabase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eod_table</span> <span class="o">=</span> <span class="n">ExoplanetOrbitDatabase</span><span class="o">.</span><span class="n">get_table</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eod_table</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">&lt;QTable length=2&gt;</span>
+<span class="go">    A        AUPPER   ... NAME_LOWERCASE              sky_coord</span>
+<span class="go">    AU         AU     ...                              deg,deg</span>
+<span class="go"> float64    float64   ...     str19                    SkyCoord</span>
+<span class="go">--------- ----------- ... -------------- -----------------------------------</span>
+<span class="go">0.0780099  0.00130017 ...    kepler-107d 297.0282083332539,48.20861111111111</span>
+<span class="go">0.0344721 0.000675924 ...   kepler-1049b  287.3467499971389,47.7729444445504</span>
+</pre></div>
+</div>
+<p>You can query for the row from each table corresponding to one exoplanet:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.exoplanet_orbit_database</span> <span class="kn">import</span> <span class="n">ExoplanetOrbitDatabase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hatp11b</span> <span class="o">=</span> <span class="n">ExoplanetOrbitDatabase</span><span class="o">.</span><span class="n">query_planet</span><span class="p">(</span><span class="s1">&#39;HAT-P-11 b&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="properties-of-a-particular-planet">
+<h2>Properties of a particular planet<a class="headerlink" href="#properties-of-a-particular-planet" title="Link to this heading">¶</a></h2>
+<p>The properties of each planet are stored in a table, with <a class="reference external" href="http://exoplanets.org/help/common/data">columns defined by
+the Exoplanet Orbit Database</a>. There
+is also a special column of sky coordinates for each target, named <code class="docutils literal notranslate"><span class="pre">sky_coord</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.exoplanet_orbit_database</span> <span class="kn">import</span> <span class="n">ExoplanetOrbitDatabase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hatp11b</span> <span class="o">=</span> <span class="n">ExoplanetOrbitDatabase</span><span class="o">.</span><span class="n">query_planet</span><span class="p">(</span><span class="s1">&#39;HAT-P-11 b&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hatp11b</span><span class="p">[</span><span class="s1">&#39;PER&#39;</span><span class="p">]</span>  <span class="c1"># Planet period</span>
+<span class="go">&lt;MaskedQuantity 4.8878162 d&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hatp11b</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span>  <span class="c1"># Planet radius</span>
+<span class="go">&lt;MaskedQuantity 0.422 jupiterRad&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hatp11b</span><span class="p">[</span><span class="s1">&#39;sky_coord&#39;</span><span class="p">]</span> <span class="c1"># Position of host star</span>
+<span class="go">&lt;SkyCoord (ICRS): (ra, dec) in deg</span>
+<span class="go">    (297.70890417, 48.08029444)&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.exoplanet_orbit_database">
+<span id="astroquery-exoplanet-orbit-database-package"></span><h3>astroquery.exoplanet_orbit_database Package<a class="headerlink" href="#module-astroquery.exoplanet_orbit_database" title="Link to this heading">¶</a></h3>
+<section id="exoplanet-orbit-database-query-tool">
+<h4>Exoplanet Orbit Database Query Tool<a class="headerlink" href="#exoplanet-orbit-database-query-tool" title="Link to this heading">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Brett M. Morris (<a class="reference external" href="mailto:brettmorris21&#37;&#52;&#48;gmail&#46;com">brettmorris21<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+</dd>
+</dl>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.exoplanet_orbit_database.ExoplanetOrbitDatabaseClass.html#astroquery.exoplanet_orbit_database.ExoplanetOrbitDatabaseClass" title="astroquery.exoplanet_orbit_database.ExoplanetOrbitDatabaseClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExoplanetOrbitDatabaseClass</span></code></a>()</p></td>
+<td><p>Exoplanet Orbit Database querying object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.exoplanet_orbit_database.Conf.html#astroquery.exoplanet_orbit_database.Conf" title="astroquery.exoplanet_orbit_database.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.exoplanet_orbit_database" title="astroquery.exoplanet_orbit_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.exoplanet_orbit_database</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Exoplanet Orbit Database (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.exoplanet_orbit_database</span></code>)</a><ul>
+<li><a class="reference internal" href="#accessing-the-planet-table">Accessing the planet table</a></li>
+<li><a class="reference internal" href="#properties-of-a-particular-planet">Properties of a particular planet</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.exoplanet_orbit_database">astroquery.exoplanet_orbit_database Package</a><ul>
+<li><a class="reference internal" href="#exoplanet-orbit-database-query-tool">Exoplanet Orbit Database Query Tool</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/exoplanet_orbit_database/exoplanet_orbit_database.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

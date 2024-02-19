@@ -1,0 +1,6 @@
+footprint_to_reg
+================
+
+.. currentmodule:: astroquery.alma.utils
+
+.. autofunction:: footprint_to_reg

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conf &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CDS MOC Service (astroquery.mocserver)" href="../mocserver/mocserver.html" />
+    <link rel="prev" title="HapcutClass" href="astroquery.mast.HapcutClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../mocserver/mocserver.html" title="CDS MOC Service (astroquery.mocserver)">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.mast.HapcutClass.html" title="HapcutClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../mast/mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>Conf</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="conf">
+<h1>Conf<a class="headerlink" href="#conf" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.mast.Conf">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.mast.</span></span><span class="sig-name descname"><span class="pre">Conf</span></span><a class="reference internal" href="../_modules/astroquery/mast.html#Conf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mast.Conf" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.config.ConfigNamespace.html#astropy.config.ConfigNamespace" title="(in Astropy v6.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigNamespace</span></code></a></p>
+<p>Configuration parameters for <a class="reference internal" href="../mast/mast.html#module-astroquery.mast" title="astroquery.mast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code></a>.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.pagesize" title="astroquery.mast.Conf.pagesize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pagesize</span></code></a></p></td>
+<td><p>Number of results to request at once from the STScI server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.Conf.server" title="astroquery.mast.Conf.server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server</span></code></a></p></td>
+<td><p>Name of the MAST server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.ssoserver" title="astroquery.mast.Conf.ssoserver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ssoserver</span></code></a></p></td>
+<td><p>MAST SSO Portal server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.Conf.timeout" title="astroquery.mast.Conf.timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></a></p></td>
+<td><p>Time limit for requests from the STScI server.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.help" title="astroquery.mast.Conf.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>([name])</p></td>
+<td><p>Print info about configuration items.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.Conf.items" title="astroquery.mast.Conf.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>()</p></td>
+<td><p>Iterate over configuration item <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code> pairs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.keys" title="astroquery.mast.Conf.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.Conf.reload" title="astroquery.mast.Conf.reload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reload</span></code></a>([attr])</p></td>
+<td><p>Reload a configuration item from the configuration file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.reset" title="astroquery.mast.Conf.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>([attr])</p></td>
+<td><p>Reset a configuration item to its default.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.Conf.set_temp" title="astroquery.mast.Conf.set_temp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_temp</span></code></a>(attr, value)</p></td>
+<td><p>Temporarily set a configuration value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.Conf.values" title="astroquery.mast.Conf.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
+<td><p>Iterate over configuration item values.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.pagesize">
+<span class="sig-name descname"><span class="pre">pagesize</span></span><a class="headerlink" href="#astroquery.mast.Conf.pagesize" title="Link to this definition">¶</a></dt>
+<dd><p>Number of results to request at once from the STScI server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.server">
+<span class="sig-name descname"><span class="pre">server</span></span><a class="headerlink" href="#astroquery.mast.Conf.server" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the MAST server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.ssoserver">
+<span class="sig-name descname"><span class="pre">ssoserver</span></span><a class="headerlink" href="#astroquery.mast.Conf.ssoserver" title="Link to this definition">¶</a></dt>
+<dd><p>MAST SSO Portal server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#astroquery.mast.Conf.timeout" title="Link to this definition">¶</a></dt>
+<dd><p>Time limit for requests from the STScI server.</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.help" title="Link to this definition">¶</a></dt>
+<dd><p>Print info about configuration items.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional</span></dt><dd><p>Name of the configuration item to be described. If no name is
+provided then info about all the configuration items will be
+printed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conf</span><span class="o">.</span><span class="n">help</span><span class="p">(</span><span class="s2">&quot;unicode_output&quot;</span><span class="p">)</span>
+<span class="go">ConfigItem: unicode_output</span>
+<span class="go">  cfgtype=&#39;boolean&#39;</span>
+<span class="go">  defaultvalue=False</span>
+<span class="go">  description=&#39;When True, use Unicode characters when outputting values, and displaying widgets at the console.&#39;</span>
+<span class="go">  module=astropy</span>
+<span class="go">  value=False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.items" title="Link to this definition">¶</a></dt>
+<dd><p>Iterate over configuration item <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code> pairs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.keys" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.reload">
+<span class="sig-name descname"><span class="pre">reload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.reload" title="Link to this definition">¶</a></dt>
+<dd><p>Reload a configuration item from the configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>attr</strong><span class="classifier">str, optional</span></dt><dd><p>The name of the configuration parameter to reload.  If not
+provided, reload all configuration parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.reset" title="Link to this definition">¶</a></dt>
+<dd><p>Reset a configuration item to its default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>attr</strong><span class="classifier">str, optional</span></dt><dd><p>The name of the configuration parameter to reload.  If not
+provided, reset all configuration parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.set_temp">
+<span class="sig-name descname"><span class="pre">set_temp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.set_temp" title="Link to this definition">¶</a></dt>
+<dd><p>Temporarily set a configuration value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>attr</strong><span class="classifier">str</span></dt><dd><p>Configuration item name</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">object</span></dt><dd><p>The value to set temporarily.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">astropy</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set_temp</span><span class="p">(</span><span class="s1">&#39;use_color&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">... </span>    <span class="c1"># console output will not contain color</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># console output contains color again...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.Conf.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.Conf.values" title="Link to this definition">¶</a></dt>
+<dd><p>Iterate over configuration item values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Conf</a><ul>
+<li><a class="reference internal" href="#astroquery.mast.Conf"><code class="docutils literal notranslate"><span class="pre">Conf</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.mast.Conf.pagesize"><code class="docutils literal notranslate"><span class="pre">Conf.pagesize</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.server"><code class="docutils literal notranslate"><span class="pre">Conf.server</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.ssoserver"><code class="docutils literal notranslate"><span class="pre">Conf.ssoserver</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.timeout"><code class="docutils literal notranslate"><span class="pre">Conf.timeout</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.help"><code class="docutils literal notranslate"><span class="pre">Conf.help()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.items"><code class="docutils literal notranslate"><span class="pre">Conf.items()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.keys"><code class="docutils literal notranslate"><span class="pre">Conf.keys()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.reload"><code class="docutils literal notranslate"><span class="pre">Conf.reload()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.reset"><code class="docutils literal notranslate"><span class="pre">Conf.reset()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.set_temp"><code class="docutils literal notranslate"><span class="pre">Conf.set_temp()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.Conf.values"><code class="docutils literal notranslate"><span class="pre">Conf.values()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.mast.Conf.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

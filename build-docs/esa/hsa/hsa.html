@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ESA Herschel Science Archive (astroquery.esa.hsa) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="HSAClass" href="../../api/astroquery.esa.hsa.HSAClass.html" />
+    <link rel="prev" title="Conf" href="../../api/astroquery.dace.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../../api/astroquery.esa.hsa.HSAClass.html" title="HSAClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../../api/astroquery.dace.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>ESA Herschel Science Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.hsa</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="esa-herschel-science-archive-astroquery-esa-hsa">
+<span id="astroquery-esa-hsa"></span><h1>ESA Herschel Science Archive (<a class="reference internal" href="#module-astroquery.esa.hsa" title="astroquery.esa.hsa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.hsa</span></code></a>)<a class="headerlink" href="#esa-herschel-science-archive-astroquery-esa-hsa" title="Link to this heading">¶</a></h1>
+<p><a class="reference external" href="https://www.cosmos.esa.int/web/herschel/home/">Herschel</a> was the fourth
+cornerstone in ESA’s Horizon 2000 science programme, designed to observe the ‘cool’ universe.
+It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter
+Cassegrain telescope, providing unique observing capabilities and bridging the gap between earlier infrared
+space missions and groundbased facilities. Herschel successfully performed ~37000 science observations and
+~6600 science calibration observations which are publicly available to the worldwide astronomical community
+through the Herschel Science Archive.</p>
+<p>This package allows the access to the <a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">Herschel Science Archive</a>.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="getting-herschel-data">
+<h3>1. Getting Herschel data<a class="headerlink" href="#getting-herschel-data" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="n">observation_id</span><span class="o">=</span><span class="s1">&#39;1342195355&#39;</span><span class="p">,</span>  <span class="n">retrieval_type</span><span class="o">=</span><span class="s1">&#39;OBSERVATION&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">instrument_name</span><span class="o">=</span><span class="s1">&#39;PACS&#39;</span><span class="p">)</span>
+<span class="go">Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&amp;retrieval_type=OBSERVATION&amp;observation_id=1342195355&amp;instrument_name=PACS to 1342195355.tar ... [Done]</span>
+<span class="go">&#39;1342195355.tar&#39;</span>
+</pre></div>
+</div>
+<p>This will download the products of the observation ‘1342195355’ with the instrument ‘PACS’ and
+it will store them in a tar called ‘1342195355.tar’. The parameters available are detailed in the API.</p>
+<p>For more details of the parameters check the section 6 of the <code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">Product</span> <span class="pre">Access</span> <span class="pre">using</span> <span class="pre">TAP</span></code> in the
+<a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">HSA users guide</a>.</p>
+<dl class="simple">
+<dt>For more details about the products check:</dt><dd><p><a class="reference external" href="https://www.cosmos.esa.int/web/herschel/data-products-overview">https://www.cosmos.esa.int/web/herschel/data-products-overview</a></p>
+</dd>
+</dl>
+</section>
+<section id="getting-observation-products">
+<h3>2. Getting Observation Products<a class="headerlink" href="#getting-observation-products" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">get_observation</span><span class="p">(</span><span class="s1">&#39;1342195355&#39;</span><span class="p">,</span> <span class="n">instrument_name</span><span class="o">=</span><span class="s1">&#39;PACS&#39;</span><span class="p">)</span>
+<span class="go">Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&amp;retrieval_type=OBSERVATION&amp;observation_id=1342195355&amp;instrument_name=PACS to 1342195355.tar ... [Done]</span>
+<span class="go">&#39;1342195355.tar&#39;</span>
+</pre></div>
+</div>
+<p>This will download the product of the observation ‘1342195355’ with the instrument ‘PACS’ and
+it will store them in a tar called ‘1342195355.tar’. The parameters available are detailed in the API.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no difference between the product retrieved with this method and
+<a class="reference internal" href="../../api/astroquery.esa.hsa.HSAClass.html#astroquery.esa.hsa.HSAClass.download_data" title="astroquery.esa.hsa.HSAClass.download_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_data</span></code></a>. <a class="reference internal" href="../../api/astroquery.esa.hsa.HSAClass.html#astroquery.esa.hsa.HSAClass.download_data" title="astroquery.esa.hsa.HSAClass.download_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_data</span></code></a>
+is a more generic interface that allows the user to retrieve any product or metadata and
+<a class="reference internal" href="../../api/astroquery.esa.hsa.HSAClass.html#astroquery.esa.hsa.HSAClass.get_observation" title="astroquery.esa.hsa.HSAClass.get_observation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_observation</span></code></a> allows the user to retrieve only observation products.</p>
+</div>
+<p>For more information check the section 6.1 of the of the <code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">Product</span> <span class="pre">Access</span> <span class="pre">using</span> <span class="pre">TAP</span></code> in the
+<a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">HSA users guide</a>.</p>
+<p>For more details of the parameters check the section 6.2 of the <code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">Product</span> <span class="pre">Access</span> <span class="pre">using</span> <span class="pre">TAP</span></code> in the
+<a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">HSA users guide</a>.</p>
+</section>
+<section id="getting-herschel-postcard">
+<h3>3. Getting Herschel Postcard<a class="headerlink" href="#getting-herschel-postcard" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">get_postcard</span><span class="p">(</span><span class="s1">&#39;1342195355&#39;</span><span class="p">,</span> <span class="n">instrument_name</span><span class="o">=</span><span class="s1">&#39;PACS&#39;</span><span class="p">)</span>  
+<span class="go">Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&amp;retrieval_type=POSTCARD&amp;observation_id=1342195355&amp;instrument_name=PACS to /home/dev/.astropy/cache/astroquery/HSA/data?&amp;retrieval_type=POSTCARD&amp;observation_id=1342195355&amp;instrument_name=PACS ... [Done]</span>
+<span class="go">&#39;1342195355.jpg&#39;</span>
+</pre></div>
+</div>
+<p>This will download the postcard (static representation in JPG-format of the final product) of the observation
+‘1342195355’ with the instrument ‘PACS’ and it will store them in a tar called ‘1342195355.jpg’.
+The parameters available are detailed in the API.</p>
+<p>For more details of the parameters check the section 6.2 of the <code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">Product</span> <span class="pre">Access</span> <span class="pre">using</span> <span class="pre">TAP</span></code> in the
+<a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">HSA users guide</a>.</p>
+</section>
+<section id="getting-herschel-metadata-through-tap">
+<h3>4. Getting Herschel metadata through TAP<a class="headerlink" href="#getting-herschel-metadata-through-tap" title="Link to this heading">¶</a></h3>
+<p>This function provides access to the Herschel Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
+Query Language (<a class="reference external" href="https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-20180112.html">ADQL</a>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">HSA</span><span class="o">.</span><span class="n">query_hsa_tap</span><span class="p">(</span><span class="s2">&quot;select top 10 * from hsa.v_active_observation&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s1">&#39;results.csv&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="go">                  aor                           bii         ...  target_name   urn_version</span>
+<span class="go">--------------------------------------- ------------------- ... -------------- -----------</span>
+<span class="go">                        PP2-SWa-NGC3265  28.797292629881316 ...        NGC3265      915907</span>
+<span class="go">       PRISMAS_W33a_hifi3b_898GHz_A_D2O  -17.86672520275456 ...           W33A      806737</span>
+<span class="go">  GOODS-S_70_d+8+8_forward_r3_shortaxis  -27.80919396603746 ...  GOODS-S d+8+8      894819</span>
+<span class="go">      PSP2_HStars-Set12f - RedRectangle -10.637417697356986 ...  Red Rectangle      800938</span>
+<span class="go">                 SPIRE-A - G126.24-5.52  57.195030974713134 ...   G126.24-5.52      810242</span>
+<span class="go">PSP1_PRISMAS_W31C_hifi6a_1477GHz_A_D2H+  -19.93074108498436 ...           W31C      920099</span>
+<span class="go">       Spire Level-2 GOODS-S 37  - copy  -27.81104151290488 ...        GOODS-S      898135</span>
+<span class="go">             PSP2_HStars-Set13  - 10216   13.27923027337195 ...      IRC+10216      801364</span>
+<span class="go">                  PACS-A - G345.39-3.97  -43.47405026924179 ... G345.39-3.97-1      883176</span>
+<span class="go">        PRISMAS_g34_hifi7b_1897GHz_B_C3  1.2495150652937468 ...      G34.3+0.1      921086</span>
+</pre></div>
+</div>
+<p>This will execute an ADQL query to download the first 10 observations in the <a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">Herschel Science Archive</a>.
+The result of the query will be stored in the file <code class="docutils literal notranslate"><span class="pre">results.csv</span></code>.</p>
+</section>
+<section id="getting-table-details-of-hsa-tap">
+<h3>5. Getting table details of HSA TAP<a class="headerlink" href="#getting-table-details-of-hsa-tap" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">get_tables</span><span class="p">()</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="go">[&#39;hpdp.latest_observation_hpdp&#39;, &#39;hpdp.vizier_links&#39;, &#39;hpdp.unique_observation_hpdp&#39;, &#39;hpdp.latest_unique_observation_requests&#39;, &#39;hpdp.files&#39;, &#39;hpdp.latest_requests&#39;, &#39;public.dual&#39;, &#39;public.image_formats&#39;, &#39;tap_schema.tables&#39;, &#39;tap_schema.columns&#39;, &#39;tap_schema.keys&#39;, &#39;tap_schema.schemas&#39;, &#39;tap_schema.key_columns&#39;, &#39;hsa.observation_science&#39;, &#39;hsa.proposal_coauthor&#39;, &#39;hsa.proposal_observation&#39;, &#39;hsa.instrument&#39;, &#39;hsa.observing_mode_per_instrument&#39;, &#39;hsa.spire_spectral_feature_finder_catalogue&#39;, &#39;hsa.hifi_spectral_line_smoothed&#39;, &#39;hsa.publication&#39;, &#39;hsa.quality_flag&#39;, &#39;hsa.v_active_observation&#39;, &#39;hsa.proposal_info&#39;, &#39;hsa.pacs_point_source_070&#39;, &#39;hsa.observing_mode&#39;, &#39;hsa.proposal&#39;, &#39;hsa.proposal_pi_user&#39;, &#39;hsa.spire_point_source_350&#39;, &#39;hsa.spire_point_source_250&#39;, &#39;hsa.v_publication&#39;, &#39;hsa.spire_point_source_500&#39;, &#39;hsa.pacs_point_source_100&#39;, &#39;hsa.v_proposal_observation&#39;, &#39;hsa.hifi_spectral_line_native&#39;, &#39;hsa.pacs_point_source_160&#39;, &#39;hsa.ancillary&#39;, &#39;hsa.metadata_expert_panels&#39;, &#39;pubtool.institutions&#39;, &#39;pubtool.v_first_pub_date&#39;, &#39;pubtool.v_first_pub_date_single&#39;, &#39;pubtool.archival_type&#39;, &#39;pubtool.publication&#39;, &#39;pubtool.publication_details&#39;, &#39;pubtool.authors_institutions&#39;, &#39;pubtool.publication_observation&#39;, &#39;pubtool.authors&#39;, &#39;updp2.latest_observation_updp&#39;, &#39;updp2.vizier_links&#39;, &#39;updp2.latest_unique_observation_requests&#39;, &#39;updp2.files&#39;, &#39;updp2.latest_requests&#39;, &#39;updp2.unique_observation_updp&#39;]</span>
+</pre></div>
+</div>
+<p>This will show the available tables in HSA TAP service in the <a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">Herschel Science Archive</a>.</p>
+</section>
+<section id="getting-columns-details-of-hsa-tap">
+<h3>6. Getting columns details of HSA TAP<a class="headerlink" href="#getting-columns-details-of-hsa-tap" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="s1">&#39;hsa.v_active_observation&#39;</span><span class="p">)</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="go">[&#39;aor&#39;, &#39;bii&#39;, &#39;dec&#39;, &#39;duration&#39;, &#39;end_time&#39;, &#39;fov&#39;, &#39;global_science_area&#39;, &#39;icon_image&#39;, &#39;icon_location&#39;, &#39;image_2_5_location&#39;, &#39;image_location&#39;, &#39;ingest_queue_oid&#39;, &#39;instrument_oid&#39;, &#39;is_active_version&#39;, &#39;is_public&#39;, &#39;lii&#39;, &#39;naif_id&#39;, &#39;num_publications&#39;, &#39;observation_id&#39;, &#39;observation_oid&#39;, &#39;observer&#39;, &#39;observing_mode_oid&#39;, &#39;obsstate&#39;, &#39;od_number&#39;, &#39;pa&#39;, &#39;polygon_fov&#39;, &#39;position&#39;, &#39;prop_end&#39;, &#39;proposal_id&#39;, &#39;quality_report_location&#39;, &#39;ra&#39;, &#39;science_area&#39;, &#39;science_category&#39;, &#39;spg_id&#39;, &#39;start_time&#39;, &#39;status&#39;, &#39;target_name&#39;, &#39;urn_version&#39;]</span>
+</pre></div>
+</div>
+<p>This will show the column details of the table <code class="docutils literal notranslate"><span class="pre">'hsa.v_active_observation'</span></code> in HSA TAP service in the
+<a class="reference external" href="http://archives.esac.esa.int/hsa/whsa/">Herschel Science Archive</a>.</p>
+</section>
+<section id="query-region">
+<h3>7. Query Region<a class="headerlink" href="#query-region" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mf">100.2417</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mf">9.895</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">HSA</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="go">                      aor                            bii         ...   target_name    urn_version</span>
+<span class="go">                                                              ...</span>
+<span class="go">------------------------------------------- ------------------ ... ---------------- -----------</span>
+<span class="go">KPOT_wlanger_1-HPoint-0007 - CII_G202.6+2.0 10.062774289985356 ... CII_G202.6+2.0-1      921022</span>
+<span class="go">                                    n2264-o   9.45754288889945 ...          NGC2264      919399</span>
+<span class="go">                                    n2264-n   9.45754288889945 ...          NGC2264      919398</span>
+<span class="go">                                    n2264-n  9.450299102175919 ...          NGC2264      898497</span>
+<span class="go">                                    n2264-o  9.450499719127244 ...          NGC2264      898535</span>
+</pre></div>
+</div>
+<p>Retrieve a VOTable with the observations metadata of a given region.</p>
+</section>
+<section id="query-observations">
+<h3>8. Query Observations<a class="headerlink" href="#query-observations" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mf">100.2417</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mf">9.895</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">query_observations</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="go">&lt;Table length=5&gt;</span>
+<span class="go">observation_id</span>
+<span class="go">    object</span>
+<span class="go">--------------</span>
+<span class="go">    1342219315</span>
+<span class="go">    1342205057</span>
+<span class="go">    1342205056</span>
+<span class="go">    1342205056</span>
+<span class="go">    1342205057</span>
+</pre></div>
+</div>
+<p>Retrieve a VOTable with the observation IDs of a given region.</p>
+</section>
+<section id="procedure-example">
+<h3>9. Procedure example<a class="headerlink" href="#procedure-example" title="Link to this heading">¶</a></h3>
+<p>First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.hsa</span> <span class="kn">import</span> <span class="n">HSA</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">query_hsa_tap</span><span class="p">(</span><span class="s2">&quot;select top 10 observation_id from hsa.v_active_observation where &quot;</span>
+<span class="gp">... </span>                  <span class="s2">&quot;contains(point(&#39;ICRS&#39;, hsa.v_active_observation.ra, hsa.v_active_observation.dec), &quot;</span>
+<span class="gp">... </span>                  <span class="s2">&quot;circle(&#39;ICRS&#39;, 100.2417,9.895, 1.1))=1&quot;</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s1">&#39;results.csv&#39;</span><span class="p">)</span>
+<span class="go">&lt;Table length=9&gt;</span>
+<span class="go">observation_id</span>
+<span class="go">    int64</span>
+<span class="go">--------------</span>
+<span class="go">    1342228342</span>
+<span class="go">    1342228371</span>
+<span class="go">    1342228372</span>
+<span class="go">    1342219315</span>
+<span class="go">    1342205057</span>
+<span class="go">    1342205056</span>
+<span class="go">    1342205058</span>
+<span class="go">    1342205056</span>
+<span class="go">    1342205057</span>
+</pre></div>
+</div>
+<p>In this example we are doing a circle search of 1.1 degrees in an ICRS (Right ascension [RA], Declination [DEC]) position (100.2417, 9.895).</p>
+<dl class="simple">
+<dt>For more information on how to use ADQL see:</dt><dd><p>‘<a class="reference external" href="https://www.ivoa.net/documents/latest/ADQL.html">https://www.ivoa.net/documents/latest/ADQL.html</a>’</p>
+</dd>
+</dl>
+<p>After obtaining the desire ID, download the product of the observation ‘1342205057’ with the instrument ‘PACS’.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HSA</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="n">observation_id</span><span class="o">=</span><span class="s1">&#39;1342205057&#39;</span><span class="p">,</span> <span class="n">retrieval_type</span><span class="o">=</span><span class="s1">&#39;OBSERVATION&#39;</span><span class="p">,</span> <span class="n">instrument_name</span><span class="o">=</span><span class="s1">&#39;PACS&#39;</span><span class="p">)</span>
+<span class="go">Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&amp;retrieval_type=OBSERVATION&amp;observation_id=1342205057&amp;instrument_name=PACS to 1342205057.tar ... [Done]</span>
+<span class="go">&#39;1342205057.tar&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.esa.hsa">
+<span id="astroquery-esa-hsa-package"></span><h3>astroquery.esa.hsa Package<a class="headerlink" href="#module-astroquery.esa.hsa" title="Link to this heading">¶</a></h3>
+<section id="hsa">
+<h4>HSA<a class="headerlink" href="#hsa" title="Link to this heading">¶</a></h4>
+<p>The Herschel Science Archive (HSA) is the ESA’s archive for the
+Herschel mission.</p>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../api/astroquery.esa.hsa.HSAClass.html#astroquery.esa.hsa.HSAClass" title="astroquery.esa.hsa.HSAClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HSAClass</span></code></a>([tap_handler])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/astroquery.esa.hsa.Conf.html#astroquery.esa.hsa.Conf" title="astroquery.esa.hsa.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.esa.hsa" title="astroquery.esa.hsa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.hsa</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">ESA Herschel Science Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.hsa</span></code>)</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#getting-herschel-data">1. Getting Herschel data</a></li>
+<li><a class="reference internal" href="#getting-observation-products">2. Getting Observation Products</a></li>
+<li><a class="reference internal" href="#getting-herschel-postcard">3. Getting Herschel Postcard</a></li>
+<li><a class="reference internal" href="#getting-herschel-metadata-through-tap">4. Getting Herschel metadata through TAP</a></li>
+<li><a class="reference internal" href="#getting-table-details-of-hsa-tap">5. Getting table details of HSA TAP</a></li>
+<li><a class="reference internal" href="#getting-columns-details-of-hsa-tap">6. Getting columns details of HSA TAP</a></li>
+<li><a class="reference internal" href="#query-region">7. Query Region</a></li>
+<li><a class="reference internal" href="#query-observations">8. Query Observations</a></li>
+<li><a class="reference internal" href="#procedure-example">9. Procedure example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.esa.hsa">astroquery.esa.hsa Package</a><ul>
+<li><a class="reference internal" href="#hsa">HSA</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../../_sources/esa/hsa/hsa.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

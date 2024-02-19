@@ -1,0 +1,7 @@
+AsyncConeSearch
+===============
+
+.. currentmodule:: astroquery.vo_conesearch.conesearch
+
+.. autoclass:: AsyncConeSearch
+   :show-inheritance:

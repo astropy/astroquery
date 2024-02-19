@@ -1,0 +1,29 @@
+Conf
+====
+
+.. currentmodule:: astroquery.ipac.ned
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.correct_redshift
+      ~Conf.hubble_constant
+      ~Conf.output_coordinate_frame
+      ~Conf.output_equinox
+      ~Conf.server
+      ~Conf.sort_output_by
+      ~Conf.timeout
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: correct_redshift
+   .. autoattribute:: hubble_constant
+   .. autoattribute:: output_coordinate_frame
+   .. autoattribute:: output_equinox
+   .. autoattribute:: server
+   .. autoattribute:: sort_output_by
+   .. autoattribute:: timeout

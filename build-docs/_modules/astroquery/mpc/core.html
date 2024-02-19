@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.mpc.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.mpc.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">QTable</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">Angle</span><span class="p">,</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">ErfaWarning</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span><span class="p">,</span> <span class="n">class_or_instance</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">InvalidQueryError</span><span class="p">,</span> <span class="n">EmptyResponseError</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MPCClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MPCClass">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">MPCClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+    <span class="n">MPC_URL</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">web_service_server</span> <span class="o">+</span> <span class="s1">&#39;/web_service&#39;</span>
+    <span class="c1"># The authentication credentials for the MPC web service are publicly</span>
+    <span class="c1"># available and can be openly viewed on the documentation page at</span>
+    <span class="c1"># https://minorplanetcenter.net/web_service/</span>
+    <span class="n">MPC_USERNAME</span> <span class="o">=</span> <span class="s1">&#39;mpc_ws&#39;</span>
+    <span class="n">MPC_PASSWORD</span> <span class="o">=</span> <span class="s1">&#39;mpc!!ws&#39;</span>
+
+    <span class="n">MPES_URL</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">mpes_server</span> <span class="o">+</span> <span class="s1">&#39;/cgi-bin/mpeph2.cgi&#39;</span>
+    <span class="n">OBSERVATORY_CODES_URL</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">web_service_server</span>
+                             <span class="o">+</span> <span class="s1">&#39;/iau/lists/ObsCodes.html&#39;</span><span class="p">)</span>
+
+    <span class="n">MPCOBS_URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">mpcdb_server</span>
+
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+    <span class="n">_ephemeris_types</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;equatorial&#39;</span><span class="p">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;heliocentric&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;geocentric&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span>
+    <span class="p">}</span>
+
+    <span class="n">_default_number_of_steps</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="s1">&#39;21&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="s1">&#39;49&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="s1">&#39;121&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="s1">&#39;301&#39;</span>
+    <span class="p">}</span>
+
+    <span class="n">_proper_motions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;coordinate&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sky&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MPCClass.query_object_async">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.query_object_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_object_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query around a specific object within a given mission catalog. When</span>
+<span class="sd">        searching for a comet, it will return the entry with the latest epoch.</span>
+
+<span class="sd">        The following are valid query parameters for the MPC API search. The</span>
+<span class="sd">        params list and description are from</span>
+<span class="sd">        https://minorplanetcenter.net/web_service/ and are accurate as of</span>
+<span class="sd">        3/6/2018.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        target_type : str</span>
+<span class="sd">            Search for either a comet or an asteroid, with the two valid values being,</span>
+<span class="sd">            naturally, &quot;comet&quot; and &quot;asteroid&quot;</span>
+<span class="sd">        updated_at : str</span>
+<span class="sd">            Date-time when the Orbits table was last updated (YYYY-MM-DDThh:mm:ssZ). Note:</span>
+<span class="sd">            the documentation lists this field as &quot;orbit-updated-at&quot;, but the service</span>
+<span class="sd">            response contained &quot;updated_at&quot;, which appears to correlate and can also be</span>
+<span class="sd">            used as a query parameter.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The object&#39;s name; e.g., Eros. This can be queried as &#39;Eros&#39; or &#39;eros&#39;. If</span>
+<span class="sd">            the object has not yet been named, this field will be &#39;null&#39;.</span>
+<span class="sd">        number : integer</span>
+<span class="sd">            The object&#39;s number; e.g., 433. If the object has not yet been numbered,</span>
+<span class="sd">            this field will be &#39;null&#39;.</span>
+<span class="sd">        designation : str</span>
+<span class="sd">            The object&#39;s provisional designation (e.g., 2014 AA) if it has not been</span>
+<span class="sd">            numbered yet. If the object has been numbered, this number is its permanent</span>
+<span class="sd">            designation and is what the &#39;designation&#39; parameter will return, padded with</span>
+<span class="sd">            leading zeroes for a total of 7 digits; e.g., &#39;0000433&#39;. When querying for</span>
+<span class="sd">            provisional designations, because white spaces aren&#39;t allowed in the query,</span>
+<span class="sd">            escape the space with either a &#39;+&#39; or &#39;%20&#39;; e.g., &#39;2014+AA&#39; or &#39;2014%20AA&#39;.</span>
+<span class="sd">        epoch : str</span>
+<span class="sd">            The date/time of reference for the current orbital parameters.</span>
+<span class="sd">        epoch_jd : str</span>
+<span class="sd">            The Julian Date of the epoch.</span>
+<span class="sd">        period (years) : str</span>
+<span class="sd">            Time it takes for the object to complete one orbit around the Sun.</span>
+<span class="sd">        semimajor_axis : str</span>
+<span class="sd">            a, one half of the longest diameter of the orbital ellipse. (AU)</span>
+<span class="sd">        aphelion_distance : str</span>
+<span class="sd">            The distance when the object is furthest from the Sun in its orbit. (AU)</span>
+<span class="sd">        perihelion_distance : str</span>
+<span class="sd">            The distance when the object is nearest to the Sun in its orbit. (AU)</span>
+<span class="sd">        perihelion_date : str</span>
+<span class="sd">            Date when the object is at perihelion, i.e., reaches its closest point to</span>
+<span class="sd">            the Sun.</span>
+<span class="sd">        perihelion_date_jd : str</span>
+<span class="sd">            The Julian Date of perihelion.</span>
+<span class="sd">        argument_of_perihelion (°) : str</span>
+<span class="sd">            ω, defines the orientation of the ellipse in the orbital plane and is the</span>
+<span class="sd">            angle from the object&#39;s ascending node to its perihelion, measured in the</span>
+<span class="sd">            direction of motion. Range: 0–360°.</span>
+<span class="sd">        ascending_node (°) : str</span>
+<span class="sd">            Ω, the longitude of the ascending node, it defines the horizontal orientation</span>
+<span class="sd">            of the ellipse with respect to the ecliptic, and is the angle measured</span>
+<span class="sd">            counterclockwise (as seen from North of the ecliptic) from the First Point of</span>
+<span class="sd">            Aries to the ascending node. Range: 0–360°.</span>
+<span class="sd">        inclination (°) : str</span>
+<span class="sd">            i, the angle between the object&#39;s orbit and the ecliptic. Range: 0–180°.</span>
+<span class="sd">        eccentricity : str</span>
+<span class="sd">            e, a measure of how far the orbit shape departs from a circle. Range: 0–1,</span>
+<span class="sd">            with e = 0 being a perfect circle, intermediate values being ellipses ever</span>
+<span class="sd">            more elongated as e increases, and e = 1 describing a parabola.</span>
+<span class="sd">        mean_anomaly (°) : str</span>
+<span class="sd">            M, is related to the position of the object along its orbit at the given</span>
+<span class="sd">            epoch. Range: 0–360°.</span>
+<span class="sd">        mean_daily_motion (°/day) : str</span>
+<span class="sd">            n, a measure of the average speed of the object along its orbit.</span>
+<span class="sd">        absolute_magnitude : str</span>
+<span class="sd">            H, apparent magnitude the object would have if it were observed from 1 AU</span>
+<span class="sd">            away at zero phase, while it was 1 AU away from the Sun. Note this is</span>
+<span class="sd">            geometrically impossible and is equivalent to observing the object from the</span>
+<span class="sd">            center of the Sun.</span>
+<span class="sd">        phase_slope :  str</span>
+<span class="sd">            G, slope parameter as calculated or assumed by the MPC. The slope parameter</span>
+<span class="sd">            is a measure of how much brighter the object gets as its phase angle</span>
+<span class="sd">            decreases. When not known, a value of G = 0.15 is assumed.</span>
+<span class="sd">        orbit_type : integer</span>
+<span class="sd">            Asteroids are classified from a dynamics perspective by the area of the Solar</span>
+<span class="sd">            System in which they orbit. A number identifies each orbit type.</span>
+<span class="sd">            0: Unclassified (mostly Main Belters)</span>
+<span class="sd">            1: Atiras</span>
+<span class="sd">            2: Atens</span>
+<span class="sd">            3: Apollos</span>
+<span class="sd">            4: Amors</span>
+<span class="sd">            5: Mars Crossers</span>
+<span class="sd">            6: Hungarias</span>
+<span class="sd">            7: Phocaeas</span>
+<span class="sd">            8: Hildas</span>
+<span class="sd">            9: Jupiter Trojans</span>
+<span class="sd">            10: Distant Objects</span>
+<span class="sd">        delta_v (km/sec) : float</span>
+<span class="sd">            Δv, an estimate of the amount of energy necessary to jump from LEO (Low Earth</span>
+<span class="sd">            Orbit) to the object&#39;s orbit.</span>
+<span class="sd">        tisserand_jupiter : float</span>
+<span class="sd">            TJ, Tisserand parameter with respect to Jupiter, which is a quasi-invariant</span>
+<span class="sd">            value for each object and is frequently used to distinguish objects</span>
+<span class="sd">            (typically TJ &gt; 3) from Jupiter-family comets (typically 2 &lt; TJ &lt; 3).</span>
+<span class="sd">        neo : bool</span>
+<span class="sd">            value = 1 flags Near Earth Objects (NEOs).</span>
+<span class="sd">        km_neo : bool</span>
+<span class="sd">            value = 1 flags NEOs larger than ~1 km in diameter.</span>
+<span class="sd">        pha : bool</span>
+<span class="sd">            value = 1 flags Potentially Hazardous Asteroids (PHAs).</span>
+<span class="sd">        mercury_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Mercury. (AU)</span>
+<span class="sd">        venus_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Venus. (AU)</span>
+<span class="sd">        earth_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Earth. (AU)</span>
+<span class="sd">        mars_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Mars. (AU)</span>
+<span class="sd">        jupiter_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Jupiter. (AU)</span>
+<span class="sd">        saturn_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Saturn. (AU)</span>
+<span class="sd">        uranus_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Uranus. (AU)</span>
+<span class="sd">        neptune_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Neptune. (AU)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_mpc_object_endpoint</span><span class="p">(</span><span class="n">target_type</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_objects_async</span><span class="p">(</span><span class="n">target_type</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="n">get_query_payload</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MPCClass.query_objects_async">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.query_objects_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_objects_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query around a specific object within a given mission catalog</span>
+
+<span class="sd">        The following are valid query parameters for the MPC API search. The params list and</span>
+<span class="sd">        description are from https://minorplanetcenter.net/web_service/ and are accurate</span>
+<span class="sd">        as of 3/6/2018:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_type : str</span>
+<span class="sd">            Search for either a comet or an asteroid, with the two valid values being,</span>
+<span class="sd">            naturally, &quot;comet&quot; and &quot;asteroid&quot;</span>
+<span class="sd">        updated_at : str</span>
+<span class="sd">            Date-time when the Orbits table was last updated (YYYY-MM-DDThh:mm:ssZ). Note:</span>
+<span class="sd">            the documentation lists this field as &quot;orbit-updated-at&quot;, but the service</span>
+<span class="sd">            response contained &quot;updated_at&quot;, which appears to correlate and can also be</span>
+<span class="sd">            used as a query parameter.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The object&#39;s name; e.g., Eros. This can be queried as &#39;Eros&#39; or &#39;eros&#39;. If</span>
+<span class="sd">            the object has not yet been named, this field will be &#39;null&#39;.</span>
+<span class="sd">        number : integer</span>
+<span class="sd">            The object&#39;s number; e.g., 433. If the object has not yet been numbered,</span>
+<span class="sd">            this field will be &#39;null&#39;.</span>
+<span class="sd">        designation : str</span>
+<span class="sd">            The object&#39;s provisional designation (e.g., 2014 AA) if it has not been</span>
+<span class="sd">            numbered yet. If the object has been numbered, this number is its permanent</span>
+<span class="sd">            designation and is what the &#39;designation&#39; parameter will return, padded with</span>
+<span class="sd">            leading zeroes for a total of 7 digits; e.g., &#39;0000433&#39;. When querying for</span>
+<span class="sd">            provisional designations, because white spaces aren&#39;t allowed in the query,</span>
+<span class="sd">            escape the space with either a &#39;+&#39; or &#39;%20&#39;; e.g., &#39;2014+AA&#39; or &#39;2014%20AA&#39;.</span>
+<span class="sd">        epoch : str</span>
+<span class="sd">            The date/time of reference for the current orbital parameters.</span>
+<span class="sd">        epoch_jd : str</span>
+<span class="sd">            The Julian Date of the epoch.</span>
+<span class="sd">        period (years) : str</span>
+<span class="sd">            Time it takes for the object to complete one orbit around the Sun.</span>
+<span class="sd">        semimajor_axis : str</span>
+<span class="sd">            a, one half of the longest diameter of the orbital ellipse. (AU)</span>
+<span class="sd">        aphelion_distance : str</span>
+<span class="sd">            The distance when the object is furthest from the Sun in its orbit. (AU)</span>
+<span class="sd">        perihelion_distance : str</span>
+<span class="sd">            The distance when the object is nearest to the Sun in its orbit. (AU)</span>
+<span class="sd">        perihelion_date : str</span>
+<span class="sd">            Date when the object is at perihelion, i.e., reaches its closest point to</span>
+<span class="sd">            the Sun.</span>
+<span class="sd">        perihelion_date_jd : str</span>
+<span class="sd">            The Julian Date of perihelion.</span>
+<span class="sd">        argument_of_perihelion (°) : str</span>
+<span class="sd">            ω, defines the orientation of the ellipse in the orbital plane and is the</span>
+<span class="sd">            angle from the object&#39;s ascending node to its perihelion, measured in the</span>
+<span class="sd">            direction of motion. Range: 0–360°.</span>
+<span class="sd">        ascending_node (°) : str</span>
+<span class="sd">            Ω, the longitude of the ascending node, it defines the horizontal orientation</span>
+<span class="sd">            of the ellipse with respect to the ecliptic, and is the angle measured</span>
+<span class="sd">            counterclockwise (as seen from North of the ecliptic) from the First Point of</span>
+<span class="sd">            Aries to the ascending node. Range: 0–360°.</span>
+<span class="sd">        inclination (°) : str</span>
+<span class="sd">            i, the angle between the object&#39;s orbit and the ecliptic. Range: 0–180°.</span>
+<span class="sd">        eccentricity : str</span>
+<span class="sd">            e, a measure of how far the orbit shape departs from a circle. Range: 0–1,</span>
+<span class="sd">            with e = 0 being a perfect circle, intermediate values being ellipses ever</span>
+<span class="sd">            more elongated as e increases, and e = 1 describing a parabola.</span>
+<span class="sd">        mean_anomaly (°) : str</span>
+<span class="sd">            M, is related to the position of the object along its orbit at the given</span>
+<span class="sd">            epoch. Range: 0–360°.</span>
+<span class="sd">        mean_daily_motion (°/day) : str</span>
+<span class="sd">            n, a measure of the average speed of the object along its orbit.</span>
+<span class="sd">        absolute_magnitude : str</span>
+<span class="sd">            H, apparent magnitude the object would have if it were observed from 1 AU</span>
+<span class="sd">            away at zero phase, while it was 1 AU away from the Sun. Note this is</span>
+<span class="sd">            geometrically impossible and is equivalent to observing the object from the</span>
+<span class="sd">            center of the Sun.</span>
+<span class="sd">        phase_slope :  str</span>
+<span class="sd">            G, slope parameter as calculated or assumed by the MPC. The slope parameter</span>
+<span class="sd">            is a measure of how much brighter the object gets as its phase angle</span>
+<span class="sd">            decreases. When not known, a value of G = 0.15 is assumed.</span>
+<span class="sd">        orbit_type : integer</span>
+<span class="sd">            Asteroids are classified from a dynamics perspective by the area of the Solar</span>
+<span class="sd">            System in which they orbit. A number identifies each orbit type.</span>
+<span class="sd">            0: Unclassified (mostly Main Belters)</span>
+<span class="sd">            1: Atiras</span>
+<span class="sd">            2: Atens</span>
+<span class="sd">            3: Apollos</span>
+<span class="sd">            4: Amors</span>
+<span class="sd">            5: Mars Crossers</span>
+<span class="sd">            6: Hungarias</span>
+<span class="sd">            7: Phocaeas</span>
+<span class="sd">            8: Hildas</span>
+<span class="sd">            9: Jupiter Trojans</span>
+<span class="sd">            10: Distant Objects</span>
+<span class="sd">        delta_v (km/sec) : float</span>
+<span class="sd">            Δv, an estimate of the amount of energy necessary to jump from LEO (Low Earth</span>
+<span class="sd">            Orbit) to the object&#39;s orbit.</span>
+<span class="sd">        tisserand_jupiter : float</span>
+<span class="sd">            TJ, Tisserand parameter with respect to Jupiter, which is a quasi-invariant</span>
+<span class="sd">            value for each object and is frequently used to distinguish objects</span>
+<span class="sd">            (typically TJ &gt; 3) from Jupiter-family comets (typically 2 &lt; TJ &lt; 3).</span>
+<span class="sd">        neo : bool</span>
+<span class="sd">            value = 1 flags Near Earth Objects (NEOs).</span>
+<span class="sd">        km_neo : bool</span>
+<span class="sd">            value = 1 flags NEOs larger than ~1 km in diameter.</span>
+<span class="sd">        pha : bool</span>
+<span class="sd">            value = 1 flags Potentially Hazardous Asteroids (PHAs).</span>
+<span class="sd">        mercury_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Mercury. (AU)</span>
+<span class="sd">        venus_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Venus. (AU)</span>
+<span class="sd">        earth_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Earth. (AU)</span>
+<span class="sd">        mars_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Mars. (AU)</span>
+<span class="sd">        jupiter_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Jupiter. (AU)</span>
+<span class="sd">        saturn_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Saturn. (AU)</span>
+<span class="sd">        uranus_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Uranus. (AU)</span>
+<span class="sd">        neptune_moid : float</span>
+<span class="sd">            Minimum Orbit Intersection Distance with respect to Neptune. (AU)</span>
+<span class="sd">        limit : integer</span>
+<span class="sd">            Limit the number of results to the given value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mpc_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mpc_object_endpoint</span><span class="p">(</span><span class="n">target_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">target_type</span> <span class="o">==</span> <span class="s1">&#39;comet&#39;</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;order_by_desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;epoch&quot;</span>
+        <span class="n">request_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_object_payload</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Return payload if requested</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_args</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;object&#39;</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MPC_USERNAME</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MPC_PASSWORD</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">mpc_endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_args</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MPCClass.get_mpc_object_endpoint">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_mpc_object_endpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mpc_object_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_type</span><span class="p">):</span>
+        <span class="n">mpc_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MPC_URL</span>
+        <span class="k">if</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s1">&#39;asteroid&#39;</span><span class="p">:</span>
+            <span class="n">mpc_endpoint</span> <span class="o">=</span> <span class="n">mpc_endpoint</span> <span class="o">+</span> <span class="s1">&#39;/search_orbits&#39;</span>
+        <span class="k">elif</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s1">&#39;comet&#39;</span><span class="p">:</span>
+            <span class="n">mpc_endpoint</span> <span class="o">=</span> <span class="n">mpc_endpoint</span> <span class="o">+</span> <span class="s1">&#39;/search_comet_orbits&#39;</span>
+        <span class="k">return</span> <span class="n">mpc_endpoint</span></div>
+
+
+<div class="viewcode-block" id="MPCClass.get_ephemeris_async">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_ephemeris_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">get_ephemeris_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;500&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;1d&#39;</span><span class="p">,</span>
+                            <span class="n">number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ut_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eph_type</span><span class="o">=</span><span class="s1">&#39;equatorial&#39;</span><span class="p">,</span>
+                            <span class="n">ra_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dec_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">proper_motion</span><span class="o">=</span><span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="n">proper_motion_unit</span><span class="o">=</span><span class="s1">&#39;arcsec/h&#39;</span><span class="p">,</span>
+                            <span class="n">suppress_daytime</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suppress_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">perturbed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unc_links</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Object ephemerides from the Minor Planet Ephemeris Service.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target : str</span>
+<span class="sd">            Designation of the object of interest.  See Notes for</span>
+<span class="sd">            acceptable formats.</span>
+
+<span class="sd">        location : str, array-like, or `~astropy.coordinates.EarthLocation`, optional</span>
+<span class="sd">            Observer&#39;s location as an IAU observatory code, a</span>
+<span class="sd">            3-element array of Earth longitude, latitude, altitude, or</span>
+<span class="sd">            a `~astropy.coordinates.EarthLocation`.  Longitude and</span>
+<span class="sd">            latitude should be anything that initializes an</span>
+<span class="sd">            `~astropy.coordinates.Angle` object, and altitude should</span>
+<span class="sd">            initialize an `~astropy.units.Quantity` object (with units</span>
+<span class="sd">            of length).  If ``None``, then the geocenter (code 500) is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">        start : str or `~astropy.time.Time`, optional</span>
+<span class="sd">            First epoch of the ephemeris as a string (UT), or astropy</span>
+<span class="sd">            `~astropy.time.Time`.  Strings are parsed by</span>
+<span class="sd">            `~astropy.time.Time`.  If ``None``, then today is used.</span>
+<span class="sd">            Valid dates span the time period 1900 Jan 1 - 2099 Dec 31</span>
+<span class="sd">            [MPES]_.</span>
+
+<span class="sd">        step : str or `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The ephemeris step size or interval in units of days,</span>
+<span class="sd">            hours, minutes, or seconds.  Strings are parsed by</span>
+<span class="sd">            `~astropy.units.Quantity`.  All inputs are rounded to the</span>
+<span class="sd">            nearest integer.  Default is 1 day.</span>
+
+<span class="sd">        number : int, optional</span>
+<span class="sd">            The number of ephemeris dates to compute.  Must be ≤1441.</span>
+<span class="sd">            If ``None``, the value depends on the units of ``step``: 21</span>
+<span class="sd">            for days, 49 for hours, 121 for minutes, or 301 for</span>
+<span class="sd">            seconds.</span>
+
+<span class="sd">        ut_offset : int, optional</span>
+<span class="sd">            Number of hours to offset from 0 UT for daily ephemerides.</span>
+
+<span class="sd">        eph_type : str, optional</span>
+<span class="sd">            Specify the type of ephemeris::</span>
+
+<span class="sd">                equatorial: RA and Dec (default)</span>
+<span class="sd">                heliocentric: heliocentric position and velocity vectors</span>
+<span class="sd">                geocentric: geocentric position vector</span>
+
+<span class="sd">        ra_format : dict, optional</span>
+<span class="sd">            Format the RA column with</span>
+<span class="sd">            `~astropy.coordinates.Angle.to_string` using these keyword</span>
+<span class="sd">            arguments, e.g.,</span>
+<span class="sd">            ``{&#39;sep&#39;: &#39;:&#39;, &#39;unit&#39;: &#39;hourangle&#39;, &#39;precision&#39;: 1}``.</span>
+
+<span class="sd">        dec_format : dict, optional</span>
+<span class="sd">            Format the Dec column with</span>
+<span class="sd">            `~astropy.coordinates.Angle.to_string` using these keyword</span>
+<span class="sd">            arguments, e.g., ``{&#39;sep&#39;: &#39;:&#39;, &#39;precision&#39;: 0}``.</span>
+
+<span class="sd">        proper_motion : str, optional</span>
+<span class="sd">            total: total motion and direction (default)</span>
+<span class="sd">            coordinate: separate RA and Dec coordinate motion</span>
+<span class="sd">            sky: separate RA and Dec sky motion (i.e., includes a</span>
+<span class="sd">            cos(Dec) term).</span>
+
+<span class="sd">        proper_motion_unit : string or Unit, optional</span>
+<span class="sd">            Convert proper motion to this unit.  Must be an angular</span>
+<span class="sd">            rate.  Default is &#39;arcsec/h&#39;.</span>
+
+<span class="sd">        suppress_daytime : bool, optional</span>
+<span class="sd">            Suppress output when the Sun is above the local</span>
+<span class="sd">            horizon. (default ``False``)</span>
+
+<span class="sd">        suppress_set : bool, optional</span>
+<span class="sd">            Suppress output when the object is below the local</span>
+<span class="sd">            horizon. (default ``False``)</span>
+
+<span class="sd">        perturbed : bool, optional</span>
+<span class="sd">            Generate perturbed ephemerides for unperturbed orbits</span>
+<span class="sd">            (default ``True``).</span>
+
+<span class="sd">        unc_links : bool, optional</span>
+<span class="sd">            Return columns with uncertainty map and offset links, if</span>
+<span class="sd">            available.</span>
+
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            Return the HTTP request parameters as a dictionary</span>
+<span class="sd">            (default: ``False``).</span>
+
+<span class="sd">        get_raw_response : bool, optional</span>
+<span class="sd">            Return raw data without parsing into a table (default:</span>
+<span class="sd">            ``False``).</span>
+
+<span class="sd">        cache : bool, optional</span>
+<span class="sd">            Cache results or use cached results (default: ``False``).</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        See the MPES user&#39;s guide [MPES]_ for details on options and</span>
+<span class="sd">        implementation.</span>
+
+<span class="sd">        MPES allows azimuths to be measured eastwards from the north</span>
+<span class="sd">        meridian, or westwards from the south meridian.  However, the</span>
+<span class="sd">        `~astropy.coordinates.AltAz` coordinate frame assumes</span>
+<span class="sd">        eastwards of north.  To remain consistent with Astropy,</span>
+<span class="sd">        eastwards of north is used.</span>
+
+<span class="sd">        Acceptable target names [MPES]_ are listed in the tables below.</span>
+
+<span class="sd">        .. attention:: Asteroid designations in the text version of the</span>
+<span class="sd">           documentation may be prefixed with a backslash, which</span>
+<span class="sd">           should be ignored.  This is to force correct rendering of</span>
+<span class="sd">           the designation in the rendered versions of the</span>
+<span class="sd">           documentation (e.g., HTML).</span>
+
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | Target     | Description                       |</span>
+<span class="sd">        +============+===================================+</span>
+<span class="sd">        | \(3202)    | Numbered minor planet (3202)      |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | 14829      | Numbered minor planet (14829)     |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | 1997 XF11  | Unnumbered minor planet 1997 XF11 |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | 1P         | Comet 1P/Halley                   |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | C/2003 A2  | Comet C/2003 A2 (Gleason)         |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+
+<span class="sd">        For comets, P/ and C/ are interchangable.  The designation</span>
+<span class="sd">        may also be in a packed format:</span>
+
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | Target     | Description                       |</span>
+<span class="sd">        +============+===================================+</span>
+<span class="sd">        | 00233      | Numbered minor planet (233)       |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | K03A07A    | Unnumbered minor planet 2003 AA7  |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | PK03C07P   | Comet P/2003 CP7 (LINEAR-NEAT)    |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | 0039P      | Comet 39P/Oterma                  |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+
+<span class="sd">        You may also search by name:</span>
+
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | Target     | Description                       |</span>
+<span class="sd">        +============+===================================+</span>
+<span class="sd">        | Encke      | \(9134) Encke                     |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | Africa     | \(1193) Africa                    |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | Africano   | \(6391) Africano                  |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | P/Encke    | 2P/Encke                          |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | C/Encke    | 2P/Encke                          |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+<span class="sd">        | C/Gleason  | C/2003 A2 (Gleason)               |</span>
+<span class="sd">        +------------+-----------------------------------+</span>
+
+<span class="sd">        If a comet name is not unique, the first match will be</span>
+<span class="sd">        returned.</span>
+
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        .. [MPES] Williams, G. The Minor Planet Ephemeris Service.</span>
+<span class="sd">           https://minorplanetcenter.net/iau/info/MPES.pdf (retrieved</span>
+<span class="sd">           2018 June 19).</span>
+
+<span class="sd">        .. IAU Minor Planet Center.  List of Observatory codes.</span>
+<span class="sd">           https://minorplanetcenter.net/iau/lists/ObsCodesF.html</span>
+<span class="sd">           (retrieved 2018 June 19).</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.mpc import MPC</span>
+<span class="sd">        &gt;&gt;&gt; tab = astroquery.mpc.MPC.get_ephemeris(&#39;(24)&#39;, location=568,</span>
+<span class="sd">        ...            start=&#39;2003-02-26&#39;, step=&#39;100d&#39;, number=3)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(tab)  # doctest: +SKIP</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># parameter checks</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">location</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">location</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;location arrays require three values:&quot;</span>
+                        <span class="s2">&quot; longitude, latitude, and altitude&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;location must be a string, integer, array-like,&quot;</span>
+                    <span class="s2">&quot; or astropy EarthLocation&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_start</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_start</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># step must be one of these units, and must be an integer (we</span>
+        <span class="c1"># will convert to an integer later).  MPES fails for large</span>
+        <span class="c1"># integers, so we cannot just convert everything to seconds.</span>
+        <span class="n">_step</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_step</span><span class="o">.</span><span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;step must have units of days, hours, minutes, or seconds.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">number</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">1441</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;number must be &lt;=1441&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">eph_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ephemeris_types</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;eph_type must be one of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ephemeris_types</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="n">proper_motion</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proper_motions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;proper_motion must be one of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_proper_motions</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">proper_motion_unit</span><span class="p">)</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="s1">&#39;rad/s&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;proper_motion_unit must be an angular rate.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># setup payload</span>
+        <span class="n">request_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_ephemeris_payload</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">ut_offset</span><span class="o">=</span><span class="n">ut_offset</span><span class="p">,</span> <span class="n">suppress_daytime</span><span class="o">=</span><span class="n">suppress_daytime</span><span class="p">,</span>
+            <span class="n">suppress_set</span><span class="o">=</span><span class="n">suppress_set</span><span class="p">,</span> <span class="n">perturbed</span><span class="o">=</span><span class="n">perturbed</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">_start</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">_step</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">eph_type</span><span class="o">=</span><span class="n">eph_type</span><span class="p">,</span>
+            <span class="n">proper_motion</span><span class="o">=</span><span class="n">proper_motion</span><span class="p">)</span>
+
+        <span class="c1"># store for retrieval in _parse_result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ra_format</span> <span class="o">=</span> <span class="n">ra_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dec_format</span> <span class="o">=</span> <span class="n">dec_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proper_motion_unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">proper_motion_unit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unc_links</span> <span class="o">=</span> <span class="n">unc_links</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_args</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;ephemeris&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MPES_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="MPCClass.get_observatory_codes_async">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_observatory_codes_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">get_observatory_codes_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Table of observatory codes from the IAU Minor Planet Center.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        get_raw_response : bool, optional</span>
+<span class="sd">            Return raw data without parsing into a table (default:</span>
+<span class="sd">            `False`).</span>
+
+<span class="sd">        cache : bool, optional</span>
+<span class="sd">            Cache results or use cached results (default: `True`).</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. IAU Minor Planet Center.  List of Observatory codes.</span>
+<span class="sd">           https://minorplanetcenter.net/iau/lists/ObsCodesF.html</span>
+<span class="sd">           (retrieved 2018 June 19).</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.mpc import MPC</span>
+<span class="sd">        &gt;&gt;&gt; obs = MPC.get_observatory_codes()  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(obs[295])  # doctest: +SKIP</span>
+<span class="sd">        Code Longitude   cos       sin         Name</span>
+<span class="sd">        ---- --------- -------- --------- -------------</span>
+<span class="sd">        309 289.59569 0.909943 -0.414336 Cerro Paranal</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;observatory_code&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OBSERVATORY_CODES_URL</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="MPCClass.get_observatory_location">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_observatory_location">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">get_observatory_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        IAU observatory location.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        code : string</span>
+<span class="sd">            Three-character IAU observatory code.</span>
+
+<span class="sd">        cache : bool, optional</span>
+<span class="sd">            Cache observatory table or use cached results (default:</span>
+<span class="sd">            `True`).</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        longitude : Angle</span>
+<span class="sd">            Observatory longitude (east of Greenwich).</span>
+
+<span class="sd">        cos : float</span>
+<span class="sd">            Parallax constant ``rho * cos(phi)`` where ``rho`` is the</span>
+<span class="sd">            geocentric distance in earth radii, and ``phi`` is the</span>
+<span class="sd">            geocentric latitude.</span>
+
+<span class="sd">        sin : float</span>
+<span class="sd">            Parallax constant ``rho * sin(phi)``.</span>
+
+<span class="sd">        name : string</span>
+<span class="sd">            The name of the observatory.</span>
+
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If `code` is not found in the MPC table.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.mpc import MPC</span>
+<span class="sd">        &gt;&gt;&gt; obs = MPC.get_observatory_location(&#39;000&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(obs)  # doctest: +SKIP</span>
+<span class="sd">        (&lt;Angle 0. deg&gt;, 0.62411, 0.77873, &#39;Greenwich&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;code must be a string&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;code must be three charaters long&#39;</span><span class="p">)</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_observatory_codes</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tab</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">code</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Angle</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">code</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_args_to_object_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">request_args</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">return_fields</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;return_fields&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_fields</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">return_fields</span>
+
+        <span class="k">return</span> <span class="n">request_args</span>
+
+    <span class="k">def</span> <span class="nf">_args_to_ephemeris_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">request_args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ty&#39;</span><span class="p">:</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;TextArea&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;uto&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ut_offset&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;igd&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;suppress_daytime&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ibh&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;suppress_set&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;fp&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;perturbed&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;adir&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span>  <span class="c1"># always measure azimuth eastward from north</span>
+            <span class="s1">&#39;tit&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>  <span class="c1"># dummy page title</span>
+            <span class="s1">&#39;bu&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># dummy base URL</span>
+        <span class="p">}</span>
+
+        <span class="n">location</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">):</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">geodetic</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;long&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;alt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;long&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;alt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_start</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">_start</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># integer seconds</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_start</span><span class="o">.</span><span class="n">iso</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_start</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">precision</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;utc&#39;</span><span class="p">)</span>  <span class="c1"># integer seconds</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_start</span><span class="o">.</span><span class="n">iso</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)))</span>
+        <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_number_of_steps</span><span class="p">[</span>
+                <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span>
+
+        <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;raty&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ephemeris_types</span><span class="p">[</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eph_type&#39;</span><span class="p">]]</span>
+        <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proper_motions</span><span class="p">[</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;proper_motion&#39;</span><span class="p">]]</span>
+        <span class="n">request_args</span><span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>  <span class="c1"># always return proper_motion as arcsec/hr</span>
+
+        <span class="k">return</span> <span class="n">request_args</span>
+
+<div class="viewcode-block" id="MPCClass.get_observations_async">
+<a class="viewcode-back" href="../../../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_observations_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">get_observations_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetid</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                               <span class="n">id_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">comettype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">get_mpcformat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain all reported observations for an asteroid or a comet</span>
+<span class="sd">        from the `Minor Planet Center observations database</span>
+<span class="sd">        &lt;https://minorplanetcenter.net/db_search&gt;`_.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targetid : int or str</span>
+<span class="sd">            Official target number or</span>
+<span class="sd">            designation. If a number is provided (either as int or</span>
+<span class="sd">            str), the input is interpreted as an asteroid number;</span>
+<span class="sd">            asteroid designations are interpreted as such (note that a</span>
+<span class="sd">            whitespace between the year and the remainder of the</span>
+<span class="sd">            designation is required and no packed designations are</span>
+<span class="sd">            allowed). To query a periodic comet number, you have to</span>
+<span class="sd">            append ``&#39;P&#39;``, e.g., ``&#39;234P&#39;``. To query any comet</span>
+<span class="sd">            designation, the designation has to start with a letter</span>
+<span class="sd">            describing the comet type and a slash, e.g., ``&#39;C/2018 E1&#39;``.</span>
+<span class="sd">            Comet or asteroid names, Palomar-Leiden Survey</span>
+<span class="sd">            designations, and individual comet fragments cannot be</span>
+<span class="sd">            queried.</span>
+
+<span class="sd">        id_type : str, optional</span>
+<span class="sd">            Manual override for identifier type. If ``None``, the</span>
+<span class="sd">            identifier type is derived by parsing ``targetid``; if this</span>
+<span class="sd">            automated classification fails, it can be set manually using</span>
+<span class="sd">            this parameter. Possible values are ``&#39;asteroid number&#39;``,</span>
+<span class="sd">            ``&#39;asteroid designation&#39;``, ``&#39;comet number&#39;``, and</span>
+<span class="sd">            ``&#39;comet designation&#39;``. Default: ``None``</span>
+
+<span class="sd">        get_mpcformat : bool, optional</span>
+<span class="sd">            If ``True``, this method will return an `~astropy.table.QTable`</span>
+<span class="sd">            with only a single column holding the original MPC 80-column</span>
+<span class="sd">            observation format. Default: ``False``</span>
+
+<span class="sd">        get_raw_response : bool, optional</span>
+<span class="sd">            If ``True``, this method will return the raw output from the</span>
+<span class="sd">            MPC servers (json). Default: ``False``</span>
+
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            Return the HTTP request parameters as a dictionary</span>
+<span class="sd">            (default: ``False``).</span>
+
+<span class="sd">        cache : bool, optional</span>
+<span class="sd">            If ``True``, queries will be cached. Default: ``True``</span>
+
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If query did not return any data.</span>
+
+<span class="sd">        ValueError</span>
+<span class="sd">            If target name could not be parsed properly and target type</span>
+<span class="sd">            could not be identified.</span>
+
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The following quantities are included in the output table</span>
+
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | Column Name       | Definition                                 |</span>
+<span class="sd">        +===================+============================================+</span>
+<span class="sd">        | ``number``        | official IAU target number (int)           |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``desig``         | provisional target designation (str)       |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``discovery`` (*) | target discovery flag (str)                |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``comettype`` (*) | orbital type of comet (str)                |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``note1`` (#)     | Note1 (str)                                |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``note2`` (#)     | Note2 (str)                                |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``epoch``         | epoch of observation (Julian Date, float)  |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``RA``            | RA reported (J2000, deg, float)            |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``DEC``           | declination reported (J2000, deg, float)   |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``mag``           | reported magnitude (mag, float)            |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``band`` (*)      | photometric band for ``mag`` (str)         |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``phottype`` (*)  | comet photometry type (nuclear/total, str) |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+<span class="sd">        | ``observatory``   | IAU observatory code (str)                 |</span>
+<span class="sd">        +-------------------+--------------------------------------------+</span>
+
+<span class="sd">        (*): Column names are optional and</span>
+<span class="sd">        depend on whether an asteroid or a comet has been queried.</span>
+
+<span class="sd">        (#): Parameters ``Note1`` and ``Note2`` are defined `here</span>
+<span class="sd">        &lt;https://minorplanetcenter.net/iau/info/OpticalObs.html&gt;`_.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.mpc import MPC</span>
+<span class="sd">        &gt;&gt;&gt; MPC.get_observations(12893)  # doctest: +SKIP</span>
+<span class="sd">        &lt;QTable masked=True length=1401&gt;</span>
+<span class="sd">        number   desig   discovery note1 ...   mag   band observatory</span>
+<span class="sd">                                         ...   mag</span>
+<span class="sd">        int64     str9      str1    str1 ... float64 str1     str3</span>
+<span class="sd">        ------ --------- --------- ----- ... ------- ---- -----------</span>
+<span class="sd">         12893 1998 QS55        --    -- ...     0.0   --         413</span>
+<span class="sd">         12893 1998 QS55        --    -- ...     0.0   --         413</span>
+<span class="sd">         12893 1998 QS55         *     4 ...     0.0   --         809</span>
+<span class="sd">         12893 1998 QS55        --     4 ...     0.0   --         809</span>
+<span class="sd">         12893 1998 QS55        --     4 ...     0.0   --         809</span>
+<span class="sd">         12893 1998 QS55        --     4 ...    18.4   --         809</span>
+<span class="sd">           ...       ...       ...   ... ...     ...  ...         ...</span>
+<span class="sd">         12893 1998 QS55        --    -- ...   18.63    c         T05</span>
+<span class="sd">         12893 1998 QS55        --    -- ...   18.55    c         T05</span>
+<span class="sd">         12893 1998 QS55        --    -- ...    18.3    r         I41</span>
+<span class="sd">         12893 1998 QS55        --    -- ...    18.3    r         I41</span>
+<span class="sd">         12893 1998 QS55        --    -- ...    18.2    r         I41</span>
+<span class="sd">         12893 1998 QS55        --    -- ...    18.3    r         I41</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;table&#39;</span><span class="p">:</span> <span class="s1">&#39;observations&#39;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">id_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">pat</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;(^[0-9]*$)|&#39;</span>  <span class="c1"># [0] asteroid number</span>
+                   <span class="s1">&#39;(^[0-9]{1,3}[PIA]$)&#39;</span>  <span class="c1"># [1] periodic comet number</span>
+                   <span class="s1">&#39;(-[1-9A-Z]{0,2})?$|&#39;</span>  <span class="c1"># [2] fragment</span>
+                   <span class="s1">&#39;(^[PDCXAI]/[- 0-9A-Za-z]*)&#39;</span>
+                   <span class="c1"># [3] comet designation</span>
+                   <span class="s1">&#39;(-[1-9A-Z]{0,2})?$|&#39;</span>  <span class="c1"># [4] fragment</span>
+                   <span class="s1">&#39;(^([1A][8-9][0-9]</span><span class="si">{2}</span><span class="s1">[ _][A-Z]</span><span class="si">{2}</span><span class="s1">[0-9]{0,3}$|&#39;</span>
+                   <span class="s1">&#39;^20[0-9]</span><span class="si">{2}</span><span class="s1">[ _][A-Z]</span><span class="si">{2}</span><span class="s1">[0-9]{0,3}$)|&#39;</span>
+                   <span class="s1">&#39;(^[1-9][0-9]</span><span class="si">{3}</span><span class="s1">[ _](P-L|T-[1-3]))$)&#39;</span>
+                   <span class="c1"># asteroid designation [5] (old/new/Palomar-Leiden style)</span>
+                   <span class="p">)</span>
+
+            <span class="c1"># comet fragments are extracted here, but the MPC server does</span>
+            <span class="c1"># not allow for fragment-based queries</span>
+
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pat</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">targetid</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Cannot interpret target &#39;</span>
+                                  <span class="s1">&#39;identifier &quot;</span><span class="si">{}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">targetid</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;M&#39;</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># asteroid number</span>
+            <span class="k">elif</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># per.  comet number</span>
+            <span class="k">elif</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># comet designation</span>
+            <span class="k">elif</span> <span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>  <span class="c1"># ast. designation</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;asteroid&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;M&#39;</span>
+                <span class="k">if</span> <span class="s1">&#39;number&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">targetid</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s1">&#39;designation&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targetid</span>
+            <span class="k">if</span> <span class="s1">&#39;comet&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                <span class="n">pat</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;(^[0-9]{1,3}[PIA])|&#39;</span>  <span class="c1"># [0] number</span>
+                       <span class="s1">&#39;(^[PDCXAI]/[- 0-9A-Za-z]*)&#39;</span>  <span class="c1"># [1] designation</span>
+                       <span class="p">)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pat</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">targetid</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Cannot parse comet type &#39;</span>
+                                      <span class="s1">&#39;from &quot;</span><span class="si">{}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">targetid</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s1">&#39;number&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targetid</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="s1">&#39;designation&#39;</span> <span class="ow">in</span> <span class="n">id_type</span><span class="p">:</span>
+                    <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targetid</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;observations&#39;</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MPCOBS_URL</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MPC_USERNAME</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">MPC_PASSWORD</span><span class="p">),</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_mpcformat</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obsformat</span> <span class="o">=</span> <span class="s1">&#39;mpc&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obsformat</span> <span class="o">=</span> <span class="s1">&#39;table&#39;</span>
+
+        <span class="k">if</span> <span class="n">get_raw_response</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_response</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_response</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;observatory_code&#39;</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+            <span class="n">text_table</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">text_table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;000&#39;</span><span class="p">)</span>
+            <span class="n">text_table</span> <span class="o">=</span> <span class="n">text_table</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span>
+
+            <span class="c1"># parse table ourselves to make sure the code column is a</span>
+            <span class="c1"># string and that blank cells are masked</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text_table</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                <span class="n">lon</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+
+                <span class="n">c</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">21</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+                <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">line</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">lon</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">line</span><span class="p">[</span><span class="mi">30</span><span class="p">:]))</span>
+
+            <span class="n">tab</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+                        <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Code&#39;</span><span class="p">,</span> <span class="s1">&#39;Longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;cos&#39;</span><span class="p">,</span> <span class="s1">&#39;sin&#39;</span><span class="p">,</span> <span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                        <span class="n">masked</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;Longitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;Longitude&#39;</span><span class="p">])</span>
+            <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;cos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;cos&#39;</span><span class="p">])</span>
+            <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;sin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;sin&#39;</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">tab</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;ephemeris&#39;</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+            <span class="n">table_start</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;&lt;pre&gt;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">table_start</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">table_end</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;&lt;/pre&gt;&#39;</span><span class="p">)</span>
+            <span class="n">text_table</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">table_start</span> <span class="o">+</span> <span class="mi">5</span><span class="p">:</span><span class="n">table_end</span><span class="p">]</span>
+
+            <span class="n">SKY</span> <span class="o">=</span> <span class="s1">&#39;raty=a&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span>
+            <span class="n">HELIOCENTRIC</span> <span class="o">=</span> <span class="s1">&#39;raty=s&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span>
+            <span class="n">GEOCENTRIC</span> <span class="o">=</span> <span class="s1">&#39;raty=G&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span>
+
+            <span class="c1"># columns = &#39;\n&#39;.join(text_table.splitlines()[:2])</span>
+            <span class="c1"># find column headings</span>
+            <span class="k">if</span> <span class="n">SKY</span><span class="p">:</span>
+                <span class="c1"># slurp to newline after &quot;h m s&quot;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">text_table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">text_table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;h m s&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">text_table</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">data_start</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># slurp to newline after &quot;JD_TT&quot;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">text_table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">text_table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;JD_TT&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">text_table</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">data_start</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="n">first_row</span> <span class="o">=</span> <span class="n">text_table</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="n">data_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">SKY</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">,</span> <span class="s1">&#39;Delta&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;Elongation&#39;</span><span class="p">,</span> <span class="s1">&#39;Phase&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">)</span>
+                <span class="n">col_starts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">69</span><span class="p">)</span>
+                <span class="n">col_ends</span> <span class="o">=</span> <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">72</span><span class="p">)</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="s1">&#39;s=t&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>    <span class="c1"># total motion</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;Proper motion&#39;</span><span class="p">,</span> <span class="s1">&#39;Direction&#39;</span><span class="p">)</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;arcsec/h&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s1">&#39;s=c&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>  <span class="c1"># coord Motion</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;dRA&#39;</span><span class="p">,</span> <span class="s1">&#39;dDec&#39;</span><span class="p">)</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;arcsec/h&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/h&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s1">&#39;s=s&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>  <span class="c1"># sky Motion</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;dRA cos(Dec)&#39;</span><span class="p">,</span> <span class="s1">&#39;dDec&#39;</span><span class="p">)</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;arcsec/h&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/h&#39;</span><span class="p">)</span>
+                <span class="n">col_starts</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">73</span><span class="p">,</span> <span class="mi">81</span><span class="p">)</span>
+                <span class="n">col_ends</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">89</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="s1">&#39;Moon&#39;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                    <span class="c1"># table includes Alt, Az, Sun and Moon geometry</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;Azimuth&#39;</span><span class="p">,</span> <span class="s1">&#39;Altitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Sun altitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Moon phase&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;Moon distance&#39;</span><span class="p">,</span> <span class="s1">&#39;Moon altitude&#39;</span><span class="p">)</span>
+                    <span class="n">col_starts</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">col_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span> <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span>
+                                         <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">33</span><span class="p">)))</span>
+                    <span class="n">col_ends</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">col_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span> <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span>
+                                       <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">37</span><span class="p">)))</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;Uncertainty&#39;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;Uncertainty 3sig&#39;</span><span class="p">,</span> <span class="s1">&#39;Unc. P.A.&#39;</span><span class="p">)</span>
+                    <span class="n">col_starts</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">col_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span> <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span>
+                                         <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)))</span>
+                    <span class="n">col_ends</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">col_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span> <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span>
+                                       <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">16</span><span class="p">)))</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;arcsec&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;&gt;Map&lt;/a&gt;&quot;</span> <span class="ow">in</span> <span class="n">first_row</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unc_links</span><span class="p">:</span>
+                    <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;Unc. map&#39;</span><span class="p">,</span> <span class="s1">&#39;Unc. offsets&#39;</span><span class="p">)</span>
+                    <span class="n">col_starts</span> <span class="o">+=</span> <span class="p">(</span><span class="n">first_row</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39; / &lt;a&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="p">)</span>
+                    <span class="n">col_starts</span> <span class="o">+=</span> <span class="p">(</span>
+                        <span class="n">first_row</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39; / &lt;a&#39;</span><span class="p">,</span> <span class="n">col_starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="p">)</span>
+                    <span class="c1"># Unc. offsets is always last</span>
+                    <span class="n">col_ends</span> <span class="o">+=</span> <span class="p">(</span><span class="n">col_starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span><span class="p">,</span>
+                                 <span class="n">first_row</span><span class="o">.</span><span class="n">rindex</span><span class="p">(</span><span class="s1">&#39;&lt;/a&gt;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+                    <span class="n">units</span> <span class="o">+=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">HELIOCENTRIC</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Object&#39;</span><span class="p">,</span> <span class="s1">&#39;JD&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s2">&quot;X&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&#39;&quot;</span><span class="p">)</span>
+                <span class="n">col_starts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">108</span><span class="p">)</span>
+                <span class="n">col_ends</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au/d&#39;</span><span class="p">,</span> <span class="s1">&#39;au/d&#39;</span><span class="p">,</span> <span class="s1">&#39;au/d&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">GEOCENTRIC</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Object&#39;</span><span class="p">,</span> <span class="s1">&#39;JD&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+                <span class="n">col_starts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">61</span><span class="p">)</span>
+                <span class="n">col_ends</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">)</span>
+
+            <span class="n">tab</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">text_table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width_no_header&#39;</span><span class="p">,</span>
+                             <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">col_starts</span><span class="o">=</span><span class="n">col_starts</span><span class="p">,</span>
+                             <span class="n">col_ends</span><span class="o">=</span><span class="n">col_ends</span><span class="p">,</span> <span class="n">data_start</span><span class="o">=</span><span class="n">data_start</span><span class="p">,</span>
+                             <span class="n">fill_values</span><span class="o">=</span><span class="p">((</span><span class="s1">&#39;N/A&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),),</span> <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">unit</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+                <span class="n">tab</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
+
+            <span class="c1"># Time for dates, Angle for RA and Dec; convert columns at user&#39;s request</span>
+            <span class="k">if</span> <span class="n">SKY</span><span class="p">:</span>
+                <span class="c1"># convert from MPES string to Time, MPES uses UT timescale</span>
+                <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">d</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">10</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">11</span><span class="p">:</span><span class="mi">13</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">15</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]],</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;utc&#39;</span><span class="p">)</span>
+
+                <span class="c1"># convert from MPES string:</span>
+                <span class="n">ra</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;hourangle&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+                <span class="n">dec</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;Dec&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+
+                <span class="c1"># optionally convert back to a string</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ra_unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra_format</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="n">ra</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                    <span class="n">ra</span> <span class="o">=</span> <span class="n">ra</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_format</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ra_unit</span> <span class="o">=</span> <span class="n">ra</span><span class="o">.</span><span class="n">unit</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dec_unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec_format</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="n">dec</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                    <span class="n">dec</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_dec_format</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dec_unit</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">unit</span>
+
+                <span class="c1"># replace columns</span>
+                <span class="n">tab</span><span class="o">.</span><span class="n">remove_columns</span><span class="p">((</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">))</span>
+                <span class="n">tab</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">ra_unit</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">tab</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="n">dec</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Dec&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">dec_unit</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="c1"># convert proper motion columns</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Proper motion&#39;</span><span class="p">,</span> <span class="s1">&#39;dRA&#39;</span><span class="p">,</span> <span class="s1">&#39;dRA cos(Dec)&#39;</span><span class="p">,</span> <span class="s1">&#39;dDec&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">tab</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+                        <span class="n">tab</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">convert_unit_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proper_motion_unit</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># convert from MPES string to Time</span>
+                <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;JD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;JD&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;tt&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">tab</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;observations&#39;</span><span class="p">:</span>
+
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">ErfaWarning</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">src</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;Server response not readable: &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EmptyResponseError</span><span class="p">((</span><span class="s1">&#39;No data queried. Are the target &#39;</span>
+                                          <span class="s1">&#39;identifiers correct?  Is the MPC &#39;</span>
+                                          <span class="s1">&#39;database search working for your &#39;</span>
+                                          <span class="s1">&#39;object? The service is hosted at &#39;</span>
+                                          <span class="s1">&#39;https://www.minorplanetcenter.net/&#39;</span>
+                                          <span class="s1">&#39;search_db&#39;</span><span class="p">))</span>
+
+            <span class="c1"># return raw response if requested</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_response</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">src</span>
+
+            <span class="c1"># return raw 80-column observation format if requested</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsformat</span> <span class="o">==</span> <span class="s1">&#39;mpc&#39;</span><span class="p">:</span>
+                <span class="n">tab</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;original_record&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">]])</span>
+                <span class="n">tab</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s1">&#39;col0&#39;</span><span class="p">,</span> <span class="s1">&#39;obs&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">tab</span>
+
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;M&#39;</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">]):</span>
+                <span class="c1"># minor planets (asteroids)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;original_record&#39;</span><span class="p">]</span>
+                                             <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">]),</span>
+                                  <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width_no_header&#39;</span><span class="p">,</span>
+                                  <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;pdesig&#39;</span><span class="p">,</span> <span class="s1">&#39;discovery&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;note1&#39;</span><span class="p">,</span> <span class="s1">&#39;note2&#39;</span><span class="p">,</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">,</span> <span class="s1">&#39;band&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;observatory&#39;</span><span class="p">),</span>
+                                  <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+                                              <span class="mi">32</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">77</span><span class="p">),</span>
+                                  <span class="n">col_ends</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+                                            <span class="mi">43</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">79</span><span class="p">),</span>
+                                  <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># convert asteroid designations</span>
+                <span class="c1"># old designation style, e.g.: 1989AB</span>
+                <span class="n">ident</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;pdesig&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ident</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ident</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ident</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">ident</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+                        <span class="ow">and</span> <span class="n">ident</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()):</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
+                <span class="c1"># Palomar Survey</span>
+                <span class="k">elif</span> <span class="s1">&#39;PLS&#39;</span> <span class="ow">in</span> <span class="n">ident</span><span class="p">:</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">+</span> <span class="s2">&quot; P-L&quot;</span>
+                <span class="c1"># Trojan Surveys</span>
+                <span class="k">elif</span> <span class="s1">&#39;T1S&#39;</span> <span class="ow">in</span> <span class="n">ident</span><span class="p">:</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">+</span> <span class="s2">&quot; T-1&quot;</span>
+                <span class="k">elif</span> <span class="s1">&#39;T2S&#39;</span> <span class="ow">in</span> <span class="n">ident</span><span class="p">:</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">+</span> <span class="s2">&quot; T-2&quot;</span>
+                <span class="k">elif</span> <span class="s1">&#39;T3S&#39;</span> <span class="ow">in</span> <span class="n">ident</span><span class="p">:</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">+</span> <span class="s2">&quot; T-3&quot;</span>
+                <span class="c1"># standard MPC packed 7-digit designation</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()</span> <span class="ow">and</span> <span class="n">ident</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+                      <span class="ow">and</span> <span class="n">ident</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()</span> <span class="ow">and</span> <span class="n">ident</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()):</span>
+                    <span class="n">yr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">pkd</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">let</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">num</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">pkd</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+                    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">yr</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">+</span><span class="n">let</span><span class="o">+</span><span class="n">num</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">ident</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;desig&#39;</span><span class="p">),</span>
+                                <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">remove_column</span><span class="p">(</span><span class="s1">&#39;pdesig&#39;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;M&#39;</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">]):</span>
+                <span class="c1"># comets</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;original_record&#39;</span><span class="p">]</span>
+                                             <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">]),</span>
+                                  <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width_no_header&#39;</span><span class="p">,</span>
+                                  <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;comettype&#39;</span><span class="p">,</span> <span class="s1">&#39;desig&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;note1&#39;</span><span class="p">,</span> <span class="s1">&#39;note2&#39;</span><span class="p">,</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">,</span> <span class="s1">&#39;phottype&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;observatory&#39;</span><span class="p">),</span>
+                                  <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+                                              <span class="mi">32</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">77</span><span class="p">),</span>
+                                  <span class="n">col_ends</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+                                            <span class="mi">43</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">79</span><span class="p">),</span>
+                                  <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># convert comet designations</span>
+                <span class="n">ident</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;desig&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ident</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">,</span>
+                                           <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">MaskedConstant</span><span class="p">))</span>
+                        <span class="ow">or</span> <span class="ow">not</span> <span class="n">ident</span><span class="o">.</span><span class="n">mask</span><span class="p">):</span>
+                    <span class="n">yr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">pkd</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">let</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="c1"># patch to parse asteroid designations</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ident</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span> <span class="ow">and</span> <span class="nb">str</span><span class="o">.</span><span class="n">isalpha</span><span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">6</span><span class="p">]):</span>
+                        <span class="n">let</span> <span class="o">+=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+                        <span class="n">ident</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">ident</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span>
+                    <span class="n">num</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">pkd</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ident</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span><span class="o">+</span><span class="n">ident</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+                    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ident</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+                        <span class="n">frag</span> <span class="o">=</span> <span class="n">ident</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="k">if</span> <span class="n">ident</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;0&#39;</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">frag</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                    <span class="n">ident</span> <span class="o">=</span> <span class="n">yr</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">+</span><span class="n">let</span><span class="o">+</span><span class="n">num</span><span class="o">+</span><span class="n">frag</span>
+                    <span class="c1"># remove and add desig column to overcome length limit</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">remove_column</span><span class="p">(</span><span class="s1">&#39;desig&#39;</span><span class="p">)</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">ident</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                           <span class="n">name</span><span class="o">=</span><span class="s1">&#39;desig&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Object type is ambiguous. &quot;</span><span class="si">{}</span><span class="s1">&quot; &#39;</span>
+                                  <span class="s1">&#39;are present.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                      <span class="nb">set</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">src</span><span class="p">])))</span>
+
+            <span class="c1"># convert dates to Julian Dates</span>
+            <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]]</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">10</span><span class="p">:])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]])</span>
+            <span class="n">jds</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">jd</span><span class="o">+</span><span class="n">times</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jds</span>
+
+            <span class="c1"># convert ra and dec to degrees</span>
+            <span class="n">coo</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">],</span> <span class="n">dec</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">],</span>
+                           <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+                           <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coo</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coo</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="c1"># convert Table to QTable</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">d</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="c1"># Masked quantities are not supported in older astropy, warnings are raised for &lt;v5.0</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;dropping mask in Quantity column&#39;</span><span class="p">,</span>
+                                    <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">mag</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<span class="n">MPC</span> <span class="o">=</span> <span class="n">MPCClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

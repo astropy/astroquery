@@ -1,0 +1,6 @@
+get_remote_catalog_db
+=====================
+
+.. currentmodule:: astroquery.vo_conesearch.vos_catalog
+
+.. autofunction:: get_remote_catalog_db

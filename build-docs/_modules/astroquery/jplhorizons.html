@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.jplhorizons &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.jplhorizons</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">JPLHorizons</span>
+<span class="sd">-----------</span>
+
+<span class="sd">:author: Michael Mommert (mommermiscience@gmail.com)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">_config</span>
+
+
+<div class="viewcode-block" id="Conf">
+<a class="viewcode-back" href="../../api/astroquery.jplhorizons.Conf.html#astroquery.jplhorizons.Conf">[docs]</a>
+<span class="k">class</span> <span class="nc">Conf</span><span class="p">(</span><span class="n">_config</span><span class="o">.</span><span class="n">ConfigNamespace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration parameters for `astroquery.jplhorizons`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># server settings</span>
+    <span class="n">horizons_server</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">ConfigItem</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;https://ssd.jpl.nasa.gov/api/horizons.api&#39;</span><span class="p">,</span> <span class="p">],</span>
+        <span class="s1">&#39;JPL Horizons&#39;</span><span class="p">)</span>
+
+    <span class="n">timeout</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">ConfigItem</span><span class="p">(</span>
+        <span class="mi">30</span><span class="p">,</span>
+        <span class="s1">&#39;Time limit for connecting to JPL servers.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># JPL Horizons settings</span>
+
+    <span class="c1"># quantities queried in ephemerides query (see</span>
+    <span class="c1"># https://ssd.jpl.nasa.gov/horizons/manual.html#output)</span>
+    <span class="n">eph_quantities</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,&#39;</span>
+                      <span class="s1">&#39;21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,&#39;</span>
+                      <span class="s1">&#39;38,39,40,41,42,43&#39;</span><span class="p">)</span>
+
+    <span class="c1"># provide column names and units for each queried quantity for different</span>
+    <span class="c1"># query modes</span>
+    <span class="n">eph_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;targetname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;targetname&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Date__(UT)__HR:MN&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Date__(UT)__HR:MN:SS&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Date__(UT)__HR:MN:SC.fff&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Date_________JDUT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_jd&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;M1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M1&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;M2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M2&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k1&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k2&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;phasecoeff&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;phasecoeff&#39;</span><span class="p">,</span> <span class="s1">&#39;mag/deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;solar_presence&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;solar_presence&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;lunar_presence&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lunar_presence&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;interfering_body&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;interfering_body&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;illumination_flag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;illumination_flag&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;nearside_flag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nearside_flag&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(ICRF)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(ICRF)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A.___(ICRF)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC____(ICRF)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(ICRF/J2000.0)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(ICRF/J2000.0)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(FK4/B1950.0)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(FK4/B1950.0)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(FK4/B1950)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(FK4/B1950)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RA_(ICRF-a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_ICRF_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># both *_app and *_ICRF_app may be present</span>
+                   <span class="s1">&#39;DEC_(ICRF-a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_ICRF_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A.__(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC___(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;R.A._(r-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_(r-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_app&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;dRA*cosD&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;d(DEC)/dt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;I_dRA*cosD&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_ICRF_rate_app&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;I_d(DEC)/dt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_ICRF_rate_app&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Azi_(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;AZ&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Elev_(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EL&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Azimuth_(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;AZ&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Elevation_(a-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EL&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Azi_(r-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;AZ&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Elev_(r-app)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EL&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;dAZ*cosE&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;AZ_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;d(ELV)/dt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EL_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;X_(sat-prim)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_X&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Y_(sat-prim)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SatPANG&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_PANG&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;L_Ap_Sid_Time&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;siderealtime&#39;</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">),</span>
+                   <span class="s1">&#39;a-mass&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;airmass&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;mag_ex&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;magextinct&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;APmag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;T-mag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Tmag&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;N-mag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Nmag&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;S-brt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;surfbright&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;mag/arcsec**2&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Illu%&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;illumination&#39;</span><span class="p">,</span> <span class="s1">&#39;percent&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Def_illu&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;illum_defect&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;ang-sep&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_sep&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_vis&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;vis.&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_vis&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Ang-diam&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ang_width&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;ObsSub-LON&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;ObsSub-LAT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SunSub-LON&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SunSub-LAT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Ob-lon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Ob-lat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Sl-lon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Sl-lat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Obsrv-lon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Obsrv-lat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDObsLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Solar-lon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;Solar-lat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PDSunLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>  <span class="c1"># deprecated</span>
+                   <span class="s1">&#39;SN.ang&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;SubSol_ang&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SN.dist&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;SubSol_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;NP.ang&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;NPole_ang&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;NP.dist&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;NPole_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;hEcl-Lon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EclLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;hEcl-Lat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;EclLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;rdot&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;r_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;km/second&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;delta&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;delta&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;deldot&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;delta_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;km/second&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;1-way_LT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lighttime&#39;</span><span class="p">,</span> <span class="s1">&#39;minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;1-way_down_LT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lighttime&#39;</span><span class="p">,</span> <span class="s1">&#39;minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;VmagSn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;vel_sun&#39;</span><span class="p">,</span> <span class="s1">&#39;km/s&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;VmagOb&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;vel_obs&#39;</span><span class="p">,</span> <span class="s1">&#39;km/s&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;S-O-T&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;elong&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;/r&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;elongFlag&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;S-T-O&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;T-O-M&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lunar_elong&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;T-O-I&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;IB_elong&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;MN_Illu%&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lunar_illum&#39;</span><span class="p">,</span> <span class="s1">&#39;percent&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;IB_Illu%&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;IB_illum&#39;</span><span class="p">,</span> <span class="s1">&#39;percent&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;O-P-T&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sat_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;PlAng&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;OrbPlaneAng&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;PsAng&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sunTargetPA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;PsAMV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;velocityPA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Cnst&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;constellation&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;TDB-UT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;TDB-UT&#39;</span><span class="p">,</span> <span class="s1">&#39;second&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;ObsEcLon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ObsEclLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;ObsEcLat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ObsEclLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;r-ObsEcLon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ObsEclLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;r-ObsEcLat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ObsEclLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;N.Pole-RA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;NPole_RA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;N.Pole-DC&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;NPole_DEC&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;GlxLon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;GlxLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;GlxLat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;GlxLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;L_Ap_SOL_Time&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;solartime&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;399_ins_LT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;earth_lighttime&#39;</span><span class="p">,</span> <span class="s1">&#39;minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RA_3sigma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RA_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DEC_3sigma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEC_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SMAA_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;SMAA_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;SMIA_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;SMIA_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Theta&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Theta_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Area_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Area_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec^2&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;POS_3sigma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RSS_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RNG_3sigma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;r_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;km&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RNGRT_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;r_rate_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;km/s&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DOP_S_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;SBand_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Hz&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;DOP_X_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;XBand_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Hz&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RT_delay_3sig&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DoppDelay_3sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;second&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Tru_Anom&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;true_anom&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;r-L_Ap_Hour_Ang&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;hour_angle&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;L_Ap_Hour_Ang&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;hour_angle&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;phi&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;alpha_true&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;PAB-LON&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PABLon&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;PAB-LAT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;PABLat&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;App_Lon_Sun&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;App_Lon_Sun&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Sky_motion&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Sky_motion&#39;</span><span class="p">,</span> <span class="s1">&#39;arcsec/minute&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Sky_mot_PA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Sky_mot_PA&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RelVel-ANG&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;RelVel-ANG&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Lun_Sky_Brt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Lun_Sky_Brt&#39;</span><span class="p">,</span> <span class="s1">&#39;mag/arcsec2&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;sky_SNR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;sky_SNR&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="p">}</span>
+
+    <span class="n">elem_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;targetname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;targetname&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;JDTDB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_jd&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Calendar Date (TDB)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;M1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M1&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;M2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M2&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k1&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k2&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;phasecoeff&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;phasecoeff&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;mag/deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;EC&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;QR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;IN&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;incl&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;OM&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Omega&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Tp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Tp_jd&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;deg/day&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;MA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;TA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;AD&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;PR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">)}</span>
+
+    <span class="n">vec_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;targetname&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;targetname&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;JDTDB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_jd&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Calendar Date (TDB)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;delta-T&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;delta_T&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;M1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M1&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;M2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;M2&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k1&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;k2&#39;</span><span class="p">,</span> <span class="s1">&#39;---&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;phasecoeff&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;phasecoeff&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;mag/deg&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;VX&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">,</span> <span class="s1">&#39;AU/d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;VY&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">,</span> <span class="s1">&#39;AU/d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;VZ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;vz&#39;</span><span class="p">,</span> <span class="s1">&#39;AU/d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;LT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lighttime&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RG&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">),</span>
+                   <span class="s1">&#39;RR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;range_rate&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;AU/d&#39;</span><span class="p">)}</span></div>
+
+
+
+<span class="n">conf</span> <span class="o">=</span> <span class="n">Conf</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">Horizons</span><span class="p">,</span> <span class="n">HorizonsClass</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Horizons&#39;</span><span class="p">,</span> <span class="s1">&#39;HorizonsClass&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;Conf&#39;</span><span class="p">,</span> <span class="s1">&#39;conf&#39;</span><span class="p">,</span>
+           <span class="p">]</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Gaia TAP+ (astroquery.gaia) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GaiaClass" href="../api/astroquery.gaia.GaiaClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.image_cutouts.first.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.gaia.GaiaClass.html" title="GaiaClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.image_cutouts.first.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Gaia TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.gaia</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="gaia-tap-astroquery-gaia">
+<span id="astroquery-gaia"></span><h1>Gaia TAP+ (<a class="reference internal" href="#module-astroquery.gaia" title="astroquery.gaia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.gaia</span></code></a>)<a class="headerlink" href="#gaia-tap-astroquery-gaia" title="Link to this heading">¶</a></h1>
+<p>Gaia is a European space mission providing astrometry, photometry, and spectroscopy of
+more than 1000 million stars in the Milky Way. Also data for significant samples of
+extragalactic and Solar system objects is made available. The Gaia Archive contains
+deduced positions, parallaxes, proper motions, radial velocities, and brightnesses.
+Complementary information on multiplicity, photometric variability, and astrophysical
+parameters is provided for a large fraction of sources.</p>
+<p>If you use public Gaia data in your paper, please take note of our <a class="reference external" href="https://gea.esac.esa.int/archive/documentation/credits.html">guide</a> on
+how to acknowledge and cite Gaia data.</p>
+<p>This package allows the access to the European Space Agency Gaia Archive
+(https//gea.esac.esa.int/archive/).</p>
+<p>Gaia Archive access is based on a TAP+ <a class="reference external" href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> service. TAP+ is an extension of
+Table Access Protocol (TAP: https//www.ivoa.net/documents/TAP/) specified by the
+International Virtual Observatory Alliance (<a class="reference external" href="https//www.ivoa.net">IVOA</a>).</p>
+<p>The TAP query language is Astronomical Data Query Language
+(ADQL: https//www.ivoa.net/documents/ADQL/2.0), which is similar
+to Structured Query Language (SQL), widely used to query databases.</p>
+<p>TAP provides two operation modes:</p>
+<ul class="simple">
+<li><p>Synchronous: the response to the request will be generated as soon as the
+request received by the server (do not use this method for queries that
+generate a big amount of results).</p></li>
+<li><p>Asynchronous: the server will start a job that will execute the request.
+The first response to the request is the required information (a link)
+to obtain the job status.
+Once the job is finished, the results can be retrieved.</p></li>
+</ul>
+<p>Gaia TAP+ server provides two access modes:</p>
+<ul class="simple">
+<li><p>Public: this is the standard TAP access. A user can execute ADQL queries and
+upload tables to be used in a query ‘on-the-fly’ (these tables will be removed
+once the query is executed). The results are available to any other user and
+they will remain in the server for a limited time.</p></li>
+<li><p>Authenticated: some functionalities are restricted to authenticated users only.
+The ADQL queries and their outcomes will remain in the server until the user deletes
+them. The dedicated functionalities include:</p>
+<ul>
+<li><p>Cross-match operations: a catalog cross-match operation can be executed.</p></li>
+<li><p>Persistence of uploaded tables: a user can upload a table in a private space.
+These tables can be used in queries as well as in cross-match operations.</p></li>
+</ul>
+</li>
+</ul>
+<p>This python module provides an Astroquery API access that implements the
+<code class="docutils literal notranslate"><span class="pre">query_object</span></code> and <code class="docutils literal notranslate"><span class="pre">query_object_async</span></code> methods.</p>
+<p>The Gaia Archive table used for the methods where no table is specified is
+the latest data release catalogue.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="public-access">
+<h3>1. Public access<a class="headerlink" href="#public-access" title="Link to this heading">¶</a></h3>
+<section id="query-object">
+<h4>1.1. Query object<a class="headerlink" href="#query-object" title="Link to this heading">¶</a></h4>
+<p>This query searches for all the objects contained in an arbitrary rectangular projection of the sky.</p>
+<p>It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span> <span class="o">=</span> <span class="s2">&quot;gaiadr2.gaia_source&quot;</span>  <span class="c1"># Select Data Release 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span> <span class="o">=</span> <span class="s2">&quot;gaiadr3.gaia_source&quot;</span>  <span class="c1"># Reselect Data Release 3, default</span>
+</pre></div>
+</div>
+<p>The following example searches for all the sources contained in an squared region of side = 0.1
+degrees around an specific point in RA/Dec coordinates.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mi">280</span><span class="p">,</span> <span class="n">dec</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">),</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">width</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">height</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">query_object_async</span><span class="p">(</span><span class="n">coordinate</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
+<span class="go">INFO: Query finished. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_lines</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">130</span><span class="p">)</span>
+<span class="go">         dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_upper libname_gspphot</span>
+<span class="go">                                                                 ...                mag</span>
+<span class="go">--------------------- ------------------- ---------------------------- ... ---------------------- ---------------</span>
+<span class="go">0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --</span>
+<span class="go">0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --</span>
+<span class="go">0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --</span>
+<span class="go">                 ...                 ...                          ... ...                    ...             ...</span>
+<span class="go"> 0.019751317240143573 1636148068921376768 Gaia DR3 6636090407832546944 ...                 0.1176           MARCS</span>
+<span class="go"> 0.019916769172899054 1636148068921376768 Gaia DR3 6636066940132132352 ...                     --</span>
+<span class="go"> 0.019967388048343956 1636148068921376768 Gaia DR3 6636089514478677504 ...                     --</span>
+<span class="go"> 0.020149893249057697 1636148068921376768 Gaia DR3 6636066871411763968 ...                 0.0197         PHOENIX</span>
+<span class="go">Length = 50 rows</span>
+</pre></div>
+</div>
+<p>Queries return a limited number of rows controlled by <code class="docutils literal notranslate"><span class="pre">Gaia.ROW_LIMIT</span></code>. To change the default behaviour set this appropriately.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">query_object_async</span><span class="p">(</span><span class="n">coordinate</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
+<span class="go">INFO: Query finished. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=</span><span class="mi">140</span><span class="p">)</span>
+<span class="go">         dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot</span>
+<span class="go">                                                                 ...        mag                    mag</span>
+<span class="go">--------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------</span>
+<span class="go">0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --</span>
+<span class="go">0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --                     --</span>
+<span class="go">0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --                     --</span>
+<span class="go"> 0.004422603920589843 1636148068921376768 Gaia DR3 6636090339112213760 ...                     --                     --</span>
+<span class="go"> 0.004545515007418226 1636148068921376768 Gaia DR3 6636090334814217600 ...                 0.0007                 0.0079           MARCS</span>
+<span class="go">  0.00561391998241014 1636148068921376768 Gaia DR3 6636089583198816640 ...                 0.0064                 0.0385           MARCS</span>
+<span class="go"> 0.005845777923125324 1636148068921376768 Gaia DR3 6636090334814218752 ...                     --                     --</span>
+<span class="go"> 0.006210490970134131 1636148068921376768 Gaia DR3 6636090334814213632 ...                     --                     --</span>
+</pre></div>
+</div>
+<p>To return an unlimited number of rows set <code class="docutils literal notranslate"><span class="pre">Gaia.ROW_LIMIT</span></code> to -1.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">query_object_async</span><span class="p">(</span><span class="n">coordinate</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
+<span class="go">INFO: Query finished. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_lines</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">140</span><span class="p">)</span>
+<span class="go">         dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot</span>
+<span class="go">                                                                 ...        mag                    mag</span>
+<span class="go">--------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------</span>
+<span class="go">0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --</span>
+<span class="go">0.0033616678530916998 1636148068921376768 Gaia DR3 6636090339112400000 ...                     --                     --</span>
+<span class="go">0.0038498801828703495 1636148068921376768 Gaia DR3 6636090339113063296 ...                     --                     --</span>
+<span class="go">                ...                ...                        ... ...                    ...                    ...             ...</span>
+<span class="go">  0.05121116044832183 1636148068921376768 Gaia DR3 6636065840618481024 ...                     --                     --</span>
+<span class="go"> 0.051956798257063855 1636148068921376768 Gaia DR3 6636093637644158592 ...                     --                     --</span>
+<span class="go">  0.05321040019668312 1636148068921376768 Gaia DR3 6633086847005369088 ...                 0.0003                 0.0043           MARCS</span>
+<span class="go">Length = 184 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="cone-search">
+<h4>1.2. Cone search<a class="headerlink" href="#cone-search" title="Link to this heading">¶</a></h4>
+<p>This query performs a cone search centered at the specified RA/Dec coordinates with the provided
+radius argument.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># Ensure the default row limit.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mi">280</span><span class="p">,</span> <span class="n">dec</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">degree</span><span class="p">),</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">j</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">cone_search_async</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">))</span>
+<span class="go">INFO: Query finished. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">    solution_id             DESIGNATION          ...          dist</span>
+<span class="go">                                               ...</span>
+<span class="go">------------------- ---------------------------- ... ---------------------</span>
+<span class="go">1636148068921376768 Gaia DR3 6636090334814214528 ... 0.0026043272506261527</span>
+<span class="go">1636148068921376768 Gaia DR3 6636090339112400000 ... 0.0033616678530916998</span>
+<span class="go">1636148068921376768 Gaia DR3 6636090339113063296 ... 0.0038498801828703495</span>
+<span class="go">1636148068921376768 Gaia DR3 6636090339112213760 ...  0.004422603920589843</span>
+<span class="go">                         ... ...                   ...</span>
+<span class="go">1636148068921376768 Gaia DR3 6636090407832546944 ...  0.019751317240143573</span>
+<span class="go">1636148068921376768 Gaia DR3 6636066940132132352 ...  0.019916769172899054</span>
+<span class="go">1636148068921376768 Gaia DR3 6636089514478677504 ...  0.019967388048343956</span>
+<span class="go">1636148068921376768 Gaia DR3 6636066871411763968 ...  0.020149893249057697</span>
+<span class="go">Length = 50 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-public-tables-metadata">
+<h4>1.3. Getting public tables metadata<a class="headerlink" href="#getting-public-tables-metadata" title="Link to this heading">¶</a></h4>
+<p>Table and columns metadata are specified by IVOA <a class="reference external" href="https//ivoa.info/documents/TAP/20100327/">TAP</a> recommendation
+(to access to the actual data, an ADQL query must be executed).</p>
+<p>To load only table names metadata (TAP+ capability):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_qualified_name</span><span class="p">())</span>
+<span class="go">external.external.apassdr9</span>
+<span class="go">external.external.gaiadr2_astrophysical_parameters</span>
+<span class="go">external.external.gaiadr2_geometric_distance</span>
+<span class="go">external.external.gaiaedr3_distance</span>
+<span class="go">           ...</span>
+<span class="go">tap_schema.tap_schema.keys</span>
+<span class="go">tap_schema.tap_schema.schemas</span>
+<span class="go">tap_schema.tap_schema.tables</span>
+</pre></div>
+</div>
+<p>To load all tables metadata (TAP compatible):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">()</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">TAP Table name: external.external.apassdr9</span>
+<span class="go">Description: The AAVSO Photometric All-Sky Survey - Data Release 9</span>
+<span class="go">    This publication makes use of data products from the AAVSO</span>
+<span class="go">    Photometric All Sky Survey (APASS). Funded by the Robert Martin Ayers</span>
+<span class="go">    Sciences Fund and the National Science Foundation. Original catalogue released by Henden et al. 2015 AAS Meeting #225, id.336.16. Data retrieved using the VizieR catalogue access tool, CDS, Strasbourg, France. The original description of the VizieR service was published in A&amp;AS 143, 23. VizieR catalogue II/336.</span>
+<span class="go">Num. columns: 25</span>
+</pre></div>
+</div>
+<p>To load only a table (TAP+ capability):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaiadr3_table</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="s1">&#39;gaiadr3.gaia_source&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gaiadr3_table</span><span class="p">)</span>
+<span class="go">TAP Table name: gaiadr3.gaiadr3.gaia_source</span>
+<span class="go">Description: This table has an entry for every Gaia observed source as published with this data release. It contains the basic source parameters, in their final state as processed by the Gaia Data Processing and Analysis Consortium from the raw data coming from the spacecraft. The table is complemented with others containing information specific to certain kinds of objects (e.g.~Solar--system objects, non--single stars, variables etc.) and value--added processing (e.g.~astrophysical parameters etc.). Further array data types (spectra, epoch measurements) are presented separately via Datalink resources.</span>
+<span class="go">Num. columns: 152</span>
+</pre></div>
+</div>
+<p>Once a table is loaded, its columns can be inspected:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">gaiadr3_table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">solution_id</span>
+<span class="go">designation</span>
+<span class="go">source_id</span>
+<span class="go">random_index</span>
+<span class="go">ref_epoch</span>
+<span class="go">ra</span>
+<span class="go">ra_error</span>
+<span class="go">dec</span>
+<span class="go">dec_error</span>
+<span class="go">parallax</span>
+<span class="go">parallax_error</span>
+<span class="go">parallax_over_error</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-query">
+<h4>1.4. Synchronous query<a class="headerlink" href="#synchronous-query" title="Link to this heading">¶</a></h4>
+<p>The results of a synchronous query are stored at the user side (i.e., they are not saved in the
+server). These queries must be used when the amount of data to be retrieved (number of rows)
+is small, otherwise, a timeout error can be raised (an error created because the execution
+time of the query exceeds time execution limit; see here <a class="reference external" href="https://www.cosmos.esa.int/web/gaia/archive-tips">archive_tips</a> for details). The output
+of the synchronous queries is limited to 2000 rows. If you need more than that, you must use
+asynchronous queries.</p>
+<p>The results can be saved in memory (default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="s2">&quot;select top 100 &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;matched_transits,duplicated_source,phot_variable_flag &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;from gaiadr3.gaia_source order by source_id&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;ra_dec_corr&#39;</span><span class="p">])</span>
+<span class="go">ra_dec_corr</span>
+<span class="go">------------</span>
+<span class="go">  0.12293493</span>
+<span class="go">  0.16325329</span>
+<span class="go">   0.1152631</span>
+<span class="go">  0.03106277</span>
+<span class="go"> 0.090631574</span>
+<span class="go">  0.25799984</span>
+<span class="go">  0.15041357</span>
+<span class="go">  0.15176746</span>
+<span class="go">  0.19033876</span>
+<span class="go">  0.18675442</span>
+<span class="go">         ...</span>
+<span class="go">  0.03700819</span>
+<span class="go">-0.047490653</span>
+<span class="go">  0.18519369</span>
+<span class="go">  0.11701631</span>
+<span class="go">  0.14461127</span>
+<span class="go">  0.05615686</span>
+<span class="go">  0.26646927</span>
+<span class="go">-0.019807748</span>
+<span class="go">  0.81679803</span>
+<span class="go"> -0.07291612</span>
+<span class="go"> -0.12864673</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Query saving results in a file (you may use ‘output_format’ to specified the results data format,
+available formats are: ‘votable’, ‘votable_plain’, ‘fits’, ‘csv’ and ‘json’, default is ‘votable’):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="s2">&quot;select top 100 &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;matched_transits,duplicated_source,phot_variable_flag &quot;</span>
+<span class="gp">... </span>                      <span class="s2">&quot;from gaiadr3.gaia_source order by source_id&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                      <span class="n">dump_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">outputFile</span><span class="p">)</span>
+<span class="go">1668863838419O-result.vot.gz</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;solution_id&#39;</span><span class="p">])</span>
+<span class="go">  solution_id</span>
+<span class="go">-------------------</span>
+<span class="go">1635721458409799680</span>
+<span class="go">1635721458409799680</span>
+<span class="go">1635721458409799680</span>
+<span class="go">1635721458409799680</span>
+<span class="go">1635721458409799680</span>
+<span class="go">              ...</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Note: you can inspect the status of the job by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+<span class="go">&lt;Table length=100&gt;</span>
+<span class="go">        name          dtype  unit                     description</span>
+<span class="go">-------------------- ------- ---- ---------------------------------------------------</span>
+<span class="go">         solution_id   int64                                      Solution Identifier</span>
+<span class="go">           ref_epoch float64   yr                                     Reference epoch</span>
+<span class="go">         ra_dec_corr float32      Correlation between right ascension and declination</span>
+<span class="go">astrometric_n_obs_al   int32                          Total number of observations AL</span>
+<span class="go">matched_observations   int16            Amount of observations matched to this source</span>
+<span class="go">   duplicated_source    bool                            Source with duplicate sources</span>
+<span class="go">  phot_variable_flag  object                             Photometric variability flag</span>
+<span class="go">Jobid: None</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: 1668864127567O-result.vot.gz</span>
+<span class="go">Results: None</span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-query-on-an-on-the-fly-uploaded-table">
+<h4>1.5. Synchronous query on an ‘on-the-fly’ uploaded table<a class="headerlink" href="#synchronous-query-on-an-on-the-fly-uploaded-table" title="Link to this heading">¶</a></h4>
+<p>A table can be uploaded to the server in order to be used in a query.</p>
+<p>You have to provide the local path to the file you want to upload. In the following example,
+the file ‘my_table.xml’ is located to the relative location where your python program is
+running. See note below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upload_resource</span> <span class="o">=</span> <span class="s1">&#39;my_table.xml&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">j</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;select * from tap_upload.table_test&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">upload_resource</span><span class="o">=</span><span class="n">upload_resource</span><span class="p">,</span> <span class="n">upload_table_name</span><span class="o">=</span><span class="s2">&quot;table_test&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">source_id alpha delta</span>
+<span class="go">--------- ----- -----</span>
+<span class="go">        a   1.0   2.0</span>
+<span class="go">        b   3.0   4.0</span>
+<span class="go">        c   5.0   6.0</span>
+</pre></div>
+</div>
+<p>Note: to obtain the current location, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+<span class="go">/Current/directory/path</span>
+</pre></div>
+</div>
+</section>
+<section id="asynchronous-query">
+<h4>1.6. Asynchronous query<a class="headerlink" href="#asynchronous-query" title="Link to this heading">¶</a></h4>
+<p>Asynchronous queries save results at server side and depends on the user files quota.
+These queries can be accessed at any time. For anonymous users, results are kept for three days.</p>
+<p>Queries retrieved results can be stored locally in memory (by default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 100 designation,ra,dec &quot;</span>
+<span class="gp">... </span>                            <span class="s2">&quot;from gaiadr3.gaia_source order by source_id&quot;</span><span class="p">)</span>
+<span class="go">INFO: Query finished. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="go">     DESIGNATION               ra                 dec</span>
+<span class="go">                              deg                 deg</span>
+<span class="go">---------------------- ------------------ --------------------</span>
+<span class="go">   Gaia DR3 4295806720  44.99615537864534 0.005615226341865997</span>
+<span class="go">  Gaia DR3 34361129088  45.00432028915398 0.021047763781174733</span>
+<span class="go">  Gaia DR3 38655544960 45.004978371745516 0.019879675701858644</span>
+<span class="go"> Gaia DR3 309238066432  44.99503714416301  0.03815169755425531</span>
+<span class="go">              ...</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Query saving results in a file (you may use ‘output_format’ to specified the results data format,
+available formats are: ‘votable’, ‘votable_plain’, ‘fits’, ‘csv’ and ‘json’, default is ‘votable’):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 100 ra, dec &quot;</span>
+<span class="gp">... </span>                            <span class="s2">&quot;from gaiadr3.gaia_source order by source_id&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">dump_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+<span class="go">Jobid: 1611860482314O</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: 1611860482314O-result.vot.gz</span>
+<span class="go">Results: None</span>
+</pre></div>
+</div>
+</section>
+<section id="asynchronous-job-removal">
+<h4>1.7. Asynchronous job removal<a class="headerlink" href="#asynchronous-job-removal" title="Link to this heading">¶</a></h4>
+<p>To remove asynchronous jobs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">remove_jobs</span><span class="p">([</span><span class="s2">&quot;job_id_1&quot;</span><span class="p">,</span><span class="s2">&quot;job_id_2&quot;</span><span class="p">,</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="authenticated-access">
+<h3>2. Authenticated access<a class="headerlink" href="#authenticated-access" title="Link to this heading">¶</a></h3>
+<p>Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
+In order to authenticate a user, <code class="docutils literal notranslate"><span class="pre">login</span></code> or <code class="docutils literal notranslate"><span class="pre">login_gui</span></code> methods must be called. After a
+successful login, the user will be authenticated until <code class="docutils literal notranslate"><span class="pre">logout</span></code> method is called.</p>
+<p>All previous methods (<code class="docutils literal notranslate"><span class="pre">query_object</span></code>, <code class="docutils literal notranslate"><span class="pre">cone_search</span></code>, <code class="docutils literal notranslate"><span class="pre">load_table</span></code>, <code class="docutils literal notranslate"><span class="pre">load_tables</span></code>, <code class="docutils literal notranslate"><span class="pre">launch_job</span></code>) explained for
+non authenticated users are applicable for authenticated ones.</p>
+<p>The main differences are:</p>
+<ul class="simple">
+<li><p>Asynchronous results are kept at server side for ever (until the user decides to remove one of them).</p></li>
+<li><p>Users can access to shared tables.</p></li>
+</ul>
+<section id="login-logout">
+<h4>2.1. Login/Logout<a class="headerlink" href="#login-logout" title="Link to this heading">¶</a></h4>
+<p>There are several ways to login to Gaia archive.</p>
+<p><strong>Login through graphic interface</strong></p>
+<p><em>Note: Python Tkinter module is required to use login_gui method.</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Login through command line</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="s1">&#39;userName&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;userPassword&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Login through a credentials file</strong></p>
+<p>A file where the credentials are stored can be used to login:</p>
+<p><em>The file must containing user and password in two different lines.</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">credentials_file</span><span class="o">=</span><span class="s1">&#39;my_credentials_file&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you do not provide any parameters at all, a prompt will ask for the user name and password:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="p">:</span> <span class="n">user</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Password</span><span class="p">:</span> <span class="n">pwd</span> <span class="p">(</span><span class="ow">not</span> <span class="n">visible</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To logout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="listing-shared-tables">
+<h4>2.2. Listing shared tables<a class="headerlink" href="#listing-shared-tables" title="Link to this heading">¶</a></h4>
+<p>In the Gaia archive user tables can be shared among user groups.</p>
+<p>To obtain a list of the tables shared to a user type the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_shared_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_qualified_name</span><span class="p">())</span>
+<span class="go">external.external.apassdr9</span>
+<span class="go">external.external.gaiadr2_astrophysical_parameters</span>
+<span class="go">external.external.gaiadr2_geometric_distance</span>
+<span class="go">external.external.gaiaedr3_distance</span>
+<span class="go">  ...     ...       ...</span>
+<span class="go">tap_schema.tap_schema.key_columns</span>
+<span class="go">tap_schema.tap_schema.keys</span>
+<span class="go">tap_schema.tap_schema.schemas</span>
+<span class="go">tap_schema.tap_schema.tables</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-to-user-space">
+<h4>2.3. Uploading table to user space<a class="headerlink" href="#uploading-table-to-user-space" title="Link to this heading">¶</a></h4>
+<p>It is now possible to store a table in the private user space. The table to be uploaded can
+be in a <a class="reference external" href="https//www.ivoa.net/documents/VOTable/">VOTable</a> located in a given URL, a table stored in a local file in the user machine,
+a pre-computed Astropy table file or a job executed in the Gaia archive.</p>
+<p>Each user has a database schema described as: ‘user_&lt;user_login_name&gt;’. For instance, if a
+login name is ‘joe’, the database schema is ‘user_joe’. Your uploaded table can be
+referenced as ‘user_joe.table_name’</p>
+</section>
+<section id="uploading-table-from-url">
+<h4>2.3.1. Uploading table from URL<a class="headerlink" href="#uploading-table-from-url" title="Link to this heading">¶</a></h4>
+<p>An already generated VOTable, accessible through a URL, can be uploaded to Gaia archive.</p>
+<p>The following example launches a query to Vizier TAP (‘url’ parameter). The result is a
+VOTable that can be uploaded to the user private area.</p>
+<p>Your schema name will be automatically added to the provided table name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Provide a URL pointing to valid VOTable resource</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?&quot;</span>
+<span class="gp">... </span>       <span class="s2">&quot;REQUEST=doQuery&amp;lang=ADQL&amp;FORMAT=votable&amp;&quot;</span>
+<span class="gp">... </span>       <span class="s2">&quot;QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name=&#39;II/336/apass9&#39;&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;table_test_from_url&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">table_description</span><span class="o">=</span><span class="s2">&quot;Some description&quot;</span><span class="p">)</span>
+<span class="go">Job &#39;1539932326689O&#39; created to upload table &#39;table_test_from_url&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: <em>user_&lt;your_login_name&gt;.&lt;table_name&gt;</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.table_test_from_url&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-file">
+<h4>2.3.2. Uploading table from file<a class="headerlink" href="#uploading-table-from-file" title="Link to this heading">¶</a></h4>
+<p>A file containing a table (votable, fits or csv) can be uploaded to the user private area.</p>
+<p>The parameter ‘format’ must be provided when the input file is not a votable file.</p>
+<p>Your schema name will be automatically added to the provided table name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="s2">&quot;1535553556177O-result.vot&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;table_test_from_file&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;VOTable&quot;</span><span class="p">)</span>
+
+<span class="go">Sending file: 1535553556177O-result.vot</span>
+<span class="go">Uploaded table &#39;table_test_from_file&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: <em>user_&lt;your_login_name&gt;.&lt;table_name&gt;</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.table_test_from_file&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-an-astropy-table">
+<h4>2.3.3. Uploading table from an astropy Table<a class="headerlink" href="#uploading-table-from-an-astropy-table" title="Link to this heading">¶</a></h4>
+<p>A in memory PyTable (See <a class="reference external" href="https://wiki.python.org/moin/PyTables">https://wiki.python.org/moin/PyTables</a>) can be uploaded to the user private area.</p>
+<p>Your schema name will be automatically added to the provided table name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span><span class="s1">&#39;col2&#39;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;meta&#39;</span><span class="p">:</span><span class="s1">&#39;first table&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Upload</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;table_test_from_astropy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: <em>user_&lt;your_login_name&gt;.&lt;table_name&gt;</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.table_test_from_astropy&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-job">
+<h4>2.3.4. Uploading table from job<a class="headerlink" href="#uploading-table-from-job" title="Link to this heading">¶</a></h4>
+<p>The results generated by an <em>asynchronous</em> job (from a query executed in the Gaia archive) can be
+ingested in a table in the user private area.</p>
+<p>The following example generates a job in the Gaia archive and then, the results are ingested in a
+table named: user_&lt;your_login_name&gt;.’t’&lt;job_id&gt;:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">j1</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 10 * from gaiadr3.gaia_source&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">upload_table_from_job</span><span class="p">(</span><span class="n">j1</span><span class="p">)</span>
+<span class="go">Created table &#39;t1539932994481O&#39; from job: &#39;1539932994481O&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: <em>user_&lt;your_login_name&gt;.t&lt;job_id&gt;</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.t1539932994481O&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="deleting-table">
+<h4>2.4. Deleting table<a class="headerlink" href="#deleting-table" title="Link to this heading">¶</a></h4>
+<p>A table from the user private area can be deleted as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">delete_user_table</span><span class="p">(</span><span class="s2">&quot;table_test_from_file&quot;</span><span class="p">)</span>
+<span class="go">Table &#39;table_test_from_file&#39; deleted.</span>
+</pre></div>
+</div>
+</section>
+<section id="updating-table-metadata">
+<h4>2.5. Updating table metadata<a class="headerlink" href="#updating-table-metadata" title="Link to this heading">¶</a></h4>
+<p>It can be useful for the user to modify the metadata of a given table. For example, a user
+might want to change the description (UCD) of a column, or the flags that give extra information
+about certain column. This is possible using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">update_user_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">list_of_changes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the list of changes is a list of 3 items:</p>
+<p>[“column name to be changed”, “metadata parameter to be changed”, “new value”]</p>
+<p>The metadata parameter to be changed can be ‘utype’, ‘ucd’, ‘flags’ or ‘indexed’:</p>
+<ul class="simple">
+<li><p>values for ‘utype’ and ‘ucd’ are free text. See <a class="reference external" href="https//www.ivoa.net/documents/VOTable/">VOTable</a> specification (sections UType and UCD), <a class="reference external" href="https//www.ivoa.net/documents/latest/UCD.html">UCD</a> specification and <a class="reference external" href="https//www.ivoa.net/documents/Notes/UTypesUsage/index.html">UTypes</a> usage.</p></li>
+<li><p>value for ‘flags’ can be ‘Ra’, ‘Dec’, ‘Mag’, ‘Flux’ and ‘PK’.</p></li>
+<li><p>value for ‘indexed’ is a boolean indicating whether the column is indexed or not.</p></li>
+</ul>
+<p>For instance, the ‘ra’ column in the gaiadr2.gaia_source catalogue is specified as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Utype</span><span class="p">:</span> <span class="n">Char</span><span class="o">.</span><span class="n">SpatialAxis</span><span class="o">.</span><span class="n">Coverage</span><span class="o">.</span><span class="n">Location</span><span class="o">.</span><span class="n">Coord</span><span class="o">.</span><span class="n">Position2D</span><span class="o">.</span><span class="n">Value2</span><span class="o">.</span><span class="n">C1</span>
+<span class="n">Ucd</span><span class="p">:</span> <span class="n">pos</span><span class="o">.</span><span class="n">eq</span><span class="o">.</span><span class="n">ra</span><span class="p">;</span><span class="n">meta</span><span class="o">.</span><span class="n">main</span>
+</pre></div>
+</div>
+<p>and the ‘dec’ column as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Utype</span><span class="p">:</span> <span class="n">Char</span><span class="o">.</span><span class="n">SpatialAxis</span><span class="o">.</span><span class="n">Coverage</span><span class="o">.</span><span class="n">Location</span><span class="o">.</span><span class="n">Coord</span><span class="o">.</span><span class="n">Position2D</span><span class="o">.</span><span class="n">Value2</span><span class="o">.</span><span class="n">C2</span>
+<span class="n">Ucd</span><span class="p">:</span> <span class="n">pos</span><span class="o">.</span><span class="n">eq</span><span class="o">.</span><span class="n">dec</span><span class="p">;</span><span class="n">meta</span><span class="o">.</span><span class="n">main</span>
+</pre></div>
+</div>
+<p>It is possible to apply multiple changes at once.
+This is done by putting each of the changes in a list. See example below.</p>
+<p>In this case, we have a table (user_joe.table), with several columns: ‘recno’, ‘nobs’,
+‘raj2000’ and ‘dej2000’.</p>
+<p>We want to set:</p>
+<ul class="simple">
+<li><p>‘ucd’ of ‘recno’ column to ‘ucd sample’</p></li>
+<li><p>‘utype’ of ‘nobs’ column to ‘utype sample’</p></li>
+<li><p>‘flags’ of ‘raj2000’ column to ‘Ra’</p></li>
+<li><p>‘flags’ of ‘dej2000’ column to ‘Dec’</p></li>
+</ul>
+<p>We can type the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">update_user_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_joe.table&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="n">list_of_changes</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;recno&quot;</span><span class="p">,</span> <span class="s2">&quot;ucd&quot;</span><span class="p">,</span> <span class="s2">&quot;ucd sample&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="p">[</span><span class="s2">&quot;nobs&quot;</span><span class="p">,</span><span class="s2">&quot;utype&quot;</span><span class="p">,</span><span class="s2">&quot;utype sample&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="p">[</span><span class="s2">&quot;raj2000&quot;</span><span class="p">,</span><span class="s2">&quot;flags&quot;</span><span class="p">,</span><span class="s2">&quot;Ra&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="p">[</span><span class="s2">&quot;dej2000&quot;</span><span class="p">,</span><span class="s2">&quot;flags&quot;</span><span class="p">,</span><span class="s2">&quot;Dec&quot;</span><span class="p">]])</span>
+<span class="go">Retrieving table &#39;user_joe.table&#39;</span>
+<span class="go">Parsing table &#39;user_joe.table&#39;...</span>
+<span class="go">Done.</span>
+<span class="go">Table &#39;user_joe.table&#39; updated.</span>
+</pre></div>
+</div>
+</section>
+<section id="cross-match">
+<h4>2.6. Cross match<a class="headerlink" href="#cross-match" title="Link to this heading">¶</a></h4>
+<p>It is possible to run a geometric cross-match between the RA/Dec coordinates of two tables
+using the crossmatch function provided by the archive. In order to do so the user must be
+logged in. This is required because the cross match operation will generate a join table
+in the user private area. That table contains the identifiers of both tables and the separation,
+in degrees, between RA/Dec coordinates of each source in the first table and its associated
+source in the second table. Later, the table can be used to obtain the actual data from both tables.</p>
+<p>In order to perform a cross match, both tables must have defined RA and Dec columns
+(Ra/Dec column flags must be set: see previous section to know how to assign those flags).</p>
+<p>The following example uploads a table and then, the table is used in a cross match:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">file</span> <span class="ow">or</span> <span class="n">astropy</span><span class="o">.</span><span class="n">table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;my_sources&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the table will be uploaded into the user private space into the database</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the table can be referenced as &lt;database user schema&gt;.&lt;table_name&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.my_sources&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xmatch_table_name</span> <span class="o">=</span> <span class="s1">&#39;xmatch_table&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">cross_match</span><span class="p">(</span><span class="n">full_qualified_table_name_a</span><span class="o">=</span><span class="n">full_qualified_table_name</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">full_qualified_table_name_b</span><span class="o">=</span><span class="s1">&#39;gaiadr3.gaia_source&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">results_table_name</span><span class="o">=</span><span class="n">xmatch_table_name</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once you have your cross match finished, you can obtain the results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xmatch_table</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.&#39;</span> <span class="o">+</span> <span class="n">xmatch_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SELECT c.&quot;dist&quot;*3600 as dist, a.*, b.* FROM gaiadr3.gaia_source AS a, &#39;</span>
+<span class="gp">... </span>         <span class="s1">&#39;full_qualified_table_name+&#39;</span> <span class="n">AS</span> <span class="n">b</span><span class="p">,</span> <span class="s1">&#39;</span>
+<span class="gp">... </span>         <span class="s1">&#39;xmatch_table+&#39;</span> <span class="n">AS</span> <span class="n">c</span> <span class="s1">&#39;</span>
+<span class="gp">... </span>         <span class="s1">&#39;WHERE (c.gaia_source_source_id = a.source_id AND &#39;</span>
+<span class="gp">... </span>         <span class="s1">&#39;c.my_sources_my_sources_oid = b.my_sources_oid)&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.</p>
+</section>
+<section id="tables-sharing">
+<h4>2.7. Tables sharing<a class="headerlink" href="#tables-sharing" title="Link to this heading">¶</a></h4>
+<p>It is possible to share tables with other users. You have to create a group, populate that
+group with users, and share your table to that group. Then, any user belonging to that group
+will be able to access to your shared table in a query.</p>
+</section>
+<section id="creating-a-group">
+<h4>2.7.1. Creating a group<a class="headerlink" href="#creating-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_group_create</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="removing-a-group">
+<h4>2.7.2. Removing a group<a class="headerlink" href="#removing-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_group_delete</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="listing-groups">
+<h4>2.7.3. Listing groups<a class="headerlink" href="#listing-groups" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_groups</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-users-to-a-group">
+<h4>2.7.4. Adding users to a group<a class="headerlink" href="#adding-users-to-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_group_add_user</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span><span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;&lt;user_login_name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="removing-users-from-a-group">
+<h4>2.7.5. Removing users from a group<a class="headerlink" href="#removing-users-from-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_group_delete_user</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span><span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;&lt;user_login_name&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sharing-a-table-to-a-group">
+<h4>2.7.6. Sharing a table to a group<a class="headerlink" href="#sharing-a-table-to-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_table</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_&lt;user_login_name&gt;.my_table&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="stop-sharing-a-table">
+<h4>2.7.7. Stop sharing a table<a class="headerlink" href="#stop-sharing-a-table" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">share_table_stop</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_&lt;user_login_name&gt;.my_table&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="datalink-service-public-and-authenticated">
+<h5>3. Datalink service (Public and Authenticated)<a class="headerlink" href="#datalink-service-public-and-authenticated" title="Link to this heading">¶</a></h5>
+<p><a class="reference external" href="https://www.ivoa.net/documents/DataLink/">DataLink</a> is a data access protocol compliant with the <a class="reference external" href="https//www.ivoa.net">IVOA</a> architecture that provides a linking mechanism between
+datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
+data products available for each object outside the main catalogue(s). For more information about the products served via
+DataLink in the Gaia ESA Archive we recommend to read the Archive DataLink tutorials available at <a class="reference external" href="https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products">https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products</a>.</p>
+<p>The DataLink products are publicly accessible via the <a class="reference internal" href="../api/astroquery.gaia.GaiaClass.html#astroquery.gaia.GaiaClass.load_data" title="astroquery.gaia.GaiaClass.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a> method.
+The following example shows how to retrieve the DataLink products associated with three sources in Gaia DR3 as a python dictionary:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">retrieval_type</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span>          <span class="c1"># Options are: &#39;EPOCH_PHOTOMETRY&#39;, &#39;MCMC_GSPPHOT&#39;, &#39;MCMC_MSC&#39;, &#39;XP_SAMPLED&#39;, &#39;XP_CONTINUOUS&#39;, &#39;RVS&#39;, &#39;ALL&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_structure</span> <span class="o">=</span> <span class="s1">&#39;COMBINED&#39;</span>     <span class="c1"># Options are: &#39;INDIVIDUAL&#39;, &#39;COMBINED&#39;, &#39;RAW&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_release</span>   <span class="o">=</span> <span class="s1">&#39;Gaia DR3&#39;</span>     <span class="c1"># Options are: &#39;Gaia DR3&#39; (default), &#39;Gaia DR2&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datalink</span> <span class="o">=</span> <span class="n">Gaia</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="p">[</span><span class="mi">2263166706630078848</span><span class="p">,</span> <span class="mi">2263178457660566784</span><span class="p">,</span> <span class="mi">2268372099615724288</span><span class="p">],</span>
+<span class="gp">... </span>                          <span class="n">data_release</span><span class="o">=</span><span class="n">data_release</span><span class="p">,</span> <span class="n">retrieval_type</span><span class="o">=</span><span class="n">retrieval_type</span><span class="p">,</span> <span class="n">data_structure</span><span class="o">=</span><span class="n">data_structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datalink</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">dict_keys([&#39;MCMC_GSPPHOT_COMBINED.xml&#39;, &#39;EPOCH_PHOTOMETRY_COMBINED.xml&#39;, &#39;RVS_COMBINED.xml&#39;, &#39;MCMC_MSC_COMBINED.xml&#39;, &#39;XP_SAMPLED_COMBINED.xml&#39;, &#39;XP_CONTINUOUS_COMBINED.xml&#39;])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not possible to search for and retrieve the DataLink products
+associated to more than 5000 sources in one and the same call.
+However, it is possible to overcome this limit programmatically using a
+sequential download, as explained in this <a class="reference external" href="https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products#datalink_jntb_get_above_lim">tutorial</a>.</p>
+</div>
+<section id="reference-api">
+<h6>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h6>
+</section>
+</section>
+<section id="module-astroquery.gaia">
+<span id="astroquery-gaia-package"></span><h5>astroquery.gaia Package<a class="headerlink" href="#module-astroquery.gaia" title="Link to this heading">¶</a></h5>
+<p>&#64;author: Juan Carlos Segovia
+&#64;contact: <a class="reference external" href="mailto:juan&#46;carlos&#46;segovia&#37;&#52;&#48;sciops&#46;esa&#46;int">juan<span>&#46;</span>carlos<span>&#46;</span>segovia<span>&#64;</span>sciops<span>&#46;</span>esa<span>&#46;</span>int</a></p>
+<p>European Space Astronomy Centre (ESAC)
+European Space Agency (ESA)</p>
+<p>Created on 30 jun. 2016</p>
+</section>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.gaia.GaiaClass.html#astroquery.gaia.GaiaClass" title="astroquery.gaia.GaiaClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaiaClass</span></code></a>(*[, tap_plus_conn_handler, ...])</p></td>
+<td><p>Proxy class to default TapPlus object (pointing to Gaia Archive)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.gaia.Conf.html#astroquery.gaia.Conf" title="astroquery.gaia.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.gaia" title="astroquery.gaia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.gaia</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Gaia TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.gaia</span></code>)</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#public-access">1. Public access</a><ul>
+<li><a class="reference internal" href="#query-object">1.1. Query object</a></li>
+<li><a class="reference internal" href="#cone-search">1.2. Cone search</a></li>
+<li><a class="reference internal" href="#getting-public-tables-metadata">1.3. Getting public tables metadata</a></li>
+<li><a class="reference internal" href="#synchronous-query">1.4. Synchronous query</a></li>
+<li><a class="reference internal" href="#synchronous-query-on-an-on-the-fly-uploaded-table">1.5. Synchronous query on an ‘on-the-fly’ uploaded table</a></li>
+<li><a class="reference internal" href="#asynchronous-query">1.6. Asynchronous query</a></li>
+<li><a class="reference internal" href="#asynchronous-job-removal">1.7. Asynchronous job removal</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authenticated-access">2. Authenticated access</a><ul>
+<li><a class="reference internal" href="#login-logout">2.1. Login/Logout</a></li>
+<li><a class="reference internal" href="#listing-shared-tables">2.2. Listing shared tables</a></li>
+<li><a class="reference internal" href="#uploading-table-to-user-space">2.3. Uploading table to user space</a></li>
+<li><a class="reference internal" href="#uploading-table-from-url">2.3.1. Uploading table from URL</a></li>
+<li><a class="reference internal" href="#uploading-table-from-file">2.3.2. Uploading table from file</a></li>
+<li><a class="reference internal" href="#uploading-table-from-an-astropy-table">2.3.3. Uploading table from an astropy Table</a></li>
+<li><a class="reference internal" href="#uploading-table-from-job">2.3.4. Uploading table from job</a></li>
+<li><a class="reference internal" href="#deleting-table">2.4. Deleting table</a></li>
+<li><a class="reference internal" href="#updating-table-metadata">2.5. Updating table metadata</a></li>
+<li><a class="reference internal" href="#cross-match">2.6. Cross match</a></li>
+<li><a class="reference internal" href="#tables-sharing">2.7. Tables sharing</a></li>
+<li><a class="reference internal" href="#creating-a-group">2.7.1. Creating a group</a></li>
+<li><a class="reference internal" href="#removing-a-group">2.7.2. Removing a group</a></li>
+<li><a class="reference internal" href="#listing-groups">2.7.3. Listing groups</a></li>
+<li><a class="reference internal" href="#adding-users-to-a-group">2.7.4. Adding users to a group</a></li>
+<li><a class="reference internal" href="#removing-users-from-a-group">2.7.5. Removing users from a group</a></li>
+<li><a class="reference internal" href="#sharing-a-table-to-a-group">2.7.6. Sharing a table to a group</a></li>
+<li><a class="reference internal" href="#stop-sharing-a-table">2.7.7. Stop sharing a table</a><ul>
+<li><a class="reference internal" href="#datalink-service-public-and-authenticated">3. Datalink service (Public and Authenticated)</a><ul>
+<li><a class="reference internal" href="#reference-api">Reference/API</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-astroquery.gaia">astroquery.gaia Package</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/gaia/gaia.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

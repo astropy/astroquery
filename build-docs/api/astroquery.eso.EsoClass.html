@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>EsoClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.eso.Conf.html" />
+    <link rel="prev" title="ESO Queries (astroquery.eso)" href="../eso/eso.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.eso.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../eso/eso.html" title="ESO Queries (astroquery.eso)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../eso/eso.html" accesskey="U">ESO Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.eso</span></code>)</a> &#187;</li>
+      
+      <li>EsoClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="esoclass">
+<h1>EsoClass<a class="headerlink" href="#esoclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.eso.</span></span><span class="sig-name descname"><span class="pre">EsoClass</span></span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.QueryWithLogin.html#astroquery.query.QueryWithLogin" title="astroquery.query.QueryWithLogin"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryWithLogin</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.AUTH_URL" title="astroquery.eso.EsoClass.AUTH_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AUTH_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.CALSELECTOR_URL" title="astroquery.eso.EsoClass.CALSELECTOR_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CALSELECTOR_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.DOWNLOAD_URL" title="astroquery.eso.EsoClass.DOWNLOAD_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DOWNLOAD_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.GUNZIP" title="astroquery.eso.EsoClass.GUNZIP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GUNZIP</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.QUERY_INSTRUMENT_URL" title="astroquery.eso.EsoClass.QUERY_INSTRUMENT_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QUERY_INSTRUMENT_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.ROW_LIMIT" title="astroquery.eso.EsoClass.ROW_LIMIT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROW_LIMIT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.USERNAME" title="astroquery.eso.EsoClass.USERNAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">USERNAME</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.get_associated_files" title="astroquery.eso.EsoClass.get_associated_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_associated_files</span></code></a>(datasets, *[, mode, ...])</p></td>
+<td><p>Invoke Calselector service to find calibration files associated to the provided datasets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.get_headers" title="astroquery.eso.EsoClass.get_headers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_headers</span></code></a>(product_ids, *[, cache])</p></td>
+<td><p>Get the headers associated to a list of data product IDs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.list_instruments" title="astroquery.eso.EsoClass.list_instruments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_instruments</span></code></a>(*[, cache])</p></td>
+<td><p>List all the available instrument-specific queries offered by the ESO archive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.list_surveys" title="astroquery.eso.EsoClass.list_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_surveys</span></code></a>(*[, cache])</p></td>
+<td><p>List all the available surveys (phase 3) in the ESO archive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.login" title="astroquery.eso.EsoClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>(*[, username, store_password, ...])</p></td>
+<td><p>Login to the ESO User Portal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.query_apex_quicklooks" title="astroquery.eso.EsoClass.query_apex_quicklooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_apex_quicklooks</span></code></a>(*[, project_id, help, ...])</p></td>
+<td><p>APEX data are distributed with quicklook products identified with a different name than other ESO products.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.query_instrument" title="astroquery.eso.EsoClass.query_instrument"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_instrument</span></code></a>(instrument, *[, ...])</p></td>
+<td><p>Query instrument-specific raw data contained in the ESO archive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.query_main" title="astroquery.eso.EsoClass.query_main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_main</span></code></a>(*[, column_filters, columns, ...])</p></td>
+<td><p>Query raw data contained in the ESO archive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.query_surveys" title="astroquery.eso.EsoClass.query_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_surveys</span></code></a>(*[, surveys, cache, help, ...])</p></td>
+<td><p>Query survey Phase 3 data contained in the ESO archive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.eso.EsoClass.retrieve_data" title="astroquery.eso.EsoClass.retrieve_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve_data</span></code></a>(datasets, *[, continuation, ...])</p></td>
+<td><p>Retrieve a list of datasets form the ESO archive.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.AUTH_URL">
+<span class="sig-name descname"><span class="pre">AUTH_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.eso.org/sso/oidc/token'</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.AUTH_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.CALSELECTOR_URL">
+<span class="sig-name descname"><span class="pre">CALSELECTOR_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://archive.eso.org/calselector/v1/associations'</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.CALSELECTOR_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.DOWNLOAD_URL">
+<span class="sig-name descname"><span class="pre">DOWNLOAD_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://dataportal.eso.org/dataPortal/file/'</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.DOWNLOAD_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.GUNZIP">
+<span class="sig-name descname"><span class="pre">GUNZIP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gunzip'</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.GUNZIP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.QUERY_INSTRUMENT_URL">
+<span class="sig-name descname"><span class="pre">QUERY_INSTRUMENT_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://archive.eso.org/wdb/wdb/eso'</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.QUERY_INSTRUMENT_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.ROW_LIMIT">
+<span class="sig-name descname"><span class="pre">ROW_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.ROW_LIMIT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.USERNAME">
+<span class="sig-name descname"><span class="pre">USERNAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#astroquery.eso.EsoClass.USERNAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.get_associated_files">
+<span class="sig-name descname"><span class="pre">get_associated_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'raw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savexml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.get_associated_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.get_associated_files" title="Link to this definition">¶</a></dt>
+<dd><p>Invoke Calselector service to find calibration files associated to the provided datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>datasets</strong><span class="classifier">list of strings</span></dt><dd><p>List of datasets for which calibration files should be retrieved.</p>
+</dd>
+<dt><strong>mode</strong><span class="classifier">string</span></dt><dd><dl class="simple">
+<dt>Calselector mode: ‘raw’ (default) for raw calibrations,</dt><dd><p>or ‘processed’ for processed calibrations.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>savexml</strong><span class="classifier">bool</span></dt><dd><p>If true, save to disk the XML association tree returned by Calselector.</p>
+</dd>
+<dt><strong>destination</strong><span class="classifier">string</span></dt><dd><p>Directory where the XML files are saved (default = astropy cache).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>files</dt><dd><p>List of unique datasets associated to the input datasets.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.get_headers">
+<span class="sig-name descname"><span class="pre">get_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.get_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.get_headers" title="Link to this definition">¶</a></dt>
+<dd><p>Get the headers associated to a list of data product IDs</p>
+<p>This method returns a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> where the rows correspond
+to the provided data product IDs, and the columns are from each of
+the Fits headers keywords.</p>
+<p>Note: The additional column <code class="docutils literal notranslate"><span class="pre">'DP.ID'</span></code> found in the returned table
+corresponds to the provided data product IDs.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>product_ids</strong><span class="classifier">either a list of strings or a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Column.html#astropy.table.Column" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Column</span></code></a></span></dt><dd><p>List of data product IDs.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>A table where: columns are header keywords, rows are product_ids.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.list_instruments">
+<span class="sig-name descname"><span class="pre">list_instruments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.list_instruments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.list_instruments" title="Link to this definition">¶</a></dt>
+<dd><p>List all the available instrument-specific queries offered by the ESO archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>instrument_list</strong><span class="classifier">list of strings</span></dt><dd></dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the response for faster subsequent retrieval</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.list_surveys">
+<span class="sig-name descname"><span class="pre">list_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.list_surveys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.list_surveys" title="Link to this definition">¶</a></dt>
+<dd><p>List all the available surveys (phase 3) in the ESO archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>survey_list</strong><span class="classifier">list of strings</span></dt><dd></dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the response for faster subsequent retrieval</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reenter_password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#astroquery.eso.EsoClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>Login to the ESO User Portal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>username</strong><span class="classifier">str, optional</span></dt><dd><p>Username to the ESO Public Portal. If not given, it should be
+specified in the config file.</p>
+</dd>
+<dt><strong>store_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Stores the password securely in your keyring. Default is False.</p>
+</dd>
+<dt><strong>reenter_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Asks for the password even if it is already stored in the
+keyring. This is the way to overwrite an already stored passwork
+on the keyring. Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.query_apex_quicklooks">
+<span class="sig-name descname"><span class="pre">query_apex_quicklooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.query_apex_quicklooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.query_apex_quicklooks" title="Link to this definition">¶</a></dt>
+<dd><p>APEX data are distributed with quicklook products identified with a
+different name than other ESO products.  This query tool searches by
+project ID or any other supported keywords.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">Eso</span><span class="o">.</span><span class="n">query_apex_quicklooks</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s1">&#39;093.C-0144&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Eso</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="s1">&#39;Product ID&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.query_instrument">
+<span class="sig-name descname"><span class="pre">query_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.query_instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.query_instrument" title="Link to this definition">¶</a></dt>
+<dd><p>Query instrument-specific raw data contained in the ESO archive.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>instrument</strong><span class="classifier">string</span></dt><dd><p>Name of the instrument to query, one of the names returned by
+<a class="reference internal" href="#astroquery.eso.EsoClass.list_instruments" title="astroquery.eso.EsoClass.list_instruments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_instruments</span></code></a>.</p>
+</dd>
+<dt><strong>column_filters</strong><span class="classifier">dict</span></dt><dd><p>Constraints applied to the query.</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">list of strings</span></dt><dd><p>Columns returned by the query.</p>
+</dd>
+<dt><strong>open_form</strong><span class="classifier">bool</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, opens in your default browser the query form
+for the requested instrument.</p>
+</dd>
+<dt><strong>help</strong><span class="classifier">bool</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, prints all the parameters accepted in
+<code class="docutils literal notranslate"><span class="pre">column_filters</span></code> and <code class="docutils literal notranslate"><span class="pre">columns</span></code> for the requested
+<code class="docutils literal notranslate"><span class="pre">instrument</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the response for faster subsequent retrieval.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>A table representing the data available in the archive for the
+specified instrument, matching the constraints specified in
+<code class="docutils literal notranslate"><span class="pre">kwargs</span></code>. The number of rows returned is capped by the
+ROW_LIMIT configuration item.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.query_main">
+<span class="sig-name descname"><span class="pre">query_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.query_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.query_main" title="Link to this definition">¶</a></dt>
+<dd><p>Query raw data contained in the ESO archive.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>column_filters</strong><span class="classifier">dict</span></dt><dd><p>Constraints applied to the query.</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">list of strings</span></dt><dd><p>Columns returned by the query.</p>
+</dd>
+<dt><strong>open_form</strong><span class="classifier">bool</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, opens in your default browser the query form
+for the requested instrument.</p>
+</dd>
+<dt><strong>help</strong><span class="classifier">bool</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, prints all the parameters accepted in
+<code class="docutils literal notranslate"><span class="pre">column_filters</span></code> and <code class="docutils literal notranslate"><span class="pre">columns</span></code> for the requested
+<code class="docutils literal notranslate"><span class="pre">instrument</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the response for faster subsequent retrieval.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>A table representing the data available in the archive for the
+specified instrument, matching the constraints specified in
+<code class="docutils literal notranslate"><span class="pre">kwargs</span></code>. The number of rows returned is capped by the
+ROW_LIMIT configuration item.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.query_surveys">
+<span class="sig-name descname"><span class="pre">query_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.query_surveys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.query_surveys" title="Link to this definition">¶</a></dt>
+<dd><p>Query survey Phase 3 data contained in the ESO archive.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>survey</strong><span class="classifier">string or list</span></dt><dd><p>Name of the survey(s) to query.  Should beone or more of the
+names returned by <a class="reference internal" href="#astroquery.eso.EsoClass.list_surveys" title="astroquery.eso.EsoClass.list_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_surveys</span></code></a>.  If
+specified as a string, should be a comma-separated list of
+survey names.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the response for faster subsequent retrieval</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></dt><dd><p>A table representing the data available in the archive for the
+specified survey, matching the constraints specified in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.
+The number of rows returned is capped by the ROW_LIMIT
+configuration item. <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> is returned when the query has no
+results.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.eso.EsoClass.retrieve_data">
+<span class="sig-name descname"><span class="pre">retrieve_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_calib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_all_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unzip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/eso/core.html#EsoClass.retrieve_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.eso.EsoClass.retrieve_data" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a list of datasets form the ESO archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>datasets</strong><span class="classifier">list of strings or string</span></dt><dd><p>List of datasets strings to retrieve from the archive.</p>
+</dd>
+<dt><strong>destination: string</strong></dt><dd><p>Directory where the files are copied.
+Files already found in the destination directory are skipped,
+unless continuation=True.
+Default to astropy cache.</p>
+</dd>
+<dt><strong>continuation</strong><span class="classifier">bool</span></dt><dd><p>Force the retrieval of data that are present in the destination
+directory.</p>
+</dd>
+<dt><strong>with_calib</strong><span class="classifier">string</span></dt><dd><p>Retrieve associated calibration files: None (default), ‘raw’ for
+raw calibrations, or ‘processed’ for processed calibrations.</p>
+</dd>
+<dt><strong>unzip</strong><span class="classifier">bool</span></dt><dd><p>Unzip compressed files from the archive after download. <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> by
+default.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>files</strong><span class="classifier">list of strings or string</span></dt><dd><p>List of files that have been locally downloaded from the archive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dptbl</span> <span class="o">=</span> <span class="n">Eso</span><span class="o">.</span><span class="n">query_instrument</span><span class="p">(</span><span class="s1">&#39;apex&#39;</span><span class="p">,</span> <span class="n">pi_coi</span><span class="o">=</span><span class="s1">&#39;ginsburg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dpids</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DP.ID&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dptbl</span> <span class="k">if</span> <span class="s1">&#39;Map&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Object&#39;</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Eso</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">(</span><span class="n">dpids</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">EsoClass</a><ul>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass"><code class="docutils literal notranslate"><span class="pre">EsoClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.AUTH_URL"><code class="docutils literal notranslate"><span class="pre">EsoClass.AUTH_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.CALSELECTOR_URL"><code class="docutils literal notranslate"><span class="pre">EsoClass.CALSELECTOR_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.DOWNLOAD_URL"><code class="docutils literal notranslate"><span class="pre">EsoClass.DOWNLOAD_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.GUNZIP"><code class="docutils literal notranslate"><span class="pre">EsoClass.GUNZIP</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.QUERY_INSTRUMENT_URL"><code class="docutils literal notranslate"><span class="pre">EsoClass.QUERY_INSTRUMENT_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.ROW_LIMIT"><code class="docutils literal notranslate"><span class="pre">EsoClass.ROW_LIMIT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.USERNAME"><code class="docutils literal notranslate"><span class="pre">EsoClass.USERNAME</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.get_associated_files"><code class="docutils literal notranslate"><span class="pre">EsoClass.get_associated_files()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.get_headers"><code class="docutils literal notranslate"><span class="pre">EsoClass.get_headers()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.list_instruments"><code class="docutils literal notranslate"><span class="pre">EsoClass.list_instruments()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.list_surveys"><code class="docutils literal notranslate"><span class="pre">EsoClass.list_surveys()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.login"><code class="docutils literal notranslate"><span class="pre">EsoClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.query_apex_quicklooks"><code class="docutils literal notranslate"><span class="pre">EsoClass.query_apex_quicklooks()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.query_instrument"><code class="docutils literal notranslate"><span class="pre">EsoClass.query_instrument()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.query_main"><code class="docutils literal notranslate"><span class="pre">EsoClass.query_main()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.query_surveys"><code class="docutils literal notranslate"><span class="pre">EsoClass.query_surveys()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.eso.EsoClass.retrieve_data"><code class="docutils literal notranslate"><span class="pre">EsoClass.retrieve_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.eso.EsoClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

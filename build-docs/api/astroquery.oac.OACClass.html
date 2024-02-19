@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OACClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.oac.Conf.html" />
+    <link rel="prev" title="OAC API Queries (astroquery.oac)" href="../oac/oac.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.oac.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../oac/oac.html" title="OAC API Queries (astroquery.oac)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../oac/oac.html" accesskey="U">OAC API Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.oac</span></code>)</a> &#187;</li>
+      
+      <li>OACClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="oacclass">
+<h1>OACClass<a class="headerlink" href="#oacclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.oac.</span></span><span class="sig-name descname"><span class="pre">OACClass</span></span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>OAC class.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.FORMAT" title="astroquery.oac.OACClass.FORMAT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FORMAT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.HEADERS" title="astroquery.oac.OACClass.HEADERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HEADERS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.TIMEOUT" title="astroquery.oac.OACClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.URL" title="astroquery.oac.OACClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_photometry" title="astroquery.oac.OACClass.get_photometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_photometry</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_photometry_async" title="astroquery.oac.OACClass.get_photometry_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_photometry_async</span></code></a>(event, *[, argument, cache])</p></td>
+<td><p>Retrieve all photometry for specified event(s).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_single_spectrum" title="astroquery.oac.OACClass.get_single_spectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_single_spectrum</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_single_spectrum_async" title="astroquery.oac.OACClass.get_single_spectrum_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_single_spectrum_async</span></code></a>(event, time, *[, ...])</p></td>
+<td><p>Retrieve a single spectrum at a specified time for given event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_spectra" title="astroquery.oac.OACClass.get_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spectra</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.get_spectra_async" title="astroquery.oac.OACClass.get_spectra_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spectra_async</span></code></a>(event, *[, cache])</p></td>
+<td><p>Retrieve all spectra for a specified event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.query_object" title="astroquery.oac.OACClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.query_object_async" title="astroquery.oac.OACClass.query_object_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object_async</span></code></a>(event, *[, quantity, ...])</p></td>
+<td><p>Retrieve object(s) asynchronously.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.query_region" title="astroquery.oac.OACClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.oac.OACClass.query_region_async" title="astroquery.oac.OACClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Query a region asynchronously.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#astroquery.oac.OACClass.FORMAT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.HEADERS">
+<span class="sig-name descname"><span class="pre">HEADERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Accept':</span> <span class="pre">'text/plain',</span> <span class="pre">'Content-type':</span> <span class="pre">'application/json'}</span></em><a class="headerlink" href="#astroquery.oac.OACClass.HEADERS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.oac.OACClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://api.astrocats.space/'</span></em><a class="headerlink" href="#astroquery.oac.OACClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_photometry">
+<span class="sig-name descname"><span class="pre">get_photometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.oac.OACClass.get_photometry" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Retrieve all photometry for specified event(s).</p>
+<p>This is a version of the query_object method
+that is set up to quickly return the complete set
+of light curve(s) for the given event(s).</p>
+<p>The light curves are returned by default as an
+Astropy Table.</p>
+<p>Additional arguments can be specified but more complicated
+queries should make use of the base query_object method
+instead of get_photometry.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str or list, required</span></dt><dd><p>Name of the event to query. Can be a list
+of event names.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_photometry_async">
+<span class="sig-name descname"><span class="pre">get_photometry_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass.get_photometry_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass.get_photometry_async" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve all photometry for specified event(s).</p>
+<p>This is a version of the query_object method
+that is set up to quickly return the complete set
+of light curve(s) for the given event(s).</p>
+<p>The light curves are returned by default as an
+Astropy Table.</p>
+<p>Additional arguments can be specified but more complicated
+queries should make use of the base query_object method
+instead of get_photometry.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str or list, required</span></dt><dd><p>Name of the event to query. Can be a list
+of event names.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The default result is an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object. The
+user can also request a JSON dictionary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_single_spectrum">
+<span class="sig-name descname"><span class="pre">get_single_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.oac.OACClass.get_single_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Retrieve a single spectrum at a specified time for given event.</p>
+<p>This is a version of the query_object method
+that is set up to quickly return a single spectrum
+at a user-specified time. The time does not have to be
+precise as the method uses the closest option by default.</p>
+<p>The spectrum is returned as an astropy table.</p>
+<p>More complicated queries, or queries requesting multiple spectra,
+should make use of the base query_object or get_spectra methods.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str, required</span></dt><dd><p>Name of the event to query. Must be a single event.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float, required</span></dt><dd><p>A single MJD time to query. This time does not need to be
+exact. The closest spectrum will be returned.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_single_spectrum_async">
+<span class="sig-name descname"><span class="pre">get_single_spectrum_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass.get_single_spectrum_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass.get_single_spectrum_async" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a single spectrum at a specified time for given event.</p>
+<p>This is a version of the query_object method
+that is set up to quickly return a single spectrum
+at a user-specified time. The time does not have to be
+precise as the method uses the closest option by default.</p>
+<p>The spectrum is returned as an astropy table.</p>
+<p>More complicated queries, or queries requesting multiple spectra,
+should make use of the base query_object or get_spectra methods.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str, required</span></dt><dd><p>Name of the event to query. Must be a single event.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float, required</span></dt><dd><p>A single MJD time to query. This time does not need to be
+exact. The closest spectrum will be returned.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The default result is an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object. The
+user can also request a JSON dictionary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_spectra">
+<span class="sig-name descname"><span class="pre">get_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.oac.OACClass.get_spectra" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Retrieve all spectra for a specified event.</p>
+<p>This is a version of the query_object method
+that is set up to quickly return all available spectra
+for a single event.</p>
+<p>The spectra must be returned as a JSON-compliant dictionary.
+Multiple spectra can not be unwrapped into a csv/Table.</p>
+<p>More complicated queries should make use of the
+base query_object methods.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str, required</span></dt><dd><p>Name of the event to query. Can be a single event or a
+list of events.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.get_spectra_async">
+<span class="sig-name descname"><span class="pre">get_spectra_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass.get_spectra_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass.get_spectra_async" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve all spectra for a specified event.</p>
+<p>This is a version of the query_object method
+that is set up to quickly return all available spectra
+for a single event.</p>
+<p>The spectra must be returned as a JSON-compliant dictionary.
+Multiple spectra can not be unwrapped into a csv/Table.</p>
+<p>More complicated queries should make use of the
+base query_object methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str, required</span></dt><dd><p>Name of the event to query. Can be a single event or a
+list of events.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>result</strong><span class="classifier">dict</span></dt><dd><p>The default result is a JSON dictionary. An <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>
+can not be returned.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.oac.OACClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Retrieve object(s) asynchronously.</p>
+<p>Query method to retrieve the desired quantities and
+attributes for an object specified by a transient name.</p>
+<p>If no quantities or attributes are given then the query
+returns the top-level metadata about the event(s).</p>
+<p>The complete list of available quantities and attributes
+can be found at <a class="reference external" href="https://github.com/astrocatalogs/schema">https://github.com/astrocatalogs/schema</a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str or list, required</span></dt><dd><p>Name of the event to query. Can be a list
+of event names.</p>
+</dd>
+<dt><strong>quantity</strong><span class="classifier">str or list, optional</span></dt><dd><p>Name of quantity to retrieve. Can be
+a list of quantities. The default is None.</p>
+</dd>
+<dt><strong>attribute</strong><span class="classifier">str or list, optional</span></dt><dd><p>Name of specific attributes to retrieve. Can be a list
+of attributes. The default is None.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+<dt><strong>data_format: str, optional</strong></dt><dd><p>Specify the format for the returned data. The default is
+CSV for easy conversion to Astropy Tables. The user can
+also specify JSON which will return a JSON-compliant
+dictionary.
+Note: Not all queries can support CSV output.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request
+parameters as a dict. The actual HTTP request is not made.
+The default value is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.query_object_async">
+<span class="sig-name descname"><span class="pre">query_object_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass.query_object_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass.query_object_async" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve object(s) asynchronously.</p>
+<p>Query method to retrieve the desired quantities and
+attributes for an object specified by a transient name.</p>
+<p>If no quantities or attributes are given then the query
+returns the top-level metadata about the event(s).</p>
+<p>The complete list of available quantities and attributes
+can be found at <a class="reference external" href="https://github.com/astrocatalogs/schema">https://github.com/astrocatalogs/schema</a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">str or list, required</span></dt><dd><p>Name of the event to query. Can be a list
+of event names.</p>
+</dd>
+<dt><strong>quantity</strong><span class="classifier">str or list, optional</span></dt><dd><p>Name of quantity to retrieve. Can be
+a list of quantities. The default is None.</p>
+</dd>
+<dt><strong>attribute</strong><span class="classifier">str or list, optional</span></dt><dd><p>Name of specific attributes to retrieve. Can be a list
+of attributes. The default is None.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+<dt><strong>data_format: str, optional</strong></dt><dd><p>Specify the format for the returned data. The default is
+CSV for easy conversion to Astropy Tables. The user can
+also specify JSON which will return a JSON-compliant
+dictionary.
+Note: Not all queries can support CSV output.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request
+parameters as a dict. The actual HTTP request is not made.
+The default value is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The default result is an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object. The
+user can also request a JSON dictionary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.oac.OACClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query a region asynchronously.</p>
+<p>Query method to retrieve the desired quantities and
+attributes for an object specified by a region on the sky.
+The search can be either a cone search (using the radius
+parameter) or a box search (using the width/height parameters).</p>
+<p>IMPORTANT: The API can only query a single set of coordinates
+at a time.</p>
+<p>The complete list of available quantities and attributes
+can be found at <a class="reference external" href="https://github.com/astrocatalogs/schema">https://github.com/astrocatalogs/schema</a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>.</span></dt><dd><p>A single set of ra/dec coorindates to query. Can be either
+a list with [ra,dec] or an astropy coordinates object.
+Can be given in sexigesimal or decimal format. The API
+can not query multiple sets of coordinates.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The radius, in arcseconds, of the cone search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The width, in arcseconds, of the box search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The height, in arcseconds, of the box search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>quantity: str or list, optional</strong></dt><dd><p>Name of quantity to retrieve. Can be a
+a list of quantities. The default is None.</p>
+</dd>
+<dt><strong>attribute: str or list, optional</strong></dt><dd><p>Name of specific attributes to retrieve. Can be a list
+of attributes. The default is None.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+<dt><strong>data_format: str, optional</strong></dt><dd><p>Specify the format for the returned data. The default is
+CSV for easy conversion to Astropy Tables. The user can
+also specify JSON which will return a JSON-compliant
+dictionary.
+Note: Not all queries can support CSV output.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request
+parameters as a dict. The actual HTTP request is not made.
+The default value is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.oac.OACClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/oac/core.html#OACClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.oac.OACClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query a region asynchronously.</p>
+<p>Query method to retrieve the desired quantities and
+attributes for an object specified by a region on the sky.
+The search can be either a cone search (using the radius
+parameter) or a box search (using the width/height parameters).</p>
+<p>IMPORTANT: The API can only query a single set of coordinates
+at a time.</p>
+<p>The complete list of available quantities and attributes
+can be found at <a class="reference external" href="https://github.com/astrocatalogs/schema">https://github.com/astrocatalogs/schema</a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a>.</span></dt><dd><p>A single set of ra/dec coorindates to query. Can be either
+a list with [ra,dec] or an astropy coordinates object.
+Can be given in sexigesimal or decimal format. The API
+can not query multiple sets of coordinates.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The radius, in arcseconds, of the cone search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The width, in arcseconds, of the box search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">str, float or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a>, optional</span></dt><dd><p>The height, in arcseconds, of the box search centered
+on coordinates. Should be a single, float-convertable value
+or an astropy quantity. The default value is None.</p>
+</dd>
+<dt><strong>quantity: str or list, optional</strong></dt><dd><p>Name of quantity to retrieve. Can be a
+a list of quantities. The default is None.</p>
+</dd>
+<dt><strong>attribute: str or list, optional</strong></dt><dd><p>Name of specific attributes to retrieve. Can be a list
+of attributes. The default is None.</p>
+</dd>
+<dt><strong>argument</strong><span class="classifier">str or list, optional</span></dt><dd><p>These are special conditional arguments that can be applied
+to a query to refine.
+Examples include: ‘band=i’ returns only i-band photometry,
+‘first’ returns the first result, ‘sortby=attribute’ returns
+a table sorted by the given attribute, and ‘complete’ returns
+only those table rows with all of the requested attributes.
+A complete list of commands and their usage can be found at:
+<a class="reference external" href="https://github.com/astrocatalogs/OACAPI">https://github.com/astrocatalogs/OACAPI</a>. The default is None.</p>
+</dd>
+<dt><strong>data_format: str, optional</strong></dt><dd><p>Specify the format for the returned data. The default is
+CSV for easy conversion to Astropy Tables. The user can
+also specify JSON which will return a JSON-compliant
+dictionary.
+Note: Not all queries can support CSV output.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> the method returns the HTTP request
+parameters as a dict. The actual HTTP request is not made.
+The default value is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The default result is an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object. The
+user can also request a JSON dictionary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">OACClass</a><ul>
+<li><a class="reference internal" href="#astroquery.oac.OACClass"><code class="docutils literal notranslate"><span class="pre">OACClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.FORMAT"><code class="docutils literal notranslate"><span class="pre">OACClass.FORMAT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.HEADERS"><code class="docutils literal notranslate"><span class="pre">OACClass.HEADERS</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">OACClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.URL"><code class="docutils literal notranslate"><span class="pre">OACClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_photometry"><code class="docutils literal notranslate"><span class="pre">OACClass.get_photometry()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_photometry_async"><code class="docutils literal notranslate"><span class="pre">OACClass.get_photometry_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_single_spectrum"><code class="docutils literal notranslate"><span class="pre">OACClass.get_single_spectrum()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_single_spectrum_async"><code class="docutils literal notranslate"><span class="pre">OACClass.get_single_spectrum_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_spectra"><code class="docutils literal notranslate"><span class="pre">OACClass.get_spectra()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.get_spectra_async"><code class="docutils literal notranslate"><span class="pre">OACClass.get_spectra_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.query_object"><code class="docutils literal notranslate"><span class="pre">OACClass.query_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.query_object_async"><code class="docutils literal notranslate"><span class="pre">OACClass.query_object_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.query_region"><code class="docutils literal notranslate"><span class="pre">OACClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.oac.OACClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">OACClass.query_region_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.oac.OACClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

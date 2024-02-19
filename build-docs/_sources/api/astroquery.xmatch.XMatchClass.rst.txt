@@ -1,0 +1,35 @@
+XMatchClass
+===========
+
+.. currentmodule:: astroquery.xmatch
+
+.. autoclass:: XMatchClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~XMatchClass.TIMEOUT
+      ~XMatchClass.URL
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~XMatchClass.get_available_tables
+      ~XMatchClass.is_table_available
+      ~XMatchClass.query
+      ~XMatchClass.query_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_available_tables
+   .. automethod:: is_table_available
+   .. automethod:: query
+   .. automethod:: query_async

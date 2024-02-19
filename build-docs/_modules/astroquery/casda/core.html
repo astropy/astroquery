@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.casda.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.casda.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">unquote</span><span class="p">,</span> <span class="n">urlparse</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">import</span> <span class="nn">keyring</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astropy.io.votable</span> <span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">astroquery</span> <span class="kn">import</span> <span class="n">log</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">QueryWithLogin</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">commons</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">LoginError</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Casda&#39;</span><span class="p">,</span> <span class="s1">&#39;CasdaClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="CasdaClass">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">CasdaClass</span><span class="p">(</span><span class="n">QueryWithLogin</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for accessing ASKAP data through the CSIRO ASKAP Science Data Archive (CASDA). Typical usage:</span>
+
+<span class="sd">    result = Casda.query_region(&#39;22h15m38.2s -45d50m30.5s&#39;, radius=0.5 * u.deg)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># use the Configuration Items imported from __init__.py to set the URL,</span>
+    <span class="c1"># TIMEOUT, etc.</span>
+    <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+    <span class="n">POLL_INTERVAL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">poll_interval</span>
+    <span class="n">USERNAME</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">username</span>
+    <span class="n">_soda_base_url</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">soda_base_url</span>
+    <span class="n">_login_url</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">login_url</span>
+    <span class="n">_uws_ns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uws&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.ivoa.net/xml/UWS/v1.0&#39;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">store_password</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">reenter_password</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        login to non-public data as a known user</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str, optional</span>
+<span class="sd">            Username to the CASDA archive, uses ATNF OPAL credentials. If not given, it should be</span>
+<span class="sd">            specified in the config file.</span>
+<span class="sd">        store_password : bool, optional</span>
+<span class="sd">            Stores the password securely in your keyring. Default is False.</span>
+<span class="sd">        reenter_password : bool, optional</span>
+<span class="sd">            Asks for the password even if it is already stored in the</span>
+<span class="sd">            keyring. This is the way to overwrite an already stored passwork</span>
+<span class="sd">            on the keyring. Default is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">USERNAME</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">LoginError</span><span class="p">(</span><span class="s2">&quot;If you do not pass a username to login(), &quot;</span>
+                                 <span class="s2">&quot;you should configure a default one!&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">USERNAME</span>
+
+        <span class="c1"># Get password from keyring or prompt</span>
+        <span class="n">password</span><span class="p">,</span> <span class="n">password_from_keyring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_password</span><span class="p">(</span>
+            <span class="s2">&quot;astroquery:casda.csiro.au&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">reenter</span><span class="o">=</span><span class="n">reenter_password</span><span class="p">)</span>
+
+        <span class="c1"># Login to CASDA to test credentals</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Authenticating </span><span class="si">{0}</span><span class="s2"> on CASDA ...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+        <span class="n">login_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_login_url</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span>
+                                       <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">authenticated</span> <span class="o">=</span> <span class="n">login_response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+
+        <span class="k">if</span> <span class="n">authenticated</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Authentication successful!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">USERNAME</span> <span class="o">=</span> <span class="n">username</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span> <span class="o">=</span> <span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+
+            <span class="c1"># When authenticated, save password in keyring if needed</span>
+            <span class="k">if</span> <span class="n">password_from_keyring</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">store_password</span><span class="p">:</span>
+                <span class="n">keyring</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="s2">&quot;astroquery:casda.csiro.au&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Authentication failed&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">authenticated</span>
+
+<div class="viewcode-block" id="CasdaClass.query_region_async">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass.query_region_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_region_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries a region around the specified coordinates. Either a radius or both a height and a width</span>
+<span class="sd">        must be provided.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates`.</span>
+<span class="sd">            coordinates around which to query</span>
+<span class="sd">        radius : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the radius of the cone search</span>
+<span class="sd">        height : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the height for a box region</span>
+<span class="sd">        width : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the width for a box region</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            Just return the dict of HTTP request parameters.</span>
+<span class="sd">        cache: bool, optional</span>
+<span class="sd">            Use the astroquery internal query result cache</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+<span class="sd">            All async methods should return the raw HTTP response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                                                <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+
+        <span class="c1"># result = self._parse_result(response)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="c1"># Create the dict of HTTP request parameters by parsing the user</span>
+    <span class="c1"># entered values.</span>
+    <span class="k">def</span> <span class="nf">_args_to_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="c1"># Convert the coordinates to FK5</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;coordinates&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fk5_coords</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">parse_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">FK5</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;height&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="n">fk5_coords</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">degree</span> <span class="o">+</span> <span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">bottom</span> <span class="o">=</span> <span class="n">fk5_coords</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">degree</span> <span class="o">-</span> <span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">fk5_coords</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">degree</span> <span class="o">-</span> <span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">right</span> <span class="o">=</span> <span class="n">fk5_coords</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">degree</span> <span class="o">+</span> <span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;RANGE </span><span class="si">{</span><span class="n">left</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">right</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">bottom</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">top</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">radius</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;CIRCLE </span><span class="si">{</span><span class="n">fk5_coords</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">fk5_coords</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">radius</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;POS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;band&#39;</span><span class="p">)</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;channel&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either &#39;channel&#39; or &#39;band&#39; values may be provided but not both.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">band</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> \
+                    <span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">))</span> <span class="ow">or</span> \
+                    <span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;band&#39; value must be a list of 2 wavelength or frequency values.&quot;</span><span class="p">)</span>
+
+            <span class="n">bandBoundedLow</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">bandBoundedHigh</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">bandBoundedLow</span> <span class="ow">and</span> <span class="n">bandBoundedHigh</span> <span class="ow">and</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">physical_type</span> <span class="o">!=</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">physical_type</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;band&#39; values must have the same kind of units.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bandBoundedLow</span> <span class="ow">or</span> <span class="n">bandBoundedHigh</span><span class="p">:</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="k">if</span> <span class="n">bandBoundedLow</span> <span class="k">else</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+                <span class="k">if</span> <span class="n">unit</span><span class="o">.</span><span class="n">physical_type</span> <span class="o">==</span> <span class="s1">&#39;length&#39;</span><span class="p">:</span>
+                    <span class="n">min_band</span> <span class="o">=</span> <span class="s1">&#39;-Inf&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bandBoundedLow</span> <span class="k">else</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">max_band</span> <span class="o">=</span> <span class="s1">&#39;+Inf&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bandBoundedHigh</span> <span class="k">else</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">elif</span> <span class="n">unit</span><span class="o">.</span><span class="n">physical_type</span> <span class="o">==</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span>
+                    <span class="c1"># Swap the order when changing frequency to wavelength</span>
+                    <span class="n">min_band</span> <span class="o">=</span> <span class="s1">&#39;-Inf&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bandBoundedHigh</span> <span class="k">else</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">max_band</span> <span class="o">=</span> <span class="s1">&#39;+Inf&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bandBoundedLow</span> <span class="k">else</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;band&#39; values must be wavelengths or frequencies.&quot;</span><span class="p">)</span>
+                <span class="c1"># If values were provided in the wrong order, swap them</span>
+                <span class="k">if</span> <span class="n">bandBoundedLow</span> <span class="ow">and</span> <span class="n">bandBoundedHigh</span> <span class="ow">and</span> <span class="n">min_band</span> <span class="o">&gt;</span> <span class="n">max_band</span><span class="p">:</span>
+                    <span class="n">temp_val</span> <span class="o">=</span> <span class="n">min_band</span>
+                    <span class="n">min_band</span> <span class="o">=</span> <span class="n">max_band</span>
+                    <span class="n">max_band</span> <span class="o">=</span> <span class="n">temp_val</span>
+
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;BAND&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_band</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">max_band</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> \
+                    <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;channel&#39; value must be a list of 2 integer values.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">channel</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;CHANNEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">channel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If values were provided in the wrong order, swap them</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;CHANNEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">channel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">return</span> <span class="n">request_payload</span>
+
+    <span class="c1"># the methods above implicitly call the private _parse_result method.</span>
+    <span class="c1"># This should parse the raw HTTP response and return it as</span>
+    <span class="c1"># an `astropy.table.Table`.</span>
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># if verbose is False then suppress any VOTable related warnings</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">commons</span><span class="o">.</span><span class="n">suppress_vo_warnings</span><span class="p">()</span>
+        <span class="c1"># try to parse the result into an astropy.Table, else</span>
+        <span class="c1"># return the raw result with an informative error message.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># do something with regex to get the result into</span>
+            <span class="c1"># astropy.Table form. return the Table.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">table</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># catch common errors here, but never use bare excepts</span>
+            <span class="c1"># return raw result/ handle in some way</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Failed to convert query result to table&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+<div class="viewcode-block" id="CasdaClass.filter_out_unreleased">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass.filter_out_unreleased">[docs]</a>
+    <span class="k">def</span> <span class="nf">filter_out_unreleased</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a subset of the table which only includes released (public) data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        table: `astropy.table.Table`</span>
+<span class="sd">            A table of results as returned by query_region. Must include an obs_release_date column.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table : `astropy.table.Table`</span>
+<span class="sd">            The table with all unreleased (non public) data products filtered out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">table</span><span class="p">[(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;obs_release_date&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;obs_release_date&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">now</span><span class="p">)]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="c1"># Use datalink to get authenticated access for each file</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">soda_url</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
+            <span class="n">access_url</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;access_url&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">access_url</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">access_url</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_auth</span><span class="p">,</span>
+                                         <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+                <span class="n">service_url</span><span class="p">,</span> <span class="n">id_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_datalink_for_service_and_id</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">service_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">id_token</span><span class="p">:</span>
+                    <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">id_token</span><span class="p">)</span>
+                    <span class="n">soda_url</span> <span class="o">=</span> <span class="n">service_url</span>
+
+        <span class="c1"># Trap a request with no allowed data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">soda_url</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You do not have access to any of the requested data files.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create job to stage all files</span>
+        <span class="n">job_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_soda_job</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">soda_url</span><span class="o">=</span><span class="n">soda_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created data staging job &quot;</span> <span class="o">+</span> <span class="n">job_url</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">job_url</span>
+
+    <span class="k">def</span> <span class="nf">_complete_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_url</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="c1"># Wait for job to be complete</span>
+        <span class="n">final_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_job</span><span class="p">(</span><span class="n">job_url</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">POLL_INTERVAL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">final_status</span> <span class="o">!=</span> <span class="s1">&#39;COMPLETED&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Job ended with status &quot;</span> <span class="o">+</span> <span class="n">final_status</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data staging job did not complete successfully. Status was &#39;</span> <span class="o">+</span> <span class="n">final_status</span><span class="p">)</span>
+
+        <span class="c1"># Build list of result file urls</span>
+        <span class="n">job_details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_details_xml</span><span class="p">(</span><span class="n">job_url</span><span class="p">)</span>
+        <span class="n">fileurls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">job_details</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;uws:results&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uws_ns</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;uws:result&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uws_ns</span><span class="p">):</span>
+            <span class="n">file_location</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;{http://www.w3.org/1999/xlink}href&quot;</span><span class="p">))</span>
+            <span class="n">fileurls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_location</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fileurls</span>
+
+<div class="viewcode-block" id="CasdaClass.stage_data">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass.stage_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">stage_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Request access to a set of data files. All requests for data must use authentication. If you have access to the</span>
+<span class="sd">        data, the requested files will be brought online and a set of URLs to download the files will be returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        table: `astropy.table.Table`</span>
+<span class="sd">            A table describing the files to be staged, such as produced by query_region. It must include an</span>
+<span class="sd">            access_url column.</span>
+<span class="sd">        verbose: bool, optional</span>
+<span class="sd">            Should status message be logged periodically, defaults to False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of urls of both the requested files/cutouts and the checksums for the files/cutouts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_authenticated</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Credentials must be supplied to download CASDA image data&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">job_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_job</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;async_service&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_complete_job</span><span class="p">(</span><span class="n">job_url</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CasdaClass.cutout">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass.cutout">[docs]</a>
+    <span class="k">def</span> <span class="nf">cutout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produce a cutout from each selected file. All requests for data must use authentication. If you have access to</span>
+<span class="sd">        the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to</span>
+<span class="sd">        download the cutouts will be returned.</span>
+
+<span class="sd">        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will</span>
+<span class="sd">        produce a spatial cutout at that location from each data file specified in the table. If a band or channel pair</span>
+<span class="sd">        is provided then CASDA will produce a spectral cutout of that range from each data file. These can be combined</span>
+<span class="sd">        to produce subcubes with restrictions in both spectral and spatial axes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        table: `astropy.table.Table`</span>
+<span class="sd">            A table describing the files to be staged, such as produced by query_region. It must include an</span>
+<span class="sd">            access_url column.</span>
+<span class="sd">        coordinates : str or `astropy.coordinates`, optional</span>
+<span class="sd">            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is</span>
+<span class="sd">            provided.</span>
+<span class="sd">        radius : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the radius of the cutout</span>
+<span class="sd">        height : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the height for a box cutout</span>
+<span class="sd">        width : str or `astropy.units.Quantity`, optional</span>
+<span class="sd">            the width for a box cutout</span>
+<span class="sd">        band : list of `astropy.units.Quantity` with two elements, optional</span>
+<span class="sd">            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in</span>
+<span class="sd">            Hertz. Use None for an open bound.</span>
+<span class="sd">        channel : list of int with two elements, optional</span>
+<span class="sd">            the spectral range to be included, the low and high channels (i.e. planes of a cube) inclusive</span>
+<span class="sd">        verbose: bool, optional</span>
+<span class="sd">            Should status messages be logged periodically, defaults to False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of urls of both the requested files/cutouts and the checksums for the files/cutouts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_authenticated</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Credentials must be supplied to download CASDA image data&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">job_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_job</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;cutout_service&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="n">cutout_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                                            <span class="n">band</span><span class="o">=</span><span class="n">band</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cutout_spec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide cutout parameters such as coordinates, band or channel.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_cutout_params</span><span class="p">(</span><span class="n">job_url</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">cutout_spec</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_complete_job</span><span class="p">(</span><span class="n">job_url</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CasdaClass.download_files">
+<a class="viewcode-back" href="../../../api/astroquery.casda.CasdaClass.html#astroquery.casda.CasdaClass.download_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">savedir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download a series of files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        urls: list of strings</span>
+<span class="sd">            The list of URLs of the files to be downloaded.</span>
+<span class="sd">        savedir: str, optional</span>
+<span class="sd">            The directory in which to save the files.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of the full filenames of the downloaded files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># for each url in list, download file and checksum</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="n">parseResult</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">local_filename</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">parseResult</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
+                <span class="c1"># Windows doesn&#39;t allow special characters in filenames like</span>
+                <span class="c1"># &quot;:&quot; so replace them with an underscore</span>
+                <span class="n">local_filename</span> <span class="o">=</span> <span class="n">local_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="n">local_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">savedir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_location</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">local_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_filepath</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">local_filepath</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">filenames</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_datalink_for_service_and_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">service_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a datalink file into a vo table, and returns the async service url and the authenticated id token.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response: `requests.Response`</span>
+<span class="sd">            The datalink query response.</span>
+<span class="sd">        service_name: str</span>
+<span class="sd">            The name of the service to be utilised.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The url of the async service and the authenticated id token of the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="n">votable</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">resource</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">votable</span><span class="o">.</span><span class="n">resources</span> <span class="k">if</span>
+                       <span class="n">resource</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;results&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">results_array</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">array</span>
+        <span class="n">async_url</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">authenticated_id_token</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Find the authenticated id token for accessing the image cube</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results_array</span><span class="p">:</span>
+            <span class="n">service_def</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;service_def&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service_def</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                <span class="n">service_def</span> <span class="o">=</span> <span class="n">service_def</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service_def</span> <span class="o">==</span> <span class="n">service_name</span><span class="p">:</span>
+                <span class="n">authenticated_id_token</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;authenticated_id_token&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service_def</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                    <span class="n">authenticated_id_token</span> <span class="o">=</span> <span class="n">authenticated_id_token</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Find the async url</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">votable</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;meta&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">ID</span> <span class="o">==</span> <span class="n">service_name</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;accessURL&quot;</span><span class="p">:</span>
+                            <span class="n">async_url</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">value</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">async_url</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                                <span class="n">async_url</span> <span class="o">=</span> <span class="n">async_url</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">async_url</span><span class="p">,</span> <span class="n">authenticated_id_token</span>
+
+    <span class="k">def</span> <span class="nf">_create_soda_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authenticated_id_tokens</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">soda_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates the async job, returning the url to query the job status and details</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        authenticated_id_tokens: list of str</span>
+<span class="sd">            A list of tokens identifying the data products to be accessed.</span>
+<span class="sd">        soda_url: str, optional</span>
+<span class="sd">            The URL to be used to access the soda service. If not provided, the default CASDA one will be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The url of the SODA job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">id_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">((</span><span class="k">lambda</span> <span class="n">authenticated_id_token</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">authenticated_id_token</span><span class="p">)),</span>
+                <span class="n">authenticated_id_tokens</span><span class="p">))</span>
+        <span class="n">async_url</span> <span class="o">=</span> <span class="n">soda_url</span> <span class="k">if</span> <span class="n">soda_url</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_soda_url</span><span class="p">()</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">async_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">id_params</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="k">def</span> <span class="nf">_add_cutout_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_location</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">cutout_spec</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a cutout specification to an async SODA job. This will change the job</span>
+<span class="sd">        from just retrieving the full file to producing a cutout from the target file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        job_location: str</span>
+<span class="sd">            The url to query the job status and details</span>
+<span class="sd">        verbose: bool</span>
+<span class="sd">            Should progress be logged periodically</span>
+<span class="sd">        cutout_spec: map</span>
+<span class="sd">            The map containing the POS parameter defining the cutout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding parameters: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cutout_spec</span><span class="p">))</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">job_location</span> <span class="o">+</span> <span class="s1">&#39;/parameters&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">cutout_spec</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_run_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_location</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start an async job (e.g. TAP or SODA) and wait for it to be completed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        job_location: str</span>
+<span class="sd">            The url to query the job status and details</span>
+<span class="sd">        verbose: bool</span>
+<span class="sd">            Should progress be logged periodically</span>
+<span class="sd">        poll_interval: int, optional</span>
+<span class="sd">            The number of seconds to wait between checks on the status of the job.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The single word final status of the job. Normally COMPLETED or ERROR</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start the async job</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting the retrieval job...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">job_location</span> <span class="o">+</span> <span class="s2">&quot;/phase&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;phase&#39;</span><span class="p">:</span> <span class="s1">&#39;RUN&#39;</span><span class="p">},</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Poll until the async job has finished</span>
+        <span class="n">prev_status</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">job_details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_details_xml</span><span class="p">(</span><span class="n">job_location</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_job_status</span><span class="p">(</span><span class="n">job_details</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;EXECUTING&#39;</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;QUEUED&#39;</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;PENDING&#39;</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="p">(</span><span class="n">status</span> <span class="o">!=</span> <span class="n">prev_status</span> <span class="ow">or</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">):</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Job is </span><span class="si">%s</span><span class="s2">, polling every </span><span class="si">%d</span><span class="s2"> seconds.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">poll_interval</span><span class="p">))</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">prev_status</span> <span class="o">=</span> <span class="n">status</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">poll_interval</span><span class="p">)</span>
+            <span class="n">job_details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_details_xml</span><span class="p">(</span><span class="n">job_location</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_job_status</span><span class="p">(</span><span class="n">job_details</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_get_soda_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_soda_base_url</span> <span class="o">+</span> <span class="s2">&quot;data/async&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_job_details_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">async_job_url</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get job details as XML</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        async_job_url: str</span>
+<span class="sd">            The url to query the job details</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        `xml.etree.ElementTree` The job details object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">async_job_url</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">job_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">return</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">job_response</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_details_xml</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read job status from the job details XML</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        job_details_xml: `xml.etree.ElementTree`</span>
+<span class="sd">            The SODA job details</span>
+<span class="sd">        verbose: bool</span>
+<span class="sd">            Should additional information be logged for errors</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The single word status of the job. e.g. COMPLETED, EXECUTING, ERROR</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status_node</span> <span class="o">=</span> <span class="n">job_details_xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{http://www.ivoa.net/xml/UWS/v1.0}phase&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unable to find status in status xml:&quot;</span><span class="p">)</span>
+                <span class="n">ElementTree</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">job_details_xml</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid job status xml received.&#39;</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">status_node</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">return</span> <span class="n">status</span></div>
+
+
+
+<span class="c1"># the default tool for users to interact with is an instance of the Class</span>
+<span class="n">Casda</span> <span class="o">=</span> <span class="n">CasdaClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

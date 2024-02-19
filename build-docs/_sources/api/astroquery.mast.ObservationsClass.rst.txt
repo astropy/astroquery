@@ -1,0 +1,81 @@
+ObservationsClass
+=================
+
+.. currentmodule:: astroquery.mast
+
+.. autoclass:: ObservationsClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ObservationsClass.cache_location
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ObservationsClass.__call__
+      ~ObservationsClass.authenticated
+      ~ObservationsClass.clear_cache
+      ~ObservationsClass.disable_cloud_dataset
+      ~ObservationsClass.download_file
+      ~ObservationsClass.download_products
+      ~ObservationsClass.enable_cloud_dataset
+      ~ObservationsClass.filter_products
+      ~ObservationsClass.get_cloud_uri
+      ~ObservationsClass.get_cloud_uris
+      ~ObservationsClass.get_metadata
+      ~ObservationsClass.get_product_list
+      ~ObservationsClass.get_product_list_async
+      ~ObservationsClass.list_missions
+      ~ObservationsClass.login
+      ~ObservationsClass.logout
+      ~ObservationsClass.query_criteria
+      ~ObservationsClass.query_criteria_async
+      ~ObservationsClass.query_criteria_count
+      ~ObservationsClass.query_object
+      ~ObservationsClass.query_object_async
+      ~ObservationsClass.query_object_count
+      ~ObservationsClass.query_region
+      ~ObservationsClass.query_region_async
+      ~ObservationsClass.query_region_count
+      ~ObservationsClass.reset_cache_location
+      ~ObservationsClass.resolve_object
+      ~ObservationsClass.session_info
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: cache_location
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: authenticated
+   .. automethod:: clear_cache
+   .. automethod:: disable_cloud_dataset
+   .. automethod:: download_file
+   .. automethod:: download_products
+   .. automethod:: enable_cloud_dataset
+   .. automethod:: filter_products
+   .. automethod:: get_cloud_uri
+   .. automethod:: get_cloud_uris
+   .. automethod:: get_metadata
+   .. automethod:: get_product_list
+   .. automethod:: get_product_list_async
+   .. automethod:: list_missions
+   .. automethod:: login
+   .. automethod:: logout
+   .. automethod:: query_criteria
+   .. automethod:: query_criteria_async
+   .. automethod:: query_criteria_count
+   .. automethod:: query_object
+   .. automethod:: query_object_async
+   .. automethod:: query_object_count
+   .. automethod:: query_region
+   .. automethod:: query_region_async
+   .. automethod:: query_region_count
+   .. automethod:: reset_cache_location
+   .. automethod:: resolve_object
+   .. automethod:: session_info

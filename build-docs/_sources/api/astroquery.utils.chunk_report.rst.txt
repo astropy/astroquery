@@ -1,0 +1,6 @@
+chunk_report
+============
+
+.. currentmodule:: astroquery.utils
+
+.. autofunction:: chunk_report

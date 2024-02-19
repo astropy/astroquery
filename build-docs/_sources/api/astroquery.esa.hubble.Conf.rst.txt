@@ -1,0 +1,25 @@
+Conf
+====
+
+.. currentmodule:: astroquery.esa.hubble
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.EHST_MESSAGES
+      ~Conf.EHST_TAP_SERVER
+      ~Conf.EHST_TARGET_ACTION
+      ~Conf.TIMEOUT
+      ~Conf.cache_location
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: EHST_MESSAGES
+   .. autoattribute:: EHST_TAP_SERVER
+   .. autoattribute:: EHST_TARGET_ACTION
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: cache_location

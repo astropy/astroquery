@@ -1,0 +1,33 @@
+MostClass
+=========
+
+.. currentmodule:: astroquery.ipac.irsa
+
+.. autoclass:: MostClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~MostClass.TIMEOUT
+      ~MostClass.URL
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MostClass.get_images
+      ~MostClass.list_catalogs
+      ~MostClass.query_object
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_images
+   .. automethod:: list_catalogs
+   .. automethod:: query_object

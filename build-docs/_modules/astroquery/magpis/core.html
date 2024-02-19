@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.magpis.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../magpis.html" accesskey="U">astroquery.magpis</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.magpis.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">commons</span><span class="p">,</span> <span class="n">prepend_docstr_nosections</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">InvalidQueryError</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Magpis&#39;</span><span class="p">,</span> <span class="s1">&#39;MagpisClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MagpisClass">
+<a class="viewcode-back" href="../../../api/astroquery.magpis.MagpisClass.html#astroquery.magpis.MagpisClass">[docs]</a>
+<span class="k">class</span> <span class="nc">MagpisClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+    <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+    <span class="n">surveys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gps6&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps6epoch2&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps6epoch3&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps6epoch4&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps20&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps20new&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gps90&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsmsx&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsmsx2&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsglimpse36&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsglimpse45&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsglimpse58&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;gpsglimpse80&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;mipsgal&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;atlasgal&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;bolocam&quot;</span><span class="p">]</span>
+    <span class="n">maximsize</span> <span class="o">=</span> <span class="mi">1024</span>
+
+    <span class="k">def</span> <span class="nf">_args_to_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span>
+                         <span class="n">survey</span><span class="o">=</span><span class="s1">&#39;bolocam&#39;</span><span class="p">,</span> <span class="n">maximsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetches image cutouts from MAGPIS surveys.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string in which case it is resolved using online services or as</span>
+<span class="sd">            the appropriate `astropy.coordinates` object. ICRS coordinates</span>
+<span class="sd">            may also be entered as strings as specified in the</span>
+<span class="sd">            `astropy.coordinates` module.</span>
+<span class="sd">        image_size : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">           The string must be parsable by `astropy.coordinates.Angle`. The</span>
+<span class="sd">           appropriate `~astropy.units.Quantity` object from `astropy.units`</span>
+<span class="sd">           may also be used. Specifies the symmetric size of the</span>
+<span class="sd">           image. Defaults to 1 arcmin.</span>
+<span class="sd">        survey : str, optional</span>
+<span class="sd">            The MAGPIS survey you want to cut out. Defaults to</span>
+<span class="sd">            &#39;bolocam&#39;. The other surveys that can be used can be listed via</span>
+<span class="sd">            :meth:`~astroquery.magpis.MagpisClass.list_surveys`.</span>
+<span class="sd">        maximsize : int, optional</span>
+<span class="sd">            Specify the maximum image size (in pixels on each dimension) that</span>
+<span class="sd">            will be returned.  Max is 2048.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;Survey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">survey</span>
+        <span class="n">galactic_coords</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">parse_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;galactic&#39;</span><span class="p">)</span>
+        <span class="n">ra_dec_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">galactic_coords</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">degree</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">galactic_coords</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">degree</span><span class="p">)</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ra_dec_str</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;Equinox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Galactic&quot;</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;ImageSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">image_size</span><span class="p">)</span><span class="o">.</span><span class="n">arcmin</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;ImageType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;FITS File&quot;</span>
+        <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;MaxImSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximsize</span> <span class="k">if</span> <span class="n">maximsize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">maximsize</span>
+        <span class="k">return</span> <span class="n">request_payload</span>
+
+<div class="viewcode-block" id="MagpisClass.get_images">
+<a class="viewcode-back" href="../../../api/astroquery.magpis.MagpisClass.html#astroquery.magpis.MagpisClass.get_images">[docs]</a>
+    <span class="nd">@prepend_docstr_nosections</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">_args_to_payload</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span>
+                   <span class="n">survey</span><span class="o">=</span><span class="s1">&#39;bolocam&#39;</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            if set to `True` then returns the dictionary sent as the HTTP</span>
+<span class="sd">            request.  Defaults to `False`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of `~astropy.io.fits.HDUList` objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_images_async</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
+                                         <span class="n">survey</span><span class="o">=</span><span class="n">survey</span><span class="p">,</span>
+                                         <span class="n">get_query_payload</span><span class="o">=</span><span class="n">get_query_payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="n">content_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">content_buffer</span><span class="p">,</span> <span class="n">ignore_missing_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MagpisClass.get_images_async">
+<a class="viewcode-back" href="../../../api/astroquery.magpis.MagpisClass.html#astroquery.magpis.MagpisClass.get_images_async">[docs]</a>
+    <span class="nd">@prepend_docstr_nosections</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">_args_to_payload</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_images_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span>
+                         <span class="n">survey</span><span class="o">=</span><span class="s1">&#39;bolocam&#39;</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            if set to `True` then returns the dictionary sent as the HTTP</span>
+<span class="sd">            request.  Defaults to `False`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">survey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">surveys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Survey must be one of &quot;</span>
+                                    <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_surveys</span><span class="p">())))</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span>
+            <span class="n">coordinates</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span> <span class="n">survey</span><span class="o">=</span><span class="n">survey</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="MagpisClass.list_surveys">
+<a class="viewcode-back" href="../../../api/astroquery.magpis.MagpisClass.html#astroquery.magpis.MagpisClass.list_surveys">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_surveys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of surveys for MAGPIS&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">surveys</span></div>
+</div>
+
+
+
+<span class="n">Magpis</span> <span class="o">=</span> <span class="n">MagpisClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.mast.collections &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../mast.html" accesskey="U">astroquery.mast</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.mast.collections</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">MAST Collections</span>
+<span class="sd">================</span>
+
+<span class="sd">This module contains various methods for querying MAST collections such as catalogs.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Row</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">commons</span><span class="p">,</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span> <span class="nn">..utils.class_or_instance</span> <span class="kn">import</span> <span class="n">class_or_instance</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">InvalidQueryError</span><span class="p">,</span> <span class="n">MaxResultsWarning</span><span class="p">,</span> <span class="n">InputWarning</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">MastQueryWithLogin</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Catalogs&#39;</span><span class="p">,</span> <span class="s1">&#39;CatalogsClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="CatalogsClass">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">CatalogsClass</span><span class="p">(</span><span class="n">MastQueryWithLogin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAST catalog query class.</span>
+
+<span class="sd">    Class for querying MAST catalog data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;panstarrs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;panstarrs/</span><span class="si">{data_release}</span><span class="s2">/</span><span class="si">{table}</span><span class="s2">.json&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;data_release&quot;</span><span class="p">:</span> <span class="s2">&quot;dr2&quot;</span><span class="p">,</span> <span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">}}}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">set_service_params</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="s2">&quot;catalogs&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">catalog_limit</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="n">results_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">_parse_result</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results_table</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalog_limit</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Maximum catalog results returned, may not include all sources within radius.&quot;</span><span class="p">,</span>
+                          <span class="n">MaxResultsWarning</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results_table</span>
+
+<div class="viewcode-block" id="CatalogsClass.query_region_async">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.query_region_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_region_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Hsc&quot;</span><span class="p">,</span>
+                           <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a sky position and radius, returns a list of catalog entries.</span>
+<span class="sd">        See column documentation for specific catalogs `here &lt;https://mast.stsci.edu/api/v0/pages.html&gt;`__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `~astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `~astropy.coordinates` object.</span>
+<span class="sd">        radius : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0.2 degrees.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `~astropy.units` may also be used. Defaults to 0.2 deg.</span>
+<span class="sd">        catalog : str, optional</span>
+<span class="sd">            Default HSC.</span>
+<span class="sd">            The catalog to be queried.</span>
+<span class="sd">        version : int, optional</span>
+<span class="sd">            Version number for catalogs that have versions. Default is highest version.</span>
+<span class="sd">        pagesize : int, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to override the default pagesize for (set in configs) this query only.</span>
+<span class="sd">            E.g. when using a slow internet connection.</span>
+<span class="sd">        page : int, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to override the default behavior of all results being returned to obtain a</span>
+<span class="sd">            specific page of results.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Other catalog-specific keyword args.</span>
+<span class="sd">            These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]</span>
+<span class="sd">            for specific catalogs. For example one can specify the magtype for an HSC search.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Put coordinates and radius into consistent format</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">parse_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="c1"># if radius is just a number we assume degrees</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+        <span class="c1"># basic params</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ra&#39;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                  <span class="s1">&#39;dec&#39;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                  <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">radius</span><span class="o">.</span><span class="n">deg</span><span class="p">}</span>
+
+        <span class="c1"># Determine API connection and service name</span>
+        <span class="k">if</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">SERVICES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">catalog</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_portal_api_connection</span>
+
+            <span class="c1"># Sorting out the non-standard portal service names</span>
+            <span class="k">if</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hsc&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Hsc.Db.v2&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid HSC version number, defaulting to v3.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Hsc.Db.v3&quot;</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">catalog_limit</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
+
+                <span class="c1"># Hsc specific parameters (can be overridden by user)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50000</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;ni&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">elif</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;galex&quot;</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Galex.Catalog&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">catalog_limit</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;maxrecords&#39;</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
+
+                <span class="c1"># galex specific parameters (can be overridden by user)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;maxrecords&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50000</span>
+
+            <span class="k">elif</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;gaia&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.GaiaDR1.Cone&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid Gaia version number, defaulting to DR2.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.GaiaDR2.Cone&quot;</span>
+
+            <span class="k">elif</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;plato&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.Plato.Cone&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid PLATO catalog version number, defaulting to DR1.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.Plato.Cone&quot;</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.&quot;</span> <span class="o">+</span> <span class="n">catalog</span> <span class="o">+</span> <span class="s2">&quot;.Cone&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">catalog_limit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># adding additional user specified parameters</span>
+        <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">params</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Parameters will be passed as JSON objects only when accessing the PANSTARRS API</span>
+        <span class="n">use_json</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;panstarrs&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="n">pagesize</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
+                                                              <span class="n">use_json</span><span class="o">=</span><span class="n">use_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CatalogsClass.query_object_async">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.query_object_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_object_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Hsc&quot;</span><span class="p">,</span>
+                           <span class="n">pagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an object name, returns a list of catalog entries.</span>
+<span class="sd">        See column documentation for specific catalogs `here &lt;https://mast.stsci.edu/api/v0/pages.html&gt;`__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectname : str</span>
+<span class="sd">            The name of the target around which to search.</span>
+<span class="sd">        radius : str or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0.2 degrees.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`.</span>
+<span class="sd">            The appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `~astropy.units` may also be used. Defaults to 0.2 deg.</span>
+<span class="sd">        catalog : str, optional</span>
+<span class="sd">            Default HSC.</span>
+<span class="sd">            The catalog to be queried.</span>
+<span class="sd">        pagesize : int, optional</span>
+<span class="sd">            Default None.</span>
+<span class="sd">            Can be used to override the default pagesize for (set in configs) this query only.</span>
+<span class="sd">            E.g. when using a slow internet connection.</span>
+<span class="sd">        page : int, optional</span>
+<span class="sd">            Defaulte None.</span>
+<span class="sd">            Can be used to override the default behavior of all results being returned</span>
+<span class="sd">            to obtain a specific page of results.</span>
+<span class="sd">        version : int, optional</span>
+<span class="sd">            Version number for catalogs that have versions. Default is highest version.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Catalog-specific keyword args.</span>
+<span class="sd">            These can be found in the `service documentation &lt;https://mast.stsci.edu/api/v0/_services.html&gt;`__.</span>
+<span class="sd">            for specific catalogs. For example one can specify the magtype for an HSC search.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_object</span><span class="p">(</span><span class="n">objectname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_region_async</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span>
+                                       <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                                       <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
+                                       <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+                                       <span class="n">pagesize</span><span class="o">=</span><span class="n">pagesize</span><span class="p">,</span>
+                                       <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
+                                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CatalogsClass.query_criteria_async">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.query_criteria_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_criteria_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">criteria</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an set of filters, returns a list of catalog entries.</span>
+<span class="sd">        See column documentation for specific catalogs `here &lt;https://mast.stsci.edu/api/v0/pages.html&gt;`__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pagesize : int, optional</span>
+<span class="sd">            Can be used to override the default pagesize.</span>
+<span class="sd">            E.g. when using a slow internet connection.</span>
+<span class="sd">        page : int, optional</span>
+<span class="sd">            Can be used to override the default behavior of all results being returned to obtain</span>
+<span class="sd">            one specific page of results.</span>
+<span class="sd">        **criteria</span>
+<span class="sd">            Criteria to apply. At least one non-positional criteria must be supplied.</span>
+<span class="sd">            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),</span>
+<span class="sd">            and all fields listed in the column documentation for the catalog being queried.</span>
+<span class="sd">            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,</span>
+<span class="sd">            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].</span>
+<span class="sd">            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however</span>
+<span class="sd">            only one wildcarded value can be processed per criterion.</span>
+<span class="sd">            RA and Dec must be given in decimal degrees, and datetimes in MJD.</span>
+<span class="sd">            For example: filters=[&quot;FUV&quot;,&quot;NUV&quot;],proposal_pi=&quot;Ost*&quot;,t_max=[52264.4586,54452.8914]</span>
+<span class="sd">            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument</span>
+<span class="sd">            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of</span>
+<span class="sd">            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,</span>
+<span class="sd">            consisting of a list of column names. Results may also be sorted through the query with the parameter</span>
+<span class="sd">            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or</span>
+<span class="sd">            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).</span>
+<span class="sd">            Detailed information of Catalogs.MAST criteria usage can</span>
+<span class="sd">            be found `here &lt;https://catalogs.mast.stsci.edu/docs/index.html&gt;`__.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Separating any position info from the rest of the filters</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">criteria</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;coordinates&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">objectname</span> <span class="o">=</span> <span class="n">criteria</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;objectname&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">criteria</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="mf">0.2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">objectname</span> <span class="ow">or</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">objectname</span><span class="p">)</span>
+
+        <span class="c1"># if radius is just a number we assume degrees</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+        <span class="c1"># build query</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="c1"># Determine API connection, service name, and build filter set</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">SERVICES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">catalog</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">check_catalogs_criteria_params</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;At least one non-positional criterion must be supplied.&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">criteria</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">params</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_portal_api_connection</span>
+
+            <span class="k">if</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;tic&quot;</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.Filtered.Tic&quot;</span>
+                <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">or</span> <span class="n">objectname</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">+=</span> <span class="s2">&quot;.Position&quot;</span>
+                <span class="n">service</span> <span class="o">+=</span> <span class="s2">&quot;.Rows&quot;</span>  <span class="c1"># Using the rowstore version of the query for speed</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">build_filter_set</span><span class="p">(</span><span class="s2">&quot;Mast.Catalogs.Tess.Cone&quot;</span><span class="p">,</span>
+                                                                    <span class="n">service</span><span class="p">,</span> <span class="o">**</span><span class="n">criteria</span><span class="p">)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+            <span class="k">elif</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ctl&quot;</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.Filtered.Ctl&quot;</span>
+                <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">or</span> <span class="n">objectname</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">+=</span> <span class="s2">&quot;.Position&quot;</span>
+                <span class="n">service</span> <span class="o">+=</span> <span class="s2">&quot;.Rows&quot;</span>  <span class="c1"># Using the rowstore version of the query for speed</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">build_filter_set</span><span class="p">(</span><span class="s2">&quot;Mast.Catalogs.Tess.Cone&quot;</span><span class="p">,</span>
+                                                                    <span class="n">service</span><span class="p">,</span> <span class="o">**</span><span class="n">criteria</span><span class="p">)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+            <span class="k">elif</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;diskdetective&quot;</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Catalogs.Filtered.DiskDetective&quot;</span>
+                <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">or</span> <span class="n">objectname</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">+=</span> <span class="s2">&quot;.Position&quot;</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">build_filter_set</span><span class="p">(</span><span class="s2">&quot;Mast.Catalogs.Dd.Cone&quot;</span><span class="p">,</span>
+                                                                    <span class="n">service</span><span class="p">,</span> <span class="o">**</span><span class="n">criteria</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Criteria query not available for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">catalog</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filters</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;At least one non-positional criterion must be supplied.&quot;</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;filters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filters</span>
+
+        <span class="c1"># Parameters will be passed as JSON objects only when accessing the PANSTARRS API</span>
+        <span class="n">use_json</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;panstarrs&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="n">pagesize</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
+                                                              <span class="n">use_json</span><span class="o">=</span><span class="n">use_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CatalogsClass.query_hsc_matchid_async">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.query_hsc_matchid_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">query_hsc_matchid_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the matches for a given Hubble Source Catalog MatchID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        match : int or `~astropy.table.Row`</span>
+<span class="sd">            The matchID or HSC entry to return matches for.</span>
+<span class="sd">        version : int, optional</span>
+<span class="sd">            The HSC version to match against. Default is v3.</span>
+<span class="sd">        pagesize : int, optional</span>
+<span class="sd">            Can be used to override the default pagesize.</span>
+<span class="sd">            E.g. when using a slow internet connection.</span>
+<span class="sd">        page : int, optional</span>
+<span class="sd">            Can be used to override the default behavior of all results being returned to obtain</span>
+<span class="sd">            one specific page of results.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_portal_api_connection</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">Row</span><span class="p">):</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;MatchID&quot;</span><span class="p">]</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>  <span class="c1"># np.int64 gives json serializer problems, so stringify right here</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.HscMatches.Db.v2&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid HSC version number, defaulting to v3.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.HscMatches.Db.v3&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">match</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="n">pagesize</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CatalogsClass.get_hsc_spectra_async">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.get_hsc_spectra_async">[docs]</a>
+    <span class="nd">@class_or_instance</span>
+    <span class="k">def</span> <span class="nf">get_hsc_spectra_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all Hubble Source Catalog spectra.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pagesize : int, optional</span>
+<span class="sd">            Can be used to override the default pagesize.</span>
+<span class="sd">            E.g. when using a slow internet connection.</span>
+<span class="sd">        page : int, optional</span>
+<span class="sd">            Can be used to override the default behavior of all results being returned to obtain</span>
+<span class="sd">            one specific page of results.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_portal_api_connection</span>
+
+        <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.HscSpectra.Db.All&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pagesize</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CatalogsClass.download_hsc_spectra">
+<a class="viewcode-back" href="../../../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.download_hsc_spectra">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_hsc_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">download_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">curl_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download one or more Hubble Source Catalog spectra.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spectra : `~astropy.table.Table` or `~astropy.table.Row`</span>
+<span class="sd">            One or more HSC spectra to be downloaded.</span>
+<span class="sd">        download_dir : str, optional</span>
+<span class="sd">           Specify the base directory to download spectra into.</span>
+<span class="sd">           Spectra will be saved in the subdirectory download_dir/mastDownload/HSC.</span>
+<span class="sd">           If download_dir is not specified the base directory will be &#39;.&#39;.</span>
+<span class="sd">        cache : bool, optional</span>
+<span class="sd">            Default is True. If file is found on disc it will not be downloaded again.</span>
+<span class="sd">            Note: has no affect when downloading curl script.</span>
+<span class="sd">        curl_flag : bool, optional</span>
+<span class="sd">            Default is False.  If true instead of downloading files directly, a curl script</span>
+<span class="sd">            will be downloaded that can be used to download the data files at a later time.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list of `~requests.Response`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if spectra is not a Table, put it in a list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">Row</span><span class="p">):</span>
+            <span class="n">spectra</span> <span class="o">=</span> <span class="p">[</span><span class="n">spectra</span><span class="p">]</span>
+
+        <span class="c1"># set up the download directory and paths</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">download_dir</span><span class="p">:</span>
+            <span class="n">download_dir</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+
+        <span class="k">if</span> <span class="n">curl_flag</span><span class="p">:</span>  <span class="c1"># don&#39;t want to download the files now, just the curl script</span>
+
+            <span class="n">download_file</span> <span class="o">=</span> <span class="s2">&quot;mastDownload_&quot;</span> <span class="o">+</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span>
+
+            <span class="n">url_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">path_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;SpectrumType&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&amp;dataset=</span><span class="si">{0}</span><span class="s1">&#39;</span>
+                                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;DatasetName&#39;</span><span class="p">]))</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=</span><span class="si">{0}</span><span class="s1">&#39;</span>
+                                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;DatasetName&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;.fits&#39;</span><span class="p">)</span>
+
+                <span class="n">path_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">download_file</span> <span class="o">+</span> <span class="s2">&quot;/HSC/&quot;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;DatasetName&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.fits&#39;</span><span class="p">)</span>
+
+            <span class="n">description_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
+            <span class="n">producttype_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;spectrum&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
+
+            <span class="n">service</span> <span class="o">=</span> <span class="s2">&quot;Mast.Bundle.Request&quot;</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;urlList&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_list</span><span class="p">),</span>
+                      <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">download_file</span><span class="p">,</span>
+                      <span class="s2">&quot;pathList&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_list</span><span class="p">),</span>
+                      <span class="s2">&quot;descriptionList&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">description_list</span><span class="p">),</span>
+                      <span class="s2">&quot;productTypeList&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">producttype_list</span><span class="p">),</span>
+                      <span class="s2">&quot;extension&quot;</span><span class="p">:</span> <span class="s1">&#39;curl&#39;</span><span class="p">}</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_portal_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">bundler_response</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+            <span class="n">local_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.sh&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">download_file</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">bundler_response</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">],</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">head_safe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">continuation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;COMPLETE&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">local_path</span><span class="p">):</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Curl could not be downloaded&quot;</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">bundler_response</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">missing_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bundler_response</span><span class="p">[</span><span class="s1">&#39;statusList&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                 <span class="k">if</span> <span class="n">bundler_response</span><span class="p">[</span><span class="s1">&#39;statusList&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;COMPLETE&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">):</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> files could not be added to the curl script&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">))</span>
+                    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_files</span><span class="p">)</span>
+
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">Table</span><span class="p">({</span><span class="s1">&#39;Local Path&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">local_path</span><span class="p">],</span>
+                              <span class="s1">&#39;Status&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">status</span><span class="p">],</span>
+                              <span class="s1">&#39;Message&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">msg</span><span class="p">],</span>
+                              <span class="s2">&quot;URL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">url</span><span class="p">]})</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_dir</span> <span class="o">=</span> <span class="n">download_dir</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/mastDownload/HSC&quot;</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
+
+            <span class="n">manifest_array</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;SpectrumType&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">data_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&amp;dataset=</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;DatasetName&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;DatasetName&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.fits&#39;</span>
+
+                <span class="n">local_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;DatasetName&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.fits&#39;</span><span class="p">)</span>
+
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;COMPLETE&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">data_url</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">head_safe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                    <span class="c1"># check file size also this is where would perform md5</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">local_path</span><span class="p">):</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File was not downloaded&quot;</span>
+                        <span class="n">url</span> <span class="o">=</span> <span class="n">data_url</span>
+
+                <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;HTTPError: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+                    <span class="n">url</span> <span class="o">=</span> <span class="n">data_url</span>
+
+                <span class="n">manifest_array</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">local_path</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">url</span><span class="p">])</span>
+
+                <span class="n">manifest</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">manifest_array</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Local Path&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="s1">&#39;Message&#39;</span><span class="p">,</span> <span class="s2">&quot;URL&quot;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">manifest</span></div>
+</div>
+
+
+
+<span class="n">Catalogs</span> <span class="o">=</span> <span class="n">CatalogsClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

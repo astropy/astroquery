@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.vsa.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../vsa.html" accesskey="U">astroquery.vsa</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.vsa.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">..wfau</span> <span class="kn">import</span> <span class="n">BaseWFAUClass</span><span class="p">,</span> <span class="n">clean_catalog</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Vsa&#39;</span><span class="p">,</span> <span class="s1">&#39;VsaClass&#39;</span><span class="p">,</span> <span class="s1">&#39;clean_catalog&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="VsaClass">
+<a class="viewcode-back" href="../../../api/astroquery.vsa.VsaClass.html#astroquery.vsa.VsaClass">[docs]</a>
+<span class="k">class</span> <span class="nc">VsaClass</span><span class="p">(</span><span class="n">BaseWFAUClass</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The VsaQuery class.  Must instantiate this class in order to make any</span>
+<span class="sd">    queries.  Allows registered users to login, but defaults to using the</span>
+<span class="sd">    public Vsa data sets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">BASE_URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">LOGIN_URL</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;DBLogin&quot;</span>
+    <span class="n">IMAGE_URL</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;GetImage&quot;</span>
+    <span class="n">ARCHIVE_URL</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;ImageList&quot;</span>
+    <span class="n">REGION_URL</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;WSASQL&quot;</span>
+    <span class="n">CROSSID_URL</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;CrossID&quot;</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+    <span class="n">IMAGE_FORM</span> <span class="o">=</span> <span class="s1">&#39;VgetImage_form.jsp&#39;</span>
+    <span class="n">CROSSID_FORM</span> <span class="o">=</span> <span class="s1">&#39;VcrossID_form.jsp&#39;</span>
+
+    <span class="n">filters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;J&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+               <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Ks&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;NB118&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;NB980&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+
+    <span class="n">frame_types</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tilestack&#39;</span><span class="p">:</span> <span class="s1">&#39;tilestack&#39;</span><span class="p">,</span> <span class="s1">&#39;stack&#39;</span><span class="p">:</span> <span class="s1">&#39;stack&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;normal&#39;</span><span class="p">:</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;deep_stack&#39;</span><span class="p">:</span> <span class="s1">&#39;deep</span><span class="si">%s</span><span class="s1">tack&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="s1">&#39;conf&#39;</span><span class="p">,</span> <span class="s1">&#39;difference&#39;</span><span class="p">:</span> <span class="s1">&#39;diff&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">}</span>
+
+    <span class="n">programmes_short</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;VHS&#39;</span><span class="p">:</span> <span class="mi">110</span><span class="p">,</span>
+                        <span class="s1">&#39;VVV&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+                        <span class="s1">&#39;VMC&#39;</span><span class="p">:</span> <span class="mi">130</span><span class="p">,</span>
+                        <span class="s1">&#39;VIKING&#39;</span><span class="p">:</span> <span class="mi">140</span><span class="p">,</span>
+                        <span class="s1">&#39;VIDEO&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>
+                        <span class="s1">&#39;UltraVISTA&#39;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                        <span class="s1">&#39;Calibration&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
+
+    <span class="n">programmes_long</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;VISTA Hemisphere Survey&#39;</span><span class="p">:</span> <span class="mi">110</span><span class="p">,</span>
+                       <span class="s1">&#39;VISTA Variables in the Via Lactea&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+                       <span class="s1">&#39;VISTA Magellanic Clouds Survey&#39;</span><span class="p">:</span> <span class="mi">130</span><span class="p">,</span>
+                       <span class="s1">&#39;VISTA Kilo-degree Infrared Galaxy Survey&#39;</span><span class="p">:</span> <span class="mi">140</span><span class="p">,</span>
+                       <span class="s1">&#39;VISTA Deep Extragalactic Observations&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>
+                       <span class="s1">&#39;An ultra-deep survey with VISTA&#39;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                       <span class="s1">&#39;Calibration data&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
+
+    <span class="n">all_databases</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;VHSDR4&#39;</span><span class="p">,</span> <span class="s1">&#39;VHSDR3&#39;</span><span class="p">,</span> <span class="s1">&#39;VHSDR2&#39;</span><span class="p">,</span> <span class="s1">&#39;VHSDR1&#39;</span><span class="p">,</span> <span class="s1">&#39;VVVDR4&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;VVVDR2&#39;</span><span class="p">,</span> <span class="s1">&#39;VVVDR1&#39;</span><span class="p">,</span> <span class="s1">&#39;VMCDR4&#39;</span><span class="p">,</span> <span class="s1">&#39;VMCDR3&#39;</span><span class="p">,</span> <span class="s1">&#39;VMCDR2&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;VMCDR1&#39;</span><span class="p">,</span> <span class="s1">&#39;VIKINGDR4&#39;</span><span class="p">,</span> <span class="s1">&#39;VIKINGDR3&#39;</span><span class="p">,</span> <span class="s1">&#39;VIKINGDR2&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;VIDEODR5&#39;</span><span class="p">,</span> <span class="s1">&#39;VIDEODR4&#39;</span><span class="p">,</span> <span class="s1">&#39;VIDEODR3&#39;</span><span class="p">,</span> <span class="s1">&#39;VIDEODR2&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;VISTAOPENTIME&#39;</span><span class="p">)</span>
+
+    <span class="c1"># apparently needed for some queries</span>
+    <span class="n">archive</span> <span class="o">=</span> <span class="s1">&#39;VSA&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">community</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">database</span><span class="o">=</span><span class="s1">&#39;VVVDR4&#39;</span><span class="p">,</span> <span class="n">programme_id</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VsaClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
+                                       <span class="n">programme_id</span><span class="o">=</span><span class="n">programme_id</span><span class="p">,</span>
+                                       <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+                                       <span class="n">community</span><span class="o">=</span><span class="n">community</span><span class="p">,</span>
+                                       <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span> <span class="o">=</span> <span class="s1">&#39;http://horus.roe.ac.uk:8080/vdfs/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LOGIN_URL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;DBLogin&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_URL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;GetImage&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ARCHIVE_URL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;ImageList&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">REGION_URL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;WSASQL&quot;</span></div>
+
+
+
+<span class="n">Vsa</span> <span class="o">=</span> <span class="n">VsaClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

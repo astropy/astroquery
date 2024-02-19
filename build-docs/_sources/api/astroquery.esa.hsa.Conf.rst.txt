@@ -1,0 +1,21 @@
+Conf
+====
+
+.. currentmodule:: astroquery.esa.hsa
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.DATA_ACTION
+      ~Conf.METADATA_ACTION
+      ~Conf.TIMEOUT
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: DATA_ACTION
+   .. autoattribute:: METADATA_ACTION
+   .. autoattribute:: TIMEOUT

@@ -1,0 +1,87 @@
+VsaClass
+========
+
+.. currentmodule:: astroquery.vsa
+
+.. autoclass:: VsaClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~VsaClass.ARCHIVE_URL
+      ~VsaClass.BASE_URL
+      ~VsaClass.CROSSID_FORM
+      ~VsaClass.CROSSID_URL
+      ~VsaClass.IMAGE_FORM
+      ~VsaClass.IMAGE_URL
+      ~VsaClass.LOGIN_URL
+      ~VsaClass.REGION_URL
+      ~VsaClass.TIMEOUT
+      ~VsaClass.all_databases
+      ~VsaClass.archive
+      ~VsaClass.cache_location
+      ~VsaClass.filters
+      ~VsaClass.frame_types
+      ~VsaClass.programmes_long
+      ~VsaClass.programmes_short
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~VsaClass.__call__
+      ~VsaClass.authenticated
+      ~VsaClass.clear_cache
+      ~VsaClass.extract_urls
+      ~VsaClass.get_image_list
+      ~VsaClass.get_images
+      ~VsaClass.get_images_async
+      ~VsaClass.list_catalogs
+      ~VsaClass.list_databases
+      ~VsaClass.logged_in
+      ~VsaClass.login
+      ~VsaClass.query_cross_id
+      ~VsaClass.query_cross_id_async
+      ~VsaClass.query_region
+      ~VsaClass.query_region_async
+      ~VsaClass.reset_cache_location
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: ARCHIVE_URL
+   .. autoattribute:: BASE_URL
+   .. autoattribute:: CROSSID_FORM
+   .. autoattribute:: CROSSID_URL
+   .. autoattribute:: IMAGE_FORM
+   .. autoattribute:: IMAGE_URL
+   .. autoattribute:: LOGIN_URL
+   .. autoattribute:: REGION_URL
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: all_databases
+   .. autoattribute:: archive
+   .. autoattribute:: cache_location
+   .. autoattribute:: filters
+   .. autoattribute:: frame_types
+   .. autoattribute:: programmes_long
+   .. autoattribute:: programmes_short
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: authenticated
+   .. automethod:: clear_cache
+   .. automethod:: extract_urls
+   .. automethod:: get_image_list
+   .. automethod:: get_images
+   .. automethod:: get_images_async
+   .. automethod:: list_catalogs
+   .. automethod:: list_databases
+   .. automethod:: logged_in
+   .. automethod:: login
+   .. automethod:: query_cross_id
+   .. automethod:: query_cross_id_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async
+   .. automethod:: reset_cache_location

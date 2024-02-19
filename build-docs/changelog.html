@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Full Changelog &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=4195d067"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="icon" href="_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Default Configuration" href="configuration.html" />
+    <link rel="prev" title="Astroquery" href="index.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="configuration.html" title="Default Configuration">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="index.html" title="Astroquery">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Full Changelog</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="full-changelog">
+<span id="changelog"></span><h1>Full Changelog<a class="headerlink" href="#full-changelog" title="Link to this heading">¶</a></h1>
+<section id="unreleased">
+<h2>0.4.7 (unreleased)<a class="headerlink" href="#unreleased" title="Link to this heading">¶</a></h2>
+<section id="new-tools-and-services">
+<h3>New Tools and Services<a class="headerlink" href="#new-tools-and-services" title="Link to this heading">¶</a></h3>
+<section id="eso">
+<h4>eso<a class="headerlink" href="#eso" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Authenticate with ESO using APIs and tokens instead of HTML forms. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2681">#2681</a>]</p></li>
+<li><p>Discontinue usage of old Request Handler for dataset retrieval in favor of new dataportal API. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2681">#2681</a>]</p></li>
+<li><p>Local reimplementation of astroquery’s <code class="docutils literal notranslate"><span class="pre">_download_file</span></code> to fix some issues and avoid sending a HEAD request
+just to get the original filename. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1580">#1580</a>]</p></li>
+<li><p>Restore support for .Z files. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1818">#1818</a>]</p></li>
+<li><p>Update tests and documentation.</p></li>
+</ul>
+</section>
+<section id="ipac-irsa">
+<h4>ipac.irsa<a class="headerlink" href="#ipac-irsa" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New class to access the Moving Object Search Tool (MOST) added. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2660">#2660</a>]</p></li>
+<li><p>The IRSA module’s backend has been refactored to favour VO services and to
+run the queries through TAP rather than Gator.
+New method <code class="docutils literal notranslate"><span class="pre">query_tap</span></code> is added to enable ADQL queries, async-named
+methods have been removed. The <code class="docutils literal notranslate"><span class="pre">selcols</span></code> kwarg has been renamed to
+<code class="docutils literal notranslate"><span class="pre">columns</span></code>, and the <code class="docutils literal notranslate"><span class="pre">cache</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> kwargs have been
+deprecated as they have no effect. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2823">#2823</a>]</p></li>
+</ul>
+</section>
+<section id="gaia">
+<h4>gaia<a class="headerlink" href="#gaia" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>TAP notifications service is now available for Gaia. If there is notification for the users,
+for example planned or our unplanned downtimes of the archive, etc. The notification
+will be also visible when accessing the archive through Astroquery. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2376">#2376</a>]</p></li>
+<li><p>Datalink can be used with the new parameter linking_parameter. It provides an additional
+meaning to the source identifiers: source_id, transit_id and image_id.
+This parameter is optional, in order to be backward compatible, and
+therefore, if the parameter is not set, the source identifiers are
+considered as source_id. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2859">#2859</a>]</p></li>
+</ul>
+</section>
+<section id="hsa">
+<h4>hsa<a class="headerlink" href="#hsa" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to access ESA Herschel mission. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2122">#2122</a>]</p></li>
+</ul>
+</section>
+<section id="mocserver">
+<h4>mocserver<a class="headerlink" href="#mocserver" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mocserver</span></code> is the new name of the <code class="docutils literal notranslate"><span class="pre">cds</span></code> module allowing access to the CDS MOC server [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2766">#2766</a>]</p></li>
+</ul>
+</section>
+<section id="esa-hubble">
+<h4>esa.hubble<a class="headerlink" href="#esa-hubble" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Update to TAP url to query data and download files, aligned with the new eHST Science Archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2567">#2567</a>][<a class="reference external" href="https://github.com/astropy/astroquery/issues/2597">#2597</a>]</p></li>
+<li><p>Status and maintenance messages from eHST TAP when the module is instantiated. get_status_messages method to retrieve them. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2597">#2597</a>]</p></li>
+<li><p>New methods to download single files <code class="docutils literal notranslate"><span class="pre">download_file</span></code> and download FITS associated to an observation <code class="docutils literal notranslate"><span class="pre">download_fits_files</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2797">#2797</a>]</p></li>
+<li><p>New function to retrieve all the files associated to an observation. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2797">#2797</a>]</p></li>
+</ul>
+</section>
+<section id="solarsystem-neodys">
+<h4>solarsystem.neodys<a class="headerlink" href="#solarsystem-neodys" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to access the NEODyS web interface.</p></li>
+</ul>
+</section>
+<section id="solarsystem-pds">
+<h4>solarsystem.pds<a class="headerlink" href="#solarsystem-pds" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to access the Planetary Data System’s Ring Node System. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2358">#2358</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="service-fixes-and-enhancements">
+<h3>Service fixes and enhancements<a class="headerlink" href="#service-fixes-and-enhancements" title="Link to this heading">¶</a></h3>
+<section id="alfalfa">
+<h4>alfalfa<a class="headerlink" href="#alfalfa" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Removal of the non-functional <code class="docutils literal notranslate"><span class="pre">get_spectrym</span></code> method as that service has
+disappeared. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2578">#2578</a>]</p></li>
+</ul>
+</section>
+<section id="atomic">
+<h4>atomic<a class="headerlink" href="#atomic" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Change URL and improve error handling. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2769">#2769</a>]</p></li>
+</ul>
+</section>
+<section id="id1">
+<h4>esa.hubble<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Refactored query_criteria to use ehst.archive table therefore making the query
+a lot faster. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2524">#2524</a>]</p></li>
+<li><p>Method query_hst_tap has been deprecated and is replaced with query_tap, with the same arguments. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2597">#2597</a>]</p></li>
+<li><p>Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2597">#2597</a>]</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">proposal</span></code> keyword argument to several methods now allows to filter by Proposal ID. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2797">#2797</a>]</p></li>
+</ul>
+</section>
+<section id="esa-jwt">
+<h4>esa.jwt<a class="headerlink" href="#esa-jwt" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixes in <code class="docutils literal notranslate"><span class="pre">login</span></code> and <code class="docutils literal notranslate"><span class="pre">set_token</span></code> methods. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2807">#2807</a>]</p></li>
+</ul>
+</section>
+<section id="alma">
+<h4>alma<a class="headerlink" href="#alma" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed a regression to handle arrays of string input for the <code class="docutils literal notranslate"><span class="pre">query</span></code> methods. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2094">#2094</a>]</p></li>
+<li><p>Throws an error when an unsupported <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> (or argument) is passed in to a function. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2475">#2475</a>]</p></li>
+<li><p>New DataLink API handling. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2493">#2493</a>]</p></li>
+<li><p>Fixed bug #2489 in which blank URLs were being sent to the downloader [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2490">#2490</a>]</p></li>
+<li><p>Removed deprecated broken functions from <code class="docutils literal notranslate"><span class="pre">alma.utils</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2331">#2331</a>]</p></li>
+<li><p>Fixed a bug in slicing of ALMA regions. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2810">#2810</a>]</p></li>
+</ul>
+</section>
+<section id="astrometry-net">
+<h4>astrometry_net<a class="headerlink" href="#astrometry-net" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added a <code class="docutils literal notranslate"><span class="pre">verbose=</span></code> keyword argument to <code class="docutils literal notranslate"><span class="pre">AstrometryNet</span></code> to control whether or not
+to show any information during solving. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2484">#2484</a>]</p></li>
+<li><p>Fixed a bug which caused <code class="docutils literal notranslate"><span class="pre">solve_timeout</span></code> to not be respected when an image was
+solved by constructing a source list internally before sending data to
+astrometry.net. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2484">#2484</a>]</p></li>
+<li><p>Avoid duplicated warnings about API key and raise an error only when API key is
+needed but not set. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2483">#2483</a>]</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">return_submission_id</span></code> keyword argument to <code class="docutils literal notranslate"><span class="pre">monitor_submission()</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2685">#2685</a>]</p></li>
+<li><p>Fixed off-by-one error in the reference pixel of the WCS solution when the
+solution is found using sources detected by photutils. After this fix the
+solution from astrometry.net will be the same when the input is an image
+regardless of whether the image is uploaded or sources are detected
+locally. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2752">#2752</a>]</p></li>
+</ul>
+</section>
+<section id="cadc">
+<h4>cadc<a class="headerlink" href="#cadc" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Deprecated keywords and <code class="docutils literal notranslate"><span class="pre">run_query</span></code> method have been removed. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2389">#2389</a>]</p></li>
+<li><p>Added the ability to pass longer that filename Path objects as
+<code class="docutils literal notranslate"><span class="pre">output_file</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2541">#2541</a>]</p></li>
+</ul>
+</section>
+<section id="casda">
+<h4>casda<a class="headerlink" href="#casda" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2366">#2366</a>]</p></li>
+<li><p>Use the standard <code class="docutils literal notranslate"><span class="pre">login</span></code> method for authenticating, which supports the system
+keyring [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2386">#2386</a>]</p></li>
+</ul>
+</section>
+<section id="cds">
+<h4>cds<a class="headerlink" href="#cds" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">cds</span></code> module has been renamed <code class="docutils literal notranslate"><span class="pre">mocserver</span></code> and issues a deprecation warning
+when imported. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2766">#2766</a>]</p></li>
+</ul>
+</section>
+<section id="exoplanet-orbit-database">
+<h4>exoplanet_orbit_database<a class="headerlink" href="#exoplanet-orbit-database" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The module has been deprecated due to the retirement of its upstream
+website. The database hasn’t been updated since 2018, users are encouraged
+to use the <code class="docutils literal notranslate"><span class="pre">ipac.nexsci.nasa_exoplanet_archive</span></code> module instead. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2792">#2792</a>]</p></li>
+</ul>
+</section>
+<section id="heasarc">
+<h4>heasarc<a class="headerlink" href="#heasarc" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix issue 2560 in which blank tables raised exceptions [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2624">#2624</a>]</p></li>
+</ul>
+</section>
+<section id="ipac-nexsci-nasa-exoplanet-archive">
+<h4>ipac.nexsci.nasa_exoplanet_archive<a class="headerlink" href="#ipac-nexsci-nasa-exoplanet-archive" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The deprecated methods <code class="docutils literal notranslate"><span class="pre">query_planet()</span></code> and <code class="docutils literal notranslate"><span class="pre">query_star()</span></code> have been removed.</p></li>
+<li><p>Stability improvements to <code class="docutils literal notranslate"><span class="pre">query_aliases()</span></code> that also addresses bug that made
+method retrieve no aliases for multiple star systems. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2506">#2506</a>]</p></li>
+</ul>
+</section>
+<section id="jplhorizons">
+<h4>jplhorizons<a class="headerlink" href="#jplhorizons" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Deprecate <code class="docutils literal notranslate"><span class="pre">get_raw_response</span></code> options in query methods.  The raw response may
+be retrieved from the _async() methods. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2418">#2418</a>]</p></li>
+<li><p>Adding <code class="docutils literal notranslate"><span class="pre">optional_setting</span></code> kwarg to the ephemerides methods to allow
+passing additional settings. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1802">#1802</a>]</p></li>
+<li><p>Topocentric coordinates can now be specified for both center and target in observer
+and vector queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2625">#2625</a>]</p></li>
+<li><p>Updated returned table columns to match Horizons’s updates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2794">#2794</a>]</p></li>
+<li><p>Assign units to <code class="docutils literal notranslate"><span class="pre">&quot;hour_angle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;solartime&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;siderealtime&quot;</span></code> columns. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2794">#2794</a>]</p></li>
+<li><p>Allow using units in locations specified as coordinates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2746">#2746</a>]</p></li>
+</ul>
+</section>
+<section id="jplsbdb">
+<h4>jplsbdb<a class="headerlink" href="#jplsbdb" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix a bug for jplsdbd query when the returned physical quantity contains
+a unit with exponential. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2377">#2377</a>]</p></li>
+</ul>
+</section>
+<section id="linelists-cdms">
+<h4>linelists.cdms<a class="headerlink" href="#linelists-cdms" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix issues with the line name parser and the line data parser; the original
+implementation was incomplete and upstream was not fully documented. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2385">#2385</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2411">#2411</a>]</p></li>
+<li><p>Added new line list reader and enabled reading line list from remote server.
+Also updated local version of line list, which includes some change in column names
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/2760">#2760</a>]</p></li>
+</ul>
+</section>
+<section id="mast">
+<h4>mast<a class="headerlink" href="#mast" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Cull duplicate downloads for the same dataURI in <code class="docutils literal notranslate"><span class="pre">Observations.download_products()</span></code>
+and duplicate URIs in <code class="docutils literal notranslate"><span class="pre">Observations.get_cloud_uris</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2497">#2497</a>]</p></li>
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">Observations.get_product_list</span></code> to handle input lists of obsids. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2504">#2504</a>]</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">flat</span></code> option to <code class="docutils literal notranslate"><span class="pre">Observation.download_products()</span></code> to turn off the
+automatic creation and organizing of products into subdirectories. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2511">#2511</a>]</p></li>
+<li><p>Expanding <code class="docutils literal notranslate"><span class="pre">Cutouts</span></code> functionality to support making Hubble Advanced Product (HAP)
+cutouts via HAPCut. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2613">#2613</a>]</p></li>
+<li><p>Expanding <code class="docutils literal notranslate"><span class="pre">Cutouts</span></code> functionality to support TICA HLSPs now available through
+<code class="docutils literal notranslate"><span class="pre">TesscutClass</span></code>. [#<a class="reference external" href="https://github.com/astropy/astroquery/issues/2668">#2668</a>]</p></li>
+<li><p>Resolved issue making PANSTARRS catalog queries when columns and sorting is specified. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2727">#2727</a>]</p></li>
+<li><p>Updating documentation to address the difference between <code class="docutils literal notranslate"><span class="pre">obsid</span></code> and <code class="docutils literal notranslate"><span class="pre">obs_id</span></code> database fields. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2857">#2857</a>]</p></li>
+</ul>
+</section>
+<section id="nist">
+<h4>nist<a class="headerlink" href="#nist" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Vectoized <code class="docutils literal notranslate"><span class="pre">linename</span></code> option to query multiple spectral lines with one call
+of <code class="docutils literal notranslate"><span class="pre">Nist.query</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2678">#2678</a>]</p></li>
+</ul>
+</section>
+<section id="oac">
+<h4>oac<a class="headerlink" href="#oac" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix bug in parsing events that contain html tags (e.g. in their alias
+field). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2423">#2423</a>]</p></li>
+</ul>
+</section>
+<section id="sdss">
+<h4>sdss<a class="headerlink" href="#sdss" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Switching to https to avoid issues originating in relying on server side
+redirects. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2654">#2654</a>]</p></li>
+<li><p>Fix bug to have object IDs as unsigned integers, on Windows, too. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2800">#2800</a>,
+<a class="reference external" href="https://github.com/astropy/astroquery/issues/2806">#2806</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2879">#2879</a>]</p></li>
+</ul>
+</section>
+<section id="simbad">
+<h4>simbad<a class="headerlink" href="#simbad" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>It is now possible to specify multiple coordinates together with a single
+radius as a string in <code class="docutils literal notranslate"><span class="pre">query_region()</span></code> and <code class="docutils literal notranslate"><span class="pre">query_region_async()</span></code>.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/2494">#2494</a>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ROW_LIMIT</span></code> is now respected when running region queries; previously, it
+was ignored for region queries but respected for all others.  A new warning,
+<code class="docutils literal notranslate"><span class="pre">BlankResponseWarning</span></code>, is introduced for use when one or more query terms result
+in a blank or missing row; previously, only a generic warning was issued.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/2637">#2637</a>]</p></li>
+</ul>
+</section>
+<section id="skyview">
+<h4>skyview<a class="headerlink" href="#skyview" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix bug for <code class="docutils literal notranslate"><span class="pre">radius</span></code> parameter to not behave as diameter. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2601">#2601</a>]</p></li>
+</ul>
+</section>
+<section id="svo-fps">
+<h4>svo_fps<a class="headerlink" href="#svo-fps" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The wavelength limits in <code class="docutils literal notranslate"><span class="pre">get_filter_index()</span></code> can now be specified using any
+length unit, not just angstroms. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2444">#2444</a>]</p></li>
+<li><p>Queries with invalid parameter names now raise an <code class="docutils literal notranslate"><span class="pre">InvalidQueryError</span></code>.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/2446">#2446</a>]</p></li>
+<li><p>The default wavelength range used by <code class="docutils literal notranslate"><span class="pre">get_filter_index()</span></code> was far too
+large. The user must now always specify both upper and lower limits. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2509">#2509</a>]</p></li>
+</ul>
+</section>
+<section id="vizier">
+<h4>vizier<a class="headerlink" href="#vizier" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>A new method <code class="docutils literal notranslate"><span class="pre">astroquery.vizier.VizierClass.get_catalog_metadata</span></code> allows to retrieve
+information about VizieR catalogs such as origin_article, description, or last modified
+date. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2878">#2878</a>]</p></li>
+</ul>
+</section>
+<section id="xmatch">
+<h4>xmatch<a class="headerlink" href="#xmatch" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The reason for the query errors, as parsed from the returned VOTable is now
+exposed as part of the traceback. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2608">#2608</a>]</p></li>
+</ul>
+</section>
+<section id="id2">
+<h4>gaia<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Method ‘load_data’ now has the parameter ‘valid_data’ set to False by default.
+With this change the epoch photometry service returns all data associated
+to a given source. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2376">#2376</a>]</p></li>
+<li><p>Default Gaia catalog updated to DR3. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2596">#2596</a>]</p></li>
+</ul>
+</section>
+<section id="id3">
+<h4>sdss<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">query_region()</span></code> can perform cone search or a rectangular
+search around the specified coordinates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2477">#2477</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2663">#2663</a>]</p></li>
+<li><p>The default data release has been changed to DR17. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2478">#2478</a>]</p></li>
+</ul>
+</section>
+<section id="id4">
+<h4>mast<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Changed warning to error for authentication failure. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1874">#1874</a>]</p></li>
+</ul>
+</section>
+<section id="id5">
+<h4>xmatch<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Minor internal change to use VOTable as the response format that include
+units, too. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1375">#1375</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="infrastructure-utility-and-other-changes-and-additions">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#infrastructure-utility-and-other-changes-and-additions" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Optional keyword arguments are now keyword only. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1802">#1802</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2477">#2477</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2532">#2532</a>,
+<a class="reference external" href="https://github.com/astropy/astroquery/issues/2597">#2597</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2601">#2601</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2609">#2609</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2655">#2655</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2656">#2656</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2661">#2661</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2671">#2671</a>]</p></li>
+<li><p>New function, <code class="docutils literal notranslate"><span class="pre">utils.cleanup_downloads.cleanup_saved_downloads</span></code>, is
+added to help the testcleanup narrative in narrative documentations. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2384">#2384</a>]</p></li>
+<li><p>Adding new <code class="docutils literal notranslate"><span class="pre">BaseVOQuery</span></code> baseclass for modules using VO tools. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2836">#2836</a>]</p></li>
+<li><p>Adding more system and package information to User-Agent. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2762">#2762</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2836">#2836</a>]</p></li>
+<li><p>Removal of the non-functional <code class="docutils literal notranslate"><span class="pre">nrao</span></code> module as it was completely
+incompatible with the refactored upstream API. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2546">#2546</a>]</p></li>
+<li><p>Removal of the non-functional <code class="docutils literal notranslate"><span class="pre">noirlab</span></code> module because the current module
+is incompatible with the new upstream API. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2579">#2579</a>]</p></li>
+<li><p>Removed deprecated function <code class="docutils literal notranslate"><span class="pre">utils.commons.send_request()</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2583">#2583</a>]</p></li>
+<li><p>Removed deprecated function <code class="docutils literal notranslate"><span class="pre">utils.download_list_of_fitsfiles()</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2594">#2594</a>]</p></li>
+<li><p>Versions of astropy &lt;4.2.1 and numpy &lt;1.18 are no longer supported. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2602">#2602</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id6">
+<h2>0.4.6 (2022-03-22)<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<h4>alma<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">verify_only</span></code> option to check if data downloaded with correct file
+size. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2263">#2263</a>]</p></li>
+<li><p>Deprecated keywords and <code class="docutils literal notranslate"><span class="pre">stage_data</span></code> method has been removed. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2309">#2309</a>]</p></li>
+<li><p>Deprecate broken functions from <code class="docutils literal notranslate"><span class="pre">alma.utils</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2332">#2332</a>]</p></li>
+<li><p>Optional keyword arguments are now keyword only. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2309">#2309</a>]</p></li>
+</ul>
+</section>
+<section id="id9">
+<h4>casda<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Simplify file names produced by <code class="docutils literal notranslate"><span class="pre">download_files</span></code> to avoid filename too
+long errors. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2308">#2308</a>]</p></li>
+</ul>
+</section>
+<section id="id10">
+<h4>esa.hubble<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Changed <code class="docutils literal notranslate"><span class="pre">query_target</span></code> method to use TAP instead of AIO. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2268">#2268</a>]</p></li>
+<li><p>Added new method <code class="docutils literal notranslate"><span class="pre">get_hap_hst_link</span></code> and <code class="docutils literal notranslate"><span class="pre">get_member_observations</span></code> to
+get related observations. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2268">#2268</a>]</p></li>
+</ul>
+</section>
+<section id="esa-xmm-newton">
+<h4>esa.xmm_newton<a class="headerlink" href="#esa-xmm-newton" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add option to download proprietary data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2251">#2251</a>]</p></li>
+</ul>
+</section>
+<section id="id11">
+<h4>gaia<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">query_object()</span></code> and <code class="docutils literal notranslate"><span class="pre">query_object_async()</span></code> methods of
+<code class="docutils literal notranslate"><span class="pre">astroquery.gaia.Gaia</span></code> no longer ignore their <code class="docutils literal notranslate"><span class="pre">columns</span></code> argument when
+<code class="docutils literal notranslate"><span class="pre">radius</span></code> is specified. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2249">#2249</a>]</p></li>
+<li><p>Enhanced methods <code class="docutils literal notranslate"><span class="pre">launch_job</span></code> and <code class="docutils literal notranslate"><span class="pre">launch_job_async</span></code> to avoid issues with
+the name provided by the user for the output file when the results are
+returned by the TAP in compressed format. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2077">#2077</a>]</p></li>
+</ul>
+</section>
+<section id="id12">
+<h4>ipac.nexsci.nasa_exoplanet_archive<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixes to alias query, and regularize keyword removed from deprecated
+<code class="docutils literal notranslate"><span class="pre">query_star</span></code> method. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2264">#2264</a>]</p></li>
+</ul>
+</section>
+<section id="id13">
+<h4>mast<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Adding moving target functionality to <code class="docutils literal notranslate"><span class="pre">Tesscut</span></code> [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2121">#2121</a>]</p></li>
+<li><p>Adding <code class="docutils literal notranslate"><span class="pre">MastMissions</span></code> class to provide mission-specific metadata query
+functionalities. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2095">#2095</a>]</p></li>
+<li><p>GALEX data is now available to download anonymously from the public
+STScI S3 buckets. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2261">#2261</a>]</p></li>
+<li><p>Adding the All-Sky PLATO Input Catalog (‘plato’) as a catalog option for
+methods of <code class="docutils literal notranslate"><span class="pre">Catalogs</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2279">#2279</a>]</p></li>
+<li><p>Optional keyword arguments are now keyword only. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2317">#2317</a>]</p></li>
+<li><p>PanSTARRS data is now available to download anonymously from the public STScI S3 buckets. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2893">#2893</a>]</p></li>
+</ul>
+</section>
+<section id="id14">
+<h4>sdss<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">query_crossid</span></code> for spectral data and DR17. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2258">#2258</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2304">#2304</a>]</p></li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">query_crossid</span></code> to be able to query larger list of coordinates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2305">#2305</a>]</p></li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">query_crossid</span></code> for very old data releases (&lt; DR10). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2318">#2318</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id15">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Remove obsolete testing tools. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2287">#2287</a>]</p></li>
+<li><p>Callback hooks are deleted before caching. Potentially all cached queries
+prior to this PR will be rendered invalid. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2295">#2295</a>]</p></li>
+</ul>
+<section id="utils-tap">
+<h4>utils.tap<a class="headerlink" href="#utils-tap" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The modules that make use of the <code class="docutils literal notranslate"><span class="pre">astroquery.utils.tap.model.job.Job</span></code> class
+(e.g. Gaia) no longer print messages about where the results of async queries
+were written if the <code class="docutils literal notranslate"><span class="pre">verbose</span></code> setting is <code class="docutils literal notranslate"><span class="pre">False</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2299">#2299</a>]</p></li>
+<li><p>New method, <code class="docutils literal notranslate"><span class="pre">rename_table</span></code>, which allows the user to rename table and
+column names. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2077">#2077</a>]</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id16">
+<h2>0.4.5 (2021-12-24)<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h2>
+<section id="id17">
+<h3>New Tools and Services<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
+<section id="esa-jwst">
+<h4>esa.jwst<a class="headerlink" href="#esa-jwst" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to provide access to eJWST Science Archive metadata and datasets. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2140">#2140</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/2238">#2238</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id18">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
+<section id="id19">
+<h4>eso<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add option to retrieve_data from an earlier archive query. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1614">#1614</a>]</p></li>
+</ul>
+</section>
+<section id="id20">
+<h4>jplhorizons<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix result parsing issues by disabling caching of failed queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2253">#2253</a>]</p></li>
+</ul>
+</section>
+<section id="id21">
+<h4>sdss<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix URL for individual spectrum file download in recent data releases. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2214">#2214</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id22">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Adding <code class="docutils literal notranslate"><span class="pre">--alma-site</span></code> pytest option for testing to have a control over
+which specific site to test. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2224">#2224</a>]</p></li>
+<li><p>The function <code class="docutils literal notranslate"><span class="pre">astroquery.utils.download_list_of_fitsfiles()</span></code> has been
+deprecated. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2247">#2247</a>]</p></li>
+</ul>
+<section id="id23">
+<h4>utils.tap<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Changing the default verbosity of TapPlus to False. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2228">#2228</a>]</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id24">
+<h2>0.4.4 (2021-11-17)<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h2>
+<section id="id25">
+<h3>New Tools and Services<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h3>
+<section id="esa-esasky">
+<h4>esa.esasky<a class="headerlink" href="#esa-esasky" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added Solar System Object functionality. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2106">#2106</a>]</p></li>
+</ul>
+</section>
+<section id="ipac">
+<h4>ipac<a class="headerlink" href="#ipac" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New namespace for IPAC services. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2131">#2131</a>]</p></li>
+</ul>
+</section>
+<section id="id26">
+<h4>linelists.cdms<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Molecular line catalog query tool provides an interface to the
+Cologne Database for Molecular Spectroscopy. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2143">#2143</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id27">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h3>
+<section id="id28">
+<h4>casda<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add ability to stage and download non image data which have been found
+through the CASDA obscore table. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2158">#2158</a>]</p></li>
+</ul>
+</section>
+<section id="id29">
+<h4>gaia<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The bug which caused changing the <code class="docutils literal notranslate"><span class="pre">MAIN_GAIA_TABLE</span></code> option to have no
+effect has been fixed. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2153">#2153</a>]</p></li>
+</ul>
+</section>
+<section id="ipac-ned">
+<h4>ipac.ned<a class="headerlink" href="#ipac-ned" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Keyword ‘file_format’ is added to <code class="docutils literal notranslate"><span class="pre">get_image_list</span></code> to enable obtaining
+links to non-fits file formats, too. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2217">#2217</a>]</p></li>
+</ul>
+</section>
+<section id="id30">
+<h4>jplhorizons<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Updated to use v1.0 of the new JPL Horizons API released 2021-09-15.
+Included in this update, the default reference system is changed from
+J2000 to ICRF, following API documentation. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2154">#2154</a>]</p></li>
+<li><dl class="simple">
+<dt>Query <code class="docutils literal notranslate"><span class="pre">id_type</span></code> behavior has changed:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'majorbody'</span></code> and <code class="docutils literal notranslate"><span class="pre">'id'</span></code> have been removed and the equivalent
+functionality replaced with <code class="docutils literal notranslate"><span class="pre">None</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code> implements the Horizons
+default, which is to search for major bodies first, then fall back to a
+small body search when no matches are found. Horizons does not have a
+major body only search. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2161">#2161</a>]</p></li>
+<li><p>The default value was <code class="docutils literal notranslate"><span class="pre">'smallbody'</span></code> but it is now <code class="docutils literal notranslate"><span class="pre">None</span></code>, which
+follows Horizons’s default behavior. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2161">#2161</a>]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Fix changes in column names that resulted KeyErrors. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2202">#2202</a>]</p></li>
+</ul>
+</section>
+<section id="jplspec">
+<h4>jplspec<a class="headerlink" href="#jplspec" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>JPLSpec now raises an EmptyResponseError if the returned result is empty.
+The API for JPLspec’s <code class="docutils literal notranslate"><span class="pre">lookup_table.find</span></code> function returns a dictionary
+instead of values (for compatibility w/CDMS).  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2144">#2144</a>]</p></li>
+</ul>
+</section>
+<section id="id31">
+<h4>simbad<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix result parsing issues by disabling caching of failed queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2187">#2187</a>]</p></li>
+<li><p>Fix parsing of non-ascii bibcode responses. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2200">#2200</a>]</p></li>
+</ul>
+</section>
+<section id="splatalogue">
+<h4>splatalogue<a class="headerlink" href="#splatalogue" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Splatalogue table merging can now handle unmasked columns. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2136">#2136</a>]</p></li>
+</ul>
+</section>
+<section id="id32">
+<h4>vizier<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>It is now possible to specify ‘galatic’ centers in region queries to
+have box queries oriented along the galactic axes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2152">#2152</a>]</p></li>
+<li><p>Optional keyword arguments are now keyword only. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2610">#2610</a>]</p></li>
+<li><p>Fix parsing vizier_tsvfile returns. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2611">#2611</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id33">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Versions of astropy &lt;4 and numpy &lt;1.16 are no longer supported. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2163">#2163</a>]</p></li>
+</ul>
+<section id="id34">
+<h4>ipac<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>As part of the namespace restructure, now modules for the IPAC archives are
+avalable as: <code class="docutils literal notranslate"><span class="pre">ipac.irsa</span></code>, <code class="docutils literal notranslate"><span class="pre">ipac.ned</span></code>, and <code class="docutils literal notranslate"><span class="pre">ipac.nexsci</span></code>.
+Additional services have also been moved to their parent organisations’
+namespace. Acces from the top namespace have been deprecated for the
+following modules: <code class="docutils literal notranslate"><span class="pre">ibe</span></code>, <code class="docutils literal notranslate"><span class="pre">irsa</span></code>, <code class="docutils literal notranslate"><span class="pre">irsa_dust</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nasa_exoplanet_archive</span></code>, <code class="docutils literal notranslate"><span class="pre">ned</span></code>, <code class="docutils literal notranslate"><span class="pre">sha</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2131">#2131</a>]</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id35">
+<h2>0.4.3 (2021-07-07)<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h2>
+<section id="id36">
+<h3>New Tools and Services<a class="headerlink" href="#id36" title="Link to this heading">¶</a></h3>
+<section id="id37">
+<h4>esa.esasky<a class="headerlink" href="#id37" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Download by observation id or source name. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2078">#2078</a>]</p></li>
+<li><p>Added custom ADQL and TAP+ functionality. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2078">#2078</a>]</p></li>
+<li><p>Enabled download of INTEGRAL data products. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2105">#2105</a>]</p></li>
+</ul>
+</section>
+<section id="id38">
+<h4>esa.hubble<a class="headerlink" href="#id38" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to perform a cone search based on a set of criteria. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1855">#1855</a>]</p></li>
+</ul>
+</section>
+<section id="id39">
+<h4>esa.xmm_newton<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Adding the extraction epic light curves and spectra. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2017">#2017</a>]</p></li>
+</ul>
+</section>
+<section id="id40">
+<h4>heasarc<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add alternative instance of HEASARC Server, maintained by
+INTEGRAL Science Data Center. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1988">#1988</a>]</p></li>
+</ul>
+</section>
+<section id="nasa-exoplanet-archive">
+<h4>nasa_exoplanet_archive<a class="headerlink" href="#nasa-exoplanet-archive" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Making module compatible with the NASA Exoplanet Archive 2.0 using TAP.
+release. Support for querying old tables (exoplanets, compositepars, and
+exomultpars) has been dropped. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2067">#2067</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id41">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id41" title="Link to this heading">¶</a></h3>
+<section id="id42">
+<h4>atomic<a class="headerlink" href="#id42" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Change URL to https. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2088">#2088</a>]</p></li>
+</ul>
+</section>
+<section id="id43">
+<h4>esa.xmm_newton<a class="headerlink" href="#id43" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed the generation of files with wrong extension. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2017">#2017</a>]</p></li>
+<li><p>Use astroquery downloader tool to get progressbar, caching, and prevent
+memory leaks. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2087">#2087</a>]</p></li>
+</ul>
+</section>
+<section id="id44">
+<h4>gaia<a class="headerlink" href="#id44" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Changed default of Gaia TAP Plus interface to instantiate silently. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2085">#2085</a>]</p></li>
+</ul>
+</section>
+<section id="id45">
+<h4>heasarc<a class="headerlink" href="#id45" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added posibility to query limited time range. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1988">#1988</a>]</p></li>
+</ul>
+</section>
+<section id="ibe">
+<h4>ibe<a class="headerlink" href="#ibe" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Doubling default timeout to 120 seconds. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2108">#2108</a>]</p></li>
+<li><p>Change URL to https. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2108">#2108</a>]</p></li>
+</ul>
+</section>
+<section id="irsa">
+<h4>irsa<a class="headerlink" href="#irsa" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Adding <code class="docutils literal notranslate"><span class="pre">cache</span></code> kwarg to the class methods to be able to control the use
+of local cache. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2092">#2092</a>]</p></li>
+<li><p>Making optional kwargs keyword only. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2092">#2092</a>]</p></li>
+</ul>
+</section>
+<section id="sha">
+<h4>sha<a class="headerlink" href="#sha" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Change URL to https. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2108">#2108</a>]</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">NoResultsWarning</span></code> is now returned when there is return of any empty
+table. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1837">#1837</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id46">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id46" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed progressbar download to report the correct downloaded amount. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2091">#2091</a>]</p></li>
+<li><p>Dropping Python 3.6 support. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2102">#2102</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id47">
+<h2>0.4.2 (2021-05-14)<a class="headerlink" href="#id47" title="Link to this heading">¶</a></h2>
+<section id="id48">
+<h3>New Tools and Services<a class="headerlink" href="#id48" title="Link to this heading">¶</a></h3>
+<section id="cds-hips2fits">
+<h4>cds.hips2fits<a class="headerlink" href="#cds-hips2fits" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module HIPS2fits to provide access to fits/jpg/png image cutouts from a
+HiPS + a WCS. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1734">#1734</a>]</p></li>
+</ul>
+</section>
+<section id="esa-iso">
+<h4>esa.iso<a class="headerlink" href="#esa-iso" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to access ESA ISO mission. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1914">#1914</a>]</p></li>
+</ul>
+</section>
+<section id="id49">
+<h4>esa.xmm_newton<a class="headerlink" href="#id49" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">get_epic_images</span></code> is added to extract EPIC images from
+tarballs. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1759">#1759</a>]</p></li>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">get_epic_metadata</span></code> is added to download EPIC sources
+metadata. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1814">#1814</a>]</p></li>
+</ul>
+</section>
+<section id="id50">
+<h4>mast<a class="headerlink" href="#id50" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added Zcut functionality to astroquery [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1911">#1911</a>]</p></li>
+</ul>
+</section>
+<section id="id51">
+<h4>svo_fps<a class="headerlink" href="#id51" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New module to access the Spanish Virtual Observatory Filter Profile List. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1498">#1498</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id52">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id52" title="Link to this heading">¶</a></h3>
+<section id="id53">
+<h4>alma<a class="headerlink" href="#id53" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The archive query interface has been deprecated in favour of
+VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
+library has been updated accordingly. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1689">#1689</a>]</p></li>
+<li><p>ALMA queries using string representations will now convert to appropriate
+coordinates before being sent to the server; previously they were treated as
+whatever unit they were presented in.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1867">#1867</a>]</p></li>
+<li><p>Download mechanism uses the ALMA Datalink service that allows exploring and
+downloading entire tarball package files or just part of their
+content. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1820">#1820</a>]</p></li>
+<li><p>Fixed bug in <code class="docutils literal notranslate"><span class="pre">get_data_info</span></code> to ensure relevant fields are strings. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2022">#2022</a>]</p></li>
+</ul>
+</section>
+<section id="id54">
+<h4>esa.esasky<a class="headerlink" href="#id54" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>All ESASky spectra now accessible. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1909">#1909</a>]</p></li>
+<li><p>Updated ESASky module for version 3.5 of ESASky backend. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1858">#1858</a>]</p></li>
+<li><p>Added row limit parameter for map queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1858">#1858</a>]</p></li>
+</ul>
+</section>
+<section id="id55">
+<h4>esa.hubble<a class="headerlink" href="#id55" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to query eHST TAP based on a set of specific criteria and
+asynchronous jobs are now supported. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1723">#1723</a>]</p></li>
+</ul>
+</section>
+<section id="id56">
+<h4>gaia<a class="headerlink" href="#id56" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed RA/dec table edit capability. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1784">#1784</a>]</p></li>
+<li><p>Changed file names handling when downloading data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1784">#1784</a>]</p></li>
+<li><p>Improved code to handle bit data type. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1784">#1784</a>]</p></li>
+<li><p>Prepared code to handle new datalink products. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1784">#1784</a>]</p></li>
+</ul>
+</section>
+<section id="gemini">
+<h4>gemini<a class="headerlink" href="#gemini" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">login()</span></code> method to support authenticated sessions to the GOA. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1780">#1780</a>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_file()</span></code> to support downloading files. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1780">#1780</a>]</p></li>
+<li><p>fix syntax error in <code class="docutils literal notranslate"><span class="pre">query_criteria()</span></code> [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1823">#1823</a>]</p></li>
+<li><p>If QA and/or engineering parameters are explicitly passed, remove the
+defaults of <code class="docutils literal notranslate"><span class="pre">notengineering</span></code> and/or <code class="docutils literal notranslate"><span class="pre">NotFail</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2000">#2000</a>]</p></li>
+<li><p>Smarter defaulting of radius to None unless coordinates are specified, in
+which case defaults to 0.3 degrees. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1998">#1998</a>]</p></li>
+</ul>
+</section>
+<section id="id57">
+<h4>heasarc<a class="headerlink" href="#id57" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">NoResultsWarning</span></code> is now returned when there is no matching rows were
+found in query. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1829">#1829</a>]</p></li>
+</ul>
+</section>
+<section id="id58">
+<h4>irsa<a class="headerlink" href="#id58" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Used more specific exceptions in IRSA. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1854">#1854</a>]</p></li>
+</ul>
+</section>
+<section id="id59">
+<h4>jplsbdb<a class="headerlink" href="#id59" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Returns astropy quantities, rather than scaled units. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2011">#2011</a>]</p></li>
+</ul>
+</section>
+<section id="lcogt">
+<h4>lcogt<a class="headerlink" href="#lcogt" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module has been removed after having been defunct due to upstream API
+refactoring a few years ago. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2071">#2071</a>]</p></li>
+</ul>
+</section>
+<section id="id60">
+<h4>mast<a class="headerlink" href="#id60" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Observations.download_file</span></code> method to download a single file from
+MAST given an input data URI. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1825">#1825</a>]</p></li>
+<li><p>Added case for passing a row to <code class="docutils literal notranslate"><span class="pre">Observations.download_file</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1881">#1881</a>]</p></li>
+<li><p>Removed deprecated methods: <code class="docutils literal notranslate"><span class="pre">Observations.get_hst_s3_uris()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Observations.get_hst_s3_uri()</span></code>, <code class="docutils literal notranslate"><span class="pre">Core.get_token()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Core.enable_s3_hst_dataset()</span></code>, <code class="docutils literal notranslate"><span class="pre">Core.disable_s3_hst_dataset()</span></code>; and
+parameters: <code class="docutils literal notranslate"><span class="pre">obstype</span></code> and <code class="docutils literal notranslate"><span class="pre">silent</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1884">#1884</a>]</p></li>
+<li><p>Fixed error causing empty products passed to <code class="docutils literal notranslate"><span class="pre">Observations.get_product_list()</span></code>
+to yeild a non-empty result. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1921">#1921</a>]</p></li>
+<li><p>Changed AWS cloud access from RequesterPays to anonymous acces. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1980">#1980</a>]</p></li>
+<li><p>Fixed error with download of Spitzer data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1994">#1994</a>]</p></li>
+</ul>
+</section>
+<section id="id61">
+<h4>sdss<a class="headerlink" href="#id61" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix validation of field names. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1790">#1790</a>]</p></li>
+</ul>
+</section>
+<section id="id62">
+<h4>splatalogue<a class="headerlink" href="#id62" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The Splatalogue ID querying is now properly cached in the astropy cache
+directory. The scraping function has also been updated to reflect
+the Splatalogue webpage. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1772">#1772</a>]</p></li>
+<li><p>The splatalogue URL has changed to <a class="reference external" href="https://splatalogue.online">https://splatalogue.online</a>, as the old site
+stopped functioning in September 2020 [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1817">#1817</a>]</p></li>
+</ul>
+</section>
+<section id="ukidss">
+<h4>ukidss<a class="headerlink" href="#ukidss" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Updated to <code class="docutils literal notranslate"><span class="pre">UKIDSSDR11PLUS</span></code> as the default data release. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1767">#1767</a>]</p></li>
+</ul>
+</section>
+<section id="vamdc">
+<h4>vamdc<a class="headerlink" href="#vamdc" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Deprecate module due to upstream library dependence and compability
+issues. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2070">#2070</a>]</p></li>
+</ul>
+</section>
+<section id="id63">
+<h4>vizier<a class="headerlink" href="#id63" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Refactor module to support list of coordinates as well as several fixes to
+follow changes in upstream API. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/2012">#2012</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id64">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id64" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>HTTP requests and responses can now be logged when the astropy
+logger is set to level “DEBUG” and “TRACE” respectively. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1992">#1992</a>]</p></li>
+<li><p>Astroquery and all its modules now uses a logger similar to Astropy’s. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1992">#1992</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id65">
+<h2>0.4.1 (2020-06-19)<a class="headerlink" href="#id65" title="Link to this heading">¶</a></h2>
+<section id="id66">
+<h3>New Tools and Services<a class="headerlink" href="#id66" title="Link to this heading">¶</a></h3>
+<section id="id67">
+<h4>esa.xmm_newton<a class="headerlink" href="#id67" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>A new ESA archive service for XMM-Newton access. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1557">#1557</a>]</p></li>
+</ul>
+</section>
+<section id="image-cutouts-first">
+<h4>image_cutouts.first<a class="headerlink" href="#image-cutouts-first" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to access FIRST survey radio images. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1733">#1733</a>]</p></li>
+</ul>
+</section>
+<section id="noirlab">
+<h4>noirlab<a class="headerlink" href="#noirlab" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to access the NOIRLab (formally NOAO) archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1638">#1638</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id68">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id68" title="Link to this heading">¶</a></h3>
+<section id="id69">
+<h4>alma<a class="headerlink" href="#id69" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>A new API was deployed in late February / early March 2020, requiring a
+refactor.  The user-facing API should remain mostly the same, but some
+service interruption may have occurred.  Note that the <code class="docutils literal notranslate"><span class="pre">stage_data</span></code> column
+<code class="docutils literal notranslate"><span class="pre">uid</span></code> has been renamed <code class="docutils literal notranslate"><span class="pre">mous_uid</span></code>, which is a technical correction, and
+several columns have been added. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1644">#1644</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1665">#1665</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1683">#1683</a>]</p></li>
+<li><p>The contents of tarfiles can be shown with the <code class="docutils literal notranslate"><span class="pre">expand_tarfiles</span></code> keyword
+to <code class="docutils literal notranslate"><span class="pre">stage_data</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1683">#1683</a>]</p></li>
+<li><p>Bugfix: when accessing private data, auth credentials were not being passed
+to the HEAD request used to acquire header data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1698">#1698</a>]</p></li>
+</ul>
+</section>
+<section id="id70">
+<h4>casda<a class="headerlink" href="#id70" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add ability to stage and download ASKAP data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1706">#1706</a>]</p></li>
+</ul>
+</section>
+<section id="id71">
+<h4>cadc<a class="headerlink" href="#id71" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed authentication and enabled listing of async jobs. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1712">#1712</a>]</p></li>
+</ul>
+</section>
+<section id="id72">
+<h4>eso<a class="headerlink" href="#id72" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>New <code class="docutils literal notranslate"><span class="pre">unzip</span></code> parameter to control uncompressing the retrieved data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1642">#1642</a>]</p></li>
+</ul>
+</section>
+<section id="id73">
+<h4>gaia<a class="headerlink" href="#id73" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Allow for setting row limits in query submissions through class
+attribute. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1641">#1641</a>]</p></li>
+</ul>
+</section>
+<section id="id74">
+<h4>gemini<a class="headerlink" href="#id74" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Allow for additional search terms to be sent to query_criteria and passed to
+the raw web query against the Gemini Archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1659">#1659</a>]</p></li>
+</ul>
+</section>
+<section id="id75">
+<h4>jplhorizons<a class="headerlink" href="#id75" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix for changes in HORIZONS return results after their 2020 Feb 12
+update. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1650">#1650</a>]</p></li>
+</ul>
+</section>
+<section id="id76">
+<h4>nasa_exoplanet_archive<a class="headerlink" href="#id76" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Update the NASA Exoplanet Archive interface to support all tables available
+through the API. The standard astroquery interface is now implemented via the
+<code class="docutils literal notranslate"><span class="pre">query_*[_async]</span></code> methods. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1700">#1700</a>]</p></li>
+</ul>
+</section>
+<section id="nrao">
+<h4>nrao<a class="headerlink" href="#nrao" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed passing <code class="docutils literal notranslate"><span class="pre">project_code</span></code> to the query [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1720">#1720</a>]</p></li>
+</ul>
+</section>
+<section id="id77">
+<h4>vizier<a class="headerlink" href="#id77" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>It is now possible to specify constraints to <code class="docutils literal notranslate"><span class="pre">query_region()</span></code>
+with the <code class="docutils literal notranslate"><span class="pre">column_filters</span></code> keyword. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1702">#1702</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id78">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id78" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Versions of astropy &lt;3.1 are no longer supported. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1649">#1649</a>]</p></li>
+<li><p>Fixed a bug that would prevent the TOP statement from being properly added
+to a TAP query containing valid ‘n’. The bug was revealed by changes to
+the gaia module, introduced in version 0.4. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1680">#1680</a>]</p></li>
+<li><p>Added new <code class="docutils literal notranslate"><span class="pre">json</span></code> keyword to BaseQuery requests. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1657">#1657</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id79">
+<h2>0.4 (2020-01-24)<a class="headerlink" href="#id79" title="Link to this heading">¶</a></h2>
+<section id="id80">
+<h3>New Tools and Services<a class="headerlink" href="#id80" title="Link to this heading">¶</a></h3>
+<section id="id81">
+<h4>casda<a class="headerlink" href="#id81" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to access data from the CSIRO ASKAP Science Data Archive.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1505">#1505</a>]</p></li>
+</ul>
+</section>
+<section id="dace">
+<h4>dace<a class="headerlink" href="#dace" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added DACE Service. See <a class="reference external" href="https://dace.unige.ch/">https://dace.unige.ch/</a> for details. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1370">#1370</a>]</p></li>
+</ul>
+</section>
+<section id="id82">
+<h4>gemini<a class="headerlink" href="#id82" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to access the Gemini archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1596">#1596</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id83">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id83" title="Link to this heading">¶</a></h3>
+<section id="id84">
+<h4>gaia<a class="headerlink" href="#id84" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add optional ‘columns’ parameter to select specific columns. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1548">#1548</a>]</p></li>
+</ul>
+</section>
+<section id="imcce">
+<h4>imcce<a class="headerlink" href="#imcce" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix Skybot return for unumbered asteroids. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1598">#1598</a>]</p></li>
+</ul>
+</section>
+<section id="id85">
+<h4>jplhorizons<a class="headerlink" href="#id85" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix for changes in HORIZONS return results after their 2020 Jan 21 update. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1620">#1620</a>]</p></li>
+</ul>
+</section>
+<section id="id86">
+<h4>mast<a class="headerlink" href="#id86" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add Kepler to missions with cloud support,
+Update <code class="docutils literal notranslate"><span class="pre">get_cloud_uri</span></code> so that if a file is not found it produces a warning
+and returns None rather than throwing an exception. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1561">#1561</a>]</p></li>
+</ul>
+</section>
+<section id="id87">
+<h4>nasa_exoplanet_archive<a class="headerlink" href="#id87" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Redefined the query API so as to prevent downloading of the whole database.
+Added two functions <code class="docutils literal notranslate"><span class="pre">query_planet</span></code> (to query for a specific exoplanet), and
+<code class="docutils literal notranslate"><span class="pre">query_star</span></code> (to query for all exoplanets under a specific stellar system) [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1606">#1606</a>]</p></li>
+</ul>
+</section>
+<section id="id88">
+<h4>splatalogue<a class="headerlink" href="#id88" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added new ‘only_astronomically_observed’ option. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1600">#1600</a>]</p></li>
+</ul>
+</section>
+<section id="vo-conesearch">
+<h4>vo_conesearch<a class="headerlink" href="#vo-conesearch" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">query_region()</span></code> now accepts <code class="docutils literal notranslate"><span class="pre">service_url</span></code> keyword and uses
+<code class="docutils literal notranslate"><span class="pre">conf.pedantic</span></code> and <code class="docutils literal notranslate"><span class="pre">conf.timeout</span></code> directly. As a result, <code class="docutils literal notranslate"><span class="pre">URL</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PEDANTIC</span></code>, and <code class="docutils literal notranslate"><span class="pre">TIMEOUT</span></code> class attributes are no longer needed, so
+they are removed from <code class="docutils literal notranslate"><span class="pre">ConeSearchClass</span></code> and <code class="docutils literal notranslate"><span class="pre">ConeSearch</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1528">#1528</a>]</p></li>
+<li><p>The classic API <code class="docutils literal notranslate"><span class="pre">conesearch()</span></code> no longer takes <code class="docutils literal notranslate"><span class="pre">timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">pedantic</span></code>
+keywords. It uses <code class="docutils literal notranslate"><span class="pre">conf.pedantic</span></code> and <code class="docutils literal notranslate"><span class="pre">conf.timeout</span></code> directly. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1528">#1528</a>]</p></li>
+<li><p>Null result now emits warning instead of exception. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1528">#1528</a>]</p></li>
+<li><p>Result is now returned as <code class="docutils literal notranslate"><span class="pre">astropy.table.Table</span></code> by default. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1528">#1528</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id89">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id89" title="Link to this heading">¶</a></h3>
+<section id="utils">
+<h4>utils<a class="headerlink" href="#utils" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added timer functions. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1508">#1508</a>]</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id90">
+<h2>0.3.10 (2019-09-19)<a class="headerlink" href="#id90" title="Link to this heading">¶</a></h2>
+<section id="id91">
+<h3>New Tools and Services<a class="headerlink" href="#id91" title="Link to this heading">¶</a></h3>
+<section id="id92">
+<h4>astrometry_net<a class="headerlink" href="#id92" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to interface to astrometry.net plate-solving service. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1163">#1163</a>]</p></li>
+</ul>
+</section>
+<section id="id93">
+<h4>cadc<a class="headerlink" href="#id93" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added to access data at the Canadian Astronomy Data Centre. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1354">#1354</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1486">#1486</a>]</p></li>
+</ul>
+</section>
+<section id="esa">
+<h4>esa<a class="headerlink" href="#esa" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Module added <code class="docutils literal notranslate"><span class="pre">hubble</span></code> for accessing the ESA Hubble Archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1373">#1373</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1534">#1534</a>]</p></li>
+</ul>
+</section>
+<section id="id94">
+<h4>gaia<a class="headerlink" href="#id94" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Added tables sharing, tables edition, upload from pytable and job results,
+cross match, data access and datalink access. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1266">#1266</a>]</p></li>
+</ul>
+</section>
+<section id="id95">
+<h4>imcce<a class="headerlink" href="#id95" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Service <code class="docutils literal notranslate"><span class="pre">miriade</span></code> added, querying asteroid and comets ephemerides. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1353">#1353</a>]</p></li>
+<li><p>Service <code class="docutils literal notranslate"><span class="pre">skybot</span></code> added, identifying Solar System objects in a given
+field at a given epoch. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1353">#1353</a>]</p></li>
+</ul>
+</section>
+<section id="id96">
+<h4>mast<a class="headerlink" href="#id96" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Addition of observation metadata query. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1473">#1473</a>]</p></li>
+<li><p>Addition of catalogs.MAST PanSTARRS catalog queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1473">#1473</a>]</p></li>
+</ul>
+</section>
+<section id="mpc">
+<h4>mpc<a class="headerlink" href="#mpc" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Functionality added to query observations database. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1350">#1350</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id97">
+<h3>Service fixes and enhancements<a class="headerlink" href="#id97" title="Link to this heading">¶</a></h3>
+<section id="id98">
+<h4>alma<a class="headerlink" href="#id98" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix some broken VOtable returns and a broken login URL. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1369">#1369</a>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_project_metadata()</span></code> is added to query project metadata. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1147">#1147</a>]</p></li>
+<li><p>Add access to the <code class="docutils literal notranslate"><span class="pre">member_ous_id</span></code> attribute. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1316">#1316</a>]</p></li>
+</ul>
+</section>
+<section id="id99">
+<h4>cds<a class="headerlink" href="#id99" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Apply MOCPy v0.5.* API changes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1343">#1343</a>]</p></li>
+</ul>
+</section>
+<section id="id100">
+<h4>eso<a class="headerlink" href="#id100" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Try to re-authenticate when logged out from the ESO server. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1315">#1315</a>]</p></li>
+</ul>
+</section>
+<section id="id101">
+<h4>heasarc<a class="headerlink" href="#id101" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixing error handling to filter out only the query errors. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1338">#1338</a>]</p></li>
+</ul>
+</section>
+<section id="id102">
+<h4>jplhorizons<a class="headerlink" href="#id102" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">refplane</span></code> keyword to <code class="docutils literal notranslate"><span class="pre">vectors_async</span></code> to return data for different
+available reference planes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1335">#1335</a>]</p></li>
+<li><p>Vector queries provide different aberrations, ephemerides queries provide
+extra precision option. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1478">#1478</a>]</p></li>
+<li><p>Fix crash when precision to the second on epoch is requested. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1488">#1488</a>]</p></li>
+<li><p>Fix for missing H, G values. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1333">#1333</a>]</p></li>
+</ul>
+</section>
+<section id="id103">
+<h4>jplsbdb<a class="headerlink" href="#id103" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix for missing values. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1333">#1333</a>]</p></li>
+</ul>
+</section>
+<section id="id104">
+<h4>mast<a class="headerlink" href="#id104" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Update query_criteria keyword obstype-&gt;intentType. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1366">#1366</a>]</p></li>
+<li><p>Remove deprecated authorization code, fix unit tests, general code cleanup,
+documentation additions. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1409">#1409</a>]</p></li>
+<li><p>TIC catalog search update. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1483">#1483</a>]</p></li>
+<li><p>Add search by object name to Tesscut, make resolver_object public, minor bugfixes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1499">#1499</a>]</p></li>
+<li><p>Add option to query TESS Candidate Target List (CTL) Catalog. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1503">#1503</a>]</p></li>
+<li><p>Add verbose keyword for option to silence logger info and warning about S3
+in enable_cloud_dataset(). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1536">#1536</a>]</p></li>
+</ul>
+</section>
+<section id="nasa-ads">
+<h4>nasa_ads<a class="headerlink" href="#nasa-ads" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix an error in one of the default keys, citations-&gt;citation. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1337">#1337</a>]</p></li>
+</ul>
+</section>
+<section id="id105">
+<h4>nist<a class="headerlink" href="#id105" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fixed an upstream issue where js was included in returned data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1359">#1359</a>]</p></li>
+<li><p>Unescape raw HTML codes in returned data back into Unicode equivalents to
+stop them silently breaking Table parsing. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1431">#1431</a>]</p></li>
+</ul>
+</section>
+<section id="id106">
+<h4>nrao<a class="headerlink" href="#id106" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Fix parameter validation allowing for hybrid telescope configuration. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1283">#1283</a>]</p></li>
+</ul>
+</section>
+<section id="id107">
+<h4>sdss<a class="headerlink" href="#id107" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Update to SDSS-IV URLs and general clean-up. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1308">#1308</a>]</p></li>
+</ul>
+</section>
+<section id="id108">
+<h4>vizier<a class="headerlink" href="#id108" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Support using the output values of <code class="docutils literal notranslate"><span class="pre">find_catalog</span></code> in <code class="docutils literal notranslate"><span class="pre">get_catalog</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/603">#603</a>]</p></li>
+<li><p>Fix to ensure to fall back on the default catalog when it’s not provided as
+part of the query method. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1328">#1328</a>]</p></li>
+<li><p>Fix swapped width and length parameters. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1406">#1406</a>]</p></li>
+</ul>
+</section>
+<section id="id109">
+<h4>xmatch<a class="headerlink" href="#id109" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>Add parameter <code class="docutils literal notranslate"><span class="pre">area</span></code> to restrict sky  region considered. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1476">#1476</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id110">
+<h3>Infrastructure, Utility and Other Changes and Additions<a class="headerlink" href="#id110" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>HTTP user-agent now has the string <code class="docutils literal notranslate"><span class="pre">_testrun</span></code> in the version number of astroquery,
+for queries triggered by testing. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1307">#1307</a>]</p></li>
+<li><p>Adding deprecation decorators to <code class="docutils literal notranslate"><span class="pre">utils</span></code> from astropy to be used while we
+support astropy &lt;v3.1.2. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1435">#1435</a>]</p></li>
+<li><p>Added tables sharing, tables edition, upload from pytable and job results,
+data access and datalink access to <code class="docutils literal notranslate"><span class="pre">utils.tap</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1266">#1266</a>]</p></li>
+<li><p>Added a new <code class="docutils literal notranslate"><span class="pre">astroquery.__citation__</span></code> and <code class="docutils literal notranslate"><span class="pre">astroquery.__bibtex__</span></code>
+attributes which give a citation for astroquery in bibtex format. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1391">#1391</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="id111">
+<h2>0.3.9 (2018-12-06)<a class="headerlink" href="#id111" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool: MPC module can now request comet and asteroid ephemerides from the
+Minor Planet Ephemeris Service, and return a table of observatory codes and
+coordinates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1177">#1177</a>]</p></li>
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">CDS</span></code>:  module to query the MOCServer, a CDS tool providing MOCs
+and meta data of various data-sets. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1111">#1111</a>]</p></li>
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">JPLSDB</span></code>: New module for querying JPL’s Small Body Database
+Browser [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1214">#1214</a>]</p></li>
+<li><p>ATOMIC: fix several bugs for using Quantities for the range parameters.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/1187">#1187</a>]</p></li>
+<li><p>CADC: added the get_collections method. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1482">#1482</a>]</p></li>
+<li><p>ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
+table list. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1167">#1167</a>]</p></li>
+<li><p>ESO: Catch exception on login when keyring fails to get a valid storage.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/1198">#1198</a>]</p></li>
+<li><p>ESO: Add option to retrieve calibrations associated to data. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1184">#1184</a>]</p></li>
+<li><p>FERMI: Switch to HTTPS [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1241">#1241</a>]</p></li>
+<li><p>IRSA: Added <code class="docutils literal notranslate"><span class="pre">selcols</span></code> keyword. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1296">#1296</a>]</p></li>
+<li><p>JPLHorizons: Fix for missing total absolute magnitude or phase coefficient
+for comets [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1151">#1151</a>]</p></li>
+<li><p>JPLHorizons: Fix queries for major solar system bodies when sub-observer or
+sub-solar positions are requested. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1268">#1268</a>]</p></li>
+<li><p>JPLHorizons: Fix bug with airmass column. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1284">#1284</a>]</p></li>
+<li><p>JPLSpec: New query service for JPL Molecular Spectral Catalog. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1170">#1170</a>]</p></li>
+<li><p>JPLHorizons: JPL server protocol and epoch range bug fixes, user-defined
+location and additional ephemerides information added [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1207">#1207</a>]</p></li>
+<li><p>HITRAN: use class-based API [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1028">#1028</a>]</p></li>
+<li><p>MAST: Enable converting list of products into S3 uris [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1126">#1126</a>]</p></li>
+<li><p>MAST: Adding Tesscut interface for accessing TESS cutouts. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1264">#1264</a>]</p></li>
+<li><p>MAST: Add functionality for switching to auth.mast when it goes live [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1256">#1256</a>]</p></li>
+<li><p>MAST: Support downloading data from multiple missions from the cloud [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1275">#1275</a>]</p></li>
+<li><p>MAST: Updating HSC and Gaia catalog calls (bugfix) [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1203">#1203</a>]</p></li>
+<li><p>MAST: Fixing bug in catalog criteria queries, and updating remote tests.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/1223">#1223</a>]</p></li>
+<li><p>MAST: Fixing mrp_only but and changing default to False [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1238">#1238</a>]</p></li>
+<li><p>MAST: TESS input catalog bugfix [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1297">#1297</a>]</p></li>
+<li><p>NASA_ADS: Use new API [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1162">#1162</a>]</p></li>
+<li><p>Nasa Exoplanet Arhive: Add option to return all columns. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1183">#1183</a>]</p></li>
+<li><p>SPLATALOGUE: Minor - utils &amp; tests updated to match upstream change [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1236">#1236</a>]</p></li>
+<li><p>utils.tap: Fix Gaia units. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1161">#1161</a>]</p></li>
+<li><p>VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1114">#1114</a>]</p></li>
+<li><p>WFAU: Added QSL constraints parameter [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1259">#1259</a>]</p></li>
+<li><p>XMATCH: default timeout has changed from 60s to 300s. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1137">#1137</a>]</p></li>
+<li><p>Re-enable sandboxing / preventing internet access during non-remote tests,
+which has been unintentionally disabled for a potentially long time.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1274">#1274</a>]</p></li>
+<li><p>File download progress bar no longer displays when Astropy log level is set
+to “WARNING”, “ERROR”, or “CRITICAL”. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1188">#1188</a>]</p></li>
+<li><p>utils: fix bug in <code class="docutils literal notranslate"><span class="pre">parse_coordinates</span></code>, now strings that can be interpreted
+as coordinates are not sent through Sesame. When unit is not provided,
+degrees is now explicitely assumed. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1252">#1252</a>]</p></li>
+<li><p>JPLHorizons: fix for #1201 issue in elements() and vectors(), test added</p></li>
+<li><p>JPLHorizons: fix for missing H, G values [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1332">#1332</a>]</p></li>
+<li><p>JPLHorizons: warn if URI is longer than 2000 chars, docs updated</p></li>
+<li><p>JPLSBDB: fix for missing value, test added</p></li>
+</ul>
+</section>
+<section id="id112">
+<h2>0.3.8 (2018-04-27)<a class="headerlink" href="#id112" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">jplhorizons</span></code>: JPL Horizons service to obtain ephemerides,
+orbital elements, and state vectors for Solar System objects. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1023">#1023</a>]</p></li>
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">mpc</span></code>: MPC Module to query the Minor Planet Center web service.
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/1064">#1064</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1077">#1077</a>]</p></li>
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">oac</span></code>: Open Astronomy Catalog API to obtain data products on
+supernovae, TDEs, and kilonovae. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1053">#1053</a>]</p></li>
+<li><p>New tool <code class="docutils literal notranslate"><span class="pre">wfau</span></code> and <code class="docutils literal notranslate"><span class="pre">vsa</span></code>: Refactor of the UKIDSS query tool add full
+WFAU support.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/984">#984</a>]</p></li>
+<li><p>ALMA: Adding support for band and polarization selection. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1108">#1108</a>]</p></li>
+<li><p>HEASARC: Add additional functionality and expand query capabilities. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1047">#1047</a>]</p></li>
+<li><p>GAIA: Default URL switched to DR2 and made configurable. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1112">#1112</a>]</p></li>
+<li><p>IRSA: Raise exceptions for exceeding output table size limit. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1032">#1032</a>]</p></li>
+<li><p>IRSA_DUST: Call over https. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1069">#1069</a>]</p></li>
+<li><p>LAMDA: Fix writer for Windows on Python 3. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1059">#1059</a>]</p></li>
+<li><p>MAST: Removing filesize checking due to unreliable filesize reporting in
+the database. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1050">#1050</a>]</p></li>
+<li><p>MAST: Added Catalogs class. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1049">#1049</a>]</p></li>
+<li><p>MAST: Enable downloading MAST HST data from S3. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1040">#1040</a>]</p></li>
+<li><p>SPLATALOGUE: Move to https as old HTTP post requests were broken. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1076">#1076</a>]</p></li>
+<li><p>UKIDSS: Update to DR10 as default database. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/984">#984</a>]</p></li>
+<li><p>utils.TAP: Add tool to check for phase of background job. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1073">#1073</a>]</p></li>
+<li><p>utils.TAP: Added redirect handling to sync jobs. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1099">#1099</a>]</p></li>
+<li><p>utils.TAP: Fix jobsIDs assignment. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1105">#1105</a>]</p></li>
+<li><p>VO_CONESEARCH: URL for validated services have changed. Old URL should still
+redirect but it is deprecated. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1033">#1033</a>]</p></li>
+</ul>
+</section>
+<section id="id113">
+<h2>0.3.7 (2018-01-25)<a class="headerlink" href="#id113" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [<a class="reference external" href="https://github.com/astropy/astroquery/issues/771">#771</a>]</p></li>
+<li><p>ESO: The upstream API changed.  We have adapted.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/970">#970</a>]</p></li>
+<li><p>ESO: Added ‘destination’ keyword to Eso.retrieve_data(), to download files
+to a specific location (other than the cache). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/976">#976</a>]</p></li>
+<li><p>ESO: Fixed Eso.query_instrument() to use instrument specific query forms
+(it was using the main form before). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/976">#976</a>]</p></li>
+<li><p>ESO: Implemented Eso.query_main() to query all instruments with the main form
+(even the ones without a specific form). [<a class="reference external" href="https://github.com/astropy/astroquery/issues/976">#976</a>]</p></li>
+<li><p>ESO: Disabled caching for all Eso.retrieve_data() operations. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/976">#976</a>]</p></li>
+<li><p>ESO: Removed deprecated Eso.data_retrieval() and Eso.query_survey().
+Please use Eso.retrieve_data() and Eso.query_surveys() instead. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1019">#1019</a>]</p></li>
+<li><p>ESO: Added configurable URL. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1017">#1017</a>]</p></li>
+<li><p>ESO: Fixed string related bugs. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/981">#981</a>]</p></li>
+<li><p>MAST: Added convenience function to list available missions. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/947">#947</a>]</p></li>
+<li><p>MAST: Added login capabilities [<a class="reference external" href="https://github.com/astropy/astroquery/issues/982">#982</a>]</p></li>
+<li><p>MAST: Updated download functionality [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1004">#1004</a>]</p></li>
+<li><p>MAST: Fixed no results bug [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1003">#1003</a>]</p></li>
+<li><p>utils.tap: Made tkinter optional dependency. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/983">#983</a>]</p></li>
+<li><p>utils.tap: Fixed a bug in load_tables. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/990">#990</a>]</p></li>
+<li><p>vo_conesearch: Fixed bad query for service that cannot accept ‘&amp;&amp;’
+in URL. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/993">#993</a>]</p></li>
+<li><p>vo_conesearch: Removed broken services from default list. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/997">#997</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/1002">#1002</a>]</p></li>
+<li><p>IRSA Dust: fix units in extinction by band table. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1016">#1016</a>]</p></li>
+<li><p>IRSA: Updated links that switched to use https. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1010">#1010</a>]</p></li>
+<li><p>NRAO: Allow multiple configurations, telescopes in queries [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1020">#1020</a>]</p></li>
+<li><p>SIMBAD: adding ‘get_query_payload’ kwarg to all public methods to return
+the request parameters. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/962">#962</a>]</p></li>
+<li><p>CosmoSim: Fixed login service. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/999">#999</a>]</p></li>
+<li><p>utils: upgrade <code class="docutils literal notranslate"><span class="pre">prepend_docstr_noreturns</span></code> to work with multiple
+sections, and thus rename it to <code class="docutils literal notranslate"><span class="pre">prepend_docstr_nosections</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/988">#988</a>]</p></li>
+<li><p>Vizier: find_catalogs will now respect UCD specifications [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1000">#1000</a>]</p></li>
+<li><p>ATOMIC: Added ability to select which rows are returned from the atomic
+line database. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1006">#1006</a>]</p></li>
+<li><p>ESASKY: Added Windows support, various bugfixes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1001">#1001</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/977">#977</a>]</p></li>
+<li><p>GAMA: Updated to use the newer DR3 release. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/1005">#1005</a>]</p></li>
+</ul>
+</section>
+<section id="id114">
+<h2>0.3.6 (2017-07-03)<a class="headerlink" href="#id114" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool: MAST - added module to access the Barbara A. Mikulski Archive
+for Space Telescopes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/920">#920</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/937">#937</a>]</p></li>
+<li><p>LAMDA: Add function to write LAMDA-formatted Tables to a datafile. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/887">#887</a>]</p></li>
+<li><p>ALMA: Fix to queries and tests that were broken by changes in the archive.
+Note that as of April 2017, the archive is significantly broken and missing
+many data sets. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/888">#888</a>]</p></li>
+<li><p>SIMBAD: “dist” is now available as a valid votable field. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/849">#849</a>]
+Additional minor fixes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/932">#932</a>,<a class="reference external" href="https://github.com/astropy/astroquery/issues/892">#892</a>]</p></li>
+<li><p>SHA: fix bug with the coordinate handling. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/885">#885</a>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">turn_off_internet</span></code> and <code class="docutils literal notranslate"><span class="pre">turn_on_internet</span></code> is not available any more
+from the main <code class="docutils literal notranslate"><span class="pre">utils</span></code> namespace, use them directly from
+<code class="docutils literal notranslate"><span class="pre">utils.testing_tools</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/940">#940</a>]</p></li>
+<li><p>Added the ‘verify’ kwarg to <code class="docutils literal notranslate"><span class="pre">Astroquery.request</span></code> to provide a workaround
+for services that have HTTPS URLs but missing certificates. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/928">#928</a>]</p></li>
+</ul>
+</section>
+<section id="id115">
+<h2>0.3.5 (2017-03-29)<a class="headerlink" href="#id115" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool: Gaia - added module to access the European Space Agency Gaia
+Archive. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/836">#836</a>]</p></li>
+<li><p>New tool: VO Cone Search - added module to access Virtual Observatory’s
+Simple Cone Search. This is ported from <code class="docutils literal notranslate"><span class="pre">astropy.vo</span></code>. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/859">#859</a>]</p></li>
+<li><p>New utility: TAP/TAP+ - added Table Access Protocol utility and the ESAC
+Science Data Centre (ESDC) extension. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/836">#836</a>]</p></li>
+<li><p>Fix VizieR to respect specification to return default columns only [<a class="reference external" href="https://github.com/astropy/astroquery/issues/792">#792</a>]</p></li>
+<li><p>SIMBAD queries allow multiple configurable parameters [<a class="reference external" href="https://github.com/astropy/astroquery/issues/820">#820</a>]</p></li>
+<li><p>Add a capability to resume partially-completed downloads for services that
+support the http ‘range’ keyword.  Currently applied to ESO and ALMA
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/812">#812</a>,<a class="reference external" href="https://github.com/astropy/astroquery/issues/876">#876</a>]</p></li>
+<li><p>SIMBAD now supports vectorized region queries.  A list of coordinates can be
+sent to SIMBAD simultaneously.  Users will also be warned if they submit
+queries with &gt;10000 entries, which is the SIMBAD-recommended upper limit.
+Also, SIMBAD support has noted that any IP submitting &gt;6 queries/second
+will be soft-banned, so we have added a warning to this effect in the
+documentation [<a class="reference external" href="https://github.com/astropy/astroquery/issues/833">#833</a>]</p></li>
+<li><p>ALMA: Fix to always use https as the archive now requires it. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/814">#814</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/828">#828</a>]</p></li>
+<li><p>ESASky: Fix various issues related to remote API changes. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/805">#805</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/817">#817</a>]</p></li>
+<li><p>ESASky: Corrected Herschel filter indexing. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/844">#844</a>]</p></li>
+<li><p>ESO: Fix picking issue with simple <code class="docutils literal notranslate"><span class="pre">query_survey()</span></code> queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/801">#801</a>]</p></li>
+<li><p>ESO: Fix FEROS and HARPS instrument queries. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/840">#840</a>]</p></li>
+<li><p>NRAO: Change default radius from 1 degree to 1 arcmin. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/813">#813</a>]</p></li>
+</ul>
+</section>
+<section id="id116">
+<h2>0.3.4 (2016-11-21)<a class="headerlink" href="#id116" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tool: basic HITRAN queries support [<a class="reference external" href="https://github.com/astropy/astroquery/issues/617">#617</a>]</p></li>
+<li><p>Fix #737, an issue with broken ALMA archive tables, via a hack [<a class="reference external" href="https://github.com/astropy/astroquery/issues/775">#775</a>]</p></li>
+<li><p>Correct HEASARC tool, which was sending incorrect data to the server [<a class="reference external" href="https://github.com/astropy/astroquery/issues/774">#774</a>]</p></li>
+<li><p>Fix NIST issue #714 which led to badly-parsed tables [<a class="reference external" href="https://github.com/astropy/astroquery/issues/773">#773</a>]</p></li>
+<li><p>NRAO archive tool allows user logins and HTML-based queries [<a class="reference external" href="https://github.com/astropy/astroquery/issues/767">#767</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/780">#780</a>]</p></li>
+<li><p>ALMA allows kwargs as input, and various small fixes [<a class="reference external" href="https://github.com/astropy/astroquery/issues/785">#785</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/790">#790</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/782">#782</a>]</p></li>
+<li><p>XMatch caching bug fixed [<a class="reference external" href="https://github.com/astropy/astroquery/issues/789">#789</a>]</p></li>
+<li><p>Various fixes to ESASky [<a class="reference external" href="https://github.com/astropy/astroquery/issues/779">#779</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/772">#772</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/770">#770</a>]</p></li>
+<li><p>New tool: VAMDC-cdms interface [<a class="reference external" href="https://github.com/astropy/astroquery/issues/658">#658</a>]</p></li>
+<li><p>Fix issue with exclude keyword in Splatalogue queries [<a class="reference external" href="https://github.com/astropy/astroquery/issues/616">#616</a>]</p></li>
+</ul>
+</section>
+<section id="id117">
+<h2>0.3.3 (2016-10-11)<a class="headerlink" href="#id117" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Option to toggle the display of the download bar [<a class="reference external" href="https://github.com/astropy/astroquery/issues/734">#734</a>]</p></li>
+<li><p>ESASKY - added new module for querying the ESASKY archive [<a class="reference external" href="https://github.com/astropy/astroquery/issues/758">#758</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/763">#763</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/765">#765</a>]</p></li>
+<li><p>Refactor Splatalogue and XMatch to use the caching [<a class="reference external" href="https://github.com/astropy/astroquery/issues/747">#747</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/751">#751</a>]</p></li>
+<li><p>Minor data updates to Splatalogue [<a class="reference external" href="https://github.com/astropy/astroquery/issues/746">#746</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/754">#754</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/760">#760</a>]</p></li>
+<li><p>Fix parsing bug for <code class="docutils literal notranslate"><span class="pre">_parse_radius</span></code> in Simbad [<a class="reference external" href="https://github.com/astropy/astroquery/issues/753">#753</a>]</p></li>
+<li><p>Multiple fixes to ensure Windows compatibility [<a class="reference external" href="https://github.com/astropy/astroquery/issues/709">#709</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/726">#726</a>]</p></li>
+<li><p>Minor fixes to ESO to match upstream form changes [<a class="reference external" href="https://github.com/astropy/astroquery/issues/729">#729</a>]</p></li>
+</ul>
+</section>
+<section id="id118">
+<h2>0.3.2 (2016-06-10)<a class="headerlink" href="#id118" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Update ESO tool to work with new web API [<a class="reference external" href="https://github.com/astropy/astroquery/issues/696">#696</a>]</p></li>
+<li><p>Added new instruments for ESO: <code class="docutils literal notranslate"><span class="pre">ambient_paranal</span></code> and <code class="docutils literal notranslate"><span class="pre">meteo_paranal</span></code>
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/657">#657</a>]</p></li>
+<li><p>Fix problem with listed votable fields being truncated in SIMBAD [<a class="reference external" href="https://github.com/astropy/astroquery/issues/654">#654</a>]</p></li>
+<li><p>SDSS remote API fixes [<a class="reference external" href="https://github.com/astropy/astroquery/issues/690">#690</a>]</p></li>
+<li><p>ALMA file downloader will skip over, rather than crashing on, access denied
+(HTTP 401) errors [<a class="reference external" href="https://github.com/astropy/astroquery/issues/687">#687</a>]</p></li>
+<li><p>Continued minor ALMA fixes [<a class="reference external" href="https://github.com/astropy/astroquery/issues/655">#655</a>,<a class="reference external" href="https://github.com/astropy/astroquery/issues/672">#672</a>,<a class="reference external" href="https://github.com/astropy/astroquery/issues/687">#687</a>,<a class="reference external" href="https://github.com/astropy/astroquery/issues/688">#688</a>]</p></li>
+<li><p>Splatalogue export limit bugfix [<a class="reference external" href="https://github.com/astropy/astroquery/issues/673">#673</a>]</p></li>
+<li><p>SIMBAD flux_quality flag corrected to flux_qual [<a class="reference external" href="https://github.com/astropy/astroquery/issues/680">#680</a>]</p></li>
+<li><p>VIZIER add a flag to return the query payload for debugging [<a class="reference external" href="https://github.com/astropy/astroquery/issues/668">#668</a>]</p></li>
+</ul>
+</section>
+<section id="id119">
+<h2>0.3.1 (2016-01-19)<a class="headerlink" href="#id119" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix bug in xmatch service that required astropy tables to have exactly 2
+columns on input [<a class="reference external" href="https://github.com/astropy/astroquery/issues/641">#641</a>]</p></li>
+<li><p>Fix NASA ADS, which had an internal syntax error [<a class="reference external" href="https://github.com/astropy/astroquery/issues/602">#602</a>]</p></li>
+<li><p>Bugfix in NRAO queries: telescope config was parsed incorrectly [<a class="reference external" href="https://github.com/astropy/astroquery/issues/629">#629</a>]</p></li>
+<li><p>IBE - added new module for locating data from PTF, WISE, and 2MASS from IRSA.
+See &lt;<a class="reference external" href="http://irsa.ipac.caltech.edu/ibe/">http://irsa.ipac.caltech.edu/ibe/</a>&gt; for more information about IBE and
+&lt;<a class="reference external" href="http://www.ptf.caltech.edu/page/ibe">http://www.ptf.caltech.edu/page/ibe</a>&gt; for more information about PTF survey
+data in particular. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/450">#450</a>]</p></li>
+</ul>
+</section>
+<section id="id120">
+<h2>0.3.0 (2015-10-26)<a class="headerlink" href="#id120" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix ESO APEX project ID keyword [<a class="reference external" href="https://github.com/astropy/astroquery/issues/591">#591</a>]</p></li>
+<li><p>Fix ALMA queries when accessing private data [<a class="reference external" href="https://github.com/astropy/astroquery/issues/601">#601</a>]</p></li>
+<li><p>Allow data downloads to use the cache [<a class="reference external" href="https://github.com/astropy/astroquery/issues/601">#601</a>]</p></li>
+</ul>
+</section>
+<section id="id121">
+<h2>0.2.6 (2015-07-23)<a class="headerlink" href="#id121" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>ESO bugfixes for handling radio buttons [<a class="reference external" href="https://github.com/astropy/astroquery/issues/560">#560</a>]</p></li>
+<li><p>ESO: added SPHERE to list [<a class="reference external" href="https://github.com/astropy/astroquery/issues/551">#551</a>]</p></li>
+<li><p>ESO/ALMA test cleanup [<a class="reference external" href="https://github.com/astropy/astroquery/issues/553">#553</a>]</p></li>
+<li><p>Allow ALMA project view [<a class="reference external" href="https://github.com/astropy/astroquery/issues/554">#554</a>]</p></li>
+<li><p>Fix Splatalogue version keyword [<a class="reference external" href="https://github.com/astropy/astroquery/issues/557">#557</a>]</p></li>
+</ul>
+</section>
+<section id="id122">
+<h2>0.2.4 (2015-03-27)<a class="headerlink" href="#id122" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Bugfix for <code class="docutils literal notranslate"><span class="pre">utils.commons.send_request()</span></code>: Raise exception if error status
+is returned in the response. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/491">#491</a>]</p></li>
+<li><p>Update for ALMA Cycle 3 API change [<a class="reference external" href="https://github.com/astropy/astroquery/issues/500">#500</a>]</p></li>
+<li><p>Added LCOGT Archive support [<a class="reference external" href="https://github.com/astropy/astroquery/issues/537">#537</a>]</p></li>
+<li><p>Refactored LAMDA to match the standard API and added a critical density
+calculation utility [<a class="reference external" href="https://github.com/astropy/astroquery/issues/546">#546</a>]</p></li>
+</ul>
+</section>
+<section id="id123">
+<h2>0.2.3 (2014-09-30)<a class="headerlink" href="#id123" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>AstroResponse has been removed, which means that all cached objects will have
+new hashes.  You should clear your cache: for most users, that means
+<code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-r</span> <span class="pre">~/.astropy/cache/astroquery/</span></code> [<a class="reference external" href="https://github.com/astropy/astroquery/issues/418">#418</a>]</p></li>
+<li><p>In ESO and ALMA, default to <em>not</em> storing your password.  New keyword
+<code class="docutils literal notranslate"><span class="pre">store_password=False</span></code>.  [<a class="reference external" href="https://github.com/astropy/astroquery/issues/415">#415</a>]</p></li>
+<li><p>In ESO, fixed a form activation issue triggered in ESO <code class="docutils literal notranslate"><span class="pre">retrieve_data()</span></code>,
+updated file download link triggered by server side change.
+More interesting, made <code class="docutils literal notranslate"><span class="pre">username</span></code> optional in <code class="docutils literal notranslate"><span class="pre">login()</span></code>:
+instead, you can now configure your preferred <code class="docutils literal notranslate"><span class="pre">username</span></code>.
+Finally, automatic login is now used by <code class="docutils literal notranslate"><span class="pre">retrieve_data()</span></code>, if configured. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/420">#420</a>, <a class="reference external" href="https://github.com/astropy/astroquery/issues/427">#427</a>]</p></li>
+<li><p>Bugfix for UKIDSS: Login now uses the correct session to retrieve the data
+[<a class="reference external" href="https://github.com/astropy/astroquery/issues/425">#425</a>]</p></li>
+<li><p>ALMA - many new features, including selective file retrieval.  Fixes many errors that
+were unnoticed in the previous version [<a class="reference external" href="https://github.com/astropy/astroquery/issues/433">#433</a>]</p></li>
+<li><p>ALMA - add <code class="docutils literal notranslate"><span class="pre">help</span></code> method and pass payload keywords on correctly.  Validate
+the payload before querying. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/438">#438</a>]</p></li>
+</ul>
+</section>
+<section id="id124">
+<h2>0.2.2 (2014-09-10)<a class="headerlink" href="#id124" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Support direct transmission of SQL queries to the SDSS server [<a class="reference external" href="https://github.com/astropy/astroquery/issues/410">#410</a>]</p></li>
+<li><p>Added email/text job completion alert [<a class="reference external" href="https://github.com/astropy/astroquery/issues/407">#407</a>] to the CosmoSim tool [<a class="reference external" href="https://github.com/astropy/astroquery/issues/267">#267</a>].</p></li>
+<li><p>ESO archive now supports HARPS/FEROS reprocessed data queries [<a class="reference external" href="https://github.com/astropy/astroquery/issues/412">#412</a>]</p></li>
+<li><p>IPython notebook checker in the ESO tool is now compatible with regular
+python [<a class="reference external" href="https://github.com/astropy/astroquery/issues/413">#413</a>]</p></li>
+<li><p>Added new tool: ALMA archive query tool. [<a class="reference external" href="https://github.com/astropy/astroquery/issues/411">#411</a>]</p></li>
+<li><p>setup script and installation fixes</p></li>
+</ul>
+</section>
+<section id="id125">
+<h2>0.2 (2014-08-17)<a class="headerlink" href="#id125" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New tools: ESO, GAMA, xmatch, skyview, OEC</p></li>
+<li><p>Consistent with astropy 0.4 API for coordinates</p></li>
+<li><p>Now uses the astropy affiliated template</p></li>
+<li><p>Python 3 compatibility dramatically improved</p></li>
+<li><p>Caching added and enhanced: the default cache directory is
+<code class="docutils literal notranslate"><span class="pre">~/.astropy/cache/astroquery/[service_name]</span></code></p></li>
+<li><p>Services with separate login pages can be accessed</p></li>
+</ul>
+</section>
+<section id="id126">
+<h2>0.1 (2013-09-19)<a class="headerlink" href="#id126" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Initial release.  Includes features!</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Full Changelog</a><ul>
+<li><a class="reference internal" href="#unreleased">0.4.7 (unreleased)</a><ul>
+<li><a class="reference internal" href="#new-tools-and-services">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#eso">eso</a></li>
+<li><a class="reference internal" href="#ipac-irsa">ipac.irsa</a></li>
+<li><a class="reference internal" href="#gaia">gaia</a></li>
+<li><a class="reference internal" href="#hsa">hsa</a></li>
+<li><a class="reference internal" href="#mocserver">mocserver</a></li>
+<li><a class="reference internal" href="#esa-hubble">esa.hubble</a></li>
+<li><a class="reference internal" href="#solarsystem-neodys">solarsystem.neodys</a></li>
+<li><a class="reference internal" href="#solarsystem-pds">solarsystem.pds</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-fixes-and-enhancements">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#alfalfa">alfalfa</a></li>
+<li><a class="reference internal" href="#atomic">atomic</a></li>
+<li><a class="reference internal" href="#id1">esa.hubble</a></li>
+<li><a class="reference internal" href="#esa-jwt">esa.jwt</a></li>
+<li><a class="reference internal" href="#alma">alma</a></li>
+<li><a class="reference internal" href="#astrometry-net">astrometry_net</a></li>
+<li><a class="reference internal" href="#cadc">cadc</a></li>
+<li><a class="reference internal" href="#casda">casda</a></li>
+<li><a class="reference internal" href="#cds">cds</a></li>
+<li><a class="reference internal" href="#exoplanet-orbit-database">exoplanet_orbit_database</a></li>
+<li><a class="reference internal" href="#heasarc">heasarc</a></li>
+<li><a class="reference internal" href="#ipac-nexsci-nasa-exoplanet-archive">ipac.nexsci.nasa_exoplanet_archive</a></li>
+<li><a class="reference internal" href="#jplhorizons">jplhorizons</a></li>
+<li><a class="reference internal" href="#jplsbdb">jplsbdb</a></li>
+<li><a class="reference internal" href="#linelists-cdms">linelists.cdms</a></li>
+<li><a class="reference internal" href="#mast">mast</a></li>
+<li><a class="reference internal" href="#nist">nist</a></li>
+<li><a class="reference internal" href="#oac">oac</a></li>
+<li><a class="reference internal" href="#sdss">sdss</a></li>
+<li><a class="reference internal" href="#simbad">simbad</a></li>
+<li><a class="reference internal" href="#skyview">skyview</a></li>
+<li><a class="reference internal" href="#svo-fps">svo_fps</a></li>
+<li><a class="reference internal" href="#vizier">vizier</a></li>
+<li><a class="reference internal" href="#xmatch">xmatch</a></li>
+<li><a class="reference internal" href="#id2">gaia</a></li>
+<li><a class="reference internal" href="#id3">sdss</a></li>
+<li><a class="reference internal" href="#id4">mast</a></li>
+<li><a class="reference internal" href="#id5">xmatch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#infrastructure-utility-and-other-changes-and-additions">Infrastructure, Utility and Other Changes and Additions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">0.4.6 (2022-03-22)</a><ul>
+<li><a class="reference internal" href="#id7">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id8">alma</a></li>
+<li><a class="reference internal" href="#id9">casda</a></li>
+<li><a class="reference internal" href="#id10">esa.hubble</a></li>
+<li><a class="reference internal" href="#esa-xmm-newton">esa.xmm_newton</a></li>
+<li><a class="reference internal" href="#id11">gaia</a></li>
+<li><a class="reference internal" href="#id12">ipac.nexsci.nasa_exoplanet_archive</a></li>
+<li><a class="reference internal" href="#id13">mast</a></li>
+<li><a class="reference internal" href="#id14">sdss</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id15">Infrastructure, Utility and Other Changes and Additions</a><ul>
+<li><a class="reference internal" href="#utils-tap">utils.tap</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id16">0.4.5 (2021-12-24)</a><ul>
+<li><a class="reference internal" href="#id17">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#esa-jwst">esa.jwst</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id18">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id19">eso</a></li>
+<li><a class="reference internal" href="#id20">jplhorizons</a></li>
+<li><a class="reference internal" href="#id21">sdss</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id22">Infrastructure, Utility and Other Changes and Additions</a><ul>
+<li><a class="reference internal" href="#id23">utils.tap</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id24">0.4.4 (2021-11-17)</a><ul>
+<li><a class="reference internal" href="#id25">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#esa-esasky">esa.esasky</a></li>
+<li><a class="reference internal" href="#ipac">ipac</a></li>
+<li><a class="reference internal" href="#id26">linelists.cdms</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id27">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id28">casda</a></li>
+<li><a class="reference internal" href="#id29">gaia</a></li>
+<li><a class="reference internal" href="#ipac-ned">ipac.ned</a></li>
+<li><a class="reference internal" href="#id30">jplhorizons</a></li>
+<li><a class="reference internal" href="#jplspec">jplspec</a></li>
+<li><a class="reference internal" href="#id31">simbad</a></li>
+<li><a class="reference internal" href="#splatalogue">splatalogue</a></li>
+<li><a class="reference internal" href="#id32">vizier</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id33">Infrastructure, Utility and Other Changes and Additions</a><ul>
+<li><a class="reference internal" href="#id34">ipac</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id35">0.4.3 (2021-07-07)</a><ul>
+<li><a class="reference internal" href="#id36">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#id37">esa.esasky</a></li>
+<li><a class="reference internal" href="#id38">esa.hubble</a></li>
+<li><a class="reference internal" href="#id39">esa.xmm_newton</a></li>
+<li><a class="reference internal" href="#id40">heasarc</a></li>
+<li><a class="reference internal" href="#nasa-exoplanet-archive">nasa_exoplanet_archive</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id41">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id42">atomic</a></li>
+<li><a class="reference internal" href="#id43">esa.xmm_newton</a></li>
+<li><a class="reference internal" href="#id44">gaia</a></li>
+<li><a class="reference internal" href="#id45">heasarc</a></li>
+<li><a class="reference internal" href="#ibe">ibe</a></li>
+<li><a class="reference internal" href="#irsa">irsa</a></li>
+<li><a class="reference internal" href="#sha">sha</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id46">Infrastructure, Utility and Other Changes and Additions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id47">0.4.2 (2021-05-14)</a><ul>
+<li><a class="reference internal" href="#id48">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#cds-hips2fits">cds.hips2fits</a></li>
+<li><a class="reference internal" href="#esa-iso">esa.iso</a></li>
+<li><a class="reference internal" href="#id49">esa.xmm_newton</a></li>
+<li><a class="reference internal" href="#id50">mast</a></li>
+<li><a class="reference internal" href="#id51">svo_fps</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id52">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id53">alma</a></li>
+<li><a class="reference internal" href="#id54">esa.esasky</a></li>
+<li><a class="reference internal" href="#id55">esa.hubble</a></li>
+<li><a class="reference internal" href="#id56">gaia</a></li>
+<li><a class="reference internal" href="#gemini">gemini</a></li>
+<li><a class="reference internal" href="#id57">heasarc</a></li>
+<li><a class="reference internal" href="#id58">irsa</a></li>
+<li><a class="reference internal" href="#id59">jplsbdb</a></li>
+<li><a class="reference internal" href="#lcogt">lcogt</a></li>
+<li><a class="reference internal" href="#id60">mast</a></li>
+<li><a class="reference internal" href="#id61">sdss</a></li>
+<li><a class="reference internal" href="#id62">splatalogue</a></li>
+<li><a class="reference internal" href="#ukidss">ukidss</a></li>
+<li><a class="reference internal" href="#vamdc">vamdc</a></li>
+<li><a class="reference internal" href="#id63">vizier</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id64">Infrastructure, Utility and Other Changes and Additions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id65">0.4.1 (2020-06-19)</a><ul>
+<li><a class="reference internal" href="#id66">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#id67">esa.xmm_newton</a></li>
+<li><a class="reference internal" href="#image-cutouts-first">image_cutouts.first</a></li>
+<li><a class="reference internal" href="#noirlab">noirlab</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id68">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id69">alma</a></li>
+<li><a class="reference internal" href="#id70">casda</a></li>
+<li><a class="reference internal" href="#id71">cadc</a></li>
+<li><a class="reference internal" href="#id72">eso</a></li>
+<li><a class="reference internal" href="#id73">gaia</a></li>
+<li><a class="reference internal" href="#id74">gemini</a></li>
+<li><a class="reference internal" href="#id75">jplhorizons</a></li>
+<li><a class="reference internal" href="#id76">nasa_exoplanet_archive</a></li>
+<li><a class="reference internal" href="#nrao">nrao</a></li>
+<li><a class="reference internal" href="#id77">vizier</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id78">Infrastructure, Utility and Other Changes and Additions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id79">0.4 (2020-01-24)</a><ul>
+<li><a class="reference internal" href="#id80">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#id81">casda</a></li>
+<li><a class="reference internal" href="#dace">dace</a></li>
+<li><a class="reference internal" href="#id82">gemini</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id83">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id84">gaia</a></li>
+<li><a class="reference internal" href="#imcce">imcce</a></li>
+<li><a class="reference internal" href="#id85">jplhorizons</a></li>
+<li><a class="reference internal" href="#id86">mast</a></li>
+<li><a class="reference internal" href="#id87">nasa_exoplanet_archive</a></li>
+<li><a class="reference internal" href="#id88">splatalogue</a></li>
+<li><a class="reference internal" href="#vo-conesearch">vo_conesearch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id89">Infrastructure, Utility and Other Changes and Additions</a><ul>
+<li><a class="reference internal" href="#utils">utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id90">0.3.10 (2019-09-19)</a><ul>
+<li><a class="reference internal" href="#id91">New Tools and Services</a><ul>
+<li><a class="reference internal" href="#id92">astrometry_net</a></li>
+<li><a class="reference internal" href="#id93">cadc</a></li>
+<li><a class="reference internal" href="#esa">esa</a></li>
+<li><a class="reference internal" href="#id94">gaia</a></li>
+<li><a class="reference internal" href="#id95">imcce</a></li>
+<li><a class="reference internal" href="#id96">mast</a></li>
+<li><a class="reference internal" href="#mpc">mpc</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id97">Service fixes and enhancements</a><ul>
+<li><a class="reference internal" href="#id98">alma</a></li>
+<li><a class="reference internal" href="#id99">cds</a></li>
+<li><a class="reference internal" href="#id100">eso</a></li>
+<li><a class="reference internal" href="#id101">heasarc</a></li>
+<li><a class="reference internal" href="#id102">jplhorizons</a></li>
+<li><a class="reference internal" href="#id103">jplsbdb</a></li>
+<li><a class="reference internal" href="#id104">mast</a></li>
+<li><a class="reference internal" href="#nasa-ads">nasa_ads</a></li>
+<li><a class="reference internal" href="#id105">nist</a></li>
+<li><a class="reference internal" href="#id106">nrao</a></li>
+<li><a class="reference internal" href="#id107">sdss</a></li>
+<li><a class="reference internal" href="#id108">vizier</a></li>
+<li><a class="reference internal" href="#id109">xmatch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id110">Infrastructure, Utility and Other Changes and Additions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id111">0.3.9 (2018-12-06)</a></li>
+<li><a class="reference internal" href="#id112">0.3.8 (2018-04-27)</a></li>
+<li><a class="reference internal" href="#id113">0.3.7 (2018-01-25)</a></li>
+<li><a class="reference internal" href="#id114">0.3.6 (2017-07-03)</a></li>
+<li><a class="reference internal" href="#id115">0.3.5 (2017-03-29)</a></li>
+<li><a class="reference internal" href="#id116">0.3.4 (2016-11-21)</a></li>
+<li><a class="reference internal" href="#id117">0.3.3 (2016-10-11)</a></li>
+<li><a class="reference internal" href="#id118">0.3.2 (2016-06-10)</a></li>
+<li><a class="reference internal" href="#id119">0.3.1 (2016-01-19)</a></li>
+<li><a class="reference internal" href="#id120">0.3.0 (2015-10-26)</a></li>
+<li><a class="reference internal" href="#id121">0.2.6 (2015-07-23)</a></li>
+<li><a class="reference internal" href="#id122">0.2.4 (2015-03-27)</a></li>
+<li><a class="reference internal" href="#id123">0.2.3 (2014-09-30)</a></li>
+<li><a class="reference internal" href="#id124">0.2.2 (2014-09-10)</a></li>
+<li><a class="reference internal" href="#id125">0.2 (2014-08-17)</a></li>
+<li><a class="reference internal" href="#id126">0.1 (2013-09-19)</a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/changelog.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

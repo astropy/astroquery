@@ -12,7 +12,7 @@ This is a python interface for querying the
 archive web service.
 
 There are two interfaces for the Heasarc services:``heasarc.Heasac`` and 
-``heasarc.Xamin``. The first uses the old Browse interface, and offers 
+``heasarc.Xamin``. The first uses the classical Browse interface, and offers 
 limited search capabilities. The second uses the new ``Xamin`` interface, 
 which relies on the Virtual Observatory protocols. It offser more powerful
 search options.
@@ -27,10 +27,10 @@ Heasarc Xamin Interface
 
 Query a Table
 -------------
-The basic use case is one where I want to query a table from some position in the sky.
+The basic use case is one where you wants to query a table from some position in the sky.
 In this example, we query the NuSTAR master table ``numaster`` table for all observations
-of the AGN ``NGC 3783``. We use `astropy.coordinates.SkyCoord` to obtain the coordinates
-and then pass them to ``Xamin.query_region``:
+of the AGN ``NGC 3783``. We use `~astropy.coordinates.SkyCoord` to obtain the coordinates
+and then pass them to `~astroquery.heasarc.HeasarcXaminClass.query_region`:
 
 .. doctest-remote-data::
 
@@ -47,7 +47,7 @@ and then pass them to ``Xamin.query_region``:
     NGC_3783 60902005 174.7571 -37.7385
 
 To query a region around some position, specifying the search radius.
-We use `astropy.units`:
+You use `~astropy.units`:
 
 .. doctest-remote-data::
 
@@ -66,42 +66,138 @@ We use `astropy.units`:
         1RXS J075526.1+391111 13008 118.85875 39.18639
      SDSS J080040.77+391700.5 18110 120.17000 39.28344
 
-The list of requested tables can also be passed to ``query_region``:
+The list of requested tables can also be passed to `~~astroquery.heasarc.HeasarcXaminClass.query_region`:
 
-    >>> Xamin.query_region(pos, table='chanmaster', radius=2*u.deg, 
-                   columns='obsid, name, time, pi_lname')
+.. doctest-skip::
+
+    >>> Xamin.query_region(pos, table='chanmaster', radius=2*u.deg,
+    ...                    columns='obsid, name, time, pi_lname')
+
+List Available Tables
+---------------------
+The collection of available tables can be obtained by calling the `~astroquery.heasarc.HeasarcXaminClass.tables` 
+method. In this example, we query the master tables only by passing ``master=True``.
+which is ``False`` by default (i.e. query all table). `~astroquery.heasarc.HeasarcXaminClass.tables` returns an 
+`~astropy.table.Table` with two columns containing the names and description of the available
+tables.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tables = Xamin.tables(master=True)
+    >>> tables.pprint(align='<')
+       name                             description                         
+    ---------- -------------------------------------------------------------
+    ascamaster ASCA Master Catalog                                          
+    chanmaster Chandra Observations                                         
+    cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
+    erosmaster eROSITA Observations Master Catalog
+
+If you do not know the name of the table you are looking for, you can use the ``keywords`` 
+parameter in `~astroquery.heasarc.HeasarcXaminClass.tables`. For example, if you want to find all tables that 
+are related to Chandra, you can do:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tab = Xamin.tables(keywords='chandra')
+    >>> # list the first 10
+    >>> tab[:10].pprint()
+       name                              description                           
+    ---------- ----------------------------------------------------------------
+    acceptcat Archive of Chandra Cluster Entropy Profile Tables (ACCEPT) Catal
+        aegisx  AEGIS-X Chandra Extended Groth Strip X-Ray Point Source Catalog
+    aegisxdcxo           AEGIS-X Deep Survey Chandra X-Ray Point Source Catalog
+    aknepdfcxo  Akari North Ecliptic Pole Deep Field Chandra X-Ray Point Source
+    arcquincxo Arches and Quintuplet Clusters Chandra X-Ray Point Source Catalo
+    atcdfsss82  Australia Telescope Chandra Deep Field-South and SDSS Stripe 82
+    bmwchancat                 Brera Multi-scale Wavelet Chandra Source Catalog
+    candelscxo                   CANDELS H-Band Selected Chandra Source Catalog
+    cargm31cxo          Carina Nebula Gum 31 Chandra X-Ray Point Source Catalog
+    carinaclas                 Carina Nebula Chandra X-Ray Point Source Classes
+
+If you are interested only finding the master tables, you can also set ``master`` to ``True``.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tab = Xamin.tables(keywords='chandra', master=True)
+    >>> tab.pprint()
+       name        description     
+    ---------- --------------------
+    chanmaster Chandra Observations
+
+Multiple keywords that are separated by space are joined with **AND**, so the 
+following find all tables that have both 'xmm' and 'chandra' keyworkds:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tab = Xamin.tables(keywords='xmm chandra')
+    >>> tab.pprint()
+       name                              description                           
+    ---------- ----------------------------------------------------------------
+    gmrt1hxcsf Giant Metrewave Radio Telescope 1h XMM/Chandra Survey Fld 610-MH
+    ic10xmmcxo          IC 10 XMM-Newton and Chandra X-Ray Point Source Catalog
+    ros13hrcxo      ROSAT/XMM-Newton 13-hour Field Chandra X-Ray Source Catalog
+    xmmomcdfs   XMM-Newton Optical Monitor Chandra Deep Field-South UV Catalog
+
+If you want an **OR** relation between keywords, you can pass them in a list. The
+following for instance will find master tables that have keywords 'nicer' or 'swift'
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Xamin
+    >>> tab = Xamin.tables(keywords=['nicer', 'swift'], master=True)
+    >>> tab.pprint()
+       name        description     
+    ---------- --------------------
+    nicermastr NICER Master Catalog
+    swiftmastr Swift Master Catalog
 
 Links to Data Products
 ----------------------
-Once the query result is obtained, we can query any data products associated
+Once the query result is obtained, you can query any data products associated
 with those results.
 
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Xamin
     >>> from astropy.coordinates import SkyCoord
-    >>> pos = SkyCoord.from_name('ngc 3783')
+    >>> pos = SkyCoord.from_name('ngc 3516')
     >>> tab = Xamin.query_region(pos, table='nicermastr')
-    >>> links = Xamin.get_links(tab[:3])
+    >>> links = Xamin.get_links(tab[:2])
     >>> links.pprint(max_width=120)
       ID                                access_url                              ... content_length
                                                                                 ...      byte     
     ----- --------------------------------------------------------------------- ... --------------
-    39818 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_04//2518010701/ ...       38185018
-    39819 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_05//2518011301/ ...       58539848
-    39820 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2019_05//2518011702/ ...       44604193
+    52637 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/ ...      868252835
+    52641 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/ ...       79508896
 
 The ``links`` table has three relevant columns: ``access_url``, ``sciserver`` and ``aws``.
 The first gives the url to the data from the main heasarc server. The second gives
 the local path to the data on Sciserver. The last gives the S3 URI to the data in the cloud.
-Depending where 
+You can specify where the data are to be downloaded using the ``location`` parameter.
+
+To download the data, you can pass ``links`` table to `~astroquery.heasarc.HeasarcXaminClass.download_data`,
+specifying from where you want the data to fetched by specifying the ``host`` parameter. By default,
+the data is fetched from the main HEASARC servers.
+The recommendation is to use different hosts depending on where you can is running:
+* ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
+all the archive can be mounted locally there, `~astroquery.heasarc.HeasarcXaminClass.download_data`
+will only copy the relevent data.
+* ``host='aws'``: Use this option if you are running the analysis in Amazon Web Services (AWS).
+Data will be downloaded from AWS S3 storage.
+* ``host='heasarc'``: Use this option for other cases. Thi is the classical and most general option.
+In this case, the requested data will be tarred and downloaded as a single file called xamin.tar
+before being untarred.
 
 Advanced Queries
 ----------------
-Behind the scenes, ``Xamin.query_region`` constructs an query in the 
-Astronomical Data Query Language ADQL, which powerful in constructing
-complex queries. Passing ``get_query_payload=True`` to ``query_region`` returns
-the constructed ADQL query.
+Behind the scenes, `~astroquery.heasarc.HeasarcXaminClass.query_region` constructs an query in the 
+Astronomical Data Query Language ADQL, which is powerful in constructing
+complex queries. Passing ``get_query_payload=True`` to `~astroquery.heasarc.HeasarcXaminClass.query_region`
+returns the constructed ADQL query.
 
 .. doctest-remote-data::
 
@@ -113,11 +209,10 @@ the constructed ADQL query.
     >>>                            get_query_payload=True)
     >>> query
     "SELECT * FROM xmmmaster WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"
-
-The query can be modified as then submitted using:
-
+    ...
+    >>> # The query can be modified and then submitted using:
     >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster 
-    >>> WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
+    ...            WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
     >>> tab = Xamin.query_tap(query).to_table()
     >>> tab[:10].pprint()
         ra      dec            name           obsid   
@@ -140,39 +235,23 @@ In additon to a cone search (some position and search radius), ```Xamin.query_re
 other options too, including ``'box'``, ``'polygon'`` and ``'all-sky'``. Details can be found
 in `~astroquery.heasarc.HeasarcXaminClass.query_region`. Examples include:
 
+.. doctest-skip::
+
     >>> # query box region
     >>> pos = SkyCoord('226.2 10.6', unit=u.deg)
     >>> Xamin.query_region(pos, table='xmmmaster', spatial='box', width=0.5*u.deg)
 
 for ``'box'`` and:
+
+.. doctest-skip::
     >>> Xamin.query_region(table='xmmmaster', spatial='polygon',
                   polygon=[(226.2,10.6),(225.9,10.5),(225.8,10.2),(226.2,10.3)])
 
-for ``'polygon'``.
-
-List Available Tables
----------------------
-The collection of available tables can be obtained by calling the ``tables()`` method
-of ``Xamin``. In this example, we query the master tables only by passing ``master=True``.
-which is ``False`` by default (i.e. query all table). ``Xamin.tables()`` returns an 
-`~astropy.table.Table` with two columns containing the names and description of the available
-tables.
-
-.. doctest-remote-data::
-
-    >>> from astroquery.heasarc import Xamin
-    >>> tables = Xamin.tables(master=True)
-    >>> tables.pprint(align='<')
-       name                             description                         
-    ---------- -------------------------------------------------------------
-    ascamaster ASCA Master Catalog                                          
-    chanmaster Chandra Observations                                         
-    cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
-    erosmaster eROSITA Observations Master Catalog      
+for ``'polygon'``.  
 
 List Table Columns
 ------------------
-To list the columns of some table, use ``Xamin.columns()``. Here we list the columns
+To list the columns of some table, use `~astroquery.heasarc.HeasarcXaminClass.columns`. Here we list the columns
 in the XMM master table ``xmmmaster``:
 
 .. doctest-remote-data::

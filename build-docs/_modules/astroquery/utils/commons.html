@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.utils.commons &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.utils.commons</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Common functions and classes that are required by all query classes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span><span class="p">,</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">URLError</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">astropy.utils</span> <span class="kn">import</span> <span class="n">minversion</span>
+<span class="kn">import</span> <span class="nn">astropy.utils.data</span> <span class="k">as</span> <span class="nn">aud</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span><span class="p">,</span> <span class="n">votable</span>
+
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">BaseCoordinateFrame</span><span class="p">,</span> <span class="n">SkyCoord</span>
+
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="ne">TimeoutError</span><span class="p">,</span> <span class="n">InputWarning</span>
+
+
+<span class="n">CoordClasses</span> <span class="o">=</span> <span class="p">(</span><span class="n">SkyCoord</span><span class="p">,</span> <span class="n">BaseCoordinateFrame</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;parse_coordinates&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;TableList&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;suppress_vo_warnings&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;validate_email&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ASTROPY_LT_4_3&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ASTROPY_LT_5_0&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ASTROPY_LT_5_1&#39;</span><span class="p">]</span>
+
+<span class="n">ASTROPY_LT_4_3</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">minversion</span><span class="p">(</span><span class="s1">&#39;astropy&#39;</span><span class="p">,</span> <span class="s1">&#39;4.3&#39;</span><span class="p">)</span>
+<span class="n">ASTROPY_LT_5_0</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">minversion</span><span class="p">(</span><span class="s1">&#39;astropy&#39;</span><span class="p">,</span> <span class="s1">&#39;5.0&#39;</span><span class="p">)</span>
+
+<span class="n">ASTROPY_LT_5_1</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">minversion</span><span class="p">(</span><span class="s1">&#39;astropy&#39;</span><span class="p">,</span> <span class="s1">&#39;5.1&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_coordinates">
+<a class="viewcode-back" href="../../../api/astroquery.utils.parse_coordinates.html#astroquery.utils.parse_coordinates">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes a string or astropy.coordinates object. Checks if the</span>
+<span class="sd">    string is parsable as an `astropy.coordinates`</span>
+<span class="sd">    object or is a name that is resolvable. Otherwise asserts</span>
+<span class="sd">    that the argument is an astropy.coordinates object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">        Astronomical coordinate</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coordinates : a subclass of `astropy.coordinates.BaseCoordinateFrame`</span>
+
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    astropy.units.UnitsError</span>
+<span class="sd">    TypeError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Coordinate string is being interpreted as an &quot;</span>
+                          <span class="s2">&quot;ICRS coordinate.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitsError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Only ICRS coordinates can be entered as &quot;</span>
+                          <span class="s2">&quot;strings.</span><span class="se">\n</span><span class="s2"> For other systems please use the &quot;</span>
+                          <span class="s2">&quot;appropriate astropy.coordinates object.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitsError</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">ASTROPY_LT_5_0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitsError</span><span class="p">))</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ASTROPY_LT_5_0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">__context__</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitsError</span><span class="p">))):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Coordinate string is being interpreted as an &quot;</span>
+                                  <span class="s2">&quot;ICRS coordinate provided in degrees.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">CoordClasses</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">coordinates</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Convert the &quot;frame&quot; object into a SkyCoord</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be parsed as a coordinate&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">coord_to_radec</span><span class="p">(</span><span class="n">coordinate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper to turn any astropy coordinate into FK5 RA in Hours and FK5 Dec in</span>
+<span class="sd">    degrees</span>
+
+<span class="sd">    This is a hack / temporary wrapper to deal with the unstable astropy API</span>
+<span class="sd">    (it may be wise to remove this hack since it&#39;s not clear that the old</span>
+<span class="sd">    coordinate API can even do transforms)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">):</span>
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">hour</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="s1">&#39;hourangle&#39;</span><span class="p">):</span>
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">hourangle</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API Error: RA cannot be converted to hour &quot;</span>
+                         <span class="s2">&quot;or hourangle.&quot;</span><span class="p">)</span>
+    <span class="n">dec</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">degree</span>
+    <span class="k">return</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span>
+
+
+<div class="viewcode-block" id="TableList">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList">[docs]</a>
+<span class="k">class</span> <span class="nc">TableList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that inherits from `list` but included some pretty printing methods</span>
+<span class="sd">    for an OrderedDict of `astropy.table.Table` objects.</span>
+
+<span class="sd">    HINT: To access the tables by # instead of by table ID:</span>
+<span class="sd">    &gt;&gt;&gt; t = TableList([(&#39;a&#39;,1),(&#39;b&#39;,2)])</span>
+<span class="sd">    &gt;&gt;&gt; t[1]</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; t[&#39;b&#39;]</span>
+<span class="sd">    2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">inp</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input to TableList must be an OrderedDict &quot;</span>
+                                 <span class="s2">&quot;or list of (k,v) pairs&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">=</span> <span class="n">inp</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># get the value in the (key,value) pair</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;TableLists can only be indexed with the &quot;</span>
+                            <span class="s2">&quot;named keys and integers.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;TableList is immutable.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getslice__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="nb">slice</span><span class="p">]</span>
+
+<div class="viewcode-block" id="TableList.keys">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList.keys">[docs]</a>
+    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TableList.values">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList.values">[docs]</a>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overrides the `OrderedDict.__repr__` method to return a simple summary</span>
+<span class="sd">        of the `TableList` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_table_list</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TableList.format_table_list">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList.format_table_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_table_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the names of all `astropy.table.Table` objects, with their</span>
+<span class="sd">        respective number of row and columns, contained in the</span>
+<span class="sd">        `TableList` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ntables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">ntables</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Empty TableList&quot;</span>
+
+        <span class="n">header_str</span> <span class="o">=</span> <span class="s2">&quot;TableList with </span><span class="si">{keylen}</span><span class="s2"> tables:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keylen</span><span class="o">=</span><span class="n">ntables</span><span class="p">)</span>
+        <span class="n">body_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&#39;</span><span class="si">{t_number}</span><span class="s2">:</span><span class="si">{t_name}</span><span class="s2">&#39; with </span><span class="si">{ncol}</span><span class="s2"> column(s) &quot;</span>
+                              <span class="s2">&quot;and </span><span class="si">{nrow}</span><span class="s2"> row(s) &quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t_number</span><span class="o">=</span><span class="n">t_number</span><span class="p">,</span> <span class="n">t_name</span><span class="o">=</span><span class="n">t_name</span><span class="p">,</span>
+                                      <span class="n">nrow</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">t_number</span><span class="p">]),</span>
+                                      <span class="n">ncol</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">t_number</span><span class="p">]</span><span class="o">.</span><span class="n">colnames</span><span class="p">))</span>
+                              <span class="k">for</span> <span class="n">t_number</span><span class="p">,</span> <span class="n">t_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">header_str</span><span class="p">,</span> <span class="n">body_str</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TableList.print_table_list">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList.print_table_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_table_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_table_list</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TableList.pprint">
+<a class="viewcode-back" href="../../../api/astroquery.utils.TableList.html#astroquery.utils.TableList.pprint">[docs]</a>
+    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Helper function to make API more similar to astropy.Tables &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="o">!=</span> <span class="p">{}:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;TableList is a container of astropy.Tables.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_table_list</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="k">def</span> <span class="nf">_is_coordinate</span><span class="p">(</span><span class="n">coordinates</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns `True` if coordinates can be parsed via `astropy.coordinates`</span>
+<span class="sd">    and `False` otherwise.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string in which case it is resolved using online services or as</span>
+<span class="sd">            the appropriate `astropy.coordinates` object. ICRS coordinates</span>
+<span class="sd">            may also be entered as strings as specified in the</span>
+<span class="sd">            `astropy.coordinates` module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="s1">&#39;fk5&#39;</span><span class="p">):</span>
+        <span class="c1"># its coordinate-like enough</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">SkyCoord</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="suppress_vo_warnings">
+<a class="viewcode-back" href="../../../api/astroquery.utils.suppress_vo_warnings.html#astroquery.utils.suppress_vo_warnings">[docs]</a>
+<span class="k">def</span> <span class="nf">suppress_vo_warnings</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Suppresses all warnings of the class</span>
+<span class="sd">    `astropy.io.votable.exceptions.VOWarning`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">votable</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">VOWarning</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validate_email">
+<a class="viewcode-back" href="../../../api/astroquery.utils.validate_email.html#astroquery.utils.validate_email">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    E-mail address validation.  Uses validate_email if available, else a simple</span>
+<span class="sd">    regex that will let through some invalid e-mails but will catch the most</span>
+<span class="sd">    common violators.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">validate_email</span>
+        <span class="k">return</span> <span class="n">validate_email</span><span class="o">.</span><span class="n">validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\S+@\S+\.\S+$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">email</span><span class="p">))</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">FileContainer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A File Object container, meant to offer lazy access to downloaded FITS</span>
+<span class="sd">    files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remote_timeout&#39;</span><span class="p">,</span> <span class="n">aud</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">remote_timeout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.fits&#39;</span> <span class="ow">and</span> <span class="ow">not</span>
+                <span class="p">(</span><span class="s1">&#39;encoding&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;encoding&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;binary&#39;</span><span class="p">)):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;FITS files must be read as binaries; error is &quot;</span>
+                          <span class="s2">&quot;likely.&quot;</span><span class="p">,</span> <span class="n">InputWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_readable_object</span> <span class="o">=</span> <span class="n">get_readable_fileobj</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assuming the contained file is a FITS file, read it</span>
+<span class="sd">        and return the file parsed as FITS HDUList</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filedata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filedata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The file retrieved was empty.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fits</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">filedata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fits</span>
+
+    <span class="k">def</span> <span class="nf">save_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">savepath</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">link_cache</span><span class="o">=</span><span class="s1">&#39;hard&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a FITS file to savepath</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        savepath : str</span>
+<span class="sd">            The full path to a FITS filename, e.g. &quot;file.fits&quot;, or</span>
+<span class="sd">            &quot;/path/to/file.fits&quot;.</span>
+<span class="sd">        link_cache : &#39;hard&#39;, &#39;sym&#39;, or False</span>
+<span class="sd">            Try to create a hard or symbolic link to the astropy cached file?</span>
+<span class="sd">            If the system is unable to create a hardlink, the file will be</span>
+<span class="sd">            copied to the target location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_fits</span><span class="p">()</span>
+        <span class="n">target_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">)</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="n">aud</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">target_key</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[])</span>
+
+        <span class="k">if</span> <span class="n">link_cache</span> <span class="o">==</span> <span class="s1">&#39;hard&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">savepath</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">savepath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">link_cache</span> <span class="o">==</span> <span class="s1">&#39;sym&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">savepath</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;Creating symlinks is not possible on this OS.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">savepath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download the file as a string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_string&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_readable_object</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_string</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">except</span> <span class="n">URLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s2">&quot;Query timed out, time elapsed </span><span class="si">{t}</span><span class="s2">s&quot;</span><span class="o">.</span>
+                                       <span class="nb">format</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_string</span>
+
+    <span class="k">def</span> <span class="nf">get_stringio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the file as an io.StringIO object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_fits&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Downloaded FITS file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fits</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Downloaded object from URL </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2"> with ID </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_readable_object</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">get_readable_fileobj</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload astropy&#39;s get_readable_fileobj so that we can safely monkeypatch</span>
+<span class="sd">    it in astroquery without affecting astropy core functionality</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">aud</span><span class="o">.</span><span class="n">get_readable_fileobj</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_votable</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a votable in string format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tables</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

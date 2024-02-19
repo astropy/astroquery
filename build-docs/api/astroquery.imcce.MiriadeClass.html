@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MiriadeClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SkybotClass" href="astroquery.imcce.SkybotClass.html" />
+    <link rel="prev" title="Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (astroquery.imcce/astroquery.solarsystem.imcce)" href="../imcce/imcce.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.imcce.SkybotClass.html" title="SkybotClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../imcce/imcce.html" title="Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (astroquery.imcce/astroquery.solarsystem.imcce)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../imcce/imcce.html" accesskey="U">Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.imcce</span></code>/astroquery.solarsystem.imcce)</a> &#187;</li>
+      
+      <li>MiriadeClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="miriadeclass">
+<h1>MiriadeClass<a class="headerlink" href="#miriadeclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.imcce.MiriadeClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.imcce.</span></span><span class="sig-name descname"><span class="pre">MiriadeClass</span></span><a class="reference internal" href="../_modules/astroquery/imcce/core.html#MiriadeClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.imcce.MiriadeClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>A class for querying the
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/">IMCCE/Miriade</a> service.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.imcce.MiriadeClass.uri" title="astroquery.imcce.MiriadeClass.uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uri</span></code></a></p></td>
+<td><p>URI used in query to service.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.imcce.MiriadeClass.get_ephemerides" title="astroquery.imcce.MiriadeClass.get_ephemerides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ephemerides</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.imcce.MiriadeClass.get_ephemerides_async" title="astroquery.imcce.MiriadeClass.get_ephemerides_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ephemerides_async</span></code></a>(targetname, *[, ...])</p></td>
+<td><p>Query the <a class="reference external" href="http://vo.imcce.fr/webservices/miriade/">IMCCE Miriade</a> <a class="reference external" href="http://vo.imcce.fr/webservices/miriade/?ephemcc">ephemcc</a> service.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.imcce.MiriadeClass.uri">
+<span class="sig-name descname"><span class="pre">uri</span></span><a class="headerlink" href="#astroquery.imcce.MiriadeClass.uri" title="Link to this definition">¶</a></dt>
+<dd><p>URI used in query to service.</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.imcce.MiriadeClass.get_ephemerides">
+<span class="sig-name descname"><span class="pre">get_ephemerides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.imcce.MiriadeClass.get_ephemerides" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query the
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/">IMCCE Miriade</a>
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/?ephemcc">ephemcc</a>
+service.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>targetname</strong><span class="classifier">str</span></dt><dd><p>Name of the target to be queried.</p>
+</dd>
+<dt><strong>objtype</strong><span class="classifier">str, optional</span></dt><dd><p>Type of the object to be queried. Available are: <code class="docutils literal notranslate"><span class="pre">'asteroid'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'comet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'dwarf</span> <span class="pre">planet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'planet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'satellite'</span></code>.
+Default: <code class="docutils literal notranslate"><span class="pre">'asteroid'</span></code></p>
+</dd>
+<dt><strong>epoch</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Time</span></code></a> object, float, str,``None``, optional</span></dt><dd><p>Start epoch of the query. If a float is provided, it is
+expected to be a Julian Date; if a str is provided, it is
+expected to be an iso date of the form
+<code class="docutils literal notranslate"><span class="pre">'YYYY-MM-DD</span> <span class="pre">HH-MM-SS'</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code> is provided, the
+current date and time are used as epoch. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt><strong>epoch_step</strong><span class="classifier">str, optional</span></dt><dd><p>Step size for ephemerides calculation. Must consist of a decimal
+number followed by a single character: (d)ays, (h)ours,
+(m)inutes or (s)econds. Default: <code class="docutils literal notranslate"><span class="pre">'1d'</span></code></p>
+</dd>
+<dt><strong>epoch_nsteps</strong><span class="classifier">int, optional</span></dt><dd><p>Number of increments of <code class="docutils literal notranslate"><span class="pre">epoch_step</span></code> starting from <code class="docutils literal notranslate"><span class="pre">epoch</span></code>
+for which ephemerides are calculated. Maximum number of steps
+is 5000. Default: 1</p>
+</dd>
+<dt><strong>location</strong><span class="classifier">str, optional</span></dt><dd><p>Location of the observer on Earth as a code or a set of
+coordinates. See the
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/?documentation#field_7">Miriade manual</a>
+for details. Default: geocentric location (<code class="docutils literal notranslate"><span class="pre">'500'</span></code>)</p>
+</dd>
+<dt><strong>coordtype</strong><span class="classifier">int, optional</span></dt><dd><p>Type of coordinates to be calculated: <code class="docutils literal notranslate"><span class="pre">1</span></code>: spherical, <code class="docutils literal notranslate"><span class="pre">2</span></code>:
+rectangular, <code class="docutils literal notranslate"><span class="pre">3</span></code>: local coordinates (azimuth and elevation),
+<code class="docutils literal notranslate"><span class="pre">4</span></code>: hour angle coordinates, <code class="docutils literal notranslate"><span class="pre">5</span></code>: dedicated to observation,
+<code class="docutils literal notranslate"><span class="pre">6</span></code>: dedicated to AO observation. Default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+<dt><strong>timescale</strong><span class="classifier">str, optional</span></dt><dd><p>The time scale used in the computation of the ephemerides:
+<code class="docutils literal notranslate"><span class="pre">'UTC'</span></code> or <code class="docutils literal notranslate"><span class="pre">'TT'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'UTC'</span></code></p>
+</dd>
+<dt><strong>planetary_theory</strong><span class="classifier">str, optional</span></dt><dd><p>Planetary ephemerides set to be utilized in the calculations:
+<code class="docutils literal notranslate"><span class="pre">'INPOP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DE405'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DE406'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'INPOP'</span></code></p>
+</dd>
+<dt><strong>ephtype</strong><span class="classifier">int, optional</span></dt><dd><p>Type of ephemerides to be calculated: <code class="docutils literal notranslate"><span class="pre">1</span></code>: astrometric J2000,
+<code class="docutils literal notranslate"><span class="pre">2</span></code>: apparent of the date, <code class="docutils literal notranslate"><span class="pre">3</span></code>: mean of the date,
+<code class="docutils literal notranslate"><span class="pre">4</span></code>: mean J2000, Default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">str, optional</span></dt><dd><p>Reference plane: <code class="docutils literal notranslate"><span class="pre">'equator'</span></code> or <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code>. Default:
+<code class="docutils literal notranslate"><span class="pre">'equator'</span></code></p>
+</dd>
+<dt><strong>elements</strong><span class="classifier">str, optional</span></dt><dd><p>Set of osculating elements to be used in the calculations:
+<code class="docutils literal notranslate"><span class="pre">'ASTORB'</span></code> or <code class="docutils literal notranslate"><span class="pre">'MPCORB'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'ASTORB'</span></code></p>
+</dd>
+<dt><strong>radial_velocity</strong><span class="classifier">bool, optional</span></dt><dd><p>Calculate additional information on the target’s radial velocity.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the method returns the HTTP request
+parameters as a dict, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>get_raw_response</strong><span class="classifier">bool, optional</span></dt><dd><p>Return raw data as obtained by Miriade without parsing the
+data into a table, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> the query will be cached. Default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The following parameters can be queried using this function. Note
+that different <code class="docutils literal notranslate"><span class="pre">coordtype</span></code> setting provide different sets of
+parameters; number in parentheses denote which <code class="docutils literal notranslate"><span class="pre">coordtype</span></code>
+settings include the parameters.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+<td><p>Target name (str, 1, 2, 3, 4, 5, 6 )</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">epoch</span></code></p></td>
+<td><p>Ephemerides epoch (JD, float, 1, 2, 3, 4, 5,
+6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RA</span></code></p></td>
+<td><p>Target RA at <code class="docutils literal notranslate"><span class="pre">ephtype</span></code> (deg, float, 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DEC</span></code></p></td>
+<td><p>Target declination at <code class="docutils literal notranslate"><span class="pre">ephtype</span></code> (deg,
+float, 1, 4, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RAJ2000</span></code></p></td>
+<td><p>Target RA at J2000 (deg, float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DECJ2000</span></code></p></td>
+<td><p>Target declination at J2000 (deg, float, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AZ</span></code></p></td>
+<td><p>Target azimuth (deg, float, 3, 5)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EL</span></code></p></td>
+<td><p>Target elevation (deg, float, 3, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">delta</span></code></p></td>
+<td><p>Distance from observer (au, float, 1, 2, 3,
+4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delta_rate</span></code></p></td>
+<td><p>Rate in observer distance (km/s, float,
+1, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">V</span></code></p></td>
+<td><p>Apparent visual magnitude (mag, float, 1, 2,
+3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p>Solar phase angle (deg, 1, 2, 3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">elong</span></code></p></td>
+<td><p>Solar elongation angle (deg, 1, 2, 3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RAcosD_rate</span></code></p></td>
+<td><p>Rate of motion in RA * cos(DEC) (arcsec/min,
+float, 1, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DEC_rate</span></code></p></td>
+<td><p>Rate of motion in DEC (arcsec/min, float, 1,
+5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x</span></code></p></td>
+<td><p>X position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y</span></code></p></td>
+<td><p>Y position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z</span></code></p></td>
+<td><p>Z position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vx</span></code></p></td>
+<td><p>X velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vy</span></code></p></td>
+<td><p>Y velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vz</span></code></p></td>
+<td><p>Z velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rv</span></code></p></td>
+<td><p>Radial velocity (km/s, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heldist</span></code></p></td>
+<td><p>Target heliocentric distance (au, float, 2,
+5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_h</span></code></p></td>
+<td><p>X heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_h</span></code></p></td>
+<td><p>Y heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_h</span></code></p></td>
+<td><p>Z heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vx_h</span></code></p></td>
+<td><p>X heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vy_h</span></code></p></td>
+<td><p>Y heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vz_h</span></code></p></td>
+<td><p>Z heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hourangle</span></code></p></td>
+<td><p>Target hour angle (deg, float, 4, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">siderealtime</span></code></p></td>
+<td><p>Local sidereal time (hr, float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refraction</span></code></p></td>
+<td><p>Atmospheric refraction (arcsec, float, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">airmass</span></code></p></td>
+<td><p>Target airmass (float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posunc</span></code></p></td>
+<td><p>Positional uncertainty (arcsec, float, 5, 6)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.imcce</span> <span class="kn">import</span> <span class="n">Miriade</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="s1">&#39;2019-01-01&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Miriade</span><span class="o">.</span><span class="n">get_ephemerides</span><span class="p">(</span><span class="s1">&#39;3552&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>  
+<span class="go">&lt;Table masked=True length=1&gt;</span>
+<span class="go">   target          epoch                 RA         ...  DEC_rate   delta_rate</span>
+<span class="go">                     d                  deg         ... arcs / min    km / s</span>
+<span class="go">  bytes20         float64             float64       ...  float64     float64</span>
+<span class="go">----------- -------------------- ------------------ ... ---------- ------------</span>
+<span class="go">Don Quixote            2458484.5 16.105294999999998 ...   -0.25244   31.4752734</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.imcce.MiriadeClass.get_ephemerides_async">
+<span class="sig-name descname"><span class="pre">get_ephemerides_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targetname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'asteroid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_nsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timescale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planetary_theory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INPOP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ephtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refplane</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equator'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ASTORB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_raw_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/imcce/core.html#MiriadeClass.get_ephemerides_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.imcce.MiriadeClass.get_ephemerides_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query the
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/">IMCCE Miriade</a>
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/?ephemcc">ephemcc</a>
+service.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>targetname</strong><span class="classifier">str</span></dt><dd><p>Name of the target to be queried.</p>
+</dd>
+<dt><strong>objtype</strong><span class="classifier">str, optional</span></dt><dd><p>Type of the object to be queried. Available are: <code class="docutils literal notranslate"><span class="pre">'asteroid'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'comet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'dwarf</span> <span class="pre">planet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'planet'</span></code>, <code class="docutils literal notranslate"><span class="pre">'satellite'</span></code>.
+Default: <code class="docutils literal notranslate"><span class="pre">'asteroid'</span></code></p>
+</dd>
+<dt><strong>epoch</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Time</span></code></a> object, float, str,``None``, optional</span></dt><dd><p>Start epoch of the query. If a float is provided, it is
+expected to be a Julian Date; if a str is provided, it is
+expected to be an iso date of the form
+<code class="docutils literal notranslate"><span class="pre">'YYYY-MM-DD</span> <span class="pre">HH-MM-SS'</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code> is provided, the
+current date and time are used as epoch. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt><strong>epoch_step</strong><span class="classifier">str, optional</span></dt><dd><p>Step size for ephemerides calculation. Must consist of a decimal
+number followed by a single character: (d)ays, (h)ours,
+(m)inutes or (s)econds. Default: <code class="docutils literal notranslate"><span class="pre">'1d'</span></code></p>
+</dd>
+<dt><strong>epoch_nsteps</strong><span class="classifier">int, optional</span></dt><dd><p>Number of increments of <code class="docutils literal notranslate"><span class="pre">epoch_step</span></code> starting from <code class="docutils literal notranslate"><span class="pre">epoch</span></code>
+for which ephemerides are calculated. Maximum number of steps
+is 5000. Default: 1</p>
+</dd>
+<dt><strong>location</strong><span class="classifier">str, optional</span></dt><dd><p>Location of the observer on Earth as a code or a set of
+coordinates. See the
+<a class="reference external" href="http://vo.imcce.fr/webservices/miriade/?documentation#field_7">Miriade manual</a>
+for details. Default: geocentric location (<code class="docutils literal notranslate"><span class="pre">'500'</span></code>)</p>
+</dd>
+<dt><strong>coordtype</strong><span class="classifier">int, optional</span></dt><dd><p>Type of coordinates to be calculated: <code class="docutils literal notranslate"><span class="pre">1</span></code>: spherical, <code class="docutils literal notranslate"><span class="pre">2</span></code>:
+rectangular, <code class="docutils literal notranslate"><span class="pre">3</span></code>: local coordinates (azimuth and elevation),
+<code class="docutils literal notranslate"><span class="pre">4</span></code>: hour angle coordinates, <code class="docutils literal notranslate"><span class="pre">5</span></code>: dedicated to observation,
+<code class="docutils literal notranslate"><span class="pre">6</span></code>: dedicated to AO observation. Default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+<dt><strong>timescale</strong><span class="classifier">str, optional</span></dt><dd><p>The time scale used in the computation of the ephemerides:
+<code class="docutils literal notranslate"><span class="pre">'UTC'</span></code> or <code class="docutils literal notranslate"><span class="pre">'TT'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'UTC'</span></code></p>
+</dd>
+<dt><strong>planetary_theory</strong><span class="classifier">str, optional</span></dt><dd><p>Planetary ephemerides set to be utilized in the calculations:
+<code class="docutils literal notranslate"><span class="pre">'INPOP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DE405'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DE406'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'INPOP'</span></code></p>
+</dd>
+<dt><strong>ephtype</strong><span class="classifier">int, optional</span></dt><dd><p>Type of ephemerides to be calculated: <code class="docutils literal notranslate"><span class="pre">1</span></code>: astrometric J2000,
+<code class="docutils literal notranslate"><span class="pre">2</span></code>: apparent of the date, <code class="docutils literal notranslate"><span class="pre">3</span></code>: mean of the date,
+<code class="docutils literal notranslate"><span class="pre">4</span></code>: mean J2000, Default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+<dt><strong>refplane</strong><span class="classifier">str, optional</span></dt><dd><p>Reference plane: <code class="docutils literal notranslate"><span class="pre">'equator'</span></code> or <code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code>. Default:
+<code class="docutils literal notranslate"><span class="pre">'equator'</span></code></p>
+</dd>
+<dt><strong>elements</strong><span class="classifier">str, optional</span></dt><dd><p>Set of osculating elements to be used in the calculations:
+<code class="docutils literal notranslate"><span class="pre">'ASTORB'</span></code> or <code class="docutils literal notranslate"><span class="pre">'MPCORB'</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">'ASTORB'</span></code></p>
+</dd>
+<dt><strong>radial_velocity</strong><span class="classifier">bool, optional</span></dt><dd><p>Calculate additional information on the target’s radial velocity.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the method returns the HTTP request
+parameters as a dict, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>get_raw_response</strong><span class="classifier">bool, optional</span></dt><dd><p>Return raw data as obtained by Miriade without parsing the
+data into a table, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> the query will be cached. Default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The following parameters can be queried using this function. Note
+that different <code class="docutils literal notranslate"><span class="pre">coordtype</span></code> setting provide different sets of
+parameters; number in parentheses denote which <code class="docutils literal notranslate"><span class="pre">coordtype</span></code>
+settings include the parameters.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+<td><p>Target name (str, 1, 2, 3, 4, 5, 6 )</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">epoch</span></code></p></td>
+<td><p>Ephemerides epoch (JD, float, 1, 2, 3, 4, 5,
+6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RA</span></code></p></td>
+<td><p>Target RA at <code class="docutils literal notranslate"><span class="pre">ephtype</span></code> (deg, float, 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DEC</span></code></p></td>
+<td><p>Target declination at <code class="docutils literal notranslate"><span class="pre">ephtype</span></code> (deg,
+float, 1, 4, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RAJ2000</span></code></p></td>
+<td><p>Target RA at J2000 (deg, float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DECJ2000</span></code></p></td>
+<td><p>Target declination at J2000 (deg, float, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AZ</span></code></p></td>
+<td><p>Target azimuth (deg, float, 3, 5)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EL</span></code></p></td>
+<td><p>Target elevation (deg, float, 3, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">delta</span></code></p></td>
+<td><p>Distance from observer (au, float, 1, 2, 3,
+4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delta_rate</span></code></p></td>
+<td><p>Rate in observer distance (km/s, float,
+1, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">V</span></code></p></td>
+<td><p>Apparent visual magnitude (mag, float, 1, 2,
+3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p>Solar phase angle (deg, 1, 2, 3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">elong</span></code></p></td>
+<td><p>Solar elongation angle (deg, 1, 2, 3, 4, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RAcosD_rate</span></code></p></td>
+<td><p>Rate of motion in RA * cos(DEC) (arcsec/min,
+float, 1, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DEC_rate</span></code></p></td>
+<td><p>Rate of motion in DEC (arcsec/min, float, 1,
+5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x</span></code></p></td>
+<td><p>X position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y</span></code></p></td>
+<td><p>Y position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z</span></code></p></td>
+<td><p>Z position state vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vx</span></code></p></td>
+<td><p>X velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vy</span></code></p></td>
+<td><p>Y velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vz</span></code></p></td>
+<td><p>Z velocity state vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rv</span></code></p></td>
+<td><p>Radial velocity (km/s, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heldist</span></code></p></td>
+<td><p>Target heliocentric distance (au, float, 2,
+5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_h</span></code></p></td>
+<td><p>X heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_h</span></code></p></td>
+<td><p>Y heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">z_h</span></code></p></td>
+<td><p>Z heliocentric position vector (au, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vx_h</span></code></p></td>
+<td><p>X heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vy_h</span></code></p></td>
+<td><p>Y heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vz_h</span></code></p></td>
+<td><p>Z heliocentric vel. vector (au/d, float, 2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hourangle</span></code></p></td>
+<td><p>Target hour angle (deg, float, 4, 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">siderealtime</span></code></p></td>
+<td><p>Local sidereal time (hr, float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refraction</span></code></p></td>
+<td><p>Atmospheric refraction (arcsec, float, 5, 6)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">airmass</span></code></p></td>
+<td><p>Target airmass (float, 5, 6)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posunc</span></code></p></td>
+<td><p>Positional uncertainty (arcsec, float, 5, 6)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.imcce</span> <span class="kn">import</span> <span class="n">Miriade</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="s1">&#39;2019-01-01&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Miriade</span><span class="o">.</span><span class="n">get_ephemerides</span><span class="p">(</span><span class="s1">&#39;3552&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>  
+<span class="go">&lt;Table masked=True length=1&gt;</span>
+<span class="go">   target          epoch                 RA         ...  DEC_rate   delta_rate</span>
+<span class="go">                     d                  deg         ... arcs / min    km / s</span>
+<span class="go">  bytes20         float64             float64       ...  float64     float64</span>
+<span class="go">----------- -------------------- ------------------ ... ---------- ------------</span>
+<span class="go">Don Quixote            2458484.5 16.105294999999998 ...   -0.25244   31.4752734</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">MiriadeClass</a><ul>
+<li><a class="reference internal" href="#astroquery.imcce.MiriadeClass"><code class="docutils literal notranslate"><span class="pre">MiriadeClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.imcce.MiriadeClass.uri"><code class="docutils literal notranslate"><span class="pre">MiriadeClass.uri</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.imcce.MiriadeClass.get_ephemerides"><code class="docutils literal notranslate"><span class="pre">MiriadeClass.get_ephemerides()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.imcce.MiriadeClass.get_ephemerides_async"><code class="docutils literal notranslate"><span class="pre">MiriadeClass.get_ephemerides_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.imcce.MiriadeClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

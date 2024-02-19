@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>JwstClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="JwstDataHandler" href="astroquery.esa.jwst.JwstDataHandler.html" />
+    <link rel="prev" title="ESA JWST Archive (astroquery.esa.jwst)" href="../esa/jwst/jwst.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.esa.jwst.JwstDataHandler.html" title="JwstDataHandler">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../esa/jwst/jwst.html" title="ESA JWST Archive (astroquery.esa.jwst)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../esa/jwst/jwst.html" accesskey="U">ESA JWST Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.jwst</span></code>)</a> &#187;</li>
+      
+      <li>JwstClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="jwstclass">
+<h1>JwstClass<a class="headerlink" href="#jwstclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.esa.jwst.</span></span><span class="sig-name descname"><span class="pre">JwstClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tap_plus_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>Proxy class to default TapPlus object (pointing to JWST Archive)</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.ARTIFACT_PRODUCT_TYPES" title="astroquery.esa.jwst.JwstClass.ARTIFACT_PRODUCT_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ARTIFACT_PRODUCT_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.CAL_LEVELS" title="astroquery.esa.jwst.JwstClass.CAL_LEVELS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CAL_LEVELS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.INSTRUMENT_NAMES" title="astroquery.esa.jwst.JwstClass.INSTRUMENT_NAMES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INSTRUMENT_NAMES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.JWST_DEFAULT_COLUMNS" title="astroquery.esa.jwst.JwstClass.JWST_DEFAULT_COLUMNS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JWST_DEFAULT_COLUMNS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.PLANE_DATAPRODUCT_TYPES" title="astroquery.esa.jwst.JwstClass.PLANE_DATAPRODUCT_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANE_DATAPRODUCT_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.REQUESTED_OBSERVATION_ID" title="astroquery.esa.jwst.JwstClass.REQUESTED_OBSERVATION_ID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUESTED_OBSERVATION_ID</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.TARGET_RESOLVERS" title="astroquery.esa.jwst.JwstClass.TARGET_RESOLVERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TARGET_RESOLVERS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.cone_search" title="astroquery.esa.jwst.JwstClass.cone_search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cone_search</span></code></a>(coordinate, radius, *[, ...])</p></td>
+<td><p>Cone search sorted by distance in sync/async mode TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_decoded_string" title="astroquery.esa.jwst.JwstClass.get_decoded_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_decoded_string</span></code></a>(str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_obs_products" title="astroquery.esa.jwst.JwstClass.get_obs_products"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obs_products</span></code></a>(*[, observation_id, ...])</p></td>
+<td><p>Get a JWST product given its observation ID.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_product" title="astroquery.esa.jwst.JwstClass.get_product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_product</span></code></a>(*[, artifact_id, file_name])</p></td>
+<td><p>Get a JWST product given its Artifact ID or File name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_product_list" title="astroquery.esa.jwst.JwstClass.get_product_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_product_list</span></code></a>(*[, observation_id, ...])</p></td>
+<td><p>Get the list of products of a given JWST observation_id.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_related_observations" title="astroquery.esa.jwst.JwstClass.get_related_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_related_observations</span></code></a>(observation_id)</p></td>
+<td><p>In case of processing levels &lt; 3, get the list of level 3 products that make use of a given JWST observation_id.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_status_messages" title="astroquery.esa.jwst.JwstClass.get_status_messages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_status_messages</span></code></a>()</p></td>
+<td><p>Retrieve the messages to inform users about the status of JWST TAP</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress" title="astroquery.esa.jwst.JwstClass.gzip_uncompress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gzip_uncompress</span></code></a>(input_file, output_file)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress_and_rename_single_file" title="astroquery.esa.jwst.JwstClass.gzip_uncompress_and_rename_single_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gzip_uncompress_and_rename_single_file</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.is_gz_file" title="astroquery.esa.jwst.JwstClass.is_gz_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_gz_file</span></code></a>(filepath)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.launch_job" title="astroquery.esa.jwst.JwstClass.launch_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_job</span></code></a>(query, *[, name, output_file, ...])</p></td>
+<td><p>Launches a synchronous or asynchronous job TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.list_async_jobs" title="astroquery.esa.jwst.JwstClass.list_async_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_async_jobs</span></code></a>(*[, verbose])</p></td>
+<td><p>Returns all the asynchronous jobs TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_async_job" title="astroquery.esa.jwst.JwstClass.load_async_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_async_job</span></code></a>(*[, jobid, name, verbose])</p></td>
+<td><p>Loads an asynchronous job TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_table" title="astroquery.esa.jwst.JwstClass.load_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_table</span></code></a>(table, *[, verbose])</p></td>
+<td><p>Loads the specified table TAP+ only</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_tables" title="astroquery.esa.jwst.JwstClass.load_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tables</span></code></a>(*[, only_names, ...])</p></td>
+<td><p>Loads all public tables TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.login" title="astroquery.esa.jwst.JwstClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>(*[, user, password, credentials_file, ...])</p></td>
+<td><p>Performs a login.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.logout" title="astroquery.esa.jwst.JwstClass.logout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logout</span></code></a>(*[, verbose])</p></td>
+<td><p>Performs a logout TAP+ only</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.query_region" title="astroquery.esa.jwst.JwstClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(coordinate, *[, radius, width, ...])</p></td>
+<td><p>Launches a query region job in sync/async mode TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.query_target" title="astroquery.esa.jwst.JwstClass.query_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_target</span></code></a>(target_name, *[, ...])</p></td>
+<td><p>Searches for a specific target defined by its name and other parameters TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.remove_jobs" title="astroquery.esa.jwst.JwstClass.remove_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_jobs</span></code></a>(jobs_list, *[, verbose])</p></td>
+<td><p>Removes the specified jobs TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.resolve_target_coordinates" title="astroquery.esa.jwst.JwstClass.resolve_target_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_target_coordinates</span></code></a>(target_name, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.save_results" title="astroquery.esa.jwst.JwstClass.save_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_results</span></code></a>(job, *[, verbose])</p></td>
+<td><p>Saves job results TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.search_async_jobs" title="astroquery.esa.jwst.JwstClass.search_async_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search_async_jobs</span></code></a>(*[, jobfilter, verbose])</p></td>
+<td><p>Searches for jobs applying the specified filter TAP+ only</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.set_token" title="astroquery.esa.jwst.JwstClass.set_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_token</span></code></a>(token)</p></td>
+<td><p>Links a MAST token to the logged user</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.ARTIFACT_PRODUCT_TYPES">
+<span class="sig-name descname"><span class="pre">ARTIFACT_PRODUCT_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['info',</span> <span class="pre">'thumbnail',</span> <span class="pre">'auxiliary',</span> <span class="pre">'science',</span> <span class="pre">'preview']</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.ARTIFACT_PRODUCT_TYPES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.CAL_LEVELS">
+<span class="sig-name descname"><span class="pre">CAL_LEVELS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['ALL',</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">-1]</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.CAL_LEVELS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.INSTRUMENT_NAMES">
+<span class="sig-name descname"><span class="pre">INSTRUMENT_NAMES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['NIRISS',</span> <span class="pre">'NIRSPEC',</span> <span class="pre">'NIRCAM',</span> <span class="pre">'MIRI',</span> <span class="pre">'FGS']</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.INSTRUMENT_NAMES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.JWST_DEFAULT_COLUMNS">
+<span class="sig-name descname"><span class="pre">JWST_DEFAULT_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['observationid',</span> <span class="pre">'calibrationlevel',</span> <span class="pre">'public',</span> <span class="pre">'dataproducttype',</span> <span class="pre">'instrument_name',</span> <span class="pre">'energy_bandpassname',</span> <span class="pre">'target_name',</span> <span class="pre">'target_ra',</span> <span class="pre">'target_dec',</span> <span class="pre">'position_bounds_center',</span> <span class="pre">'position_bounds_spoly']</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.JWST_DEFAULT_COLUMNS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.PLANE_DATAPRODUCT_TYPES">
+<span class="sig-name descname"><span class="pre">PLANE_DATAPRODUCT_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['image',</span> <span class="pre">'cube',</span> <span class="pre">'measurements',</span> <span class="pre">'spectrum']</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.PLANE_DATAPRODUCT_TYPES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.REQUESTED_OBSERVATION_ID">
+<span class="sig-name descname"><span class="pre">REQUESTED_OBSERVATION_ID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Missing</span> <span class="pre">required</span> <span class="pre">argument:</span> <span class="pre">'observation_id'&quot;</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.REQUESTED_OBSERVATION_ID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.TARGET_RESOLVERS">
+<span class="sig-name descname"><span class="pre">TARGET_RESOLVERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['ALL',</span> <span class="pre">'SIMBAD',</span> <span class="pre">'NED',</span> <span class="pre">'VIZIER']</span></em><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.TARGET_RESOLVERS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.cone_search">
+<span class="sig-name descname"><span class="pre">cone_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Top'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proposal_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_all_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.cone_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.cone_search" title="Link to this definition">¶</a></dt>
+<dd><p>Cone search sorted by distance in sync/async mode
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinate, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units, mandatory</span></dt><dd><p>radius</p>
+</dd>
+<dt><strong>observation_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observation given by its ID.</p>
+</dd>
+<dt><strong>cal_level</strong><span class="classifier">object, optional, default ‘Top’</span></dt><dd><p>get the planes with the given calibration level. Options are:
+‘Top’: str, only the planes with the highest calibration level
+1,2,3: int, the given calibration level</p>
+</dd>
+<dt><strong>prod_type</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations providing the given product type. Options are:
+‘image’,’cube’,’measurements’,’spectrum’: str, only results of
+the given product type</p>
+</dd>
+<dt><strong>instrument_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations corresponding to the given instrument name.
+Options are:
+‘NIRISS’, ‘NIRSPEC’, ‘NIRCAM’, ‘MIRI’, ‘FGS’: str, only results
+of the given instrument</p>
+</dd>
+<dt><strong>filter_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations made with the given filter.</p>
+</dd>
+<dt><strong>proposal_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations from the given proposal ID.</p>
+</dd>
+<dt><strong>only_public</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show only metadata corresponding to public observations</p>
+</dd>
+<dt><strong>show_all_columns</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show all available columns in the output. Default behaviour
+is to show the most representative columns only</p>
+</dd>
+<dt><strong>async_job</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>executes the job in asynchronous/synchronous mode (default
+synchronous)</p>
+</dd>
+<dt><strong>background</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>when the job is executed in asynchronous mode, this flag specifies
+whether the execution will wait until results are available</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format. Options are:
+‘votable’: str, binary VOTable format
+‘csv’: str, comma-separated values format
+‘fits’: str, FITS format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_decoded_string">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_decoded_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_decoded_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_decoded_string" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_obs_products">
+<span class="sig-name descname"><span class="pre">get_obs_products</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_obs_products"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_obs_products" title="Link to this definition">¶</a></dt>
+<dd><p>Get a JWST product given its observation ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observation_id</strong><span class="classifier">str, mandatory</span></dt><dd><p>Observation identifier.</p>
+</dd>
+<dt><strong>cal_level</strong><span class="classifier">str or int, optional</span></dt><dd><p>Calibration level. Default value ia ‘ALL’, to download all the
+products associated to this observation_id and lower levels.
+Requesting more accurate levels than the one associated to the
+observation_id is not allowed (as level 3 observations are
+composite products based on level 2 products). To request upper
+levels, please use get_related_observations functions first.
+Possible values: ‘ALL’, 3, 2, 1, -1</p>
+</dd>
+<dt><strong>product_type</strong><span class="classifier">str, optional, default None</span></dt><dd><p>List only products of the given type. If None, all products are             listed. Possible values: ‘thumbnail’, ‘preview’, ‘auxiliary’,             ‘science’.</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional</span></dt><dd><p>Output file. If no value is provided, a temporary one is created.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>local_path</strong><span class="classifier">str</span></dt><dd><p>Returns the local path where the product(s) are saved.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_product">
+<span class="sig-name descname"><span class="pre">get_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_product" title="Link to this definition">¶</a></dt>
+<dd><p>Get a JWST product given its Artifact ID or File name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>artifact_id</strong><span class="classifier">str, mandatory (if no file_name is provided)</span></dt><dd><p>Artifact ID of the product.</p>
+</dd>
+<dt><strong>file_name</strong><span class="classifier">str, mandatory (if no artifact_id is provided)</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>local_path</strong><span class="classifier">str</span></dt><dd><p>Returns the local path that the file was downloaded to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_product_list">
+<span class="sig-name descname"><span class="pre">get_product_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_product_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_product_list" title="Link to this definition">¶</a></dt>
+<dd><p>Get the list of products of a given JWST observation_id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observation_id</strong><span class="classifier">str, mandatory</span></dt><dd><p>Observation identifier.</p>
+</dd>
+<dt><strong>cal_level</strong><span class="classifier">str or int, optional</span></dt><dd><p>Calibration level. Default value is ‘ALL’, to download all the
+products associated to this observation_id and lower processing
+levels. Requesting more accurate levels than the one associated
+to the observation_id is not allowed (as level 3 observations are
+composite products based on level 2 products). To request upper
+levels, please use get_related_observations functions first.
+Possible values: ‘ALL’, 3, 2, 1, -1</p>
+</dd>
+<dt><strong>product_type</strong><span class="classifier">str, optional, default None</span></dt><dd><p>List only products of the given type. If None, all products are
+listed. Possible values: ‘thumbnail’, ‘preview’, ‘info’,
+‘auxiliary’, ‘science’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>The list of products (astropy.table).</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_related_observations">
+<span class="sig-name descname"><span class="pre">get_related_observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_related_observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_related_observations" title="Link to this definition">¶</a></dt>
+<dd><p>In case of processing levels &lt; 3, get the list of level 3
+products that make use of a given JWST observation_id. In case of
+processing level 3, retrieves the list of products used to create
+this composite observation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observation_id</strong><span class="classifier">str, mandatory</span></dt><dd><p>Observation identifier.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of strings with the observation_id of the associated</dt><dd></dd>
+<dt>observations that can be used in get_product_list and</dt><dd></dd>
+<dt>get_obs_products functions</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.get_status_messages">
+<span class="sig-name descname"><span class="pre">get_status_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.get_status_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.get_status_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the messages to inform users about
+the status of JWST TAP</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.gzip_uncompress">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gzip_uncompress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.gzip_uncompress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.gzip_uncompress_and_rename_single_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gzip_uncompress_and_rename_single_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.gzip_uncompress_and_rename_single_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress_and_rename_single_file" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.is_gz_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_gz_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.is_gz_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.is_gz_file" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.launch_job">
+<span class="sig-name descname"><span class="pre">launch_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.launch_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.launch_job" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a synchronous or asynchronous job
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query to be executed</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>name of the job to be executed</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format. Options are:
+‘votable’: str, binary VOTable format
+‘csv’: str, comma-separated values format
+‘fits’: str, FITS format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>background</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>when the job is executed in asynchronous mode, this flag specifies
+whether the execution will wait until results are available</p>
+</dd>
+<dt><strong>upload_resource: str, optional, default None</strong></dt><dd><p>resource to be uploaded to UPLOAD_SCHEMA</p>
+</dd>
+<dt><strong>upload_table_name: str, required if uploadResource is provided</strong></dt><dd><p>Default None
+resource temporary table name associated to the uploaded resource</p>
+</dd>
+<dt><strong>async_job: bool, optional, default ‘False’</strong></dt><dd><p>tag to execute the job in sync or async mode</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.list_async_jobs">
+<span class="sig-name descname"><span class="pre">list_async_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.list_async_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.list_async_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns all the asynchronous jobs
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of Job objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.load_async_job">
+<span class="sig-name descname"><span class="pre">load_async_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jobid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.load_async_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.load_async_job" title="Link to this definition">¶</a></dt>
+<dd><p>Loads an asynchronous job
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>jobid</strong><span class="classifier">str, mandatory if no name is provided, default None</span></dt><dd><p>job identifier</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, mandatory if no jobid is provided, default None</span></dt><dd><p>job name</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.load_table">
+<span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.load_table" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the specified table
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">str, mandatory</span></dt><dd><p>full qualified table name (i.e. schema name + table name)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A table object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.load_tables">
+<span class="sig-name descname"><span class="pre">load_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_shared_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.load_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.load_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Loads all public tables
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>only_names</strong><span class="classifier">bool, TAP+ only, optional, default ‘False’</span></dt><dd><p>True to load table names only</p>
+</dd>
+<dt><strong>include_shared_tables</strong><span class="classifier">bool, TAP+, optional, default ‘False’</span></dt><dd><p>True to include shared tables</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of table objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a login.
+TAP+ only
+User and password can be used or a file that contains user name and
+password (2 lines: one for user name and the following one for the
+password)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>user</strong><span class="classifier">str, mandatory if ‘file’ is not provided, default None</span></dt><dd><p>login name</p>
+</dd>
+<dt><strong>password</strong><span class="classifier">str, mandatory if ‘file’ is not provided, default None</span></dt><dd><p>user password</p>
+</dd>
+<dt><strong>credentials_file</strong><span class="classifier">str, mandatory if no ‘user’ &amp; ‘password’ are</span></dt><dd><p>provided
+file containing user and password in two lines</p>
+</dd>
+<dt><strong>token: str, optional</strong></dt><dd><p>MAST token to have access to propietary data</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.logout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a logout
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Top'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proposal_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_all_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.query_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a query region job in sync/async mode
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinate, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units, required if no ‘width’ nor ‘height’</span></dt><dd><p>are provided
+radius (deg)</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">astropy.units, required if no ‘radius’ is provided</span></dt><dd><p>box width</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">astropy.units, required if no ‘radius’ is provided</span></dt><dd><p>box height</p>
+</dd>
+<dt><strong>observation_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observation given by its ID.</p>
+</dd>
+<dt><strong>cal_level</strong><span class="classifier">object, optional, default ‘Top’</span></dt><dd><p>get the planes with the given calibration level. Options are:
+‘Top’: str, only the planes with the highest calibration level
+1,2,3: int, the given calibration level</p>
+</dd>
+<dt><strong>prod_type</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations providing the given product type. Options are:
+‘image’,’cube’,’measurements’,’spectrum’: str, only results of the
+given product type</p>
+</dd>
+<dt><strong>instrument_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations corresponding to the given instrument name.
+Options are:
+‘NIRISS’, ‘NIRSPEC’, ‘NIRCAM’, ‘MIRI’, ‘FGS’: str, only results of
+the given instrument</p>
+</dd>
+<dt><strong>filter_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations made with the given filter.</p>
+</dd>
+<dt><strong>proposal_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations from the given proposal ID.</p>
+</dd>
+<dt><strong>show_all_columns</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show all available columns in the output.
+Default behaviour is to show the most representative columns only</p>
+</dd>
+<dt><strong>only_public</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show only metadata corresponding to public observations</p>
+</dd>
+<dt><strong>async_job</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>executes the query (job) in asynchronous/synchronous mode (default
+synchronous)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>The job results (astropy.table).</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.query_target">
+<span class="sig-name descname"><span class="pre">query_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_resolver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Top'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proposal_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_all_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.query_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.query_target" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for a specific target defined by its name and other parameters
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target_name</strong><span class="classifier">str, mandatory</span></dt><dd><p>name of the target that will be used as center point</p>
+</dd>
+<dt><strong>target_resolver</strong><span class="classifier">str, optional, default ALL</span></dt><dd><p>resolver used to associate the target name with its coordinates.
+The ALL option evaluates a “SIMBAD then NED then VIZIER”
+approach. Options are: ALL, SIMBAD, NED, VIZIER.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units, required if no ‘width’ nor ‘height’ are</span></dt><dd><p>provided.
+radius (deg)</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">astropy.units, required if no ‘radius’ is provided</span></dt><dd><p>box width</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">astropy.units, required if no ‘radius’ is provided</span></dt><dd><p>box height</p>
+</dd>
+<dt><strong>observation_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observation given by its ID.</p>
+</dd>
+<dt><strong>cal_level</strong><span class="classifier">object, optional, default ‘Top’</span></dt><dd><p>get the planes with the given calibration level. Options are:
+‘Top’: str, only the planes with the highest calibration level
+1,2,3: int, the given calibration level</p>
+</dd>
+<dt><strong>prod_type</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations providing the given product type. Options are:
+‘image’,’cube’,’measurements’,’spectrum’: str, only results of the
+given product type</p>
+</dd>
+<dt><strong>instrument_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations corresponding to the given instrument name.
+Options are:
+‘NIRISS’, ‘NIRSPEC’, ‘NIRCAM’, ‘MIRI’, ‘FGS’: str, only results
+of the given instrument</p>
+</dd>
+<dt><strong>filter_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations made with the given filter.</p>
+</dd>
+<dt><strong>proposal_id</strong><span class="classifier">str, optional, default None</span></dt><dd><p>get the observations from the given proposal ID.</p>
+</dd>
+<dt><strong>only_public</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show only metadata corresponding to public observations</p>
+</dd>
+<dt><strong>show_all_columns</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to show all available columns in the output. Default behaviour
+is to show the most
+representative columns only</p>
+</dd>
+<dt><strong>async_job</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>executes the query (job) in asynchronous/synchronous mode (default
+synchronous)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>The job results (astropy.table).</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.remove_jobs">
+<span class="sig-name descname"><span class="pre">remove_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobs_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.remove_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.remove_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>Removes the specified jobs
+TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>jobs_list</strong><span class="classifier">str, mandatory</span></dt><dd><p>jobs identifiers to be removed</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.resolve_target_coordinates">
+<span class="sig-name descname"><span class="pre">resolve_target_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_resolver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.resolve_target_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.resolve_target_coordinates" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.save_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.save_results" title="Link to this definition">¶</a></dt>
+<dd><p>Saves job results
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>job</strong><span class="classifier">Job, mandatory</span></dt><dd><p>job</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.search_async_jobs">
+<span class="sig-name descname"><span class="pre">search_async_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jobfilter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.search_async_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.search_async_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for jobs applying the specified filter
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>jobfilter</strong><span class="classifier">JobFilter, optional, default None</span></dt><dd><p>job filter</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of Job objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.esa.jwst.JwstClass.set_token">
+<span class="sig-name descname"><span class="pre">set_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/esa/jwst/core.html#JwstClass.set_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.esa.jwst.JwstClass.set_token" title="Link to this definition">¶</a></dt>
+<dd><p>Links a MAST token to the logged user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>token: str, mandatory</strong></dt><dd><p>MAST token to have access to propietary data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">JwstClass</a><ul>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass"><code class="docutils literal notranslate"><span class="pre">JwstClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.ARTIFACT_PRODUCT_TYPES"><code class="docutils literal notranslate"><span class="pre">JwstClass.ARTIFACT_PRODUCT_TYPES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.CAL_LEVELS"><code class="docutils literal notranslate"><span class="pre">JwstClass.CAL_LEVELS</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.INSTRUMENT_NAMES"><code class="docutils literal notranslate"><span class="pre">JwstClass.INSTRUMENT_NAMES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.JWST_DEFAULT_COLUMNS"><code class="docutils literal notranslate"><span class="pre">JwstClass.JWST_DEFAULT_COLUMNS</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.PLANE_DATAPRODUCT_TYPES"><code class="docutils literal notranslate"><span class="pre">JwstClass.PLANE_DATAPRODUCT_TYPES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.REQUESTED_OBSERVATION_ID"><code class="docutils literal notranslate"><span class="pre">JwstClass.REQUESTED_OBSERVATION_ID</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.TARGET_RESOLVERS"><code class="docutils literal notranslate"><span class="pre">JwstClass.TARGET_RESOLVERS</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.cone_search"><code class="docutils literal notranslate"><span class="pre">JwstClass.cone_search()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_decoded_string"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_decoded_string()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_obs_products"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_obs_products()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_product"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_product()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_product_list"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_product_list()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_related_observations"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_related_observations()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.get_status_messages"><code class="docutils literal notranslate"><span class="pre">JwstClass.get_status_messages()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress"><code class="docutils literal notranslate"><span class="pre">JwstClass.gzip_uncompress()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.gzip_uncompress_and_rename_single_file"><code class="docutils literal notranslate"><span class="pre">JwstClass.gzip_uncompress_and_rename_single_file()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.is_gz_file"><code class="docutils literal notranslate"><span class="pre">JwstClass.is_gz_file()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.launch_job"><code class="docutils literal notranslate"><span class="pre">JwstClass.launch_job()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.list_async_jobs"><code class="docutils literal notranslate"><span class="pre">JwstClass.list_async_jobs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_async_job"><code class="docutils literal notranslate"><span class="pre">JwstClass.load_async_job()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_table"><code class="docutils literal notranslate"><span class="pre">JwstClass.load_table()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.load_tables"><code class="docutils literal notranslate"><span class="pre">JwstClass.load_tables()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.login"><code class="docutils literal notranslate"><span class="pre">JwstClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.logout"><code class="docutils literal notranslate"><span class="pre">JwstClass.logout()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.query_region"><code class="docutils literal notranslate"><span class="pre">JwstClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.query_target"><code class="docutils literal notranslate"><span class="pre">JwstClass.query_target()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.remove_jobs"><code class="docutils literal notranslate"><span class="pre">JwstClass.remove_jobs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.resolve_target_coordinates"><code class="docutils literal notranslate"><span class="pre">JwstClass.resolve_target_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.save_results"><code class="docutils literal notranslate"><span class="pre">JwstClass.save_results()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.search_async_jobs"><code class="docutils literal notranslate"><span class="pre">JwstClass.search_async_jobs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.esa.jwst.JwstClass.set_token"><code class="docutils literal notranslate"><span class="pre">JwstClass.set_token()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.esa.jwst.JwstClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

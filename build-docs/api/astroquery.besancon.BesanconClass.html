@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>BesanconClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.besancon.Conf.html" />
+    <link rel="prev" title="parse_besancon_model_string" href="astroquery.besancon.parse_besancon_model_string.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.besancon.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.besancon.parse_besancon_model_string.html" title="parse_besancon_model_string">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../besancon/besancon.html" accesskey="U">Besancon Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.besancon</span></code>)</a> &#187;</li>
+      
+      <li>BesanconClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="besanconclass">
+<h1>BesanconClass<a class="headerlink" href="#besanconclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.besancon.</span></span><span class="sig-name descname"><span class="pre">BesanconClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/besancon/core.html#BesanconClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.besancon.BesanconClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.QUERY_URL" title="astroquery.besancon.BesanconClass.QUERY_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QUERY_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.TIMEOUT" title="astroquery.besancon.BesanconClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.ping_delay" title="astroquery.besancon.BesanconClass.ping_delay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ping_delay</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.result_re" title="astroquery.besancon.BesanconClass.result_re"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_re</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.url_download" title="astroquery.besancon.BesanconClass.url_download"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url_download</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.get_besancon_model_file" title="astroquery.besancon.BesanconClass.get_besancon_model_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_besancon_model_file</span></code></a>(filename, *[, ...])</p></td>
+<td><p>Download a Besancon model from the website.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.query" title="astroquery.besancon.BesanconClass.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.besancon.BesanconClass.query_async" title="astroquery.besancon.BesanconClass.query_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_async</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Perform a query on the Besancon model of the galaxy.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.QUERY_URL">
+<span class="sig-name descname"><span class="pre">QUERY_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://model.obs-besancon.fr/modele_form.php'</span></em><a class="headerlink" href="#astroquery.besancon.BesanconClass.QUERY_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30.0</span></em><a class="headerlink" href="#astroquery.besancon.BesanconClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.ping_delay">
+<span class="sig-name descname"><span class="pre">ping_delay</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30.0</span></em><a class="headerlink" href="#astroquery.besancon.BesanconClass.ping_delay" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.result_re">
+<span class="sig-name descname"><span class="pre">result_re</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('[0-9]{10}\\.[0-9]{6}\\.resu')</span></em><a class="headerlink" href="#astroquery.besancon.BesanconClass.result_re" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.url_download">
+<span class="sig-name descname"><span class="pre">url_download</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftp://sasftp.obs-besancon.fr/modele/modele2003/'</span></em><a class="headerlink" href="#astroquery.besancon.BesanconClass.url_download" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.get_besancon_model_file">
+<span class="sig-name descname"><span class="pre">get_besancon_model_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/besancon/core.html#BesanconClass.get_besancon_model_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.besancon.BesanconClass.get_besancon_model_file" title="Link to this definition">¶</a></dt>
+<dd><p>Download a Besancon model from the website.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">string</span></dt><dd><p>The besancon filename, with format ##########.######.resu</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>Print details about the download process</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">float</span></dt><dd><p>Amount of time to wait after pinging the server to see if a file is
+present.  Default 5s, which is probably reasonable.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.besancon.BesanconClass.query" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Perform a query on the Besancon model of the galaxy.</p>
+<p><a class="reference external" href="https://model.obs-besancon.fr/">https://model.obs-besancon.fr/</a></p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>glon</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>glat</strong><span class="classifier">float</span></dt><dd><p>Galactic latitude and longitude at the center</p>
+</dd>
+<dt><strong>email</strong><span class="classifier">str</span></dt><dd><p>A valid e-mail address to send the report of completion to</p>
+</dd>
+<dt><strong>smallfield</strong><span class="classifier">bool</span></dt><dd><p>Small field (True) or Large Field (False)
+LARGE FIELD NOT SUPPORTED YET</p>
+</dd>
+<dt><strong>extinction</strong><span class="classifier">float</span></dt><dd><p>Extinction per kpc in A_V</p>
+</dd>
+<dt><strong>area</strong><span class="classifier">float</span></dt><dd><p>Area in square degrees</p>
+</dd>
+<dt><strong>absmag_limits</strong><span class="classifier">(float,float)</span></dt><dd><p>Absolute magnitude lower,upper limits</p>
+</dd>
+<dt><strong>colors_limits</strong><span class="classifier">dict of (float,float)</span></dt><dd><dl class="simple">
+<dt>Should contain 4 elements listing color differences in the valid</dt><dd><p>bands, e.g.:
+{“J-H”:(99,-99),”H-K”:(99,-99),”J-K”:(99,-99),”V-K”:(99,-99)}</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>mag_limits = dict of (float,float)</strong></dt><dd><p>Lower and Upper magnitude difference limits for each magnitude band
+U B V R I J H K L</p>
+</dd>
+<dt><strong>clouds</strong><span class="classifier">list of 2-tuples</span></dt><dd><p>Up to 25 line-of-sight clouds can be specified in pairs of (A_V,
+distance in pc)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>Print out extra error messages?</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Can override any argument in the request if you know the name of
+the POST keyword.</p>
+</dd>
+<dt><strong>retrieve_file</strong><span class="classifier">bool</span></dt><dd><p>If True, will try to retrieve the file every 30s until it shows up.
+Otherwise, just returns the filename (the job is still executed on
+the remote server, though)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.besancon.BesanconClass.query_async">
+<span class="sig-name descname"><span class="pre">query_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/besancon/core.html#BesanconClass.query_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.besancon.BesanconClass.query_async" title="Link to this definition">¶</a></dt>
+<dd><p>Perform a query on the Besancon model of the galaxy.</p>
+<p><a class="reference external" href="https://model.obs-besancon.fr/">https://model.obs-besancon.fr/</a></p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>glon</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>glat</strong><span class="classifier">float</span></dt><dd><p>Galactic latitude and longitude at the center</p>
+</dd>
+<dt><strong>email</strong><span class="classifier">str</span></dt><dd><p>A valid e-mail address to send the report of completion to</p>
+</dd>
+<dt><strong>smallfield</strong><span class="classifier">bool</span></dt><dd><p>Small field (True) or Large Field (False)
+LARGE FIELD NOT SUPPORTED YET</p>
+</dd>
+<dt><strong>extinction</strong><span class="classifier">float</span></dt><dd><p>Extinction per kpc in A_V</p>
+</dd>
+<dt><strong>area</strong><span class="classifier">float</span></dt><dd><p>Area in square degrees</p>
+</dd>
+<dt><strong>absmag_limits</strong><span class="classifier">(float,float)</span></dt><dd><p>Absolute magnitude lower,upper limits</p>
+</dd>
+<dt><strong>colors_limits</strong><span class="classifier">dict of (float,float)</span></dt><dd><dl class="simple">
+<dt>Should contain 4 elements listing color differences in the valid</dt><dd><p>bands, e.g.:
+{“J-H”:(99,-99),”H-K”:(99,-99),”J-K”:(99,-99),”V-K”:(99,-99)}</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>mag_limits = dict of (float,float)</strong></dt><dd><p>Lower and Upper magnitude difference limits for each magnitude band
+U B V R I J H K L</p>
+</dd>
+<dt><strong>clouds</strong><span class="classifier">list of 2-tuples</span></dt><dd><p>Up to 25 line-of-sight clouds can be specified in pairs of (A_V,
+distance in pc)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>Print out extra error messages?</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Can override any argument in the request if you know the name of
+the POST keyword.</p>
+</dd>
+<dt><strong>retrieve_file</strong><span class="classifier">bool</span></dt><dd><p>If True, will try to retrieve the file every 30s until it shows up.
+Otherwise, just returns the filename (the job is still executed on
+the remote server, though)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a> object</span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">BesanconClass</a><ul>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass"><code class="docutils literal notranslate"><span class="pre">BesanconClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.QUERY_URL"><code class="docutils literal notranslate"><span class="pre">BesanconClass.QUERY_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">BesanconClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.ping_delay"><code class="docutils literal notranslate"><span class="pre">BesanconClass.ping_delay</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.result_re"><code class="docutils literal notranslate"><span class="pre">BesanconClass.result_re</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.url_download"><code class="docutils literal notranslate"><span class="pre">BesanconClass.url_download</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.get_besancon_model_file"><code class="docutils literal notranslate"><span class="pre">BesanconClass.get_besancon_model_file()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.query"><code class="docutils literal notranslate"><span class="pre">BesanconClass.query()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.besancon.BesanconClass.query_async"><code class="docutils literal notranslate"><span class="pre">BesanconClass.query_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.besancon.BesanconClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

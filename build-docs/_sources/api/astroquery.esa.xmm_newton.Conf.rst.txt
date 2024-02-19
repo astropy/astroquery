@@ -1,0 +1,23 @@
+Conf
+====
+
+.. currentmodule:: astroquery.esa.xmm_newton
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.DATA_ACTION
+      ~Conf.DATA_ACTION_AIO
+      ~Conf.METADATA_ACTION
+      ~Conf.TIMEOUT
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: DATA_ACTION
+   .. autoattribute:: DATA_ACTION_AIO
+   .. autoattribute:: METADATA_ACTION
+   .. autoattribute:: TIMEOUT

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Image Cutouts &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MAST Queries" href="mast_mastquery.html" />
+    <link rel="prev" title="Catalog Queries" href="mast_catalog.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="mast_mastquery.html" title="MAST Queries">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="mast_catalog.html" title="Catalog Queries">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>Image Cutouts</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="image-cutouts">
+<h1>Image Cutouts<a class="headerlink" href="#image-cutouts" title="Link to this heading">¶</a></h1>
+<section id="tesscut">
+<h2>TESSCut<a class="headerlink" href="#tesscut" title="Link to this heading">¶</a></h2>
+<p>TESSCut is MAST’s tool to provide full-frame image (FFI) cutouts from the Transiting
+Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science
+Processing Operation’s Center (<a class="reference external" href="https://archive.stsci.edu/missions-and-data/tess">SPOC</a>) FFI products,
+or the TESS Image CAlibrator (<a class="reference external" href="https://archive.stsci.edu/hlsp/tica">TICA</a>) high-level science products.
+Cutouts from the TICA products are not available for sectors 1-26,
+but are available for sector 27 onwards. These products are available up to 3 weeks sooner than
+their SPOC counterparts for the latest sector, so it is recommended to request TICA cutouts
+for users working with time-sensitive observations. The cutouts from either SPOC or TICA products
+are returned in the form of target pixel files that follow the same format as TESS pipeline target
+pixel files. This tool can be accessed in Astroquery by using the Tesscut class.</p>
+<p><strong>Note:</strong> TESScut limits each user to no more than 10 simultaneous calls to the service.
+After the user has reached this limit TESScut will return a
+<code class="docutils literal notranslate"><span class="pre">503</span> <span class="pre">Service</span> <span class="pre">Temporarily</span> <span class="pre">Unavailable</span> <span class="pre">Error</span></code>.</p>
+<p><strong>Note:</strong> The moving targets functionality does not currently support making cutouts from
+TICA products, so the product argument will always default to SPOC.</p>
+<p>If you use TESSCut for your work, please cite Brasseur et al. 2019
+<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract">https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract</a></p>
+<section id="cutouts">
+<h3>Cutouts<a class="headerlink" href="#cutouts" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.get_cutouts" title="astroquery.mast.TesscutClass.get_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cutouts</span></code></a> function takes a product type
+(“TICA” or “SPOC”, but defaults to “SPOC”), coordinate, object name (e.g. “M104” or “TIC 32449963”),
+or moving target (e.g. “Eleonora”) and cutout size (in pixels or an angular quantity, default is 5 pixels)
+and returns the cutout target pixel file(s) as a list of <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p>
+<p>If the given coordinate/object location appears in more than one TESS sector a target pixel
+file will be produced for each sector.  If the cutout area overlaps more than one camera or
+ccd a target pixel file will be produced for each one.</p>
+<p>Requesting a cutout by coordinate or objectname accesses the
+<a class="reference external" href="https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout">MAST TESScut API</a>
+and returns a target pixel file, with format described
+<a class="reference external" href="https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files">here</a>.
+Note that the product argument will default to request for SPOC cutouts when
+not explicitly called for TICA.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">107.18696</span><span class="p">,</span> <span class="o">-</span><span class="mf">70.50919</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>  
+<span class="go">Filename: &lt;class &#39;_io.BytesIO&#39;&gt;</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">  0  PRIMARY       1 PrimaryHDU      56   ()</span>
+<span class="go">  1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]</span>
+<span class="go">  2  APERTURE      1 ImageHDU        81   (5, 5)   int32</span>
+</pre></div>
+</div>
+<p>For users with time-sensitive targets who would like cutouts from the latest observations,
+we recommend requesting for the TICA product. Using the same target from the example above,
+this example shows a request for TICA cutouts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">107.18696</span><span class="p">,</span> <span class="o">-</span><span class="mf">70.50919</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;tica&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;FFI_TYPE&#39;</span><span class="p">]</span>  
+<span class="go">&#39;TICA&#39;</span>
+</pre></div>
+</div>
+<p>The following example will request SPOC cutouts using the objectname argument, rather
+than a set of coordinates.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;TIC 32449963&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>  
+<span class="go">Filename: &lt;class &#39;_io.BytesIO&#39;&gt;</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">  0  PRIMARY       1 PrimaryHDU      56   ()</span>
+<span class="go">  1  PIXELS        1 BinTableHDU    280   3477R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]</span>
+<span class="go">  2  APERTURE      1 ImageHDU        81   (5, 5)   int32</span>
+</pre></div>
+</div>
+<p>Requesting a cutout by moving_target accesses the
+<a class="reference external" href="https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts">MAST Moving Target TESScut API</a>
+and returns a target pixel file, with format described
+<a class="reference external" href="https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files">here</a>.
+The moving_target is an optional bool argument where <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> signifies that the accompanying <code class="docutils literal notranslate"><span class="pre">objectname</span></code>
+input is the object name or ID understood by the
+<a class="reference external" href="https://ssd.jpl.nasa.gov/horizons.cgi">JPL Horizon ephemerades interface</a>.
+The default value for moving_target is set to False. Therefore, a non-moving target can be input
+simply with either the objectname or coordinates.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;Eleonora&quot;</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>  
+<span class="go">Filename: &lt;class &#39;_io.BytesIO&#39;&gt;</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">  0  PRIMARY       1 PrimaryHDU      54   ()</span>
+<span class="go">  1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]</span>
+<span class="go">  2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32</span>
+</pre></div>
+</div>
+<p>Note that the moving targets functionality does not currently support TICA, so the product
+parameter will result in an error when set to ‘TICA’.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;Eleonora&quot;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;tica&#39;</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">astroquery.exceptions.InvalidQueryError</span>: <span class="n">Only SPOC is available for moving targets queries.</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.download_cutouts" title="astroquery.mast.TesscutClass.download_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_cutouts</span></code></a> function takes a product type (“TICA” or “SPOC”, but defaults to “SPOC”),
+coordinate, cutout size (in pixels or an angular quantity), or object name (e.g. “M104” or “TIC 32449963”) and moving target
+(True or False). It uses these parameters to download the cutout target pixel file(s).</p>
+<p>If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file
+will be produced for each sector.  If the cutout area overlaps more than one camera or ccd, a target
+pixel file will be produced for each one.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">107.18696</span><span class="p">,</span> <span class="o">-</span><span class="mf">70.50919</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">download_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span> 
+<span class="go">Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&amp;dec=-70.50919&amp;y=0.08333333333333333&amp;x=0.11666666666666667&amp;units=d&amp;sector=9 to ./tesscut_20210716150026.zip ... [Done]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>  
+<span class="go">                     Local Path</span>
+<span class="go">----------------------------------------------------------</span>
+<span class="go">./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits</span>
+</pre></div>
+</div>
+<p>The query from the example above defaults to downloading cutouts from SPOC. The following example is a query for
+the same target from above, but with the product argument passed as TICA to explicitly request for TICA cutouts,
+and because the TICA products are not available for sectors 1-26, we request cutouts from sector 27 rather than sector 9.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">107.18696</span><span class="p">,</span> <span class="o">-</span><span class="mf">70.50919</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">download_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;tica&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="mi">27</span><span class="p">)</span> 
+<span class="go">Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&amp;dec=-70.50919&amp;y=0.08333333333333333&amp;x=0.11666666666666667&amp;units=d&amp;product=TICA&amp;sector=27 to ./tesscut_20230214150644.zip ... [Done]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>  
+<span class="go">                     Local Path</span>
+<span class="go">----------------------------------------------------------</span>
+<span class="go">./tica-s0027-4-2_107.186960_-70.509190_21x14_astrocut.fits</span>
+</pre></div>
+</div>
+</section>
+<section id="sector-information">
+<h3>Sector information<a class="headerlink" href="#sector-information" title="Link to this heading">¶</a></h3>
+<p>To access sector information for a particular coordinate, object, or moving target there is
+<a class="reference internal" href="../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.get_sectors" title="astroquery.mast.TesscutClass.get_sectors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sectors</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">135.1408</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.1915</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sector_table</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_sectors</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sector_table</span><span class="p">)</span>   
+<span class="go">  sectorName   sector camera ccd</span>
+<span class="go">-------------- ------ ------ ---</span>
+<span class="go">tess-s0008-1-1      8      1   1</span>
+<span class="go">tess-s0034-1-2     34      1   2</span>
+</pre></div>
+</div>
+<p>Note that because of the delivery cadence of the
+TICA high level science products, later sectors will be available sooner with TICA than with
+SPOC. Also note that TICA is not available for sectors 1-26. The following example is the same
+query as above, but for TICA. Notice that products for sector 8 are no longer available,
+but are now available for sector 61.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">135.1408</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.1915</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sector_table</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_sectors</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;tica&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sector_table</span><span class="p">)</span>   
+<span class="go">  sectorName   sector camera ccd</span>
+<span class="go">-------------- ------ ------ ---</span>
+<span class="go">tica-s0034-1-2     34      1   2</span>
+<span class="go">tica-s0061-1-2     61      1   2</span>
+</pre></div>
+</div>
+<p>The following example will request SPOC cutouts using the objectname argument, rather
+than a set of coordinates.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sector_table</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_sectors</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;TIC 32449963&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sector_table</span><span class="p">)</span>     
+<span class="go">  sectorName   sector camera ccd</span>
+<span class="go">-------------- ------ ------ ---</span>
+<span class="go">tess-s0010-1-4     10      1   4</span>
+</pre></div>
+</div>
+<p>The following example requests SPOC cutouts for a moving target.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sector_table</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_sectors</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;Ceres&quot;</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sector_table</span><span class="p">)</span>
+<span class="go">  sectorName   sector camera ccd</span>
+<span class="go">-------------- ------ ------ ---</span>
+<span class="go">tess-s0029-1-4     29      1   4</span>
+<span class="go">tess-s0043-3-3     43      3   3</span>
+<span class="go">tess-s0044-2-4     44      2   4</span>
+</pre></div>
+</div>
+<p>Note that the moving targets functionality is not currently available for TICA,
+so the query will always default to SPOC.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Tesscut</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sector_table</span> <span class="o">=</span> <span class="n">Tesscut</span><span class="o">.</span><span class="n">get_sectors</span><span class="p">(</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;Ceres&quot;</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sector_table</span><span class="p">)</span>
+<span class="go">  sectorName   sector camera ccd</span>
+<span class="go">-------------- ------ ------ ---</span>
+<span class="go">tess-s0029-1-4     29      1   4</span>
+<span class="go">tess-s0043-3-3     43      3   3</span>
+<span class="go">tess-s0044-2-4     44      2   4</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="zcut">
+<h2>Zcut<a class="headerlink" href="#zcut" title="Link to this heading">¶</a></h2>
+<p>Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can
+be returned as either fits or image files (jpg and png are supported). This tool can be accessed in
+Astroquery by using the Zcut class. The list of supported deep field surveys can be found here:
+<a class="reference external" href="https://mast.stsci.edu/zcut/">https://mast.stsci.edu/zcut/</a></p>
+<section id="id1">
+<h3>Cutouts<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.get_cutouts" title="astroquery.mast.ZcutClass.get_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cutouts</span></code></a> function takes a coordinate and cutout size (in pixels or
+an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.io.fits.HDUList objects.</p>
+<p>If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Zcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">189.49206</span><span class="p">,</span> <span class="mf">62.20615</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Zcut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>    
+<span class="go">Filename: &lt;class &#39;_io.BytesIO&#39;&gt;</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">0  PRIMARY       1 PrimaryHDU      11   ()</span>
+<span class="go">1  CUTOUT        1 ImageHDU       177   (5, 5)   float32</span>
+<span class="go">2  CUTOUT        1 ImageHDU       177   (5, 5)   float32</span>
+<span class="go">3  CUTOUT        1 ImageHDU       177   (5, 5)   float32</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.download_cutouts" title="astroquery.mast.ZcutClass.download_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_cutouts</span></code></a> function takes a coordinate and cutout size (in pixels or
+an angular quantity) and downloads the cutout fits file(s) as either fits files or image (png/jpg)
+files.</p>
+<p>If a given coordinate appears in more than one Zcut survey, a cutout will be produced for each survey.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Zcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">189.49206</span><span class="p">,</span> <span class="mf">62.20615</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Zcut</span><span class="o">.</span><span class="n">download_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;px&quot;</span><span class="p">)</span>    
+<span class="go">Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&amp;dec=62.20615&amp;y=200&amp;x=300&amp;units=px&amp;format=fits to ./zcut_20210125155545.zip ... [Done]</span>
+<span class="go">Inflating...</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>    
+<span class="go">                              Local Path</span>
+<span class="go">-------------------------------------------------------------------------</span>
+<span class="go">./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Zcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">189.49206</span><span class="p">,</span> <span class="mf">62.20615</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Zcut</span><span class="o">.</span><span class="n">download_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;px&quot;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">)</span>    
+<span class="go">Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&amp;dec=62.20615&amp;y=200&amp;x=300&amp;units=px&amp;format=jpg to ./zcut_20201202132453.zip ... [Done]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>        
+<span class="go">                                                Local Path</span>
+<span class="go">---------------------------------------------------------------------------------------------------------</span>
+<span class="go"> ./hlsp_candels_hst_acs_gn-tot-30mas_f606w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg</span>
+<span class="go"> ./hlsp_candels_hst_acs_gn-tot-30mas_f814w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg</span>
+<span class="go">./hlsp_candels_hst_acs_gn-tot-30mas_f850lp_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg</span>
+</pre></div>
+</div>
+</section>
+<section id="survey-information">
+<h3>Survey information<a class="headerlink" href="#survey-information" title="Link to this heading">¶</a></h3>
+<p>To list the available deep field surveys at a particular location there is <a class="reference internal" href="../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.get_surveys" title="astroquery.mast.ZcutClass.get_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_surveys</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Zcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">189.49206</span><span class="p">,</span> <span class="mf">62.20615</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">survey_list</span> <span class="o">=</span> <span class="n">Zcut</span><span class="o">.</span><span class="n">get_surveys</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">survey_list</span><span class="p">)</span>    
+<span class="go">[&#39;candels_gn_60mas&#39;, &#39;candels_gn_30mas&#39;, &#39;goods_north&#39;]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="hapcut">
+<h2>HAPCut<a class="headerlink" href="#hapcut" title="Link to this heading">¶</a></h2>
+<p>HAPCut for MAST allows users to request cutouts from various Hubble Advance Products (HAPs). The cutouts can
+be returned as fits files (image files are not currently supported). This tool can be accessed in
+Astroquery by using the Hapcut class. Documentation for the supported HAPCut API can be found here:
+<a class="reference external" href="https://mast.stsci.edu/hapcut/">https://mast.stsci.edu/hapcut/</a></p>
+<section id="id2">
+<h3>Cutouts<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../api/astroquery.mast.HapcutClass.html#astroquery.mast.HapcutClass.get_cutouts" title="astroquery.mast.HapcutClass.get_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cutouts</span></code></a> function takes a coordinate and cutout size (in pixels or
+an angular quantity) and returns the cutout FITS file(s) as a list of <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p>
+<p>If the given coordinate appears in more than one product, a FITS file will be produced for each.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Hapcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">351.347812</span><span class="p">,</span> <span class="mf">28.497808</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span> <span class="o">=</span> <span class="n">Hapcut</span><span class="o">.</span><span class="n">get_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>    
+<span class="go">Filename: &lt;class &#39;_io.BytesIO&#39;&gt;</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">0  PRIMARY       1 PrimaryHDU     754   ()</span>
+<span class="go">1  SCI           1 ImageHDU       102   (5, 5)   float32</span>
+<span class="go">2  WHT           1 ImageHDU        56   (5, 5)   float32</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.HapcutClass.html#astroquery.mast.HapcutClass.download_cutouts" title="astroquery.mast.HapcutClass.download_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_cutouts</span></code></a> function takes a coordinate and cutout size (in pixels or
+an angular quantity) and downloads the cutout fits file(s) as fits files.</p>
+<p>If the given coordinate appears in more than one product, a cutout will be produced for each.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Hapcut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutout_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">351.347812</span><span class="p">,</span> <span class="mf">28.497808</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Hapcut</span><span class="o">.</span><span class="n">download_cutouts</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">cutout_coord</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>    
+<span class="go">Downloading URL https://mast.stsci.edu/hapcut/api/v0.1/astrocut?ra=351.347812&amp;dec=28.497808&amp;x=100&amp;y=50&amp;units=px to ./hapcut_20221130112710.zip ... [Done]</span>
+<span class="go">Inflating...</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>    
+<span class="go">                              Local Path</span>
+<span class="go">---------------------------------------------------------------------------------</span>
+<span class="go">./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w_coarse.fits</span>
+<span class="go">./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f606w.fits</span>
+<span class="go">./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f814w.fits</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Image Cutouts</a><ul>
+<li><a class="reference internal" href="#tesscut">TESSCut</a><ul>
+<li><a class="reference internal" href="#cutouts">Cutouts</a></li>
+<li><a class="reference internal" href="#sector-information">Sector information</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#zcut">Zcut</a><ul>
+<li><a class="reference internal" href="#id1">Cutouts</a></li>
+<li><a class="reference internal" href="#survey-information">Survey information</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hapcut">HAPCut</a><ul>
+<li><a class="reference internal" href="#id2">Cutouts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/mast/mast_cut.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

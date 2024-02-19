@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mission Searches &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Catalog Queries" href="mast_catalog.html" />
+    <link rel="prev" title="Observation Queries" href="mast_obsquery.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="mast_catalog.html" title="Catalog Queries">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="mast_obsquery.html" title="Observation Queries">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>Mission Searches</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mission-searches">
+<h1>Mission Searches<a class="headerlink" href="#mission-searches" title="Link to this heading">¶</a></h1>
+<section id="mission-specific-search-queries">
+<h2>Mission-Specific Search Queries<a class="headerlink" href="#mission-specific-search-queries" title="Link to this heading">¶</a></h2>
+<p>These queries allow for searches based on mission-specific metadata for a given
+data collection.  Currently it provides access to a broad set of Hubble Space
+Telescope (HST) metadata, including header keywords, proposal information, and
+observational parameters.  The available metadata includes all information that
+was previously available in the original HST web search form, and are present in
+the current <a class="reference external" href="https://mast.stsci.edu/search/ui/#/hst">Mission Search interface</a>.</p>
+<p><strong>Note:</strong> this API interface does not yet support data product download, only
+metadata earch access.</p>
+<p>An object of MastMissions class is instantiated with a default mission of ‘hst’ and
+default service set to ‘search’.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">MastMissions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span> <span class="o">=</span> <span class="n">MastMissions</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span><span class="o">.</span><span class="n">mission</span>
+<span class="go">&#39;hst&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span><span class="o">.</span><span class="n">service</span>
+<span class="go">&#39;search&#39;</span>
+</pre></div>
+</div>
+<p>The missions object can be used to search metadata using by sky position, or other criteria.
+The keyword arguments can be used to specify output characteristics like selec_cols and
+sort_by and conditions that filter on values like proposal id, pi last name etc.
+The available column names for a mission are returned by the
+<a class="reference internal" href="../api/astroquery.mast.MastMissionsClass.html#astroquery.mast.MastMissionsClass.get_column_list" title="astroquery.mast.MastMissionsClass.get_column_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_list</span></code></a> function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">MastMissions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span> <span class="o">=</span> <span class="n">MastMissions</span><span class="p">(</span><span class="n">mission</span><span class="o">=</span><span class="s1">&#39;hst&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">get_column_list</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For positional searches, the columns “ang_sep”, “sci_data_set_name”, “search_key” and “search_position”
+will always be included, in addition to any columns specified using “select_cols”. For non-positional
+searches, “search_key” and “sci_data_set_name” will always be included, in addition to any columns
+specified using “select_cols”.</p>
+<p>For a non positional search, <code class="docutils literal notranslate"><span class="pre">select_cols</span></code> would always include <code class="docutils literal notranslate"><span class="pre">'search_key'</span></code> and <code class="docutils literal notranslate"><span class="pre">'sci_data_set_name'</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">MastMissions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span> <span class="o">=</span> <span class="n">MastMissions</span><span class="p">(</span><span class="n">mission</span><span class="o">=</span><span class="s1">&#39;hst&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">regionCoords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="mf">210.80227</span><span class="p">,</span> <span class="mf">54.34895</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">regionCoords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sci_pep_id</span><span class="o">=</span><span class="mi">12556</span><span class="p">,</span>
+<span class="gp">... </span>                                <span class="n">select_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sci_stop_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_targname&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_status&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                <span class="n">sort_by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sci_targname&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>   
+<span class="go">&lt;Table masked=True length=5&gt;</span>
+<span class="go"> sci_status   sci_targname   sci_data_set_name       ang_sep        sci_pep_id     search_pos     sci_pi_last_name          search_key</span>
+<span class="go">    str6         str16              str9              str20           int64          str18              str6                  str27</span>
+<span class="go"> ---------- ---------------- ----------------- -------------------- ---------- ------------------ ---------------- ---------------------------</span>
+<span class="go">     PUBLIC NUCLEUS+HODGE602         OBQU010H0 0.017460048037303017      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010H0</span>
+<span class="go">     PUBLIC NUCLEUS+HODGE602         OBQU01050 0.017460048037303017      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU01050</span>
+<span class="go">     PUBLIC NUCLEUS+HODGE602         OBQU01030 0.022143836477276503      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU01030</span>
+<span class="go">     PUBLIC NUCLEUS+HODGE602         OBQU010F0 0.022143836477276503      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010F0</span>
+<span class="go">     PUBLIC NUCLEUS+HODGE602         OBQU010J0  0.04381046755938432      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010J0</span>
+</pre></div>
+</div>
+<p>for paging through the results, offset and limit can be used to specify the starting record and the number
+of returned records. the default values for offset and limit is 0 and 5000 respectively.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">MastMissions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">missions</span> <span class="o">=</span> <span class="n">MastMissions</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">sci_start_time</span><span class="o">=</span><span class="s2">&quot;&gt;=2021-01-01 00:00:00&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">select_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sci_stop_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_targname&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_status&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_pep_id&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                  <span class="n">sort_by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sci_pep_id&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  
+<span class="gp">... </span><span class="c1"># MaxResultsWarning(&#39;Maximum results returned, may not include all sources within radius.&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="go">1000</span>
+</pre></div>
+</div>
+<p>Metadata queries can also be performed using object names with the
+~astroquery.mast.MastMissionsClass.query_object function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s1">&#39;M101&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">select_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sci_stop_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_targname&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_status&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                <span class="n">sort_by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sci_targname&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>  
+<span class="go">&lt;Table masked=True length=5&gt;</span>
+<span class="go">     ang_sep           search_pos     sci_status          search_key               sci_stop_time        sci_targname       sci_start_time       sci_data_set_name</span>
+<span class="go">     str20              str18           str6               str27                      str26               str16               str26                   str9</span>
+<span class="go">------------------ ------------------ ---------- --------------------------- -------------------------- ------------ -------------------------- -----------------</span>
+<span class="go">2.751140575012458  210.80227 54.34895     PUBLIC 210.80227 54.34895LDJI01010 2019-02-19T05:52:40.020000   +164.6+9.9 2019-02-19T00:49:58.010000         LDJI01010</span>
+<span class="go">0.8000626246647815 210.80227 54.34895     PUBLIC 210.80227 54.34895J8OB02011 2003-08-27T08:27:34.513000   ANY        2003-08-27T07:44:47.417000         J8OB02011</span>
+<span class="go">1.1261718338567348 210.80227 54.34895     PUBLIC 210.80227 54.34895J8D711J1Q 2003-01-17T00:50:22.250000   ANY        2003-01-17T00:42:06.993000         J8D711J1Q</span>
+<span class="go">1.1454431087675097 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01012 2017-06-15T18:33:25.983000   ANY        2017-06-15T18:10:12.037000         JD6V01012</span>
+<span class="go">1.1457795862361977 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01013 2017-06-15T20:08:44.063000   ANY        2017-06-15T19:45:30.023000         JD6V01013</span>
+</pre></div>
+</div>
+<p>Metadata queries can also be performed using non-positional parameters with the
+<a class="reference internal" href="../api/astroquery.mast.MastMissionsClass.html#astroquery.mast.MastMissionsClass.query_criteria" title="astroquery.mast.MastMissionsClass.query_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria</span></code></a> function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">sci_data_set_name</span><span class="o">=</span><span class="s2">&quot;Z06G0101T&quot;</span><span class="p">,</span> <span class="n">sci_pep_id</span><span class="o">=</span><span class="s2">&quot;1455&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">select_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sci_stop_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_targname&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;sci_status&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                  <span class="n">sort_by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sci_targname&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>  
+<span class="go">&lt;Table masked=True length=5&gt;</span>
+<span class="go">search_key       sci_stop_time        sci_data_set_name       sci_start_time       sci_targname sci_status</span>
+<span class="go">str9              str26      str9    str26               str19        str6</span>
+<span class="go">---------- -------------------------- ----------------- -------------------------- ------------ ----------</span>
+<span class="go">Z06G0101T  1990-05-13T11:02:34.567000         Z06G0101T 1990-05-13T10:38:09.193000           --     PUBLIC</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Mission Searches</a><ul>
+<li><a class="reference internal" href="#mission-specific-search-queries">Mission-Specific Search Queries</a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/mast/mast_missions.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

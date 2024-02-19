@@ -1,0 +1,19 @@
+RingNodeClass
+=============
+
+.. currentmodule:: astroquery.solarsystem.pds
+
+.. autoclass:: RingNodeClass
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~RingNodeClass.ephemeris
+      ~RingNodeClass.ephemeris_async
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: ephemeris
+   .. automethod:: ephemeris_async

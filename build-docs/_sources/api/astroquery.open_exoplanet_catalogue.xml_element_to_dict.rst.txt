@@ -1,0 +1,6 @@
+xml_element_to_dict
+===================
+
+.. currentmodule:: astroquery.open_exoplanet_catalogue
+
+.. autofunction:: xml_element_to_dict

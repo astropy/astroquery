@@ -1,0 +1,61 @@
+BaseWFAUClass
+=============
+
+.. currentmodule:: astroquery.wfau
+
+.. autoclass:: BaseWFAUClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~BaseWFAUClass.ARCHIVE_URL
+      ~BaseWFAUClass.BASE_URL
+      ~BaseWFAUClass.CROSSID_URL
+      ~BaseWFAUClass.IMAGE_URL
+      ~BaseWFAUClass.LOGIN_URL
+      ~BaseWFAUClass.REGION_URL
+      ~BaseWFAUClass.TIMEOUT
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseWFAUClass.extract_urls
+      ~BaseWFAUClass.get_image_list
+      ~BaseWFAUClass.get_images
+      ~BaseWFAUClass.get_images_async
+      ~BaseWFAUClass.list_catalogs
+      ~BaseWFAUClass.list_databases
+      ~BaseWFAUClass.logged_in
+      ~BaseWFAUClass.login
+      ~BaseWFAUClass.query_cross_id
+      ~BaseWFAUClass.query_cross_id_async
+      ~BaseWFAUClass.query_region
+      ~BaseWFAUClass.query_region_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: ARCHIVE_URL
+   .. autoattribute:: BASE_URL
+   .. autoattribute:: CROSSID_URL
+   .. autoattribute:: IMAGE_URL
+   .. autoattribute:: LOGIN_URL
+   .. autoattribute:: REGION_URL
+   .. autoattribute:: TIMEOUT
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: extract_urls
+   .. automethod:: get_image_list
+   .. automethod:: get_images
+   .. automethod:: get_images_async
+   .. automethod:: list_catalogs
+   .. automethod:: list_databases
+   .. automethod:: logged_in
+   .. automethod:: login
+   .. automethod:: query_cross_id
+   .. automethod:: query_cross_id_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async

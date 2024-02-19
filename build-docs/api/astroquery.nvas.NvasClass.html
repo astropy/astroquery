@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>NvasClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.nvas.Conf.html" />
+    <link rel="prev" title="NVAS Queries (astroquery.nvas)" href="../nvas/nvas.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.nvas.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../nvas/nvas.html" title="NVAS Queries (astroquery.nvas)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../nvas/nvas.html" accesskey="U">NVAS Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.nvas</span></code>)</a> &#187;</li>
+      
+      <li>NvasClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="nvasclass">
+<h1>NvasClass<a class="headerlink" href="#nvasclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.nvas.</span></span><span class="sig-name descname"><span class="pre">NvasClass</span></span><a class="reference internal" href="../_modules/astroquery/nvas/core.html#NvasClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.nvas.NvasClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.TIMEOUT" title="astroquery.nvas.NvasClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.URL" title="astroquery.nvas.NvasClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.band_freqs" title="astroquery.nvas.NvasClass.band_freqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">band_freqs</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.valid_bands" title="astroquery.nvas.NvasClass.valid_bands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_bands</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.extract_image_urls" title="astroquery.nvas.NvasClass.extract_image_urls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_image_urls</span></code></a>(html_in, *[, get_uvfits])</p></td>
+<td><p>Helper function that uses regexps to extract the image urls from the given HTML.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.get_image_list" title="astroquery.nvas.NvasClass.get_image_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_image_list</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Function that returns a list of urls from which to download the FITS images.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.get_images" title="astroquery.nvas.NvasClass.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Get an image around a target/ coordinates from the NVAS image archive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.nvas.NvasClass.get_images_async" title="astroquery.nvas.NvasClass.get_images_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images_async</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Serves the same purpose as <a class="reference internal" href="#astroquery.nvas.NvasClass.get_images" title="astroquery.nvas.NvasClass.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a> but returns a list of file handlers to remote files.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.nvas.NvasClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl'</span></em><a class="headerlink" href="#astroquery.nvas.NvasClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.band_freqs">
+<span class="sig-name descname"><span class="pre">band_freqs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'C':</span> <span class="pre">(4,</span> <span class="pre">8),</span> <span class="pre">'D':</span> <span class="pre">(110,</span> <span class="pre">170),</span> <span class="pre">'E':</span> <span class="pre">(60,</span> <span class="pre">90),</span> <span class="pre">'F':</span> <span class="pre">(90,</span> <span class="pre">140),</span> <span class="pre">'K':</span> <span class="pre">(18,</span> <span class="pre">26.5),</span> <span class="pre">'Ka':</span> <span class="pre">(26.5,</span> <span class="pre">40),</span> <span class="pre">'L':</span> <span class="pre">(1,</span> <span class="pre">2),</span> <span class="pre">'Q':</span> <span class="pre">(30,</span> <span class="pre">50),</span> <span class="pre">'S':</span> <span class="pre">(2,</span> <span class="pre">4),</span> <span class="pre">'U':</span> <span class="pre">(12,</span> <span class="pre">18),</span> <span class="pre">'V':</span> <span class="pre">(50,</span> <span class="pre">75),</span> <span class="pre">'W':</span> <span class="pre">(75,</span> <span class="pre">110),</span> <span class="pre">'X':</span> <span class="pre">(8,</span> <span class="pre">12)}</span></em><a class="headerlink" href="#astroquery.nvas.NvasClass.band_freqs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.valid_bands">
+<span class="sig-name descname"><span class="pre">valid_bands</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['all',</span> <span class="pre">'L',</span> <span class="pre">'C',</span> <span class="pre">'X',</span> <span class="pre">'U',</span> <span class="pre">'K',</span> <span class="pre">'Q']</span></em><a class="headerlink" href="#astroquery.nvas.NvasClass.valid_bands" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.extract_image_urls">
+<span class="sig-name descname"><span class="pre">extract_image_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html_in</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_uvfits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/nvas/core.html#NvasClass.extract_image_urls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.nvas.NvasClass.extract_image_urls" title="Link to this definition">¶</a></dt>
+<dd><p>Helper function that uses regexps to extract the image urls from the
+given HTML.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>html_in</strong><span class="classifier">str</span></dt><dd><p>source from which the urls are to be extracted.</p>
+</dd>
+<dt><strong>get_uvfits</strong><span class="classifier">bool, optional</span></dt><dd><p>Gets the UVfits files instead of the IMfits files when set to
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>image_urls</strong><span class="classifier">list</span></dt><dd><p>The list of URLS extracted from the input.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.get_image_list">
+<span class="sig-name descname"><span class="pre">get_image_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=&lt;Quantity</span> <span class="pre">0.25</span> <span class="pre">arcmin&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rms=10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band='all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_uvfits=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/nvas/core.html#NvasClass.get_image_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.nvas.NvasClass.get_image_list" title="Link to this definition">¶</a></dt>
+<dd><p>Function that returns a list of urls from which to download the FITS
+images.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string in which case it is resolved using online services or as
+the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object. ICRS coordinates
+may also be entered as strings as specified in the
+<a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> module.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object, optional</span></dt><dd><p>The string must be parsable by <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. The
+appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object from
+<a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> may also be used. Defaults to 0.25 arcmin.</p>
+</dd>
+<dt><strong>max_rms</strong><span class="classifier">float, optional</span></dt><dd><p>Maximum allowable noise level in the image (mJy). Defaults to
+10000 mJy.</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">str, optional</span></dt><dd><p>The band of the image to fetch. Valid bands must be from
+[“all”,”L”,”C”,”X”,”U”,”K”,”Q”]. Defaults to ‘all’</p>
+</dd>
+<dt><strong>get_uvfits</strong><span class="classifier">bool, optional</span></dt><dd><p>Gets the UVfits files instead of the IMfits files when set to
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>if set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> then returns the dictionary sent as the HTTP
+request.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list of image urls</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.get_images">
+<span class="sig-name descname"><span class="pre">get_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=&lt;Quantity</span> <span class="pre">0.25</span> <span class="pre">arcmin&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rms=10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band='all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_uvfits=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/nvas/core.html#NvasClass.get_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.nvas.NvasClass.get_images" title="Link to this definition">¶</a></dt>
+<dd><p>Get an image around a target/ coordinates from the NVAS image archive.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string in which case it is resolved using online services or as
+the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object. ICRS coordinates
+may also be entered as strings as specified in the
+<a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> module.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object, optional</span></dt><dd><p>The string must be parsable by <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. The
+appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object from
+<a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> may also be used. Defaults to 0.25 arcmin.</p>
+</dd>
+<dt><strong>max_rms</strong><span class="classifier">float, optional</span></dt><dd><p>Maximum allowable noise level in the image (mJy). Defaults to
+10000 mJy.</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">str, optional</span></dt><dd><p>The band of the image to fetch. Valid bands must be from
+[“all”,”L”,”C”,”X”,”U”,”K”,”Q”]. Defaults to ‘all’</p>
+</dd>
+<dt><strong>get_uvfits</strong><span class="classifier">bool, optional</span></dt><dd><p>Gets the UVfits files instead of the IMfits files when set to
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>When <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> print out additional messages. Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>if set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> then returns the dictionary sent as the HTTP
+request.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.nvas.NvasClass.get_images_async">
+<span class="sig-name descname"><span class="pre">get_images_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=&lt;Quantity</span> <span class="pre">0.25</span> <span class="pre">arcmin&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rms=10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band='all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_uvfits=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/nvas/core.html#NvasClass.get_images_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.nvas.NvasClass.get_images_async" title="Link to this definition">¶</a></dt>
+<dd><p>Serves the same purpose as <a class="reference internal" href="#astroquery.nvas.NvasClass.get_images" title="astroquery.nvas.NvasClass.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a> but
+returns a list of file handlers to remote files.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string in which case it is resolved using online services or as
+the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object. ICRS coordinates
+may also be entered as strings as specified in the
+<a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> module.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object, optional</span></dt><dd><p>The string must be parsable by <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. The
+appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object from
+<a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> may also be used. Defaults to 0.25 arcmin.</p>
+</dd>
+<dt><strong>max_rms</strong><span class="classifier">float, optional</span></dt><dd><p>Maximum allowable noise level in the image (mJy). Defaults to
+10000 mJy.</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">str, optional</span></dt><dd><p>The band of the image to fetch. Valid bands must be from
+[“all”,”L”,”C”,”X”,”U”,”K”,”Q”]. Defaults to ‘all’</p>
+</dd>
+<dt><strong>get_uvfits</strong><span class="classifier">bool, optional</span></dt><dd><p>Gets the UVfits files instead of the IMfits files when set to
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>When <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> print out additional messages. Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>if set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> then returns the dictionary sent as the HTTP
+request.  Defaults to <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of context-managers that yield readable file-like objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">NvasClass</a><ul>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass"><code class="docutils literal notranslate"><span class="pre">NvasClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">NvasClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.URL"><code class="docutils literal notranslate"><span class="pre">NvasClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.band_freqs"><code class="docutils literal notranslate"><span class="pre">NvasClass.band_freqs</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.valid_bands"><code class="docutils literal notranslate"><span class="pre">NvasClass.valid_bands</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.extract_image_urls"><code class="docutils literal notranslate"><span class="pre">NvasClass.extract_image_urls()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.get_image_list"><code class="docutils literal notranslate"><span class="pre">NvasClass.get_image_list()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.get_images"><code class="docutils literal notranslate"><span class="pre">NvasClass.get_images()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.nvas.NvasClass.get_images_async"><code class="docutils literal notranslate"><span class="pre">NvasClass.get_images_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.nvas.NvasClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

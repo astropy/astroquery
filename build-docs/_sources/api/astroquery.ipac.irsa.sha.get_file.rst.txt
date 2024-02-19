@@ -1,0 +1,6 @@
+get_file
+========
+
+.. currentmodule:: astroquery.ipac.irsa.sha
+
+.. autofunction:: get_file
