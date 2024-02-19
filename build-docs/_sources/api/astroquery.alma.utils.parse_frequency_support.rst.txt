@@ -1,0 +1,6 @@
+parse_frequency_support
+=======================
+
+.. currentmodule:: astroquery.alma.utils
+
+.. autofunction:: parse_frequency_support

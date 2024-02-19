@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conf &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="VO Simple Cone Search (astroquery.vo_conesearch)" href="../vo_conesearch/vo_conesearch.html" />
+    <link rel="prev" title="VizierClass" href="astroquery.vizier.VizierClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../vo_conesearch/vo_conesearch.html" title="VO Simple Cone Search (astroquery.vo_conesearch)">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.vizier.VizierClass.html" title="VizierClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../vizier/vizier.html" accesskey="U">VizieR Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.vizier</span></code>)</a> &#187;</li>
+      
+      <li>Conf</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="conf">
+<h1>Conf<a class="headerlink" href="#conf" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.vizier.Conf">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.vizier.</span></span><span class="sig-name descname"><span class="pre">Conf</span></span><a class="reference internal" href="../_modules/astroquery/vizier.html#Conf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.Conf" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.config.ConfigNamespace.html#astropy.config.ConfigNamespace" title="(in Astropy v6.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigNamespace</span></code></a></p>
+<p>Configuration parameters for <a class="reference internal" href="../vizier/vizier.html#module-astroquery.vizier" title="astroquery.vizier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.vizier</span></code></a>.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.Conf.row_limit" title="astroquery.vizier.Conf.row_limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">row_limit</span></code></a></p></td>
+<td><p>Maximum number of rows that will be fetched from the result (set to -1 for unlimited).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.Conf.server" title="astroquery.vizier.Conf.server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server</span></code></a></p></td>
+<td><p>Name of the VizieR mirror to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.Conf.timeout" title="astroquery.vizier.Conf.timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></a></p></td>
+<td><p>Default timeout for connecting to server</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.Conf.row_limit">
+<span class="sig-name descname"><span class="pre">row_limit</span></span><a class="headerlink" href="#astroquery.vizier.Conf.row_limit" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum number of rows that will be fetched from the result (set to -1 for unlimited).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.Conf.server">
+<span class="sig-name descname"><span class="pre">server</span></span><a class="headerlink" href="#astroquery.vizier.Conf.server" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the VizieR mirror to use.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.Conf.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#astroquery.vizier.Conf.timeout" title="Link to this definition">¶</a></dt>
+<dd><p>Default timeout for connecting to server</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Conf</a><ul>
+<li><a class="reference internal" href="#astroquery.vizier.Conf"><code class="docutils literal notranslate"><span class="pre">Conf</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.vizier.Conf.row_limit"><code class="docutils literal notranslate"><span class="pre">Conf.row_limit</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.Conf.server"><code class="docutils literal notranslate"><span class="pre">Conf.server</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.Conf.timeout"><code class="docutils literal notranslate"><span class="pre">Conf.timeout</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.vizier.Conf.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

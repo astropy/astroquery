@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>list_catalogs &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="predict_search" href="astroquery.vo_conesearch.conesearch.predict_search.html" />
+    <link rel="prev" title="search_all" href="astroquery.vo_conesearch.conesearch.search_all.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.vo_conesearch.conesearch.predict_search.html" title="predict_search">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.vo_conesearch.conesearch.search_all.html" title="search_all">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../vo_conesearch/vo_conesearch.html" accesskey="U">VO Simple Cone Search (<code class="docutils literal notranslate"><span class="pre">astroquery.vo_conesearch</span></code>)</a> &#187;</li>
+      
+      <li>list_catalogs</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="list-catalogs">
+<h1>list_catalogs<a class="headerlink" href="#list-catalogs" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="astroquery.vo_conesearch.conesearch.list_catalogs">
+<span class="sig-prename descclassname"><span class="pre">astroquery.vo_conesearch.conesearch.</span></span><span class="sig-name descname"><span class="pre">list_catalogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vo_conesearch/conesearch.html#list_catalogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vo_conesearch.conesearch.list_catalogs" title="Link to this definition">¶</a></dt>
+<dd><p>Return the available Cone Search catalogs as a list of strings.
+These can be used for the <code class="docutils literal notranslate"><span class="pre">catalog_db</span></code> argument to
+<a class="reference internal" href="astroquery.vo_conesearch.conesearch.conesearch.html#astroquery.vo_conesearch.conesearch.conesearch" title="astroquery.vo_conesearch.conesearch.conesearch"><code class="xref py py-func docutils literal notranslate"><span class="pre">conesearch()</span></code></a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Use caching for VO Service database. Access to actual VO
+websites referenced by the database still needs internet
+connection.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>Show download progress bars.</p>
+</dd>
+<dt><strong>pattern</strong><span class="classifier">str or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></dt><dd><p>If given string is anywhere in a catalog name, it is
+considered a matching catalog. It accepts patterns as
+in <a class="reference external" href="https://docs.python.org/3/library/fnmatch.html#module-fnmatch" title="(in Python v3.12)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fnmatch</span></code></a> and is case-insensitive.
+By default, all catalogs are returned.</p>
+</dd>
+<dt><strong>sort</strong><span class="classifier">bool</span></dt><dd><p>Sort output in alphabetical order. If not sorted, the
+order depends on dictionary hashing. Default is <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>arr</strong><span class="classifier">list of str</span></dt><dd><p>List of catalog names.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">list_catalogs</a><ul>
+<li><a class="reference internal" href="#astroquery.vo_conesearch.conesearch.list_catalogs"><code class="docutils literal notranslate"><span class="pre">list_catalogs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.vo_conesearch.conesearch.list_catalogs.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

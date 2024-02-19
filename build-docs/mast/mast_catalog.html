@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Catalog Queries &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Image Cutouts" href="mast_cut.html" />
+    <link rel="prev" title="Mission Searches" href="mast_missions.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="mast_cut.html" title="Image Cutouts">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="mast_missions.html" title="Mission Searches">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>Catalog Queries</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="catalog-queries">
+<h1>Catalog Queries<a class="headerlink" href="#catalog-queries" title="Link to this heading">¶</a></h1>
+<p>The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.
+The catalogs currently available through this interface are:</p>
+<ul class="simple">
+<li><p>The Hubble Source Catalog (HSC)</p></li>
+<li><p>The GALEX Catalog (V2 and V3)</p></li>
+<li><p>The Gaia (DR1 and DR2) and TGAS Catalogs</p></li>
+<li><p>The TESS Input Catalog (TIC)</p></li>
+<li><p>The TESS Candidate Target List (CTL)</p></li>
+<li><p>The Disk Detective Catalog</p></li>
+<li><p>The PanSTARRS Catalog (DR1 and DR2)</p></li>
+<li><p>The All-Sky PLATO Input Catalog (DR1)</p></li>
+</ul>
+<section id="catalog-positional-queries">
+<h2>Catalog Positional Queries<a class="headerlink" href="#catalog-positional-queries" title="Link to this heading">¶</a></h2>
+<p>Positional queries can be based on a sky position or a target name.
+The returned fields vary by catalog, find the field documentation for specific catalogs
+<a class="reference external" href="https://mast.stsci.edu/api/v0/pages.html">here</a>.
+If no catalog is specified, the Hubble Source Catalog will be queried.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;158.47924 -7.30962&quot;</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Galex&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<span class="go"> distance_arcmin          objID        survey ... fuv_flux_aper_7 fuv_artifact</span>
+<span class="go">------------------ ------------------- ------ ... --------------- ------------</span>
+<span class="go">0.3493802506329695 6382034098673685038    AIS ...     0.047751952            0</span>
+<span class="go">0.7615422488595471 6382034098672634783    AIS ...              --            0</span>
+<span class="go">0.9243329366166956 6382034098672634656    AIS ...              --            0</span>
+<span class="go"> 1.162615739258038 6382034098672634662    AIS ...              --            0</span>
+<span class="go">1.2670891287503308 6382034098672634735    AIS ...              --            0</span>
+<span class="go"> 1.492173395497916 6382034098674731780    AIS ...    0.0611195639            0</span>
+<span class="go">1.6051235757244107 6382034098672634645    AIS ...              --            0</span>
+<span class="go"> 1.705418541388336 6382034098672634716    AIS ...              --            0</span>
+<span class="go">1.7463721100195875 6382034098672634619    AIS ...              --            0</span>
+<span class="go">1.7524423152919317 6382034098672634846    AIS ...              --            0</span>
+</pre></div>
+</div>
+<p>Some catalogs have a maximum number of results they will return.
+If a query results in this maximum number of results a warning will be displayed to alert
+the user that they might be getting a subset of the true result set.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s2">&quot;322.49324 12.16683&quot;</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;HSC&quot;</span><span class="p">,</span> <span class="n">magtype</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  
+<span class="go">InputWarning: Coordinate string is being interpreted as an ICRS coordinate provided in degrees.</span>
+<span class="go">MaxResultsWarning: Maximum catalog results returned, may not include all sources within radius.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<span class="go"> MatchID        Distance            MatchRA       ... W3_F160W_MAD W3_F160W_N</span>
+<span class="go">--------- -------------------- ------------------ ... ------------ ----------</span>
+<span class="go"> 50180585 0.003984902849540913  322.4931746094701 ...          nan          0</span>
+<span class="go">  8150896 0.006357935819940561 322.49334740450234 ...          nan          0</span>
+<span class="go">100906349  0.00808206428937523  322.4932839715549 ...          nan          0</span>
+<span class="go">105434103 0.011947078376104195 322.49324000530777 ...          nan          0</span>
+<span class="go">103116183  0.01274757103013683  322.4934207202404 ...          nan          0</span>
+<span class="go"> 45593349 0.013026569623011767  322.4933878707698 ...          nan          0</span>
+<span class="go">103700905  0.01306760650244682  322.4932769229944 ...          nan          0</span>
+<span class="go">102470085 0.014611879195009472 322.49311034430366 ...          nan          0</span>
+<span class="go"> 93722307  0.01476438046135455 322.49348351134466 ...          nan          0</span>
+<span class="go"> 24781941 0.015234351867433582 322.49300148743345 ...          nan          0</span>
+</pre></div>
+</div>
+<p>Radius is an optional parameter and the default is 0.2 degrees.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;M10&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">.02</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;TIC&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>   
+<span class="go">    ID            ra               dec        ... wdflag     dstArcSec</span>
+<span class="go">---------- ---------------- ----------------- ... ------ ------------------</span>
+<span class="go"> 510188144 254.287449269816 -4.09954224264168 ...     -1 0.7650443624931581</span>
+<span class="go"> 510188143  254.28717785824 -4.09908635292493 ...     -1 1.3400566638148848</span>
+<span class="go"> 189844423 254.287799703996  -4.0994998249247 ...      0 1.3644407138867785</span>
+<span class="go">1305764031 254.287147439535 -4.09866105132406 ...     -1  2.656905409847388</span>
+<span class="go">1305763882 254.286696117371 -4.09925522448626 ...     -1 2.7561196688252894</span>
+<span class="go"> 510188145 254.287431890823 -4.10017293344746 ...     -1  3.036238557555728</span>
+<span class="go">1305763844 254.286675148545 -4.09971617257086 ...      0 3.1424781549696217</span>
+<span class="go">1305764030 254.287249718516 -4.09841883152995 ...     -1  3.365991083435227</span>
+<span class="go">1305764097 254.287599269103 -4.09837925361712 ...     -1    3.4590276863989</span>
+<span class="go">1305764215  254.28820865799 -4.09859677020253 ...     -1 3.7675526728257034</span>
+</pre></div>
+</div>
+<p>The Hubble Source Catalog, the Gaia Catalog, and the PanSTARRS Catalog have multiple versions.
+An optional version parameter allows you to select which version you want, the default is the highest version.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s2">&quot;158.47924 -7.30962&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span>                                      <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Gaia&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of results:&quot;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">))</span>
+<span class="go">Number of results: 111</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+<span class="go">    solution_id             designation          ...      distance</span>
+<span class="go">------------------- ---------------------------- ... ------------------</span>
+<span class="go">1635721458409799680 Gaia DR2 3774902350511581696 ... 0.6326770410972467</span>
+<span class="go">1635721458409799680 Gaia DR2 3774901427093274112 ... 0.8440033390947586</span>
+<span class="go">1635721458409799680 Gaia DR2 3774902148648277248 ... 0.9199206487344911</span>
+<span class="go">1635721458409799680 Gaia DR2 3774902453590798208 ... 1.3578181104319944</span>
+</pre></div>
+</div>
+<p>The PanSTARRS Catalog has multiple data releases as well as multiple queryable tables.
+An optional data release parameter allows you to select which data release is desired, with the default being the latest version (dr2).
+The table to query is a required parameter.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s2">&quot;158.47924 -7.30962&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span>                                      <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Panstarrs&quot;</span><span class="p">,</span> <span class="n">data_release</span><span class="o">=</span><span class="s2">&quot;dr1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of results:&quot;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">))</span>
+<span class="go">Number of results: 7007</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>     
+<span class="go">         ObjName           objAltName1 ... yFlags       distance</span>
+<span class="go">-------------------------- ----------- ... ------ --------------------</span>
+<span class="go">PSO J103359.653-071622.382        -999 ...  16416  0.04140441098310487</span>
+<span class="go">PSO J103359.605-071622.873        -999 ...      0  0.04121935961328582</span>
+<span class="go">PSO J103359.691-071640.232        -999 ...      0  0.03718729257758985</span>
+<span class="go">PSO J103400.268-071639.192        -999 ...      0  0.03870112803784765</span>
+<span class="go">PSO J103400.073-071637.358        -999 ...      0  0.03867536827891155</span>
+<span class="go">PSO J103359.789-071632.606        -999 ...      0  0.03921557769883566</span>
+<span class="go">PSO J103359.192-071654.790        -999 ...      0  0.03266232705300051</span>
+<span class="go">PSO J103359.959-071655.155        -999 ...      0 0.034361022297827955</span>
+<span class="go">PSO J103359.847-071655.610        -999 ...      0 0.033986082329893995</span>
+<span class="go">PSO J103400.586-071656.646        -999 ...      0 0.035645179491121386</span>
+</pre></div>
+</div>
+</section>
+<section id="catalog-criteria-queries">
+<h2>Catalog Criteria Queries<a class="headerlink" href="#catalog-criteria-queries" title="Link to this heading">¶</a></h2>
+<p>The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can also be queried based on non-positional criteria.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Tic&quot;</span><span class="p">,</span><span class="n">Bmag</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">50</span><span class="p">],</span><span class="n">objType</span><span class="o">=</span><span class="s2">&quot;STAR&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">)</span>  
+<span class="go">    ID    version  HIP TYC ...     e_Dec_orig     raddflag wdflag   objID</span>
+<span class="go">--------- -------- --- --- ... ------------------ -------- ------ ----------</span>
+<span class="go">125413929 20190415  --  -- ...  0.293682765259495        1      0  579825059</span>
+<span class="go">261459129 20190415  --  -- ...  0.200397148604244        1      0 1701625107</span>
+<span class="go"> 64575709 20190415  --  -- ...   0.21969663115091        1      0  595775997</span>
+<span class="go"> 94322581 20190415  --  -- ...  0.205286802302475        1      0  606092549</span>
+<span class="go">125414201 20190415  --  -- ...   0.22398993783274        1      0  579825329</span>
+<span class="go">463721073 20190415  --  -- ...  0.489828592248652       -1      1  710312391</span>
+<span class="go"> 81609218 20190415  --  -- ...  0.146788572369267        1      0  630541794</span>
+<span class="go">282024596 20190415  --  -- ...  0.548806522539047        1      0  573765450</span>
+<span class="go"> 23868624 20190415  --  -- ...            355.949       --      0  916384285</span>
+<span class="go">282391528 20190415  --  -- ...   0.47766300834538        0      0  574723760</span>
+<span class="go">123585000 20190415  --  -- ...  0.618316068787371        0      0  574511442</span>
+<span class="go">260216294 20190415  --  -- ...  0.187170498094167        1      0  683390717</span>
+<span class="go">406300991 20190415  --  -- ... 0.0518318978617112        0      0 1411465651</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Ctl&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">objectname</span><span class="o">=</span><span class="s1">&#39;M101&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">Tmag</span><span class="o">=</span><span class="p">[</span><span class="mf">10.75</span><span class="p">,</span><span class="mi">11</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">)</span>
+<span class="go">    ID    version  HIP     TYC      ... raddflag wdflag   objID</span>
+<span class="go">--------- -------- --- ------------ ... -------- ------ ---------</span>
+<span class="go">233458861 20190415  -- 3852-01407-1 ...        1      0 150390757</span>
+<span class="go">441662028 20190415  -- 3855-00941-1 ...        1      0 150395533</span>
+<span class="go">441658008 20190415  -- 3852-00116-1 ...        1      0 150246361</span>
+<span class="go">441639577 20190415  -- 3852-00429-1 ...        1      0 150070672</span>
+<span class="go">441658179 20190415  -- 3855-00816-1 ...        1      0 150246482</span>
+<span class="go">154258521 20190415  -- 3852-01403-1 ...        1      0 150281963</span>
+<span class="go">441659970 20190415  -- 3852-00505-1 ...        1      0 150296707</span>
+<span class="go">441660006 20190415  -- 3852-00341-1 ...        1      0 150296738</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;DiskDetective&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;M10&quot;</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">state</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">)</span>      
+<span class="go">    designation     ...                    ZooniverseURL</span>
+<span class="go">------------------- ... ----------------------------------------------------</span>
+<span class="go">J165628.40-054630.8 ... https://talk.diskdetective.org/#/subjects/AWI0005cka</span>
+<span class="go">J165748.96-054915.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckd</span>
+<span class="go">J165427.11-022700.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ck5</span>
+<span class="go">J165749.79-040315.1 ... https://talk.diskdetective.org/#/subjects/AWI0005cke</span>
+<span class="go">J165327.01-042546.2 ... https://talk.diskdetective.org/#/subjects/AWI0005ck3</span>
+<span class="go">J165949.90-054300.7 ... https://talk.diskdetective.org/#/subjects/AWI0005ckk</span>
+<span class="go">J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.query_criteria" title="astroquery.mast.CatalogsClass.query_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria</span></code></a> function requires at least one non-positional parameter.
+These parameters are the column names listed in the <a class="reference external" href="https://mast.stsci.edu/api/v0/pages.html">field descriptions</a>
+of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
+parameters will result in an error.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Tic&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">objectname</span><span class="o">=</span><span class="s1">&#39;M101&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">astroquery.exceptions.InvalidQueryError</span>: <span class="n">At least one non-positional criterion must be supplied.</span>
+</pre></div>
+</div>
+<p>The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
+sorting, column criteria, page size and page number. Additional information on PanSTARRS queries may be found
+<a class="reference external" href="https://catalogs.mast.stsci.edu/docs/panstarrs.html">here</a>.</p>
+<p>Columns returned from the query may be submitted with the columns parameter as a list of column names.</p>
+<p>The query may be sorted  with the sort_by parameter composed of either a single column name (to sort ascending),
+or a list of multiple column names and/or tuples of direction and column name (ASC/DESC, column name).</p>
+<p>To filter the query, criteria per column name are accepted. The ‘AND’ operation is performed between all
+column name criteria, and the ‘OR’ operation is performed within column name criteria. Per each column name
+parameter, criteria may consist of either a value or a list. The list may consist of a mix of values and
+tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="s2">&quot;5.97754 32.53617&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;PANSTARRS&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">data_release</span><span class="o">=</span><span class="s2">&quot;dr2&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">nStackDetections</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;gte&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span>
+<span class="gp">... </span>                                       <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;objName&quot;</span><span class="p">,</span> <span class="s2">&quot;objID&quot;</span><span class="p">,</span> <span class="s2">&quot;nStackDetections&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                       <span class="n">sort_by</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;desc&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">)],</span> <span class="n">pagesize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">catalog_data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>   
+<span class="go">       objName              objID        nStackDetections        distance</span>
+<span class="go">--------------------- ------------------ ---------------- ---------------------</span>
+<span class="go">PSO J005.9812+32.5270 147030059812483022                5  0.009651200148871086</span>
+<span class="go">PSO J005.9726+32.5278 147030059727583992                2    0.0093857181370567</span>
+<span class="go">PSO J005.9787+32.5453 147050059787164914                4  0.009179045509852305</span>
+<span class="go">PSO J005.9722+32.5418 147050059721440704                4  0.007171813230776031</span>
+<span class="go">PSO J005.9857+32.5377 147040059855825725                4  0.007058815429178634</span>
+<span class="go">PSO J005.9810+32.5424 147050059809651427                2  0.006835678269917365</span>
+<span class="go">PSO J005.9697+32.5368 147040059697224794                2  0.006654002479439699</span>
+<span class="go">PSO J005.9712+32.5330 147040059711340087                4  0.006212461367287632</span>
+<span class="go">PSO J005.9747+32.5413 147050059747400181                5 0.0056515210592035965</span>
+<span class="go">PSO J005.9775+32.5314 147030059774678271                3  0.004739286624336443</span>
+</pre></div>
+</div>
+</section>
+<section id="hubble-source-catalog-hsc-specific-queries">
+<h2>Hubble Source Catalog (HSC) specific queries<a class="headerlink" href="#hubble-source-catalog-hsc-specific-queries" title="Link to this heading">¶</a></h2>
+<p>Given an HSC Match ID, return all catalog results.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_data</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;M10&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">.02</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;HSC&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matchid</span> <span class="o">=</span> <span class="n">catalog_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;MatchID&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">matchid</span><span class="p">)</span>
+<span class="go">63980492</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matches</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_hsc_matchid</span><span class="p">(</span><span class="n">matchid</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+<span class="go">  CatID   MatchID  ...                       cd_matrix</span>
+<span class="go">--------- -------- ... ------------------------------------------------------</span>
+<span class="go">257195287 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005</span>
+<span class="go">257440119 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005</span>
+<span class="go">428373428 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005</span>
+<span class="go">428373427 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005</span>
+<span class="go">428373429 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005</span>
+<span class="go">410574499 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005</span>
+<span class="go">410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005</span>
+<span class="go">410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005</span>
+</pre></div>
+</div>
+<p>HSC spectra accessed through this class as well. <a class="reference internal" href="../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.get_hsc_spectra" title="astroquery.mast.CatalogsClass.get_hsc_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_hsc_spectra</span></code></a>
+does not take any arguments, and simply loads all HSC spectra.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">all_spectra</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">get_hsc_spectra</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">all_spectra</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<span class="go">ObjID                 DatasetName                  MatchID  ... PropID HSCMatch</span>
+<span class="go">----- -------------------------------------------- -------- ... ------ --------</span>
+<span class="go">20010 HAG_J072655.67+691648.9_J8HPAXAEQ_V01.SPEC1D 19657846 ...   9482        Y</span>
+<span class="go">20011 HAG_J072655.69+691648.9_J8HPAOZMQ_V01.SPEC1D 19657846 ...   9482        Y</span>
+<span class="go">20012 HAG_J072655.76+691729.7_J8HPAOZMQ_V01.SPEC1D 19659745 ...   9482        Y</span>
+<span class="go">20013 HAG_J072655.82+691620.0_J8HPAOZMQ_V01.SPEC1D 19659417 ...   9482        Y</span>
+<span class="go">20014 HAG_J072656.34+691704.7_J8HPAXAEQ_V01.SPEC1D 19660230 ...   9482        Y</span>
+<span class="go">20015 HAG_J072656.36+691704.7_J8HPAOZMQ_V01.SPEC1D 19660230 ...   9482        Y</span>
+<span class="go">20016 HAG_J072656.36+691744.9_J8HPAOZMQ_V01.SPEC1D 19658847 ...   9482        Y</span>
+<span class="go">20017 HAG_J072656.37+691630.2_J8HPAXAEQ_V01.SPEC1D 19660827 ...   9482        Y</span>
+<span class="go">20018 HAG_J072656.39+691630.2_J8HPAOZMQ_V01.SPEC1D 19660827 ...   9482        Y</span>
+<span class="go">20019 HAG_J072656.41+691734.9_J8HPAOZMQ_V01.SPEC1D 19656620 ...   9482        Y</span>
+</pre></div>
+</div>
+<p>Individual or ranges of spectra can be downloaded using the
+<a class="reference internal" href="../api/astroquery.mast.CatalogsClass.html#astroquery.mast.CatalogsClass.download_hsc_spectra" title="astroquery.mast.CatalogsClass.download_hsc_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_hsc_spectra</span></code></a> function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Catalogs</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">all_spectra</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">get_hsc_spectra</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">download_hsc_spectra</span><span class="p">(</span><span class="n">all_spectra</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">104</span><span class="p">])</span>   
+<span class="go">Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]</span>
+<span class="go">Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]</span>
+<span class="go">Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]</span>
+<span class="go">Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>     
+<span class="go">                             Local Path                              ... URL</span>
+<span class="go">-------------------------------------------------------------------- ... ----</span>
+<span class="go">./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... None</span>
+<span class="go">./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... None</span>
+<span class="go">./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... None</span>
+<span class="go">./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... None</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Catalog Queries</a><ul>
+<li><a class="reference internal" href="#catalog-positional-queries">Catalog Positional Queries</a></li>
+<li><a class="reference internal" href="#catalog-criteria-queries">Catalog Criteria Queries</a></li>
+<li><a class="reference internal" href="#hubble-source-catalog-hsc-specific-queries">Hubble Source Catalog (HSC) specific queries</a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/mast/mast_catalog.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

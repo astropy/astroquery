@@ -1,0 +1,6 @@
+predict_search
+==============
+
+.. currentmodule:: astroquery.vo_conesearch.conesearch
+
+.. autofunction:: predict_search

@@ -1,0 +1,31 @@
+BaseQuery
+=========
+
+.. currentmodule:: astroquery.query
+
+.. autoclass:: BaseQuery
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~BaseQuery.cache_location
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseQuery.__call__
+      ~BaseQuery.clear_cache
+      ~BaseQuery.reset_cache_location
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: cache_location
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: clear_cache
+   .. automethod:: reset_cache_location

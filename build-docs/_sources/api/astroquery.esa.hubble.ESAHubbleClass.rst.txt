@@ -1,0 +1,69 @@
+ESAHubbleClass
+==============
+
+.. currentmodule:: astroquery.esa.hubble
+
+.. autoclass:: ESAHubbleClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ESAHubbleClass.TIMEOUT
+      ~ESAHubbleClass.calibration_levels
+      ~ESAHubbleClass.copying_string
+      ~ESAHubbleClass.product_types
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ESAHubbleClass.cone_search
+      ~ESAHubbleClass.cone_search_criteria
+      ~ESAHubbleClass.download_file
+      ~ESAHubbleClass.download_fits_files
+      ~ESAHubbleClass.download_product
+      ~ESAHubbleClass.get_artifact
+      ~ESAHubbleClass.get_associated_files
+      ~ESAHubbleClass.get_columns
+      ~ESAHubbleClass.get_hap_hst_link
+      ~ESAHubbleClass.get_member_observations
+      ~ESAHubbleClass.get_observation_type
+      ~ESAHubbleClass.get_postcard
+      ~ESAHubbleClass.get_status_messages
+      ~ESAHubbleClass.get_tables
+      ~ESAHubbleClass.query_criteria
+      ~ESAHubbleClass.query_hst_tap
+      ~ESAHubbleClass.query_metadata
+      ~ESAHubbleClass.query_tap
+      ~ESAHubbleClass.query_target
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: calibration_levels
+   .. autoattribute:: copying_string
+   .. autoattribute:: product_types
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: cone_search
+   .. automethod:: cone_search_criteria
+   .. automethod:: download_file
+   .. automethod:: download_fits_files
+   .. automethod:: download_product
+   .. automethod:: get_artifact
+   .. automethod:: get_associated_files
+   .. automethod:: get_columns
+   .. automethod:: get_hap_hst_link
+   .. automethod:: get_member_observations
+   .. automethod:: get_observation_type
+   .. automethod:: get_postcard
+   .. automethod:: get_status_messages
+   .. automethod:: get_tables
+   .. automethod:: query_criteria
+   .. automethod:: query_hst_tap
+   .. automethod:: query_metadata
+   .. automethod:: query_tap
+   .. automethod:: query_target

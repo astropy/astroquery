@@ -1,0 +1,6 @@
+query
+=====
+
+.. currentmodule:: astroquery.ipac.irsa.sha
+
+.. autofunction:: query

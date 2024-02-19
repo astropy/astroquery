@@ -1,0 +1,6 @@
+timefunc
+========
+
+.. currentmodule:: astroquery.utils.timer
+
+.. autofunction:: timefunc

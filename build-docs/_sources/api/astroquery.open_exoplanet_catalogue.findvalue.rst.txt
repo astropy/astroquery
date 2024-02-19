@@ -1,0 +1,6 @@
+findvalue
+=========
+
+.. currentmodule:: astroquery.open_exoplanet_catalogue
+
+.. autofunction:: findvalue

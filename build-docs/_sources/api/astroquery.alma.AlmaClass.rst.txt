@@ -1,0 +1,93 @@
+AlmaClass
+=========
+
+.. currentmodule:: astroquery.alma
+
+.. autoclass:: AlmaClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~AlmaClass.SIA2_PARAMETERS_DESC
+      ~AlmaClass.TIMEOUT
+      ~AlmaClass.USERNAME
+      ~AlmaClass.archive_url
+      ~AlmaClass.auth
+      ~AlmaClass.cycle0_table
+      ~AlmaClass.datalink
+      ~AlmaClass.datalink_url
+      ~AlmaClass.sia
+      ~AlmaClass.sia_url
+      ~AlmaClass.tap
+      ~AlmaClass.tap_url
+      ~AlmaClass.var
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~AlmaClass.download_and_extract_files
+      ~AlmaClass.download_files
+      ~AlmaClass.get_adhoc_service_access_url
+      ~AlmaClass.get_adhoc_service_parameter
+      ~AlmaClass.get_cycle0_uid_contents
+      ~AlmaClass.get_data_info
+      ~AlmaClass.get_files_from_tarballs
+      ~AlmaClass.get_project_metadata
+      ~AlmaClass.help
+      ~AlmaClass.help_tap
+      ~AlmaClass.is_datalink_adhoc_service
+      ~AlmaClass.is_proprietary
+      ~AlmaClass.login
+      ~AlmaClass.query
+      ~AlmaClass.query_async
+      ~AlmaClass.query_object
+      ~AlmaClass.query_object_async
+      ~AlmaClass.query_region
+      ~AlmaClass.query_region_async
+      ~AlmaClass.query_sia
+      ~AlmaClass.query_tap
+      ~AlmaClass.retrieve_data_from_uid
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: SIA2_PARAMETERS_DESC
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: USERNAME
+   .. autoattribute:: archive_url
+   .. autoattribute:: auth
+   .. autoattribute:: cycle0_table
+   .. autoattribute:: datalink
+   .. autoattribute:: datalink_url
+   .. autoattribute:: sia
+   .. autoattribute:: sia_url
+   .. autoattribute:: tap
+   .. autoattribute:: tap_url
+   .. autoattribute:: var
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: download_and_extract_files
+   .. automethod:: download_files
+   .. automethod:: get_adhoc_service_access_url
+   .. automethod:: get_adhoc_service_parameter
+   .. automethod:: get_cycle0_uid_contents
+   .. automethod:: get_data_info
+   .. automethod:: get_files_from_tarballs
+   .. automethod:: get_project_metadata
+   .. automethod:: help
+   .. automethod:: help_tap
+   .. automethod:: is_datalink_adhoc_service
+   .. automethod:: is_proprietary
+   .. automethod:: login
+   .. automethod:: query
+   .. automethod:: query_async
+   .. automethod:: query_object
+   .. automethod:: query_object_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async
+   .. automethod:: query_sia
+   .. automethod:: query_tap
+   .. automethod:: retrieve_data_from_uid

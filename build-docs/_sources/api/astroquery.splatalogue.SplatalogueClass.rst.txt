@@ -1,0 +1,49 @@
+SplatalogueClass
+================
+
+.. currentmodule:: astroquery.splatalogue
+
+.. autoclass:: SplatalogueClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SplatalogueClass.ALL_LINE_LISTS
+      ~SplatalogueClass.FREQUENCY_BANDS
+      ~SplatalogueClass.LINES_LIMIT
+      ~SplatalogueClass.QUERY_URL
+      ~SplatalogueClass.SLAP_URL
+      ~SplatalogueClass.TIMEOUT
+      ~SplatalogueClass.TOP20_LIST
+      ~SplatalogueClass.versions
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SplatalogueClass.get_fixed_table
+      ~SplatalogueClass.get_species_ids
+      ~SplatalogueClass.query_lines
+      ~SplatalogueClass.query_lines_async
+      ~SplatalogueClass.set_default_options
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: ALL_LINE_LISTS
+   .. autoattribute:: FREQUENCY_BANDS
+   .. autoattribute:: LINES_LIMIT
+   .. autoattribute:: QUERY_URL
+   .. autoattribute:: SLAP_URL
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: TOP20_LIST
+   .. autoattribute:: versions
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_fixed_table
+   .. automethod:: get_species_ids
+   .. automethod:: query_lines
+   .. automethod:: query_lines_async
+   .. automethod:: set_default_options

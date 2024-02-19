@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GaiaClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.gaia.Conf.html" />
+    <link rel="prev" title="Gaia TAP+ (astroquery.gaia)" href="../gaia/gaia.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.gaia.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../gaia/gaia.html" title="Gaia TAP+ (astroquery.gaia)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../gaia/gaia.html" accesskey="U">Gaia TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.gaia</span></code>)</a> &#187;</li>
+      
+      <li>GaiaClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="gaiaclass">
+<h1>GaiaClass<a class="headerlink" href="#gaiaclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.gaia.</span></span><span class="sig-name descname"><span class="pre">GaiaClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tap_plus_conn_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datalink_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gaia_tap_server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'https://gea.esac.esa.int/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gaia_data_server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'https://gea.esac.esa.int/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tap_server_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tap-server'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_server_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data-server'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_server_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.utils.tap.TapPlus.html#astroquery.utils.tap.TapPlus" title="astroquery.utils.tap.core.TapPlus"><code class="xref py py-class docutils literal notranslate"><span class="pre">TapPlus</span></code></a></p>
+<p>Proxy class to default TapPlus object (pointing to Gaia Archive)</p>
+<p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>url</strong><span class="classifier">str, mandatory if no host is specified, default None</span></dt><dd><p>TAP URL</p>
+</dd>
+<dt><strong>host</strong><span class="classifier">str, optional, default None</span></dt><dd><p>host name</p>
+</dd>
+<dt><strong>server_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>server context</p>
+</dd>
+<dt><strong>tap_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>tap context</p>
+</dd>
+<dt><strong>upload_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>upload context</p>
+</dd>
+<dt><strong>table_edit_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>context for all actions to be performed over a existing table</p>
+</dd>
+<dt><strong>data_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>data context</p>
+</dd>
+<dt><strong>datalink_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>datalink context</p>
+</dd>
+<dt><strong>port</strong><span class="classifier">int, optional, default ‘80’</span></dt><dd><p>HTTP port</p>
+</dd>
+<dt><strong>sslport</strong><span class="classifier">int, optional, default ‘443’</span></dt><dd><p>HTTPS port</p>
+</dd>
+<dt><strong>default_protocol_is_https</strong><span class="classifier">bool, optional, default False</span></dt><dd><p>Specifies whether the default protocol to be used is HTTPS</p>
+</dd>
+<dt><strong>connhandler</strong><span class="classifier">connection handler object, optional, default None</span></dt><dd><p>HTTP(s) connection hander (creator). If no handler is provided, a
+new one is created.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘True’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.GAIA_MESSAGES" title="astroquery.gaia.GaiaClass.GAIA_MESSAGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GAIA_MESSAGES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE" title="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAIN_GAIA_TABLE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_DEC" title="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_DEC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAIN_GAIA_TABLE_DEC</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_RA" title="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_RA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAIN_GAIA_TABLE_RA</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.ROW_LIMIT" title="astroquery.gaia.GaiaClass.ROW_LIMIT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROW_LIMIT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES" title="astroquery.gaia.GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VALID_DATALINK_RETRIEVAL_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.cone_search" title="astroquery.gaia.GaiaClass.cone_search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cone_search</span></code></a>(coordinate, *[, radius, ...])</p></td>
+<td><p>Cone search sorted by distance (sync.) TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.cone_search_async" title="astroquery.gaia.GaiaClass.cone_search_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cone_search_async</span></code></a>(coordinate, *[, radius, ...])</p></td>
+<td><p>Cone search sorted by distance (async) TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.correct_table_units" title="astroquery.gaia.GaiaClass.correct_table_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_table_units</span></code></a>(table)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.cross_match" title="astroquery.gaia.GaiaClass.cross_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_match</span></code></a>(*, full_qualified_table_name_a, ...)</p></td>
+<td><p>Performs a cross-match between the specified tables The result is a join table (stored in the user storage area) with the identifies of both tables and the distance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.get_datalinks" title="astroquery.gaia.GaiaClass.get_datalinks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datalinks</span></code></a>(ids, *[, verbose])</p></td>
+<td><p>Gets datalinks associated to the provided identifiers TAP+ only</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.get_status_messages" title="astroquery.gaia.GaiaClass.get_status_messages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_status_messages</span></code></a>()</p></td>
+<td><p>Retrieve the messages to inform users about the status of Gaia TAP</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.launch_job" title="astroquery.gaia.GaiaClass.launch_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_job</span></code></a>(query, *[, name, output_file, ...])</p></td>
+<td><p>Launches a synchronous job</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.launch_job_async" title="astroquery.gaia.GaiaClass.launch_job_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_job_async</span></code></a>(query, *[, name, ...])</p></td>
+<td><p>Launches an asynchronous job</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.load_data" title="astroquery.gaia.GaiaClass.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a>(ids, *[, data_release, ...])</p></td>
+<td><p>Loads the specified table TAP+ only</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.load_user" title="astroquery.gaia.GaiaClass.load_user"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_user</span></code></a>(user_id, *[, verbose])</p></td>
+<td><p>Loads the specified user TAP+ only</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.login" title="astroquery.gaia.GaiaClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>(*[, user, password, credentials_file, ...])</p></td>
+<td><p>Performs a login.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.login_gui" title="astroquery.gaia.GaiaClass.login_gui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login_gui</span></code></a>(*[, verbose])</p></td>
+<td><p>Performs a login using a GUI dialog</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.logout" title="astroquery.gaia.GaiaClass.logout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logout</span></code></a>(*[, verbose])</p></td>
+<td><p>Performs a logout</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.query_object" title="astroquery.gaia.GaiaClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>(coordinate, *[, radius, width, ...])</p></td>
+<td><p>Launches a job TAP &amp; TAP+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.gaia.GaiaClass.query_object_async" title="astroquery.gaia.GaiaClass.query_object_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object_async</span></code></a>(coordinate, *[, radius, ...])</p></td>
+<td><p>Launches a job (async) TAP &amp; TAP+</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.GAIA_MESSAGES">
+<span class="sig-name descname"><span class="pre">GAIA_MESSAGES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'notification?action=GetNotifications'</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.GAIA_MESSAGES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE">
+<span class="sig-name descname"><span class="pre">MAIN_GAIA_TABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_DEC">
+<span class="sig-name descname"><span class="pre">MAIN_GAIA_TABLE_DEC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dec'</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_DEC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_RA">
+<span class="sig-name descname"><span class="pre">MAIN_GAIA_TABLE_RA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ra'</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_RA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.ROW_LIMIT">
+<span class="sig-name descname"><span class="pre">ROW_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.ROW_LIMIT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES">
+<span class="sig-name descname"><span class="pre">VALID_DATALINK_RETRIEVAL_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['EPOCH_PHOTOMETRY',</span> <span class="pre">'XP_CONTINUOUS',</span> <span class="pre">'XP_SAMPLED',</span> <span class="pre">'RVS',</span> <span class="pre">'MCMC_GSPPHOT',</span> <span class="pre">'MCMC_MSC',</span> <span class="pre">'EPOCH_ASTROMETRY',</span> <span class="pre">'RV_EPOCH_SINGLE',</span> <span class="pre">'RV_EPOCH_DOUBLE',</span> <span class="pre">'RVS_EPOCH',</span> <span class="pre">'RVS_TRANSIT']</span></em><a class="headerlink" href="#astroquery.gaia.GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.cone_search">
+<span class="sig-name descname"><span class="pre">cone_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ra'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dec'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.cone_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.cone_search" title="Link to this definition">¶</a></dt>
+<dd><p>Cone search sorted by distance (sync.)
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinate, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units, mandatory</span></dt><dd><p>radius</p>
+</dd>
+<dt><strong>table_name</strong><span class="classifier">str, optional, default main gaia table name doing the cone search against</span></dt><dd></dd>
+<dt><strong>ra_column_name</strong><span class="classifier">str, optional, default ra column in main gaia table</span></dt><dd><p>ra column doing the cone search against</p>
+</dd>
+<dt><strong>dec_column_name</strong><span class="classifier">str, optional, default dec column in main gaia table</span></dt><dd><p>dec column doing the cone search against</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>columns: list, optional, default []</strong></dt><dd><p>if empty, all columns will be selected</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.cone_search_async">
+<span class="sig-name descname"><span class="pre">cone_search_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ra'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dec'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.cone_search_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.cone_search_async" title="Link to this definition">¶</a></dt>
+<dd><p>Cone search sorted by distance (async)
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinate, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units, mandatory</span></dt><dd><p>radius</p>
+</dd>
+<dt><strong>table_name</strong><span class="classifier">str, optional, default main gaia table name doing the cone search against</span></dt><dd></dd>
+<dt><strong>ra_column_name</strong><span class="classifier">str, optional, default ra column in main gaia table</span></dt><dd><p>ra column doing the cone search against</p>
+</dd>
+<dt><strong>dec_column_name</strong><span class="classifier">str, optional, default dec column in main gaia table</span></dt><dd><p>dec column doing the cone search against</p>
+</dd>
+<dt><strong>background</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>when the job is executed in asynchronous mode, this flag
+specifies whether
+the execution will wait until results are available</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.correct_table_units">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">correct_table_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.correct_table_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.correct_table_units" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.cross_match">
+<span class="sig-name descname"><span class="pre">cross_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_qualified_table_name_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_qualified_table_name_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.cross_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.cross_match" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a cross-match between the specified tables
+The result is a join table (stored in the user storage area)
+with the identifies of both tables and the distance.
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>full_qualified_table_name_a</strong><span class="classifier">str, mandatory</span></dt><dd><p>a full qualified table name (i.e. schema name and table name)</p>
+</dd>
+<dt><strong>full_qualified_table_name_b</strong><span class="classifier">str, mandatory</span></dt><dd><p>a full qualified table name (i.e. schema name and table name)</p>
+</dd>
+<dt><strong>results_table_name</strong><span class="classifier">str, mandatory</span></dt><dd><p>a table name without schema. The schema is set to the user one</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">float (arc. seconds), optional, default 1.0</span></dt><dd><p>radius  (valid range: 0.1-10.0)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Boolean indicating if the specified user is valid</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.get_datalinks">
+<span class="sig-name descname"><span class="pre">get_datalinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.get_datalinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.get_datalinks" title="Link to this definition">¶</a></dt>
+<dd><p>Gets datalinks associated to the provided identifiers
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ids</strong><span class="classifier">str list, mandatory</span></dt><dd><p>list of identifiers</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A table object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.get_status_messages">
+<span class="sig-name descname"><span class="pre">get_status_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.get_status_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.get_status_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the messages to inform users about
+the status of Gaia TAP</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.launch_job">
+<span class="sig-name descname"><span class="pre">launch_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.launch_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.launch_job" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a synchronous job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query to be executed</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>custom name defined by the user for the job that is going to be created</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><dl class="simple">
+<dt>results format. Available formats are: ‘votable’, ‘votable_plain’,</dt><dd><p>‘fits’, ‘csv’, ‘ecsv’ and ‘json’, default is ‘votable’.
+Returned results for ‘votable’ and ‘fits’ formats are compressed
+gzip files.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>upload_resource</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource to be uploaded to UPLOAD_SCHEMA</p>
+</dd>
+<dt><strong>upload_table_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource temporary table name associated to the uploaded resource.
+This argument is required if upload_resource is provided.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.launch_job_async">
+<span class="sig-name descname"><span class="pre">launch_job_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autorun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.launch_job_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.launch_job_async" title="Link to this definition">¶</a></dt>
+<dd><p>Launches an asynchronous job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query to be executed</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>custom name defined by the user for the job that is going to be created</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><dl class="simple">
+<dt>results format. Available formats are: ‘votable’, ‘votable_plain’,</dt><dd><p>‘fits’, ‘csv’ and ‘json’, default is ‘votable’.
+Returned results for ‘votable’ ‘ecsv’ and ‘fits’ format are compressed
+gzip files.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>background</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>when the job is executed in asynchronous mode, this flag specifies
+whether the execution will wait until results are available</p>
+</dd>
+<dt><strong>upload_resource</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource to be uploaded to UPLOAD_SCHEMA</p>
+</dd>
+<dt><strong>upload_table_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource temporary table name associated to the uploaded resource.
+This argument is required if upload_resource is provided.</p>
+</dd>
+<dt><strong>autorun</strong><span class="classifier">boolean, optional, default True</span></dt><dd><p>if ‘True’, sets ‘phase’ parameter to ‘RUN’,
+so the framework can start the job.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_release</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INDIVIDUAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieval_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linking_parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SOURCE_ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avoid_datatype_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.load_data" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the specified table
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ids</strong><span class="classifier">str list, mandatory</span></dt><dd><p>list of identifiers</p>
+</dd>
+<dt><strong>data_release: str, optional, default None</strong></dt><dd><p>data release from which data should be taken. E.g. ‘Gaia DR3’
+By default, it takes the current default one.</p>
+</dd>
+<dt><strong>data_structure: str, optional, default ‘INDIVIDUAL’</strong></dt><dd><p>it can be ‘INDIVIDUAL’, ‘COMBINED’, ‘RAW’:
+‘INDIVIDUAL’ means products are provided in separate files for each sourceId. All files are zipped
+in a single bundle, even if only one source/file is considered
+‘COMBINED’ means products are provided in a single file concatenating the data of all sourceIds together.
+How this is organised depends on the chosen format
+‘RAW’ means products are provided following a Data Model similar to that used in the MDB, meaning in
+particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single
+file is provided for the data of all sourceIds together, but in this case there will be always be one
+row per sourceId</p>
+</dd>
+<dt><strong>retrieval_type</strong><span class="classifier">str, optional, default ‘ALL’ to retrieve all data  from the list of sources</span></dt><dd><p>retrieval type identifier. For GAIA DR2 possible values are [‘EPOCH_PHOTOMETRY’]
+For GAIA DR3, possible values are [‘EPOCH_PHOTOMETRY’, ‘RVS’, ‘XP_CONTINUOUS’, ‘XP_SAMPLED’,
+‘MCMC_GSPPHOT’ or ‘MCMC_MSC’]
+For GAIA DR4, possible values will be [‘EPOCH_PHOTOMETRY’, ‘RVS’, ‘XP_CONTINUOUS’, ‘XP_SAMPLED’,
+‘MCMC_GSPPHOT’, ‘MCMC_MSC’, ‘EPOCH_ASTROMETRY’, ‘RV_EPOCH_SINGLE’, ‘RV_EPOCH_DOUBLE’, ‘RVS_EPOCH’ or
+‘RVS_TRANSIT’]</p>
+</dd>
+<dt><strong>linking_parameter</strong><span class="classifier">str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID</span></dt><dd><p>By default, all the identifiers are considered as source_id
+SOURCE_ID: the identifiers are considered as source_id
+TRANSIT_ID: the identifiers are considered as transit_id
+IMAGE_ID: the identifiers are considered as sif_observation_id</p>
+</dd>
+<dt><strong>valid_data</strong><span class="classifier">bool, optional, default False</span></dt><dd><p>By default, the epoch photometry service returns all available data, including
+data rows where flux is null and/or the rejected_by_photometry flag is set to True.
+In order to retrieve only valid data (data rows where flux is not null and/or the
+rejected_by_photometry flag is set to False) this request parameter should be included
+with valid_data=True.</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">str, optional, default None, valid values: G, BP, RP</span></dt><dd><p>By default, the epoch photometry service returns all the
+available photometry bands for the requested source.
+This parameter allows to filter the output lightcurve by its band.</p>
+</dd>
+<dt><strong>avoid_datatype_check: boolean, optional, default False.</strong></dt><dd><p>By default, this value will be set to False. If it is set to ‘true’
+the Datalink items tags will not be checked.</p>
+</dd>
+<dt><strong>format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>loading format. Other available formats are ‘csv’, ‘ecsv’,’json’,’votable_plain’ and ‘fits’</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">string, optional, default None</span></dt><dd><p>file where the results are saved.
+If it is not provided, the http response contents are returned.</p>
+</dd>
+<dt><strong>overwrite_output_file</strong><span class="classifier">boolean, optional, default False</span></dt><dd><p>To overwrite the output_file if it already exists.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A table object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.load_user">
+<span class="sig-name descname"><span class="pre">load_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.load_user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.load_user" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the specified user
+TAP+ only</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>user_id</strong><span class="classifier">str, mandatory</span></dt><dd><p>user id to load</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A user</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a login.
+User and password arguments can be used or a file that contains
+username and password
+(2 lines: one for username and the following one for the password).
+If no arguments are provided, a prompt asking for username and
+password will appear.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>user</strong><span class="classifier">str, default None</span></dt><dd><p>login name</p>
+</dd>
+<dt><strong>password</strong><span class="classifier">str, default None</span></dt><dd><p>user password</p>
+</dd>
+<dt><strong>credentials_file</strong><span class="classifier">str, default None</span></dt><dd><p>file containing user and password in two lines</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.login_gui">
+<span class="sig-name descname"><span class="pre">login_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.login_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.login_gui" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a login using a GUI dialog</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.logout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Performs a logout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.query_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a job
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinates, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units if no ‘width’/’height’ are provided</span></dt><dd><p>radius (deg)</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">astropy.units if no ‘radius’ is provided</span></dt><dd><p>box width</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">astropy.units if no ‘radius’ is provided</span></dt><dd><p>box height</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>columns: list, optional, default []</strong></dt><dd><p>if empty, all columns will be selected</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>The job results (astropy.table).</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.gaia.GaiaClass.query_object_async">
+<span class="sig-name descname"><span class="pre">query_object_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/gaia/core.html#GaiaClass.query_object_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.gaia.GaiaClass.query_object_async" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a job (async)
+TAP &amp; TAP+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinate</strong><span class="classifier">astropy.coordinates, mandatory</span></dt><dd><p>coordinates center point</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units if no ‘width’/’height’ are provided</span></dt><dd><p>radius</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">astropy.units if no ‘radius’ is provided</span></dt><dd><p>box width</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">astropy.units if no ‘radius’ is provided</span></dt><dd><p>box height</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>columns: list, optional, default []</strong></dt><dd><p>if empty, all columns will be selected</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>The job results (astropy.table).</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">GaiaClass</a><ul>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass"><code class="docutils literal notranslate"><span class="pre">GaiaClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.GAIA_MESSAGES"><code class="docutils literal notranslate"><span class="pre">GaiaClass.GAIA_MESSAGES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE"><code class="docutils literal notranslate"><span class="pre">GaiaClass.MAIN_GAIA_TABLE</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_DEC"><code class="docutils literal notranslate"><span class="pre">GaiaClass.MAIN_GAIA_TABLE_DEC</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.MAIN_GAIA_TABLE_RA"><code class="docutils literal notranslate"><span class="pre">GaiaClass.MAIN_GAIA_TABLE_RA</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.ROW_LIMIT"><code class="docutils literal notranslate"><span class="pre">GaiaClass.ROW_LIMIT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES"><code class="docutils literal notranslate"><span class="pre">GaiaClass.VALID_DATALINK_RETRIEVAL_TYPES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.cone_search"><code class="docutils literal notranslate"><span class="pre">GaiaClass.cone_search()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.cone_search_async"><code class="docutils literal notranslate"><span class="pre">GaiaClass.cone_search_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.correct_table_units"><code class="docutils literal notranslate"><span class="pre">GaiaClass.correct_table_units()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.cross_match"><code class="docutils literal notranslate"><span class="pre">GaiaClass.cross_match()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.get_datalinks"><code class="docutils literal notranslate"><span class="pre">GaiaClass.get_datalinks()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.get_status_messages"><code class="docutils literal notranslate"><span class="pre">GaiaClass.get_status_messages()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.launch_job"><code class="docutils literal notranslate"><span class="pre">GaiaClass.launch_job()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.launch_job_async"><code class="docutils literal notranslate"><span class="pre">GaiaClass.launch_job_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.load_data"><code class="docutils literal notranslate"><span class="pre">GaiaClass.load_data()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.load_user"><code class="docutils literal notranslate"><span class="pre">GaiaClass.load_user()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.login"><code class="docutils literal notranslate"><span class="pre">GaiaClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.login_gui"><code class="docutils literal notranslate"><span class="pre">GaiaClass.login_gui()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.logout"><code class="docutils literal notranslate"><span class="pre">GaiaClass.logout()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.query_object"><code class="docutils literal notranslate"><span class="pre">GaiaClass.query_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.gaia.GaiaClass.query_object_async"><code class="docutils literal notranslate"><span class="pre">GaiaClass.query_object_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.gaia.GaiaClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

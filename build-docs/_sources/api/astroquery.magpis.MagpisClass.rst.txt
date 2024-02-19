@@ -1,0 +1,37 @@
+MagpisClass
+===========
+
+.. currentmodule:: astroquery.magpis
+
+.. autoclass:: MagpisClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~MagpisClass.TIMEOUT
+      ~MagpisClass.URL
+      ~MagpisClass.maximsize
+      ~MagpisClass.surveys
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MagpisClass.get_images
+      ~MagpisClass.get_images_async
+      ~MagpisClass.list_surveys
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL
+   .. autoattribute:: maximsize
+   .. autoattribute:: surveys
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_images
+   .. automethod:: get_images_async
+   .. automethod:: list_surveys

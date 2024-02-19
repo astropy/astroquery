@@ -1,0 +1,19 @@
+Conf
+====
+
+.. currentmodule:: astroquery.ogle
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.server
+      ~Conf.timeout
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: server
+   .. autoattribute:: timeout

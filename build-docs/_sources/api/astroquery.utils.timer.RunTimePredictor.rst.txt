@@ -1,0 +1,33 @@
+RunTimePredictor
+================
+
+.. currentmodule:: astroquery.utils.timer
+
+.. autoclass:: RunTimePredictor
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~RunTimePredictor.results
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~RunTimePredictor.do_fit
+      ~RunTimePredictor.plot
+      ~RunTimePredictor.predict_time
+      ~RunTimePredictor.time_func
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: results
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: do_fit
+   .. automethod:: plot
+   .. automethod:: predict_time
+   .. automethod:: time_func

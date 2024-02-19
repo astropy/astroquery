@@ -1,0 +1,39 @@
+NistClass
+=========
+
+.. currentmodule:: astroquery.nist
+
+.. autoclass:: NistClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~NistClass.TIMEOUT
+      ~NistClass.URL
+      ~NistClass.energy_level_code
+      ~NistClass.order_out_code
+      ~NistClass.unit_code
+      ~NistClass.wavelength_unit_code
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NistClass.query
+      ~NistClass.query_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: URL
+   .. autoattribute:: energy_level_code
+   .. autoattribute:: order_out_code
+   .. autoattribute:: unit_code
+   .. autoattribute:: wavelength_unit_code
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query
+   .. automethod:: query_async

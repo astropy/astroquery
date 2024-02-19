@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OAC API Queries (astroquery.oac) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="OACClass" href="../api/astroquery.oac.OACClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.oac.OACClass.html" title="OACClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>OAC API Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.oac</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="oac-api-queries-astroquery-oac">
+<span id="astroquery-oac"></span><h1>OAC API Queries (<a class="reference internal" href="#module-astroquery.oac" title="astroquery.oac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.oac</span></code></a>)<a class="headerlink" href="#oac-api-queries-astroquery-oac" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>This module is designed to enable the full-functionality of the Open Astronomy
+Catalog REST API for easy access to data of supernovae, Tidal Disruption Events (TDEs)
+and kilonovae. Examples of API usage and available data products can be found
+at the <a class="reference external" href="https://github.com/astrocatalogs/OACAPI">OAC API Github Repository</a></p>
+</section>
+<section id="primary-methods">
+<h2>Primary Methods<a class="headerlink" href="#primary-methods" title="Link to this heading">¶</a></h2>
+<p>There are two primary methods for submitting API queries. The first is query_object
+which can be used to search the OAC based on an event name. Multiple events can
+be retrieved by submitting a list of event names.</p>
+<p>The default behavior returns a top-level list of all available metadata for the
+queried event(s).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.oac</span> <span class="kn">import</span> <span class="n">OAC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;GW170817&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The query can be further refined by using the available QUANTITY and ATTRIBUTE
+options. For example, to retrieve the light curve for an object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;GW170817&quot;</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;photometry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;e_magnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;instrument&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The results of a query can be further refined by using the ARGUMENT option</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;GW170817&quot;</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;photometry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;e_magnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;instrument&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                              <span class="n">argument</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;band=i&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The second method available is query_region which performs a cone or box
+search for a given set of coordinates. Coordinates can be submitted as an Astropy
+SkyCoord object or a list with [ra, dec] structure. Coordinates can be
+given in decimal degrees or sexigesimal units. The API can currently only query
+a single set of coordinates.</p>
+<p>For this example, we first establish coordinates and search parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.oac</span> <span class="kn">import</span> <span class="n">OAC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Sample coordinates. We are using GW170817.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ra</span> <span class="o">=</span> <span class="mf">197.45037</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dec</span> <span class="o">=</span> <span class="o">-</span><span class="mf">23.38148</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_coords</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">dec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_radius</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_height</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_width</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span>
+</pre></div>
+</div>
+<p>An example cone search:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">test_coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">test_radius</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;photometry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;e_magnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="s2">&quot;instrument&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>An example box search:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">test_coords</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">width</span><span class="o">=</span><span class="n">test_width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">test_height</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;photometry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                         <span class="s2">&quot;e_magnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="s2">&quot;instrument&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>As with the query_object method, searches using query_region can be refined
+using the QUANTITY, ATTRIBUTE, and ARGUMENT options. The complete list of
+available options can be found at the <a class="reference external" href="https://github.com/astrocatalogs/OACAPI">OAC API Github Repository</a></p>
+<p>The default behavior for both methods is to return an Astropy table object.
+Queries can also be returned as a JSON compliant dictionary using the
+data_format option.</p>
+</section>
+<section id="tailored-methods">
+<h2>Tailored Methods<a class="headerlink" href="#tailored-methods" title="Link to this heading">¶</a></h2>
+<p>There are three tailed search methods available to users to facilitate quick
+retrieval of common data products.</p>
+<p>The method get_photometry is designed to quickly return the photometry for a
+given event or list of events.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.oac</span> <span class="kn">import</span> <span class="n">OAC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">get_photometry</span><span class="p">(</span><span class="s2">&quot;SN2014J&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The search can be refined using only the argument features of
+query_object. More complex queries should use the base query_object method.</p>
+<p>For example, to retrieve only R-band photometry:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photometry</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">get_photometry</span><span class="p">(</span><span class="s2">&quot;SN2014J&quot;</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;band=R&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is an Astropy table.</p>
+<p>The method get_single_spectrum is designed to retrieve a single spectrum for a
+single object at a specified time. The time should be given in MJD, but does
+not have to be exact. The query will return the spectrum that is closest in time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.oac</span> <span class="kn">import</span> <span class="n">OAC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_time</span> <span class="o">=</span> <span class="mi">57740</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">get_single_spectrum</span><span class="p">(</span><span class="s2">&quot;GW170817&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">test_time</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is an Astropy table.</p>
+<p>The method get_spectra is designed to return all available spectra for an event
+or list of events.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.oac</span> <span class="kn">import</span> <span class="n">OAC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spectra</span> <span class="o">=</span> <span class="n">OAC</span><span class="o">.</span><span class="n">get_spectra</span><span class="p">(</span><span class="s2">&quot;SN2014J&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the query must return a JSON-compliant dictionary which will
+have nested lists of MJD and [wavelength, flux] pairs. Multiple spectra
+can not be unwrapped into an Astropy table.</p>
+<p>The basic dictionary structure is:</p>
+<p>{“event_name” : {“spectra” : [mjd_0, [[wavelength_0, flux_0], … ,
+[wavelength_n, flux_n]]], … , [mjd_m, [[wavelength_0, flux_0], … ,
+[wavelength_n, flux_n]]]}}</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.oac">
+<span id="astroquery-oac-package"></span><h3>astroquery.oac Package<a class="headerlink" href="#module-astroquery.oac" title="Link to this heading">¶</a></h3>
+<section id="open-astronomy-catalog-oac-api-tool">
+<h4>OPEN ASTRONOMY CATALOG (OAC) API TOOL<a class="headerlink" href="#open-astronomy-catalog-oac-api-tool" title="Link to this heading">¶</a></h4>
+<p>This module allows access to the OAC API and
+all available functionality. For more information
+see: <a class="reference external" href="https://api.astrocats.space">https://api.astrocats.space</a>.
+:authors: Philip S. Cowperthwaite (<a class="reference external" href="mailto:pcowpert&#37;&#52;&#48;cfa&#46;harvard&#46;edu">pcowpert<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)
+and James Guillochon (<a class="reference external" href="mailto:jguillochon&#37;&#52;&#48;cfa&#46;harvard&#46;edu">jguillochon<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.oac.OACClass.html#astroquery.oac.OACClass" title="astroquery.oac.OACClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OACClass</span></code></a>()</p></td>
+<td><p>OAC class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.oac.Conf.html#astroquery.oac.Conf" title="astroquery.oac.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.oac" title="astroquery.oac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.oac</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">OAC API Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.oac</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#primary-methods">Primary Methods</a></li>
+<li><a class="reference internal" href="#tailored-methods">Tailored Methods</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.oac">astroquery.oac Package</a><ul>
+<li><a class="reference internal" href="#open-astronomy-catalog-oac-api-tool">OPEN ASTRONOMY CATALOG (OAC) API TOOL</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/oac/oac.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

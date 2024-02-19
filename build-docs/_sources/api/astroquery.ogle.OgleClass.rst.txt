@@ -1,0 +1,39 @@
+OgleClass
+=========
+
+.. currentmodule:: astroquery.ogle
+
+.. autoclass:: OgleClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~OgleClass.DATA_URL
+      ~OgleClass.TIMEOUT
+      ~OgleClass.algorithms
+      ~OgleClass.coord_systems
+      ~OgleClass.quality_codes
+      ~OgleClass.result_dtypes
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~OgleClass.query_region
+      ~OgleClass.query_region_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: DATA_URL
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: algorithms
+   .. autoattribute:: coord_systems
+   .. autoattribute:: quality_codes
+   .. autoattribute:: result_dtypes
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query_region
+   .. automethod:: query_region_async

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Astrometry.net plate solutions (astroquery.astrometry_net) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AstrometryNetClass" href="../api/astroquery.astrometry_net.AstrometryNetClass.html" />
+    <link rel="prev" title="BaseWFAUClass" href="../api/astroquery.wfau.BaseWFAUClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.astrometry_net.AstrometryNetClass.html" title="AstrometryNetClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.wfau.BaseWFAUClass.html" title="BaseWFAUClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Astrometry.net plate solutions (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="astrometry-net-plate-solutions-astroquery-astrometry-net">
+<span id="astroquery-astrometry-net"></span><h1>Astrometry.net plate solutions (<a class="reference internal" href="#module-astroquery.astrometry_net" title="astroquery.astrometry_net"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code></a>)<a class="headerlink" href="#astrometry-net-plate-solutions-astroquery-astrometry-net" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>The module <a class="reference internal" href="#module-astroquery.astrometry_net" title="astroquery.astrometry_net"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code></a> provides the astroquery interface to
+the <a class="reference external" href="https://astrometry.net/">astrometry.net</a> plate solving service. Given a list of known sources in
+an image and their fluxes or an image, <a class="reference external" href="https://astrometry.net/">astrometry.net</a> matches the image to
+the sky and constructs a WCS solution.</p>
+<p>To use <a class="reference internal" href="#module-astroquery.astrometry_net" title="astroquery.astrometry_net"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code></a> you will need to set up an account at
+<a class="reference external" href="https://astrometry.net/">astrometry.net</a> and get your API key. The API key is available under your
+profile at <a class="reference external" href="https://astrometry.net/">astrometry.net</a> when you are logged in.</p>
+<section id="setting-api-key-for-astroquery-astrometry-net">
+<h3>Setting API key for astroquery.astrometry_net<a class="headerlink" href="#setting-api-key-for-astroquery-astrometry-net" title="Link to this heading">¶</a></h3>
+<section id="adding-api-key-to-astroquery-cfg">
+<h4>Adding API key to astroquery.cfg<a class="headerlink" href="#adding-api-key-to-astroquery-cfg" title="Link to this heading">¶</a></h4>
+<ol class="arabic simple">
+<li><p>Go to <a class="reference external" href="https://nova.astrometry.net">https://nova.astrometry.net</a> and sign in.</p></li>
+<li><p>Copy your API key</p></li>
+<li><p>Add the following to your config file located at <code class="docutils literal notranslate"><span class="pre">$HOME/.astropy/config/astroquery.cfg</span></code></p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">astrometry_net</span><span class="p">]</span>
+
+<span class="c1">## The Astrometry.net API key.</span>
+<span class="n">api_key</span> <span class="o">=</span>
+
+<span class="c1">## Name of server</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">nova</span><span class="o">.</span><span class="n">astrometry</span><span class="o">.</span><span class="n">net</span>
+
+<span class="c1">## Default timeout for connecting to server</span>
+<span class="n">timeout</span> <span class="o">=</span> <span class="mi">120</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Add your API key to the config file!</p></li>
+</ol>
+<p>For more information about <a class="reference external" href="https://docs.astropy.org/en/latest/config/ref_api.html#module-astropy.config" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.config</span></code></a>, see: <a class="reference external" href="https://docs.astropy.org/en/stable/config/index.html">https://docs.astropy.org/en/stable/config/index.html</a></p>
+</section>
+<section id="using-keyring-to-store-api-key">
+<h4>Using keyring to store API key<a class="headerlink" href="#using-keyring-to-store-api-key" title="Link to this heading">¶</a></h4>
+<p>You can use the <a class="reference external" href="https://pypi.python.org/pypi/keyring">keyring</a> module to store your API key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">keyring</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keyring</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="s1">&#39;astroquery:astrometry_net&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;apikeyhere&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you have multiple users and keys you can change <code class="docutils literal notranslate"><span class="pre">None</span></code> to another name to assign usernames to different keys.</p>
+<p>Now you can include the <a class="reference external" href="https://pypi.python.org/pypi/keyring">keyring</a> module to set your API key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">keyring</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.astrometry_net</span> <span class="kn">import</span> <span class="n">AstrometryNet</span>
+<span class="go">WARNING: Astrometry.net API key not found in configuration file [astroquery.astrometry_net.core]</span>
+<span class="go">WARNING: You need to manually edit the configuration file and add it [astroquery.astrometry_net.core]</span>
+<span class="go">WARNING: You may also register it for this session with AstrometryNet.key = &#39;XXXXXXXX&#39; [astroquery.astrometry_net.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast</span> <span class="o">=</span> <span class="n">AstrometryNet</span><span class="p">()</span>
+<span class="go">WARNING: Astrometry.net API key not found in configuration file [astroquery.astrometry_net.core]</span>
+<span class="go">WARNING: You need to manually edit the configuration file and add it [astroquery.astrometry_net.core]</span>
+<span class="go">WARNING: You may also register it for this session with AstrometryNet.key = &#39;XXXXXXXX&#39; [astroquery.astrometry_net.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">keyring</span><span class="o">.</span><span class="n">get_password</span><span class="p">(</span><span class="s1">&#39;astroquery:astrometry_net&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For multiple users, replace the empty argument with the desired username.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">keyring</span><span class="o">.</span><span class="n">get_password</span><span class="p">(</span><span class="s1">&#39;astroquery:astrometry_net&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be aware that some information you submit to <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is publicly
+available even if the raw image isn’t. For example, the log of each job
+is accessible if one knows the job id regardless of the permissions set
+for the image. The log will contain the RA/Dec of the solution.</p>
+<p>For publicly viewable images  or source lists <a class="reference external" href="https://astrometry.net/">astrometry.net</a> includes
+links to download the FITS files for the image.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="solving-from-a-list-of-sources">
+<h2>Solving from a list of sources<a class="headerlink" href="#solving-from-a-list-of-sources" title="Link to this heading">¶</a></h2>
+<p>The most efficient way to use <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is to pass it a list of
+sources in an image instead of uploading the entire image. The data can  be in
+an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a>, pandas data frame or something other structure.</p>
+<p>The only important requirement is that <strong>the list must be sorted by flux in
+descending order</strong>.</p>
+<p>In the example below, assume that <code class="docutils literal notranslate"><span class="pre">catalog.fits</span></code> is a table of pixel positions
+(columns <code class="docutils literal notranslate"><span class="pre">X_IMAGE</span></code> and <code class="docutils literal notranslate"><span class="pre">Y_IMAGE</span></code>) and flux (column <code class="docutils literal notranslate"><span class="pre">FLUX</span></code>) and perhaps
+other columns, and that the image is 3073 by 2048 pixels.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">solve_timeout</span></code> used below is the time, in seconds, to allow the
+<a class="reference external" href="https://astrometry.net/">astrometry.net</a> server to find a solution. It typically makes sense for this
+to be a longer time than the timeout set in
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT" title="astroquery.astrometry_net.AstrometryNetClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net.AstrometryNetClass.TIMEOUT</span></code></a>, which is intended to
+act primarily as a timeout for network transactions.</p>
+<p>TODO: Insert link to an actual catalog</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astroquery.astrometry_net</span> <span class="kn">import</span> <span class="n">AstrometryNet</span>
+
+<span class="n">ast</span> <span class="o">=</span> <span class="n">AstrometryNet</span><span class="p">()</span>
+<span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="s1">&#39;XXXXXXXXXXXXXXXX&#39;</span>
+
+<span class="n">sources</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;catalog.fits&#39;</span><span class="p">)</span>
+<span class="c1"># Sort sources in ascending order</span>
+<span class="n">sources</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;FLUX&#39;</span><span class="p">)</span>
+<span class="c1"># Reverse to get descending order</span>
+<span class="n">sources</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+<span class="n">image_width</span> <span class="o">=</span> <span class="mi">3073</span>
+<span class="n">image_height</span> <span class="o">=</span> <span class="mi">2048</span>
+<span class="n">wcs_header</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">solve_from_source_list</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;X_IMAGE&#39;</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;Y_IMAGE&#39;</span><span class="p">],</span>
+                                        <span class="n">image_width</span><span class="p">,</span> <span class="n">image_height</span><span class="p">,</span>
+                                        <span class="n">solve_timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is able to find a solution it is returned as an
+<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code></a>. If it is unable to find a solution an empty
+dictionary is returned instead. For more details, see
+<a class="reference internal" href="#handling-results"><span class="std std-ref">Testing for success, failure and time outs</span></a>.</p>
+</section>
+<section id="solving-from-an-image">
+<h2>Solving from an image<a class="headerlink" href="#solving-from-an-image" title="Link to this heading">¶</a></h2>
+<p>There are two ways to get a solution from an image:</p>
+<ol class="arabic simple">
+<li><p>Detect sources in the image and upload the source list to get the plate solution.</p></li>
+<li><p>Upload the image entire image. <a class="reference external" href="https://astrometry.net/">astrometry.net</a> will detect sources and attempt to determine a solution.</p></li>
+</ol>
+<p>In both cases, use
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net.AstrometryNetClass.solve_from_image</span></code></a>.</p>
+<p>There are a few settings common to both cases that make it convenient
+to use pointing information from the FITS header of the image:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">ra_key</span></code></dt><dd><p>Name of the key in the FITS header that contains the RA.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dec_key</span></code></dt><dd><p>Name of the key in the FITS header that contains the RA.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ra_dec_units</span></code></dt><dd><p>Tuple specifying the units of the right ascension and declination in
+the header. The default value is <code class="docutils literal notranslate"><span class="pre">('hour',</span> <span class="pre">'degree')</span></code>.</p>
+</dd>
+</dl>
+<section id="detect-sources-and-upload-source-list">
+<h3>Detect sources and upload source list<a class="headerlink" href="#detect-sources-and-upload-source-list" title="Link to this heading">¶</a></h3>
+<p>To use this method you must have the package <a class="reference external" href="https://photutils.readthedocs.io">photutils</a> installed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astroquery.astrometry_net</span> <span class="kn">import</span> <span class="n">AstrometryNet</span>
+
+<span class="n">ast</span> <span class="o">=</span> <span class="n">AstrometryNet</span><span class="p">()</span>
+<span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="s1">&#39;XXXXXXXXXXXXXXXX&#39;</span>
+
+<span class="n">wcs_header</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">solve_from_image</span><span class="p">(</span><span class="s1">&#39;/path/to/image.fit&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There are a few settings specific to this case:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">FWHM</span></code></dt><dd><p>The rough full-width half-max of stars in the image, in pixels.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">detect_threshold</span></code></dt><dd><p>The number of standard deviations above background a source needs
+to be to count as a detection.</p>
+</dd>
+</dl>
+<p>For more options see <a class="reference internal" href="#common-settings"><span class="std std-ref">Settings common to all solve methods</span></a>.</p>
+<p>If <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is able to find a solution it is returned as an
+<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code></a>. If it is unable to find a solution an empty
+dictionary is returned instead. For more details, see
+<a class="reference internal" href="#handling-results"><span class="std std-ref">Testing for success, failure and time outs</span></a>.</p>
+</section>
+<section id="upload-image">
+<h3>Upload image<a class="headerlink" href="#upload-image" title="Link to this heading">¶</a></h3>
+<p>Keep in mind that uploading an image requires transferring roughly 10,000 times
+the data as uploading a source list. It would almost certainly take less time to
+find the sources in your image locally and upload that source list than it would
+to upload the image.</p>
+<p>The image will be uploaded under two circumstances. You call
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_image</span></code></a> and either</p>
+<ul class="simple">
+<li><p>do not have <a class="reference external" href="https://photutils.readthedocs.io">photutils</a> installed, or</p></li>
+<li><p>set <code class="docutils literal notranslate"><span class="pre">force_image_upload=True</span></code>.</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astroquery.astrometry_net</span> <span class="kn">import</span> <span class="n">AstrometryNet</span>
+
+<span class="n">ast</span> <span class="o">=</span> <span class="n">AstrometryNet</span><span class="p">()</span>
+<span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="s1">&#39;XXXXXXXXXXXXXXXX&#39;</span>
+
+<span class="n">wcs_header</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">solve_from_image</span><span class="p">(</span><span class="s1">&#39;/path/to/image.fit&#39;</span><span class="p">,</span> <span class="n">force_image_upload</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is able to find a solution it is returned as an
+<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code></a>. If it is unable to find a solution an empty
+dictionary is returned instead. For more details, see
+<a class="reference internal" href="#handling-results"><span class="std std-ref">Testing for success, failure and time outs</span></a>.</p>
+</section>
+</section>
+<section id="testing-for-success-failure-and-time-outs">
+<span id="handling-results"></span><h2>Testing for success, failure and time outs<a class="headerlink" href="#testing-for-success-failure-and-time-outs" title="Link to this heading">¶</a></h2>
+<p>There are three outcomes from a call to either
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_source_list</span></code></a> or
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_image</span></code></a>.</p>
+<ul class="simple">
+<li><p>The solve succeeds: the return value is an
+<a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/headers.html#astropy.io.fits.Header" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code></a> generated by <a class="reference external" href="https://astrometry.net/">astrometry.net</a> whose content
+is the WCS solution.</p></li>
+<li><p>The solve fails: the return value is an empty dictionary.</p></li>
+<li><p>The solve neither succeeds nor fails before it times out: A
+<code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code> is raised. This
+does <em>not</em> mean the job has failed. It simply means the solve did not
+complete in the time allowed by the <code class="docutils literal notranslate"><span class="pre">solve_timeout</span></code> argument, whose
+default value is
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.TIMEOUT" title="astroquery.astrometry_net.AstrometryNetClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net.AstrometryNetClass.TIMEOUT</span></code></a>. In this case
+it often makes sense to recheck the submission.</p></li>
+</ul>
+<p>Code to handle these cases looks something like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astroquery.astrometry_net</span> <span class="kn">import</span> <span class="n">AstrometryNet</span>
+
+<span class="n">ast</span> <span class="o">=</span> <span class="n">AstrometryNet</span><span class="p">()</span>
+<span class="n">ast</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="s1">&#39;XXXXXXXXXXXXXXXX&#39;</span>
+
+<span class="n">try_again</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">submission_id</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">while</span> <span class="n">try_again</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">submission_id</span><span class="p">:</span>
+            <span class="n">wcs_header</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">solve_from_image</span><span class="p">(</span><span class="s1">&#39;/path/to/image.fit&#39;</span><span class="p">,</span>
+                                              <span class="n">submission_id</span><span class="o">=</span><span class="n">submission_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wcs_header</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">monitor_submission</span><span class="p">(</span><span class="n">submission_id</span><span class="p">,</span>
+                                                <span class="n">solve_timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TimeoutError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">submission_id</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># got a result, so terminate</span>
+        <span class="n">try_again</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">wcs_header</span><span class="p">:</span>
+    <span class="c1"># Code to execute when solve succeeds</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Code to execute when solve fails</span>
+</pre></div>
+</div>
+</section>
+<section id="settings-common-to-all-solve-methods">
+<span id="common-settings"></span><h2>Settings common to all solve methods<a class="headerlink" href="#settings-common-to-all-solve-methods" title="Link to this heading">¶</a></h2>
+<p>In order to speed up the astrometric solution it is possible to pass a
+dictionary of  settings to
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_source_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_source_list</span></code></a> or
+<a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass.solve_from_image" title="astroquery.astrometry_net.AstrometryNetClass.solve_from_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_from_image</span></code></a>. If no
+settings are passed to the build function then a set of default parameters
+will be used, although this will increase the time it takes astrometry.net to
+generate a solution. It is recommended to at least set the bounds of the pixel
+scale to a reasonable value.</p>
+<p>Most of the following descriptions are taken directly from
+<a class="reference external" href="https://astrometry.net/">astrometry.net</a>.</p>
+<section id="scale">
+<h3>Scale<a class="headerlink" href="#scale" title="Link to this heading">¶</a></h3>
+<p>It is important to set the pixel scale of the image as accurate as possible to increase the
+speed of astrometry.net. From astrometry.net: “Most digital-camera images are at least 10
+degrees wide; most professional-grade telescopes are narrower than 2 degrees.”</p>
+<p>Several parameters are available to set the pixel scale.</p>
+<blockquote>
+<div><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">scale_units</span></code></dt><dd><ul class="simple">
+<li><p>Units used by pixel scale variables</p></li>
+<li><dl class="simple">
+<dt>Possible values:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">arcsecperpix</span></code>: arcseconds per pixel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arcminwidth</span></code>: width of the field (in arcminutes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">degwidth</span></code>:width of the field (in degrees)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">focalmm</span></code>: focal length of the lens (for 35mm film equivalent sensor)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">scale_type</span></code></dt><dd><ul class="simple">
+<li><p>Type of scale used</p></li>
+<li><dl class="simple">
+<dt>Possible values:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ul</span></code>: Set upper and lower bounds. If <code class="docutils literal notranslate"><span class="pre">scale_type='ul'</span></code> the parameters
+<code class="docutils literal notranslate"><span class="pre">scale_upper</span></code> and <code class="docutils literal notranslate"><span class="pre">scale_lower</span></code> must be set to the upper and lower bounds
+of the pixel scale respectively</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ev</span></code>: Set the estimated value with a given error. If <code class="docutils literal notranslate"><span class="pre">scale_type='ev'</span></code> the
+parameters <code class="docutils literal notranslate"><span class="pre">scale_est</span></code> and <code class="docutils literal notranslate"><span class="pre">scale_err</span></code> must be set to the estiimated value
+(in pix) and error (percentage) of the pixel scale.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="parity">
+<h3>Parity<a class="headerlink" href="#parity" title="Link to this heading">¶</a></h3>
+<p>Flipping an image reverses its “parity”. If you point a digital camera at the sky and
+submit the JPEG, it probably has negative parity. If you have a FITS image, it probably
+has positive parity. Selecting the right parity will make the solving process run faster,
+but if in doubt just try both. <code class="docutils literal notranslate"><span class="pre">parity</span></code> can be set to the following values:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: positive parity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: negative parity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: try both</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="star-positional-error">
+<h3>Star Positional Error<a class="headerlink" href="#star-positional-error" title="Link to this heading">¶</a></h3>
+<p>When we find a matching “landmark”, we check to see how many of the stars in your field
+match up with stars we know about. To do this, we need to know how much a star in your
+field could have moved from where it should be.</p>
+<p>The unit for positional error is in pixels and is set by the key <code class="docutils literal notranslate"><span class="pre">positional_error</span></code>.</p>
+</section>
+<section id="limits">
+<h3>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h3>
+<p>In order to narrow down our search, you can supply a field center along with a radius.
+We will only search in indexes which fall within this area.</p>
+<dl class="simple">
+<dt>To set limits use all of the following parameters:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">center_ra</span></code>: center RA of the field (in degrees)
+<code class="docutils literal notranslate"><span class="pre">center_dec</span></code>: center DEC of the field (in degrees)
+<code class="docutils literal notranslate"><span class="pre">radius</span></code>: how far the actual RA and DEC might be from the estimated values (in degrees)</p>
+</dd>
+</dl>
+</section>
+<section id="tweak">
+<h3>Tweak<a class="headerlink" href="#tweak" title="Link to this heading">¶</a></h3>
+<p>By default we try to compute a SIP polynomial distortion correction with order 2.
+You can disable this by changing the order to 0, or change the polynomial order by setting
+<code class="docutils literal notranslate"><span class="pre">tweak_order</span></code>.</p>
+</section>
+<section id="crpix-center">
+<h3>CRPIX Center<a class="headerlink" href="#crpix-center" title="Link to this heading">¶</a></h3>
+<p>By default the reference point (CRPIX) of the WCS we compute can be anywhere in your image,
+but often it’s convenient to force it to be the center of the image. This can be set by choosing
+<code class="docutils literal notranslate"><span class="pre">crpix_center=True</span></code>.</p>
+</section>
+<section id="license-and-sharing">
+<h3>License and Sharing<a class="headerlink" href="#license-and-sharing" title="Link to this heading">¶</a></h3>
+<p>The Astrometry.net [website](<a class="reference external" href="https://nova.astrometry.net/">https://nova.astrometry.net/</a>) allows users to upload images
+as well as catalogs to be used in generating an astrometric solution, so the site gives
+users the choice of licenses for their publically available images. Since the astroquery
+astrometry.net api is only uploading a source catalog the choice of <code class="docutils literal notranslate"><span class="pre">public_visibility</span></code>,
+<code class="docutils literal notranslate"><span class="pre">allow_commercial_use</span></code>, and <code class="docutils literal notranslate"><span class="pre">allow_modifications</span></code> are not really relevant and can be left
+to their defaults, although their settings are described below</p>
+<section id="visibility">
+<h4>Visibility<a class="headerlink" href="#visibility" title="Link to this heading">¶</a></h4>
+<p>By default all images/source lists uploaded are publicly available. To change this use the setting
+<code class="docutils literal notranslate"><span class="pre">publicly_visible='n'</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be aware that some information you submit to <a class="reference external" href="https://astrometry.net/">astrometry.net</a> is publicly
+available even if the raw image isn’t. For example, the log of each job
+is accessible if one knows the job id regardless of the permissions set
+for the image. The log will contain the RA/Dec of the solution.</p>
+<p>For publicly viewable images <a class="reference external" href="https://astrometry.net/">astrometry.net</a> includes links to download
+the FITS files for the image.</p>
+</div>
+</section>
+<section id="license">
+<h4>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>There are two parameters that describe setting a license:</dt><dd><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">allow_commercial_use</span></code>:</dt><dd><p>Chooses whether or not an image uploaded to astrometry.net is licensed
+for commercial use. This can either be set to <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code>, or <code class="docutils literal notranslate"><span class="pre">d</span></code>, which
+uses the default license associated with the api key.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">allow_modifications</span></code>:</dt><dd><p>Whether or not images uploaded to astrometry.net are allowed to be modified by
+other users. This can either be set to <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code>, or <code class="docutils literal notranslate"><span class="pre">d</span></code>, which
+uses the default license associated with the api key.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.astrometry_net">
+<span id="astroquery-astrometry-net-package"></span><h3>astroquery.astrometry_net Package<a class="headerlink" href="#module-astroquery.astrometry_net" title="Link to this heading">¶</a></h3>
+<section id="astrometry-net">
+<h4>astrometry.net<a class="headerlink" href="#astrometry-net" title="Link to this heading">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Matt Craig (&lt;<a class="reference external" href="mailto:mattwcraig&#37;&#52;&#48;gmail&#46;com">mattwcraig<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;)</p>
+</dd>
+</dl>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.astrometry_net.AstrometryNetClass.html#astroquery.astrometry_net.AstrometryNetClass" title="astroquery.astrometry_net.AstrometryNetClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AstrometryNetClass</span></code></a>()</p></td>
+<td><p>Perform queries to the astrometry.net service to fit WCS to images or source lists.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Astrometry.net plate solutions (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.astrometry_net</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#setting-api-key-for-astroquery-astrometry-net">Setting API key for astroquery.astrometry_net</a><ul>
+<li><a class="reference internal" href="#adding-api-key-to-astroquery-cfg">Adding API key to astroquery.cfg</a></li>
+<li><a class="reference internal" href="#using-keyring-to-store-api-key">Using keyring to store API key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#solving-from-a-list-of-sources">Solving from a list of sources</a></li>
+<li><a class="reference internal" href="#solving-from-an-image">Solving from an image</a><ul>
+<li><a class="reference internal" href="#detect-sources-and-upload-source-list">Detect sources and upload source list</a></li>
+<li><a class="reference internal" href="#upload-image">Upload image</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-for-success-failure-and-time-outs">Testing for success, failure and time outs</a></li>
+<li><a class="reference internal" href="#settings-common-to-all-solve-methods">Settings common to all solve methods</a><ul>
+<li><a class="reference internal" href="#scale">Scale</a></li>
+<li><a class="reference internal" href="#parity">Parity</a></li>
+<li><a class="reference internal" href="#star-positional-error">Star Positional Error</a></li>
+<li><a class="reference internal" href="#limits">Limits</a></li>
+<li><a class="reference internal" href="#tweak">Tweak</a></li>
+<li><a class="reference internal" href="#crpix-center">CRPIX Center</a></li>
+<li><a class="reference internal" href="#license-and-sharing">License and Sharing</a><ul>
+<li><a class="reference internal" href="#visibility">Visibility</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.astrometry_net">astroquery.astrometry_net Package</a><ul>
+<li><a class="reference internal" href="#astrometry-net">astrometry.net</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/astrometry_net/astrometry_net.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

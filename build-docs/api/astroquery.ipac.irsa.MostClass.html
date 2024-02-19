@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MostClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.ipac.irsa.Conf.html" />
+    <link rel="prev" title="IrsaClass" href="astroquery.ipac.irsa.IrsaClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.ipac.irsa.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.ipac.irsa.IrsaClass.html" title="IrsaClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../ipac/irsa/irsa.html" accesskey="U">IRSA Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.irsa</span></code>)</a> &#187;</li>
+      
+      <li>MostClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mostclass">
+<h1>MostClass<a class="headerlink" href="#mostclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.ipac.irsa.</span></span><span class="sig-name descname"><span class="pre">MostClass</span></span><a class="reference internal" href="../_modules/astroquery/ipac/irsa/most.html#MostClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.irsa.MostClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.TIMEOUT" title="astroquery.ipac.irsa.MostClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.URL" title="astroquery.ipac.irsa.MostClass.URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.get_images" title="astroquery.ipac.irsa.MostClass.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a>([catalog, input_mode, ...])</p></td>
+<td><p>Gets images containing the specified object or orbit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.list_catalogs" title="astroquery.ipac.irsa.MostClass.list_catalogs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_catalogs</span></code></a>()</p></td>
+<td><p>Returns a list of queriable catalogs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.query_object" title="astroquery.ipac.irsa.MostClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>([catalog, input_mode, ...])</p></td>
+<td><p>Query the MOST interface using specified parameters and/or default query values.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.ipac.irsa.MostClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://irsa.ipac.caltech.edu/cgi-bin/MOST/nph-most'</span></em><a class="headerlink" href="#astroquery.ipac.irsa.MostClass.URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass.get_images">
+<span class="sig-name descname"><span class="pre">get_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wise_merge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'name_input'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ephem_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_begin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_nafid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpc_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_designation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eccentricity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_perihelion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascend_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semimajor_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_anomaly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perih_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perih_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savedir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/irsa/most.html#MostClass.get_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.irsa.MostClass.get_images" title="Link to this definition">¶</a></dt>
+<dd><p>Gets images containing the specified object or orbit.</p>
+<p>Parameters are case sensitive.
+See module help for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str</span></dt><dd><p>Catalog to query.
+Required.
+Default <code class="docutils literal notranslate"><span class="pre">&quot;wise_merge&quot;</span></code>.</p>
+</dd>
+<dt><strong>input_mode</strong><span class="classifier">str</span></dt><dd><p>Input mode. One of <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;naifid_input&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.
+Required.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>ephem_step</strong><span class="classifier">0.25,</span></dt><dd><p>Size of the steps (in days) at which the object ephemeris is evaluated.
+Required.
+Default: 0.25</p>
+</dd>
+<dt><strong>obs_begin</strong><span class="classifier">str or None</span></dt><dd><p>UTC of the start of observations in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>. When <code class="docutils literal notranslate"><span class="pre">None</span></code>
+queries all availible data in the catalog which can be slow.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt><strong>obs_end</strong><span class="classifier">str or None</span></dt><dd><p>UTC of the end of observations in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>. When <code class="docutils literal notranslate"><span class="pre">None</span></code>
+queries all availible data in the catalog, can be slow.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt><strong>obj_name</strong><span class="classifier">str or None</span></dt><dd><p>Object name.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>obj_nafid</strong><span class="classifier">str or None</span></dt><dd><p>Object NAIFD.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;naifid_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>obj_type</strong><span class="classifier">str or None</span></dt><dd><p>Object type, <code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">Comet</span></code>.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>mpc_data</strong><span class="classifier">str or None</span></dt><dd><p>MPC formatted object string.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>body_designation</strong><span class="classifier">str or None</span></dt><dd><p>Name of the object described by the given orbital parameters. Does
+not have to be a real name. Will default to <code class="docutils literal notranslate"><span class="pre">&quot;TestAsteroid&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;TestComet&quot;</span></code> depending on selected object type.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>epoch</strong><span class="classifier">str or None</span></dt><dd><p>Epoch in MJD.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>eccentricity</strong><span class="classifier">float or None</span></dt><dd><p>Eccentricity (0-1).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>inclination</strong><span class="classifier">float or None</span></dt><dd><p>Inclination (0-180 degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>arg_perihelion</strong><span class="classifier">str or None</span></dt><dd><p>Argument of perihelion (0-360 degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>ascend_node</strong><span class="classifier">float or None</span></dt><dd><p>Longitude of the ascending node (0-360).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>semimajor_axis</strong><span class="classifier">float or None</span></dt><dd><p>Semimajor axis (AU).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code>.</p>
+</dd>
+<dt><strong>mean_anomaly</strong><span class="classifier">str or None</span></dt><dd><p>Mean anomaly (degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code>.</p>
+</dd>
+<dt><strong>perih_dist</strong><span class="classifier">float or None</span></dt><dd><p>Perihelion distance (AU).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Comet&quot;</span></code>.</p>
+</dd>
+<dt><strong>perih_time</strong><span class="classifier">str or None</span></dt><dd><p>Perihelion time (YYYY+MM+DD+HH:MM:SS).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Comet&quot;</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool</span></dt><dd><p>Return the query parameters as a dictionary. Useful for debugging.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>save</strong><span class="classifier">bool</span></dt><dd><p>Whether to save the file to a local directory.</p>
+</dd>
+<dt><strong>savedir</strong><span class="classifier">str</span></dt><dd><p>The location to save the local file if you want to save it
+somewhere other than <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery.cache_location" title="astroquery.query.BaseQuery.cache_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cache_location</span></code></a></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>images</strong><span class="classifier">list</span></dt><dd><p>A list of <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass.list_catalogs">
+<span class="sig-name descname"><span class="pre">list_catalogs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/irsa/most.html#MostClass.list_catalogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.irsa.MostClass.list_catalogs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of queriable catalogs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.irsa.MostClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wise_merge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'name_input'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Regular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ephem_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_tarballs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_begin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_nafid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpc_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_designation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eccentricity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_perihelion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascend_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semimajor_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_anomaly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perih_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perih_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/irsa/most.html#MostClass.query_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.irsa.MostClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Query the MOST interface using specified parameters and/or default
+query values.</p>
+<p>MOST service takes an object/orbit, depending on the input mode,
+evaluates its ephemerides in the, in the given time range, and returns
+a combination of image identifiers, image metadata and/or ephemerides
+depending on the output mode.</p>
+<p>The required and optional query parameters vary depending on the query
+input type. Provided parameters that do not match the given input type
+will be ignored. Certain parameters are always required input to the
+service. For these the provided default values match the defaults of
+the online MOST interface.</p>
+<p>Parameters are case sensitive.
+See module help for more details.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str</span></dt><dd><p>Catalog to query.
+Required.
+Default <code class="docutils literal notranslate"><span class="pre">&quot;wise_merge&quot;</span></code>.</p>
+</dd>
+<dt><strong>input_mode</strong><span class="classifier">str</span></dt><dd><p>Input mode. One of <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;naifid_input&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.
+Required.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>output_mode</strong><span class="classifier">str</span></dt><dd><p>Output mode. One of <code class="docutils literal notranslate"><span class="pre">&quot;Regular&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Brief&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;Gator&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;VOTable&quot;</span></code>.
+Required.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;Regular&quot;</span></code></p>
+</dd>
+<dt><strong>ephem_step</strong><span class="classifier">0.25,</span></dt><dd><p>Size of the steps (in days) at which the object ephemeris is evaluated.
+Required.
+Default: 0.25</p>
+</dd>
+<dt><strong>with_tarballs</strong><span class="classifier">bool</span></dt><dd><p>Return links to tarballs of found FITS and Region files.
+Optional, only when output mode is <code class="docutils literal notranslate"><span class="pre">&quot;Regular&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Full&quot;</span></code>.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><strong>obs_begin</strong><span class="classifier">str or None</span></dt><dd><p>UTC of the start of observations in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>. When <code class="docutils literal notranslate"><span class="pre">None</span></code>
+queries all availible data in the catalog which can be slow.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;None&quot;</span></code>.</p>
+</dd>
+<dt><strong>obs_end</strong><span class="classifier">str or None</span></dt><dd><p>UTC of the end of observations in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>. When <code class="docutils literal notranslate"><span class="pre">None</span></code>
+queries all availible data in the catalog, can be slow.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt><strong>obj_name</strong><span class="classifier">str or None</span></dt><dd><p>Object name.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;name_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>obj_nafid</strong><span class="classifier">str or None</span></dt><dd><p>Object NAIFD
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;naifid_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>obj_type</strong><span class="classifier">str or None</span></dt><dd><p>Object type, <code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">Comet</span></code>
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>mpc_data</strong><span class="classifier">str or None</span></dt><dd><p>MPC formatted object string.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;mpc_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>body_designation</strong><span class="classifier">str or None</span></dt><dd><p>Name of the object described by the given orbital parameters. Does
+not have to be a real name. Will default to <code class="docutils literal notranslate"><span class="pre">&quot;TestAsteroid&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;TestComet&quot;</span></code> depending on selected object type.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>epoch</strong><span class="classifier">str or None</span></dt><dd><p>Epoch in MJD.
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>eccentricity</strong><span class="classifier">float or None</span></dt><dd><p>Eccentricity (0-1).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>inclination</strong><span class="classifier">float or None</span></dt><dd><p>Inclination (0-180 degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>arg_perihelion</strong><span class="classifier">str or None</span></dt><dd><p>Argument of perihelion (0-360 degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>ascend_node</strong><span class="classifier">float or None</span></dt><dd><p>Longitude of the ascending node (0-360).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code>.</p>
+</dd>
+<dt><strong>semimajor_axis</strong><span class="classifier">float or None</span></dt><dd><p>Semimajor axis (AU).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code>.</p>
+</dd>
+<dt><strong>mean_anomaly</strong><span class="classifier">str or None</span></dt><dd><p>Mean anomaly (degrees).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Asteroid&quot;</span></code>.</p>
+</dd>
+<dt><strong>perih_dist</strong><span class="classifier">float or None</span></dt><dd><p>Perihelion distance (AU).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Comet&quot;</span></code>.</p>
+</dd>
+<dt><strong>perih_time</strong><span class="classifier">str or None</span></dt><dd><p>Perihelion time (YYYY+MM+DD+HH:MM:SS).
+Required when input mode is <code class="docutils literal notranslate"><span class="pre">&quot;manual_input&quot;</span></code> and object type is
+<code class="docutils literal notranslate"><span class="pre">&quot;Comet&quot;</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool</span></dt><dd><p>Return the query parameters as a dictionary. Useful for debugging.
+Optional.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>query_results</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>, <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.io.votable.tree.VOTableFile.html#astropy.io.votable.tree.VOTableFile" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VOTableFile</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a></span></dt><dd><p>Results of the query. Content depends on the selected output mode.
+In <code class="docutils literal notranslate"><span class="pre">&quot;Full&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Regular&quot;</span></code> output mode returns a dictionary
+containing at least <code class="docutils literal notranslate"><span class="pre">results</span></code>, <code class="docutils literal notranslate"><span class="pre">metadata</span></code> and <code class="docutils literal notranslate"><span class="pre">region</span></code> keys,
+and optionally <code class="docutils literal notranslate"><span class="pre">fits_tarball</span></code> and <code class="docutils literal notranslate"><span class="pre">region_tarball</span></code> keys. When
+in <code class="docutils literal notranslate"><span class="pre">&quot;Brief&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Gator&quot;</span></code> an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object and
+in <code class="docutils literal notranslate"><span class="pre">&quot;VOTable&quot;</span></code> an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.io.votable.tree.VOTableFile.html#astropy.io.votable.tree.VOTableFile" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VOTableFile</span></code></a>. See
+module help for more details on the content of these tables.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">MostClass</a><ul>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass"><code class="docutils literal notranslate"><span class="pre">MostClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">MostClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.URL"><code class="docutils literal notranslate"><span class="pre">MostClass.URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.get_images"><code class="docutils literal notranslate"><span class="pre">MostClass.get_images()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.list_catalogs"><code class="docutils literal notranslate"><span class="pre">MostClass.list_catalogs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.irsa.MostClass.query_object"><code class="docutils literal notranslate"><span class="pre">MostClass.query_object()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.ipac.irsa.MostClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

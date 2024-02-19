@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.linelists.cdms.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../cdms.html" accesskey="U">astroquery.linelists.cdms</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.linelists.cdms.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astroquery.query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">astroquery.utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="c1"># import configurable items declared in __init__.py</span>
+<span class="kn">from</span> <span class="nn">astroquery.linelists.cdms</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">astroquery.exceptions</span> <span class="kn">import</span> <span class="n">InvalidQueryError</span><span class="p">,</span> <span class="n">EmptyResponseError</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CDMS&#39;</span><span class="p">,</span> <span class="s1">&#39;CDMSClass&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">data_path</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CDMSClass">
+<a class="viewcode-back" href="../../../../api/astroquery.linelists.cdms.CDMSClass.html#astroquery.linelists.cdms.CDMSClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">CDMSClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+    <span class="c1"># use the Configuration Items imported from __init__.py</span>
+    <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+<div class="viewcode-block" id="CDMSClass.query_lines_async">
+<a class="viewcode-back" href="../../../../api/astroquery.linelists.cdms.CDMSClass.html#astroquery.linelists.cdms.CDMSClass.query_lines_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_lines_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_frequency</span><span class="p">,</span> <span class="n">max_frequency</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                          <span class="n">min_strength</span><span class="o">=-</span><span class="mi">500</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="s1">&#39;All&#39;</span><span class="p">,</span>
+                          <span class="n">temperature_for_intensity</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">parse_name_locally</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates an HTTP POST request based on the desired parameters and</span>
+<span class="sd">        returns a response.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        min_frequency : `astropy.units.Quantity` or None</span>
+<span class="sd">            Minimum frequency (or any spectral() equivalent).</span>
+<span class="sd">            ``None`` can be interpreted as zero.</span>
+<span class="sd">        max_frequency : `astropy.units.Quantity` or None</span>
+<span class="sd">            Maximum frequency (or any spectral() equivalent).</span>
+<span class="sd">            ``None`` can be interpreted as infinite.</span>
+
+<span class="sd">        min_strength : int, optional</span>
+<span class="sd">            Minimum strength in catalog units, the default is -500</span>
+
+<span class="sd">        molecule : list, string of regex if parse_name_locally=True, optional</span>
+<span class="sd">            Identifiers of the molecules to search for. If this parameter</span>
+<span class="sd">            is not provided the search will match any species. Default is &#39;All&#39;.</span>
+<span class="sd">            As a first pass, the molecule will be searched for with a direct</span>
+<span class="sd">            string match.  If no string match is found, a regular expression</span>
+<span class="sd">            match is attempted.  Note that if the molecule name regex contains</span>
+<span class="sd">            parentheses, they must be escaped.  For example, &#39;H2C(CN)2.*&#39; must be</span>
+<span class="sd">            specified as &#39;H2C\\(CN\\)2.*&#39;  (but because of the first-attempt</span>
+<span class="sd">            full-string matching, &#39;H2C(CN)2&#39; will match that molecule</span>
+<span class="sd">            successfully).</span>
+
+<span class="sd">        temperature_for_intensity : float</span>
+<span class="sd">            The temperature to use when computing the intensity Smu^2.  Set</span>
+<span class="sd">            to 300 by default for compatibility with JPL and the native</span>
+<span class="sd">            catalog format, which defaults to 300.</span>
+<span class="sd">            ** If temperature is set to zero, the return value in this column</span>
+<span class="sd">            will be the Einstein A value **</span>
+
+<span class="sd">        flags : int, optional</span>
+<span class="sd">            Regular expression flags. Default is set to 0</span>
+
+<span class="sd">        parse_name_locally : bool, optional</span>
+<span class="sd">            When set to True it allows the method to parse through catdir.cat</span>
+<span class="sd">            (see `get_species_table`) in order to match the regex inputted in</span>
+<span class="sd">            the molecule parameter and request the corresponding tags of the</span>
+<span class="sd">            matches instead. Default is set to False</span>
+
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            When set to `True` the method should return the HTTP request</span>
+<span class="sd">            parameters as a dict. Default value is set to False</span>
+
+<span class="sd">        cache : bool</span>
+<span class="sd">            Cache the request and, for repeat identical requests, reuse the</span>
+<span class="sd">            cache?</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; table = CDMS.query_lines(min_frequency=100*u.GHz,</span>
+<span class="sd">        ...                          max_frequency=110*u.GHz,</span>
+<span class="sd">        ...                          min_strength=-500,</span>
+<span class="sd">        ...                          molecule=&quot;018505 H2O+&quot;) # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; print(table) # doctest: +SKIP</span>
+<span class="sd">            FREQ     ERR   LGINT   DR   ELO    GUP  TAG  QNFMT  Ju  Ku  vu  Jl  Kl  vl      F      name</span>
+<span class="sd">            MHz      MHz  MHz nm2      1 / cm</span>
+<span class="sd">        ----------- ----- ------- --- -------- --- ----- ----- --- --- --- --- --- --- ----------- ----</span>
+<span class="sd">        103614.4941 2.237 -4.1826   3 202.8941   8 18505  2356   4   1   4   4   0   4 3 2 1 3 0 3 H2O+</span>
+<span class="sd">        107814.8763 148.6 -5.4438   3 878.1191  12 18505  2356   6   5   1   7   1   6 7 4 4 8 1 7 H2O+</span>
+<span class="sd">        107822.3481 148.6 -5.3846   3 878.1178  14 18505  2356   6   5   1   7   1   7 7 4 4 8 1 8 H2O+</span>
+<span class="sd">        107830.1216 148.6 -5.3256   3 878.1164  16 18505  2356   6   5   1   7   1   8 7 4 4 8 1 9 H2O+</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first initialize the dictionary of HTTP request parameters</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">min_frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">max_frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># allow setting payload without having *ANY* valid frequencies set</span>
+            <span class="n">min_frequency</span> <span class="o">=</span> <span class="n">min_frequency</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GHz</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+            <span class="n">max_frequency</span> <span class="o">=</span> <span class="n">max_frequency</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GHz</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">min_frequency</span> <span class="o">&gt;</span> <span class="n">max_frequency</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;min_frequency must be less than max_frequency&quot;</span><span class="p">)</span>
+
+            <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;MinNu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_frequency</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;MaxNu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_frequency</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;UnitNu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;GHz&#39;</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;StrLim&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_strength</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature_for_intensity</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;logscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;yes&#39;</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;mol_sort_query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;tag&#39;</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;text&#39;</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;but_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Submit&#39;</span>
+
+        <span class="c1"># changes interpretation of query</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_query_temperature</span> <span class="o">=</span> <span class="n">temperature_for_intensity</span>
+
+        <span class="k">if</span> <span class="n">molecule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parse_name_locally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lookup_ids</span> <span class="o">=</span> <span class="n">build_lookup</span><span class="p">()</span>
+                <span class="n">luts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_ids</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">luts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s1">&#39;No matching species found. Please &#39;</span>
+                                            <span class="s1">&#39;refine your search or read the Docs &#39;</span>
+                                            <span class="s1">&#39;for pointers on how to search.&#39;</span><span class="p">)</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;Molecules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+                                             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">luts</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;Molecules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">molecule</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">payload</span>
+        <span class="c1"># BaseQuery classes come with a _request method that includes a</span>
+        <span class="c1"># built-in caching system</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+
+        <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">,)]</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;tab&#39;</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">and</span> <span class="s1">&#39;head&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+                <span class="n">ok</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EmptyResponseError</span><span class="p">(</span><span class="s2">&quot;Did not find table in response&quot;</span><span class="p">)</span>
+
+        <span class="n">baseurl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;cgi-bin&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">fullurl</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">baseurl</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">response2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">fullurl</span><span class="p">,</span>
+                                  <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response2</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a response into an `~astropy.table.Table`</span>
+
+<span class="sd">        The catalog data files are composed of fixed-width card images, with</span>
+<span class="sd">        one card image per spectral line.  The format of each card image is</span>
+<span class="sd">        similar to the JPL version:</span>
+<span class="sd">        FREQ, ERR, LGINT, DR,  ELO, GUP, TAG, QNFMT,  QN&#39;,  QN&quot;</span>
+<span class="sd">        (F13.4,F8.4, F8.4,  I2,F10.4,  I3,  I7,    I4,  6I2,  6I2)</span>
+<span class="sd">        but the formats are somewhat different and are encoded below.</span>
+<span class="sd">        The first several entries are the same, but more detail is appended at</span>
+<span class="sd">        the end of the line</span>
+
+<span class="sd">        FREQ:  Frequency of the line in MHz.</span>
+<span class="sd">        ERR:   Estimated or experimental error of FREQ in MHz.</span>
+<span class="sd">        LGINT: Base 10 logarithm of the integrated intensity in units of nm^2 MHz at</span>
+<span class="sd">            300 K.</span>
+
+<span class="sd">        DR:    Degrees of freedom in the rotational partition function (0 for atoms,</span>
+<span class="sd">            2 for linear molecules, and 3 for nonlinear molecules).</span>
+
+<span class="sd">        ELO:   Lower state energy in cm^{-1} relative to the ground state.</span>
+<span class="sd">        GUP:   Upper state degeneracy.</span>
+<span class="sd">        MOLWT: The first half of the molecular weight tag, which is the mass in atomic</span>
+<span class="sd">               mass units (Daltons).</span>
+<span class="sd">        TAG:   Species tag or molecular identifier.  This only includes the</span>
+<span class="sd">               last 3 digits of the CDMS tag</span>
+
+<span class="sd">        A negative value of MOLWT flags that the line frequency has been</span>
+<span class="sd">        measured in the laboratory.  We record this boolean in the &#39;Lab&#39;</span>
+<span class="sd">        column.  ERR is the reported experimental error.</span>
+
+<span class="sd">        QNFMT: Identifies the format of the quantum numbers</span>
+<span class="sd">        Ju/Ku/vu and Jl/Kl/vl are the upper/lower QNs</span>
+<span class="sd">        F: the hyperfine lines</span>
+<span class="sd">        name: molecule name</span>
+
+<span class="sd">        The full detailed description is here:</span>
+<span class="sd">        https://cdms.astro.uni-koeln.de/classic/predictions/description.html#description</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Zero lines were found&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EmptyResponseError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response was empty; message was &#39;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="n">starts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;FREQ&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="s1">&#39;ERR&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+                  <span class="s1">&#39;LGINT&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+                  <span class="s1">&#39;DR&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+                  <span class="s1">&#39;ELO&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span>
+                  <span class="s1">&#39;GUP&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span>
+                  <span class="s1">&#39;MOLWT&#39;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span>
+                  <span class="s1">&#39;TAG&#39;</span><span class="p">:</span> <span class="mi">54</span><span class="p">,</span>
+                  <span class="s1">&#39;QNFMT&#39;</span><span class="p">:</span> <span class="mi">58</span><span class="p">,</span>
+                  <span class="s1">&#39;Ju&#39;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
+                  <span class="s1">&#39;Ku&#39;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span>
+                  <span class="s1">&#39;vu&#39;</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>
+                  <span class="s1">&#39;F1u&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span>
+                  <span class="s1">&#39;F2u&#39;</span><span class="p">:</span> <span class="mi">69</span><span class="p">,</span>
+                  <span class="s1">&#39;F3u&#39;</span><span class="p">:</span> <span class="mi">71</span><span class="p">,</span>
+                  <span class="s1">&#39;Jl&#39;</span><span class="p">:</span> <span class="mi">73</span><span class="p">,</span>
+                  <span class="s1">&#39;Kl&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+                  <span class="s1">&#39;vl&#39;</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+                  <span class="s1">&#39;F1l&#39;</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+                  <span class="s1">&#39;F2l&#39;</span><span class="p">:</span> <span class="mi">81</span><span class="p">,</span>
+                  <span class="s1">&#39;F3l&#39;</span><span class="p">:</span> <span class="mi">83</span><span class="p">,</span>
+                  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="mi">89</span><span class="p">}</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">header_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">comment</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;THIS|^\s{12,14}\d{4,6}.*&#39;</span><span class="p">,</span>
+                            <span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">starts</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                            <span class="n">col_starts</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">starts</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                            <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width&#39;</span><span class="p">,</span> <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;FREQ&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">MHz</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ERR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">MHz</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;Lab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;MOLWT&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;MOLWT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;MOLWT&#39;</span><span class="p">])</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;MOLWT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Da</span>
+
+        <span class="n">fix_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GUP&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">suf</span> <span class="ow">in</span> <span class="s1">&#39;ul&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">qn</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;J&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;F1&#39;</span><span class="p">,</span> <span class="s1">&#39;F2&#39;</span><span class="p">,</span> <span class="s1">&#39;F3&#39;</span><span class="p">):</span>
+                <span class="n">qnind</span> <span class="o">=</span> <span class="n">qn</span><span class="o">+</span><span class="n">suf</span>
+                <span class="n">fix_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qnind</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fix_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">intcol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">parse_letternumber</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                                  <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">intcol</span>
+
+        <span class="c1"># if there is a crash at this step, something went wrong with the query</span>
+        <span class="c1"># and the _last_query_temperature was not set.  This shouldn&#39;t ever</span>
+        <span class="c1"># happen, but, well, I anticipate it will.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_query_temperature</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s1">&#39;LGINT&#39;</span><span class="p">,</span> <span class="s1">&#39;LGAIJ&#39;</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;LGAIJ&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;LGINT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MHz</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ELO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="CDMSClass.get_species_table">
+<a class="viewcode-back" href="../../../../api/astroquery.linelists.cdms.CDMSClass.html#astroquery.linelists.cdms.CDMSClass.get_species_table">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_species_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">catfile</span><span class="o">=</span><span class="s1">&#39;catdir.cat&#39;</span><span class="p">,</span> <span class="n">use_cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">catfile_url</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">catfile_url</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A directory of the catalog is found in a file called &#39;catdir.cat.&#39;</span>
+
+<span class="sd">        The table is derived from https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        catfile : str, name of file, default &#39;catdir.cat&#39;</span>
+<span class="sd">            The catalog file, installed locally along with the package</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Table: `~astropy.table.Table`</span>
+<span class="sd">            | tag : The species tag or molecular identifier.</span>
+<span class="sd">            | molecule : An ASCII name for the species.</span>
+<span class="sd">            | #line : The number of lines in the catalog.</span>
+<span class="sd">            | lg(Q(n)) : A seven-element vector containing the base 10 logarithm of</span>
+<span class="sd">                the partition function.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">use_cached</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">data_path</span><span class="p">(</span><span class="n">catfile</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">retrieve_catfile</span><span class="p">(</span><span class="n">catfile_url</span><span class="p">)</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lg(Q(1000))&#39;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(500))&#39;</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(300))&#39;</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(225))&#39;</span><span class="p">:</span> <span class="mf">225.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(150))&#39;</span><span class="p">:</span> <span class="mf">150.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(75))&#39;</span><span class="p">:</span> <span class="mf">75.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(37.5))&#39;</span><span class="p">:</span> <span class="mf">37.5</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(18.75))&#39;</span><span class="p">:</span> <span class="mf">18.75</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(9.375))&#39;</span><span class="p">:</span> <span class="mf">9.375</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(5.000))&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+                <span class="s1">&#39;lg(Q(2.725))&#39;</span><span class="p">:</span> <span class="mf">2.725</span><span class="p">}</span>
+
+        <span class="k">def</span> <span class="nf">tryfloat</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Temperature (K)&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">[</span><span class="n">key</span><span class="p">]}</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tryfloat</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]])</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Temperature (K)&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1000.</span><span class="p">,</span> <span class="mf">500.</span><span class="p">,</span> <span class="mf">300.</span><span class="p">,</span> <span class="mf">225.</span><span class="p">,</span> <span class="mf">150.</span><span class="p">,</span> <span class="mf">75.</span><span class="p">,</span>
+                                           <span class="mf">37.5</span><span class="p">,</span> <span class="mf">18.75</span><span class="p">,</span> <span class="mf">9.375</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">2.725</span><span class="p">]}</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+<span class="n">CDMS</span> <span class="o">=</span> <span class="n">CDMSClass</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">parse_letternumber</span><span class="p">(</span><span class="n">st</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse CDMS&#39;s two-letter QNs</span>
+
+<span class="sd">    From the CDMS docs:</span>
+<span class="sd">    &quot;Exactly two characters are available for each quantum number. Therefore, half</span>
+<span class="sd">    integer quanta are rounded up ! In addition, capital letters are used to</span>
+<span class="sd">    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Small</span>
+<span class="sd">    types are used to signal corresponding negative quantum numbers.&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">asc</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span>
+    <span class="n">ASC</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span>
+    <span class="n">newst</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">asc</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">asc</span> <span class="k">else</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="n">ASC</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ASC</span> <span class="k">else</span>
+                     <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">st</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">newst</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Lookuptable</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search dictionary keys for a regex match to string s</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            String to compile as a regular expression</span>
+<span class="sd">            Can be entered non-specific for broader results</span>
+<span class="sd">            (&#39;H2O&#39; yields &#39;H2O&#39; but will also yield &#39;HCCCH2OD&#39;)</span>
+<span class="sd">            or as the specific desired regular expression for</span>
+<span class="sd">            catered results, for example: (&#39;H2O$&#39; yields only &#39;H2O&#39;)</span>
+
+<span class="sd">        flags : int</span>
+<span class="sd">            Regular expression flags.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The list of values corresponding to the matches</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># note that the string-match attempt here differs from the jplspec</span>
+            <span class="c1"># implementation</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="p">(</span><span class="n">st</span> <span class="ow">in</span> <span class="n">kk</span><span class="p">)</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kk</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span> <span class="o">=</span> <span class="n">vv</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">build_lookup</span><span class="p">():</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">CDMS</span><span class="o">.</span><span class="n">get_species_table</span><span class="p">()</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;molecule&#39;</span><span class="p">][:])</span>  <span class="c1"># convert NAME column to list</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">][:])</span>  <span class="c1"># convert TAG column to list</span>
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>  <span class="c1"># make k,v dictionary</span>
+    <span class="n">lookuptable</span> <span class="o">=</span> <span class="n">Lookuptable</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>  <span class="c1"># apply the class above</span>
+
+    <span class="k">return</span> <span class="n">lookuptable</span>
+
+
+<span class="k">def</span> <span class="nf">retrieve_catfile</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple retrieve index function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="n">tbl</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">header_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_start</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">data_end</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span>
+                     <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;molecule&#39;</span><span class="p">,</span> <span class="s1">&#39;#lines&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(1000))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(500))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(300))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(225))&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;lg(Q(150))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(75))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(37.5))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(18.75))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(9.375))&#39;</span><span class="p">,</span> <span class="s1">&#39;lg(Q(5.000))&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;lg(Q(2.725))&#39;</span><span class="p">],</span>
+                     <span class="n">col_starts</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">106</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">131</span><span class="p">,</span> <span class="mi">145</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">173</span><span class="p">),</span>
+                     <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fixed_width&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tbl</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

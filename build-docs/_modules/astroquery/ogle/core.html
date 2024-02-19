@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.ogle.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../ogle.html" accesskey="U">astroquery.ogle</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.ogle.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">AstropyDeprecationWarning</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">commons</span><span class="p">,</span> <span class="n">async_to_sync</span><span class="p">,</span> <span class="n">prepend_docstr_nosections</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Ogle&#39;</span><span class="p">,</span> <span class="s1">&#39;OgleClass&#39;</span><span class="p">]</span>
+
+<span class="n">__doctest_skip__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OgleClass.*&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_params</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">algorithm</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;algorithm&#39;</span><span class="p">)</span>
+        <span class="n">quality</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;quality&#39;</span><span class="p">)</span>
+        <span class="n">coord_sys</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;coord_sys&#39;</span><span class="p">)</span>
+        <span class="c1"># if unspecified, the defaults (which are OK) will be used</span>
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">algorithm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">algorithms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;algorithm` must be one of </span><span class="se">\</span>
+<span class="s2">                             </span><span class="si">{!s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Ogle</span><span class="o">.</span><span class="n">algorithms</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">quality</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quality</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">quality_codes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;quality&#39; must be one of </span><span class="se">\</span>
+<span class="s2">                             </span><span class="si">{!s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Ogle</span><span class="o">.</span><span class="n">quality_codes</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">coord_sys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coord_sys</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">coord_systems</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;coord_sys&#39; must be one of </span><span class="se">\</span>
+<span class="s2">                    </span><span class="si">{!s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Ogle</span><span class="o">.</span><span class="n">coord_systems</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="k">class</span> <span class="nc">CoordParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Could not parse `coord` argument.&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="OgleClass">
+<a class="viewcode-back" href="../../../api/astroquery.ogle.OgleClass.html#astroquery.ogle.OgleClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">OgleClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+
+    <span class="n">DATA_URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+    <span class="n">algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NG&#39;</span><span class="p">,</span> <span class="s1">&#39;NN&#39;</span><span class="p">]</span>
+    <span class="n">quality_codes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GOOD&#39;</span><span class="p">,</span> <span class="s1">&#39;ALL&#39;</span><span class="p">]</span>
+    <span class="n">coord_systems</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RD&#39;</span><span class="p">,</span> <span class="s1">&#39;LB&#39;</span><span class="p">]</span>
+    <span class="n">result_dtypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;i8&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;a2&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">]</span>
+
+    <span class="nd">@_validate_params</span>
+    <span class="k">def</span> <span class="nf">_args_to_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;NG&#39;</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="s1">&#39;GOOD&#39;</span><span class="p">,</span>
+                         <span class="n">coord_sys</span><span class="o">=</span><span class="s1">&#39;RD&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query the OGLE-III interstellar extinction calculator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coord : list-like</span>
+<span class="sd">            Pointings to evaluate interstellar extinction. Three forms of</span>
+<span class="sd">            coordinates may be passed::</span>
+
+<span class="sd">                * single astropy coordinate instance</span>
+<span class="sd">                * list-like object (1 x N) of astropy coordinate instances</span>
+<span class="sd">                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings</span>
+<span class="sd">                or  floats. (May not be supported in future versions.)</span>
+
+<span class="sd">        algorithm : string</span>
+<span class="sd">            Algorithm to interpolate data for desired coordinate.</span>
+<span class="sd">            Valid options::</span>
+
+<span class="sd">                * &#39;NG&#39;: nearest grid point</span>
+<span class="sd">                * &#39;NN&#39;: natural neighbor interpolation</span>
+
+<span class="sd">        quality : string</span>
+<span class="sd">            Quality factor for data. Valid options::</span>
+
+<span class="sd">                * &#39;All&#39;: all points</span>
+<span class="sd">                * &#39;GOOD&#39;: QF=0 as described in Nataf et al. (2012).</span>
+
+<span class="sd">        coord_sys : string</span>
+<span class="sd">            Coordinate system if using lists of RA/Decs in ``coord``.</span>
+<span class="sd">            Valid options::</span>
+
+<span class="sd">                * &#39;RD&#39;: equatorial coordinates</span>
+<span class="sd">                * &#39;LB&#39;: Galactic coordinates.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table : `~astropy.table.Table`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CoordParseError</span>
+<span class="sd">            Exception raised for malformed coordinate input</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Using astropy coordinates:</span>
+
+<span class="sd">        &gt;&gt;&gt; from astropy.coordinates import SkyCoord</span>
+<span class="sd">        &gt;&gt;&gt; from astropy import units as u</span>
+<span class="sd">        &gt;&gt;&gt; co = SkyCoord(0.0, 3.0, unit=(u.degree, u.degree),</span>
+<span class="sd">        ...               frame=&#39;galactic&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.ogle import Ogle</span>
+<span class="sd">        &gt;&gt;&gt; t = Ogle.query_region(coord=co)</span>
+<span class="sd">        &gt;&gt;&gt; t.pprint()</span>
+<span class="sd">        RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu</span>
+<span class="sd">        --------- ---------- ----- ------ -------- ------ ------ ----- ...</span>
+<span class="sd">        17.568157 -27.342475 3.126  2.597    0.126 0.3337 14.581 0.212</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the coord object type and generate list of coordinates</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_coords</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">coord_sys</span><span class="p">)</span>
+        <span class="c1"># Generate payload</span>
+        <span class="n">query_header</span> <span class="o">=</span> <span class="s1">&#39;# </span><span class="si">{0}</span><span class="s1"> </span><span class="si">{1}</span><span class="s1"> </span><span class="si">{2}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coord_sys</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">quality</span><span class="p">)</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">la</span><span class="p">)</span> <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">la</span> <span class="ow">in</span>
+                             <span class="nb">zip</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)])</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">query_header</span> <span class="o">+</span> <span class="n">sources</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;file1&#39;</span><span class="p">:</span> <span class="n">file_data</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">files</span>
+
+<div class="viewcode-block" id="OgleClass.query_region_async">
+<a class="viewcode-back" href="../../../api/astroquery.ogle.OgleClass.html#astroquery.ogle.OgleClass.query_region_async">[docs]</a>
+    <span class="nd">@prepend_docstr_nosections</span><span class="p">(</span><span class="n">_args_to_payload</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">query_region_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Make request</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dnfile&#39;</span><span class="p">:</span> <span class="s1">&#39;submit&#39;</span><span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATA_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Parse table, ignore last two (blank) lines</span>
+        <span class="n">raw_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># Select first row and skip first character (&#39;#&#39;) to find column</span>
+        <span class="c1"># headers</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_raw</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result_dtypes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span>
+
+    <span class="k">def</span> <span class="nf">_parse_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">coord_sys</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse single astropy.coordinates instance, list of astropy.coordinate</span>
+<span class="sd">        instances, or 2xN list of coordinate values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coord : list-like</span>
+<span class="sd">        coord_sys : string</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lon : list</span>
+<span class="sd">            Longitude coordinate values</span>
+<span class="sd">        lat : list</span>
+<span class="sd">            Latitude coordinate values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="c1"># single astropy coordinate</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">coord_to_radec</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                <span class="n">lon</span> <span class="o">=</span> <span class="p">[</span><span class="n">ra</span><span class="p">]</span>
+                <span class="n">lat</span> <span class="o">=</span> <span class="p">[</span><span class="n">dec</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CoordParseError</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+            <span class="c1"># list of astropy coordinates</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">radec</span> <span class="o">=</span> <span class="p">[</span><span class="n">commons</span><span class="o">.</span><span class="n">coord_to_radec</span><span class="p">(</span><span class="n">co</span><span class="p">)</span> <span class="k">for</span> <span class="n">co</span> <span class="ow">in</span> <span class="n">coord</span><span class="p">]</span>
+                    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">radec</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">CoordParseError</span><span class="p">()</span>
+            <span class="c1"># list-like of values</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Non-Astropy coordinates may not be supported &#39;</span>
+                              <span class="s1">&#39;in a future version.&#39;</span><span class="p">,</span> <span class="n">AstropyDeprecationWarning</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">coord</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CoordParseError</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CoordParseError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_parse_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the raw strings returned from the query request and return a list</span>
+<span class="sd">        of lists for each column in string format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_data : list</span>
+<span class="sd">            Raw data from the request formatted to as list of strings for each</span>
+<span class="sd">            line</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data : list</span>
+<span class="sd">            List of lists for each column as strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Requests returns unicode encoding, return to ascii</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+        <span class="c1"># Transpose while keeping as list of lists</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<span class="n">Ogle</span> <span class="o">=</span> <span class="n">OgleClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

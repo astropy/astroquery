@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>AlmaClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.alma.Conf.html" />
+    <link rel="prev" title="ALMA Queries (astroquery.alma)" href="../alma/alma.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.alma.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../alma/alma.html" title="ALMA Queries (astroquery.alma)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../alma/alma.html" accesskey="U">ALMA Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.alma</span></code>)</a> &#187;</li>
+      
+      <li>AlmaClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="almaclass">
+<h1>AlmaClass<a class="headerlink" href="#almaclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.alma.</span></span><span class="sig-name descname"><span class="pre">AlmaClass</span></span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.QueryWithLogin.html#astroquery.query.QueryWithLogin" title="astroquery.query.QueryWithLogin"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryWithLogin</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.SIA2_PARAMETERS_DESC" title="astroquery.alma.AlmaClass.SIA2_PARAMETERS_DESC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SIA2_PARAMETERS_DESC</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.TIMEOUT" title="astroquery.alma.AlmaClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.USERNAME" title="astroquery.alma.AlmaClass.USERNAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">USERNAME</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.archive_url" title="astroquery.alma.AlmaClass.archive_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">archive_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.auth" title="astroquery.alma.AlmaClass.auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auth</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.cycle0_table" title="astroquery.alma.AlmaClass.cycle0_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cycle0_table</span></code></a></p></td>
+<td><p>Return a table of Cycle 0 Project IDs and associated UIDs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.datalink" title="astroquery.alma.AlmaClass.datalink"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datalink</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.datalink_url" title="astroquery.alma.AlmaClass.datalink_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datalink_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.sia" title="astroquery.alma.AlmaClass.sia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sia</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.sia_url" title="astroquery.alma.AlmaClass.sia_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sia_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.tap" title="astroquery.alma.AlmaClass.tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tap</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.tap_url" title="astroquery.alma.AlmaClass.tap_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tap_url</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.var" title="astroquery.alma.AlmaClass.var"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.download_and_extract_files" title="astroquery.alma.AlmaClass.download_and_extract_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_and_extract_files</span></code></a>(urls, *[, ...])</p></td>
+<td><p>Given a list of tarball URLs, it extracts all the FITS files (or whatever matches the regex)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.download_files" title="astroquery.alma.AlmaClass.download_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_files</span></code></a>(files, *[, savedir, cache, ...])</p></td>
+<td><p>Given a list of file URLs, download them</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_adhoc_service_access_url" title="astroquery.alma.AlmaClass.get_adhoc_service_access_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_adhoc_service_access_url</span></code></a>(adhoc_service)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_adhoc_service_parameter" title="astroquery.alma.AlmaClass.get_adhoc_service_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_adhoc_service_parameter</span></code></a>(adhoc_service, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_cycle0_uid_contents" title="astroquery.alma.AlmaClass.get_cycle0_uid_contents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cycle0_uid_contents</span></code></a>(uid)</p></td>
+<td><p>List the file contents of a UID from Cycle 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_data_info" title="astroquery.alma.AlmaClass.get_data_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_info</span></code></a>(uids, *[, expand_tarfiles, ...])</p></td>
+<td><p>Return information about the data associated with ALMA uid(s)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_files_from_tarballs" title="astroquery.alma.AlmaClass.get_files_from_tarballs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_files_from_tarballs</span></code></a>(downloaded_files, *)</p></td>
+<td><p>Given a list of successfully downloaded tarballs, extract files with names matching a specified regular expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.get_project_metadata" title="astroquery.alma.AlmaClass.get_project_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_project_metadata</span></code></a>(projectid, *[, cache])</p></td>
+<td><p>Get the metadata - specifically, the project abstract - for a given project ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>([cache])</p></td>
+<td><p>Return the valid query parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.help_tap" title="astroquery.alma.AlmaClass.help_tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help_tap</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.is_datalink_adhoc_service" title="astroquery.alma.AlmaClass.is_datalink_adhoc_service"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_datalink_adhoc_service</span></code></a>(adhoc_service)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.is_proprietary" title="astroquery.alma.AlmaClass.is_proprietary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_proprietary</span></code></a>(uid)</p></td>
+<td><p>Given an ALMA UID, query the servers to determine whether it is proprietary or not.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.login" title="astroquery.alma.AlmaClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>([username, store_password, ...])</p></td>
+<td><p>Login to the ALMA Science Portal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query" title="astroquery.alma.AlmaClass.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_async" title="astroquery.alma.AlmaClass.query_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_async</span></code></a>(payload, *[, public, science, ...])</p></td>
+<td><p>Perform a generic query with user-specified payload</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_object" title="astroquery.alma.AlmaClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_object_async" title="astroquery.alma.AlmaClass.query_object_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object_async</span></code></a>(object_name, *[, public, ...])</p></td>
+<td><p>Query the archive for a source name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_region" title="astroquery.alma.AlmaClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_region_async" title="astroquery.alma.AlmaClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(coordinate, radius, *[, ...])</p></td>
+<td><p>Query the ALMA archive with a source name and radius</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_sia" title="astroquery.alma.AlmaClass.query_sia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_sia</span></code></a>(*[, pos, band, time, pol, ...])</p></td>
+<td><p>Use standard SIA2 attributes to query the ALMA SIA service.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.query_tap" title="astroquery.alma.AlmaClass.query_tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_tap</span></code></a>(query[, maxrec])</p></td>
+<td><p>Send query to the ALMA TAP.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.alma.AlmaClass.retrieve_data_from_uid" title="astroquery.alma.AlmaClass.retrieve_data_from_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve_data_from_uid</span></code></a>(uids, *[, cache])</p></td>
+<td><p>Stage &amp; Download ALMA data.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.SIA2_PARAMETERS_DESC">
+<span class="sig-name descname"><span class="pre">SIA2_PARAMETERS_DESC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;\npos</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">angle</span> <span class="pre">units</span> <span class="pre">(default:</span> <span class="pre">deg)\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">positional</span> <span class="pre">region(s)</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data.</span> <span class="pre">Each</span> <span class="pre">region</span> <span class="pre">can\n</span>&#160;&#160;&#160; <span class="pre">be</span> <span class="pre">expressed</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">tuple</span> <span class="pre">representing</span> <span class="pre">a</span> <span class="pre">CIRCLE,</span> <span class="pre">RANGE</span> <span class="pre">or</span> <span class="pre">POLYGON</span> <span class="pre">as\n</span>&#160;&#160;&#160; <span class="pre">follows:\n</span>&#160;&#160;&#160; <span class="pre">(ra,</span> <span class="pre">dec,</span> <span class="pre">radius)</span> <span class="pre">-</span> <span class="pre">for</span> <span class="pre">CIRCLE.</span> <span class="pre">(angle</span> <span class="pre">units</span> <span class="pre">-</span> <span class="pre">defaults</span> <span class="pre">to)\n</span>&#160;&#160;&#160; <span class="pre">(long1,</span> <span class="pre">long2,</span> <span class="pre">lat1,</span> <span class="pre">lat2)</span> <span class="pre">-</span> <span class="pre">for</span> <span class="pre">RANGE</span> <span class="pre">(angle</span> <span class="pre">units</span> <span class="pre">required)\n</span>&#160;&#160;&#160; <span class="pre">(ra,</span> <span class="pre">dec,</span> <span class="pre">ra,</span> <span class="pre">dec,</span> <span class="pre">ra,</span> <span class="pre">dec</span> <span class="pre">...</span> <span class="pre">)</span> <span class="pre">ra/dec</span> <span class="pre">points</span> <span class="pre">for</span> <span class="pre">POLYGON</span> <span class="pre">all\n</span>&#160;&#160;&#160; <span class="pre">in</span> <span class="pre">angle</span> <span class="pre">units\nband</span> <span class="pre">:</span> <span class="pre">scalar,</span> <span class="pre">tuple(interval)</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">(spectral</span> <span class="pre">units</span> <span class="pre">(default:</span> <span class="pre">meter)\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">energy</span> <span class="pre">interval(s)</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data.\ntime</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">`~astropy.time.Time`</span> <span class="pre">or</span> <span class="pre">compatible</span> <span class="pre">strings\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">time</span> <span class="pre">interval(s)</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data.\npol</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span> <span class="pre">from</span> <span class="pre">pyvo.dam.obscore.POLARIZATION_STATES\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">polarization</span> <span class="pre">state(s)</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data.\nfield_of_view</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">angle</span> <span class="pre">units</span> <span class="pre">(default</span> <span class="pre">arcsec)\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">range(s)</span> <span class="pre">of</span> <span class="pre">field</span> <span class="pre">of</span> <span class="pre">view</span> <span class="pre">(size)</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data\nspatial_resolution</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">angle</span> <span class="pre">units</span> <span class="pre">required\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">range(s)</span> <span class="pre">of</span> <span class="pre">spatial</span> <span class="pre">resolution</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data\nspectral_resolving_power</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">range(s)</span> <span class="pre">of</span> <span class="pre">spectral</span> <span class="pre">resolving</span> <span class="pre">power</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data\nexptime</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">time</span> <span class="pre">units</span> <span class="pre">(default:</span> <span class="pre">second)\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">range(s)</span> <span class="pre">of</span> <span class="pre">exposure</span> <span class="pre">times</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data\ntimeres</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">of</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tuples\n</span>&#160;&#160;&#160; <span class="pre">time</span> <span class="pre">units</span> <span class="pre">(default:</span> <span class="pre">second)\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">range(s)</span> <span class="pre">of</span> <span class="pre">temporal</span> <span class="pre">resolution</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">searched</span> <span class="pre">for</span> <span class="pre">data\npublisher_did</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">unique</span> <span class="pre">identifier</span> <span class="pre">of</span> <span class="pre">dataset(s).</span> <span class="pre">It</span> <span class="pre">is</span> <span class="pre">global</span> <span class="pre">because\n</span>&#160;&#160;&#160; <span class="pre">it</span> <span class="pre">must</span> <span class="pre">include</span> <span class="pre">information</span> <span class="pre">regarding</span> <span class="pre">the</span> <span class="pre">publisher\n</span>&#160;&#160;&#160; <span class="pre">(obs_publisher_did</span> <span class="pre">in</span> <span class="pre">ObsCore)\ncollection</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str\n</span>&#160;&#160;&#160; <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">collection</span> <span class="pre">that</span> <span class="pre">the</span> <span class="pre">data</span> <span class="pre">belongs</span> <span class="pre">to\nfacility</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">facility</span> <span class="pre">(usually</span> <span class="pre">telescope)</span> <span class="pre">where\n</span>&#160;&#160;&#160; <span class="pre">the</span> <span class="pre">data</span> <span class="pre">was</span> <span class="pre">acquired.\ninstrument</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">instrument</span> <span class="pre">with</span> <span class="pre">which</span> <span class="pre">the</span> <span class="pre">data</span> <span class="pre">was\n</span>&#160;&#160;&#160; <span class="pre">acquired.\ndata_type</span> <span class="pre">:</span> <span class="pre">'image'|'cube'\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">type</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">data\ncalib_level</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">from</span> <span class="pre">enum\n</span>&#160;&#160;&#160; <span class="pre">pyvo.dam.obscore.CALIBRATION_LEVELS\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">calibration</span> <span class="pre">level</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">data.</span> <span class="pre">Can</span> <span class="pre">be</span> <span class="pre">a</span> <span class="pre">single</span> <span class="pre">value\n</span>&#160;&#160;&#160; <span class="pre">or</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">values\ntarget_name</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">str\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">the</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">target</span> <span class="pre">(e.g.</span> <span class="pre">the</span> <span class="pre">intention</span> <span class="pre">of</span> <span class="pre">the\n</span>&#160;&#160;&#160; <span class="pre">original</span> <span class="pre">science</span> <span class="pre">program</span> <span class="pre">or</span> <span class="pre">observation)\nres_format</span> <span class="pre">:</span> <span class="pre">single</span> <span class="pre">or</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">strings\n</span>&#160;&#160;&#160; <span class="pre">specifies</span> <span class="pre">response</span> <span class="pre">format(s).\nmax_records</span> <span class="pre">:</span> <span class="pre">int\n</span>&#160;&#160;&#160; <span class="pre">allows</span> <span class="pre">the</span> <span class="pre">client</span> <span class="pre">to</span> <span class="pre">limit</span> <span class="pre">the</span> <span class="pre">number</span> <span class="pre">or</span> <span class="pre">records</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">response\n**kwargs</span> <span class="pre">:</span> <span class="pre">custom</span> <span class="pre">query</span> <span class="pre">parameters\n</span>&#160;&#160;&#160; <span class="pre">single</span> <span class="pre">or</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">values</span> <span class="pre">(or</span> <span class="pre">tuples</span> <span class="pre">for</span> <span class="pre">intervals)</span> <span class="pre">custom</span> <span class="pre">query\n</span>&#160;&#160;&#160; <span class="pre">parameters</span> <span class="pre">that</span> <span class="pre">a</span> <span class="pre">specific</span> <span class="pre">service</span> <span class="pre">accepts.</span> <span class="pre">The</span> <span class="pre">values</span> <span class="pre">of</span> <span class="pre">the\n</span>&#160;&#160;&#160; <span class="pre">parameters</span> <span class="pre">need</span> <span class="pre">to</span> <span class="pre">follow</span> <span class="pre">the</span> <span class="pre">SIAv2</span> <span class="pre">format</span> <span class="pre">and</span> <span class="pre">represent</span> <span class="pre">the\n</span>&#160;&#160;&#160; <span class="pre">appropriate</span> <span class="pre">quantities</span> <span class="pre">(where</span> <span class="pre">applicable).\n&quot;</span></em><a class="headerlink" href="#astroquery.alma.AlmaClass.SIA2_PARAMETERS_DESC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.alma.AlmaClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.USERNAME">
+<span class="sig-name descname"><span class="pre">USERNAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#astroquery.alma.AlmaClass.USERNAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.archive_url">
+<span class="sig-name descname"><span class="pre">archive_url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://almascience.org'</span></em><a class="headerlink" href="#astroquery.alma.AlmaClass.archive_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.auth">
+<span class="sig-name descname"><span class="pre">auth</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.auth" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.cycle0_table">
+<span class="sig-name descname"><span class="pre">cycle0_table</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.cycle0_table" title="Link to this definition">¶</a></dt>
+<dd><p>Return a table of Cycle 0 Project IDs and associated UIDs.</p>
+<p>The table is distributed with astroquery and was provided by Felix
+Stoehr.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.datalink">
+<span class="sig-name descname"><span class="pre">datalink</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.datalink" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.datalink_url">
+<span class="sig-name descname"><span class="pre">datalink_url</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.datalink_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.sia">
+<span class="sig-name descname"><span class="pre">sia</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.sia" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.sia_url">
+<span class="sig-name descname"><span class="pre">sia_url</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.sia_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.tap">
+<span class="sig-name descname"><span class="pre">tap</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.tap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.tap_url">
+<span class="sig-name descname"><span class="pre">tap_url</span></span><a class="headerlink" href="#astroquery.alma.AlmaClass.tap_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.var">
+<span class="sig-name descname"><span class="pre">var</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CALIBRATION_LEVELS'</span></em><a class="headerlink" href="#astroquery.alma.AlmaClass.var" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.download_and_extract_files">
+<span class="sig-name descname"><span class="pre">download_and_extract_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.*\\.fits$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_asdm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cache_path'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.download_and_extract_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.download_and_extract_files" title="Link to this definition">¶</a></dt>
+<dd><p>Given a list of tarball URLs, it extracts all the FITS files (or
+whatever matches the regex)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>urls</strong><span class="classifier">str or list</span></dt><dd><p>A single URL or a list of URLs</p>
+</dd>
+<dt><strong>include_asdm</strong><span class="classifier">bool</span></dt><dd><p>Only affects cycle 1+ data.  If set, the ASDM files will be
+downloaded in addition to the script and log files.  By default,
+though, this file will be downloaded and deleted without extracting
+any information: you must change the regex if you want to extract
+data from an ASDM tarball</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.download_files">
+<span class="sig-name descname"><span class="pre">download_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savedir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_unauthorized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.download_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.download_files" title="Link to this definition">¶</a></dt>
+<dd><p>Given a list of file URLs, download them</p>
+<p>Note: Given a list with repeated URLs, each will only be downloaded
+once, so the return may have a different length than the input list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>files</strong><span class="classifier">list</span></dt><dd><p>List of URLs to download</p>
+</dd>
+<dt><strong>savedir</strong><span class="classifier">None or str</span></dt><dd><p>The directory to save to.  Default is the cache location.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the download?</p>
+</dd>
+<dt><strong>continuation</strong><span class="classifier">bool</span></dt><dd><p>Attempt to continue where the download left off (if it was broken)</p>
+</dd>
+<dt><strong>skip_unauthorized</strong><span class="classifier">bool</span></dt><dd><p>If you receive “unauthorized” responses for some of the download
+requests, skip over them.  If this is False, an exception will be
+raised.</p>
+</dd>
+<dt><strong>verify_only</strong><span class="classifier">bool</span></dt><dd><p>Option to go through the process of checking the files to see if
+they’re the right size, but not actually download them.  This
+option may be useful if a previous download run failed partway.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_adhoc_service_access_url">
+<span class="sig-name descname"><span class="pre">get_adhoc_service_access_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adhoc_service</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_adhoc_service_access_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_adhoc_service_access_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_adhoc_service_parameter">
+<span class="sig-name descname"><span class="pre">get_adhoc_service_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adhoc_service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_adhoc_service_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_adhoc_service_parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_cycle0_uid_contents">
+<span class="sig-name descname"><span class="pre">get_cycle0_uid_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_cycle0_uid_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_cycle0_uid_contents" title="Link to this definition">¶</a></dt>
+<dd><p>List the file contents of a UID from Cycle 0.  Will raise an error
+if the UID is from cycle 1+, since those data have been released in
+a different and more consistent format.  See
+<a class="reference external" href="https://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf">https://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf</a>
+for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_data_info">
+<span class="sig-name descname"><span class="pre">get_data_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_tarfiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_auxiliary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_rawdata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_data_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_data_info" title="Link to this definition">¶</a></dt>
+<dd><p>Return information about the data associated with ALMA uid(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>uids</strong><span class="classifier">list or str</span></dt><dd><p>A list of valid UIDs or a single UID.
+UIDs should have the form: ‘uid://A002/X391d0b/X7b’</p>
+</dd>
+<dt><strong>expand_tarfiles</strong><span class="classifier">bool</span></dt><dd><p>False to return information on the tarfiles packages containing
+the data or True to return information about individual files in
+these packages</p>
+</dd>
+<dt><strong>with_auxiliary</strong><span class="classifier">bool</span></dt><dd><p>True to include the auxiliary packages, False otherwise</p>
+</dd>
+<dt><strong>with_rawdata</strong><span class="classifier">bool</span></dt><dd><p>True to include raw data, False otherwise</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Table with results or None. Table has the following columns: id (UID),</dt><dd></dd>
+<dt>access_url (URL to access data), service_def, content_length, content_type (MIME</dt><dd></dd>
+<dt>type), semantics, description (optional), error_message (optional)</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_files_from_tarballs">
+<span class="sig-name descname"><span class="pre">get_files_from_tarballs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloaded_files</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.*\\.fits$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cache_path'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_files_from_tarballs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_files_from_tarballs" title="Link to this definition">¶</a></dt>
+<dd><p>Given a list of successfully downloaded tarballs, extract files
+with names matching a specified regular expression.  The default
+is to extract all FITS files</p>
+<p>NOTE: alma now supports direct listing and downloads of tarballs. See
+<code class="docutils literal notranslate"><span class="pre">get_data_info</span></code> and <code class="docutils literal notranslate"><span class="pre">download_and_extract_files</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>downloaded_files</strong><span class="classifier">list</span></dt><dd><p>A list of downloaded files.  These should be paths on your local
+machine.</p>
+</dd>
+<dt><strong>regex</strong><span class="classifier">str</span></dt><dd><p>A valid regular expression</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">‘cache_path’ or str</span></dt><dd><p>If ‘cache_path’, will use the astroquery.Alma cache directory
+(<code class="docutils literal notranslate"><span class="pre">Alma.cache_location</span></code>), otherwise will use the specified path.
+Note that the subdirectory structure of the tarball will be
+maintained.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>filelist</strong><span class="classifier">list</span></dt><dd><p>A list of the extracted file locations on disk</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.get_project_metadata">
+<span class="sig-name descname"><span class="pre">get_project_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projectid</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.get_project_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.get_project_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Get the metadata - specifically, the project abstract - for a given project ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.help" title="Link to this definition">¶</a></dt>
+<dd><p>Return the valid query parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.help_tap">
+<span class="sig-name descname"><span class="pre">help_tap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.help_tap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.help_tap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.is_datalink_adhoc_service">
+<span class="sig-name descname"><span class="pre">is_datalink_adhoc_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adhoc_service</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.is_datalink_adhoc_service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.is_datalink_adhoc_service" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.is_proprietary">
+<span class="sig-name descname"><span class="pre">is_proprietary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.is_proprietary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.is_proprietary" title="Link to this definition">¶</a></dt>
+<dd><p>Given an ALMA UID, query the servers to determine whether it is
+proprietary or not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reenter_password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_urls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['asa.alma.cl',</span> <span class="pre">'rh-cas.alma.cl']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.alma.AlmaClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>Login to the ALMA Science Portal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>username</strong><span class="classifier">str, optional</span></dt><dd><p>Username to the ALMA Science Portal. If not given, it should be
+specified in the config file.</p>
+</dd>
+<dt><strong>store_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Stores the password securely in your keyring. Default is False.</p>
+</dd>
+<dt><strong>reenter_password</strong><span class="classifier">bool, optional</span></dt><dd><p>Asks for the password even if it is already stored in the
+keyring. This is the way to overwrite an already stored passwork
+on the keyring. Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.alma.AlmaClass.query" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Perform a generic query with user-specified payload</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>payload</strong><span class="classifier">dictionary</span></dt><dd><p>Please consult the <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a> method</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>legacy_columns</strong><span class="classifier">bool</span></dt><dd><p>True to return the columns from the obsolete ALMA advanced query,
+otherwise return the current columns based on ObsCore model.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to simply return the payload.</p>
+</dd>
+<dt><strong>maxrec</strong><span class="classifier">integer</span></dt><dd><p>Cap on the amount of records returned.  Default is no limit.</p>
+</dd>
+<dt><strong>Table with results. Columns are those in the ALMA ObsCore model</strong></dt><dd></dd>
+<dt><strong>(see ``help_tap``) unless ``legacy_columns`` argument is set to True.</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_async">
+<span class="sig-name descname"><span class="pre">query_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">science</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxrec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.query_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.query_async" title="Link to this definition">¶</a></dt>
+<dd><p>Perform a generic query with user-specified payload</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>payload</strong><span class="classifier">dictionary</span></dt><dd><p>Please consult the <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a> method</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>legacy_columns</strong><span class="classifier">bool</span></dt><dd><p>True to return the columns from the obsolete ALMA advanced query,
+otherwise return the current columns based on ObsCore model.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to simply return the payload.</p>
+</dd>
+<dt><strong>maxrec</strong><span class="classifier">integer</span></dt><dd><p>Cap on the amount of records returned.  Default is no limit.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Table with results. Columns are those in the ALMA ObsCore model</dt><dd></dd>
+<dt>(see <code class="docutils literal notranslate"><span class="pre">help_tap</span></code>) unless <code class="docutils literal notranslate"><span class="pre">legacy_columns</span></code> argument is set to True.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.alma.AlmaClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query the archive for a source name.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The object name.  Will be resolved by astropy.coord.SkyCoord</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>payload</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of additional keywords.  See <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_object_async">
+<span class="sig-name descname"><span class="pre">query_object_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">science</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.query_object_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.query_object_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query the archive for a source name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The object name.  Will be resolved by astropy.coord.SkyCoord</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>payload</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of additional keywords.  See <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.alma.AlmaClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query the ALMA archive with a source name and radius</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str / <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a></span></dt><dd><p>the identifier or coordinates around which to query.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str / <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, optional</span></dt><dd><p>the radius of the region</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>payload</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of additional keywords.  See <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">science</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query the ALMA archive with a source name and radius</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str / <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a></span></dt><dd><p>the identifier or coordinates around which to query.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str / <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, optional</span></dt><dd><p>the radius of the region</p>
+</dd>
+<dt><strong>public</strong><span class="classifier">bool</span></dt><dd><p>True to return only public datasets, False to return private only,
+None to return both</p>
+</dd>
+<dt><strong>science</strong><span class="classifier">bool</span></dt><dd><p>True to return only science datasets, False to return only
+calibration, None to return both</p>
+</dd>
+<dt><strong>payload</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of additional keywords.  See <a class="reference internal" href="#astroquery.alma.AlmaClass.help" title="astroquery.alma.AlmaClass.help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">help</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_sia">
+<span class="sig-name descname"><span class="pre">query_sia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_of_view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_resolving_power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exptime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publisher_did</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxrec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.query_sia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.query_sia" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Use standard SIA2 attributes to query the ALMA SIA service.</p>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>pos</strong><span class="classifier">single or list of tuples</span></dt><dd><p>angle units (default: deg)
+the positional region(s) to be searched for data. Each region can
+be expressed as a tuple representing a CIRCLE, RANGE or POLYGON as
+follows:
+(ra, dec, radius) - for CIRCLE. (angle units - defaults to)
+(long1, long2, lat1, lat2) - for RANGE (angle units required)
+(ra, dec, ra, dec, ra, dec … ) ra/dec points for POLYGON all
+in angle units</p>
+</dd>
+<dt><strong>band</strong><span class="classifier">scalar, tuple(interval) or list of tuples</span></dt><dd><p>(spectral units (default: meter)
+the energy interval(s) to be searched for data.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">single or list of <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Time</span></code></a> or compatible strings</span></dt><dd><p>the time interval(s) to be searched for data.</p>
+</dd>
+<dt><strong>pol</strong><span class="classifier">single or list of str from pyvo.dam.obscore.POLARIZATION_STATES</span></dt><dd><p>the polarization state(s) to be searched for data.</p>
+</dd>
+<dt><strong>field_of_view</strong><span class="classifier">single or list of tuples</span></dt><dd><p>angle units (default arcsec)
+the range(s) of field of view (size) to be searched for data</p>
+</dd>
+<dt><strong>spatial_resolution</strong><span class="classifier">single or list of tuples</span></dt><dd><p>angle units required
+the range(s) of spatial resolution to be searched for data</p>
+</dd>
+<dt><strong>spectral_resolving_power</strong><span class="classifier">single or list of tuples</span></dt><dd><p>the range(s) of spectral resolving power to be searched for data</p>
+</dd>
+<dt><strong>exptime</strong><span class="classifier">single or list of tuples</span></dt><dd><p>time units (default: second)
+the range(s) of exposure times to be searched for data</p>
+</dd>
+<dt><strong>timeres</strong><span class="classifier">single of list of tuples</span></dt><dd><p>time units (default: second)
+the range(s) of temporal resolution to be searched for data</p>
+</dd>
+<dt><strong>publisher_did</strong><span class="classifier">single or list of str</span></dt><dd><p>specifies the unique identifier of dataset(s). It is global because
+it must include information regarding the publisher
+(obs_publisher_did in ObsCore)</p>
+</dd>
+<dt><strong>collection</strong><span class="classifier">single or list of str</span></dt><dd><p>name of the collection that the data belongs to</p>
+</dd>
+<dt><strong>facility</strong><span class="classifier">single or list of str</span></dt><dd><p>specifies the name of the facility (usually telescope) where
+the data was acquired.</p>
+</dd>
+<dt><strong>instrument</strong><span class="classifier">single or list of str</span></dt><dd><p>specifies the name of the instrument with which the data was
+acquired.</p>
+</dd>
+<dt><strong>data_type</strong><span class="classifier">‘image’|’cube’</span></dt><dd><p>specifies the type of the data</p>
+</dd>
+<dt><strong>calib_level</strong><span class="classifier">single or list from enum</span></dt><dd><p>pyvo.dam.obscore.CALIBRATION_LEVELS
+specifies the calibration level of the data. Can be a single value
+or a list of values</p>
+</dd>
+<dt><strong>target_name</strong><span class="classifier">single or list of str</span></dt><dd><p>specifies the name of the target (e.g. the intention of the
+original science program or observation)</p>
+</dd>
+<dt><strong>res_format</strong><span class="classifier">single or list of strings</span></dt><dd><p>specifies response format(s).</p>
+</dd>
+<dt><strong>max_records</strong><span class="classifier">int</span></dt><dd><p>allows the client to limit the number or records in the response</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">custom query parameters</span></dt><dd><p>single or a list of values (or tuples for intervals) custom query
+parameters that a specific service accepts. The values of the
+parameters need to follow the SIAv2 format and represent the
+appropriate quantities (where applicable).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Results in <code class="docutils literal notranslate"><span class="pre">pyvo.dal.sia2.SIA2Results</span></code> format.</dt><dd></dd>
+<dt>result.table in Astropy table format</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.query_tap">
+<span class="sig-name descname"><span class="pre">query_tap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxrec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.query_tap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.query_tap" title="Link to this definition">¶</a></dt>
+<dd><p>Send query to the ALMA TAP. Results in pyvo.dal.TapResult format.
+result.table in Astropy table format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>maxrec</strong><span class="classifier">int</span></dt><dd><p>maximum number of records to return</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.alma.AlmaClass.retrieve_data_from_uid">
+<span class="sig-name descname"><span class="pre">retrieve_data_from_uid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/alma/core.html#AlmaClass.retrieve_data_from_uid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.alma.AlmaClass.retrieve_data_from_uid" title="Link to this definition">¶</a></dt>
+<dd><p>Stage &amp; Download ALMA data.  Will print out the expected file size
+before attempting the download.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>uids</strong><span class="classifier">list or str</span></dt><dd><p>A list of valid UIDs or a single UID.
+UIDs should have the form: ‘uid://A002/X391d0b/X7b’</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Whether to cache the downloads.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>downloaded_files</strong><span class="classifier">list</span></dt><dd><p>A list of the downloaded file paths</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">AlmaClass</a><ul>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass"><code class="docutils literal notranslate"><span class="pre">AlmaClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.SIA2_PARAMETERS_DESC"><code class="docutils literal notranslate"><span class="pre">AlmaClass.SIA2_PARAMETERS_DESC</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">AlmaClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.USERNAME"><code class="docutils literal notranslate"><span class="pre">AlmaClass.USERNAME</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.archive_url"><code class="docutils literal notranslate"><span class="pre">AlmaClass.archive_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.auth"><code class="docutils literal notranslate"><span class="pre">AlmaClass.auth</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.cycle0_table"><code class="docutils literal notranslate"><span class="pre">AlmaClass.cycle0_table</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.datalink"><code class="docutils literal notranslate"><span class="pre">AlmaClass.datalink</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.datalink_url"><code class="docutils literal notranslate"><span class="pre">AlmaClass.datalink_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.sia"><code class="docutils literal notranslate"><span class="pre">AlmaClass.sia</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.sia_url"><code class="docutils literal notranslate"><span class="pre">AlmaClass.sia_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.tap"><code class="docutils literal notranslate"><span class="pre">AlmaClass.tap</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.tap_url"><code class="docutils literal notranslate"><span class="pre">AlmaClass.tap_url</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.var"><code class="docutils literal notranslate"><span class="pre">AlmaClass.var</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.download_and_extract_files"><code class="docutils literal notranslate"><span class="pre">AlmaClass.download_and_extract_files()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.download_files"><code class="docutils literal notranslate"><span class="pre">AlmaClass.download_files()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_adhoc_service_access_url"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_adhoc_service_access_url()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_adhoc_service_parameter"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_adhoc_service_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_cycle0_uid_contents"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_cycle0_uid_contents()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_data_info"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_data_info()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_files_from_tarballs"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_files_from_tarballs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.get_project_metadata"><code class="docutils literal notranslate"><span class="pre">AlmaClass.get_project_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.help"><code class="docutils literal notranslate"><span class="pre">AlmaClass.help()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.help_tap"><code class="docutils literal notranslate"><span class="pre">AlmaClass.help_tap()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.is_datalink_adhoc_service"><code class="docutils literal notranslate"><span class="pre">AlmaClass.is_datalink_adhoc_service()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.is_proprietary"><code class="docutils literal notranslate"><span class="pre">AlmaClass.is_proprietary()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.login"><code class="docutils literal notranslate"><span class="pre">AlmaClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_async"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_object"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_object_async"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_object_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_region"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_region_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_sia"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_sia()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.query_tap"><code class="docutils literal notranslate"><span class="pre">AlmaClass.query_tap()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.alma.AlmaClass.retrieve_data_from_uid"><code class="docutils literal notranslate"><span class="pre">AlmaClass.retrieve_data_from_uid()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.alma.AlmaClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+Conf
+====
+
+.. currentmodule:: astroquery.nasa_ads
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.server
+      ~Conf.simple_path
+      ~Conf.timeout
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: server
+   .. autoattribute:: simple_path
+   .. autoattribute:: timeout

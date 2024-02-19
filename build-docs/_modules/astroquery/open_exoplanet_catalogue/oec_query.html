@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.open_exoplanet_catalogue.oec_query &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.open_exoplanet_catalogue.oec_query</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Number</span>
+
+<span class="n">oec_server_url</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xml_element_to_dict&#39;</span><span class="p">,</span> <span class="s1">&#39;findvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;get_catalogue&#39;</span><span class="p">]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">urllib.request</span> <span class="k">as</span> <span class="nn">urllib2</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">urllib2</span>
+
+
+<div class="viewcode-block" id="get_catalogue">
+<a class="viewcode-back" href="../../../api/astroquery.open_exoplanet_catalogue.get_catalogue.html#astroquery.open_exoplanet_catalogue.get_catalogue">[docs]</a>
+<span class="k">def</span> <span class="nf">get_catalogue</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the Open Exoplanet Catalogue file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str or None</span>
+<span class="sd">        if no filepath is given, remote source is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    An Element Tree containing the open exoplanet catalogue</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oec</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span>
+            <span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">oec_server_url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">oec</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">oec</span></div>
+
+
+
+<div class="viewcode-block" id="xml_element_to_dict">
+<a class="viewcode-back" href="../../../api/astroquery.open_exoplanet_catalogue.xml_element_to_dict.html#astroquery.open_exoplanet_catalogue.xml_element_to_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">xml_element_to_dict</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a dictionary of the given xml tree.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    e : str</span>
+<span class="sd">        str of an xml tree</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A dictionary of the given xml tree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">getchildren</span><span class="p">():</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+
+<div class="viewcode-block" id="findvalue">
+<a class="viewcode-back" href="../../../api/astroquery.open_exoplanet_catalogue.findvalue.html#astroquery.open_exoplanet_catalogue.findvalue">[docs]</a>
+<span class="k">def</span> <span class="nf">findvalue</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">searchstring</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Searches given string in element.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    element : Element</span>
+<span class="sd">        Element from the ElementTree module.</span>
+<span class="sd">    searchstring : str</span>
+<span class="sd">        name of the tag to look for in element</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None if tag does not exist.</span>
+<span class="sd">    str if the tag cannot be expressed as a float.</span>
+<span class="sd">    Number if the tag is a numerical value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">searchstring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">tempnum</span> <span class="o">=</span> <span class="n">Number</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">tempnum</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">if</span> <span class="s2">&quot;errorminus&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+            <span class="n">tempnum</span><span class="o">.</span><span class="n">errorminus</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;errorminus&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;errorplus&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+            <span class="n">tempnum</span><span class="o">.</span><span class="n">errorplus</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;errorplus&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;upperlimit&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+            <span class="n">tempnum</span><span class="o">.</span><span class="n">upperlimit</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;upperlimit&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;lowerlimit&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+            <span class="n">tempnum</span><span class="o">.</span><span class="n">lowerlimit</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;lowerlimit&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tempnum</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

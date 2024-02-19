@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>TAP/TAP+ (astroquery.utils.tap) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tap" href="../api/astroquery.utils.tap.Tap.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.solarsystem.neodys.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.utils.tap.Tap.html" title="Tap">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.solarsystem.neodys.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>TAP/TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.utils.tap</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="admonition warning" id="astroquery-utils-tap">
+<p class="admonition-title">Warning</p>
+<p>This module is for internal astroquery use only with the purpose to
+support the modules developed and maintained by ESA (<code class="docutils literal notranslate"><span class="pre">astroquery.gaia</span></code>,
+<code class="docutils literal notranslate"><span class="pre">astroquery.esasky</span></code>, and modules within <code class="docutils literal notranslate"><span class="pre">astroquery.esa</span></code>).
+If you need a TAP implementation, especially to access non-ESA services,
+we recommend to use <a class="reference external" href="https://pyvo.readthedocs.io/en/latest/">pyVO</a> instead.
+Our intention is to merge the functionalities and remove TAP/TAP+ from astroquery.</p>
+</div>
+<section id="tap-tap-astroquery-utils-tap">
+<h1>TAP/TAP+ (<a class="reference internal" href="#module-astroquery.utils.tap" title="astroquery.utils.tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.utils.tap</span></code></a>)<a class="headerlink" href="#tap-tap-astroquery-utils-tap" title="Link to this heading">¶</a></h1>
+<p>Table Access Protocol (TAP: <a class="reference external" href="https://www.ivoa.net/documents/TAP/">https://www.ivoa.net/documents/TAP/</a>) specified by the
+International Virtual Observatory Alliance (IVOA: <a class="reference external" href="https://www.ivoa.net">https://www.ivoa.net</a>) defines
+a service protocol for accessing general table data.</p>
+<p>TAP+ is the ESAC Space Data Centre (ESDC: <a class="reference external" href="https://www.cosmos.esa.int/web/esdc/">https://www.cosmos.esa.int/web/esdc/</a>)
+extension of the Table Access Protocol.</p>
+<p>The TAP query language is Astronomical Data Query Language (ADQL:
+<a class="reference external" href="https://www.ivoa.net/documents/ADQL/2.0">https://www.ivoa.net/documents/ADQL/2.0</a>), which is similar
+to Structured Query Language (SQL), widely used to query databases.</p>
+<p>TAP provides two operation modes: Synchronous and Asynchronous:</p>
+<ul class="simple">
+<li><p>Synchronous: the response to the request will be generated as soon as the
+request received by the server. (Do not use this method for queries that
+generate a big amount of results.)</p></li>
+<li><p>Asynchronous: the server will start a job that will execute the request.
+The first response to the request is the required information (a link) to obtain
+the job status. Once the job is finished, the results can be retrieved.</p></li>
+</ul>
+<p>TAP+ is fully compatible with TAP specification. TAP+ adds more capabilities
+like authenticated access and persistent user storage area.</p>
+<p>Please, check methods documentation to determine whether a method is TAP compatible.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="non-authenticated-access">
+<h3>1. Non authenticated access<a class="headerlink" href="#non-authenticated-access" title="Link to this heading">¶</a></h3>
+<section id="getting-public-tables">
+<h4>1.1 Getting public tables<a class="headerlink" href="#getting-public-tables" title="Link to this heading">¶</a></h4>
+<p>To load only table names (TAP+ capability)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_qualified_name</span><span class="p">())</span>
+
+<span class="go">public.dual</span>
+<span class="go">public.tycho2</span>
+<span class="go">public.igsl_source</span>
+<span class="go">public.hipparcos</span>
+<span class="go">public.hipparcos_newreduction</span>
+<span class="go">public.hubble_sc</span>
+<span class="go">public.igsl_source_catalog_ids</span>
+<span class="go">tap_schema.tables</span>
+<span class="go">tap_schema.keys</span>
+<span class="go">tap_schema.columns</span>
+<span class="go">tap_schema.schemas</span>
+<span class="go">tap_schema.key_columns</span>
+<span class="go">gaiadr1.phot_variable_time_series_gfov</span>
+<span class="go">gaiadr1.ppmxl_neighbourhood</span>
+<span class="go">gaiadr1.gsc23_neighbourhood</span>
+<span class="go">gaiadr1.ppmxl_best_neighbour</span>
+<span class="go">gaiadr1.sdss_dr9_neighbourhood</span>
+<span class="go">...</span>
+<span class="go">gaiadr1.tgas_source</span>
+<span class="go">gaiadr1.urat1_original_valid</span>
+<span class="go">gaiadr1.allwise_original_valid</span>
+</pre></div>
+</div>
+<p>To load table names (TAP compatible)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_qualified_name</span><span class="p">())</span>
+
+<span class="go">public.dual</span>
+<span class="go">public.tycho2</span>
+<span class="go">public.igsl_source</span>
+<span class="go">public.hipparcos</span>
+<span class="go">public.hipparcos_newreduction</span>
+<span class="go">public.hubble_sc</span>
+<span class="go">public.igsl_source_catalog_ids</span>
+<span class="go">tap_schema.tables</span>
+<span class="go">tap_schema.keys</span>
+<span class="go">tap_schema.columns</span>
+<span class="go">tap_schema.schemas</span>
+<span class="go">tap_schema.key_columns</span>
+<span class="go">gaiadr1.phot_variable_time_series_gfov</span>
+<span class="go">gaiadr1.ppmxl_neighbourhood</span>
+<span class="go">gaiadr1.gsc23_neighbourhood</span>
+<span class="go">gaiadr1.ppmxl_best_neighbour</span>
+<span class="go">gaiadr1.sdss_dr9_neighbourhood</span>
+<span class="go">...</span>
+<span class="go">gaiadr1.tgas_source</span>
+<span class="go">gaiadr1.urat1_original_valid</span>
+<span class="go">gaiadr1.allwise_original_valid</span>
+</pre></div>
+</div>
+<p>To load only a table (TAP+ capability)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="s1">&#39;gaiadr1.gaia_source&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+<span class="go">Table name: gaiadr1.gaia_source</span>
+<span class="go">Description: This table has an entry for every Gaia observed source as listed in the</span>
+<span class="go">Main Database accumulating catalogue version from which the catalogue</span>
+<span class="go">release has been generated. It contains the basic source parameters,</span>
+<span class="go">that is only final data (no epoch data) and no spectra (neither final</span>
+<span class="go">nor epoch).</span>
+<span class="go">Num. columns: 57</span>
+</pre></div>
+</div>
+<p>Once a table is loaded, columns can be inspected</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="s1">&#39;gaiadr1.gaia_source&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="go">solution_id</span>
+<span class="go">source_id</span>
+<span class="go">random_index</span>
+<span class="go">ref_epoch</span>
+<span class="go">ra</span>
+<span class="go">ra_error</span>
+<span class="go">dec</span>
+<span class="go">dec_error</span>
+<span class="go">...</span>
+<span class="go">ecl_lon</span>
+<span class="go">ecl_lat</span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-query">
+<h4>1.2 Synchronous query<a class="headerlink" href="#synchronous-query" title="Link to this heading">¶</a></h4>
+<p>A synchronous query will not store the results at server side. These queries must be used when the amount of data to be retrieve is ‘small’.</p>
+<p>There is a limit of 2000 rows. If you need more than that, you must use asynchronous queries.</p>
+<p>The results can be saved in memory (default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="s2">&quot;select top 100 </span><span class="se">\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag </span><span class="se">\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">from gaiadr1.gaia_source order by source_id&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="go">Jobid: None</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: sync_20170223111452.xml.gz</span>
+<span class="go">Results: None</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;solution_id&#39;</span><span class="p">])</span>
+
+<span class="go">  solution_id</span>
+<span class="go">-------------------</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">              ...</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Query saving results in a file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="s2">&quot;select top 100 </span><span class="se">\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag </span><span class="se">\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">from gaiadr1.gaia_source order by source_id&quot;</span><span class="p">,</span> <span class="n">dump_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="go">Jobid: None</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: sync_20170223111452.xml.gz</span>
+<span class="go">Results: None</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;solution_id&#39;</span><span class="p">])</span>
+
+<span class="go">  solution_id</span>
+<span class="go">-------------------</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">              ...</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-query-on-an-on-the-fly-uploaded-table">
+<h4>1.3 Synchronous query on an ‘on-the-fly’ uploaded table<a class="headerlink" href="#synchronous-query-on-an-on-the-fly-uploaded-table" title="Link to this heading">¶</a></h4>
+<p>A table can be uploaded to the server in order to be used in a query.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upload_resource</span> <span class="o">=</span> <span class="s1">&#39;my_table.xml&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">j</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;select * from tap_upload.table_test&quot;</span><span class="p">,</span> <span class="n">upload_resource</span><span class="o">=</span><span class="n">upload_resource</span><span class="p">,</span> \
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upload_table_name</span><span class="o">=</span><span class="s2">&quot;table_test&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+
+<span class="go">source_id alpha delta</span>
+<span class="go">--------- ----- -----</span>
+<span class="go">        a   1.0   2.0</span>
+<span class="go">        b   3.0   4.0</span>
+<span class="go">        c   5.0   6.0</span>
+</pre></div>
+</div>
+</section>
+<section id="asynchronous-query">
+<h4>1.4 Asynchronous query<a class="headerlink" href="#asynchronous-query" title="Link to this heading">¶</a></h4>
+<p>Asynchronous queries save results at server side. These queries can be accessed at any time. For anonymous users, results are kept for three days.</p>
+<p>The results can be saved in memory (default) or in a file.</p>
+<p>Query without saving results in a file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 100 * from gaiadr1.gaia_source order by source_id&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="go">Jobid: 1487845273526O</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: async_20170223112113.vot</span>
+<span class="go">Results: None</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;solution_id&#39;</span><span class="p">])</span>
+
+<span class="go">  solution_id</span>
+<span class="go">-------------------</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">              ...</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+<p>Query saving results in a file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 100 * from gaiadr1.gaia_source order by source_id&quot;</span><span class="p">,</span> <span class="n">dump_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="go">Jobid: 1487845273526O</span>
+<span class="go">Phase: COMPLETED</span>
+<span class="go">Owner: None</span>
+<span class="go">Output file: async_20170223112113.vot</span>
+<span class="go">Results: None</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;solution_id&#39;</span><span class="p">])</span>
+
+<span class="go">  solution_id</span>
+<span class="go">-------------------</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">              ...</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">1635378410781933568</span>
+<span class="go">Length = 100 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="asynchronous-job-removal">
+<h4>1.5 Asynchronous job removal<a class="headerlink" href="#asynchronous-job-removal" title="Link to this heading">¶</a></h4>
+<p>To remove asynchronous</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">remove_jobs</span><span class="p">([</span><span class="s2">&quot;job_id_1&quot;</span><span class="p">,</span><span class="s2">&quot;job_id_2&quot;</span><span class="p">,</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="authenticated-access-tap-only">
+<h3>2. Authenticated access (TAP+ only)<a class="headerlink" href="#authenticated-access-tap-only" title="Link to this heading">¶</a></h3>
+<p>Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
+In order to authenticate a user, <code class="docutils literal notranslate"><span class="pre">login</span></code> or <code class="docutils literal notranslate"><span class="pre">login_gui</span></code> methods must be called. After a successful
+authentication, the user will be authenticated until <code class="docutils literal notranslate"><span class="pre">logout</span></code> method is called.</p>
+<p>All previous methods (<code class="docutils literal notranslate"><span class="pre">query_object</span></code>, <code class="docutils literal notranslate"><span class="pre">cone_search</span></code>, <code class="docutils literal notranslate"><span class="pre">load_table</span></code>, <code class="docutils literal notranslate"><span class="pre">load_tables</span></code>, <code class="docutils literal notranslate"><span class="pre">launch_job</span></code>) explained for
+non authenticated users are applicable for authenticated ones.</p>
+<p>The main differences are:</p>
+<ul class="simple">
+<li><p>Asynchronous results are kept at server side for ever (until the user decides to remove one of them).</p></li>
+<li><p>Users can access to shared tables.</p></li>
+</ul>
+<section id="login-logout">
+<h4>2.1. Login/Logout<a class="headerlink" href="#login-logout" title="Link to this heading">¶</a></h4>
+<p>Graphic interface</p>
+<p><em>Note: Tkinter module is required to use login_gui method.</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Command line</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="s1">&#39;userName&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;userPassword&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is possible to use a file where the credentials are stored:</p>
+<p><em>The file must containing user and password in two different lines.</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">credentials_file</span><span class="o">=</span><span class="s1">&#39;my_credentials_file&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you do not provide any parameters at all, a prompt will ask for user name and password.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="p">:</span> <span class="n">user</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Password</span><span class="p">:</span> <span class="n">pwd</span> <span class="p">(</span><span class="ow">not</span> <span class="n">visible</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To perform a logout</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">credentials_file</span><span class="o">=</span><span class="s1">&#39;my_credentials_file&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="listing-shared-tables">
+<h4>2.2. Listing shared tables<a class="headerlink" href="#listing-shared-tables" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">credentials_file</span><span class="o">=</span><span class="s1">&#39;my_credentials_file&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_shared_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_qualified_name</span><span class="p">())</span>
+
+<span class="go">public.dual</span>
+<span class="go">public.tycho2</span>
+<span class="go">public.igsl_source</span>
+<span class="go">tap_schema.tables</span>
+<span class="go">tap_schema.keys</span>
+<span class="go">tap_schema.columns</span>
+<span class="go">tap_schema.schemas</span>
+<span class="go">tap_schema.key_columns</span>
+<span class="go">gaiadr1.phot_variable_time_series_gfov</span>
+<span class="go">gaiadr1.ppmxl_neighbourhood</span>
+<span class="go">gaiadr1.gsc23_neighbourhood</span>
+<span class="go">...</span>
+<span class="go">user_schema_1.table1</span>
+<span class="go">user_schema_2.table1</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-to-user-space">
+<h4>2.2. Uploading table to user space<a class="headerlink" href="#uploading-table-to-user-space" title="Link to this heading">¶</a></h4>
+<p>It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file, a job or a astropy Table.</p>
+<p>The table is stored into the user private area in the database. Each user has a database schema. The schema name is ‘user_&lt;user_login_name&gt;’.</p>
+<p>For instance, if a login name is ‘joe’, the database schema is ‘user_joe’.</p>
+<p>Your uploaded table can be referenced as ‘user_joe.table_name’</p>
+</section>
+<section id="uploading-table-from-url-to-user-space">
+<h4>2.2.1. Uploading table from url to user space<a class="headerlink" href="#uploading-table-from-url-to-user-space" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Provide a URL pointing to a valid VOTable resource</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&amp;lang=ADQL&amp;FORMAT=votable&amp;QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name=&#39;II/336/apass9&#39;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;table_test_from_url&quot;</span><span class="p">,</span> <span class="n">table_description</span><span class="o">=</span><span class="s2">&quot;Some description&quot;</span><span class="p">)</span>
+
+<span class="go">Job &#39;1539932326689O&#39; created to upload table &#39;table_test_from_url&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.table_test_from_url&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_resultsjob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-file-to-user-space">
+<h4>2.2.2. Uploading table from file to user space<a class="headerlink" href="#uploading-table-from-file-to-user-space" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="s2">&quot;1535553556177O-result.vot&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;table_test_from_file&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;VOTable&quot;</span><span class="p">)</span>
+
+<span class="go">Sending file: 1535553556177O-result.vot</span>
+<span class="go">Uploaded table &#39;table_test_from_file&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.table_test_from_file&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_resultsjob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-job-to-user-space">
+<h4>2.2.3. Uploading table from job to user space<a class="headerlink" href="#uploading-table-from-job-to-user-space" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">j1</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;select top 10 * from gaiadr2.gaia_source&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">upload_table_from_job</span><span class="p">(</span><span class="n">j1</span><span class="p">)</span>
+
+<span class="go">Created table &#39;t1539932994481O&#39; from job: &#39;1539932994481O&#39;.</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.t1539932994481O&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_resultsjob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="uploading-table-from-an-astropy-table">
+<h4>2.2.4. Uploading table from an astropy Table<a class="headerlink" href="#uploading-table-from-an-astropy-table" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span><span class="s1">&#39;col2&#39;</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;meta&#39;</span><span class="p">:</span><span class="s1">&#39;first table&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Upload</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">upload_table</span><span class="p">(</span><span class="n">upload_resource</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;my_table&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, you can query your table as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_qualified_table_name</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;your_login_name&gt;.my_table&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;select * from &#39;</span> <span class="o">+</span> <span class="n">full_qualified_table_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_resultsjob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="deleting-table-from-user-space">
+<h4>2.3. Deleting table from user space<a class="headerlink" href="#deleting-table-from-user-space" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">delete_user_table</span><span class="p">(</span><span class="s2">&quot;table_test_from_file&quot;</span><span class="p">)</span>
+
+<span class="go">Table &#39;table_test_from_file&#39; deleted.</span>
+</pre></div>
+</div>
+</section>
+<section id="updating-metadata-of-table-in-user-space">
+<h4>2.4. Updating metadata of table in user space<a class="headerlink" href="#updating-metadata-of-table-in-user-space" title="Link to this heading">¶</a></h4>
+<p>Metadata of a user table can be updated by specifying the changes to be done.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">update_user_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">list_of_changes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The format defined to specify a change is the following:</p>
+<p>[“column name to be changed”, “metadata parameter to be changed”, “new value”]</p>
+<p>metadata parameter to be changed can be ‘utype’, ‘ucd’, ‘flags’ or ‘indexed’</p>
+<p>values for ‘utype’ and ‘ucd’ are free text
+value for ‘flags’ can be ‘Ra’, ‘Dec’, ‘Mag’, ‘Flux’ and ‘PK’
+value for ‘indexed’ is a boolean indicating if the column is indexed</p>
+<p>It is possible to specify a list of those changes for them to be applied at once.
+This is done by putting each of the changes in a list. See example below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login_gui</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">update_user_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_&lt;user_login_name&gt;.my_table&quot;</span><span class="p">,</span> <span class="n">list_of_changes</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;recno&quot;</span><span class="p">,</span> <span class="s2">&quot;ucd&quot;</span><span class="p">,</span> <span class="s2">&quot;ucd sample&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;nobs&quot;</span><span class="p">,</span><span class="s2">&quot;utype&quot;</span><span class="p">,</span><span class="s2">&quot;utype sample&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;raj2000&quot;</span><span class="p">,</span><span class="s2">&quot;flags&quot;</span><span class="p">,</span><span class="s2">&quot;Ra&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;dej2000&quot;</span><span class="p">,</span><span class="s2">&quot;flags&quot;</span><span class="p">,</span><span class="s2">&quot;Dec&quot;</span><span class="p">]])</span>
+
+<span class="go">Retrieving table &#39;user_&lt;user_login_name&gt;.my_table&#39;</span>
+<span class="go">Parsing table &#39;user_&lt;user_login_name&gt;.my_table&#39;...</span>
+<span class="go">Done.</span>
+<span class="go">Table &#39;user_&lt;user_login_name&gt;.my_table&#39; updated.</span>
+</pre></div>
+</div>
+</section>
+<section id="tables-sharing">
+<h4>2.5. Tables sharing<a class="headerlink" href="#tables-sharing" title="Link to this heading">¶</a></h4>
+<p>You can share your tables to other users. You have to create a group, populate that group with users, and share your table to that group.
+Then, any user belonging to that group will be able to user your shared table in a query.</p>
+</section>
+<section id="creating-a-group">
+<h4>2.5.1 Creating a group<a class="headerlink" href="#creating-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_group_create</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="removing-a-group">
+<h4>2.5.2 Removing a group<a class="headerlink" href="#removing-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_group_delete</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-users-to-a-group">
+<h4>2.5.3 Adding users to a group<a class="headerlink" href="#adding-users-to-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_group_add_user</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span><span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;&lt;user_login_name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="removing-users-from-a-group">
+<h4>2.5.4 Removing users from a group<a class="headerlink" href="#removing-users-from-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_group_delete_user</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span><span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;&lt;user_login_name&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sharing-a-table-to-a-group">
+<h4>2.5.5 Sharing a table to a group<a class="headerlink" href="#sharing-a-table-to-a-group" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_table</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">,</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_&lt;user_loign_name&gt;.my_table&quot;</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="stop-sharing-a-table">
+<h4>2.5.6 Stop sharing a table<a class="headerlink" href="#stop-sharing-a-table" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">share_table_stop</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;user_&lt;user_login_name&gt;.my_table&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;my_group&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="data-access">
+<h5>2.6. Data access<a class="headerlink" href="#data-access" title="Link to this heading">¶</a></h5>
+<p>TAP+ services may provide a data access entry point.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params_dict</span><span class="p">[</span><span class="s1">&#39;VALID_DATA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params_dict</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1000103304040175360&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params_dict</span><span class="p">[</span><span class="s1">&#39;FORMAT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;votable&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params_dict</span><span class="p">[</span><span class="s1">&#39;RETRIEVAL_TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;epoch_photometry&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">params_dict</span><span class="o">=</span><span class="n">params_dict</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;results.vot&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You may download data into memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">params_dict</span><span class="o">=</span><span class="n">params_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="datalink-access">
+<h5>2.7. Datalink access<a class="headerlink" href="#datalink-access" title="Link to this heading">¶</a></h5>
+<p>This service provides links to data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://gea.esac.esa.int/tap-server/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ids</span><span class="o">=</span><span class="s2">&quot;1000103304040175360,1000117258390464896&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">get_datalink</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="rename-table">
+<h5>2.8. Rename Table<a class="headerlink" href="#rename-table" title="Link to this heading">¶</a></h5>
+<p>This query allows the user to rename a table and/or its columns names. For this method it is only mandatory
+to provide the old name of the table and at least one of the following parameters: new table name and/or
+new columns names. Here is an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.gaia</span> <span class="kn">import</span> <span class="n">Gaia</span><span class="p">,</span> <span class="n">GaiaClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.model.tapcolumn</span> <span class="kn">import</span> <span class="n">TapColumn</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap</span> <span class="kn">import</span> <span class="n">taputils</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span> <span class="o">=</span> <span class="n">GaiaClass</span><span class="p">(</span><span class="n">gaia_tap_server</span><span class="o">=</span><span class="s1">&#39;https://gea.esac.esa.int/&#39;</span><span class="p">,</span> <span class="n">gaia_data_server</span><span class="o">=</span><span class="s1">&#39;https://gea.esac.esa.int/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gaia</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tableName</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;user_login_name&gt;.my_old_table_name&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newTableName</span> <span class="o">=</span> <span class="s1">&#39;user_&lt;user_login_name&gt;.my_new_table_name&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newColumnNames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;old_col_name1&#39;</span><span class="p">:</span> <span class="s1">&#39;new_col_name1&#39;</span><span class="p">,</span> <span class="s1">&#39;old_col_name2&#39;</span><span class="p">:</span> <span class="s1">&#39;new_col_name2&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tap</span><span class="o">.</span><span class="n">rename_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">tableName</span><span class="p">,</span> <span class="n">new_table_name</span><span class="o">=</span><span class="n">newTableName</span><span class="p">,</span> <span class="n">new_column_names_dict</span><span class="o">=</span><span class="n">newColumnNames</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="using-tap-to-connect-other-tap-services">
+<h3>3. Using TAP+ to connect other TAP services<a class="headerlink" href="#using-tap-to-connect-other-tap-services" title="Link to this heading">¶</a></h3>
+<p>TAP+ can be used to connect other TAP services.</p>
+<p>Example 1: TAPVizieR.cds.unistra.fr</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tap</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://TAPVizieR.cds.unistra.fr/TAPVizieR/tap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Inspect tables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">tap</span><span class="o">.</span><span class="n">load_tables</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
+
+<span class="go">...</span>
+<span class="go">J/ApJS/173/104/memb</span>
+<span class="go">J/A+A/376/441/table1</span>
+<span class="go">J/A+AS/110/81/table2</span>
+<span class="go">J/ApJS/73/781/snr_indx</span>
+<span class="go">V/15/notes</span>
+<span class="go">J/A+AS/115/285/refs</span>
+<span class="go">J/ApJS/165/338/table1</span>
+<span class="go">IX/24/obsnames</span>
+<span class="go">J/A+AS/122/463/tab2-14</span>
+<span class="go">J/ApJS/107/521/table1</span>
+<span class="go">J/MNRAS/275/1102/table1a</span>
+<span class="go">J/ApJ/647/328/table4</span>
+<span class="go">J/A+A/402/1/table1a</span>
+<span class="go">J/AJ/115/1856/v12</span>
+<span class="go">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Launch sync job</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">tap</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="s2">&quot;SELECT top 10 * from &quot;</span> <span class="o">+</span> <span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+
+<span class="go">                       title                         class [1] ... comment</span>
+<span class="go">---------------------------------------------------- --------- ... -------</span>
+<span class="go">The 2MASS Point Source and 2MASS6x catalogues (2003)       2 ...</span>
+<span class="go">        The 2MASS Extended Source Catalogue (2003)         2 ...</span>
+<span class="go">     Astrographic catalog (mean epoch around 1900)         2 ...</span>
+<span class="go">AKARI IRC (9/18um) and FIS (60-160um)all-sky Surveys       2 ...</span>
+<span class="go">         All-Sky Compiled Catalog of 2.5M*  (2003)         2 ...</span>
+<span class="go">     The DENIS database (3rd Release 2005 version)         2 ...</span>
+<span class="go">   The Carlsberg Meridian Catalog 14 (-30&lt;Dec&lt;+50)         2 ...</span>
+<span class="go">         GALEX-DR5 sources from AIS and MIS (2011)         2 ...</span>
+<span class="go">       Spitzer&#39;s GLIMPSE catalogs (Galactic Plane)         2 ...</span>
+<span class="go"> The HST Guide Star Catalog reduced on Tycho (ACT)         2 ...</span>
+<span class="go">Example 2: irsa.ipac.caltech.edu</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.utils.tap.core</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tap</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://irsa.ipac.caltech.edu/TAP&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">job</span> <span class="o">=</span> <span class="n">tap</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="s2">&quot;SELECT TOP 10 * FROM fp_psc&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+
+<span class="go">   name      dtype   unit format n_bad</span>
+<span class="go">------------- ------- ----- ------ -----</span>
+<span class="go">       cntr   int32                  0</span>
+<span class="go">      hemis  object                  0</span>
+<span class="go">      xdate  object                  0</span>
+<span class="go">       scan   int32                  0</span>
+<span class="go">         id   int32                  0</span>
+<span class="go">         ra float64   deg     %r     0</span>
+<span class="go">        dec float64   deg     %r     0</span>
+<span class="go">       glon float64   deg     %r     0</span>
+<span class="go">       glat float64   deg     %r     0</span>
+<span class="go">          x float64           %r     0</span>
+<span class="go">          y float64           %r     0</span>
+<span class="go">          z float64           %r     0</span>
+<span class="go">    err_maj float64  arcs     %r     0</span>
+<span class="go">    err_min float64  arcs     %r     0</span>
+<span class="go">    err_ang   int32   deg            0</span>
+<span class="go">     x_scan float64  arcs     %r     0</span>
+<span class="go">     y_scan float64  arcs     %r     0</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>Please, check methods documentation to determine whether a method is TAP compatible.</p>
+</section>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.utils.tap">
+<span id="astroquery-utils-tap-package"></span><h3>astroquery.utils.tap Package<a class="headerlink" href="#module-astroquery.utils.tap" title="Link to this heading">¶</a></h3>
+<p>&#64;author: Juan Carlos Segovia
+&#64;contact: <a class="reference external" href="mailto:juan&#46;carlos&#46;segovia&#37;&#52;&#48;sciops&#46;esa&#46;int">juan<span>&#46;</span>carlos<span>&#46;</span>segovia<span>&#64;</span>sciops<span>&#46;</span>esa<span>&#46;</span>int</a></p>
+<p>European Space Astronomy Centre (ESAC)
+European Space Agency (ESA)</p>
+<p>Created on 30 jun. 2016</p>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.utils.tap.Tap.html#astroquery.utils.tap.Tap" title="astroquery.utils.tap.Tap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tap</span></code></a>(*[, url, host, server_context, ...])</p></td>
+<td><p>TAP class Provides TAP capabilities</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.utils.tap.TapPlus.html#astroquery.utils.tap.TapPlus" title="astroquery.utils.tap.TapPlus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TapPlus</span></code></a>(*[, url, host, server_context, ...])</p></td>
+<td><p>TAP plus class Provides TAP and TAP+ capabilities</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.utils.tap.TapTableMeta.html#astroquery.utils.tap.TapTableMeta" title="astroquery.utils.tap.TapTableMeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TapTableMeta</span></code></a>()</p></td>
+<td><p>TAP table metadata object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.utils.tap.TapColumn.html#astroquery.utils.tap.TapColumn" title="astroquery.utils.tap.TapColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TapColumn</span></code></a>(flags)</p></td>
+<td><p>TAP column object</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">TAP/TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.utils.tap</span></code>)</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#non-authenticated-access">1. Non authenticated access</a><ul>
+<li><a class="reference internal" href="#getting-public-tables">1.1 Getting public tables</a></li>
+<li><a class="reference internal" href="#synchronous-query">1.2 Synchronous query</a></li>
+<li><a class="reference internal" href="#synchronous-query-on-an-on-the-fly-uploaded-table">1.3 Synchronous query on an ‘on-the-fly’ uploaded table</a></li>
+<li><a class="reference internal" href="#asynchronous-query">1.4 Asynchronous query</a></li>
+<li><a class="reference internal" href="#asynchronous-job-removal">1.5 Asynchronous job removal</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authenticated-access-tap-only">2. Authenticated access (TAP+ only)</a><ul>
+<li><a class="reference internal" href="#login-logout">2.1. Login/Logout</a></li>
+<li><a class="reference internal" href="#listing-shared-tables">2.2. Listing shared tables</a></li>
+<li><a class="reference internal" href="#uploading-table-to-user-space">2.2. Uploading table to user space</a></li>
+<li><a class="reference internal" href="#uploading-table-from-url-to-user-space">2.2.1. Uploading table from url to user space</a></li>
+<li><a class="reference internal" href="#uploading-table-from-file-to-user-space">2.2.2. Uploading table from file to user space</a></li>
+<li><a class="reference internal" href="#uploading-table-from-job-to-user-space">2.2.3. Uploading table from job to user space</a></li>
+<li><a class="reference internal" href="#uploading-table-from-an-astropy-table">2.2.4. Uploading table from an astropy Table</a></li>
+<li><a class="reference internal" href="#deleting-table-from-user-space">2.3. Deleting table from user space</a></li>
+<li><a class="reference internal" href="#updating-metadata-of-table-in-user-space">2.4. Updating metadata of table in user space</a></li>
+<li><a class="reference internal" href="#tables-sharing">2.5. Tables sharing</a></li>
+<li><a class="reference internal" href="#creating-a-group">2.5.1 Creating a group</a></li>
+<li><a class="reference internal" href="#removing-a-group">2.5.2 Removing a group</a></li>
+<li><a class="reference internal" href="#adding-users-to-a-group">2.5.3 Adding users to a group</a></li>
+<li><a class="reference internal" href="#removing-users-from-a-group">2.5.4 Removing users from a group</a></li>
+<li><a class="reference internal" href="#sharing-a-table-to-a-group">2.5.5 Sharing a table to a group</a></li>
+<li><a class="reference internal" href="#stop-sharing-a-table">2.5.6 Stop sharing a table</a><ul>
+<li><a class="reference internal" href="#data-access">2.6. Data access</a></li>
+<li><a class="reference internal" href="#datalink-access">2.7. Datalink access</a></li>
+<li><a class="reference internal" href="#rename-table">2.8. Rename Table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-tap-to-connect-other-tap-services">3. Using TAP+ to connect other TAP services</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.utils.tap">astroquery.utils.tap Package</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/utils/tap.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

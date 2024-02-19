@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tap &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="TapPlus" href="astroquery.utils.tap.TapPlus.html" />
+    <link rel="prev" title="TAP/TAP+ (astroquery.utils.tap)" href="../utils/tap.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.utils.tap.TapPlus.html" title="TapPlus">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../utils/tap.html" title="TAP/TAP+ (astroquery.utils.tap)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../utils/tap.html" accesskey="U">TAP/TAP+ (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.utils.tap</span></code>)</a> &#187;</li>
+      
+      <li>Tap</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tap">
+<h1>Tap<a class="headerlink" href="#tap" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.utils.tap.</span></span><span class="sig-name descname"><span class="pre">Tap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tap_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslport</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">443</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_protocol_is_https</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connhandler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_edit_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datalink_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>TAP class
+Provides TAP capabilities</p>
+<p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>url</strong><span class="classifier">str, mandatory if no host is specified, default None</span></dt><dd><p>TAP URL</p>
+</dd>
+<dt><strong>host</strong><span class="classifier">str, optional, default None</span></dt><dd><p>host name</p>
+</dd>
+<dt><strong>server_context</strong><span class="classifier">str, mandatory, default None</span></dt><dd><p>server context</p>
+</dd>
+<dt><strong>tap_context</strong><span class="classifier">str, mandatory, default None</span></dt><dd><p>tap context</p>
+</dd>
+<dt><strong>upload_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>upload context</p>
+</dd>
+<dt><strong>table_edit_context</strong><span class="classifier">str, mandatory, default None</span></dt><dd><p>context for all actions to be performed over a existing table</p>
+</dd>
+<dt><strong>data_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>data context</p>
+</dd>
+<dt><strong>datalink_context</strong><span class="classifier">str, optional, default None</span></dt><dd><p>datalink context</p>
+</dd>
+<dt><strong>port</strong><span class="classifier">int, optional, default ‘80’</span></dt><dd><p>HTTP port</p>
+</dd>
+<dt><strong>sslport</strong><span class="classifier">int, optional, default ‘443’</span></dt><dd><p>HTTPS port</p>
+</dd>
+<dt><strong>default_protocol_is_https</strong><span class="classifier">bool, optional, default False</span></dt><dd><p>Specifies whether the default protocol to be used is HTTPS</p>
+</dd>
+<dt><strong>connhandler</strong><span class="classifier">connection handler object, optional, default None</span></dt><dd><p>HTTP(s) connection hander (creator). If no handler is provided, a
+new one is created.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.launch_job" title="astroquery.utils.tap.Tap.launch_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_job</span></code></a>(query, *[, name, output_file, ...])</p></td>
+<td><p>Launches a synchronous job</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.launch_job_async" title="astroquery.utils.tap.Tap.launch_job_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch_job_async</span></code></a>(query, *[, name, ...])</p></td>
+<td><p>Launches an asynchronous job</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.list_async_jobs" title="astroquery.utils.tap.Tap.list_async_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_async_jobs</span></code></a>(*[, verbose])</p></td>
+<td><p>Returns all the asynchronous jobs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.load_async_job" title="astroquery.utils.tap.Tap.load_async_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_async_job</span></code></a>(*[, jobid, name, verbose, ...])</p></td>
+<td><p>Loads an asynchronous job</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.load_table" title="astroquery.utils.tap.Tap.load_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_table</span></code></a>(table, *[, verbose])</p></td>
+<td><p>Loads the specified table</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.load_tables" title="astroquery.utils.tap.Tap.load_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tables</span></code></a>(*[, verbose])</p></td>
+<td><p>Loads all public tables</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.tap.Tap.save_results" title="astroquery.utils.tap.Tap.save_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_results</span></code></a>(job, *[, verbose])</p></td>
+<td><p>Saves job results</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.launch_job">
+<span class="sig-name descname"><span class="pre">launch_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxrec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.launch_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.launch_job" title="Link to this definition">¶</a></dt>
+<dd><p>Launches a synchronous job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query to be executed</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>custom name defined by the user for the job that is going to be created</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>upload_resource</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource to be uploaded to UPLOAD_SCHEMA</p>
+</dd>
+<dt><strong>upload_table_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource temporary table name associated to the uploaded resource.
+This argument is required if upload_resource is provided.</p>
+</dd>
+<dt><strong>maxrec</strong><span class="classifier">int, optional, default None</span></dt><dd><p>maximum number of rows to return (TAP <code class="docutils literal notranslate"><span class="pre">MAXREC</span></code> parameter)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.launch_job_async">
+<span class="sig-name descname"><span class="pre">launch_job_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autorun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxrec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.launch_job_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.launch_job_async" title="Link to this definition">¶</a></dt>
+<dd><p>Launches an asynchronous job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">str, mandatory</span></dt><dd><p>query to be executed</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>custom name defined by the user for the job that is going to be created</p>
+</dd>
+<dt><strong>output_file</strong><span class="classifier">str, optional, default None</span></dt><dd><p>file name where the results are saved if dumpToFile is True.
+If this parameter is not provided, the jobid is used instead</p>
+</dd>
+<dt><strong>output_format</strong><span class="classifier">str, optional, default ‘votable’</span></dt><dd><p>results format</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>dump_to_file</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>if True, the results are saved in a file instead of using memory</p>
+</dd>
+<dt><strong>background</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>when the job is executed in asynchronous mode, this flag specifies
+whether the execution will wait until results are available</p>
+</dd>
+<dt><strong>upload_resource</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource to be uploaded to UPLOAD_SCHEMA</p>
+</dd>
+<dt><strong>upload_table_name</strong><span class="classifier">str, optional, default None</span></dt><dd><p>resource temporary table name associated to the uploaded resource.
+This argument is required if upload_resource is provided.</p>
+</dd>
+<dt><strong>autorun</strong><span class="classifier">boolean, optional, default True</span></dt><dd><p>if ‘True’, sets ‘phase’ parameter to ‘RUN’,
+so the framework can start the job.</p>
+</dd>
+<dt><strong>maxrec</strong><span class="classifier">int, optional, default None</span></dt><dd><p>maximum number of rows to return (TAP <code class="docutils literal notranslate"><span class="pre">MAXREC</span></code> parameter)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.list_async_jobs">
+<span class="sig-name descname"><span class="pre">list_async_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.list_async_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.list_async_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns all the asynchronous jobs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of Job objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.load_async_job">
+<span class="sig-name descname"><span class="pre">load_async_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jobid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.load_async_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.load_async_job" title="Link to this definition">¶</a></dt>
+<dd><p>Loads an asynchronous job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>jobid</strong><span class="classifier">str, mandatory if no name is provided, default None</span></dt><dd><p>job identifier</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, mandatory if no jobid is provided, default None</span></dt><dd><p>job name</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+<dt><strong>load_results</strong><span class="classifier">bool, optional, default ‘True’</span></dt><dd><p>load results associated to this job</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A Job object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.load_table">
+<span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.load_table" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the specified table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">str, mandatory</span></dt><dd><p>full qualified table name (i.e. schema name + table name)</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A table object</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.load_tables">
+<span class="sig-name descname"><span class="pre">load_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.load_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.load_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Loads all public tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>A list of table objects</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.tap.Tap.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/tap/core.html#Tap.save_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.tap.Tap.save_results" title="Link to this definition">¶</a></dt>
+<dd><p>Saves job results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>job</strong><span class="classifier">Job, mandatory</span></dt><dd><p>job</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional, default ‘False’</span></dt><dd><p>flag to display information about the process</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Tap</a><ul>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap"><code class="docutils literal notranslate"><span class="pre">Tap</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.launch_job"><code class="docutils literal notranslate"><span class="pre">Tap.launch_job()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.launch_job_async"><code class="docutils literal notranslate"><span class="pre">Tap.launch_job_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.list_async_jobs"><code class="docutils literal notranslate"><span class="pre">Tap.list_async_jobs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.load_async_job"><code class="docutils literal notranslate"><span class="pre">Tap.load_async_job()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.load_table"><code class="docutils literal notranslate"><span class="pre">Tap.load_table()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.load_tables"><code class="docutils literal notranslate"><span class="pre">Tap.load_tables()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.tap.Tap.save_results"><code class="docutils literal notranslate"><span class="pre">Tap.save_results()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.utils.tap.Tap.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

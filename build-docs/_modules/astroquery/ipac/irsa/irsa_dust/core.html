@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.ipac.irsa.irsa_dust.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../../irsa.html" >astroquery.ipac.irsa</a> &#187;</li>
+      <li><a href="../irsa_dust.html" accesskey="U">astroquery.ipac.irsa.irsa_dust</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.ipac.irsa.irsa_dust.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">Angle</span><span class="p">,</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates.name_resolve</span> <span class="kn">import</span> <span class="n">NameResolveError</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">astroquery.ipac.irsa.irsa_dust</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">astroquery.ipac.irsa.irsa_dust</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">astroquery.utils</span> <span class="kn">import</span> <span class="n">commons</span>
+<span class="kn">from</span> <span class="nn">astroquery.query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+
+
+<span class="c1"># TODO Add support for server url from JSON cache</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;IrsaDust&quot;</span><span class="p">,</span> <span class="s2">&quot;IrsaDustClass&quot;</span><span class="p">]</span>
+
+<span class="n">EXT_DESC</span> <span class="o">=</span> <span class="s2">&quot;E(B-V) Reddening&quot;</span>
+<span class="n">EM_DESC</span> <span class="o">=</span> <span class="s2">&quot;100 Micron Emission&quot;</span>
+<span class="n">TEMP_DESC</span> <span class="o">=</span> <span class="s2">&quot;Dust Temperature&quot;</span>
+
+<span class="n">INPUT</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
+<span class="n">OBJ_NAME</span> <span class="o">=</span> <span class="s2">&quot;objname&quot;</span>
+<span class="n">REG_SIZE</span> <span class="o">=</span> <span class="s2">&quot;regSize&quot;</span>
+<span class="n">DESC</span> <span class="o">=</span> <span class="s2">&quot;desc&quot;</span>
+<span class="n">IMAGE_URL</span> <span class="o">=</span> <span class="s2">&quot;imageUrl&quot;</span>
+
+<span class="n">STATISTICS</span> <span class="o">=</span> <span class="s2">&quot;statistics&quot;</span>
+<span class="n">REF_PIXEL_VALUE</span> <span class="o">=</span> <span class="s2">&quot;refPixelValue&quot;</span>
+<span class="n">REF_COORDINATE</span> <span class="o">=</span> <span class="s2">&quot;refCoordinate&quot;</span>
+<span class="n">MEAN_VALUE</span> <span class="o">=</span> <span class="s2">&quot;meanValue&quot;</span>
+<span class="n">STD</span> <span class="o">=</span> <span class="s2">&quot;std&quot;</span>
+<span class="n">MAX_VALUE</span> <span class="o">=</span> <span class="s2">&quot;maxValue&quot;</span>
+<span class="n">MIN_VALUE</span> <span class="o">=</span> <span class="s2">&quot;minValue&quot;</span>
+<span class="n">SANDF</span> <span class="o">=</span> <span class="s2">&quot;SandF&quot;</span>
+<span class="n">SFD</span> <span class="o">=</span> <span class="s2">&quot;SFD&quot;</span>
+
+<span class="n">DATA_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;./data/image&quot;</span>
+<span class="n">DATA_TABLE</span> <span class="o">=</span> <span class="s2">&quot;./data/table&quot;</span>
+
+
+<div class="viewcode-block" id="IrsaDustClass">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass">[docs]</a>
+<span class="k">class</span> <span class="nc">IrsaDustClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+
+    <span class="n">DUST_SERVICE_URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+    <span class="n">image_type_to_section</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ebv&#39;</span><span class="p">:</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;100um&#39;</span><span class="p">:</span> <span class="s1">&#39;e&#39;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="IrsaDustClass.get_images">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A query function that performs a coordinate-based query to acquire</span>
+<span class="sd">        Irsa-Dust images.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+<span class="sd">        image_type : str, optional</span>
+<span class="sd">            When missing returns for all the images. Otherwise returns only</span>
+<span class="sd">            for image of the specified type which must be one of</span>
+<span class="sd">            ``&#39;temperature&#39;``,  ``&#39;ebv&#39;``, ``&#39;100um&#39;``. Defaults to `None`.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            If `True` then returns the dictionary of query parameters, posted</span>
+<span class="sd">            to remote server. Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of `~astropy.io.fits.HDUList` objects</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">readable_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_images_async</span><span class="p">(</span>
+            <span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">get_query_payload</span><span class="o">=</span><span class="n">get_query_payload</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="n">show_progress</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">get_fits</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">readable_objs</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.get_images_async">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_images_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A query function similar to</span>
+<span class="sd">        `astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images` but returns</span>
+<span class="sd">        file-handlers to the remote files rather than downloading</span>
+<span class="sd">        them. Useful for asynchronous queries so that the actual download</span>
+<span class="sd">        may be performed later.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+<span class="sd">        image_type : str, optional</span>
+<span class="sd">            When missing returns for all the images. Otherwise returns only</span>
+<span class="sd">            for image of the specified type which must be one of</span>
+<span class="sd">            ``&#39;temperature&#39;``, ``&#39;ebv&#39;``, ``&#39;100um&#39;``. Defaults to `None`.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            If `True` then returns the dictionary of query parameters, posted</span>
+<span class="sd">            to remote server. Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list : list</span>
+<span class="sd">            A list of context-managers that yield readable file-like objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">image_urls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_image_list</span><span class="p">(</span>
+            <span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="c1"># Images are assumed to be FITS files</span>
+        <span class="c1"># they MUST be read as binary for python3 to parse them</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">commons</span><span class="o">.</span><span class="n">FileContainer</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;binary&#39;</span><span class="p">,</span>
+                                      <span class="n">show_progress</span><span class="o">=</span><span class="n">show_progress</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">U</span> <span class="ow">in</span> <span class="n">image_urls</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.get_image_list">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_image_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_image_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query function that performs coordinate-based query and returns a list</span>
+<span class="sd">        of URLs to the Irsa-Dust images.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+<span class="sd">        image_type : str, optional</span>
+<span class="sd">            When missing returns for all the images. Otherwise returns only</span>
+<span class="sd">            for image of the specified type which must be one of</span>
+<span class="sd">            ``&#39;temperature&#39;``, ``&#39;ebv&#39;``, ``&#39;100um&#39;``. Defaults to `None`.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+<span class="sd">        get_query_payload : bool</span>
+<span class="sd">            If `True` then returns the dictionary of query parameters, posted</span>
+<span class="sd">            to remote server. Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        url_list : list</span>
+<span class="sd">            A list of URLs to the FITS images corresponding to the queried</span>
+<span class="sd">            object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DUST_SERVICE_URL</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_image_urls</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.get_extinction_table">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_extinction_table">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_extinction_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span>
+                             <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query function that fetches the extinction table from the query</span>
+<span class="sd">        result.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">readable_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_extinction_table_async</span><span class="p">(</span>
+            <span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">show_progress</span><span class="o">=</span><span class="n">show_progress</span><span class="p">)</span>
+        <span class="c1"># guess=False to suppress error messages related to bad guesses</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">readable_obj</span><span class="o">.</span><span class="n">get_string</span><span class="p">(),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ipac&#39;</span><span class="p">,</span>
+                           <span class="n">guess</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Fix up units: &#39;micron&#39; and &#39;mag&#39;, not &#39;microns&#39; and &#39;mags&#39;</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;microns&#39;</span><span class="p">,</span> <span class="s1">&#39;mags&#39;</span><span class="p">}:</span>
+                <span class="n">column</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">unit</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.get_extinction_table_async">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_extinction_table_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_extinction_table_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A query function similar to</span>
+<span class="sd">        `astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_extinction_table` but</span>
+<span class="sd">        returns a file-handler to the remote files rather than downloading</span>
+<span class="sd">        it.  Useful for asynchronous queries so that the actual download may</span>
+<span class="sd">        be performed later.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle`. Defaults to 5 degrees.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result : A context manager that yields a file like readable object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DUST_SERVICE_URL</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="n">xml_tree</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">SingleDustResult</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">query_loc</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">commons</span><span class="o">.</span><span class="n">FileContainer</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">ext_detail_table</span><span class="p">(),</span>
+                                     <span class="n">show_progress</span><span class="o">=</span><span class="n">show_progress</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.get_query_table">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_query_table">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_query_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">DUST_SERVICE_URL</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and return an `~astropy.table.Table` representing the query</span>
+<span class="sd">        response(s).</span>
+
+<span class="sd">        When ``section`` is missing, returns the full table. When a</span>
+<span class="sd">        section is specified (``&#39;location&#39;``, ``&#39;temperature&#39;``, ``&#39;ebv&#39;``, or</span>
+<span class="sd">        ``&#39;100um&#39;``), only that portion of the table is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here.</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+<span class="sd">        section : str, optional</span>
+<span class="sd">            When missing, all the sections of the query result are returned.</span>
+<span class="sd">            Otherwise only the specified section (``&#39;ebv&#39;``, ``&#39;100um&#39;``,</span>
+<span class="sd">            ``&#39;temperature&#39;``, ``&#39;location&#39;``) is returned. Defaults to `None`.</span>
+<span class="sd">        timeout : int, optional</span>
+<span class="sd">            Time limit for establishing successful connection with remote</span>
+<span class="sd">            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.</span>
+<span class="sd">        url : str, optional</span>
+<span class="sd">            Only provided for debugging. Should generally not be assigned.</span>
+<span class="sd">            Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.DUST_SERVICE_URL`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table : `~astropy.table.Table`</span>
+<span class="sd">            Table representing the query results, (all or as per  specified).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="n">xml_tree</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">SingleDustResult</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">query_loc</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;loc&quot;</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="n">section</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_type_to_section</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="n">section</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;section must be one of the following:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                   <span class="s1">&#39;ebv, temperature, location or 100um.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_args_to_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accepts the query parameters and returns a dictionary</span>
+<span class="sd">        suitable to be sent as data via a HTTP POST request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : str</span>
+<span class="sd">            Can be either the name of an object or a coordinate string</span>
+<span class="sd">            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.</span>
+<span class="sd">            Examples of acceptable coordinate strings, can be found `here</span>
+<span class="sd">            &lt;https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html&gt;`_</span>
+<span class="sd">        radius : str / `~astropy.units.Quantity`, optional</span>
+<span class="sd">            The size of the region to include in the dust query, in radian,</span>
+<span class="sd">            degree or hour as per format specified by</span>
+<span class="sd">            `~astropy.coordinates.Angle` or `~astropy.units.Quantity`.</span>
+<span class="sd">            Defaults to 5 degrees.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        payload : dict</span>
+<span class="sd">            A dictionary that specifies the data for an HTTP POST request</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># If the coordinate is a resolvable name, pass that name</span>
+                <span class="c1"># directly to irsa_dust because it can handle it (and that</span>
+                <span class="c1"># changes the return value associated metadata)</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">)</span>
+                <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;locstr&quot;</span><span class="p">:</span> <span class="n">coordinate</span><span class="p">}</span>
+            <span class="k">except</span> <span class="n">NameResolveError</span><span class="p">:</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">parse_coordinates</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span>
+                <span class="c1"># check if this is resolvable?</span>
+                <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;locstr&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">)}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">SkyCoord</span><span class="p">):</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;locstr&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">)}</span>
+        <span class="c1"># check if radius is given with proper units</span>
+        <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reg_size</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span><span class="o">.</span><span class="n">deg</span>
+            <span class="c1"># check if radius falls in the acceptable range</span>
+            <span class="k">if</span> <span class="n">reg_size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">reg_size</span> <span class="o">&gt;</span> <span class="mf">37.5</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Radius (in any unit) must be in the&quot;</span>
+                                 <span class="s2">&quot; range of 2.0 to 37.5 degrees&quot;</span><span class="p">)</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;regSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reg_size</span>
+        <span class="k">return</span> <span class="n">payload</span>
+
+<div class="viewcode-block" id="IrsaDustClass.extract_image_urls">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.extract_image_urls">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_image_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_xml</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts the image URLs from the query results and</span>
+<span class="sd">        returns these as a list. If section is missing or</span>
+<span class="sd">        ``&#39;all&#39;`` returns all the URLs, otherwise returns URL</span>
+<span class="sd">        corresponding to the section specified (``&#39;emission&#39;``,</span>
+<span class="sd">        ``&#39;reddening&#39;``, ``&#39;temperature&#39;``).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_xml : str</span>
+<span class="sd">            XML response returned by the query as a string</span>
+<span class="sd">        image_type : str, optional</span>
+<span class="sd">            When missing returns for all the images. Otherwise returns only</span>
+<span class="sd">            for image of the specified type which must be one of</span>
+<span class="sd">            ``&#39;temperature&#39;``, ``&#39;ebv&#39;``, ``&#39;100um&#39;``. Defaults to `None`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        url_list : list</span>
+<span class="sd">            list of URLs to images extracted from query results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get the xml tree from the response</span>
+        <span class="n">xml_tree</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">SingleDustResult</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span> <span class="k">for</span> <span class="n">sec</span> <span class="ow">in</span>
+                        <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_type_to_section</span><span class="p">[</span><span class="n">image_type</span><span class="p">]</span>
+                <span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">section</span><span class="p">)]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;image_type must be one of the following:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                       <span class="s1">&#39;ebv, temperature or 100um.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">url_list</span></div>
+
+
+<div class="viewcode-block" id="IrsaDustClass.list_image_types">
+<a class="viewcode-back" href="../../../../../api/astroquery.ipac.irsa.irsa_dust.IrsaDustClass.html#astroquery.ipac.irsa.irsa_dust.IrsaDustClass.list_image_types">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_image_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of image_types available in the Irsa Dust</span>
+<span class="sd">        query results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_type_to_section</span><span class="p">]</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">SingleDustResult</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the response to a dust query for a single object or location.</span>
+
+<span class="sd">    Provides methods to return the response as an `~astropy.table.Table`,</span>
+<span class="sd">    and to retrieve FITS images listed as urls in the initial response. It</span>
+<span class="sd">    can also return the url to a detailed extinction table provided in the</span>
+<span class="sd">    initial response. Not intended to be instantiated by the end user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_tree</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">query_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml tree representing the response to the query</span>
+<span class="sd">        query_loc : str</span>
+<span class="sd">            the location string specified in the query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xml</span> <span class="o">=</span> <span class="n">xml_tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query_loc</span> <span class="o">=</span> <span class="n">query_loc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location_section</span> <span class="o">=</span> <span class="n">LocationSection</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">)</span>
+
+        <span class="n">ext_node</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">find_result_node</span><span class="p">(</span><span class="n">EXT_DESC</span><span class="p">,</span> <span class="n">xml_tree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span> <span class="o">=</span> <span class="n">ExtinctionSection</span><span class="p">(</span><span class="n">ext_node</span><span class="p">)</span>
+
+        <span class="n">em_node</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">find_result_node</span><span class="p">(</span><span class="n">EM_DESC</span><span class="p">,</span> <span class="n">xml_tree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span> <span class="o">=</span> <span class="n">EmissionSection</span><span class="p">(</span><span class="n">em_node</span><span class="p">)</span>
+
+        <span class="n">temp_node</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">find_result_node</span><span class="p">(</span><span class="n">TEMP_DESC</span><span class="p">,</span> <span class="n">xml_tree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span> <span class="o">=</span> <span class="n">TemperatureSection</span><span class="p">(</span><span class="n">temp_node</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result_sections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">query_loc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the location string used in the query.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_loc</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the raw xml underlying this SingleDustResult.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xml</span>
+
+    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and return a `~astropy.table.Table` representing the query</span>
+<span class="sd">        response.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : str</span>
+<span class="sd">            (optional) the name of the section to include in the table.</span>
+<span class="sd">            If not provided, the entire table will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_code</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table_all</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the data values contained in the query response,</span>
+<span class="sd">        i.e. the list of values corresponding to a row in the result table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : str</span>
+<span class="sd">            the name of the section to include in the response</span>
+<span class="sd">            If no section is given, all sections will be included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_code</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+        <span class="n">sections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sections</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sec</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sec</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="nf">_section_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a one-letter code identifying the section.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : str</span>
+<span class="sd">            the name or abbreviated name of the section</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            str: a one-letter code identifying the section.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">section</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;all&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;loc&quot;</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;l&quot;</span>
+            <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reddening&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;r&quot;</span>
+            <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;emission&quot;</span><span class="p">,</span> <span class="s2">&quot;em&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;e&quot;</span>
+            <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;temp&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;t&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;section must be one of the following:</span>
+<span class="s2">                        &#39;all&#39;,</span>
+<span class="s2">                        &#39;location&#39;, &#39;loc&#39;, &#39;l&#39;,</span>
+<span class="s2">                        &#39;reddening&#39;, &#39;red&#39;, &#39;r&#39;,</span>
+<span class="s2">                        &#39;emission&#39;, &#39;em&#39;, &#39;e&#39;,</span>
+<span class="s2">                        &#39;temperature&#39;, &#39;temp&#39;, &#39;t&#39;.&quot;&quot;&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        code : str</span>
+<span class="sd">            the one-letter code name of the section</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The section corresponding to the code, or a list containing all</span>
+<span class="sd">        sections if no section is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_section</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_table_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and return the full table containing all four sections:</span>
+<span class="sd">        location, extinction, emission, and temperature.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table : `~astropy.table.Table`</span>
+<span class="sd">            table containing the data from the query response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_section</span><span class="o">.</span><span class="n">columns</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="o">.</span><span class="n">columns</span>
+                   <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span><span class="o">.</span><span class="n">columns</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">vals</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span>
+
+    <span class="k">def</span> <span class="nf">_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and return a smaller table containing only one section</span>
+<span class="sd">        of the overall DustResult table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : str</span>
+<span class="sd">            a string indicating the section to be returned</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the specified section</span>
+        <span class="n">section_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sections</span><span class="p">(</span><span class="n">section</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Create the table</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">section_object</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="c1"># Populate the table</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">section_object</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">vals</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">table</span>
+
+    <span class="k">def</span> <span class="nf">ext_detail_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the url of the additional, detailed table of extinction data for</span>
+<span class="sd">        various filters. There is a url for this table given in the initial</span>
+<span class="sd">        response to the query.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table_url : str</span>
+<span class="sd">            url of the detailed table of extinction data by filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="o">.</span><span class="n">table_url</span>
+        <span class="c1"># response = utils.ext_detail_table(table_url)</span>
+        <span class="c1"># if sys.version_info &gt; (3, 0):</span>
+        <span class="c1">#   read_response = response.read().decode(&quot;utf-8&quot;)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#   read_response = response.read()</span>
+        <span class="c1"># table = Table.read(read_response, format=&quot;ipac&quot;)</span>
+        <span class="c1"># return table</span>
+        <span class="k">return</span> <span class="n">table_url</span>
+
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the FITS image url associated with the given section.</span>
+<span class="sd">        The extinction, emission, and temperature sections each provide</span>
+<span class="sd">        a url to a FITS image.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : str</span>
+<span class="sd">            the name of the section</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        url : str</span>
+<span class="sd">            the url to the FITS image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the url of the image for the given section</span>
+        <span class="n">image_url</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reddening&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">]:</span>
+            <span class="n">image_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_section</span><span class="o">.</span><span class="n">image_url</span>
+        <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;emission&quot;</span><span class="p">,</span> <span class="s2">&quot;em&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">]:</span>
+            <span class="n">image_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_em_section</span><span class="o">.</span><span class="n">image_url</span>
+        <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;temp&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
+            <span class="n">image_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_section</span><span class="o">.</span><span class="n">image_url</span>
+
+        <span class="k">if</span> <span class="n">image_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;section must be one of the following values:</span>
+<span class="s2">                    &#39;reddening&#39;, &#39;red&#39;, &#39;r&#39;,</span>
+<span class="s2">                    &#39;emission&#39;, &#39;em&#39;, &#39;e&#39;,</span>
+<span class="s2">                    &#39;temperature&#39;, &#39;temp&#39;, &#39;t&#39;&quot;&quot;&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image_url</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the table.&quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[DustResult: </span><span class="se">\n\t</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_sections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">15</span><span class="p">:</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+            <span class="n">string</span> <span class="o">+=</span> <span class="n">section</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">BaseDustNode</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A node in the result xml that has been enhanced to return values and</span>
+<span class="sd">    Columns appropriate to its type (String, Number, or Coord).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_node : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml node that provides the raw data for this DustNode</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">tag</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override in subclasses.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the xml node name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the value extracted from the node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the column or columns associated with this item in the</span>
+<span class="sd">        `~astropy.table.Table`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of this item.&quot;&quot;&quot;</span>
+        <span class="n">col_str</span> <span class="o">=</span> <span class="s2">&quot;[Column: &quot;</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">format_str</span> <span class="ow">in</span> <span class="n">column</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">show_units</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">col_str</span> <span class="o">+=</span> <span class="n">format_str</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;name: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="n">col_str</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">StringNode</span><span class="p">(</span><span class="n">BaseDustNode</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A node that contains text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_node : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml node that provides the raw data for this DustNode</span>
+<span class="sd">        col_name : str</span>
+<span class="sd">            the name of the column associated with this item</span>
+<span class="sd">        length : int</span>
+<span class="sd">            the size of the column associated with this item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col_name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;S&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">length</span><span class="p">))]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of this item.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[StringNode: &quot;</span> <span class="o">+</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, value: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">NumberNode</span><span class="p">(</span><span class="n">BaseDustNode</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A node that contains a number. Outputs a single column containing the</span>
+<span class="sd">    number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_node : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml node that provides the raw data for this DustNode</span>
+<span class="sd">        col_name : str</span>
+<span class="sd">            the name of the column associated with this item</span>
+<span class="sd">        units : `~astropy.units.Unit`</span>
+<span class="sd">            the units associated with this item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parse_number</span><span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col_name</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">units</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the item.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[NumberNode: &quot;</span> <span class="o">+</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, value: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">CoordNode</span><span class="p">(</span><span class="n">BaseDustNode</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A node that contains RA, Dec coordinates. Outputs three values /</span>
+<span class="sd">    columns: RA, Dec and a coordinate system description string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">col_names</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_node : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml node that provides the raw data for this DustNode</span>
+<span class="sd">        col_names : str</span>
+<span class="sd">            the names of the columns associated with this item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parse_coords</span><span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">units</span><span class="p">),</span>
+                         <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">units</span><span class="p">),</span>
+                         <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col_names</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;S25&quot;</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the item.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseDustNode</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">values_str</span> <span class="o">=</span> <span class="s2">&quot;values: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;[CoordNode: &quot;</span> <span class="o">+</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="n">values_str</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">BaseResultSection</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a group of related nodes/columns in a DustResults object.</span>
+<span class="sd">    A DustResults table contains four main sections:</span>
+<span class="sd">        1-location</span>
+<span class="sd">        2-extinction</span>
+<span class="sd">        3-emission</span>
+<span class="sd">        4-temperature</span>
+<span class="sd">    In addition, the extinction, emission, and temperature sections</span>
+<span class="sd">    each contain a nested statistics subsection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">node_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all the nodes with the given names under the given root,</span>
+<span class="sd">        and put them in a dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names : list[str]</span>
+<span class="sd">            the names of the nodes to find</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            the root of the xml tree to search</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nodes : dictionary</span>
+<span class="sd">            a dictionary of xml nodes, where the keys are the node names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">found_node</span> <span class="o">=</span> <span class="n">xml_root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">found_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find node &#39;&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+            <span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">found_node</span>
+        <span class="k">return</span> <span class="n">nodes</span>
+
+    <span class="k">def</span> <span class="nf">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the columns associated with this section.&quot;&quot;&quot;</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dust_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_columns</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of columns associated with this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>
+
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of data values associated with this section,</span>
+<span class="sd">        i.e. the data corresponding to a single row in the results table.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dust_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dust_node</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">dust_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n\t\t</span><span class="s2">&quot;</span>
+            <span class="n">string</span> <span class="o">+=</span> <span class="n">dust_node</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">LocationSection</span><span class="p">(</span><span class="n">BaseResultSection</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The location section of the DustResults object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            the xml tree where the data for this section resides</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">location_node</span> <span class="o">=</span> <span class="n">xml_root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">INPUT</span><span class="p">)</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">OBJ_NAME</span><span class="p">,</span> <span class="n">REG_SIZE</span><span class="p">]</span>
+        <span class="n">xml_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">location_node</span><span class="p">)</span>
+
+        <span class="c1"># Create the section&#39;s DustNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">CoordNode</span><span class="p">(</span>
+            <span class="n">xml_nodes</span><span class="p">[</span><span class="n">OBJ_NAME</span><span class="p">],</span> <span class="n">col_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;coord sys&quot;</span><span class="p">]),</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">REG_SIZE</span><span class="p">],</span> <span class="n">REG_SIZE</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_columns</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[LocationSection: &quot;</span> <span class="o">+</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">StatsSection</span><span class="p">(</span><span class="n">BaseResultSection</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The statistics subsection of one of an extinction, emission, or temperature</span>
+<span class="sd">    section.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">,</span> <span class="n">col_prefix</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            The xml tree containing the data for this section</span>
+<span class="sd">        col_prefix : str</span>
+<span class="sd">            the prefix to use in column names for this section</span>
+<span class="sd">        suffix : str</span>
+<span class="sd">            the suffix that appears in the node names (e.g. &#39;SandF&#39; or &#39;SDF&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">REF_PIXEL_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+            <span class="n">REF_COORDINATE</span><span class="p">,</span>
+            <span class="n">MEAN_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+            <span class="n">STD</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+            <span class="n">MAX_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+            <span class="n">MIN_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]</span>
+        <span class="n">xml_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">)</span>
+
+        <span class="c1"># Create the DustNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">REF_PIXEL_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">],</span>
+                       <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; ref&quot;</span><span class="p">),</span>
+            <span class="n">CoordNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">REF_COORDINATE</span><span class="p">],</span>
+                      <span class="n">col_names</span><span class="o">=</span><span class="p">[</span><span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; ref RA&quot;</span><span class="p">,</span>
+                                 <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; ref Dec&quot;</span><span class="p">,</span>
+                                 <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; ref coord sys&quot;</span><span class="p">]),</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">MEAN_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">],</span> <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; mean&quot;</span><span class="p">),</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">STD</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">],</span> <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; std&quot;</span><span class="p">),</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">MAX_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">],</span> <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; max&quot;</span><span class="p">),</span>
+            <span class="n">NumberNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">MIN_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">],</span> <span class="n">col_prefix</span> <span class="o">+</span> <span class="s2">&quot; min&quot;</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parse_units</span><span class="p">(</span>
+            <span class="n">xml_nodes</span><span class="p">[</span><span class="n">REF_PIXEL_VALUE</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_columns</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the units associated with this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dust_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of DustNodes in this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\t\t\t\t</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">dust_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">base_string</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n\t\t\t\t</span><span class="s2">&quot;</span>
+            <span class="n">base_string</span> <span class="o">+=</span> <span class="n">dust_node</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\t\t\t</span><span class="s2">[StatisticsSection: &quot;</span> <span class="o">+</span> <span class="n">base_string</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">ExtinctionSection</span><span class="p">(</span><span class="n">BaseResultSection</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The extinction (reddening) section in a DustResults object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            The xml tree containing the data for this section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find the section&#39;s xml nodes</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">DESC</span><span class="p">,</span> <span class="n">DATA_IMAGE</span><span class="p">,</span> <span class="n">DATA_TABLE</span><span class="p">,</span> <span class="n">STATISTICS</span><span class="p">]</span>
+        <span class="n">xml_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">)</span>
+
+        <span class="c1"># Build the DustNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DESC</span><span class="p">],</span> <span class="s2">&quot;ext desc&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                            <span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DATA_IMAGE</span><span class="p">],</span>
+                                       <span class="s2">&quot;ext image&quot;</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+                            <span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DATA_TABLE</span><span class="p">],</span>
+                                       <span class="s2">&quot;ext table&quot;</span><span class="p">,</span> <span class="mi">255</span><span class="p">)]</span>
+
+        <span class="c1"># Create statistics subsections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stats_sandf</span> <span class="o">=</span> <span class="n">StatsSection</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">STATISTICS</span><span class="p">],</span>
+                                         <span class="s2">&quot;ext SandF&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;SandF&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stats_sfd</span> <span class="o">=</span> <span class="n">StatsSection</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">STATISTICS</span><span class="p">],</span> <span class="s2">&quot;ext SFD&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;SFD&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_columns</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the columns associated with this section.&quot;&quot;&quot;</span>
+        <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sandf</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sfd</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">table_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the url where the extinction detail table can be found.&quot;&quot;&quot;</span>
+        <span class="n">table_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span>
+        <span class="k">return</span> <span class="n">table_url</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the url of the FITS image associated with this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data values associated with this section, i.e. the</span>
+<span class="sd">        list of values corresponding to a single row in the results</span>
+<span class="sd">        table.&quot;&quot;&quot;</span>
+        <span class="n">ext_values</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ext_values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sandf</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">ext_values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sfd</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">ext_values</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[ExtinctionSection: </span><span class="si">{</span><span class="n">base_string</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sandf</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats_sfd</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">class</span> <span class="nc">EmissionSection</span><span class="p">(</span><span class="n">BaseResultSection</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The emission section in a DustResults object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            The xml tree containing the data for this section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">DESC</span><span class="p">,</span> <span class="n">DATA_IMAGE</span><span class="p">,</span> <span class="n">STATISTICS</span><span class="p">]</span>
+        <span class="n">xml_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">)</span>
+
+        <span class="c1"># Create the DustNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DESC</span><span class="p">],</span> <span class="s2">&quot;em desc&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                            <span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DATA_IMAGE</span><span class="p">],</span> <span class="s2">&quot;em image&quot;</span><span class="p">,</span> <span class="mi">255</span><span class="p">)]</span>
+
+        <span class="c1"># Create the statistics subsection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stats</span> <span class="o">=</span> <span class="n">StatsSection</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">STATISTICS</span><span class="p">],</span> <span class="s2">&quot;em&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_columns</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the columns associated with this section.&quot;&quot;&quot;</span>
+        <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data values associated with this section, i.e. the</span>
+<span class="sd">        list of values corresponding to a single row in the results table.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the url of the FITS image associated with this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[EmissionSection: &quot;</span> <span class="o">+</span> \
+            <span class="n">base_string</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="n">IrsaDust</span> <span class="o">=</span> <span class="n">IrsaDustClass</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">TemperatureSection</span><span class="p">(</span><span class="n">BaseResultSection</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The temperature section in a DustResults object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xml_root : `xml.etree.ElementTree`</span>
+<span class="sd">            The xml tree containing the data for this section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">DESC</span><span class="p">,</span> <span class="n">DATA_IMAGE</span><span class="p">,</span> <span class="n">STATISTICS</span><span class="p">]</span>
+        <span class="n">xml_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">xml_root</span><span class="p">)</span>
+
+        <span class="c1"># Create the DustNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DESC</span><span class="p">],</span> <span class="s2">&quot;temp desc&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                            <span class="n">StringNode</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">DATA_IMAGE</span><span class="p">],</span>
+                                       <span class="s2">&quot;temp image&quot;</span><span class="p">,</span> <span class="mi">255</span><span class="p">)]</span>
+
+        <span class="c1"># Create the statistics subsection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stats</span> <span class="o">=</span> <span class="n">StatsSection</span><span class="p">(</span><span class="n">xml_nodes</span><span class="p">[</span><span class="n">STATISTICS</span><span class="p">],</span> <span class="s2">&quot;temp&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_columns</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the columns associated with this section.&quot;&quot;&quot;</span>
+        <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">create_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data values associated with this section, i.e. the</span>
+<span class="sd">        list of values corresponding to a single row in the results</span>
+<span class="sd">        table.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the url of the FITS image associated with this section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dust_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the section.&quot;&quot;&quot;</span>
+        <span class="n">base_string</span> <span class="o">=</span> <span class="n">BaseResultSection</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;[TemperatureSection: &quot;</span> <span class="o">+</span> \
+            <span class="n">base_string</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stats</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+        <span class="k">return</span> <span class="n">string</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

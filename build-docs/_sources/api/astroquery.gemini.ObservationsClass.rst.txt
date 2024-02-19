@@ -1,0 +1,39 @@
+ObservationsClass
+=================
+
+.. currentmodule:: astroquery.gemini
+
+.. autoclass:: ObservationsClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ObservationsClass.server
+      ~ObservationsClass.url_helper
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ObservationsClass.get_file
+      ~ObservationsClass.login
+      ~ObservationsClass.query_criteria
+      ~ObservationsClass.query_object
+      ~ObservationsClass.query_raw
+      ~ObservationsClass.query_region
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: server
+   .. autoattribute:: url_helper
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_file
+   .. automethod:: login
+   .. automethod:: query_criteria
+   .. automethod:: query_object
+   .. automethod:: query_raw
+   .. automethod:: query_region

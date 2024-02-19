@@ -1,0 +1,35 @@
+SvoFpsClass
+===========
+
+.. currentmodule:: astroquery.svo_fps
+
+.. autoclass:: SvoFpsClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SvoFpsClass.SVO_MAIN_URL
+      ~SvoFpsClass.TIMEOUT
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SvoFpsClass.data_from_svo
+      ~SvoFpsClass.get_filter_index
+      ~SvoFpsClass.get_filter_list
+      ~SvoFpsClass.get_transmission_data
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: SVO_MAIN_URL
+   .. autoattribute:: TIMEOUT
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: data_from_svo
+   .. automethod:: get_filter_index
+   .. automethod:: get_filter_list
+   .. automethod:: get_transmission_data

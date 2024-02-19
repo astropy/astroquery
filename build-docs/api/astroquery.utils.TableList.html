@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>TableList &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="timefunc" href="astroquery.utils.timer.timefunc.html" />
+    <link rel="prev" title="class_or_instance" href="astroquery.utils.class_or_instance.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.utils.timer.timefunc.html" title="timefunc">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.utils.class_or_instance.html" title="class_or_instance">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../utils.html" accesskey="U">Astroquery utils (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.utils</span></code>)</a> &#187;</li>
+      
+      <li>TableList</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tablelist">
+<h1>TableList<a class="headerlink" href="#tablelist" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.utils.TableList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.utils.</span></span><span class="sig-name descname"><span class="pre">TableList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+<p>A class that inherits from <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a> but included some pretty printing methods
+for an OrderedDict of <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> objects.</p>
+<p>HINT: To access the tables by # instead of by table ID:
+&gt;&gt;&gt; t = TableList([(‘a’,1),(‘b’,2)])
+&gt;&gt;&gt; t[1]
+2
+&gt;&gt;&gt; t[‘b’]
+2</p>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.TableList.format_table_list" title="astroquery.utils.TableList.format_table_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_table_list</span></code></a>()</p></td>
+<td><p>Prints the names of all <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> objects, with their respective number of row and columns, contained in the <a class="reference internal" href="#astroquery.utils.TableList" title="astroquery.utils.TableList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TableList</span></code></a> instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.utils.TableList.keys" title="astroquery.utils.TableList.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.TableList.pprint" title="astroquery.utils.TableList.pprint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pprint</span></code></a>(**kwargs)</p></td>
+<td><p>Helper function to make API more similar to astropy.Tables</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.utils.TableList.print_table_list" title="astroquery.utils.TableList.print_table_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_table_list</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.utils.TableList.values" title="astroquery.utils.TableList.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.TableList.format_table_list">
+<span class="sig-name descname"><span class="pre">format_table_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList.format_table_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList.format_table_list" title="Link to this definition">¶</a></dt>
+<dd><p>Prints the names of all <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table.Table</span></code></a> objects, with their
+respective number of row and columns, contained in the
+<a class="reference internal" href="#astroquery.utils.TableList" title="astroquery.utils.TableList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TableList</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.TableList.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList.keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList.keys" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.TableList.pprint">
+<span class="sig-name descname"><span class="pre">pprint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList.pprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList.pprint" title="Link to this definition">¶</a></dt>
+<dd><p>Helper function to make API more similar to astropy.Tables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.TableList.print_table_list">
+<span class="sig-name descname"><span class="pre">print_table_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList.print_table_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList.print_table_list" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.utils.TableList.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/utils/commons.html#TableList.values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.utils.TableList.values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">TableList</a><ul>
+<li><a class="reference internal" href="#astroquery.utils.TableList"><code class="docutils literal notranslate"><span class="pre">TableList</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.utils.TableList.format_table_list"><code class="docutils literal notranslate"><span class="pre">TableList.format_table_list()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.TableList.keys"><code class="docutils literal notranslate"><span class="pre">TableList.keys()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.TableList.pprint"><code class="docutils literal notranslate"><span class="pre">TableList.pprint()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.TableList.print_table_list"><code class="docutils literal notranslate"><span class="pre">TableList.print_table_list()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.utils.TableList.values"><code class="docutils literal notranslate"><span class="pre">TableList.values()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.utils.TableList.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

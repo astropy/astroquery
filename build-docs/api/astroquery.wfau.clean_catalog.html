@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>clean_catalog &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BaseWFAUClass" href="astroquery.wfau.BaseWFAUClass.html" />
+    <link rel="prev" title="WFAU Queries (astroquery.wfau)" href="../wfau/wfau.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.wfau.BaseWFAUClass.html" title="BaseWFAUClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../wfau/wfau.html" title="WFAU Queries (astroquery.wfau)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../wfau/wfau.html" accesskey="U">WFAU Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.wfau</span></code>)</a> &#187;</li>
+      
+      <li>clean_catalog</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="clean-catalog">
+<h1>clean_catalog<a class="headerlink" href="#clean-catalog" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="astroquery.wfau.clean_catalog">
+<span class="sig-prename descclassname"><span class="pre">astroquery.wfau.</span></span><span class="sig-name descname"><span class="pre">clean_catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wfau_catalog</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'K_1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">badclass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxerrbits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">41</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minerrbits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxpperrbits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/wfau/core.html#clean_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.wfau.clean_catalog" title="Link to this definition">¶</a></dt>
+<dd><p>Attempt to remove ‘bad’ entries in a catalog.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>wfau_catalog</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/tables.html#astropy.io.fits.BinTableHDU" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BinTableHDU</span></code></a></span></dt><dd><p>A FITS binary table instance from the WFAU survey.</p>
+</dd>
+<dt><strong>clean_band</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">'K_1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'K_2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'J'</span></code>, <code class="docutils literal notranslate"><span class="pre">'H'</span></code></span></dt><dd><p>The band to use for bad photometry flagging.</p>
+</dd>
+<dt><strong>badclass</strong><span class="classifier">int</span></dt><dd><p>Class to exclude.</p>
+</dd>
+<dt><strong>minerrbits</strong><span class="classifier">int</span></dt><dd></dd>
+<dt><strong>maxerrbits</strong><span class="classifier">int</span></dt><dd><p>Inside this range is the accepted number of error bits.</p>
+</dd>
+<dt><strong>maxpperrbits</strong><span class="classifier">int</span></dt><dd><p>Exclude this type of error bit.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">clean_catalog</a><ul>
+<li><a class="reference internal" href="#astroquery.wfau.clean_catalog"><code class="docutils literal notranslate"><span class="pre">clean_catalog()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.wfau.clean_catalog.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

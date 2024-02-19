@@ -1,0 +1,19 @@
+Conf
+====
+
+.. currentmodule:: astroquery.xmatch
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.timeout
+      ~Conf.url
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: timeout
+   .. autoattribute:: url

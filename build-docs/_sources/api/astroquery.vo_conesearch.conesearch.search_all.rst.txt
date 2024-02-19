@@ -1,0 +1,6 @@
+search_all
+==========
+
+.. currentmodule:: astroquery.vo_conesearch.conesearch
+
+.. autofunction:: search_all

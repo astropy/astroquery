@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OGLE Queries (astroquery.ogle) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="OgleClass" href="../api/astroquery.ogle.OgleClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.oac.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.ogle.OgleClass.html" title="OgleClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.oac.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>OGLE Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ogle</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ogle-queries-astroquery-ogle">
+<span id="astroquery-ogle"></span><h1>OGLE Queries (<a class="reference internal" href="#module-astroquery.ogle" title="astroquery.ogle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ogle</span></code></a>)<a class="headerlink" href="#ogle-queries-astroquery-ogle" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>The Optical Gravitational Lensing Experiment III (OGLE-III) stores information
+on the interstellar extinction towards the Galactic Bulge. The
+<a class="reference internal" href="#module-astroquery.ogle" title="astroquery.ogle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ogle</span></code></a> module queries the online extinction <a class="reference external" href="http://ogle.astrouw.edu.pl/">calculator</a> and returns
+an <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> instance with the same data. To run a single query
+using an <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> instance use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">coordinates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ogle</span> <span class="kn">import</span> <span class="n">Ogle</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">co</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;galactic&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">co</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Arguments can be passed to choose the interpolation algorithm, quality factor,
+and coordinate system. Multiple coordinates may be queried simultaneously by
+passing a list-like object of string/float values or a list-like object of
+<a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> instances. All of coordinates will be internally converted
+to FK5.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># list of coordinate instances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">co_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">co</span><span class="p">,</span> <span class="n">co</span><span class="p">,</span> <span class="n">co</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">co_list</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (2 x N) list of values</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">co_list_values</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">Ogle</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">co_list_values</span><span class="p">,</span> <span class="n">coord_sys</span><span class="o">=</span><span class="s1">&#39;LB&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<p>Note that non-Astropy coordinates may not be supported in a future version.</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.ogle">
+<span id="astroquery-ogle-package"></span><h3>astroquery.ogle Package<a class="headerlink" href="#module-astroquery.ogle" title="Link to this heading">¶</a></h3>
+<section id="ogle-query-tool">
+<h4>OGLE Query Tool<a class="headerlink" href="#ogle-query-tool" title="Link to this heading">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Brian Svoboda (<a class="reference external" href="mailto:svobodb&#37;&#52;&#48;email&#46;arizona&#46;edu">svobodb<span>&#64;</span>email<span>&#46;</span>arizona<span>&#46;</span>edu</a>)</p>
+</dd>
+</dl>
+<p>This package is for querying interstellar extinction toward the Galactic bulge
+from OGLE-III data
+<a class="reference external" href="http://ogle.astrouw.edu.pl/cgi-ogle/getext.py">hosted at.</a></p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>If you use the data from OGLE please refer to the publication by Nataf et al.
+(2012).</p>
+</dd>
+</dl>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.ogle.OgleClass.html#astroquery.ogle.OgleClass" title="astroquery.ogle.OgleClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OgleClass</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.ogle.Conf.html#astroquery.ogle.Conf" title="astroquery.ogle.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.ogle" title="astroquery.ogle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ogle</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">OGLE Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ogle</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.ogle">astroquery.ogle Package</a><ul>
+<li><a class="reference internal" href="#ogle-query-tool">OGLE Query Tool</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/ogle/ogle.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

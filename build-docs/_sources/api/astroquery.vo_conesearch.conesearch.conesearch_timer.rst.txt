@@ -1,0 +1,6 @@
+conesearch_timer
+================
+
+.. currentmodule:: astroquery.vo_conesearch.conesearch
+
+.. autofunction:: conesearch_timer

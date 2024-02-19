@@ -1,0 +1,79 @@
+SDSSClass
+=========
+
+.. currentmodule:: astroquery.sdss
+
+.. autoclass:: SDSSClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SDSSClass.AVAILABLE_TEMPLATES
+      ~SDSSClass.IMAGING_URL_SUFFIX
+      ~SDSSClass.MAX_CROSSID_RADIUS
+      ~SDSSClass.QUERY_URL_SUFFIX_DR_10
+      ~SDSSClass.QUERY_URL_SUFFIX_DR_NEW
+      ~SDSSClass.QUERY_URL_SUFFIX_DR_OLD
+      ~SDSSClass.SPECTRA_URL_SUFFIX
+      ~SDSSClass.TEMPLATES_URL
+      ~SDSSClass.TIMEOUT
+      ~SDSSClass.XID_URL_SUFFIX_DR_10
+      ~SDSSClass.XID_URL_SUFFIX_NEW
+      ~SDSSClass.XID_URL_SUFFIX_OLD
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SDSSClass.get_images
+      ~SDSSClass.get_images_async
+      ~SDSSClass.get_spectra
+      ~SDSSClass.get_spectra_async
+      ~SDSSClass.get_spectral_template
+      ~SDSSClass.get_spectral_template_async
+      ~SDSSClass.query_crossid
+      ~SDSSClass.query_crossid_async
+      ~SDSSClass.query_photoobj
+      ~SDSSClass.query_photoobj_async
+      ~SDSSClass.query_region
+      ~SDSSClass.query_region_async
+      ~SDSSClass.query_specobj
+      ~SDSSClass.query_specobj_async
+      ~SDSSClass.query_sql
+      ~SDSSClass.query_sql_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: AVAILABLE_TEMPLATES
+   .. autoattribute:: IMAGING_URL_SUFFIX
+   .. autoattribute:: MAX_CROSSID_RADIUS
+   .. autoattribute:: QUERY_URL_SUFFIX_DR_10
+   .. autoattribute:: QUERY_URL_SUFFIX_DR_NEW
+   .. autoattribute:: QUERY_URL_SUFFIX_DR_OLD
+   .. autoattribute:: SPECTRA_URL_SUFFIX
+   .. autoattribute:: TEMPLATES_URL
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: XID_URL_SUFFIX_DR_10
+   .. autoattribute:: XID_URL_SUFFIX_NEW
+   .. autoattribute:: XID_URL_SUFFIX_OLD
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_images
+   .. automethod:: get_images_async
+   .. automethod:: get_spectra
+   .. automethod:: get_spectra_async
+   .. automethod:: get_spectral_template
+   .. automethod:: get_spectral_template_async
+   .. automethod:: query_crossid
+   .. automethod:: query_crossid_async
+   .. automethod:: query_photoobj
+   .. automethod:: query_photoobj_async
+   .. automethod:: query_region
+   .. automethod:: query_region_async
+   .. automethod:: query_specobj
+   .. automethod:: query_specobj_async
+   .. automethod:: query_sql
+   .. automethod:: query_sql_async

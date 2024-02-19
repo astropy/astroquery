@@ -1,0 +1,6 @@
+check_conesearch_sites
+======================
+
+.. currentmodule:: astroquery.vo_conesearch.validator.validate
+
+.. autofunction:: check_conesearch_sites

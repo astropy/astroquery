@@ -1,0 +1,7 @@
+BaseVOQuery
+===========
+
+.. currentmodule:: astroquery.query
+
+.. autoclass:: BaseVOQuery
+   :show-inheritance:

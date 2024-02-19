@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ZcutClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HapcutClass" href="astroquery.mast.HapcutClass.html" />
+    <link rel="prev" title="TesscutClass" href="astroquery.mast.TesscutClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.mast.HapcutClass.html" title="HapcutClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="astroquery.mast.TesscutClass.html" title="TesscutClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../mast/mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>ZcutClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="zcutclass">
+<h1>ZcutClass<a class="headerlink" href="#zcutclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.mast.</span></span><span class="sig-name descname"><span class="pre">ZcutClass</span></span><a class="reference internal" href="../_modules/astroquery/mast/cutouts.html#ZcutClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mast.ZcutClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MastQueryWithLogin</span></code></p>
+<p>MAST ZCUT cutout query class.</p>
+<p>Class for accessing deep field full-frame image cutouts.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.cache_location" title="astroquery.mast.ZcutClass.cache_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cache_location</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.__call__" title="astroquery.mast.ZcutClass.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(*args, **kwargs)</p></td>
+<td><p>init a fresh copy of self</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.authenticated" title="astroquery.mast.ZcutClass.authenticated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">authenticated</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.clear_cache" title="astroquery.mast.ZcutClass.clear_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_cache</span></code></a>()</p></td>
+<td><p>Removes all cache files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.disable_cloud_dataset" title="astroquery.mast.ZcutClass.disable_cloud_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_cloud_dataset</span></code></a>()</p></td>
+<td><p>Disables downloading public files from S3 instead of MAST</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.download_cutouts" title="astroquery.mast.ZcutClass.download_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_cutouts</span></code></a>(coordinates, *[, size, ...])</p></td>
+<td><p>Download cutout FITS/image file(s) around the given coordinates with indicated size.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.enable_cloud_dataset" title="astroquery.mast.ZcutClass.enable_cloud_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_cloud_dataset</span></code></a>([provider, profile, ...])</p></td>
+<td><p>Enable downloading public files from S3 instead of MAST.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.get_cutouts" title="astroquery.mast.ZcutClass.get_cutouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cutouts</span></code></a>(coordinates, *[, size, survey])</p></td>
+<td><p>Get cutout  FITS file(s) around the given coordinates with indicated size, and return them as a list of  <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.get_surveys" title="astroquery.mast.ZcutClass.get_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_surveys</span></code></a>(coordinates, *[, radius])</p></td>
+<td><p>Gives a list of deep field surveys available for a position in the sky</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.login" title="astroquery.mast.ZcutClass.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login</span></code></a>([token, store_token, reenter_token])</p></td>
+<td><p>Log into the MAST portal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.logout" title="astroquery.mast.ZcutClass.logout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logout</span></code></a>()</p></td>
+<td><p>Log out of current MAST session.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.reset_cache_location" title="astroquery.mast.ZcutClass.reset_cache_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_cache_location</span></code></a>()</p></td>
+<td><p>Resets the cache location to the default astropy cache</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.resolve_object" title="astroquery.mast.ZcutClass.resolve_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_object</span></code></a>(objectname)</p></td>
+<td><p>Resolves an object name to a position on the sky.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.mast.ZcutClass.session_info" title="astroquery.mast.ZcutClass.session_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_info</span></code></a>([verbose])</p></td>
+<td><p>Displays information about current MAST user, and returns user info dictionary.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.cache_location">
+<span class="sig-name descname"><span class="pre">cache_location</span></span><a class="headerlink" href="#astroquery.mast.ZcutClass.cache_location" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.__call__" title="Link to this definition">¶</a></dt>
+<dd><p>init a fresh copy of self</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.authenticated">
+<span class="sig-name descname"><span class="pre">authenticated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.authenticated" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.clear_cache">
+<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.clear_cache" title="Link to this definition">¶</a></dt>
+<dd><p>Removes all cache files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.disable_cloud_dataset">
+<span class="sig-name descname"><span class="pre">disable_cloud_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.disable_cloud_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Disables downloading public files from S3 instead of MAST</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.download_cutouts">
+<span class="sig-name descname"><span class="pre">download_cutouts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutout_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">img_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mast/cutouts.html#ZcutClass.download_cutouts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mast.ZcutClass.download_cutouts" title="Link to this definition">¶</a></dt>
+<dd><p>Download cutout FITS/image file(s) around the given coordinates with indicated size.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string or as the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object.</p>
+</dd>
+<dt><strong>size</strong><span class="classifier">int, array-like, <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>Optional, default 5 pixels.
+The size of the cutout array. If <code class="docutils literal notranslate"><span class="pre">size</span></code> is a scalar number or
+a scalar <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, then a square cutout of <code class="docutils literal notranslate"><span class="pre">size</span></code>
+will be created.  If <code class="docutils literal notranslate"><span class="pre">size</span></code> has two elements, they should be in
+<code class="docutils literal notranslate"><span class="pre">(ny,</span> <span class="pre">nx)</span></code> order.  Scalar numbers in <code class="docutils literal notranslate"><span class="pre">size</span></code> are assumed to be in
+units of pixels. <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> objects must be in pixel or
+angular units.</p>
+</dd>
+<dt><strong>survey</strong><span class="classifier">str</span></dt><dd><p>Optional
+The survey to restrict the cutout. The survey parameter will restrict to
+only the matching survey. Default behavior is to return all matched surveys.</p>
+</dd>
+<dt><strong>cutout_format</strong><span class="classifier">str</span></dt><dd><p>Optional
+The cutout file format. Default is fits, valid options are fits, jpg, png.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Optional.
+The directory in which the cutouts will be saved.
+Defaults to current directory.</p>
+</dd>
+<dt><strong>inflate</strong><span class="classifier">bool</span></dt><dd><p>Optional, default True.
+Cutout target pixel files are returned from the server in a zip file,
+by default they will be inflated and the zip will be removed.
+Set inflate to false to stop before the inflate step.</p>
+</dd>
+<dt><strong>**img_params</strong><span class="classifier">dict</span></dt><dd><p>Optional, only used if format is jpg or png
+Valid parameters are stretch, minmax_percent, minmax_value, and invert.
+These arguments are documented here:
+<a class="reference external" href="https://astrocut.readthedocs.io/en/latest/api/astrocut.img_cut.html">https://astrocut.readthedocs.io/en/latest/api/astrocut.img_cut.html</a>
+The Column Name is the keyword, with the argument being one or more acceptable
+values for that parameter, except for fields with a float datatype where the
+argument should be in the form [minVal, maxVal].</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>Cutout file(s) for given coordinates</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.enable_cloud_dataset">
+<span class="sig-name descname"><span class="pre">enable_cloud_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AWS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.enable_cloud_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Enable downloading public files from S3 instead of MAST.
+Requires the boto3 library to function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>provider</strong><span class="classifier">str</span></dt><dd><p>Which cloud data provider to use.  We may in the future support multiple providers,
+though at the moment this argument is ignored.</p>
+</dd>
+<dt><strong>profile</strong><span class="classifier">str</span></dt><dd><p>Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>Default True.
+Logger to display extra info and warning.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.get_cutouts">
+<span class="sig-name descname"><span class="pre">get_cutouts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mast/cutouts.html#ZcutClass.get_cutouts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mast.ZcutClass.get_cutouts" title="Link to this definition">¶</a></dt>
+<dd><p>Get cutout  FITS file(s) around the given coordinates with indicated size,
+and return them as a list of  <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string or as the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object.
+One and only one of coordinates and objectname must be supplied.</p>
+</dd>
+<dt><strong>size</strong><span class="classifier">int, array-like, <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>Optional, default 5 pixels.
+The size of the cutout array. If <code class="docutils literal notranslate"><span class="pre">size</span></code> is a scalar number or
+a scalar <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, then a square cutout of <code class="docutils literal notranslate"><span class="pre">size</span></code>
+will be created.  If <code class="docutils literal notranslate"><span class="pre">size</span></code> has two elements, they should be in
+<code class="docutils literal notranslate"><span class="pre">(ny,</span> <span class="pre">nx)</span></code> order.  Scalar numbers in <code class="docutils literal notranslate"><span class="pre">size</span></code> are assumed to be in
+units of pixels. <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> objects must be in pixel or
+angular units.</p>
+</dd>
+<dt><strong>survey</strong><span class="classifier">str</span></dt><dd><p>Optional
+The survey to restrict the cutout. The survey parameter will restrict to
+only the matching survey. Default behavior is to return all matched surveys.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier">A list of <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/api/hdulists.html#astropy.io.fits.HDUList" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDUList</span></code></a> objects.</span></dt><dd><p>Cutoutfiles for given coordinates</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.get_surveys">
+<span class="sig-name descname"><span class="pre">get_surveys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0d'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/mast/cutouts.html#ZcutClass.get_surveys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.mast.ZcutClass.get_surveys" title="Link to this definition">¶</a></dt>
+<dd><p>Gives a list of deep field surveys available for a position in the sky</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object</span></dt><dd><p>The target around which to search. It may be specified as a
+string or as the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str, float, or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object, optional</span></dt><dd><p>Default 0 degrees.
+If supplied as a float, degrees is the assumed unit.
+The string must be parsable by <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a>. The
+appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> object from
+<a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> may also be used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>response</strong><span class="classifier">list</span></dt><dd><p>List of available deep field surveys at the given coordinates.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reenter_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.login" title="Link to this definition">¶</a></dt>
+<dd><p>Log into the MAST portal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>token</strong><span class="classifier">string, optional</span></dt><dd><p>Default is None.
+The token to authenticate the user.
+This can be generated at
+<a class="reference external" href="https://auth.mast.stsci.edu/token?suggested_name=Astroquery&amp;suggested_scope=mast:exclusive_access">https://auth.mast.stsci.edu/token?suggested_name=Astroquery&amp;suggested_scope=mast:exclusive_access</a>.
+If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN</p>
+</dd>
+<dt><strong>store_token</strong><span class="classifier">bool, optional</span></dt><dd><p>Default False.
+If true, MAST token will be stored securely in your keyring.</p>
+</dd>
+<dt><strong>reenter_token</strong><span class="classifier">bool, optional</span></dt><dd><p>Default False.
+Asks for the token even if it is already stored in the keyring or $MAST_API_TOKEN environment variable.
+This is the way to overwrite an already stored password on the keyring.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Log out of current MAST session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.reset_cache_location">
+<span class="sig-name descname"><span class="pre">reset_cache_location</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.reset_cache_location" title="Link to this definition">¶</a></dt>
+<dd><p>Resets the cache location to the default astropy cache</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.resolve_object">
+<span class="sig-name descname"><span class="pre">resolve_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objectname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.resolve_object" title="Link to this definition">¶</a></dt>
+<dd><p>Resolves an object name to a position on the sky.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>objectname</strong><span class="classifier">str</span></dt><dd><p>Name of astronomical object to resolve.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.SkyCoord.html#astropy.coordinates.SkyCoord" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkyCoord</span></code></a></span></dt><dd><p>The sky position of the given object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.mast.ZcutClass.session_info">
+<span class="sig-name descname"><span class="pre">session_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.mast.ZcutClass.session_info" title="Link to this definition">¶</a></dt>
+<dd><p>Displays information about current MAST user, and returns user info dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Default True. Set to False to suppress output to stdout.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>response</strong><span class="classifier">dict</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">ZcutClass</a><ul>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass"><code class="docutils literal notranslate"><span class="pre">ZcutClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.cache_location"><code class="docutils literal notranslate"><span class="pre">ZcutClass.cache_location</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.__call__"><code class="docutils literal notranslate"><span class="pre">ZcutClass.__call__()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.authenticated"><code class="docutils literal notranslate"><span class="pre">ZcutClass.authenticated()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.clear_cache"><code class="docutils literal notranslate"><span class="pre">ZcutClass.clear_cache()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.disable_cloud_dataset"><code class="docutils literal notranslate"><span class="pre">ZcutClass.disable_cloud_dataset()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.download_cutouts"><code class="docutils literal notranslate"><span class="pre">ZcutClass.download_cutouts()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.enable_cloud_dataset"><code class="docutils literal notranslate"><span class="pre">ZcutClass.enable_cloud_dataset()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.get_cutouts"><code class="docutils literal notranslate"><span class="pre">ZcutClass.get_cutouts()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.get_surveys"><code class="docutils literal notranslate"><span class="pre">ZcutClass.get_surveys()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.login"><code class="docutils literal notranslate"><span class="pre">ZcutClass.login()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.logout"><code class="docutils literal notranslate"><span class="pre">ZcutClass.logout()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.reset_cache_location"><code class="docutils literal notranslate"><span class="pre">ZcutClass.reset_cache_location()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.resolve_object"><code class="docutils literal notranslate"><span class="pre">ZcutClass.resolve_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.mast.ZcutClass.session_info"><code class="docutils literal notranslate"><span class="pre">ZcutClass.session_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.mast.ZcutClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+Conf
+====
+
+.. currentmodule:: astroquery.skyview
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.url
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: url

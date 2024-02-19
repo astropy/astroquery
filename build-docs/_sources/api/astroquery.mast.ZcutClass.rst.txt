@@ -1,0 +1,51 @@
+ZcutClass
+=========
+
+.. currentmodule:: astroquery.mast
+
+.. autoclass:: ZcutClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ZcutClass.cache_location
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ZcutClass.__call__
+      ~ZcutClass.authenticated
+      ~ZcutClass.clear_cache
+      ~ZcutClass.disable_cloud_dataset
+      ~ZcutClass.download_cutouts
+      ~ZcutClass.enable_cloud_dataset
+      ~ZcutClass.get_cutouts
+      ~ZcutClass.get_surveys
+      ~ZcutClass.login
+      ~ZcutClass.logout
+      ~ZcutClass.reset_cache_location
+      ~ZcutClass.resolve_object
+      ~ZcutClass.session_info
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: cache_location
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: authenticated
+   .. automethod:: clear_cache
+   .. automethod:: disable_cloud_dataset
+   .. automethod:: download_cutouts
+   .. automethod:: enable_cloud_dataset
+   .. automethod:: get_cutouts
+   .. automethod:: get_surveys
+   .. automethod:: login
+   .. automethod:: logout
+   .. automethod:: reset_cache_location
+   .. automethod:: resolve_object
+   .. automethod:: session_info

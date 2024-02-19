@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Observation Queries &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mission Searches" href="mast_missions.html" />
+    <link rel="prev" title="MAST Queries (astroquery.mast)" href="mast.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="mast_missions.html" title="Mission Searches">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="mast.html" title="MAST Queries (astroquery.mast)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="mast.html" accesskey="U">MAST Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code>)</a> &#187;</li>
+      
+      <li>Observation Queries</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="observation-queries">
+<h1>Observation Queries<a class="headerlink" href="#observation-queries" title="Link to this heading">¶</a></h1>
+<section id="observation-positional-queries">
+<h2>Observation Positional Queries<a class="headerlink" href="#observation-positional-queries" title="Link to this heading">¶</a></h2>
+<p>Positional queries can be based on a sky position or a target name.
+The observation fields are documented
+<a class="reference external" href="https://mast.stsci.edu/api/v0/_c_a_o_mfields.html">here</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="s2">&quot;322.49324 12.16683&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs_table</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>  
+<span class="go">intentType obs_collection provenance_name ... srcDen    obsid    distance</span>
+<span class="go">---------- -------------- --------------- ... ------ ----------- --------</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000731855      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000731856      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000790494      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000731857      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000791686      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000791687      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000729841      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000754475      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000779206      0.0</span>
+<span class="go">   science          SWIFT              -- ... 5885.0 15000779204      0.0</span>
+</pre></div>
+</div>
+<p>Radius is an optional parameter and the default is 0.2 degrees.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="s2">&quot;.02 deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs_table</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>  
+<span class="go">intentType obs_collection provenance_name ... srcDen    obsid    distance</span>
+<span class="go">---------- -------------- --------------- ... ------ ----------- --------</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+<span class="go">   science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0</span>
+</pre></div>
+</div>
+<p>Optional parameters must be labeled. For example the query above will produce
+an error if the “radius” field is not specified.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span> <span class="s2">&quot;.02 deg&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">ObservationsClass.query_object_async() takes 2 positional arguments but 3 were given</span>
+</pre></div>
+</div>
+</section>
+<section id="observation-criteria-queries">
+<h2>Observation Criteria Queries<a class="headerlink" href="#observation-criteria-queries" title="Link to this heading">¶</a></h2>
+<p>To search for observations based on parameters other than position or target name,
+use <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.query_criteria" title="astroquery.mast.ObservationsClass.query_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria</span></code></a>.
+Criteria are supplied as keyword arguments, where valid criteria are “coordinates”,
+“objectname”, “radius” (as in <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.query_region" title="astroquery.mast.ObservationsClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a> and
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.query_object" title="astroquery.mast.ObservationsClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>), and all observation fields listed
+<a class="reference external" href="https://mast.stsci.edu/api/v0/_c_a_o_mfields.html">here</a>.</p>
+<p><strong>Note:</strong> The obstype keyword has been replaced by intentType, with valid values
+“calibration” and “science.” If the intentType keyword is not supplied, both science
+and calibration observations will be returned.</p>
+<p>Argument values are one or more acceptable values for the criterion,
+except for fields with a float datatype where the argument should be in the form
+[minVal, maxVal]. For non-float type criteria, wildcards (both * and %) may be used.
+However, only one wildcarded value can be processed per criterion.</p>
+<p>RA and Dec must be given in decimal degrees, and datetimes in MJD.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">dataproduct_type</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="n">proposal_pi</span><span class="o">=</span><span class="s2">&quot;Osten*&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">s_dec</span><span class="o">=</span><span class="p">[</span><span class="mf">43.5</span><span class="p">,</span><span class="mf">45.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs_table</span><span class="p">)</span>  
+<span class="go">dataproduct_type calib_level obs_collection ... intentType   obsid      objID</span>
+<span class="go">---------------- ----------- -------------- ... ---------- ---------- ----------</span>
+<span class="go">           image           1            HST ...    science 2003520267 2023816094</span>
+<span class="go">           image           1            HST ...    science 2003520266 2023816134</span>
+<span class="go">           image           1            HST ...    science 2003520268 2025756935</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*UV&quot;</span><span class="p">,</span><span class="s2">&quot;Kepler&quot;</span><span class="p">],</span><span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;M101&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs_table</span><span class="p">)</span>  
+<span class="go">dataproduct_type calib_level obs_collection ...   objID1        distance</span>
+<span class="go">---------------- ----------- -------------- ... ---------- ------------------</span>
+<span class="go">           image           2          GALEX ... 1000045952                0.0</span>
+<span class="go">           image           2          GALEX ... 1000001327 371.71837196246395</span>
+<span class="go">           image           2          GALEX ... 1000016641                0.0</span>
+<span class="go">           image           2          GALEX ... 1000016644 229.81061601101433</span>
+<span class="go">           image           2          GALEX ... 1000001326                0.0</span>
+<span class="go">           image           2          GALEX ... 1000004203                0.0</span>
+<span class="go">           image           2          GALEX ... 1000004937 3.8329068532314046</span>
+<span class="go">           image           2          GALEX ... 1000045953 371.71837196246395</span>
+<span class="go">           image           2          GALEX ... 1000048357                0.0</span>
+<span class="go">           image           2          GALEX ... 1000048943 3.8329068532314046</span>
+<span class="go">           image           2          GALEX ... 1000055044                0.0</span>
+<span class="go">           image           2          GALEX ... 1000055047 229.81061601101433</span>
+</pre></div>
+</div>
+<p>We encourage the use of wildcards particularly when querying for JWST instruments
+with the instrument_name criteria. This is because of the varying instrument names
+for JWST science instruments, which you can read more about on the MAST page for
+<a class="reference external" href="https://outerspace.stsci.edu/display/MASTDOCS/JWST+Instrument+Names">JWST Instrument Names</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">proposal_pi</span><span class="o">=</span><span class="s2">&quot;Espinoza, Nestor&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">instrument_name</span><span class="o">=</span><span class="s2">&quot;NIRISS*&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="p">(</span><span class="n">obs_table</span><span class="p">[</span><span class="s1">&#39;instrument_name&#39;</span><span class="p">])</span>  
+<span class="go">{&#39;NIRISS&#39;, &#39;NIRISS/IMAGE&#39;, &#39;NIRISS/SOSS&#39;}</span>
+</pre></div>
+</div>
+<section id="getting-observation-counts">
+<h3>Getting Observation Counts<a class="headerlink" href="#getting-observation-counts" title="Link to this heading">¶</a></h3>
+<p>To get the number of observations and not the observations themselves, query_counts functions are available.
+This can be useful if trying to decide whether the available memory is sufficient for the number of observations.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Observations</span><span class="o">.</span><span class="n">query_region_count</span><span class="p">(</span><span class="s2">&quot;322.49324 12.16683&quot;</span><span class="p">))</span>  
+<span class="go">2364</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Observations</span><span class="o">.</span><span class="n">query_object_count</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="s2">&quot;.02 deg&quot;</span><span class="p">))</span>  
+<span class="go">469</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria_count</span><span class="p">(</span><span class="n">dataproduct_type</span><span class="o">=</span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;NUV&quot;</span><span class="p">,</span><span class="s2">&quot;FUV&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="n">t_max</span><span class="o">=</span><span class="p">[</span><span class="mf">52264.4586</span><span class="p">,</span><span class="mf">54452.8914</span><span class="p">]))</span>  
+<span class="go">59033</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="metadata-queries">
+<h2>Metadata Queries<a class="headerlink" href="#metadata-queries" title="Link to this heading">¶</a></h2>
+<p>To list data missions archived by MAST and avaiable through <a class="reference internal" href="mast.html#module-astroquery.mast" title="astroquery.mast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mast</span></code></a>,
+use the <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.list_missions" title="astroquery.mast.ObservationsClass.list_missions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_missions</span></code></a> function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Observations</span><span class="o">.</span><span class="n">list_missions</span><span class="p">())</span>
+<span class="go">[&#39;BEFS&#39;, &#39;EUVE&#39;, &#39;FIMS-SPEAR&#39;, &#39;FUSE&#39;, &#39;GALEX&#39;, &#39;HLA&#39;, &#39;HLSP&#39;, &#39;HST&#39;, &#39;HUT&#39;, &#39;IUE&#39;, &#39;JWST&#39;, &#39;K2&#39;, &#39;K2FFI&#39;, &#39;Kepler&#39;, &#39;KeplerFFI&#39;, &#39;OPO&#39;, &#39;PS1&#39;, &#39;SPITZER_SHA&#39;, &#39;SWIFT&#39;, &#39;TESS&#39;, &#39;TUES&#39;, &#39;WUPPE&#39;]</span>
+</pre></div>
+</div>
+<p>To get a table of metadata associated with observation or product lists use the
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_metadata" title="astroquery.mast.ObservationsClass.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a> function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">meta_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="s2">&quot;observations&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">meta_table</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>  
+<span class="go">  Column Name     Column Label   ...       Examples/Valid Values</span>
+<span class="go">--------------- ---------------- ... ----------------------------------</span>
+<span class="go">     intentType Observation Type ... Valid values: science, calibration</span>
+<span class="go"> obs_collection          Mission ...          E.g. SWIFT, PS1, HST, IUE</span>
+<span class="go">provenance_name  Provenance Name ...           E.g. TASOC, CALSTIS, PS1</span>
+<span class="go">instrument_name       Instrument ...     E.g. WFPC2/WFC, UVOT, STIS/CCD</span>
+<span class="go">        project          Project ...    E.g. HST, HLA, EUVE, hlsp_legus</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">meta_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">meta_table</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>  
+<span class="go"> Column Name     Column Label   ...         Examples/Valid Values</span>
+<span class="go">-------------- ---------------- ... -------------------------------------</span>
+<span class="go">        obs_id   Observation ID ...                  U24Z0101T, N4QF18030</span>
+<span class="go">         obsID Product Group ID ...         Long integer, e.g. 2007590987</span>
+<span class="go">obs_collection          Mission ... HST, HLA, SWIFT, GALEX, Kepler, K2...</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_metadata" title="astroquery.mast.ObservationsClass.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a> function only accepts the strings
+“observations” or “products” as a parameter. Any other string or spelling will result
+in an error.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">meta_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="s2">&quot;observation&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">astroquery.exceptions.InvalidQueryError</span>: <span class="n">Unknown query type.</span>
+</pre></div>
+</div>
+</section>
+<section id="downloading-data">
+<h2>Downloading Data<a class="headerlink" href="#downloading-data" title="Link to this heading">¶</a></h2>
+<section id="getting-product-lists">
+<h3>Getting Product Lists<a class="headerlink" href="#getting-product-lists" title="Link to this heading">¶</a></h3>
+<p>Each observation returned from a MAST query can have one or more associated data products.
+Given one or more observations or MAST Product Group IDs (“obsid”)
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_product_list" title="astroquery.mast.ObservationsClass.get_product_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_product_list</span></code></a> will return
+a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> containing the associated data products.
+The product fields are documented <a class="reference external" href="https://mast.stsci.edu/api/v0/_productsfields.html">here</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="s2">&quot;.02 deg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products_by_obs</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">obs_table</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data_products_by_obs</span><span class="p">)</span>  
+<span class="go">   obsID    obs_collection dataproduct_type ...   size  parent_obsid</span>
+<span class="go">----------- -------------- ---------------- ... ------- ------------</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">        ...            ...              ... ...     ...          ...</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ... 8648640  19000016510</span>
+<span class="go">Length = 1153 rows</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obsids</span> <span class="o">=</span> <span class="n">obs_table</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products_by_id</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">obsids</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data_products_by_id</span><span class="p">)</span>  
+<span class="go">   obsID    obs_collection dataproduct_type ...   size  parent_obsid</span>
+<span class="go">----------- -------------- ---------------- ... ------- ------------</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...  316800  19000016510</span>
+<span class="go">        ...            ...              ... ...     ...          ...</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ...   57600  19000016510</span>
+<span class="go">19000016510    SPITZER_SHA            image ... 8648640  19000016510</span>
+<span class="go">Length = 1153 rows</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">((</span><span class="n">data_products_by_obs</span> <span class="o">==</span> <span class="n">data_products_by_id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Note that the input to <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_product_list" title="astroquery.mast.ObservationsClass.get_product_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_product_list</span></code></a> should be “obsid” and NOT “obs_id”,
+which is a mission-specific identifier for a given observation, and cannot be used for querying the MAST database
+with <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_product_list" title="astroquery.mast.ObservationsClass.get_product_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_product_list</span></code></a>
+(see <a class="reference external" href="https://mast.stsci.edu/api/v0/_c_a_o_mfields.html">here</a> for more details).
+Using “obs_id” instead of “obsid” from the previous example will result in the following error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs_ids</span> <span class="o">=</span> <span class="n">obs_table</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;obs_id&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products_by_id</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">obs_ids</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">RemoteServiceError</span>: <span class="n">Error converting data type varchar to bigint.</span>
+</pre></div>
+</div>
+</section>
+<section id="filtering">
+<h3>Filtering<a class="headerlink" href="#filtering" title="Link to this heading">¶</a></h3>
+<p>Filter keyword arguments can be applied to download only data products that meet the given criteria.
+Available filters are “mrp_only” (Minimum Recommended Products), “extension” (file extension),
+and all products fields listed <a class="reference external" href="https://mast.stsci.edu/api/v0/_productsfields.html">here</a>.</p>
+<p>The ‘AND’ operation is performed for a list of filters, and the ‘OR’ operation is performed within a
+filter set. The below example illustrates downloading all product files with the extension “fits” that
+are either “RAW” or “UNCAL.”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Observations</span><span class="o">.</span><span class="n">download_products</span><span class="p">(</span><span class="s1">&#39;25119363&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">productType</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SCIENCE&quot;</span><span class="p">,</span> <span class="s2">&quot;PREVIEW&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                               <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;fits&quot;</span><span class="p">)</span>   
+<span class="go">&lt;Table length=3&gt;</span>
+<span class="go">                   Local Path                    Status  Message  URL</span>
+<span class="go">                     str47                        str8    object object</span>
+<span class="go">----------------------------------------------- -------- ------- ------</span>
+<span class="go">./mastDownload/HST/fa2f0101m/fa2f0101m_a1f.fits COMPLETE    None   None</span>
+<span class="go">./mastDownload/HST/fa2f0101m/fa2f0101m_a2f.fits COMPLETE    None   None</span>
+<span class="go">./mastDownload/HST/fa2f0101m/fa2f0101m_a3f.fits COMPLETE    None   None</span>
+</pre></div>
+</div>
+<p>Product filtering can also be applied directly to a table of products without proceeding to the download step.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="s1">&#39;25588063&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_products</span><span class="p">))</span>
+<span class="go">27</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">filter_products</span><span class="p">(</span><span class="n">data_products</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">productType</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SCIENCE&quot;</span><span class="p">,</span> <span class="s2">&quot;PREVIEW&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;fits&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">products</span><span class="p">))</span>
+<span class="go">8</span>
+</pre></div>
+</div>
+</section>
+<section id="downloading-data-products">
+<h3>Downloading Data Products<a class="headerlink" href="#downloading-data-products" title="Link to this heading">¶</a></h3>
+<p>Products can be downloaded by using <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_products" title="astroquery.mast.ObservationsClass.download_products"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_products</span></code></a>,
+with a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> of data products, or a list (or single) obsid as the argument.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single_obs</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">obs_collection</span><span class="o">=</span><span class="s2">&quot;IUE&quot;</span><span class="p">,</span> <span class="n">obs_id</span><span class="o">=</span><span class="s2">&quot;lwp13058&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">single_obs</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_products</span><span class="p">(</span><span class="n">data_products</span><span class="p">,</span> <span class="n">productType</span><span class="o">=</span><span class="s2">&quot;SCIENCE&quot;</span><span class="p">)</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>
+<span class="go">                   Local Path                     Status  Message URL</span>
+<span class="go">------------------------------------------------ -------- ------- ----</span>
+<span class="go">    ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None</span>
+<span class="go">./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None</span>
+</pre></div>
+</div>
+<p>​As an alternative to downloading the data files now, the <code class="docutils literal notranslate"><span class="pre">curl_flag</span></code> can be used instead to instead get a
+curl script that can be used to download the files at a later time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single_obs</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">obs_collection</span><span class="o">=</span><span class="s2">&quot;IUE&quot;</span><span class="p">,</span> <span class="n">obs_id</span><span class="o">=</span><span class="s2">&quot;lwp13058&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">single_obs</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_products</span><span class="p">(</span><span class="n">data_products</span><span class="p">,</span> <span class="n">productType</span><span class="o">=</span><span class="s2">&quot;SCIENCE&quot;</span><span class="p">,</span> <span class="n">curl_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   
+<span class="go">Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]</span>
+</pre></div>
+</div>
+</section>
+<section id="downloading-a-single-file">
+<h3>Downloading a Single File<a class="headerlink" href="#downloading-a-single-file" title="Link to this heading">¶</a></h3>
+<p>You can download a single data product file using the <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_file" title="astroquery.mast.ObservationsClass.download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_file</span></code></a>
+method, and passing in a MAST Data URI.  The default is to download the file the current working directory,
+which can be changed with the <code class="docutils literal notranslate"><span class="pre">local_path</span></code> keyword argument.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single_obs</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">obs_collection</span><span class="o">=</span><span class="s2">&quot;IUE&quot;</span><span class="p">,</span><span class="n">obs_id</span><span class="o">=</span><span class="s2">&quot;lwp13058&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">single_obs</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">product</span> <span class="o">=</span> <span class="n">data_products</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;dataURI&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+<span class="go">mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>   
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="go">(&#39;COMPLETE&#39;, None, None)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_file" title="astroquery.mast.ObservationsClass.download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_file</span></code></a> and <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_products" title="astroquery.mast.ObservationsClass.download_products"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_products</span></code></a>
+methods are not interchangeable. Using the incorrect method for either single files or product lists will result
+in an error.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_products</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>   
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">RemoteServiceError</span>: <span class="n">Error converting data type varchar to bigint.</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">data_products</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">can only concatenate str (not &quot;Table&quot;) to str</span>
+</pre></div>
+</div>
+</section>
+<section id="cloud-data-access">
+<h3>Cloud Data Access<a class="headerlink" href="#cloud-data-access" title="Link to this heading">¶</a></h3>
+<p>Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
+in <a class="reference external" href="https://registry.opendata.aws/collab/stsci/">public S3 buckets</a>.</p>
+<p>Using AWS resources to process public data no longer requires an AWS account for all AWS regions.
+To enable cloud data access for the Hubble, Kepler, TESS, GALEX, and Pan-STARRS missions, follow the steps below:</p>
+<p>You can enable cloud data access via the <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.enable_cloud_dataset" title="astroquery.mast.ObservationsClass.enable_cloud_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_cloud_dataset</span></code></a>
+function, which sets AWS to become the preferred source for data access as opposed to on-premise
+MAST until it is disabled with <a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.disable_cloud_dataset" title="astroquery.mast.ObservationsClass.disable_cloud_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_cloud_dataset</span></code></a>.</p>
+<p>To directly access a list of cloud URIs for a given dataset, use the
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.get_cloud_uris" title="astroquery.mast.ObservationsClass.get_cloud_uris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cloud_uris</span></code></a>
+function (Python will prompt you to enable cloud access if you haven’t already).</p>
+<p>When cloud access is enabled, the standard download function
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_products" title="astroquery.mast.ObservationsClass.download_products"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_products</span></code></a> preferentially pulls files from AWS when they
+are available. When set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, the <code class="docutils literal notranslate"><span class="pre">cloud_only</span></code> parameter in
+<a class="reference internal" href="../api/astroquery.mast.ObservationsClass.html#astroquery.mast.ObservationsClass.download_products" title="astroquery.mast.ObservationsClass.download_products"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_products</span></code></a> skips all data products not available in the cloud.</p>
+<p>Getting a list of S3 URIs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Observations</span><span class="o">.</span><span class="n">enable_cloud_dataset</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AWS&#39;</span><span class="p">)</span>
+<span class="go">INFO: Using the S3 STScI public dataset [astroquery.mast.core]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Getting the cloud URIs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">obs_collection</span><span class="o">=</span><span class="s1">&#39;HST&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">filters</span><span class="o">=</span><span class="s1">&#39;F606W&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">instrument_name</span><span class="o">=</span><span class="s1">&#39;ACS/WFC&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">proposal_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;12062&#39;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="n">dataRights</span><span class="o">=</span><span class="s1">&#39;PUBLIC&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">obs_table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filtered</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">filter_products</span><span class="p">(</span><span class="n">products</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">productSubGroupDescription</span><span class="o">=</span><span class="s1">&#39;DRZ&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s3_uris</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_cloud_uris</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">s3_uris</span><span class="p">)</span>
+<span class="go">[&#39;s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits&#39;, &#39;s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits&#39;, &#39;s3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits&#39;, &#39;s3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits&#39;]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Observations</span><span class="o">.</span><span class="n">disable_cloud_dataset</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Downloading data products from S3:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mast</span> <span class="kn">import</span> <span class="n">Observations</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Observations</span><span class="o">.</span><span class="n">enable_cloud_dataset</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AWS&#39;</span><span class="p">)</span>
+<span class="go">INFO: Using the S3 STScI public dataset [astroquery.mast.core]</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Downloading from the cloud</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs_table</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">obs_collection</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Kepler&#39;</span><span class="p">],</span>
+<span class="gp">... </span>                                        <span class="n">objectname</span><span class="o">=</span><span class="s2">&quot;Kepler 12b&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">products</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">get_product_list</span><span class="p">(</span><span class="n">obs_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Observations</span><span class="o">.</span><span class="n">download_products</span><span class="p">(</span><span class="n">products</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="n">cloud_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">manifestDownloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-01-20160209194854_dvs.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-01-20160209194854_dvs.pdf ...</span>
+<span class="go">|==========================================| 1.5M/1.5M (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160128150956_dvt.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160128150956_dvt.fits ...</span>
+<span class="go">|==========================================|  17M/ 17M (100.00%)         1s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160209194854_dvr.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160209194854_dvr.pdf ...</span>
+<span class="go">|==========================================| 5.8M/5.8M (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465_q1_q17_dr25_obs_tcert.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_q1_q17_dr25_obs_tcert.pdf ...</span>
+<span class="go">|==========================================| 2.2M/2.2M (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/previews/0118/011804465/kplr011804465-2013011073258_llc_bw_large.png to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2013011073258_llc_bw_large.png ...</span>
+<span class="go">|==========================================|  24k/ 24k (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/target_pixel_files/0118/011804465/kplr011804465_tpf_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_tpf_lc_Q111111110111011101.tar ...</span>
+<span class="go">|==========================================|  43M/ 43M (100.00%)         4s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_lc_Q111111110111011101.tar ...</span>
+<span class="go">|==========================================| 5.9M/5.9M (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ...</span>
+<span class="go">|==========================================|  77k/ 77k (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ...</span>
+<span class="go">|==========================================| 192k/192k (100.00%)         0s</span>
+<span class="go">Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ...</span>
+<span class="go">|==========================================| 466k/466k (100.00%)         0s</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">])</span>
+<span class="go">Status</span>
+<span class="go">--------</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">COMPLETE</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Observations</span><span class="o">.</span><span class="n">disable_cloud_dataset</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Observation Queries</a><ul>
+<li><a class="reference internal" href="#observation-positional-queries">Observation Positional Queries</a></li>
+<li><a class="reference internal" href="#observation-criteria-queries">Observation Criteria Queries</a><ul>
+<li><a class="reference internal" href="#getting-observation-counts">Getting Observation Counts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#metadata-queries">Metadata Queries</a></li>
+<li><a class="reference internal" href="#downloading-data">Downloading Data</a><ul>
+<li><a class="reference internal" href="#getting-product-lists">Getting Product Lists</a></li>
+<li><a class="reference internal" href="#filtering">Filtering</a></li>
+<li><a class="reference internal" href="#downloading-data-products">Downloading Data Products</a></li>
+<li><a class="reference internal" href="#downloading-a-single-file">Downloading a Single File</a></li>
+<li><a class="reference internal" href="#cloud-data-access">Cloud Data Access</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/mast/mast_obsquery.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

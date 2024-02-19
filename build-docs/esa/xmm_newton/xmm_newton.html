@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ESA XMM-Newton Archive (astroquery.esa.xmm_newton) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="XMMNewtonClass" href="../../api/astroquery.esa.xmm_newton.XMMNewtonClass.html" />
+    <link rel="prev" title="Conf" href="../../api/astroquery.esa.jwst.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../../api/astroquery.esa.xmm_newton.XMMNewtonClass.html" title="XMMNewtonClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../../api/astroquery.esa.jwst.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>ESA XMM-Newton Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.xmm_newton</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="esa-xmm-newton-archive-astroquery-esa-xmm-newton">
+<span id="astroquery-esa-xmm-newton"></span><h1>ESA XMM-Newton Archive (<a class="reference internal" href="#module-astroquery.esa.xmm_newton" title="astroquery.esa.xmm_newton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.xmm_newton</span></code></a>)<a class="headerlink" href="#esa-xmm-newton-archive-astroquery-esa-xmm-newton" title="Link to this heading">¶</a></h1>
+<p>The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999.
+It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor,
+the first flown on an X-ray observatory.</p>
+<p>This package allows the access to the <a class="reference external" href="http://nxsa.esac.esa.int/nxsa-web/">XMM-Newton Science Archive</a>.
+It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the
+XMM-Newton Science Operations Centre.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="getting-xmm-newton-data">
+<h3>1. Getting XMM-Newton data<a class="headerlink" href="#getting-xmm-newton-data" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="s1">&#39;0505720401&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;PPS&quot;</span> <span class="p">,</span><span class="n">extension</span><span class="o">=</span><span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="n">instname</span><span class="o">=</span><span class="s2">&quot;M1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;result0505720401&quot;</span><span class="p">)</span>   
+<span class="go">Downloading URL https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0505720401&amp;level=PPS&amp;extension=PDF&amp;instname=M1 to result0505720401.tar ...</span>
+<span class="go">|==============================================================| 7.4M/7.4M (100.00%)         9s</span>
+</pre></div>
+</div>
+<p>This will download all PPS files for the observation ‘0505720401’ and instrument MOS1, with ‘PDF’ extension and
+it will store them in a tar called ‘result0505720401.tar’. The parameters available are detailed in the API.</p>
+<dl class="simple">
+<dt>For more details of the parameters check the section 3.4 at:</dt><dd><p>‘<a class="reference external" href="http://nxsa.esac.esa.int/nxsa-web/#aio">http://nxsa.esac.esa.int/nxsa-web/#aio</a>’</p>
+</dd>
+</dl>
+</section>
+<section id="getting-xmm-newton-proprietary-data">
+<h3>2. Getting XMM-Newton proprietary data<a class="headerlink" href="#getting-xmm-newton-proprietary-data" title="Link to this heading">¶</a></h3>
+<p>To access proprietary data an extra variable is needed in the XMMNewton.download_data method. This variabe is prop which
+can be True or False. If True a username and password is needed. A username and password can be passed by adding another
+variable to the XMMNewton.download_data method called credentials_file. This variable is a string with the path to
+~/.astropy/config/astroquery.cfg file. Inside this file add your desired username and password, e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">xmm_newton</span><span class="p">]</span>
+<span class="n">username</span> <span class="o">=</span> <span class="n">your_username</span>
+<span class="n">password</span> <span class="o">=</span> <span class="n">your_password</span>
+</pre></div>
+</div>
+<p>If the credentials_file variable is not provided the method will ask for the username and password to be added manually
+from the commandline</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="s1">&#39;0505720401&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;PPS&quot;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="n">instname</span><span class="o">=</span><span class="s2">&quot;M1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;result0505720401.tar&quot;</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">INFO: File result0505720401.tar downloaded to current directory [astroquery.esa.xmm_newton.core]</span>
+</pre></div>
+</div>
+<p>This will download all PPS files for the observation ‘0505720401’ and instrument MOS1, with ‘PDF’ extension and any
+proprietary data. It will store them in a tar called ‘result0505720401.tar’.</p>
+</section>
+<section id="getting-xmm-newton-postcards">
+<h3>3. Getting XMM-Newton postcards<a class="headerlink" href="#getting-xmm-newton-postcards" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">get_postcard</span><span class="p">(</span><span class="s1">&#39;0505720401&#39;</span><span class="p">)</span>        
+<span class="go">INFO: File P0505720401EPX000OIMAGE8000.PNG downloaded to current directory [astroquery.esa.xmm_newton.core]</span>
+<span class="go">&#39;P0505720401EPX000OIMAGE8000.PNG&#39;</span>
+</pre></div>
+</div>
+<p>This will download the EPIC postcard for the observation ‘0505720401’ and it will stored in a PNG called
+‘P0505720401EPX000OIMAGE8000.PNG’.</p>
+</section>
+<section id="getting-xmm-newton-metadata-through-tap">
+<h3>4. Getting XMM-Newton metadata through TAP<a class="headerlink" href="#getting-xmm-newton-metadata-through-tap" title="Link to this heading">¶</a></h3>
+<p>This function provides access to the XMM-Newton Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
+Query Language (ADQL).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">XMMNewton</span><span class="o">.</span><span class="n">query_xsa_tap</span><span class="p">(</span><span class="s2">&quot;select top 10 * from v_public_observations&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                 <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s1">&#39;results10.csv&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>     
+<span class="go">        bii             dec    duration ...      target      with_science</span>
+<span class="go">-------------------- --------- -------- ... ---------------- ------------</span>
+<span class="go">  4.1331178178373715  55.99944    32913 ...    XTE J0421+560         true</span>
+<span class="go"> 0.05069186370709437 -32.58167    17083 ...         HD159176         true</span>
+<span class="go"> 0.05069186370709437 -32.58167     9362 ...         HD159176         true</span>
+<span class="go"> 0.05069186370709437 -32.58167    10859 ...         HD159176         true</span>
+<span class="go">-0.31119608673831345  6.135278    21939 ...          HD47129         true</span>
+<span class="go">-0.31119608673831345  6.135278    21863 ...          HD47129         true</span>
+<span class="go"> -51.687075256085755  10.68917    26609 ... IRAS F00235+1024         true</span>
+<span class="go">   73.04737400339847  10.18639    25192 ... IRAS F12514+1027         true</span>
+<span class="go">   46.71747372703565 -15.78639    12101 ...      Denis-J1228         true</span>
+<span class="go"> -15.881772371450268 -77.61555    33986 ...         Cha-Ha-3         true</span>
+</pre></div>
+</div>
+<p>This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be
+stored in the file ‘results10.csv’. The result of this query can be printed by doing print(result).</p>
+</section>
+<section id="getting-table-details-of-xsa-tap">
+<h3>5. Getting table details of XSA TAP<a class="headerlink" href="#getting-table-details-of-xsa-tap" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">get_tables</span><span class="p">()</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="go">[&#39;tap_config.coord_sys&#39;, &#39;tap_config.properties&#39;, &#39;tap_schema.columns&#39;,</span>
+<span class="go"> &#39;tap_schema.key_columns&#39;, &#39;tap_schema.keys&#39;, &#39;tap_schema.schemas&#39;,</span>
+<span class="go"> &#39;tap_schema.tables&#39;, &#39;xsa.dual&#39;, &#39;xsa.v_all_observations&#39;, &#39;xsa.v_epic_source&#39;,</span>
+<span class="go"> &#39;xsa.v_epic_source_cat&#39;, &#39;xsa.v_epic_xmm_stack_cat&#39;, &#39;xsa.v_exposure&#39;,</span>
+<span class="go"> &#39;xsa.v_instrument_mode&#39;, &#39;xsa.v_om_source&#39;, &#39;xsa.v_om_source_cat&#39;,</span>
+<span class="go"> &#39;xsa.v_proposal&#39;, &#39;xsa.v_proposal_observation_info&#39;, &#39;xsa.v_publication&#39;,</span>
+<span class="go"> &#39;xsa.v_publication_observation&#39;, &#39;xsa.v_publication_slew_observation&#39;,</span>
+<span class="go"> &#39;xsa.v_public_observations&#39;, &#39;xsa.v_public_observations_new_odf_ingestion&#39;,</span>
+<span class="go"> &#39;xsa.v_public_observations_new_pps_ingestion&#39;, &#39;xsa.v_rgs_source&#39;,</span>
+<span class="go"> &#39;xsa.v_slew_exposure&#39;, &#39;xsa.v_slew_observation&#39;, &#39;xsa.v_slew_source&#39;,</span>
+<span class="go"> &#39;xsa.v_slew_source_cat&#39;, &#39;xsa.v_target_type&#39;, &#39;xsa.v_uls_exposure_image&#39;,</span>
+<span class="go"> &#39;xsa.v_uls_slew_exposure_image&#39;]</span>
+</pre></div>
+</div>
+<p>This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.</p>
+</section>
+<section id="getting-columns-details-of-xsa-tap">
+<h3>6. Getting columns details of XSA TAP<a class="headerlink" href="#getting-columns-details-of-xsa-tap" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="s1">&#39;xsa.v_all_observations&#39;</span><span class="p">)</span>
+<span class="go">INFO: Retrieving tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Parsing tables... [astroquery.utils.tap.core]</span>
+<span class="go">INFO: Done. [astroquery.utils.tap.core]</span>
+<span class="go">[&#39;bii&#39;, &#39;citext&#39;, &#39;dec&#39;, &#39;duration&#39;, &#39;end_utc&#39;, &#39;footprint_fov&#39;, &#39;heasarc_code&#39;, &#39;lii&#39;, &#39;moving_target&#39;,</span>
+<span class="go">&#39;observation_equatorial_spoint&#39;, &#39;observation_fov_scircle&#39;, &#39;observation_galactic_spoint&#39;, &#39;observation_id&#39;,</span>
+<span class="go">&#39;observation_oid&#39;, &#39;odf_proc_date&#39;, &#39;odf_version&#39;, &#39;position_angle&#39;, &#39;pps_proc_date&#39;, &#39;pps_version&#39;, &#39;proposal_id&#39;,</span>
+<span class="go">&#39;proposal_oid&#39;, &#39;proprietary_end_date&#39;, &#39;ra&#39;, &#39;ra_nom&#39;, &#39;revolution&#39;, &#39;sas_version&#39;, &#39;seq_id&#39;, &#39;start_utc&#39;, &#39;stc_s&#39;, &#39;with_science&#39;]</span>
+</pre></div>
+</div>
+<p>This will show the column details of the table ‘v_all_observations’ in XSA TAP service in the XMM-Newton Science Archive.</p>
+</section>
+<section id="getting-epic-images-from-a-given-tar-file">
+<h3>7. Getting EPIC images from a given TAR file<a class="headerlink" href="#getting-epic-images-from-a-given-tar-file" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="s1">&#39;0405320501&#39;</span><span class="p">)</span>   
+<span class="go">Downloading URL http://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0405320501 to 0405320501.tar ...</span>
+<span class="go">|===================================================================================================================================================| 540M/540M (100.00%)        57s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XMMNewton</span><span class="o">.</span><span class="n">get_epic_images</span><span class="p">(</span><span class="s1">&#39;0405320501.tar&#39;</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">instrument</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;M1&#39;</span><span class="p">])</span>
+<span class="go">{1: {&#39;M1&#39;: &#39;/home/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ&#39;}, 2: {&#39;M1&#39;: &#39;/home/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ&#39;}}</span>
+</pre></div>
+</div>
+<p>This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.</p>
+</section>
+<section id="getting-the-european-photon-imaging-camera-epic-metadata-from-the-xsa-tap">
+<h3>8. Getting the European Photon Imaging Camera (EPIC) metadata from the XSA TAP<a class="headerlink" href="#getting-the-european-photon-imaging-camera-epic-metadata-from-the-xsa-tap" title="Link to this heading">¶</a></h3>
+<p>This function retrieves the EPIC metadata from a given target.</p>
+<p>The target must be defined with either a source name or a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.SkyCoord.html#astropy.coordinates.SkyCoord" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkyCoord</span></code></a> object.</p>
+<p>The EPIC metadata can be found in four tables in the XSA TAP:</p>
+<ul class="simple">
+<li><p>xsa.v_epic_source</p></li>
+<li><p>xsa.v_epic_source_cat</p></li>
+<li><p>xsa.v_epic_xmm_stack_cat</p></li>
+<li><p>xsa.v_slew_source_cat</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.esa.xmm_newton</span> <span class="kn">import</span> <span class="n">XMMNewton</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">epic_source</span><span class="p">,</span> <span class="n">cat_4xmm</span><span class="p">,</span> <span class="n">stack_4xmm</span><span class="p">,</span> <span class="n">slew_source</span> <span class="o">=</span> <span class="n">XMMNewton</span><span class="o">.</span><span class="n">get_epic_metadata</span><span class="p">(</span><span class="n">target_name</span><span class="o">=</span><span class="s2">&quot;4XMM J122934.7+015657&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will return the metadata within the four TAP tables in four <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> for the given target.</p>
+<section id="reference-api">
+<h4>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h4>
+<section id="module-astroquery.esa.xmm_newton">
+<span id="astroquery-esa-xmm-newton-package"></span><h5>astroquery.esa.xmm_newton Package<a class="headerlink" href="#module-astroquery.esa.xmm_newton" title="Link to this heading">¶</a></h5>
+<p>European Space Astronomy Centre (ESAC)
+European Space Agency (ESA)</p>
+<section id="classes">
+<h6>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h6>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../api/astroquery.esa.xmm_newton.XMMNewtonClass.html#astroquery.esa.xmm_newton.XMMNewtonClass" title="astroquery.esa.xmm_newton.XMMNewtonClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XMMNewtonClass</span></code></a>([tap_handler])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/astroquery.esa.xmm_newton.Conf.html#astroquery.esa.xmm_newton.Conf" title="astroquery.esa.xmm_newton.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.esa.xmm_newton" title="astroquery.esa.xmm_newton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.xmm_newton</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">ESA XMM-Newton Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.esa.xmm_newton</span></code>)</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#getting-xmm-newton-data">1. Getting XMM-Newton data</a></li>
+<li><a class="reference internal" href="#getting-xmm-newton-proprietary-data">2. Getting XMM-Newton proprietary data</a></li>
+<li><a class="reference internal" href="#getting-xmm-newton-postcards">3. Getting XMM-Newton postcards</a></li>
+<li><a class="reference internal" href="#getting-xmm-newton-metadata-through-tap">4. Getting XMM-Newton metadata through TAP</a></li>
+<li><a class="reference internal" href="#getting-table-details-of-xsa-tap">5. Getting table details of XSA TAP</a></li>
+<li><a class="reference internal" href="#getting-columns-details-of-xsa-tap">6. Getting columns details of XSA TAP</a></li>
+<li><a class="reference internal" href="#getting-epic-images-from-a-given-tar-file">7. Getting EPIC images from a given TAR file</a></li>
+<li><a class="reference internal" href="#getting-the-european-photon-imaging-camera-epic-metadata-from-the-xsa-tap">8. Getting the European Photon Imaging Camera (EPIC) metadata from the XSA TAP</a><ul>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.esa.xmm_newton">astroquery.esa.xmm_newton Package</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../../_sources/esa/xmm_newton/xmm_newton.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

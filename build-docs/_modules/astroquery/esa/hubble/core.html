@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.esa.hubble.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../hubble.html" accesskey="U">astroquery.esa.hubble</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.esa.hubble.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">======================</span>
+<span class="sd">eHST Astroquery Module</span>
+<span class="sd">======================</span>
+
+<span class="sd">European Space Astronomy Centre (ESAC)</span>
+<span class="sd">European Space Agency (ESA)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">Angle</span>
+
+<span class="kn">from</span> <span class="nn">astroquery.utils.tap</span> <span class="kn">import</span> <span class="n">TapPlus</span>
+<span class="kn">from</span> <span class="nn">astroquery.query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">AstropyDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.decorators</span> <span class="kn">import</span> <span class="n">deprecated</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">astroquery</span> <span class="kn">import</span> <span class="n">log</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ESAHubble&#39;</span><span class="p">,</span> <span class="s1">&#39;ESAHubbleClass&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_check_rename_to_gz</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">rename</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">test_f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">test_f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x1f\x8b</span><span class="s1">&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.fits.gz&#39;</span><span class="p">):</span>
+                <span class="n">rename</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">rename</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.fits.gz&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">filename</span>
+
+
+<div class="viewcode-block" id="ESAHubbleClass">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass">[docs]</a>
+<span class="k">class</span> <span class="nc">ESAHubbleClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to init ESA Hubble Module and communicate with eHST TAP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">TIMEOUT</span>
+    <span class="n">calibration_levels</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;AUXILIARY&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;RAW&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;CALIBRATED&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                          <span class="s2">&quot;PRODUCT&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">product_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SCIENCE&quot;</span><span class="p">,</span> <span class="s2">&quot;PREVIEW&quot;</span><span class="p">,</span> <span class="s2">&quot;THUMBNAIL&quot;</span><span class="p">,</span> <span class="s2">&quot;AUXILIARY&quot;</span><span class="p">]</span>
+    <span class="n">copying_string</span> <span class="o">=</span> <span class="s2">&quot;Copying file to </span><span class="si">{0}</span><span class="s2">...&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tap_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_messages</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tap_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span> <span class="o">=</span> <span class="n">TapPlus</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">EHST_TAP_SERVER</span><span class="p">,</span>
+                                <span class="n">data_context</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;ASTROQUERY&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span> <span class="o">=</span> <span class="n">tap_handler</span>
+        <span class="k">if</span> <span class="n">show_messages</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_status_messages</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.download_product">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.download_product">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">calibration_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">product_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download products from EHST based on their observation ID and the</span>
+<span class="sd">        calibration level or the product type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">            id of the observation to be downloaded, mandatory</span>
+<span class="sd">            The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">            of whether it is simple or composite.</span>
+<span class="sd">        calibration_level : string</span>
+<span class="sd">            calibration level, optional</span>
+<span class="sd">            The identifier of the data reduction/processing applied to the</span>
+<span class="sd">            data. By default, the most scientifically relevant level will be</span>
+<span class="sd">            chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY</span>
+<span class="sd">        filename : string</span>
+<span class="sd">            file name to be used to store the artifact, optional, default</span>
+<span class="sd">            None</span>
+<span class="sd">            File name for the observation.</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+<span class="sd">        product_type : string</span>
+<span class="sd">            type of product retrieval, optional</span>
+<span class="sd">            SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY</span>
+<span class="sd">            ------------</span>
+<span class="sd">            Deprecation Warning: PRODUCT, SCIENCE_PRODUCT or POSTCARD</span>
+<span class="sd">            are no longer supported.</span>
+<span class="sd">            ------------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. It downloads the observation indicated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">product_type</span> <span class="ow">and</span> <span class="n">product_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;PRODUCT&#39;</span><span class="p">,</span> <span class="s1">&#39;SCIENCE_PRODUCT&#39;</span><span class="p">,</span> <span class="s1">&#39;POSTCARD&#39;</span><span class="p">]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;PRODUCT, SCIENCE_PRODUCT or POSTCARD product types are no longer supported. &quot;</span>
+                <span class="s2">&quot;Please use SCIENCE, PREVIEW, THUMBNAIL or AUXILIARY instead.&quot;</span><span class="p">,</span>
+                <span class="n">AstropyDeprecationWarning</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;OBSERVATIONID&quot;</span><span class="p">:</span> <span class="n">observation_id</span><span class="p">,</span>
+                  <span class="s2">&quot;TAPCLIENT&quot;</span><span class="p">:</span> <span class="s2">&quot;ASTROQUERY&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;RETRIEVAL_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;OBSERVATION&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">observation_id</span>
+
+        <span class="k">if</span> <span class="n">calibration_level</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;CALIBRATIONLEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calibration_level</span>
+
+        <span class="c1"># Product type check to ensure backwards compatibility</span>
+        <span class="n">product_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set_product_type</span><span class="p">(</span><span class="n">product_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">product_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__validate_product_type</span><span class="p">(</span><span class="n">product_type</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;PRODUCTTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">product_type</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_product_filename</span><span class="p">(</span><span class="n">product_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">params_dict</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_check_rename_to_gz</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__set_product_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_type</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">product_type</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;SCIENCE_PRODUCT&#39;</span> <span class="ow">in</span> <span class="n">product_type</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;SCIENCE&#39;</span>
+            <span class="k">elif</span> <span class="s1">&#39;PRODUCT&#39;</span> <span class="ow">in</span> <span class="n">product_type</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="s1">&#39;POSTCARD&#39;</span> <span class="ow">in</span> <span class="n">product_type</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;PREVIEW&#39;</span>
+        <span class="k">return</span> <span class="n">product_type</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.get_member_observations">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_member_observations">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_member_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the related members of simple and composite observations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : str</span>
+<span class="sd">            Observation identifier.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of strings with the observation_id of the associated</span>
+<span class="sd">        observations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">observation_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_observation_type</span><span class="p">(</span><span class="n">observation_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Composite&#39;</span> <span class="ow">in</span> <span class="n">observation_type</span><span class="p">:</span>
+            <span class="n">oids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_related_members</span><span class="p">(</span><span class="n">observation_id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;Simple&#39;</span> <span class="ow">in</span> <span class="n">observation_type</span><span class="p">:</span>
+            <span class="n">oids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_related_composite</span><span class="p">(</span><span class="n">observation_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid observation id&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">oids</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_hap_hst_link">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_hap_hst_link">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_hap_hst_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the related members of hap and hst observations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">           id of the observation to be downloaded, mandatory</span>
+<span class="sd">           The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">           of whether it is simple or composite.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of strings with the observation_id of the associated</span>
+<span class="sd">        observations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">observation_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_observation_type</span><span class="p">(</span><span class="n">observation_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;Composite&#39;</span> <span class="ow">in</span> <span class="n">observation_type</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;HAP-HST link is only available for simple observations. Input observation is Composite.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;HAP&#39;</span> <span class="ow">in</span> <span class="n">observation_type</span><span class="p">:</span>
+            <span class="n">oids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_related_members</span><span class="p">(</span><span class="n">observation_id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;HST&#39;</span> <span class="ow">in</span> <span class="n">observation_type</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;select observation_id from ehst.observation where obs_type=&#39;HAP Simple&#39; &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;and members like &#39;%</span><span class="si">{</span><span class="n">observation_id</span><span class="si">}</span><span class="s2">%&#39;&quot;</span><span class="p">)</span>
+            <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">oids</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;observation_id&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid observation id&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">oids</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_observation_type">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_observation_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_observation_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the type of an observation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">           id of the observation to be downloaded, mandatory</span>
+<span class="sd">           The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">           of whether it is simple or composite.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        String with the observation type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">observation_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please input an observation id&quot;</span><span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;select obs_type from ehst.observation where observation_id=&#39;</span><span class="si">{</span><span class="n">observation_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;obs_type&quot;</span><span class="p">]):</span>
+            <span class="n">obs_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_decoded_string</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;obs_type&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid Observation ID&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obs_type</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_select_related_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;select members from ehst.observation where observation_id=&#39;</span><span class="si">{</span><span class="n">observation_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">oids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_decoded_string</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;members&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;caom:HST/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">oids</span>
+
+    <span class="k">def</span> <span class="nf">_select_related_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;select observation_id from ehst.observation where members like &#39;%</span><span class="si">{</span><span class="n">observation_id</span><span class="si">}</span><span class="s2">%&#39;&quot;</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">oids</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;observation_id&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">oids</span>
+
+    <span class="k">def</span> <span class="nf">__validate_product_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_type</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">product_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product_types</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This product_type is not allowed&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_product_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">product_type</span> <span class="o">==</span> <span class="s2">&quot;THUMBNAIL&quot;</span> <span class="ow">or</span> <span class="n">product_type</span> <span class="o">==</span> <span class="s2">&quot;PREVIEW&quot;</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is an image, the filename will be &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;renamed to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.jpg&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.jpg&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.get_artifact">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_artifact">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download artifacts from EHST. Artifact is a single Hubble product file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        artifact_id : string</span>
+<span class="sd">            filename to be downloaded, mandatory</span>
+<span class="sd">            The identifier of the physical product (file) we want to retrieve.</span>
+<span class="sd">        filename : string</span>
+<span class="sd">            file name to be used to store the artifact, optional, default None</span>
+<span class="sd">            File name for the artifact</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. It downloads the artifact indicated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">artifact_id</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_associated_files">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_associated_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_associated_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves all the files associated to an observation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">            id of the observation to be downloaded, mandatory</span>
+<span class="sd">            The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">            of whether it is simple or composite.</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. The file is associated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;select art.artifact_id as filename, p.calibration_level, art.archive_class as type, &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;pg_size_pretty(art.size_uncompr) as size_uncompressed from ehst.artifact art &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;join ehst.plane p on p.plane_id = art.plane_id where &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;art.observation_id = &#39;</span><span class="si">{</span><span class="n">observation_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.download_fits_files">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.download_fits_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_fits_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves all the FITS files associated to an observation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">            id of the observation to be downloaded, mandatory</span>
+<span class="sd">            The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">            of whether it is simple or composite.</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. The file is associated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_associated_files</span><span class="p">(</span><span class="n">observation_id</span><span class="o">=</span><span class="n">observation_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.fits&#39;</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.download_file">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.download_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download a file from eHST based on its filename.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file : string</span>
+<span class="sd">            file name of the artifact to be downloaded</span>
+
+<span class="sd">        filename : string</span>
+<span class="sd">            file name to be used to store the file, optional, default None</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. The file is associated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RETRIEVAL_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;PRODUCT&quot;</span><span class="p">,</span> <span class="s2">&quot;ARTIFACTID&quot;</span><span class="p">:</span> <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;TAPCLIENT&quot;</span><span class="p">:</span> <span class="s2">&quot;ASTROQUERY&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">params_dict</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_check_rename_to_gz</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_postcard">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_postcard">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_postcard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">calibration_level</span><span class="o">=</span><span class="s2">&quot;RAW&quot;</span><span class="p">,</span>
+                     <span class="n">resolution</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download postcards from EHST</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observation_id : string</span>
+<span class="sd">            id of the observation for which download the postcard, mandatory</span>
+<span class="sd">            The identifier of the observation we want to retrieve, regardless</span>
+<span class="sd">            of whether it is simple or composite.</span>
+<span class="sd">        calibration_level : string</span>
+<span class="sd">            calibration level, optional, default &#39;RAW&#39;</span>
+<span class="sd">            The identifier of the data reduction/processing applied to the</span>
+<span class="sd">            data. By default, the most scientifically relevant level will be</span>
+<span class="sd">            chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY</span>
+<span class="sd">        resolution : integer</span>
+<span class="sd">            postcard resolution, optional, default 256</span>
+<span class="sd">            Resolution of the retrieved postcard. 256 or 1024</span>
+<span class="sd">        filename : string</span>
+<span class="sd">            file name to be used to store the postcard, optional, default None</span>
+<span class="sd">            File name for the artifact</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            Flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None. It downloads the observation postcard indicated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RETRIEVAL_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;OBSERVATION&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;OBSERVATIONID&quot;</span><span class="p">:</span> <span class="n">observation_id</span><span class="p">,</span>
+                  <span class="s2">&quot;PRODUCTTYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;PREVIEW&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;TAPCLIENT&quot;</span><span class="p">:</span> <span class="s2">&quot;ASTROQUERY&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">calibration_level</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;CALIBRATIONLEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calibration_level</span>
+
+        <span class="k">if</span> <span class="n">resolution</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;PRODUCTTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_product_type_by_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">observation_id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">params_dict</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">filename</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__get_product_type_by_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resolution</span> <span class="o">==</span> <span class="mi">256</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;THUMBNAIL&#39;</span>
+        <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="mi">1024</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;PREVIEW&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Resolution must be 256 or 1024&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.cone_search">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.cone_search">[docs]</a>
+    <span class="k">def</span> <span class="nf">cone_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">async_job</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        To execute a cone search defined by a coordinate and a radius</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : astropy.coordinate, mandatory</span>
+<span class="sd">            coordinates of the center in the cone search</span>
+<span class="sd">        radius : float or quantity</span>
+<span class="sd">            radius in arcmin (int, float) or quantity of the cone_search</span>
+<span class="sd">        filename : str, default None</span>
+<span class="sd">            Path and name of the file to store the results.</span>
+<span class="sd">            If the filename is defined, the file will be</span>
+<span class="sd">            automatically saved</span>
+<span class="sd">        output_format : string</span>
+<span class="sd">            results format. Options are:</span>
+<span class="sd">            &#39;votable&#39;: str, binary VOTable format</span>
+<span class="sd">            &#39;csv&#39;: str, comma-separated values format</span>
+<span class="sd">        async_job : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">            synchronous)</span>
+<span class="sd">        cache : bool</span>
+<span class="sd">            optional, default &#39;True&#39;</span>
+<span class="sd">            Flag to save the results in the local cache</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        astropy.table.Table with the result of the cone_search</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getCoordInput</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">radius_in_grades</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">arcmin</span><span class="p">)</span><span class="o">.</span><span class="n">deg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">radius_in_grades</span> <span class="o">=</span> <span class="n">radius</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">dec</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;select o.observation_id, &quot;</span>
+                 <span class="s2">&quot;o.start_time, o.end_time, o.start_time_mjd, &quot;</span>
+                 <span class="s2">&quot;o.end_time_mjd, o.exposure_duration, o.release_date, &quot;</span>
+                 <span class="s2">&quot;o.run_id, o.program_id, o.set_id, o.collection, &quot;</span>
+                 <span class="s2">&quot;o.members_number, o.instrument_configuration, &quot;</span>
+                 <span class="s2">&quot;o.instrument_name, o.obs_type, o.target_moving, &quot;</span>
+                 <span class="s2">&quot;o.target_name, o.target_description, o.proposal_id, &quot;</span>
+                 <span class="s2">&quot;o.pi_name, prop.title, pl.metadata_provenance, &quot;</span>
+                 <span class="s2">&quot;pl.data_product_type, pl.software_version, pos.ra, &quot;</span>
+                 <span class="s2">&quot;pos.dec, pos.gal_lat, pos.gal_lon, pos.ecl_lat, &quot;</span>
+                 <span class="s2">&quot;pos.ecl_lon, pos.fov_size, en.wave_central, &quot;</span>
+                 <span class="s2">&quot;en.wave_bandwidth, en.wave_max, en.wave_min, &quot;</span>
+                 <span class="s2">&quot;en.filter from ehst.observation o join ehst.proposal &quot;</span>
+                 <span class="s2">&quot;prop on o.proposal_id=prop.proposal_id join ehst.plane &quot;</span>
+                 <span class="s2">&quot;pl on pl.observation_id=o.observation_id join &quot;</span>
+                 <span class="s2">&quot;ehst.position pos on pos.plane_id = pl.plane_id join &quot;</span>
+                 <span class="s2">&quot;ehst.energy en on en.plane_id=pl.plane_id where &quot;</span>
+                 <span class="s2">&quot;pl.main_science_plane=&#39;true&#39; and 1=CONTAINS(POINT(&#39;ICRS&#39;, &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;pos.ra, pos.dec),CIRCLE(&#39;ICRS&#39;, </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">radius_in_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">)) order &quot;</span>
+                 <span class="s2">&quot;by prop.proposal_id desc&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="n">async_job</span><span class="p">,</span>
+                               <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                               <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                               <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.cone_search_criteria">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.cone_search_criteria">[docs]</a>
+    <span class="k">def</span> <span class="nf">cone_search_criteria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">calibration_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">data_product_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">intent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">obs_collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">instrument_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">proposal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">async_job</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span>
+                             <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                             <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        To execute a cone search defined by a coordinate (an</span>
+<span class="sd">        astropy.coordinate element or a target name which is resolved),</span>
+<span class="sd">        a radius and a set of criteria to filter the results. This function</span>
+<span class="sd">        comprises the outputs of query_target, cone_search and query_criteria</span>
+<span class="sd">        methods.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        radius : float or quantity</span>
+<span class="sd">            radius in arcmin (int, float) or quantity of the cone_search</span>
+<span class="sd">        target : str, mandatory if no coordinates is provided</span>
+<span class="sd">            name of the target, that will act as center in the cone search</span>
+<span class="sd">        coordinates : astropy.coordinate, mandatory if no target is provided</span>
+<span class="sd">            coordinates of the center in the cone search</span>
+<span class="sd">        calibration_level : str or int, optional</span>
+<span class="sd">            The identifier of the data reduction/processing applied to the</span>
+<span class="sd">            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)</span>
+<span class="sd">        data_product_type : str, optional</span>
+<span class="sd">            High level description of the product.</span>
+<span class="sd">            image, spectrum or timeseries.</span>
+<span class="sd">        intent : str, optional</span>
+<span class="sd">            The intent of the original observer in acquiring this observation.</span>
+<span class="sd">            SCIENCE or CALIBRATION</span>
+<span class="sd">        collection : list of str, optional</span>
+<span class="sd">            List of collections that are available in eHST catalogue.</span>
+<span class="sd">            HLA, HST</span>
+<span class="sd">        instrument_name : list of str, optional</span>
+<span class="sd">            Name(s) of the instrument(s) used to generate the dataset</span>
+<span class="sd">        filters : list of str, optional</span>
+<span class="sd">            Name(s) of the filter(s) used to generate the dataset</span>
+<span class="sd">        proposal : int, optional</span>
+<span class="sd">            Proposal ID associated to the observations</span>
+<span class="sd">        async_job : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">            synchronous)</span>
+<span class="sd">        filename : str, default None</span>
+<span class="sd">            Path and name of the file to store the results.</span>
+<span class="sd">            If the filename is defined, the file will be</span>
+<span class="sd">            automatically saved</span>
+<span class="sd">        output_format : string</span>
+<span class="sd">            results format. Options are:</span>
+<span class="sd">            &#39;votable&#39;: str, binary VOTable format</span>
+<span class="sd">            &#39;csv&#39;: str, comma-separated values format</span>
+<span class="sd">        save : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            Flag to save the result in a file. If the filename</span>
+<span class="sd">            is not defined, it will use a formatted name to save</span>
+<span class="sd">            the file</span>
+<span class="sd">        cache : bool</span>
+<span class="sd">            optional, default &#39;True&#39;</span>
+<span class="sd">            Flag to save the results in the local cache</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        astropy.table.Table with the result of the cone_search</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">crit_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">calibration_level</span><span class="o">=</span><span class="n">calibration_level</span><span class="p">,</span>
+                                         <span class="n">data_product_type</span><span class="o">=</span><span class="n">data_product_type</span><span class="p">,</span>
+                                         <span class="n">intent</span><span class="o">=</span><span class="n">intent</span><span class="p">,</span>
+                                         <span class="n">obs_collection</span><span class="o">=</span><span class="n">obs_collection</span><span class="p">,</span>
+                                         <span class="n">instrument_name</span><span class="o">=</span><span class="n">instrument_name</span><span class="p">,</span>
+                                         <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span>
+                                         <span class="n">proposal</span><span class="o">=</span><span class="n">proposal</span><span class="p">,</span>
+                                         <span class="n">async_job</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">get_query</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crit_query</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">):</span>
+            <span class="n">crit_query</span> <span class="o">=</span> <span class="n">crit_query</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; AND &quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">crit_query</span> <span class="o">=</span> <span class="n">crit_query</span> <span class="o">+</span> <span class="s2">&quot; WHERE (&quot;</span>
+
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Please use only target or coordinates as&quot;</span>
+                            <span class="s2">&quot;parameter.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target</span><span class="p">:</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_tap_target</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getCoordInput</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">dec</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">radius_in_grades</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">arcmin</span><span class="p">)</span><span class="o">.</span><span class="n">deg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">radius_in_grades</span> <span class="o">=</span> <span class="n">radius</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">cone_query</span> <span class="o">=</span> <span class="s2">&quot;1=CONTAINS(POINT(&#39;ICRS&#39;, ra, dec),&quot;</span> \
+                     <span class="s2">&quot;CIRCLE(&#39;ICRS&#39;, </span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">, </span><span class="si">{2}</span><span class="s2">))&quot;</span><span class="o">.</span> \
+            <span class="nb">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ra</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dec</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">radius_in_grades</span><span class="p">))</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">crit_query</span><span class="p">,</span> <span class="n">cone_query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="n">async_job</span><span class="p">,</span>
+                               <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                               <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                               <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_query_tap_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TARGET_NAME&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+                      <span class="s2">&quot;RESOLVER_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;FORMAT&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;TAPCLIENT&quot;</span><span class="p">:</span> <span class="s2">&quot;ASTROQUERY&quot;</span><span class="p">}</span>
+
+            <span class="n">subContext</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">EHST_TARGET_ACTION</span>
+            <span class="n">connHandler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">_TapPlus__getconnhandler</span><span class="p">()</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">target_response</span> <span class="o">=</span> <span class="n">connHandler</span><span class="o">.</span><span class="n">execute_secure</span><span class="p">(</span><span class="n">subContext</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">target_response</span><span class="p">:</span>
+                <span class="n">target_result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">target_result</span><span class="p">[</span><span class="s1">&#39;objects&#39;</span><span class="p">]:</span>
+                    <span class="n">ra</span> <span class="o">=</span> <span class="n">target_result</span><span class="p">[</span><span class="s1">&#39;objects&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;raDegrees&#39;</span><span class="p">]</span>
+                    <span class="n">dec</span> <span class="o">=</span> <span class="n">target_result</span><span class="p">[</span><span class="s1">&#39;objects&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;decDegrees&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">dec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This target cannot be resolved&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.query_metadata">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.query_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.query_target">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.query_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span>
+                     <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">7</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It executes a query over EHST and download the xml with the results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : string</span>
+<span class="sd">            target name to be requested, mandatory</span>
+<span class="sd">        filename : string</span>
+<span class="sd">            file name to be used to store the metadata, optional, default None</span>
+<span class="sd">        output_format : string</span>
+<span class="sd">            optional, default &#39;votable&#39;</span>
+<span class="sd">            output format of the query</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            optional, default &#39;False&#39;</span>
+<span class="sd">            Flag to display information about the process</span>
+<span class="sd">        async_job : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">            synchronous)</span>
+<span class="sd">        radius : int</span>
+<span class="sd">            optional, default 7</span>
+<span class="sd">            radius in arcmin (int, float) or quantity of the cone_search</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Table with the result of the query. It downloads metadata as a file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_tap_target</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_search</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="n">async_job</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.query_tap">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.query_tap">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_tap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;votable&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Launches a synchronous or asynchronous job to query the HST tap</span>
+
+<span class="sd">                Parameters</span>
+<span class="sd">                ----------</span>
+<span class="sd">                query : str, mandatory</span>
+<span class="sd">                    query (adql) to be executed</span>
+<span class="sd">                async_job : bool, optional, default &#39;False&#39;</span>
+<span class="sd">                    executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">                    synchronous)</span>
+<span class="sd">                output_file : str, optional, default None</span>
+<span class="sd">                    file name where the results are saved if dumpToFile is True.</span>
+<span class="sd">                    If this parameter is not provided, the jobid is used instead</span>
+<span class="sd">                output_format : str, optional, default &#39;votable&#39;</span>
+<span class="sd">                    results format</span>
+<span class="sd">                verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">                    flag to display information about the process</span>
+
+<span class="sd">                Returns</span>
+<span class="sd">                -------</span>
+<span class="sd">                A table object</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">async_job</span><span class="p">:</span>
+            <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                                             <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span>
+                                             <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                                             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                             <span class="n">dump_to_file</span><span class="o">=</span><span class="n">output_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span>
+                                       <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                       <span class="n">dump_to_file</span><span class="o">=</span><span class="n">output_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.query_hst_tap">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.query_hst_tap">[docs]</a>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.4.7&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;query_tap&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">query_hst_tap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;votable&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Launches a synchronous or asynchronous job to query the HST tap</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query : str, mandatory</span>
+<span class="sd">            query (adql) to be executed</span>
+<span class="sd">        async_job : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">            synchronous)</span>
+<span class="sd">        output_file : str, optional, default None</span>
+<span class="sd">            file name where the results are saved if dumpToFile is True.</span>
+<span class="sd">            If this parameter is not provided, the jobid is used instead</span>
+<span class="sd">        output_format : str, optional, default &#39;votable&#39;</span>
+<span class="sd">            results format</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A table object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;votable&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.query_criteria">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.query_criteria">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_criteria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">calibration_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">data_product_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">obs_collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instrument_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proposal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;votable&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">get_query</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Launches a synchronous or asynchronous job to query the HST tap</span>
+<span class="sd">        using calibration level, data product type, intent, collection,</span>
+<span class="sd">        instrument name, and filters as criteria to create and execute the</span>
+<span class="sd">        associated query.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        calibration_level : str or int, optional</span>
+<span class="sd">            The identifier of the data reduction/processing applied to the</span>
+<span class="sd">            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)</span>
+<span class="sd">        data_product_type : str, optional</span>
+<span class="sd">            High level description of the product.</span>
+<span class="sd">            image, spectrum or timeseries.</span>
+<span class="sd">        intent : str, optional</span>
+<span class="sd">            The intent of the original observer in acquiring this observation.</span>
+<span class="sd">            SCIENCE or CALIBRATION</span>
+<span class="sd">        obs_collection : list of str, optional</span>
+<span class="sd">            List of collections that are available in eHST catalogue.</span>
+<span class="sd">            HLA, HST, HAP</span>
+<span class="sd">        instrument_name : list of str, optional</span>
+<span class="sd">            Name(s) of the instrument(s) used to generate the dataset</span>
+<span class="sd">        filters : list of str, optional</span>
+<span class="sd">            Name(s) of the filter(s) used to generate the dataset</span>
+<span class="sd">        proposal : int, optional</span>
+<span class="sd">            Proposal ID associated to the observations</span>
+<span class="sd">        async_job : bool, optional, default &#39;True&#39;</span>
+<span class="sd">            executes the query (job) in asynchronous/synchronous mode (default</span>
+<span class="sd">            synchronous)</span>
+<span class="sd">        output_file : str, optional, default None</span>
+<span class="sd">            file name where the results are saved if dumpToFile is True.</span>
+<span class="sd">            If this parameter is not provided, the jobid is used instead</span>
+<span class="sd">        output_format : str, optional, default &#39;votable&#39;</span>
+<span class="sd">            results format</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+<span class="sd">        get_query : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to return the query associated to the criteria as the result</span>
+<span class="sd">            of this function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A table object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">calibration_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;calibration_level=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__get_calibration_level</span><span class="p">(</span><span class="n">calibration_level</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">data_product_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_product_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;data_product_type LIKE &#39;%</span><span class="si">{}</span><span class="s2">%&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">data_product_type</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;data_product_type must be a string&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">intent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">intent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;intent LIKE &#39;%</span><span class="si">{}</span><span class="s2">%&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">intent</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;intent must be a string&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">proposal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">proposal</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;proposal_id = &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">proposal</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Proposal ID must be an integer&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_list_strings</span><span class="p">(</span><span class="n">obs_collection</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(collection LIKE &#39;%</span><span class="si">{}</span><span class="s2">%&#39;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;%&#39; OR collection LIKE &#39;%&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs_collection</span><span class="p">)</span>
+            <span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_list_strings</span><span class="p">(</span><span class="n">instrument_name</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(instrument_name LIKE &#39;%</span><span class="si">{}</span><span class="s2">%&#39;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;%&#39; OR instrument_name LIKE &#39;%&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrument_name</span><span class="p">)</span>
+            <span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_list_strings</span><span class="p">(</span><span class="n">filters</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(instrument_configuration LIKE &#39;%</span><span class="si">{}</span><span class="s2">%&#39;)&quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;%&#39; OR instrument_configuration &quot;</span>
+                                      <span class="s2">&quot;LIKE &#39;%&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)))</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;select * from ehst.archive&quot;</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; where(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; AND &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameters</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">query</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_tap</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">async_job</span><span class="o">=</span><span class="n">async_job</span><span class="p">,</span>
+                               <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span>
+                               <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                               <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__get_calibration_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calibration_level</span><span class="p">):</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">calibration_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">calibration_level</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">calibration_level</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">condition</span> <span class="o">=</span> <span class="n">calibration_level</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Calibration level must be between 0 and 3&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">calibration_level</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">condition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_levels</span><span class="p">[</span><span class="n">calibration_level</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Calibration level must be either &quot;</span>
+                               <span class="s2">&quot;a string or an integer&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">condition</span>
+
+    <span class="k">def</span> <span class="nf">__check_list_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of the lists is empty or there are &quot;</span>
+                             <span class="s2">&quot;elements that are not strings&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ESAHubbleClass.get_tables">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_tables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the available table in EHST TAP service</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        only_names : bool, TAP+ only, optional, default &#39;False&#39;</span>
+<span class="sd">            True to load table names only</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of tables</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="n">only_names</span><span class="p">,</span>
+                                       <span class="n">include_shared_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">only_names</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">table_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+                <span class="n">table_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">table_names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tables</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_status_messages">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_status_messages">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_status_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the messages to inform users about</span>
+<span class="sd">        the status of eHST TAP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subContext</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">EHST_MESSAGES</span>
+            <span class="n">connHandler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">_TapPlus__getconnhandler</span><span class="p">()</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">connHandler</span><span class="o">.</span><span class="n">execute_tapget</span><span class="p">(</span><span class="n">subContext</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="n">string_message</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">string_message</span><span class="p">[</span><span class="n">string_message</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:])</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Status messages could not be retrieved&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ESAHubbleClass.get_columns">
+<a class="viewcode-back" href="../../../../api/astroquery.esa.hubble.ESAHubbleClass.html#astroquery.esa.hubble.ESAHubbleClass.get_columns">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">only_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the available columns for a table in EHST TAP service</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        table_name : string, mandatory, default None</span>
+<span class="sd">            table name of which, columns will be returned</span>
+<span class="sd">        only_names : bool, TAP+ only, optional, default &#39;False&#39;</span>
+<span class="sd">            True to load table names only</span>
+<span class="sd">        verbose : bool, optional, default &#39;False&#39;</span>
+<span class="sd">            flag to display information about the process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A list of columns</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tap</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">only_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">include_shared_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">table_name</span><span class="p">):</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;table name specified is not found in &quot;</span>
+                             <span class="s2">&quot;EHST TAP service&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">only_names</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">column_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="n">column_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">column_names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">columns</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_getCoordInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">SkyCoord</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Coordinates must be either a string or astropy.coordinates&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_get_decoded_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">string</span></div>
+
+
+
+<span class="n">ESAHubble</span> <span class="o">=</span> <span class="n">ESAHubbleClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

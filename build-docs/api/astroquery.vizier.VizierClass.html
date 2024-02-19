@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>VizierClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.vizier.Conf.html" />
+    <link rel="prev" title="VizieR Queries (astroquery.vizier)" href="../vizier/vizier.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.vizier.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../vizier/vizier.html" title="VizieR Queries (astroquery.vizier)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../vizier/vizier.html" accesskey="U">VizieR Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.vizier</span></code>)</a> &#187;</li>
+      
+      <li>VizierClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="vizierclass">
+<h1>VizierClass<a class="headerlink" href="#vizierclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.vizier.</span></span><span class="sig-name descname"><span class="pre">VizierClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['*']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ucd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vizier_server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vizier.cds.unistra.fr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>columns</strong><span class="classifier">list</span></dt><dd><p>List of strings</p>
+</dd>
+<dt><strong>column_filters</strong><span class="classifier">dict</span></dt><dd></dd>
+<dt><strong>catalog</strong><span class="classifier">str or None</span></dt><dd></dd>
+<dt><strong>keywords</strong><span class="classifier">str or None</span></dt><dd></dd>
+<dt><strong>ucd</strong><span class="classifier">string</span></dt><dd><p>“Unified Content Description” column descriptions.  Specifying
+these will select only catalogs that have columns matching the
+column descriptions defined on the Vizier web pages.
+See <a class="reference external" href="https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd">https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd</a> and
+<a class="reference external" href="https://vizier.cds.unistra.fr/vizier/doc/UCD/">https://vizier.cds.unistra.fr/vizier/doc/UCD/</a></p>
+</dd>
+<dt><strong>vizier_server</strong><span class="classifier">string</span></dt><dd><p>Name of the VizieR mirror to use.
+(This parameter’s default is set from a configuration object.)</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">number</span></dt><dd><p>timeout for connecting to server
+(This parameter’s default is set from a configuration object.)</p>
+</dd>
+<dt><strong>row_limit</strong><span class="classifier">int</span></dt><dd><p>Maximum number of rows that will be fetched from the result
+(set to -1 for unlimited).
+(This parameter’s default is set from a configuration object.)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.catalog" title="astroquery.vizier.VizierClass.catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">catalog</span></code></a></p></td>
+<td><p>The default catalog to search.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.column_filters" title="astroquery.vizier.VizierClass.column_filters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_filters</span></code></a></p></td>
+<td><p>Filters to run on the individual columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.columns" title="astroquery.vizier.VizierClass.columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns</span></code></a></p></td>
+<td><p>Columns to include.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.keywords" title="astroquery.vizier.VizierClass.keywords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keywords</span></code></a></p></td>
+<td><p>The set of keywords to filter the Vizier search</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.ucd" title="astroquery.vizier.VizierClass.ucd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ucd</span></code></a></p></td>
+<td><p>UCD criteria: see <a class="reference external" href="https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd">https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.valid_keywords" title="astroquery.vizier.VizierClass.valid_keywords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_keywords</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.find_catalogs" title="astroquery.vizier.VizierClass.find_catalogs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_catalogs</span></code></a>(keywords, *[, ...])</p></td>
+<td><p>Search Vizier for catalogs based on a set of keywords, e.g. author name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalog_metadata" title="astroquery.vizier.VizierClass.get_catalog_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_catalog_metadata</span></code></a>(*[, catalog, ...])</p></td>
+<td><p>Get a VizieR's catalog metadata.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalogs" title="astroquery.vizier.VizierClass.get_catalogs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_catalogs</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalogs_async" title="astroquery.vizier.VizierClass.get_catalogs_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_catalogs_async</span></code></a>(catalog, *[, verbose, ...])</p></td>
+<td><p>Query the Vizier service for a specific catalog</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_constraints" title="astroquery.vizier.VizierClass.query_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_constraints</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_constraints_async" title="astroquery.vizier.VizierClass.query_constraints_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_constraints_async</span></code></a>(*[, catalog, ...])</p></td>
+<td><p>Send a query to Vizier in which you specify constraints with keyword/value pairs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_object" title="astroquery.vizier.VizierClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_object_async" title="astroquery.vizier.VizierClass.query_object_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object_async</span></code></a>(object_name, *[, ...])</p></td>
+<td><p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_object" title="astroquery.vizier.VizierClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a> but only returns the HTTP response rather than the parsed result.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.vizier.VizierClass.query_region_async" title="astroquery.vizier.VizierClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(coordinates, *[, radius, ...])</p></td>
+<td><p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a> but only returns the HTTP response rather than the parsed result.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.catalog">
+<span class="sig-name descname"><span class="pre">catalog</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.catalog" title="Link to this definition">¶</a></dt>
+<dd><p>The default catalog to search.  If left empty, will search all
+catalogs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.column_filters">
+<span class="sig-name descname"><span class="pre">column_filters</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.column_filters" title="Link to this definition">¶</a></dt>
+<dd><p>Filters to run on the individual columns. See the Vizier website
+for details.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.columns" title="Link to this definition">¶</a></dt>
+<dd><p>Columns to include.  The special keyword ‘all’ will return ALL
+columns from ALL retrieved tables.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.keywords">
+<span class="sig-name descname"><span class="pre">keywords</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.keywords" title="Link to this definition">¶</a></dt>
+<dd><p>The set of keywords to filter the Vizier search</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.ucd">
+<span class="sig-name descname"><span class="pre">ucd</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.ucd" title="Link to this definition">¶</a></dt>
+<dd><p>UCD criteria: see <a class="reference external" href="https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd">https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd</a></p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Vizier</span><span class="o">.</span><span class="n">ucd</span> <span class="o">=</span> <span class="s1">&#39;(spect.dopplerVeloc*|phys.veloc*)&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.valid_keywords">
+<span class="sig-name descname"><span class="pre">valid_keywords</span></span><a class="headerlink" href="#astroquery.vizier.VizierClass.valid_keywords" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.find_catalogs">
+<span class="sig-name descname"><span class="pre">find_catalogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keywords</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_obsolete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_catalogs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.find_catalogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.find_catalogs" title="Link to this definition">¶</a></dt>
+<dd><p>Search Vizier for catalogs based on a set of keywords, e.g. author name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>keywords</strong><span class="classifier">list or string</span></dt><dd><p>List of keywords, or space-separated set of keywords.
+From <a class="reference external" href="https://vizier.cds.unistra.fr/doc/asu-summary.htx">Vizier</a>:
+“names or words of title of catalog. The words are and’ed, i.e.
+only the catalogues characterized by all the words are selected.”</p>
+</dd>
+<dt><strong>include_obsolete</strong><span class="classifier">bool, optional</span></dt><dd><p>If set to True, catalogs marked obsolete will also be returned.</p>
+</dd>
+<dt><strong>max_catalogs</strong><span class="classifier">int or None</span></dt><dd><p>The maximum number of catalogs to return.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all
+catalogs will be returned.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>resource_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of the “Resource” name and the VOTable resource object.
+“Resources” are generally publications; one publication may contain
+many tables.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="kn">import</span> <span class="n">Vizier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_list</span> <span class="o">=</span> <span class="n">Vizier</span><span class="o">.</span><span class="n">find_catalogs</span><span class="p">(</span><span class="s1">&#39;Kang W51&#39;</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog_list</span> 
+<span class="go">OrderedDict([(&#39;J/ApJ/684/1143&#39;, &lt;/&gt;), (&#39;J/ApJ/736/87&#39;, &lt;/&gt;) ... ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">({</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">catalog_list</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span> 
+<span class="go">{&#39;J/ApJ/684/1143&#39;: &#39;BHB candidates in the Milky Way (Xue+, 2008)&#39;,</span>
+<span class="go"> &#39;J/ApJ/736/87&#39;: &#39;Abundances in G-type stars with exoplanets (Kang+, 2011)&#39;,</span>
+<span class="go"> &#39;J/ApJ/738/79&#39;: &quot;SDSS-DR8 BHB stars in the Milky Way&#39;s halo (Xue+, 2011)&quot;,</span>
+<span class="go"> &#39;J/ApJ/760/12&#39;: &#39;LIGO/Virgo gravitational-wave (GW) bursts with GRBs (Abadie+, 2012)&#39;,</span>
+<span class="go"> ...}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.get_catalog_metadata">
+<span class="sig-name descname"><span class="pre">get_catalog_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.get_catalog_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.get_catalog_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Get a VizieR’s catalog metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str, optional</span></dt><dd><p>The catalog identifier. It usually looks like ‘III/55’ for big surveys
+or ‘J/ApJ/811/67’ for catalogs linked to a published paper. When this
+parameter is not provided, the function looks for the metadata of the
+catalog property of the Vizier class instance
+(<a class="reference internal" href="#astroquery.vizier.VizierClass.catalog" title="astroquery.vizier.VizierClass.catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">catalog</span></code></a>).</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>When True, returns the dict of HTTP request parameters. This does not
+execute the search for metadata.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></dt><dd><p>A table with the following columns:
+- title
+- authors
+- abstract (the abstract of the article, modified to explain the data
+more specifically)
+- origin_article (the bibcode of the associated article)
+- webpage (a link to VizieR, contains more information about the catalog)
+- created (date of creation of the catalog <em>in VizieR</em>)
+- updated (date of the last modification applied to the entry,
+this is often metadata, with no appearance in the history tap on the
+webpage but sometimes also data erratum, which will appear in the
+history tab)
+- waveband
+- doi (the catalog doi when it exists)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="kn">import</span> <span class="n">Vizier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Vizier</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;I/324&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_catalog_metadata</span><span class="p">()</span> 
+<span class="go">&lt;Table length=1&gt;</span>
+<span class="go">               title                        authors         ... waveband  doi</span>
+<span class="go">               object                        object         ...  object  object</span>
+<span class="go">----------------------------------- ----------------------- ... -------- ------</span>
+<span class="go">The Initial Gaia Source List (IGSL) Smart R.L.; Nicastro L. ...              --</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="kn">import</span> <span class="n">Vizier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Vizier</span><span class="o">.</span><span class="n">get_catalog_metadata</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;J/ApJS/173/185&quot;</span><span class="p">)</span> 
+<span class="go">&lt;Table length=1&gt;</span>
+<span class="go">                  title                    ...              doi</span>
+<span class="go">                  object                   ...              object</span>
+<span class="go">------------------------------------------ ... --------------------------------</span>
+<span class="go">GALEX ultraviolet atlas of nearby galaxies ... doi:10.26093/cds/vizier.21730185</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.get_catalogs">
+<span class="sig-name descname"><span class="pre">get_catalogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.vizier.VizierClass.get_catalogs" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Query the Vizier service for a specific catalog</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str, Resource, or list, optional</span></dt><dd><p>The catalog(s) that will be retrieved</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.get_catalogs_async">
+<span class="sig-name descname"><span class="pre">get_catalogs_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.get_catalogs_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.get_catalogs_async" title="Link to this definition">¶</a></dt>
+<dd><p>Query the Vizier service for a specific catalog</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str, Resource, or list, optional</span></dt><dd><p>The catalog(s) that will be retrieved</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Response</span></code></a></span></dt><dd><p>Returned if asynchronous method used</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_constraints">
+<span class="sig-name descname"><span class="pre">query_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.vizier.VizierClass.query_constraints" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Send a query to Vizier in which you specify constraints with
+keyword/value pairs.</p>
+<p>See <a class="reference external" href="https://vizier.cds.unistra.fr/vizier/vizHelp/syntax.htx">the vizier constraints page</a> for details.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Any key/value pairs besides “catalog” will be parsed
+as additional column filters.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="kn">import</span> <span class="n">Vizier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note that glon/glat constraints here *must* be floats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">Vizier</span><span class="p">(</span><span class="n">row_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">query_constraints</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s1">&#39;J/ApJ/723/492/table1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">GLON</span><span class="o">=</span><span class="s1">&#39;&gt;49.0 &amp; &lt;51.0&#39;</span><span class="p">,</span> <span class="n">GLAT</span><span class="o">=</span><span class="s1">&#39;&lt;0.0&#39;</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span> 
+<span class="go">    GRSMC      GLON   GLAT   VLSR   DelV  ... alpha  Note RD09 _RA.icrs _DE.icrs</span>
+<span class="go">               deg    deg   km / s km / s ...                    deg      deg</span>
+<span class="go">------------- ------ ------ ------ ------ ... ------ ---- ---- -------- --------</span>
+<span class="go">G049.49-00.41  49.49  -0.41  56.90   9.12 ...   0.73    i RD09 290.9536  14.4992</span>
+<span class="go">G049.39-00.26  49.39  -0.26  50.94   3.51 ...   0.16    i RD09 290.7682  14.4819</span>
+<span class="go">G049.44-00.06  49.44  -0.06  62.00   3.67 ...   0.17    i RD09 290.6104  14.6203</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_constraints_async">
+<span class="sig-name descname"><span class="pre">query_constraints_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.query_constraints_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.query_constraints_async" title="Link to this definition">¶</a></dt>
+<dd><p>Send a query to Vizier in which you specify constraints with
+keyword/value pairs.</p>
+<p>See <a class="reference external" href="https://vizier.cds.unistra.fr/vizier/vizHelp/syntax.htx">the vizier constraints page</a> for details.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Any key/value pairs besides “catalog” will be parsed
+as additional column filters.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="kn">import</span> <span class="n">Vizier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note that glon/glat constraints here *must* be floats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">Vizier</span><span class="p">(</span><span class="n">row_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">query_constraints</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="s1">&#39;J/ApJ/723/492/table1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">GLON</span><span class="o">=</span><span class="s1">&#39;&gt;49.0 &amp; &lt;51.0&#39;</span><span class="p">,</span> <span class="n">GLAT</span><span class="o">=</span><span class="s1">&#39;&lt;0.0&#39;</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span> 
+<span class="go">    GRSMC      GLON   GLAT   VLSR   DelV  ... alpha  Note RD09 _RA.icrs _DE.icrs</span>
+<span class="go">               deg    deg   km / s km / s ...                    deg      deg</span>
+<span class="go">------------- ------ ------ ------ ------ ... ------ ---- ---- -------- --------</span>
+<span class="go">G049.49-00.41  49.49  -0.41  56.90   9.12 ...   0.73    i RD09 290.9536  14.4992</span>
+<span class="go">G049.39-00.26  49.39  -0.26  50.94   3.51 ...   0.16    i RD09 290.7682  14.4819</span>
+<span class="go">G049.44-00.06  49.44  -0.06  62.00   3.67 ...   0.17    i RD09 290.6104  14.6203</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.vizier.VizierClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_object" title="astroquery.vizier.VizierClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a> but only
+returns the HTTP response rather than the parsed result.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The name of the identifier.</p>
+</dd>
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> or None</span></dt><dd><p>A degree-equivalent radius (optional).</p>
+</dd>
+<dt><strong>coordinate_system</strong><span class="classifier">str or None</span></dt><dd><p>If the object name is given as a coordinate, you <em>should</em> use
+<a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>, but you can
+specify a coordinate frame here instead (today, J2000, B1975,
+B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_object_async">
+<span class="sig-name descname"><span class="pre">query_object_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.query_object_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.query_object_async" title="Link to this definition">¶</a></dt>
+<dd><p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_object" title="astroquery.vizier.VizierClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a> but only
+returns the HTTP response rather than the parsed result.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The name of the identifier.</p>
+</dd>
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> or None</span></dt><dd><p>A degree-equivalent radius (optional).</p>
+</dd>
+<dt><strong>coordinate_system</strong><span class="classifier">str or None</span></dt><dd><p>If the object name is given as a coordinate, you <em>should</em> use
+<a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>, but you can
+specify a coordinate frame here instead (today, J2000, B1975,
+B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.vizier.VizierClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a> but only
+returns the HTTP response rather than the parsed result.</p>
+<p>At least one of <code class="docutils literal notranslate"><span class="pre">radius</span></code> or <code class="docutils literal notranslate"><span class="pre">width</span></code> must be specified.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str, <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object, or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The target around which to search. It may be specified as a
+string in which case it is resolved using online services or as
+the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object. ICRS coordinates
+may also be entered as a string.  If a table is used, each of
+its rows will be queried, as long as it contains two columns
+named <code class="docutils literal notranslate"><span class="pre">_RAJ2000</span></code> and <code class="docutils literal notranslate"><span class="pre">_DEJ2000</span></code> with proper angular units.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>The radius of the circular region to query.</p>
+</dd>
+<dt><strong>inner_radius</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>When set in addition to <code class="docutils literal notranslate"><span class="pre">radius</span></code>, the queried region becomes
+annular, with outer radius <code class="docutils literal notranslate"><span class="pre">radius</span></code> and inner radius
+<code class="docutils literal notranslate"><span class="pre">inner_radius</span></code>.</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>The width of the square region to query.</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>When set in addition to <code class="docutils literal notranslate"><span class="pre">width</span></code>, the queried region becomes
+rectangular, with the specified <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>.</p>
+</dd>
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>column_filters: dict, optional</strong></dt><dd><p>Constraints on columns of the result. The dictionary contains
+the column name as keys, and the constraints as values.</p>
+</dd>
+<dt><strong>frame</strong><span class="classifier">str, optional</span></dt><dd><p>The frame to use for the request. It should be ‘fk5’, ‘icrs’,
+or ‘galactic’. This choice influences the the orientation of
+box requests.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.vizier.VizierClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'votable'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fk5'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/vizier/core.html#VizierClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.vizier.VizierClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Serves the same purpose as <a class="reference internal" href="#astroquery.vizier.VizierClass.query_region" title="astroquery.vizier.VizierClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a> but only
+returns the HTTP response rather than the parsed result.</p>
+<p>At least one of <code class="docutils literal notranslate"><span class="pre">radius</span></code> or <code class="docutils literal notranslate"><span class="pre">width</span></code> must be specified.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>coordinates</strong><span class="classifier">str, <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object, or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></span></dt><dd><p>The target around which to search. It may be specified as a
+string in which case it is resolved using online services or as
+the appropriate <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.coordinates</span></code></a> object. ICRS coordinates
+may also be entered as a string.  If a table is used, each of
+its rows will be queried, as long as it contains two columns
+named <code class="docutils literal notranslate"><span class="pre">_RAJ2000</span></code> and <code class="docutils literal notranslate"><span class="pre">_DEJ2000</span></code> with proper angular units.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>The radius of the circular region to query.</p>
+</dd>
+<dt><strong>inner_radius</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>When set in addition to <code class="docutils literal notranslate"><span class="pre">radius</span></code>, the queried region becomes
+annular, with outer radius <code class="docutils literal notranslate"><span class="pre">radius</span></code> and inner radius
+<code class="docutils literal notranslate"><span class="pre">inner_radius</span></code>.</p>
+</dd>
+<dt><strong>width</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>The width of the square region to query.</p>
+</dd>
+<dt><strong>height</strong><span class="classifier">convertible to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Angle</span></code></a></span></dt><dd><p>When set in addition to <code class="docutils literal notranslate"><span class="pre">width</span></code>, the queried region becomes
+rectangular, with the specified <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>.</p>
+</dd>
+<dt><strong>catalog</strong><span class="classifier">str or list, optional</span></dt><dd><p>The catalog(s) which must be searched for this identifier.
+If not specified, all matching catalogs will be searched.</p>
+</dd>
+<dt><strong>column_filters: dict, optional</strong></dt><dd><p>Constraints on columns of the result. The dictionary contains
+the column name as keys, and the constraints as values.</p>
+</dd>
+<dt><strong>frame</strong><span class="classifier">str, optional</span></dt><dd><p>The frame to use for the request. It should be ‘fk5’, ‘icrs’,
+or ‘galactic’. This choice influences the the orientation of
+box requests.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The response of the HTTP request.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">VizierClass</a><ul>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass"><code class="docutils literal notranslate"><span class="pre">VizierClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.catalog"><code class="docutils literal notranslate"><span class="pre">VizierClass.catalog</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.column_filters"><code class="docutils literal notranslate"><span class="pre">VizierClass.column_filters</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.columns"><code class="docutils literal notranslate"><span class="pre">VizierClass.columns</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.keywords"><code class="docutils literal notranslate"><span class="pre">VizierClass.keywords</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.ucd"><code class="docutils literal notranslate"><span class="pre">VizierClass.ucd</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.valid_keywords"><code class="docutils literal notranslate"><span class="pre">VizierClass.valid_keywords</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.find_catalogs"><code class="docutils literal notranslate"><span class="pre">VizierClass.find_catalogs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalog_metadata"><code class="docutils literal notranslate"><span class="pre">VizierClass.get_catalog_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalogs"><code class="docutils literal notranslate"><span class="pre">VizierClass.get_catalogs()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.get_catalogs_async"><code class="docutils literal notranslate"><span class="pre">VizierClass.get_catalogs_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_constraints"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_constraints_async"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_constraints_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_object"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_object_async"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_object_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_region"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.vizier.VizierClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">VizierClass.query_region_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.vizier.VizierClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

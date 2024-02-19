@@ -1,0 +1,21 @@
+Conf
+====
+
+.. currentmodule:: astroquery.linelists.cdms
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.catfile_url
+      ~Conf.server
+      ~Conf.timeout
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: catfile_url
+   .. autoattribute:: server
+   .. autoattribute:: timeout

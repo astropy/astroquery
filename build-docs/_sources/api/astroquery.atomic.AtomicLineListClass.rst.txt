@@ -1,0 +1,31 @@
+AtomicLineListClass
+===================
+
+.. currentmodule:: astroquery.atomic
+
+.. autoclass:: AtomicLineListClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~AtomicLineListClass.FORM_URL
+      ~AtomicLineListClass.TIMEOUT
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~AtomicLineListClass.query_object
+      ~AtomicLineListClass.query_object_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: FORM_URL
+   .. autoattribute:: TIMEOUT
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query_object
+   .. automethod:: query_object_async

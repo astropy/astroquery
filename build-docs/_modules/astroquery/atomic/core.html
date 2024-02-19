@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.atomic.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../atomic.html" accesskey="U">astroquery.atomic</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.atomic.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">parse</span> <span class="k">as</span> <span class="n">urlparse</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">log</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">prepend_docstr_nosections</span><span class="p">,</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">is_valid_transitions_param</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AtomicLineList&#39;</span><span class="p">,</span> <span class="s1">&#39;AtomicLineListClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="AtomicLineListClass">
+<a class="viewcode-back" href="../../../api/astroquery.atomic.AtomicLineListClass.html#astroquery.atomic.AtomicLineListClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">AtomicLineListClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+    <span class="n">FORM_URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">url</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__default_form_values</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="AtomicLineListClass.query_object">
+<a class="viewcode-back" href="../../../api/astroquery.atomic.AtomicLineListClass.html#astroquery.atomic.AtomicLineListClass.query_object">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">wavelength_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength_accuracy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">element_spectrum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">minimal_abundance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depl_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lower_level_energy_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">upper_level_energy_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multiplet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">show_fine_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_auto_ionizing_transitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">output_columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;conf&#39;</span><span class="p">,</span> <span class="s1">&#39;term&#39;</span><span class="p">,</span> <span class="s1">&#39;angm&#39;</span><span class="p">,</span> <span class="s1">&#39;prob&#39;</span><span class="p">,</span> <span class="s1">&#39;ener&#39;</span><span class="p">),</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries Atomic Line List for the given parameters adnd returns the</span>
+<span class="sd">        result as a `~astropy.table.Table`. All parameters are optional.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength_range : pair of `astropy.units.Unit` values</span>
+<span class="sd">            Wavelength range. Can be done in two ways: supply a lower and</span>
+<span class="sd">            upper limit for the region or, supply the central wavelength and</span>
+<span class="sd">            the 1 sigma error (68 % confidence value) for that line. If the</span>
+<span class="sd">            first number is smaller than the second number, this implies</span>
+<span class="sd">            that the first option has been chosen, and otherwise the second</span>
+<span class="sd">            option.</span>
+
+<span class="sd">        wavelength_type : str</span>
+<span class="sd">            Either ``&#39;Air&#39;`` or ``&#39;Vacuum&#39;``.</span>
+
+<span class="sd">        wavelength_accuracy : str</span>
+<span class="sd">            All wavelengths in the line list have relative accuracies of</span>
+<span class="sd">            5% or better. The default is to list all lines, irrespective</span>
+<span class="sd">            of their accuracy. When a relative accuracy in percent is</span>
+<span class="sd">            given, only those lines with accuracies better than or equal</span>
+<span class="sd">            to the passed value are included in the search. Values larger</span>
+<span class="sd">            than 5% will be ignored.</span>
+
+<span class="sd">        element_spectrum : str</span>
+<span class="sd">            Restrict the search to a range of elements and/or ionization</span>
+<span class="sd">            stages. The elements should be entered by their usual</span>
+<span class="sd">            symbolic names (e.g. Fe) and the ionization stages by the</span>
+<span class="sd">            usual spectroscopic notation (e.g. I for neutral, II for</span>
+<span class="sd">            singly ionized etc.). To pass multiple values, separate them</span>
+<span class="sd">            by ``\\n`` (newline).</span>
+
+<span class="sd">        minimal_abundance : str</span>
+<span class="sd">             Impose a lower limit on the abundances of elements to be</span>
+<span class="sd">             considered for possible identifications. Default is to</span>
+<span class="sd">             consider arbitrary low abundances. The elements are assumed</span>
+<span class="sd">             to have standard cosmic abundances.</span>
+
+<span class="sd">        depl_factor : str</span>
+<span class="sd">            For nebular conditions it is not a realistic assumption that</span>
+<span class="sd">            the elements have standard cosmic abundances since most</span>
+<span class="sd">            metals will be depleted on grains. To simulate this it is</span>
+<span class="sd">            possible to supply a depletion factor df. This factor will be</span>
+<span class="sd">            used to calculate the actual abundance A from the cosmic</span>
+<span class="sd">            abundance Ac using the formula A(elm) = Ac(elm) - df*sd(elm)</span>
+<span class="sd">            where sd is the standard depletion for each element.</span>
+
+<span class="sd">        lower_level_energy_range : `~astropy.units.Quantity`</span>
+<span class="sd">            Default is to consider all values for the lower/upper level</span>
+<span class="sd">            energy to find a possible identification. To restrict the</span>
+<span class="sd">            search a range of energies can be supplied.</span>
+<span class="sd">            The supported units are: Ry, eV, 1/cm, J, erg.</span>
+
+<span class="sd">        upper_level_energy_range : `~astropy.units.Quantity`</span>
+<span class="sd">            See parameter ``lower_level_energy_range``.</span>
+
+<span class="sd">        nmax : int</span>
+<span class="sd">            Maximum for principal quantum number n. Default is to</span>
+<span class="sd">            consider all possible values for the principal quantum number</span>
+<span class="sd">            n to find possible identifications. However, transitions</span>
+<span class="sd">            involving electrons with a very high quantum number n tend to</span>
+<span class="sd">            be weaker and can therefore be less likely identifications.</span>
+<span class="sd">            These transitions can be suppressed using this parameter.</span>
+
+<span class="sd">        multiplet : str</span>
+<span class="sd">            This option (case sensitive) can be used to find all lines in</span>
+<span class="sd">            a specific multiplet within a certain wavelength range. The</span>
+<span class="sd">            lower and upper level term should be entered here exactly as</span>
+<span class="sd">            they appear in the output of the query. The spectrum to which</span>
+<span class="sd">            this multiplet belongs should of course also be supplied in</span>
+<span class="sd">            the ``element_spectrum`` parameter.</span>
+
+<span class="sd">        transitions : str`</span>
+<span class="sd">            Possible values are:</span>
+<span class="sd">                - ``&#39;all&#39;``:</span>
+<span class="sd">                    The default, consider all transition types.</span>
+<span class="sd">                - ``&#39;nebular&#39;``:</span>
+<span class="sd">                    Consider only allowed transitions of Hydrogen or</span>
+<span class="sd">                    Helium and only magnetic dipole or electric quadrupole</span>
+<span class="sd">                    transitions of other elements.</span>
+<span class="sd">                - A union of the values: One of the following:</span>
+<span class="sd">                  ``&#39;E1&#39;``, ``&#39;IC&#39;``, ``&#39;M1&#39;``, ``&#39;E2&#39;``</span>
+<span class="sd">                  Refer to [1]_ for the meaning of these values.</span>
+
+<span class="sd">        show_fine_structure : bool</span>
+<span class="sd">             If `True`, the fine structure components will be included in</span>
+<span class="sd">             the output. Refer to [1]_ for more information.</span>
+
+<span class="sd">        show_auto_ionizing_transitions : bool</span>
+<span class="sd">            If `True`, transitions originating from auto-ionizing levels</span>
+<span class="sd">            will be included in the output. In this context, all levels</span>
+<span class="sd">            with energies higher than the ionization potential going to</span>
+<span class="sd">            the ground state of the next ion are considered auto-ionizing</span>
+<span class="sd">            levels.</span>
+
+<span class="sd">        output_columns : tuple</span>
+<span class="sd">            A Tuple of strings indicating which output columns are retrieved.</span>
+<span class="sd">            A subset of (&#39;spec&#39;, &#39;type&#39;, &#39;conf&#39;, &#39;term&#39;, &#39;angm&#39;, &#39;prob&#39;,</span>
+<span class="sd">            &#39;ener&#39;) should be used. Where each string corresponds to the</span>
+<span class="sd">            column titled Spectrum, Transition type, Configuration, Term,</span>
+<span class="sd">            Angular momentum, Transition probability and Level energies</span>
+<span class="sd">            respectively.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result : `~astropy.table.Table`</span>
+<span class="sd">            The result of the query as a `~astropy.table.Table` object.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] https://linelist.pa.uky.edu/atomic/instruction.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_object_async</span><span class="p">(</span>
+            <span class="n">wavelength_range</span><span class="o">=</span><span class="n">wavelength_range</span><span class="p">,</span> <span class="n">wavelength_type</span><span class="o">=</span><span class="n">wavelength_type</span><span class="p">,</span>
+            <span class="n">wavelength_accuracy</span><span class="o">=</span><span class="n">wavelength_accuracy</span><span class="p">,</span>
+            <span class="n">element_spectrum</span><span class="o">=</span><span class="n">element_spectrum</span><span class="p">,</span>
+            <span class="n">minimal_abundance</span><span class="o">=</span><span class="n">minimal_abundance</span><span class="p">,</span> <span class="n">depl_factor</span><span class="o">=</span><span class="n">depl_factor</span><span class="p">,</span>
+            <span class="n">lower_level_energy_range</span><span class="o">=</span><span class="n">lower_level_energy_range</span><span class="p">,</span>
+            <span class="n">upper_level_energy_range</span><span class="o">=</span><span class="n">upper_level_energy_range</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+            <span class="n">multiplet</span><span class="o">=</span><span class="n">multiplet</span><span class="p">,</span> <span class="n">transitions</span><span class="o">=</span><span class="n">transitions</span><span class="p">,</span>
+            <span class="n">show_fine_structure</span><span class="o">=</span><span class="n">show_fine_structure</span><span class="p">,</span>
+            <span class="n">show_auto_ionizing_transitions</span><span class="o">=</span><span class="n">show_auto_ionizing_transitions</span><span class="p">,</span>
+            <span class="n">output_columns</span><span class="o">=</span><span class="n">output_columns</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span>
+            <span class="n">get_query_payload</span><span class="o">=</span><span class="n">get_query_payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_result</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="AtomicLineListClass.query_object_async">
+<a class="viewcode-back" href="../../../api/astroquery.atomic.AtomicLineListClass.html#astroquery.atomic.AtomicLineListClass.query_object_async">[docs]</a>
+    <span class="nd">@prepend_docstr_nosections</span><span class="p">(</span><span class="n">query_object</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">query_object_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">wavelength_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength_type</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">wavelength_accuracy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">element_spectrum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minimal_abundance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depl_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">lower_level_energy_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper_level_energy_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multiplet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">transitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_fine_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_auto_ionizing_transitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">output_columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;conf&#39;</span><span class="p">,</span> <span class="s1">&#39;term&#39;</span><span class="p">,</span> <span class="s1">&#39;angm&#39;</span><span class="p">,</span> <span class="s1">&#39;prob&#39;</span><span class="p">,</span> <span class="s1">&#39;ener&#39;</span><span class="p">),</span>
+                           <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The HTTP response returned from the service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">default_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_form_values</span><span class="p">()</span>
+        <span class="n">wltype</span> <span class="o">=</span> <span class="p">(</span><span class="n">wavelength_type</span> <span class="ow">or</span> <span class="n">default_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;air&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">wltype</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;air&#39;</span><span class="p">,</span> <span class="s1">&#39;vacuum&#39;</span><span class="p">):</span>
+            <span class="n">air</span> <span class="o">=</span> <span class="n">wltype</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;parameter wavelength_type must be either &quot;air&quot; &#39;</span>
+                             <span class="s1">&#39;or &quot;vacuum&quot;.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wavelength_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wlrange</span> <span class="o">=</span> <span class="n">wavelength_range</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wlrange</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wlrange</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Length of `wavelength_range` must be 2 or 0, &#39;</span>
+                             <span class="s1">&#39;but is: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wlrange</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_transitions_param</span><span class="p">(</span><span class="n">transitions</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter &quot;transitions&quot;: </span><span class="si">{0!r}</span><span class="s1">&#39;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transitions</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">transitions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_type</span> <span class="o">=</span> <span class="n">default_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+            <span class="n">type2</span> <span class="o">=</span> <span class="n">default_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type2&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">transitions</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_type</span> <span class="o">=</span> <span class="s1">&#39;Sel&#39;</span>
+                <span class="n">type2</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_type</span> <span class="o">=</span> <span class="n">s</span>
+                <span class="n">type2</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># convert wavelengths in incoming wavelength range to Angstroms</span>
+        <span class="n">wlrange_in_angstroms</span> <span class="o">=</span> <span class="p">(</span><span class="n">wl</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span><span class="p">,</span>
+                                      <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span>
+                                <span class="k">for</span> <span class="n">wl</span> <span class="ow">in</span> <span class="n">wlrange</span><span class="p">)</span>
+
+        <span class="n">lower_level_erange</span> <span class="o">=</span> <span class="n">lower_level_energy_range</span>
+        <span class="k">if</span> <span class="n">lower_level_erange</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lower_level_erange</span> <span class="o">=</span> <span class="n">lower_level_erange</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">cm</span> <span class="o">**</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">upper_level_erange</span> <span class="o">=</span> <span class="n">upper_level_energy_range</span>
+        <span class="k">if</span> <span class="n">upper_level_erange</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">upper_level_erange</span> <span class="o">=</span> <span class="n">upper_level_erange</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">cm</span> <span class="o">**</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">input_payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;wavl&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">wlrange_in_angstroms</span><span class="p">)),</span>
+            <span class="s1">&#39;wave&#39;</span><span class="p">:</span> <span class="s1">&#39;Angstrom&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;air&#39;</span><span class="p">:</span> <span class="n">air</span><span class="p">,</span>
+            <span class="s1">&#39;wacc&#39;</span><span class="p">:</span> <span class="n">wavelength_accuracy</span><span class="p">,</span>
+            <span class="s1">&#39;elmion&#39;</span><span class="p">:</span> <span class="n">element_spectrum</span><span class="p">,</span>
+            <span class="s1">&#39;abun&#39;</span><span class="p">:</span> <span class="n">minimal_abundance</span><span class="p">,</span>
+            <span class="s1">&#39;depl&#39;</span><span class="p">:</span> <span class="n">depl_factor</span><span class="p">,</span>
+            <span class="s1">&#39;elo&#39;</span><span class="p">:</span> <span class="n">lower_level_erange</span><span class="p">,</span>
+            <span class="s1">&#39;ehi&#39;</span><span class="p">:</span> <span class="n">upper_level_erange</span><span class="p">,</span>
+            <span class="s1">&#39;ener&#39;</span><span class="p">:</span> <span class="s1">&#39;cm^-1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nmax&#39;</span><span class="p">:</span> <span class="n">nmax</span><span class="p">,</span>
+            <span class="s1">&#39;term&#39;</span><span class="p">:</span> <span class="n">multiplet</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">_type</span><span class="p">,</span>
+            <span class="s1">&#39;type2&#39;</span><span class="p">:</span> <span class="n">type2</span><span class="p">,</span>
+            <span class="s1">&#39;hydr&#39;</span><span class="p">:</span> <span class="n">show_fine_structure</span><span class="p">,</span>
+            <span class="s1">&#39;auto&#39;</span><span class="p">:</span> <span class="n">show_auto_ionizing_transitions</span><span class="p">,</span>
+            <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">output_columns</span><span class="p">,</span>
+            <span class="s1">&#39;jval&#39;</span><span class="p">:</span> <span class="s1">&#39;usej&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;tptype&#39;</span><span class="p">:</span> <span class="s1">&#39;as_a&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">input_payload</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submit_form</span><span class="p">(</span><span class="n">input_payload</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;ERROR: request form contains no information&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The server returned an error.  Please check the URL.&quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;   The full error message is </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;ERROR&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The server returned an error.  The full error message is </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">html_pre</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s1">&#39;html5lib&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">html_pre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data format not recognized.  The &lt;pre&gt; tag was missing from the response.&quot;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">html_pre</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="c1"># `header` is e.g.:</span>
+        <span class="c1"># &quot;u&#39;-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----&#39;&quot;</span>
+        <span class="c1"># `colnames` is then</span>
+        <span class="c1"># [u&#39;LAMBDA VAC ANG&#39;, u&#39;SPECTRUM&#39;, u&#39;TT&#39;, u&#39;TERM&#39;, u&#39;J J&#39;,</span>
+        <span class="c1">#  u&#39;LEVEL ENERGY  CM 1&#39;]</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+
+        <span class="n">colnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">colname</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;|&#39;</span><span class="p">]</span>
+        <span class="n">result_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">indices</span><span class="p">,</span> <span class="n">indices</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
+                <span class="c1"># `value` will hold all cell values in the line, so</span>
+                <span class="c1"># `u&#39;1.010799&#39;`, `u&#39;Zn XXX&#39;` etc.</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># maintain table dimensions when data missing</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">result_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">result_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">result_data</span><span class="p">,</span> <span class="n">data_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span>
+                              <span class="n">names</span><span class="o">=</span><span class="n">colnames</span><span class="p">,</span> <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># return an empty table if the query yielded no results</span>
+            <span class="k">return</span> <span class="n">Table</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_submit_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fill out the form of the SkyView site and submit it with the</span>
+<span class="sd">        values given in ``input_data`` (a dictionary where the keys are the form</span>
+<span class="sd">        element&#39;s names and the values are their respective values).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">input_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># only overwrite payload&#39;s values if the ``input_data`` value is not None</span>
+        <span class="c1"># to avoid overwriting of the form&#39;s default values</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_form_values</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">input_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">payload</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form_action_url</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;final payload = </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2"> from url=</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Retrieved data from POST request&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">def</span> <span class="nf">_default_form_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_form_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">FORM_URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+                                     <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">bs</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s1">&#39;html5lib&#39;</span><span class="p">)</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
+            <span class="n">default_form_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_form_values</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_form_action_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FORM_URL</span><span class="p">,</span> <span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__default_form_values</span> <span class="o">=</span> <span class="n">default_form_values</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_form_values</span>
+
+    <span class="k">def</span> <span class="nf">_get_default_form_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the already selected values of a given form (a BeautifulSoup</span>
+<span class="sd">        form node) as a dict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">form</span><span class="o">.</span><span class="n">find_all</span><span class="p">([</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;select&#39;</span><span class="p">]):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># ignore the submit and reset buttons</span>
+            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;reset&#39;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="c1"># check boxes: enabled boxes have the value &quot;on&quot; if not specified</span>
+            <span class="c1"># otherwise. Found out by debugging, perhaps not documented.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;checkbox&#39;</span>
+                    <span class="ow">and</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checked&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">]):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">)</span>
+            <span class="c1"># radio buttons and simple input fields</span>
+            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;radio&#39;</span> <span class="ow">and</span>\
+                    <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checked&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">]</span> <span class="ow">or</span>\
+                    <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">]:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+            <span class="c1"># dropdown menu, multi-section possible</span>
+            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;select&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selected&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;null&#39;</span><span class="p">]:</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># avoid values with size 1 lists</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+
+
+<span class="n">AtomicLineList</span> <span class="o">=</span> <span class="n">AtomicLineListClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

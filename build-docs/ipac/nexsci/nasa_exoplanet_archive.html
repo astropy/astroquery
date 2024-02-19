@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>NASA Exoplanet Archive (astroquery.ipac.nexsci.nasa_exoplanet_archive) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="NasaExoplanetArchiveClass" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html" />
+    <link rel="prev" title="write_lamda_datafile" href="../../api/astroquery.lamda.write_lamda_datafile.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html" title="NasaExoplanetArchiveClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../../api/astroquery.lamda.write_lamda_datafile.html" title="write_lamda_datafile">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>NASA Exoplanet Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="nasa-exoplanet-archive-astroquery-ipac-nexsci-nasa-exoplanet-archive">
+<span id="astroquery-ipac-nexsci-nasa-exoplanet-archive"></span><h1>NASA Exoplanet Archive (<a class="reference internal" href="#module-astroquery.ipac.nexsci.nasa_exoplanet_archive" title="astroquery.ipac.nexsci.nasa_exoplanet_archive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive</span></code></a>)<a class="headerlink" href="#nasa-exoplanet-archive-astroquery-ipac-nexsci-nasa-exoplanet-archive" title="Link to this heading">¶</a></h1>
+<p>This module can be used to query the <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu">NASA Exoplanet Archive</a> via
+<a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">the TAP service</a> or
+<a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">the API</a>.
+A full discussion of the available tables and query syntax through the two interfaces is available at <a class="footnote-reference brackets" href="#id6" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> and <a class="footnote-reference brackets" href="#id7" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+More information about the development of a more integrated NASA Exoplanet Archive and ongoing transition to
+fully TAP supported services can be found at <a class="footnote-reference brackets" href="#id8" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p><em>NOTE</em>: the <code class="docutils literal notranslate"><span class="pre">exoplanet</span></code> and <code class="docutils literal notranslate"><span class="pre">exomultpars</span></code> tables are no longer available and have been replaced by the
+Planetary Systems table (<code class="docutils literal notranslate"><span class="pre">ps</span></code>). Likewise, the <code class="docutils literal notranslate"><span class="pre">compositepars</span></code> table has been replaced by the
+Planetary Systems Composite Parameters table (<code class="docutils literal notranslate"><span class="pre">pscomppars</span></code>). Both the <code class="docutils literal notranslate"><span class="pre">ps</span></code> and <code class="docutils literal notranslate"><span class="pre">pscomppars</span></code> tables are accessible
+through the Exoplanet Archive TAP service. Database column names have changed;
+<a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html">this document</a> contains the current definitions
+and a mapping between the new and deprecated names.</p>
+<section id="query-methods">
+<h2>Query methods<a class="headerlink" href="#query-methods" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a> method can be used to query for a specific planet or planet host.
+For example, the following query searches the <code class="docutils literal notranslate"><span class="pre">ps</span></code> table of confirmed exoplanets for information about the planet K2-18 b.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s2">&quot;K2-18 b&quot;</span><span class="p">)</span> 
+<span class="go">&lt;QTable masked=True length=11&gt;</span>
+<span class="go">pl_name pl_letter hostname ... sy_kmagerr1 sy_kmagerr2      sky_coord</span>
+<span class="go">                           ...                               deg,deg</span>
+<span class="go">  str7     str1     str5   ...   float64     float64          object</span>
+<span class="go">------- --------- -------- ... ----------- ----------- --------------------</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+<span class="go">K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315</span>
+</pre></div>
+</div>
+<p>Similarly, cone searches can be executed using the <a class="reference internal" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">table</span><span class="o">=</span><span class="s2">&quot;pscomppars&quot;</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">SkyCoord</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="mf">172.56</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mf">7.59</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span> 
+<span class="go">&lt;QTable masked=True length=2&gt;</span>
+<span class="go">pl_name pl_letter hostname ...   htm20         sky_coord</span>
+<span class="go">                           ...                  deg,deg</span>
+<span class="go">  str7     str1     str5   ...   int32           object</span>
+<span class="go">------- --------- -------- ... ---------- --------------------</span>
+<span class="go">K2-18 b         b    K2-18 ... -244884223 172.560141,7.5878315</span>
+<span class="go">K2-18 c         c    K2-18 ... -244884223 172.560141,7.5878315</span>
+</pre></div>
+</div>
+<p>The most general queries can be performed using the <a class="reference internal" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria</span></code></a> method.
+For example, a full table can be queried as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="s2">&quot;cumulative&quot;</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">)</span> 
+<span class="go">&lt;QTable masked=True length=9564&gt;</span>
+<span class="go"> kepid   kepoi_name kepler_name  ... koi_fittype koi_score      sky_coord</span>
+<span class="go">                                 ...                             deg,deg</span>
+<span class="go"> int64      str9       str14     ...     str7     float64         object</span>
+<span class="go">-------- ---------- ------------ ... ----------- --------- -------------------</span>
+<span class="go">10797460  K00752.01 Kepler-227 b ...     LS+MCMC       1.0 291.93423,48.141651</span>
+<span class="go">10797460  K00752.02 Kepler-227 c ...     LS+MCMC     0.969 291.93423,48.141651</span>
+<span class="go">10811496  K00753.01              ...     LS+MCMC       0.0 297.00482,48.134129</span>
+<span class="go">10848459  K00754.01              ...     LS+MCMC       0.0  285.53461,48.28521</span>
+<span class="go">10854555  K00755.01 Kepler-664 b ...     LS+MCMC       1.0   288.75488,48.2262</span>
+<span class="go">     ...        ...          ... ...         ...       ...                 ...</span>
+<span class="go">10155286  K07988.01              ...     LS+MCMC     0.092 296.76288,47.145142</span>
+<span class="go">10156110  K07989.01              ...     LS+MCMC       0.0 297.00977,47.121021</span>
+</pre></div>
+</div>
+<p>A list of accessible tables can be found in the <code class="docutils literal notranslate"><span class="pre">TAP_TABLES</span></code> attribute:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">TAP_TABLES</span>
+<span class="go">[&#39;spectra&#39;,</span>
+<span class="go">&#39;superwasptimeseries&#39;,</span>
+<span class="go">&#39;kelttimeseries&#39;,</span>
+<span class="go">&#39;DI_STARS_EXEP&#39;,</span>
+<span class="go">&#39;transitspec&#39;,</span>
+<span class="go">&#39;emissionspec&#39;,</span>
+<span class="go">&#39;ps&#39;,</span>
+<span class="go">&#39;pscomppars&#39;,</span>
+<span class="go">&#39;keplernames&#39;,</span>
+<span class="go">&#39;k2names&#39;,</span>
+<span class="go">&#39;ukirttimeseries&#39;,</span>
+<span class="go">&#39;ml&#39;,</span>
+<span class="go">&#39;object_aliases&#39;,</span>
+<span class="go">&#39;k2pandc&#39;]</span>
+</pre></div>
+</div>
+</section>
+<section id="example-queries">
+<h2>Example queries<a class="headerlink" href="#example-queries" title="Link to this heading">¶</a></h2>
+<p>Specific searches can be executed using the <code class="docutils literal notranslate"><span class="pre">where</span></code>, <code class="docutils literal notranslate"><span class="pre">select</span></code>, <code class="docutils literal notranslate"><span class="pre">order</span></code>, and other parameters as described in the documentation <a class="footnote-reference brackets" href="#id6" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, <a class="footnote-reference brackets" href="#id7" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>In this section, we demonstrate</p>
+<ol class="arabic simple">
+<li><p>The number of confirmed planets discovered by TESS:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="s2">&quot;pscomppars&quot;</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="s2">&quot;count(*)&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                    <span class="n">where</span><span class="o">=</span><span class="s2">&quot;disc_facility like &#39;%TESS%&#39;&quot;</span><span class="p">)</span>  
+<span class="go">&lt;QTable masked=True length=1&gt;</span>
+<span class="go">count(*)</span>
+<span class="go"> int32</span>
+<span class="go">--------</span>
+<span class="go">     131</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>The list of 10 confirmed planets discovered by TESS and their host star coordinates:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="s2">&quot;pscomppars&quot;</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="s2">&quot;top 10 pl_name,ra,dec&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                    <span class="n">where</span><span class="o">=</span><span class="s2">&quot;disc_facility like &#39;%TESS%&#39;&quot;</span><span class="p">)</span> 
+<span class="go">&lt;QTable masked=True length=10&gt;</span>
+<span class="go">   pl_name         ra         dec            sky_coord</span>
+<span class="go">                  deg         deg             deg,deg</span>
+<span class="go">    str13       float64     float64            object</span>
+<span class="go">------------- ----------- ----------- -----------------------</span>
+<span class="go">WD 1856+534 b  284.415675  53.5090244   284.415675,53.5090244</span>
+<span class="go">   TOI-1201 b  42.2476999 -14.5372835  42.2476999,-14.5372835</span>
+<span class="go">  HD 213885 b 338.9837166  -59.864829  338.9837166,-59.864829</span>
+<span class="go">  HD 219666 b 349.5592665 -56.9039857 349.5592665,-56.9039857</span>
+<span class="go">          ...         ...         ...                     ...</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>The list of confirmed planets discovered using microlensing that have data available in the archive:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">table</span><span class="o">=</span><span class="s2">&quot;pscomppars&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">&quot;discoverymethod like &#39;Microlensing&#39;&quot;</span><span class="p">)</span>  
+<span class="go">&lt;QTable masked=True length=108&gt;</span>
+<span class="go">       pl_name        pl_letter ...    htm20           sky_coord</span>
+<span class="go">                                ...                     deg,deg</span>
+<span class="go">        str24            str1   ...    int32             object</span>
+<span class="go">--------------------- --------- ... ----------- -----------------------</span>
+<span class="go">OGLE-2016-BLG-1227L b         b ...  -768415656  265.597125,-33.7597778</span>
+<span class="go">OGLE-2015-BLG-0966L b         b ...  2084638177   268.75425,-29.0471111</span>
+<span class="go">OGLE-2017-BLG-0173L b         b ...  1462336374  267.970612,-29.2713604</span>
+<span class="go">OGLE-2017-BLG-1140L b         b ...  -925663673  266.883057,-24.5226669</span>
+<span class="go">                  ...       ... ...         ...                     ...</span>
+<span class="go">OGLE-2012-BLG-0358L b         b ...  2111594269      265.694875,-24.261</span>
+<span class="go">OGLE-2017-BLG-0482L b         b ...  -287458961  269.048889,-30.5283604</span>
+<span class="go">  MOA-2010-BLG-353L b         b ... -1953724135  271.303917,-27.2932333</span>
+<span class="go">OGLE-2014-BLG-1722L c         c ...   361334854   268.75238,-31.4690552</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>The list of confirmed planets where the host star name starts with “Kepler” using a <em>wildcard search</em>:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">table</span><span class="o">=</span><span class="s2">&quot;pscomppars&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">&quot;hostname like &#39;Kepler%&#39;&quot;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;hostname&quot;</span><span class="p">)</span> 
+<span class="go">&lt;QTable masked=True length=2370&gt;</span>
+<span class="go">   pl_name    pl_letter   hostname  ...    htm20          sky_coord</span>
+<span class="go">                                    ...                    deg,deg</span>
+<span class="go">    str14        str1      str12    ...    int32            object</span>
+<span class="go">------------- --------- ----------- ... ----------- ----------------------</span>
+<span class="go">  Kepler-10 c         c   Kepler-10 ...   512815427  285.679298,50.2414842</span>
+<span class="go">  Kepler-10 b         b   Kepler-10 ...   512815427  285.679298,50.2414842</span>
+<span class="go"> Kepler-100 b         b  Kepler-100 ...  -383871624 291.3861294,41.9901394</span>
+<span class="go"> Kepler-100 d         d  Kepler-100 ...  -383871624 291.3861294,41.9901394</span>
+<span class="go"> Kepler-100 c         c  Kepler-100 ...  -383871624 291.3861294,41.9901394</span>
+<span class="go">Kepler-1000 b         b Kepler-1000 ... -1745355506 286.6854729,47.0981948</span>
+<span class="go">          ...       ...         ... ...         ...                    ...</span>
+<span class="go"> Kepler-995 b         b  Kepler-995 ...  -369943676  284.6157154,39.130998</span>
+<span class="go"> Kepler-996 b         b  Kepler-996 ...  -288530943 291.9127633,41.5335891</span>
+<span class="go"> Kepler-997 b         b  Kepler-997 ...   604179197 289.2333767,49.9388952</span>
+<span class="go"> Kepler-998 b         b  Kepler-998 ...  1883599570 296.7541629,49.2087085</span>
+<span class="go"> Kepler-999 b         b  Kepler-999 ... -1948748132 299.6604865,46.1984679</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>The Kepler Objects of Interest that were vetted more recently than January 24, 2015 using a <em>date search</em>:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.ipac.nexsci.nasa_exoplanet_archive</span> <span class="kn">import</span> <span class="n">NasaExoplanetArchive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">table</span><span class="o">=</span><span class="s2">&quot;koi&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">&quot;koi_vet_date&gt;to_date(&#39;2015-01-24&#39;,&#39;yyyy-mm-dd&#39;)&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">select</span><span class="o">=</span><span class="s2">&quot;kepoi_name,koi_vet_date&quot;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;koi_vet_date&quot;</span><span class="p">)</span> 
+<span class="go">&lt;QTable length=34652&gt;</span>
+<span class="go">kepoi_name koi_vet_date</span>
+<span class="go">   str9       str10</span>
+<span class="go">---------- ------------</span>
+<span class="go"> K00866.01   2015-09-24</span>
+<span class="go"> K00867.01   2015-09-24</span>
+<span class="go"> K00124.01   2015-09-24</span>
+<span class="go">       ...          ...</span>
+<span class="go"> K06823.01   2018-08-16</span>
+<span class="go"> K06824.01   2018-08-16</span>
+<span class="go"> K06825.01   2018-08-16</span>
+</pre></div>
+</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</aside>
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/transition.html">Developing a More Integrated NASA Exoplanet Archive</a></p>
+</aside>
+</aside>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.ipac.nexsci.nasa_exoplanet_archive">
+<span id="astroquery-ipac-nexsci-nasa-exoplanet-archive-package"></span><h3>astroquery.ipac.nexsci.nasa_exoplanet_archive Package<a class="headerlink" href="#module-astroquery.ipac.nexsci.nasa_exoplanet_archive" title="Link to this heading">¶</a></h3>
+<section id="nasa-exoplanet-archive-query-tool">
+<h4>NASA Exoplanet Archive Query Tool<a class="headerlink" href="#nasa-exoplanet-archive-query-tool" title="Link to this heading">¶</a></h4>
+<p>Module to query the <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu">NASA Exoplanet Archive</a> via <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">the
+API</a>.</p>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.html#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass</span></code></a>()</p></td>
+<td><p>The interface for querying the NASA Exoplanet Archive TAP and API services</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf.html#astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.ipac.nexsci.nasa_exoplanet_archive" title="astroquery.ipac.nexsci.nasa_exoplanet_archive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">NASA Exoplanet Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive</span></code>)</a><ul>
+<li><a class="reference internal" href="#query-methods">Query methods</a></li>
+<li><a class="reference internal" href="#example-queries">Example queries</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.ipac.nexsci.nasa_exoplanet_archive">astroquery.ipac.nexsci.nasa_exoplanet_archive Package</a><ul>
+<li><a class="reference internal" href="#nasa-exoplanet-archive-query-tool">NASA Exoplanet Archive Query Tool</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../../_sources/ipac/nexsci/nasa_exoplanet_archive.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

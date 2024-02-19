@@ -1,0 +1,39 @@
+BesanconClass
+=============
+
+.. currentmodule:: astroquery.besancon
+
+.. autoclass:: BesanconClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~BesanconClass.QUERY_URL
+      ~BesanconClass.TIMEOUT
+      ~BesanconClass.ping_delay
+      ~BesanconClass.result_re
+      ~BesanconClass.url_download
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BesanconClass.get_besancon_model_file
+      ~BesanconClass.query
+      ~BesanconClass.query_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: QUERY_URL
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: ping_delay
+   .. autoattribute:: result_re
+   .. autoattribute:: url_download
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_besancon_model_file
+   .. automethod:: query
+   .. automethod:: query_async

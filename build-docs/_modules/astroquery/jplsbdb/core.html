@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.jplsbdb.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../jplsbdb.html" accesskey="U">astroquery.jplsbdb</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.jplsbdb.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">fromstring</span><span class="p">,</span> <span class="n">isnan</span><span class="p">,</span> <span class="n">array</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SBDB&#39;</span><span class="p">,</span> <span class="s1">&#39;SBDBClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SBDBClass">
+<a class="viewcode-back" href="../../../api/astroquery.jplsbdb.SBDBClass.html#astroquery.jplsbdb.SBDBClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">SBDBClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for querying the `JPL Small-Body Database Browser</span>
+<span class="sd">    &lt;https://ssd.jpl.nasa.gov/sbdb.cgi&gt;`_ service.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># internal flag whether to return the raw reponse</span>
+    <span class="n">_return_raw</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># actual query uri</span>
+    <span class="n">_uri</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SBDBClass.query_async">
+<a class="viewcode-back" href="../../../api/astroquery.jplsbdb.SBDBClass.html#astroquery.jplsbdb.SBDBClass.query_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetid</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">id_type</span><span class="o">=</span><span class="s1">&#39;search&#39;</span><span class="p">,</span>
+                    <span class="n">neo_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">alternate_id</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">full_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">solution_epoch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">covariance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">validity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">alternate_orbit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">phys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">close_approach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">radar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">virtual_impactor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">discovery</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">get_uri</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method queries the `JPL Small-Body Database Browser</span>
+<span class="sd">        &lt;https://ssd.jpl.nasa.gov/sbdb.cgi&gt;`_ and returns an</span>
+<span class="sd">        `~collections.OrderedDict` with all queried information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targetid: str</span>
+<span class="sd">            Target identifier or search string (if ``id_type=&#39;search&#39;``)</span>
+<span class="sd">        id_type: str, optional</span>
+<span class="sd">            Defines the type of identifier provided through ``targetid``:</span>
+<span class="sd">            ``&#39;search&#39;`` for a search string (designations, numbers, and</span>
+<span class="sd">            names in varius forms, including MPC packed form and</span>
+<span class="sd">            case-insensitive names; wildcard character ``&#39;*&#39;`` is allowed),</span>
+<span class="sd">            ``&#39;spk&#39;`` for a spice kernel id, or ``&#39;desig&#39;`` for an object</span>
+<span class="sd">            designation. Default value: ``&#39;search&#39;``</span>
+<span class="sd">        neo_only: boolean, optional</span>
+<span class="sd">            If ``True``, only output for Near-Earth Objects (NEOs) is</span>
+<span class="sd">            returned. Default value: ``False``.</span>
+<span class="sd">        alternate_id: boolean, optional</span>
+<span class="sd">            Return alternate identifiers (designations and Spice kernel</span>
+<span class="sd">            ids) if ``True``. Default: ``False``</span>
+<span class="sd">        full_precision: boolean, optional</span>
+<span class="sd">            Provide results using full precision. Default: ``False``</span>
+<span class="sd">        solution_epoch: boolean, optional</span>
+<span class="sd">            Output orbit data at the JPL orbit-solution epoch instead of</span>
+<span class="sd">            the standard MPC epoch. Default: ``False``</span>
+<span class="sd">        covariance: str or ``None``, optional</span>
+<span class="sd">            Output the orbital covariance (if available) in the full matrix</span>
+<span class="sd">            form when ``mat``, in the upper-triangular vector-stored form</span>
+<span class="sd">            when ``vec``, or in the upper-triangular vector-stored</span>
+<span class="sd">            square-root form when ``src``; provide no covariance when</span>
+<span class="sd">            ``None``. Default: ``None``</span>
+<span class="sd">        validity: boolean, optional</span>
+<span class="sd">            Provide the validity ranges of the orbital elements as Julian</span>
+<span class="sd">            Dates. Default: ``False``</span>
+<span class="sd">        alternate_orbit: boolean, optional</span>
+<span class="sd">            Provide alternate orbits, if available. Default: ``False``</span>
+<span class="sd">        phys: boolean, optional</span>
+<span class="sd">            Provide physical property information, if available. Default:</span>
+<span class="sd">            ``False``</span>
+<span class="sd">        close_approach: boolean, optional</span>
+<span class="sd">            Output information on close approaches with the major planets.</span>
+<span class="sd">            Default: ``False``</span>
+<span class="sd">        radar: boolean, optional</span>
+<span class="sd">            Provide information on radar observations of the target. Default:</span>
+<span class="sd">            ``False``</span>
+<span class="sd">        virtual_impactor: boolean, optional</span>
+<span class="sd">            Provide information on a potential virtual impactor nature of the</span>
+<span class="sd">            target from the `JPL Sentry system</span>
+<span class="sd">            &lt;http://cneos.jpl.nasa.gov/sentry/&gt;`_. Default: ``False``</span>
+<span class="sd">        discovery: boolean, optional</span>
+<span class="sd">            Output discovery circumstances and IAU name citation data.</span>
+<span class="sd">            Default: ``False``</span>
+<span class="sd">        get_query_payload: bool, optional</span>
+<span class="sd">            This should default to ``False``. When set to ``True`` the method</span>
+<span class="sd">            should return the HTTP request parameters as a dict.</span>
+<span class="sd">        get_raw_response : boolean, optional</span>
+<span class="sd">            Return raw data as obtained by JPL SBDB without parsing the</span>
+<span class="sd">            data. Default: ``False``</span>
+<span class="sd">        get_uri : boolean, optional</span>
+<span class="sd">            Add the query URI to the output as ``query_uri`` field.</span>
+<span class="sd">            Default: ``False``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : `~collections.OrderedDict`</span>
+<span class="sd">            A dictionary holding all the parsed data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplsbdb import SBDB</span>
+<span class="sd">        &gt;&gt;&gt; sbdb = SBDB.query(&#39;3552&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(sbdb) # doctest: +SKIP</span>
+<span class="sd">        OrderedDict([(&#39;object&#39;, OrderedDict([(&#39;shortname&#39;, &#39;3552 Don Quixote&#39;), (&#39;neo&#39;, True), ... ])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">server</span>
+        <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+        <span class="k">if</span> <span class="n">covariance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;mat&#39;</span><span class="p">,</span> <span class="s1">&#39;vec&#39;</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Option &quot;</span><span class="si">{:s}</span><span class="s1">&quot; not available for covariance&#39;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="n">covariance</span><span class="p">))</span>
+
+        <span class="c1"># assemble payload</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="p">{{</span><span class="s1">&#39;search&#39;</span><span class="p">:</span> <span class="s1">&#39;sstr&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;spk&#39;</span><span class="p">:</span> <span class="s1">&#39;spk&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;desig&#39;</span><span class="p">:</span> <span class="s1">&#39;des&#39;</span><span class="p">}[</span><span class="n">id_type</span><span class="p">]:</span> <span class="n">targetid</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">neo_only</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;neo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">alternate_id</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;alt-des&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;alt-spk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">full_precision</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;full-prec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">solution_epoch</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;soln-epoch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">covariance</span>
+        <span class="k">if</span> <span class="n">validity</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;nv-fmt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;jd&#39;</span>
+        <span class="k">if</span> <span class="n">alternate_orbit</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;alt-orbits&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">phys</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;phys-par&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">close_approach</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;ca-data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;ca-time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;both&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;ca-tunc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;both&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;ca-unc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">radar</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;radar-obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;r-name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;r-observer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;r-notes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">virtual_impactor</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;vi-data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="n">discovery</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;discovery&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;raw-citation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">URL</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_raw_response</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_return_raw</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">get_uri</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_uri</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">url</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        internal wrapper to parse queries</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_raw</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="c1"># decode json response from JPL SBDB server into ascii</span>
+        <span class="c1"># SBDB API: does not provide proper unicode representation</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Server response not readable.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># check for query problems</span>
+        <span class="k">if</span> <span class="s1">&#39;code&#39;</span> <span class="ow">in</span> <span class="n">src</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;200&#39;</span>
+                                  <span class="ow">or</span> <span class="n">src</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;300&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (</span><span class="si">{:s}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]))</span>
+
+        <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_data</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+        <span class="c1"># add query uri, if desired</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">src</span><span class="p">[</span><span class="s1">&#39;query_uri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uri</span>
+
+        <span class="k">return</span> <span class="n">src</span>
+
+    <span class="k">def</span> <span class="nf">_process_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        internal routine to process raw data in OrderedDict format, must</span>
+<span class="sd">        be able to work recursively</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+
+                <span class="c1"># leave empty lists untouched</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># turn data objects into dictionary</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;sigma&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="ow">and</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;units&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+
+                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_data_element</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># turn &#39;data&#39; lists into arrays</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
+                                    <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                                <span class="c1"># res[key].append(genfromtxt(val[i]))</span>
+                                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="n">fromstring</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+                            <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                                <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># turn lists of dictionaries into lists/leave as scalars</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                        <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="c1"># try to convert list of strings to array</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
+                                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
+                                        <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+                                            <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+                                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">])</span>
+                                                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">))]</span>
+
+                                <span class="c1"># make it fail if there are nans</span>
+                                <span class="k">try</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">isnan</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">])):</span>
+                                        <span class="k">raise</span> <span class="ne">ValueError</span>
+                                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="n">isnan</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]):</span>
+                                        <span class="k">raise</span> <span class="ne">ValueError</span>
+
+                                <span class="c1"># apply unit, if available</span>
+                                <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">field_unit</span><span class="p">:</span>
+                                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">*</span>\
+                                        <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">field_unit</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+
+                            <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                                <span class="c1"># if that fails</span>
+                                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                                   <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">))]</span>
+
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
+                                    <span class="c1"># try to process list of dictionaries</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span>
+                                            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                                            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                                           <span class="nb">dict</span><span class="p">)):</span>
+                                        <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> \
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">_process_data_element</span><span class="p">(</span>
+                                            <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">])</span>
+                                    <span class="c1"># or use a list instead</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">]</span>
+
+                                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="c1"># leave scalar elements as they are</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+            <span class="c1"># re-run this function on leaf dicts</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_data</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+            <span class="c1"># use leaf scalars (and apply units, where applicable)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">field_unit</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">field_unit</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">_process_data_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        internal routine to process a list of data elements: dictionaries</span>
+<span class="sd">        containing &#39;units&#39;, &#39;name&#39;, &#39;value&#39;, &#39;sigma&#39;...</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">eldict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+            <span class="c1"># change units where necessary</span>
+            <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">data_unit_replace</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">data_unit_replace</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]]</span>
+            <span class="c1"># change exponential symbol in unit string from &#39;^&#39; to &#39;**&#39;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="ow">in</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]):</span>
+                <span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;**&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ogip&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="c1"># try to combine value with units provided</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">unit</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_sig&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">])</span>
+                                                <span class="o">*</span> <span class="n">unit</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_sig&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="c1"># if error raised, just provide strings</span>
+                <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_sig&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">])</span>
+
+            <span class="c1"># add additional information where available</span>
+            <span class="k">if</span> <span class="s1">&#39;ref&#39;</span> <span class="ow">in</span> <span class="n">q</span><span class="p">:</span>
+                <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;ref&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;kind&#39;</span> <span class="ow">in</span> <span class="n">q</span><span class="p">:</span>
+                <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_kind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;kind&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;notes&#39;</span> <span class="ow">in</span> <span class="n">q</span><span class="p">:</span>
+                <span class="n">eldict</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_note&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="s1">&#39;notes&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">eldict</span>
+
+<div class="viewcode-block" id="SBDBClass.schematic">
+<a class="viewcode-back" href="../../../api/astroquery.jplsbdb.SBDBClass.html#astroquery.jplsbdb.SBDBClass.schematic">[docs]</a>
+    <span class="k">def</span> <span class="nf">schematic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_prepend</span><span class="o">=</span><span class="s1">&#39;+--&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats the provided dictionary ``d`` into a human-readable tree</span>
+<span class="sd">        structure schematic. In order to display the structure</span>
+<span class="sd">        properly, the resulting ``outstring`` should be passed to</span>
+<span class="sd">        the ``print`` function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        d : dict, optional</span>
+<span class="sd">            Input dictionary that is to be formatted .</span>
+<span class="sd">        _prepend : str</span>
+<span class="sd">            for internal use only</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        outstring : str</span>
+<span class="sd">            The formatted string based on ``d``.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        All non-ASCII unicode characters are removed from ``outstring``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">            &gt;&gt;&gt; from astroquery.jplsbdb import SBDB</span>
+<span class="sd">            &gt;&gt;&gt; sbdb = SBDB.query(3552)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; print(SBDB.schematic(sbdb))  # doctest: +SKIP</span>
+<span class="sd">            +-+ object:</span>
+<span class="sd">            | +-- shortname: 3552 Don Quixote</span>
+<span class="sd">            | +-- neo: True</span>
+<span class="sd">            | +-+ orbit_class:</span>
+<span class="sd">            | | +-- name: Amor</span>
+<span class="sd">            ...</span>
+<span class="sd">            | +-- pe_used: DE431</span>
+<span class="sd">            | +-- last_obs: 2018-07-05</span>
+<span class="sd">            | +-- moid: 0.334 AU</span>
+<span class="sd">            | +-- n_dop_obs_used: None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">outstring</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">val_formatted</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                    <span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+                <span class="n">outstring</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1"> </span><span class="si">{:s}</span><span class="s1">: </span><span class="si">{:s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">_prepend</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span>
+                    <span class="n">val_formatted</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">val_formatted</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">outstring</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1"> </span><span class="si">{:s}</span><span class="s1">: </span><span class="si">{:s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">_prepend</span><span class="p">[:</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span>
+                    <span class="n">val_formatted</span><span class="p">))</span>
+                <span class="n">new_prepend</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;| &#39;</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_prepend</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;+--&#39;</span>
+                <span class="n">outstring</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schematic</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">_prepend</span><span class="o">=</span><span class="n">new_prepend</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val_formatted</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                    <span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+                <span class="n">outstring</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1"> </span><span class="si">{:s}</span><span class="s1">: </span><span class="si">{:s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">_prepend</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span>
+                    <span class="n">val_formatted</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">outstring</span></div>
+</div>
+
+
+
+<span class="n">SBDB</span> <span class="o">=</span> <span class="n">SBDBClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

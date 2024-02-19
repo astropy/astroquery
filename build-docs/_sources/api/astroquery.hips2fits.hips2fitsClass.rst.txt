@@ -1,0 +1,35 @@
+hips2fitsClass
+==============
+
+.. currentmodule:: astroquery.hips2fits
+
+.. autoclass:: hips2fitsClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~hips2fitsClass.server
+      ~hips2fitsClass.timeout
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~hips2fitsClass.query
+      ~hips2fitsClass.query_async
+      ~hips2fitsClass.query_with_wcs
+      ~hips2fitsClass.query_with_wcs_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: server
+   .. autoattribute:: timeout
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query
+   .. automethod:: query_async
+   .. automethod:: query_with_wcs
+   .. automethod:: query_with_wcs_async

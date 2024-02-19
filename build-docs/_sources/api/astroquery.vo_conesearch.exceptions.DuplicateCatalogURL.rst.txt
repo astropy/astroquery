@@ -1,0 +1,6 @@
+DuplicateCatalogURL
+===================
+
+.. currentmodule:: astroquery.vo_conesearch.exceptions
+
+.. autoexception:: DuplicateCatalogURL

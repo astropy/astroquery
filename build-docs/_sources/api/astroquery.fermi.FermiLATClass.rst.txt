@@ -1,0 +1,33 @@
+FermiLATClass
+=============
+
+.. currentmodule:: astroquery.fermi
+
+.. autoclass:: FermiLATClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~FermiLATClass.TIMEOUT
+      ~FermiLATClass.request_url
+      ~FermiLATClass.result_url_re
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~FermiLATClass.query_object
+      ~FermiLATClass.query_object_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: request_url
+   .. autoattribute:: result_url_re
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query_object
+   .. automethod:: query_object_async

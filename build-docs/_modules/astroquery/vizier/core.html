@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.vizier.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../vizier.html" accesskey="U">astroquery.vizier</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.vizier.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="kn">import</span> <span class="nn">astropy.table</span> <span class="k">as</span> <span class="nn">tbl</span>
+<span class="kn">import</span> <span class="nn">astropy.utils.data</span> <span class="k">as</span> <span class="nn">aud</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">astropy.io.votable</span> <span class="k">as</span> <span class="nn">votable</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span><span class="p">,</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">pyvo</span> <span class="kn">import</span> <span class="n">registry</span>
+
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">commons</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">schema</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">TableParseError</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Vizier&#39;</span><span class="p">,</span> <span class="s1">&#39;VizierClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="VizierClass">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">VizierClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+
+    <span class="n">_str_schema</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">_schema_columns</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">([</span><span class="n">_str_schema</span><span class="p">],</span>
+                                    <span class="n">error</span><span class="o">=</span><span class="s2">&quot;columns must be a list of strings&quot;</span><span class="p">)</span>
+    <span class="n">_schema_ucd</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span><span class="n">_str_schema</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s2">&quot;ucd must be string&quot;</span><span class="p">)</span>
+    <span class="n">_schema_column_filters</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_str_schema</span><span class="p">):</span> <span class="n">_str_schema</span><span class="p">},</span>
+        <span class="n">error</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;column_filters must be a dictionary where both keys &quot;</span>
+               <span class="s2">&quot;and values are strings&quot;</span><span class="p">))</span>
+    <span class="n">_schema_catalog</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">([</span><span class="n">_str_schema</span><span class="p">],</span> <span class="n">_str_schema</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">&quot;catalog must be a list of strings or a single string&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span> <span class="n">column_filters</span><span class="o">=</span><span class="p">{},</span> <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">keywords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ucd</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                 <span class="n">vizier_server</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">row_limit</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        columns : list</span>
+<span class="sd">            List of strings</span>
+<span class="sd">        column_filters : dict</span>
+<span class="sd">        catalog : str or None</span>
+<span class="sd">        keywords : str or None</span>
+<span class="sd">        ucd : string</span>
+<span class="sd">            &quot;Unified Content Description&quot; column descriptions.  Specifying</span>
+<span class="sd">            these will select only catalogs that have columns matching the</span>
+<span class="sd">            column descriptions defined on the Vizier web pages.</span>
+<span class="sd">            See https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd and</span>
+<span class="sd">            https://vizier.cds.unistra.fr/vizier/doc/UCD/</span>
+<span class="sd">        vizier_server : string</span>
+<span class="sd">            Name of the VizieR mirror to use.</span>
+<span class="sd">            (This parameter&#39;s default is set from a configuration object.)</span>
+<span class="sd">        timeout : number</span>
+<span class="sd">            timeout for connecting to server</span>
+<span class="sd">            (This parameter&#39;s default is set from a configuration object.)</span>
+<span class="sd">        row_limit : int</span>
+<span class="sd">            Maximum number of rows that will be fetched from the result</span>
+<span class="sd">            (set to -1 for unlimited).</span>
+<span class="sd">            (This parameter&#39;s default is set from a configuration object.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_filters</span> <span class="o">=</span> <span class="n">column_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catalog</span> <span class="o">=</span> <span class="n">catalog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ucd</span> <span class="o">=</span> <span class="n">ucd</span>
+        <span class="k">if</span> <span class="n">keywords</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">VIZIER_SERVER</span> <span class="o">=</span> <span class="n">vizier_server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="n">row_limit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Columns to include.  The special keyword &#39;all&#39; will return ALL</span>
+<span class="sd">        columns from ALL retrieved tables. &quot;&quot;&quot;</span>
+        <span class="c1"># columns need to be immutable but still need to be a list</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">))</span>
+
+    <span class="nd">@columns</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_columns</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">column_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters to run on the individual columns. See the Vizier website</span>
+<span class="sd">        for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_filters</span>
+
+    <span class="nd">@column_filters</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">column_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column_filters</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_column_filters</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The default catalog to search.  If left empty, will search all</span>
+<span class="sd">        catalogs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span>
+
+    <span class="nd">@catalog</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_catalog</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ucd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        UCD criteria: see https://vizier.cds.unistra.fr/vizier/vizHelp/1.htx#ucd</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Vizier.ucd = &#39;(spect.dopplerVeloc*|phys.veloc*)&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ucd</span>
+
+    <span class="nd">@ucd</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ucd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ucd</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_ucd</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_server_to_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Not generally meant to be modified, but there are different valid</span>
+<span class="sd">        return types supported by Vizier, listed here:</span>
+<span class="sd">        https://vizier.cds.unistra.fr/doc/asu-summary.htx</span>
+
+<span class="sd">        HTML: VizieR</span>
+<span class="sd">        votable: votable</span>
+<span class="sd">        tab-separated-values: asu-tsv</span>
+<span class="sd">        FITS ascii table: asu-fits</span>
+<span class="sd">        FITS binary table: asu-binfits</span>
+<span class="sd">        plain text: asu-txt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Only votable is supported now, but in case we try to support</span>
+        <span class="c1"># something in the future we should disallow invalid ones.</span>
+        <span class="k">assert</span> <span class="n">return_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span> <span class="s1">&#39;asu-tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;asu-fits&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;asu-binfits&#39;</span><span class="p">,</span> <span class="s1">&#39;asu-txt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;asu-txt&#39;</span><span class="p">,):</span>
+            <span class="c1"># I had a look at the format of these &quot;tables&quot; and... they just</span>
+            <span class="c1"># aren&#39;t.  They&#39;re quasi-fixed-width without schema.  I think they</span>
+            <span class="c1"># follow the general philosophy of &quot;consistency is overrated&quot;</span>
+            <span class="c1"># The CDS reader chokes on it.</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;asu-txt is not and cannot be supported: the &quot;</span>
+                            <span class="s2">&quot;returned tables are not and cannot be made &quot;</span>
+                            <span class="s2">&quot;parseable.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;https://&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">VIZIER_SERVER</span> <span class="o">+</span> <span class="s2">&quot;/viz-bin/&quot;</span> <span class="o">+</span> <span class="n">return_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The set of keywords to filter the Vizier search&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span>
+
+    <span class="nd">@keywords</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span> <span class="o">=</span> <span class="n">VizierKeyword</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@keywords</span><span class="o">.</span><span class="n">deleter</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="VizierClass.find_catalogs">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.find_catalogs">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_catalogs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keywords</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_obsolete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">max_catalogs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search Vizier for catalogs based on a set of keywords, e.g. author name</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keywords : list or string</span>
+<span class="sd">            List of keywords, or space-separated set of keywords.</span>
+<span class="sd">            From `Vizier &lt;https://vizier.cds.unistra.fr/doc/asu-summary.htx&gt;`_:</span>
+<span class="sd">            &quot;names or words of title of catalog. The words are and&#39;ed, i.e.</span>
+<span class="sd">            only the catalogues characterized by all the words are selected.&quot;</span>
+<span class="sd">        include_obsolete : bool, optional</span>
+<span class="sd">            If set to True, catalogs marked obsolete will also be returned.</span>
+<span class="sd">        max_catalogs : int or None</span>
+<span class="sd">            The maximum number of catalogs to return.  If ``None``, all</span>
+<span class="sd">            catalogs will be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resource_dict : dict</span>
+<span class="sd">            Dictionary of the &quot;Resource&quot; name and the VOTable resource object.</span>
+<span class="sd">            &quot;Resources&quot; are generally publications; one publication may contain</span>
+<span class="sd">            many tables.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.vizier import Vizier</span>
+<span class="sd">        &gt;&gt;&gt; catalog_list = Vizier.find_catalogs(&#39;Kang W51&#39;) # doctest: +REMOTE_DATA +IGNORE_WARNINGS</span>
+<span class="sd">        &gt;&gt;&gt; catalog_list # doctest: +REMOTE_DATA +IGNORE_OUTPUT</span>
+<span class="sd">        OrderedDict([(&#39;J/ApJ/684/1143&#39;, &lt;/&gt;), (&#39;J/ApJ/736/87&#39;, &lt;/&gt;) ... ])</span>
+<span class="sd">        &gt;&gt;&gt; print({k:v.description for k,v in catalog_list.items()}) # doctest: +REMOTE_DATA +IGNORE_OUTPUT</span>
+<span class="sd">        {&#39;J/ApJ/684/1143&#39;: &#39;BHB candidates in the Milky Way (Xue+, 2008)&#39;,</span>
+<span class="sd">         &#39;J/ApJ/736/87&#39;: &#39;Abundances in G-type stars with exoplanets (Kang+, 2011)&#39;,</span>
+<span class="sd">         &#39;J/ApJ/738/79&#39;: &quot;SDSS-DR8 BHB stars in the Milky Way&#39;s halo (Xue+, 2011)&quot;,</span>
+<span class="sd">         &#39;J/ApJ/760/12&#39;: &#39;LIGO/Virgo gravitational-wave (GW) bursts with GRBs (Abadie+, 2012)&#39;,</span>
+<span class="sd">         ...}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keywords</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">keywords</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+
+        <span class="n">data_payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-words&#39;</span><span class="p">:</span> <span class="n">keywords</span><span class="p">,</span> <span class="s1">&#39;-meta.all&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+        <span class="n">data_payload</span><span class="p">[</span><span class="s1">&#39;-ucd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucd</span>
+
+        <span class="k">if</span> <span class="n">max_catalogs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_payload</span><span class="p">[</span><span class="s1">&#39;-meta.max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_catalogs</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_server_to_url</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;STOP, Max. number of RESOURCE reached&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Maximum number of catalogs exceeded.  Try &quot;</span>
+                             <span class="s2">&quot;setting max_catalogs to a large number and&quot;</span>
+                             <span class="s2">&quot; try again&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_result</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                    <span class="n">get_catalog_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Filter out the obsolete catalogs, unless requested</span>
+        <span class="k">if</span> <span class="n">include_obsolete</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">infos</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;obsolete&#39;</span><span class="p">):</span>
+                        <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="VizierClass.get_catalogs_async">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.get_catalogs_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_catalogs_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span>
+                           <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query the Vizier service for a specific catalog</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        catalog : str, Resource, or list, optional</span>
+<span class="sd">            The catalog(s) that will be retrieved</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~requests.Response`</span>
+<span class="sd">            Returned if asynchronous method used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">votable</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Resource</span><span class="p">)):</span>
+            <span class="n">catalog</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="n">data_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data_payload</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_server_to_url</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="VizierClass.get_catalog_metadata">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.get_catalog_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_catalog_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a VizieR&#39;s catalog metadata.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        catalog : str, optional</span>
+<span class="sd">            The catalog identifier. It usually looks like &#39;III/55&#39; for big surveys</span>
+<span class="sd">            or &#39;J/ApJ/811/67&#39; for catalogs linked to a published paper. When this</span>
+<span class="sd">            parameter is not provided, the function looks for the metadata of the</span>
+<span class="sd">            catalog property of the Vizier class instance</span>
+<span class="sd">            (`~astroquery.vizier.VizierClass.catalog`).</span>
+<span class="sd">        get_query_payload : bool, optional</span>
+<span class="sd">            When True, returns the dict of HTTP request parameters. This does not</span>
+<span class="sd">            execute the search for metadata.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        `~astropy.table.table.Table`</span>
+<span class="sd">            A table with the following columns:</span>
+<span class="sd">            - title</span>
+<span class="sd">            - authors</span>
+<span class="sd">            - abstract (the abstract of the article, modified to explain the data</span>
+<span class="sd">            more specifically)</span>
+<span class="sd">            - origin_article (the bibcode of the associated article)</span>
+<span class="sd">            - webpage (a link to VizieR, contains more information about the catalog)</span>
+<span class="sd">            - created (date of creation of the catalog *in VizieR*)</span>
+<span class="sd">            - updated (date of the last modification applied to the entry,</span>
+<span class="sd">            this is often metadata, with no appearance in the history tap on the</span>
+<span class="sd">            webpage but sometimes also data erratum, which will appear in the</span>
+<span class="sd">            history tab)</span>
+<span class="sd">            - waveband</span>
+<span class="sd">            - doi (the catalog doi when it exists)</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.vizier import Vizier</span>
+<span class="sd">        &gt;&gt;&gt; Vizier(catalog=&quot;I/324&quot;).get_catalog_metadata() # doctest: +REMOTE_DATA</span>
+<span class="sd">        &lt;Table length=1&gt;</span>
+<span class="sd">                       title                        authors         ... waveband  doi</span>
+<span class="sd">                       object                        object         ...  object  object</span>
+<span class="sd">        ----------------------------------- ----------------------- ... -------- ------</span>
+<span class="sd">        The Initial Gaia Source List (IGSL) Smart R.L.; Nicastro L. ...              --</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.vizier import Vizier</span>
+<span class="sd">        &gt;&gt;&gt; Vizier.get_catalog_metadata(catalog=&quot;J/ApJS/173/185&quot;) # doctest: +REMOTE_DATA</span>
+<span class="sd">        &lt;Table length=1&gt;</span>
+<span class="sd">                          title                    ...              doi</span>
+<span class="sd">                          object                   ...              object</span>
+<span class="sd">        ------------------------------------------ ... --------------------------------</span>
+<span class="sd">        GALEX ultraviolet atlas of nearby galaxies ... doi:10.26093/cds/vizier.21730185</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># searches the instance catalog property if the keyword argument is not provided</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">catalog</span><span class="p">:</span>
+            <span class="n">catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalog</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">catalog</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No catalog name was provided.&quot;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT TOP 1 res_title as title,</span>
+<span class="s2">                creator_seq as authors,</span>
+<span class="s2">                res_description as abstract,</span>
+<span class="s2">                source_value as origin_article,</span>
+<span class="s2">                reference_url as webpage,</span>
+<span class="s2">                created, updated,</span>
+<span class="s2">                waveband,</span>
+<span class="s2">                alt_identifier as doi</span>
+<span class="s2">                FROM rr.resource NATURAL LEFT OUTER JOIN rr.capability</span>
+<span class="s2">                NATURAL LEFT OUTER JOIN rr.interface</span>
+<span class="s2">                NATURAL LEFT OUTER JOIN rr.alt_identifier</span>
+<span class="s2">                WHERE ivoid = &#39;ivo://cds.vizier/</span><span class="si">{</span><span class="n">catalog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">regtap</span><span class="o">.</span><span class="n">RegistryQuery</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">regtap</span><span class="o">.</span><span class="n">REGISTRY_BASEURL</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">metadata</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span><span class="o">.</span><span class="n">to_table</span><span class="p">()</span>
+        <span class="c1"># apply mask if the `alt_identifier` value is not a doi</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;doi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s2">&quot;doi:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;doi&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="VizierClass.query_object_async">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.query_object_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_object_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">coordinate_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serves the same purpose as `query_object` but only</span>
+<span class="sd">        returns the HTTP response rather than the parsed result.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        object_name : str</span>
+<span class="sd">            The name of the identifier.</span>
+<span class="sd">        catalog : str or list, optional</span>
+<span class="sd">            The catalog(s) which must be searched for this identifier.</span>
+<span class="sd">            If not specified, all matching catalogs will be searched.</span>
+<span class="sd">        radius : `~astropy.units.Quantity` or None</span>
+<span class="sd">            A degree-equivalent radius (optional).</span>
+<span class="sd">        coordinate_system : str or None</span>
+<span class="sd">            If the object name is given as a coordinate, you *should* use</span>
+<span class="sd">            `~astroquery.vizier.VizierClass.query_region`, but you can</span>
+<span class="sd">            specify a coordinate frame here instead (today, J2000, B1975,</span>
+<span class="sd">            B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_catalog</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-c&#39;</span><span class="p">:</span> <span class="n">object_name</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">radius_arcmin</span> <span class="o">=</span> <span class="n">radius</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">cframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">coordinate_frame</span> <span class="k">if</span> <span class="n">coordinate_frame</span> <span class="ow">in</span>
+                      <span class="p">[</span><span class="s2">&quot;today&quot;</span><span class="p">,</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span> <span class="s2">&quot;B1975&quot;</span><span class="p">,</span> <span class="s2">&quot;B1950&quot;</span><span class="p">,</span> <span class="s2">&quot;B1900&quot;</span><span class="p">,</span> <span class="s2">&quot;B1875&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;B1855&quot;</span><span class="p">,</span> <span class="s2">&quot;Galactic&quot;</span><span class="p">,</span> <span class="s2">&quot;Supergal.&quot;</span><span class="p">,</span> <span class="s2">&quot;Ecl.J2000&quot;</span><span class="p">]</span>
+                      <span class="k">else</span> <span class="s1">&#39;J2000&#39;</span><span class="p">)</span>
+
+            <span class="n">center</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-c&#39;</span><span class="p">:</span> <span class="n">object_name</span><span class="p">,</span> <span class="s1">&#39;-c.u&#39;</span><span class="p">:</span> <span class="s1">&#39;arcmin&#39;</span><span class="p">,</span> <span class="s1">&#39;-c.geom&#39;</span><span class="p">:</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;-c.r&#39;</span><span class="p">:</span> <span class="n">radius_arcmin</span><span class="p">,</span> <span class="s1">&#39;-c.eq&#39;</span><span class="p">:</span> <span class="n">cframe</span><span class="p">}</span>
+
+        <span class="n">data_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span>
+            <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+            <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data_payload</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_server_to_url</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="VizierClass.query_region_async">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.query_region_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_region_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span> <span class="n">column_filters</span><span class="o">=</span><span class="p">{},</span>
+                           <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serves the same purpose as `query_region` but only</span>
+<span class="sd">        returns the HTTP response rather than the parsed result.</span>
+
+<span class="sd">        At least one of ``radius`` or ``width`` must be specified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str, `astropy.coordinates` object, or `~astropy.table.Table`</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string in which case it is resolved using online services or as</span>
+<span class="sd">            the appropriate `astropy.coordinates` object. ICRS coordinates</span>
+<span class="sd">            may also be entered as a string.  If a table is used, each of</span>
+<span class="sd">            its rows will be queried, as long as it contains two columns</span>
+<span class="sd">            named ``_RAJ2000`` and ``_DEJ2000`` with proper angular units.</span>
+<span class="sd">        radius : convertible to `~astropy.coordinates.Angle`</span>
+<span class="sd">            The radius of the circular region to query.</span>
+<span class="sd">        inner_radius : convertible to `~astropy.coordinates.Angle`</span>
+<span class="sd">            When set in addition to ``radius``, the queried region becomes</span>
+<span class="sd">            annular, with outer radius ``radius`` and inner radius</span>
+<span class="sd">            ``inner_radius``.</span>
+<span class="sd">        width : convertible to `~astropy.coordinates.Angle`</span>
+<span class="sd">            The width of the square region to query.</span>
+<span class="sd">        height : convertible to `~astropy.coordinates.Angle`</span>
+<span class="sd">            When set in addition to ``width``, the queried region becomes</span>
+<span class="sd">            rectangular, with the specified ``width`` and ``height``.</span>
+<span class="sd">        catalog : str or list, optional</span>
+<span class="sd">            The catalog(s) which must be searched for this identifier.</span>
+<span class="sd">            If not specified, all matching catalogs will be searched.</span>
+<span class="sd">        column_filters: dict, optional</span>
+<span class="sd">            Constraints on columns of the result. The dictionary contains</span>
+<span class="sd">            the column name as keys, and the constraints as values.</span>
+<span class="sd">        frame : str, optional</span>
+<span class="sd">            The frame to use for the request. It should be &#39;fk5&#39;, &#39;icrs&#39;,</span>
+<span class="sd">            or &#39;galactic&#39;. This choice influences the the orientation of</span>
+<span class="sd">            box requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;galactic&#39;</span><span class="p">,</span> <span class="s1">&#39;fk5&#39;</span><span class="p">,</span> <span class="s1">&#39;icrs&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only the &#39;galactic&#39;, &#39;icrs&#39;, and &#39;fk5&#39; frames are supported by VizieR&quot;</span><span class="p">)</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_catalog</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Process coordinates</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="p">(</span><span class="n">commons</span><span class="o">.</span><span class="n">CoordClasses</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">commons</span><span class="o">.</span><span class="n">parse_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">isscalar</span><span class="p">:</span>
+                <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">frame</span> <span class="o">==</span> <span class="s1">&#39;galactic&#39;</span><span class="p">:</span>
+                        <span class="n">glon_deg</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+                        <span class="n">glat_deg</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                                                   <span class="n">alwayssign</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;G</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">glon_deg</span><span class="p">,</span> <span class="n">glat_deg</span><span class="p">)]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ra_deg</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+                        <span class="n">dec_deg</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                    <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alwayssign</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ra_deg</span><span class="p">,</span> <span class="n">dec_deg</span><span class="p">)]</span>
+                <span class="n">columns</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;_q&quot;</span><span class="p">]</span>  <span class="c1"># Always request reference to input table</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">frame</span> <span class="o">==</span> <span class="s1">&#39;galactic&#39;</span><span class="p">:</span>
+                    <span class="n">glon</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+                    <span class="n">glat</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                                              <span class="n">alwayssign</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;G</span><span class="si">{glon}{glat}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">glon</span><span class="o">=</span><span class="n">glon</span><span class="p">,</span> <span class="n">glat</span><span class="o">=</span><span class="n">glat</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ra</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+                    <span class="n">dec</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                                               <span class="n">alwayssign</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{ra}{dec}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">dec</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">tbl</span><span class="o">.</span><span class="n">Table</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">((</span><span class="s2">&quot;_RAJ2000&quot;</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;_DEJ2000&quot;</span> <span class="ow">in</span>
+                                                        <span class="n">coordinates</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+                <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">sky_coord</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;_RAJ2000&quot;</span><span class="p">],</span>
+                                           <span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;_DEJ2000&quot;</span><span class="p">],</span>
+                                           <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;_RAJ2000&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+                                                 <span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;_DEJ2000&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="p">))</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sky_coord</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">sky_coord</span><span class="o">.</span><span class="n">dec</span><span class="p">):</span>
+                    <span class="n">ra_deg</span> <span class="o">=</span> <span class="n">ra</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+                    <span class="n">dec_deg</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                            <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alwayssign</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ra_deg</span><span class="p">,</span> <span class="n">dec_deg</span><span class="p">)]</span>
+                <span class="n">columns</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;_q&quot;</span><span class="p">]</span>  <span class="c1"># Always request reference to input table</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Table must contain &#39;_RAJ2000&#39; and &quot;</span>
+                                 <span class="s2">&quot;&#39;_DEJ2000&#39; columns!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Coordinates must be one of: string, astropy &quot;</span>
+                            <span class="s2">&quot;coordinates, or table containing coordinates!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">unit_str</span><span class="p">,</span> <span class="n">o_radius</span> <span class="o">=</span> <span class="n">_parse_angle</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+                <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c.r&quot;</span> <span class="o">+</span> <span class="n">unit_str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">o_radius</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">unit</span><span class="p">,</span> <span class="n">unit_str</span><span class="p">,</span> <span class="n">i_radius</span> <span class="o">=</span> <span class="n">_parse_angle</span><span class="p">(</span><span class="n">inner_radius</span><span class="p">)</span>
+                <span class="n">o_radius</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+                <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c.r&quot;</span> <span class="o">+</span> <span class="n">unit_str</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i_radius</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">o_radius</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">unit</span><span class="p">,</span> <span class="n">unit_str</span><span class="p">,</span> <span class="n">w_box</span> <span class="o">=</span> <span class="n">_parse_angle</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">h_box</span> <span class="o">=</span> <span class="n">w_box</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">height</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+            <span class="n">center</span><span class="p">[</span><span class="s2">&quot;-c.b&quot;</span> <span class="o">+</span> <span class="n">unit_str</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">w_box</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">h_box</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;At least one of radius, width/height must be specified&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Prepare payload</span>
+        <span class="n">data_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+                                             <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span> <span class="n">column_filters</span><span class="o">=</span><span class="n">column_filters</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data_payload</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_server_to_url</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="VizierClass.query_constraints_async">
+<a class="viewcode-back" href="../../../api/astroquery.vizier.VizierClass.html#astroquery.vizier.VizierClass.query_constraints_async">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_constraints_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;votable&#39;</span><span class="p">,</span>
+                                <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a query to Vizier in which you specify constraints with</span>
+<span class="sd">        keyword/value pairs.</span>
+
+<span class="sd">        See `the vizier constraints page</span>
+<span class="sd">        &lt;https://vizier.cds.unistra.fr/vizier/vizHelp/syntax.htx&gt;`_ for details.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        catalog : str or list, optional</span>
+<span class="sd">            The catalog(s) which must be searched for this identifier.</span>
+<span class="sd">            If not specified, all matching catalogs will be searched.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Any key/value pairs besides &quot;catalog&quot; will be parsed</span>
+<span class="sd">            as additional column filters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from astroquery.vizier import Vizier</span>
+<span class="sd">        &gt;&gt;&gt; # note that glon/glat constraints here *must* be floats</span>
+<span class="sd">        &gt;&gt;&gt; result = Vizier(row_limit=3).query_constraints(catalog=&#39;J/ApJ/723/492/table1&#39;,</span>
+<span class="sd">        ...                                   GLON=&#39;&gt;49.0 &amp; &lt;51.0&#39;, GLAT=&#39;&lt;0.0&#39;) # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; result[result.keys()[0]].pprint() # doctest: +REMOTE_DATA</span>
+<span class="sd">            GRSMC      GLON   GLAT   VLSR   DelV  ... alpha  Note RD09 _RA.icrs _DE.icrs</span>
+<span class="sd">                       deg    deg   km / s km / s ...                    deg      deg</span>
+<span class="sd">        ------------- ------ ------ ------ ------ ... ------ ---- ---- -------- --------</span>
+<span class="sd">        G049.49-00.41  49.49  -0.41  56.90   9.12 ...   0.73    i RD09 290.9536  14.4992</span>
+<span class="sd">        G049.39-00.26  49.39  -0.26  50.94   3.51 ...   0.16    i RD09 290.7682  14.4819</span>
+<span class="sd">        G049.44-00.06  49.44  -0.06  62.00   3.67 ...   0.17    i RD09 290.6104  14.6203</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="o">.</span><span class="n">_schema_catalog</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="n">data_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_to_payload</span><span class="p">(</span>
+            <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
+            <span class="n">column_filters</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;-c.rd&#39;</span><span class="p">:</span> <span class="mi">180</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data_payload</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_server_to_url</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_args_to_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        accepts the arguments for different query functions and</span>
+<span class="sd">        builds a script suitable for the Vizier votable CGI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="c1"># process: catalog</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;catalog&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalog</span>
+
+        <span class="k">if</span> <span class="n">catalog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">catalog</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span>
+                           <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+                <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">):</span>
+                <span class="c1"># this is probably a votable Resource, but no harm in duck-typing on `name`</span>
+                <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Catalog must be specified as list, string, or Resource&quot;</span><span class="p">)</span>
+
+        <span class="c1"># take row_limit in account</span>
+        <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-out.max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROW_LIMIT</span>
+
+        <span class="c1"># process: columns</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;columns&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">+</span> <span class="n">columns</span>
+            <span class="c1"># filter columns to _unique_ columns, preserving order in python &gt;3.6</span>
+            <span class="c1"># note that &quot;set&quot; does not preserve order, but dict.keys does</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># special keywords need to be treated separately</span>
+        <span class="c1"># keyword names that can mean &#39;all&#39;</span>
+        <span class="n">alls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;**&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alls</span><span class="p">):</span>
+            <span class="n">columns_all</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alls</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                    <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-out.all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">columns_all</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># process: columns - identify sorting requests</span>
+        <span class="n">columns_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sorts_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+                <span class="n">columns_out</span> <span class="o">+=</span> <span class="p">[</span><span class="n">column</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="n">sorts_out</span> <span class="o">+=</span> <span class="p">[</span><span class="n">column</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="k">elif</span> <span class="n">column</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+                <span class="n">columns_out</span> <span class="o">+=</span> <span class="p">[</span><span class="n">column</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="n">sorts_out</span> <span class="o">+=</span> <span class="p">[</span><span class="n">column</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">columns_out</span> <span class="o">+=</span> <span class="p">[</span><span class="n">column</span><span class="p">]</span>
+
+        <span class="c1"># calculated keyword names that start with an underscore</span>
+        <span class="n">columns_calc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns_out</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+                <span class="n">columns_calc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns_calc</span><span class="p">:</span>
+            <span class="n">columns_out</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">columns_out</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">columns_all</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns_out</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">columns_calc</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-out.add&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns_calc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorts_out</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sorts_out</span><span class="p">)</span>
+
+        <span class="c1"># process: maximum rows returned</span>
+        <span class="n">row_limit</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;row_limit&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROW_LIMIT</span>
+        <span class="k">if</span> <span class="n">row_limit</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s2">&quot;-out.max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unlimited&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s2">&quot;-out.max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row_limit</span>
+        <span class="c1"># process: column filters</span>
+        <span class="n">column_filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_filters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">column_filters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;column_filters&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">column_filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">body</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="c1"># process: center</span>
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">center</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">body</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="c1"># add column metadata: name, unit, UCD1+, and description</span>
+        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;-out.meta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;huUD&quot;</span>
+        <span class="c1"># merge tables when a list is queried against a single catalog</span>
+        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;-out.form&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mini&quot;</span>
+        <span class="c1"># computed position should always be in decimal degrees</span>
+        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;-oc.form&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
+
+        <span class="n">ucd</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ucd&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ucd</span>
+        <span class="k">if</span> <span class="n">ucd</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[</span><span class="s1">&#39;-ucd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ucd</span>
+
+        <span class="c1"># create final script starting with keywords</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">script</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">)]</span>
+        <span class="c1"># add all items that are not lists</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="n">script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2">=</span><span class="si">{val}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">val</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">script</span> <span class="o">+=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="c1"># add list at the end</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2">=&lt;&lt;====AstroqueryList&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)]</span>
+                <span class="n">script</span> <span class="o">+=</span> <span class="n">val</span>
+                <span class="n">script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;====AstroqueryList&quot;</span><span class="p">]</span>
+        <span class="c1"># merge result</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_catalog_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses the HTTP response to create a `~astropy.table.Table`.</span>
+
+<span class="sd">        Returns the raw result as a string in case of parse errors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP POST request</span>
+<span class="sd">        get_catalog_names : bool</span>
+<span class="sd">            (only for VOTABLE queries)</span>
+<span class="sd">            If specified, return only the table names (useful for table</span>
+<span class="sd">            discovery).</span>
+<span class="sd">        invalid : &#39;warn&#39;, &#39;mask&#39; or &#39;exception&#39;</span>
+<span class="sd">            (only for VOTABLE queries)</span>
+<span class="sd">            The behavior if a VOTABLE cannot be parsed. The default is</span>
+<span class="sd">            &#39;warn&#39;, which will try to parse the table, but if an</span>
+<span class="sd">            exception is raised during parsing, the exception will be</span>
+<span class="sd">            issued as a warning instead and a masked table will be</span>
+<span class="sd">            returned. A value of &#39;exception&#39; will not catch the</span>
+<span class="sd">            exception, while a value of &#39;mask&#39; will simply always mask</span>
+<span class="sd">            invalid values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        table_list : `astroquery.utils.TableList` or str</span>
+<span class="sd">            If there are errors in the parsing, then returns the raw results</span>
+<span class="sd">            as a string.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&lt;?xml&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_parse_vizier_votable</span><span class="p">(</span>
+                    <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="n">invalid</span><span class="p">,</span>
+                    <span class="n">get_catalog_names</span><span class="o">=</span><span class="n">get_catalog_names</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">response</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table_parse_error</span> <span class="o">=</span> <span class="n">ex</span>
+                <span class="k">raise</span> <span class="n">TableParseError</span><span class="p">(</span><span class="s2">&quot;Failed to parse VIZIER result! The &quot;</span>
+                                      <span class="s2">&quot;raw response can be found in &quot;</span>
+                                      <span class="s2">&quot;self.response, and the error in &quot;</span>
+                                      <span class="s2">&quot;self.table_parse_error. The attempted &quot;</span>
+                                      <span class="s2">&quot;parsed result is in &quot;</span>
+                                      <span class="s2">&quot;self.parsed_result.</span><span class="se">\n</span><span class="s2"> Exception: &quot;</span>
+                                      <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_parse_error</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;#</span><span class="se">\n</span><span class="s1">#  &#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_parse_vizier_tsvfile</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;SIMPLE&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">),</span>
+                             <span class="n">ignore_missing_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valid_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_valid_keyword_dict&#39;</span><span class="p">):</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">aud</span><span class="o">.</span><span class="n">get_pkg_data_filename</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;inverse_dict.json&quot;</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">kwd</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_valid_keyword_types</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kwd</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_valid_keyword_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">kwd</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                                                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kwd</span><span class="p">)])</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_keyword_dict</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_parse_vizier_tsvfile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a Vizier-generated list of tsv data tables into a list of astropy</span>
+<span class="sd">    Tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : response content bytes</span>
+<span class="sd">       Bytes containing the vizier-formatted list of tables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python</span>
+    <span class="n">split_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">#&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)]</span>
+    <span class="c1"># we want to slice out chunks of the file each time</span>
+    <span class="n">split_limits</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">split_indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">split_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;fast_tab&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span>
+                         <span class="n">header_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">)</span> <span class="k">for</span>
+              <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">split_limits</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tables</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_vizier_votable</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span>
+                          <span class="n">get_catalog_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a votable as string, parse it into dict or tables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">commons</span><span class="o">.</span><span class="n">suppress_vo_warnings</span><span class="p">()</span>
+
+    <span class="n">tf</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">invalid</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
+        <span class="n">vo_tree</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">invalid</span> <span class="o">==</span> <span class="s1">&#39;warn&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vo_tree</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;VOTABLE parsing raised exception: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+            <span class="n">vo_tree</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">invalid</span> <span class="o">==</span> <span class="s1">&#39;exception&#39;</span><span class="p">:</span>
+        <span class="n">vo_tree</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid keyword for &#39;invalid&#39;. &quot;</span>
+                         <span class="s2">&quot;Must be exception, mask, or warn&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">get_catalog_names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">R</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span> <span class="k">for</span> <span class="n">R</span> <span class="ow">in</span> <span class="n">vo_tree</span><span class="o">.</span><span class="n">resources</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">table_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">vo_tree</span><span class="o">.</span><span class="n">iter_tables</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">vo_tree</span><span class="o">.</span><span class="n">get_table_by_id</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">to_table</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_dict</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">commons</span><span class="o">.</span><span class="n">TableList</span><span class="p">(</span><span class="n">table_dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_angle</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the Vizier-formatted units and values for box/radius</span>
+<span class="sd">    dimensions in case of region queries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    angle : convertible to `astropy.coordinates.Angle`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (unit, unit_str, value) : tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Angle</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">angle</span><span class="o">.</span><span class="n">unit</span> <span class="ow">is</span> <span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">elif</span> <span class="n">angle</span><span class="o">.</span><span class="n">unit</span> <span class="ow">is</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">arcmin</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">VizierKeyword</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class for setting keywords for Vizier queries&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">aud</span><span class="o">.</span><span class="n">get_pkg_data_filename</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;inverse_dict.json&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">kwd</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">keyword_types</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kwd</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">kwd</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kwd</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List or string for keyword(s) that must be set for the Vizier</span>
+<span class="sd">        object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span>
+
+    <span class="nd">@keywords</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="c1"># warn about unknown keywords</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{val}</span><span class="s2"> : No such keyword&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="o">=</span><span class="n">val</span><span class="p">))</span>
+        <span class="n">valid_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="n">values</span><span class="p">))]</span>
+        <span class="c1"># create a dict for each type of keyword</span>
+        <span class="n">set_keywords</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid_keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">in</span> <span class="n">set_keywords</span><span class="p">:</span>
+                    <span class="n">set_keywords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">set_keywords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">keyword_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">set_keywords</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">set_keywords</span><span class="p">])</span>
+
+    <span class="nd">@keywords</span><span class="o">.</span><span class="n">deleter</span>
+    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keywords</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span>
+                          <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_keyword_str</span><span class="p">(</span><span class="n">key</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">get_keyword_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function that returns the keywords, grouped into appropriate</span>
+<span class="sd">        categories and suitable for the Vizier votable CGI.</span>
+
+<span class="sd">        Comma-separated is not valid!!!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keyword_name</span> <span class="o">=</span> <span class="s2">&quot;-kw.&quot;</span> <span class="o">+</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">keyword_name</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
+
+
+<span class="n">Vizier</span> <span class="o">=</span> <span class="n">VizierClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

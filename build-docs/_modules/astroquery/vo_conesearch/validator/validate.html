@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.vo_conesearch.validator.validate &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    
+    <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.vo_conesearch.validator.validate</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;Validate VO Services.&quot;&quot;&quot;</span>
+
+<span class="c1"># STDLIB</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># ASTROPY</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">votable</span>
+<span class="kn">from</span> <span class="nn">astropy.io.votable.exceptions</span> <span class="kn">import</span> <span class="n">E19</span>
+<span class="kn">from</span> <span class="nn">astropy.io.votable.validator</span> <span class="kn">import</span> <span class="n">html</span><span class="p">,</span> <span class="n">result</span>
+<span class="kn">from</span> <span class="nn">astroquery</span> <span class="kn">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">astropy.utils</span> <span class="kn">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">AstropyUserWarning</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.xml.unescaper</span> <span class="kn">import</span> <span class="n">unescape_all</span>
+
+<span class="c1"># LOCAL</span>
+<span class="kn">from</span> <span class="nn">.tstquery</span> <span class="kn">import</span> <span class="n">parse_cs</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ValidationMultiprocessingError</span><span class="p">,</span>
+                         <span class="n">InvalidValidationAttribute</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">VOSError</span>
+<span class="kn">from</span> <span class="nn">..vos_catalog</span> <span class="kn">import</span> <span class="n">VOSDatabase</span><span class="p">,</span> <span class="n">vo_tab_parse</span>
+<span class="kn">from</span> <span class="nn">...utils.timer</span> <span class="kn">import</span> <span class="n">timefunc</span>
+
+<span class="c1"># Import configurable items declared in __init__.py</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;check_conesearch_sites&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="check_conesearch_sites">
+<a class="viewcode-back" href="../../../../api/astroquery.vo_conesearch.validator.validate.check_conesearch_sites.html#astroquery.vo_conesearch.validator.validate.check_conesearch_sites">[docs]</a>
+<span class="nd">@timefunc</span><span class="p">(</span><span class="n">num_tries</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">check_conesearch_sites</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">destdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">curdir</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">url_list</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate Cone Search Services.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        URLs are unescaped prior to validation.</span>
+
+<span class="sd">        Only check queries with ``&lt;testQuery&gt;`` parameters.</span>
+<span class="sd">        Does not perform meta-data and erroneous queries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    destdir : str, optional</span>
+<span class="sd">        Directory to store output files. Will be created if does</span>
+<span class="sd">        not exist. Existing files with these names will be deleted</span>
+<span class="sd">        or replaced:</span>
+
+<span class="sd">            * conesearch_good.json</span>
+<span class="sd">            * conesearch_warn.json</span>
+<span class="sd">            * conesearch_exception.json</span>
+<span class="sd">            * conesearch_error.json</span>
+
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        Print extra info to log.</span>
+
+<span class="sd">    parallel : bool, optional</span>
+<span class="sd">        Enable multiprocessing.</span>
+
+<span class="sd">    url_list : list of string, optional</span>
+<span class="sd">        Only check these access URLs against</span>
+<span class="sd">        ``astroquery.vo_conesearch.validator.conf.conesearch_master_list``</span>
+<span class="sd">        and ignore the others, which will not appear in output files.</span>
+<span class="sd">        By default, check those in</span>
+<span class="sd">        ``astroquery.vo_conesearch.validator.conf.conesearch_urls``.</span>
+<span class="sd">        If `None`, check everything.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OSError</span>
+<span class="sd">        Invalid destination directory.</span>
+
+<span class="sd">    timeout</span>
+<span class="sd">        URL request timed out.</span>
+
+<span class="sd">    ValidationMultiprocessingError</span>
+<span class="sd">        Multiprocessing failed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">url_list</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+        <span class="n">url_list</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">conesearch_urls</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">))</span>
+            <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destdir</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destdir</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;Invalid destination directory&#39;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destdir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">destdir</span><span class="p">)</span>
+
+    <span class="c1"># Output dir created by votable.validator</span>
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+
+    <span class="c1"># Output files</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">db_file</span><span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="s1">&#39;conesearch_good.json&#39;</span><span class="p">)</span>
+    <span class="n">db_file</span><span class="p">[</span><span class="s1">&#39;warn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="s1">&#39;conesearch_warn.json&#39;</span><span class="p">)</span>
+    <span class="n">db_file</span><span class="p">[</span><span class="s1">&#39;excp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="s1">&#39;conesearch_exception.json&#39;</span><span class="p">)</span>
+    <span class="n">db_file</span><span class="p">[</span><span class="s1">&#39;nerr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destdir</span><span class="p">,</span> <span class="s1">&#39;conesearch_error.json&#39;</span><span class="p">)</span>
+
+    <span class="c1"># JSON dictionaries for output files</span>
+    <span class="n">js_tree</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">db_file</span><span class="p">:</span>
+        <span class="n">js_tree</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">VOSDatabase</span><span class="o">.</span><span class="n">create_empty</span><span class="p">()</span>
+
+        <span class="c1"># Delete existing files, if any, to be on the safe side.</span>
+        <span class="c1"># Else can cause confusion if program exited prior to</span>
+        <span class="c1"># new files being written but old files are still there.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_file</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Existing file </span><span class="si">{0}</span><span class="s1"> deleted&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_file</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+
+    <span class="c1"># Master VO database from registry. Silence all the warnings.</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="n">js_mstr</span> <span class="o">=</span> <span class="n">VOSDatabase</span><span class="o">.</span><span class="n">from_registry</span><span class="p">(</span>
+            <span class="n">conf</span><span class="o">.</span><span class="n">conesearch_master_list</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;binary&#39;</span><span class="p">,</span>
+            <span class="n">show_progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Validate only a subset of the services.</span>
+    <span class="k">if</span> <span class="n">url_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Make sure URL is unique and fixed.</span>
+        <span class="n">url_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+            <span class="n">unescape_all</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">cur_url</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cur_url</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">cur_url</span>
+             <span class="k">for</span> <span class="n">cur_url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">]))</span>
+        <span class="n">uniq_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span>
+        <span class="n">url_list_processed</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># To track if given URL is valid in registry</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Only </span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1"> site(s) are validated&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uniq_rows</span><span class="p">,</span>
+                                                                 <span class="nb">len</span><span class="p">(</span><span class="n">js_mstr</span><span class="p">)))</span>
+    <span class="c1"># Validate all services.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">uniq_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">js_mstr</span><span class="p">)</span>
+
+    <span class="n">key_lookup_by_url</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Process each catalog in the registry.</span>
+    <span class="k">for</span> <span class="n">cur_key</span><span class="p">,</span> <span class="n">cur_cat</span> <span class="ow">in</span> <span class="n">js_mstr</span><span class="o">.</span><span class="n">get_catalogs</span><span class="p">():</span>
+        <span class="n">cur_url</span> <span class="o">=</span> <span class="n">cur_cat</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Skip if:</span>
+        <span class="c1">#   a. not a Cone Search service</span>
+        <span class="c1">#   b. not in given subset, if any</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">cur_cat</span><span class="p">[</span><span class="s1">&#39;cap_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;conesearch&#39;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">url_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cur_url</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">)):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Use testQuery to return non-empty VO table with max verbosity.</span>
+        <span class="n">testquery_pars</span> <span class="o">=</span> <span class="n">parse_cs</span><span class="p">(</span><span class="n">cur_cat</span><span class="p">[</span><span class="s1">&#39;ivoid&#39;</span><span class="p">],</span> <span class="n">cap_index</span><span class="o">=</span><span class="n">cur_cat</span><span class="p">[</span><span class="s1">&#39;cap_index&#39;</span><span class="p">])</span>
+        <span class="n">cs_pars_arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">testquery_pars</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                       <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">testquery_pars</span><span class="p">]</span>
+        <span class="n">cs_pars_arr</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;VERB=3&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Track the service.</span>
+        <span class="n">key_lookup_by_url</span><span class="p">[</span><span class="n">cur_url</span> <span class="o">+</span> <span class="s1">&#39;&amp;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cs_pars_arr</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cur_key</span>
+        <span class="k">if</span> <span class="n">url_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">url_list_processed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_url</span><span class="p">)</span>
+
+    <span class="c1"># Give warning if any of the user given subset is not in the registry.</span>
+    <span class="k">if</span> <span class="n">url_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">url_list_skipped</span> <span class="o">=</span> <span class="n">url_list</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">url_list_processed</span><span class="p">)</span>
+        <span class="n">n_skipped</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">url_list_skipped</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_skipped</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warn_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> not found in registry! Skipped:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">n_skipped</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cur_url</span> <span class="ow">in</span> <span class="n">url_list_skipped</span><span class="p">:</span>
+                <span class="n">warn_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cur_url</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warn_str</span><span class="p">,</span> <span class="n">AstropyUserWarning</span><span class="p">)</span>
+
+    <span class="n">all_urls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">key_lookup_by_url</span><span class="p">)</span>
+    <span class="n">timeout</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">remote_timeout</span>
+
+    <span class="n">map_args</span> <span class="o">=</span> <span class="p">[(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">url</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">timeout</span><span class="p">)</span> <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">all_urls</span><span class="p">]</span>
+
+    <span class="c1"># Validate URLs</span>
+    <span class="k">if</span> <span class="n">parallel</span><span class="p">:</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mp_list</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_do_validation</span><span class="p">,</span> <span class="n">map_args</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="n">ValidationMultiprocessingError</span><span class="p">(</span>
+                <span class="s1">&#39;An exception occurred during parallel processing &#39;</span>
+                <span class="s1">&#39;of validation results: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mp_list</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_do_validation</span><span class="p">,</span> <span class="n">map_args</span><span class="p">)</span>
+
+    <span class="c1"># Categorize validation results</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mp_list</span><span class="p">:</span>
+        <span class="n">db_key</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;out_db_name&#39;</span><span class="p">]</span>
+        <span class="n">cat_key</span> <span class="o">=</span> <span class="n">key_lookup_by_url</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)]</span>
+        <span class="n">cur_cat</span> <span class="o">=</span> <span class="n">js_mstr</span><span class="o">.</span><span class="n">get_catalog</span><span class="p">(</span><span class="n">cat_key</span><span class="p">)</span>
+        <span class="n">_copy_r_to_cat</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cur_cat</span><span class="p">)</span>
+        <span class="n">js_tree</span><span class="p">[</span><span class="n">db_key</span><span class="p">]</span><span class="o">.</span><span class="n">add_catalog</span><span class="p">(</span><span class="n">cat_key</span><span class="p">,</span> <span class="n">cur_cat</span><span class="p">)</span>
+
+    <span class="c1"># Write to HTML</span>
+    <span class="n">html_subsets</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_result_subsets</span><span class="p">(</span><span class="n">mp_list</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span>
+    <span class="n">html</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">html_subsets</span><span class="p">,</span> <span class="n">all_urls</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parallel</span><span class="p">:</span>
+        <span class="n">html_subindex_args</span> <span class="o">=</span> <span class="p">[(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">html_subset</span><span class="p">,</span> <span class="n">uniq_rows</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">html_subset</span> <span class="ow">in</span> <span class="n">html_subsets</span><span class="p">]</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_html_subindex</span><span class="p">,</span> <span class="n">html_subindex_args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">html_subset</span> <span class="ow">in</span> <span class="n">html_subsets</span><span class="p">:</span>
+            <span class="n">_html_subindex</span><span class="p">((</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">html_subset</span><span class="p">,</span> <span class="n">uniq_rows</span><span class="p">))</span>
+
+    <span class="c1"># Write to JSON</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">n_tot</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">db_file</span><span class="p">:</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">js_tree</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="n">n_tot</span> <span class="o">+=</span> <span class="n">n</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">js_tree</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">db_file</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">: </span><span class="si">{1}</span><span class="s1"> catalog(s)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">n</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+
+    <span class="c1"># Checksum</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;total: </span><span class="si">{0}</span><span class="s1"> out of </span><span class="si">{1}</span><span class="s1"> catalog(s)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_tot</span><span class="p">,</span> <span class="n">uniq_rows</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s1">&#39;No good sites available for Cone Search.&#39;</span><span class="p">,</span> <span class="n">AstropyUserWarning</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_do_validation</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validation for multiprocessing support.&quot;&quot;&quot;</span>
+
+    <span class="n">root</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="n">votable</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">reset_vo_warnings</span><span class="p">()</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">validate_vo</span><span class="p">()</span>
+
+    <span class="n">_categorize_result</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+    <span class="c1"># This was already checked above.</span>
+    <span class="c1"># Calling this again to get VOTableFile object to catch</span>
+    <span class="c1"># well-formed error responses in downloaded XML.</span>
+    <span class="c1">#</span>
+    <span class="c1"># &#39;incorrect&#39; is also added in case user wants to use</span>
+    <span class="c1"># &#39;conesearch_warn.json&#39; anyway.</span>
+    <span class="c1">#</span>
+    <span class="c1"># If using cached data, it will not detect network error</span>
+    <span class="c1"># like the first run, but will raise exception.</span>
+    <span class="c1">#</span>
+    <span class="c1"># When SR is not 0, VOSError is raised for empty table.</span>
+    <span class="c1">#</span>
+    <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expected&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;good&#39;</span><span class="p">,</span> <span class="s1">&#39;incorrect&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nexceptions&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nexceptions</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nwarnings</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">warning_lines</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">vo_tab_parse</span><span class="p">(</span><span class="n">votable</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">get_vo_xml_path</span><span class="p">(),</span> <span class="n">verify</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">E19</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="n">VOSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="n">nexceptions</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">warning_lines</span><span class="p">]</span> <span class="o">+</span> <span class="n">lines</span>
+
+        <span class="n">warning_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">votable</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">parse_vowarning</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;is_warning&#39;</span><span class="p">]:</span>
+                <span class="n">nwarnings</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;is_exception&#39;</span><span class="p">]:</span>
+                <span class="n">nexceptions</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">warning_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="s1">&#39;warning&#39;</span><span class="p">])</span>
+
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nwarnings&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">nwarnings</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nexceptions&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">nexceptions</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;warnings&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">lines</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;warning_types&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;warning_types&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">warning_types</span><span class="p">)</span>
+
+        <span class="n">_categorize_result</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">write_result</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+
+<span class="k">def</span> <span class="nf">_categorize_result</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set success codes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : `astropy.io.votable.validator.result.Result`</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidValidationAttribute</span>
+<span class="sd">        Unhandled validation result attributes.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;network_error&#39;</span> <span class="ow">in</span> <span class="n">r</span>
+            <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;network_error&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;out_db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nerr&#39;</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;broken&#39;</span>
+    <span class="k">elif</span> <span class="p">((</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;nexceptions&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nwarnings&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;warning_types&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">noncritical_warnings</span><span class="p">)):</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;out_db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;good&#39;</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;good&#39;</span>
+    <span class="k">elif</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nexceptions&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;out_db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;excp&#39;</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;incorrect&#39;</span>
+    <span class="k">elif</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;nwarnings&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;out_db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;warn&#39;</span>
+        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;incorrect&#39;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="n">InvalidValidationAttribute</span><span class="p">(</span><span class="s1">&#39;Unhandled validation result attrib&#39;</span>
+                                         <span class="s1">&#39;utes: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">_attributes</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_html_subindex</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;HTML writer for multiprocessing support.&quot;&quot;&quot;</span>
+    <span class="n">out_dir</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">html</span><span class="o">.</span><span class="n">write_index_table</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">subset</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_copy_r_to_cat</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copy validation result attributes to given VO catalog.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : `astropy.io.votable.validate.result.Result`</span>
+
+<span class="sd">    cat : `astroquery.vo_conesearch.vos_catalog.VOSCatalog`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">_attributes</span><span class="p">:</span>
+        <span class="n">new_key</span> <span class="o">=</span> <span class="s1">&#39;validate_&#39;</span> <span class="o">+</span> <span class="n">key</span>
+        <span class="n">cat</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+MiriadeClass
+============
+
+.. currentmodule:: astroquery.imcce
+
+.. autoclass:: MiriadeClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~MiriadeClass.uri
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MiriadeClass.get_ephemerides
+      ~MiriadeClass.get_ephemerides_async
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: uri
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_ephemerides
+   .. automethod:: get_ephemerides_async

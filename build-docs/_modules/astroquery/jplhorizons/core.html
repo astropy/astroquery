@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.jplhorizons.core &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../jplhorizons.html" accesskey="U">astroquery.jplhorizons</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.jplhorizons.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="c1"># 1. standard library imports</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># 2. third party imports</span>
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">nan</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">isnan</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">AstropyDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.decorators</span> <span class="kn">import</span> <span class="n">deprecated_renamed_argument</span><span class="p">,</span> <span class="n">deprecated_attribute</span>
+
+<span class="c1"># 3. local imports - use relative imports</span>
+<span class="c1"># commonly required local imports shown below as example</span>
+<span class="c1"># all Query classes should inherit from BaseQuery.</span>
+<span class="kn">from</span> <span class="nn">..query</span> <span class="kn">import</span> <span class="n">BaseQuery</span>
+<span class="c1"># async_to_sync generates the relevant query tools from _async methods</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="c1"># import configurable items declared in __init__.py</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conf</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Horizons&#39;</span><span class="p">,</span> <span class="s1">&#39;HorizonsClass&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="HorizonsClass">
+<a class="viewcode-back" href="../../../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass">[docs]</a>
+<span class="nd">@async_to_sync</span>
+<span class="k">class</span> <span class="nc">HorizonsClass</span><span class="p">(</span><span class="n">BaseQuery</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query the `JPL Horizons &lt;https://ssd.jpl.nasa.gov/horizons/&gt;`_ service.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span>
+
+    <span class="n">raw_response</span> <span class="o">=</span> <span class="n">deprecated_attribute</span><span class="p">(</span>
+        <span class="s1">&#39;raw_response&#39;</span><span class="p">,</span> <span class="s1">&#39;0.4.7&#39;</span><span class="p">,</span>
+        <span class="n">alternative</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;an ``_async`` method (e.g., ``ephemerides_async``) to &quot;</span>
+                     <span class="s2">&quot;return a response object, and access the content with &quot;</span>
+                     <span class="s2">&quot;``response.text``&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">id_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize JPL query.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        id : str or dict, required</span>
+<span class="sd">            Name, number, or designation of target object. Uses the same codes</span>
+<span class="sd">            as JPL Horizons. Arbitrary topocentric coordinates can be added in a</span>
+<span class="sd">            dict. The dict has to be of the form {``&#39;lon&#39;``: longitude in deg</span>
+<span class="sd">            (East positive, West negative), ``&#39;lat&#39;``: latitude in deg (North</span>
+<span class="sd">            positive, South negative), ``&#39;elevation&#39;``: elevation in km above</span>
+<span class="sd">            the reference ellipsoid, [``&#39;body&#39;``: Horizons body ID of the</span>
+<span class="sd">            central body; optional; if this value is not provided it is assumed</span>
+<span class="sd">            that this location is on Earth]}.  Float values are assumed to have</span>
+<span class="sd">            units of degrees and kilometers.</span>
+
+<span class="sd">        location : str or dict, optional</span>
+<span class="sd">            Observer&#39;s location for ephemerides queries or center body name for</span>
+<span class="sd">            orbital element or vector queries. Uses the same codes as JPL</span>
+<span class="sd">            Horizons. If no location is provided, Earth&#39;s center is used for</span>
+<span class="sd">            ephemerides queries and the Sun&#39;s center for elements and vectors</span>
+<span class="sd">            queries. Arbitrary topocentric coordinates for ephemerides queries</span>
+<span class="sd">            can be provided in the format of a dictionary. The dictionary has to</span>
+<span class="sd">            be of the form {``&#39;lon&#39;``: longitude (East positive, West negative),</span>
+<span class="sd">            ``&#39;lat&#39;``: latitude (North positive, South negative),</span>
+<span class="sd">            ``&#39;elevation&#39;``: elevation above the reference ellipsoid,</span>
+<span class="sd">            [``&#39;body&#39;``: Horizons body ID of the central body; optional; if this</span>
+<span class="sd">            value is not provided it is assumed that this location is on</span>
+<span class="sd">            Earth]}.  Float values are assumed to have units of degrees and</span>
+<span class="sd">            kilometers.</span>
+
+<span class="sd">        epochs : scalar, list-like, or dictionary, optional</span>
+<span class="sd">            Either a list of epochs in JD or MJD format or a dictionary defining</span>
+<span class="sd">            a range of times and dates; the range dictionary has to be of the</span>
+<span class="sd">            form {``&#39;start&#39;``: &#39;YYYY-MM-DD [HH:MM:SS]&#39;, ``&#39;stop&#39;``: &#39;YYYY-MM-DD</span>
+<span class="sd">            [HH:MM:SS]&#39;, ``&#39;step&#39;``: &#39;n[y|d|m|s]&#39;}. Epoch timescales depend on</span>
+<span class="sd">            the type of query performed: UTC for ephemerides queries, TDB for</span>
+<span class="sd">            element and vector queries. If no epochs are provided, the current</span>
+<span class="sd">            time is used.</span>
+
+<span class="sd">        id_type : str, optional</span>
+<span class="sd">            Controls Horizons&#39;s object selection for ``id``</span>
+<span class="sd">            [HORIZONSDOC_SELECTION]_ .  Options: ``&#39;designation&#39;`` (small body</span>
+<span class="sd">            designation), ``&#39;name&#39;`` (asteroid or comet name),</span>
+<span class="sd">            ``&#39;asteroid_name&#39;``, ``&#39;comet_name&#39;``, ``&#39;smallbody&#39;`` (asteroid and</span>
+<span class="sd">            comet search), or ``None`` (first search search planets, natural</span>
+<span class="sd">            satellites, spacecraft, and special cases, and if no matches, then</span>
+<span class="sd">            search small bodies).</span>
+
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        .. [HORIZONSDOC_SELECTION] https://ssd.jpl.nasa.gov/horizons/manual.html#select</span>
+<span class="sd">            (retrieved 2021 Sep 23).</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplhorizons import Horizons</span>
+<span class="sd">        &gt;&gt;&gt; eros = Horizons(id=&#39;433&#39;, location=&#39;568&#39;,</span>
+<span class="sd">        ...                 epochs={&#39;start&#39;: &#39;2017-01-01&#39;,</span>
+<span class="sd">        ...                         &#39;stop&#39;: &#39;2017-02-01&#39;,</span>
+<span class="sd">        ...                         &#39;step&#39;: &#39;1d&#39;})</span>
+<span class="sd">        &gt;&gt;&gt; print(eros)</span>
+<span class="sd">        JPLHorizons instance &quot;433&quot;; location=568,</span>
+<span class="sd">        epochs={&#39;start&#39;: &#39;2017-01-01&#39;, &#39;stop&#39;: &#39;2017-02-01&#39;, &#39;step&#39;: &#39;1d&#39;}, id_type=None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+
+        <span class="c1"># check for epochs to be dict or list-like; else: make it a list</span>
+        <span class="k">if</span> <span class="n">epochs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)):</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;start&#39;</span> <span class="ow">in</span> <span class="n">epochs</span> <span class="ow">and</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">in</span> <span class="n">epochs</span> <span class="ow">and</span> <span class="s1">&#39;step&#39;</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;time range (</span><span class="si">{:s}</span><span class="s1">) requires start, stop, &#39;</span>
+                                     <span class="s1">&#39;and step&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># turn scalars into list</span>
+                <span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="n">epochs</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
+
+        <span class="c1"># check for id_type</span>
+        <span class="k">if</span> <span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;majorbody&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;``id_type``s &#39;majorbody&#39; and &#39;id&#39; are deprecated &quot;</span>
+                          <span class="s2">&quot;and replaced with ``None``, which has the same &quot;</span>
+                          <span class="s2">&quot;functionality.&quot;</span><span class="p">,</span> <span class="n">AstropyDeprecationWarning</span><span class="p">)</span>
+            <span class="n">id_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">id_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;smallbody&#39;</span><span class="p">,</span> <span class="s1">&#39;designation&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span> <span class="s1">&#39;comet_name&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;id_type (</span><span class="si">{:s}</span><span class="s1">) not allowed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_type</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="o">=</span> <span class="n">id_type</span>
+
+        <span class="c1"># return raw response?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [&#39;ephemerides&#39;, &#39;elements&#39;, &#39;vectors&#39;]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># will contain query URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_response</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># will contain raw response from server</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of this instance.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplhorizons import Horizons</span>
+<span class="sd">        &gt;&gt;&gt; eros = Horizons(id=&#39;433&#39;, location=&#39;568&#39;,</span>
+<span class="sd">        ...                 epochs={&#39;start&#39;:&#39;2017-01-01&#39;,</span>
+<span class="sd">        ...                         &#39;stop&#39;:&#39;2017-02-01&#39;,</span>
+<span class="sd">        ...                         &#39;step&#39;:&#39;1d&#39;})</span>
+<span class="sd">        &gt;&gt;&gt; print(eros)</span>
+<span class="sd">        JPLHorizons instance &quot;433&quot;; location=568,</span>
+<span class="sd">        epochs={&#39;start&#39;: &#39;2017-01-01&#39;, &#39;stop&#39;: &#39;2017-02-01&#39;, &#39;step&#39;: &#39;1d&#39;}, id_type=None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;JPLHorizons instance </span><span class="se">\&quot;</span><span class="si">{:s}</span><span class="se">\&quot;</span><span class="s1">; location=</span><span class="si">{:s}</span><span class="s1">, &#39;</span>
+                <span class="s1">&#39;epochs=</span><span class="si">{:s}</span><span class="s1">, id_type=</span><span class="si">{:s}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_type</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+    <span class="nd">@id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_id</span><span class="p">):</span>
+        <span class="c1"># check &amp; format coordinate dictionaries for id; simply treat other</span>
+        <span class="c1"># values as given</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_id</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_loc_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">_id</span><span class="p">),</span> <span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span>
+
+    <span class="nd">@location</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_location</span><span class="p">):</span>
+        <span class="c1"># check &amp; format coordinate dictionaries for location; simply treat</span>
+        <span class="c1"># other values as given</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_location</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_loc_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">_location</span><span class="p">),</span> <span class="s2">&quot;location&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="n">_location</span>
+
+    <span class="c1"># ---------------------------------- query functions</span>
+
+<div class="viewcode-block" id="HorizonsClass.ephemerides_async">
+<a class="viewcode-back" href="../../../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides_async">[docs]</a>
+    <span class="nd">@deprecated_renamed_argument</span><span class="p">(</span><span class="s2">&quot;get_raw_response&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.4.7&quot;</span><span class="p">,</span>
+                                 <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;async methods&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ephemerides_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">airmass_lessthan</span><span class="o">=</span><span class="mi">99</span><span class="p">,</span>
+                          <span class="n">solar_elongation</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">180</span><span class="p">),</span> <span class="n">max_hour_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">rate_cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">skip_daylight</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">refraction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">refsystem</span><span class="o">=</span><span class="s1">&#39;ICRF&#39;</span><span class="p">,</span>
+                          <span class="n">closest_apparition</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">quantities</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">eph_quantities</span><span class="p">,</span>
+                          <span class="n">optional_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">extra_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query JPL Horizons for ephemerides.</span>
+
+<span class="sd">        .. deprecated:: 0.4.7</span>
+<span class="sd">           The ``get_raw_response`` keyword argument is deprecated.  The</span>
+<span class="sd">           `~HorizonsClass.ephemerides_async` method will return a raw response.</span>
+
+<span class="sd">        The ``location`` parameter in ``HorizonsClass`` refers in this case to</span>
+<span class="sd">        the location of the observer.</span>
+
+<span class="sd">        The following tables list the values queried, their definitions, data</span>
+<span class="sd">        types, units, and original Horizons designations (where available). For</span>
+<span class="sd">        more information on the definitions of these quantities, please refer to</span>
+<span class="sd">        the `Horizons User Manual &lt;https://ssd.jpl.nasa.gov/?horizons_doc&gt;`_.</span>
+
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Column Name      | Definition                                    |</span>
+<span class="sd">        +==================+===============================================+</span>
+<span class="sd">        | targetname       | official number, name, designation (string)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | H                | absolute magnitude in V band (float, mag)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | G                | photometric slope parameter (float)           |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M1               | comet total abs mag (float, mag, ``M1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k1               | total mag scaling factor (float, ``k1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k2               | nuclear mag scaling factor (float, ``k2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_str     | epoch (str, ``Date__(UT)__HR:MN:SC.fff``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_jd      | epoch Julian Date (float,                     |</span>
+<span class="sd">        |                  | ``Date_________JDUT``)                        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | solar_presence   | information on Sun&#39;s presence (str)           |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | flags            | information on Moon, target status (str)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA               | target RA (float, deg, ``DEC_(XXX)``)         |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC              | target DEC (float, deg, ``DEC_(XXX)``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA_app           | target apparent RA (float, deg,               |</span>
+<span class="sd">        |                  | ``R.A._(a-app)``)                             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC_app          | target apparent DEC (float, deg,              |</span>
+<span class="sd">        |                  | ``DEC_(a-app)``)                              |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA_rate          | target rate RA (float, arcsec/hr, ``RA*cosD``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC_rate         | target RA (float, arcsec/hr, ``d(DEC)/dt``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | AZ               | Azimuth (float, deg, EoN, ``Azi_(a-app)``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | EL               | Elevation (float, deg, ``Elev_(a-app)``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | AZ_rate          | Azimuth rate (float, arcsec/minute,           |</span>
+<span class="sd">        |                  | ``dAZ*cosE``)                                 |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | EL_rate          | Elevation rate (float, arcsec/minute,         |</span>
+<span class="sd">        |                  | ``d(ELV)/dt``)                                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_X            | satellite X position (arcsec,                 |</span>
+<span class="sd">        |                  | ``X_(sat-prim)``)                             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_Y            | satellite Y position (arcsec,                 |</span>
+<span class="sd">        |                  | ``Y_(sat-prim)``)                             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_PANG         | satellite position angle (deg,                |</span>
+<span class="sd">        |                  | ``SatPANG``)                                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | siderealtime     | local apparent sidereal time (str,            |</span>
+<span class="sd">        |                  | ``L_Ap_Sid_Time``)                            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | airmass          | target optical airmass (float, ``a-mass``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | magextinct       | V-mag extinction (float, mag, ``mag_ex``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | V                | V magnitude (float, mag, ``APmag``)           |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Tmag             | comet Total magnitude (float, mag, ``T-mag``) |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Nmag             | comet Nucleaus magnitude (float, mag,         |</span>
+<span class="sd">        |                  | ``N-mag``)                                    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | surfbright       | surf brightness (float, mag/arcsec^2,         |</span>
+<span class="sd">        |                  | ``S-brt``)                                    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | illumination     | frac of illumination (float, percent,         |</span>
+<span class="sd">        |                  | ``Illu%``)                                    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | illum_defect     | Defect of illumination (float, arcsec,        |</span>
+<span class="sd">        |                  | ``Dec_illu``)                                 |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_sep          | Target-primary angular separation (float,     |</span>
+<span class="sd">        |                  | arcsec, ``ang-sep``)                          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_vis          | Target-primary visibility (str, ``v``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | ang_width        | Angular width of target (float, arcsec,       |</span>
+<span class="sd">        |                  | ``Ang-diam``)                                 |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PDObsLon         | Apparent planetodetic longitude (float, deg,  |</span>
+<span class="sd">        |                  | ``ObsSub-LON``)                               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PDObsLat         | Apparent planetodetic latitude  (float, deg,  |</span>
+<span class="sd">        |                  | ``ObsSub-LAT``)                               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PDSunLon         | Subsolar planetodetic longitude (float, deg,  |</span>
+<span class="sd">        |                  | ``SunSub-LON``)                               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PDSunLat         | Subsolar planetodetic latitude  (float, deg,  |</span>
+<span class="sd">        |                  | ``SunSub-LAT``)                               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | SubSol_ang       | Target sub-solar point position angle         |</span>
+<span class="sd">        |                  | (float, deg, ``SN.ang``)                      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | SubSol_dist      | Target sub-solar point position angle distance|</span>
+<span class="sd">        |                  | (float, arcsec, ``SN.dist``)                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | NPole_ang        | Target&#39;s North Pole position angle            |</span>
+<span class="sd">        |                  | (float, deg, ``NP.ang``)                      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | NPole_dist       | Target&#39;s North Pole position angle distance   |</span>
+<span class="sd">        |                  | (float, arcsec, ``NP.dist``)                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | EclLon           | heliocentr ecl long (float, deg, ``hEcl-Lon``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | EclLat           | heliocentr ecl lat (float, deg, ``hEcl-Lat``) |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | ObsEclLon        | obscentr ecl long (float, deg, ``ObsEcLon``)  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | ObsEclLat        | obscentr ecl lat (float, deg, ``ObsEcLat``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | r                | heliocentric distance (float, au, ``r``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | r_rate           | heliocentric radial rate (float, km/s,        |</span>
+<span class="sd">        |                  | ``rdot``)                                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | delta            | distance from observer (float, au, ``delta``) |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | delta_rate       | obs-centric rad rate (float, km/s, ``deldot``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | lighttime        | one-way light time (float, min, ``1-way_LT``) |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | vel_sun          | Target center velocity wrt Sun                |</span>
+<span class="sd">        |                  | (float, km/s, ``VmagSn``)                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | vel_obs          | Target center velocity wrt Observer           |</span>
+<span class="sd">        |                  | (float, km/s, ``VmagOb``)                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | elong            | solar elongation (float, deg, ``S-O-T``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | elongFlag        | app. position relative to Sun (str, ``/r``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | alpha            | solar phase angle (float, deg, ``S-T-O``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | lunar_elong      | Apparent lunar elongation angle wrt target    |</span>
+<span class="sd">        |                  | (float, deg, ``T-O-M``)                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | lunar_illum      | Lunar illumination percentage                 |</span>
+<span class="sd">        |                  | (float, percent, ``MN_Illu%``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | IB_elong         | Apparent interfering body elongation angle    |</span>
+<span class="sd">        |                  | wrt target (float, deg, ``T-O-I``)            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | IB_illum         | Interfering body illumination percentage      |</span>
+<span class="sd">        |                  | (float, percent, ``IB_Illu%``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sat_alpha        | Observer-Primary-Target angle                 |</span>
+<span class="sd">        |                  | (float, deg, ``O-P-T``)                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | OrbPlaneAng      | orbital plane angle (float, deg, ``PlAng``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sunTargetPA      | -Sun vector PA (float, deg, EoN, ``PsAng``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | velocityPA       | -velocity vector PA (float, deg, EoN,         |</span>
+<span class="sd">        |                  | ``PsAMV``)                                    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | constellation    | constellation ID containing target (str,      |</span>
+<span class="sd">        |                  | ``Cnst``)                                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | TDB-UT           | difference between TDB and UT (float,         |</span>
+<span class="sd">        |                  | seconds, ``TDB-UT``)                          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | NPole_RA         | Target&#39;s North Pole RA (float, deg,           |</span>
+<span class="sd">        |                  | ``N.Pole-RA``)                                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | NPole_DEC        | Target&#39;s North Pole DEC (float, deg,          |</span>
+<span class="sd">        |                  | ``N.Pole-DC``)                                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | GlxLon           | galactic longitude (float, deg, ``GlxLon``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | GlxLat           | galactic latitude  (float, deg, ``GlxLat``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | solartime        | local apparent solar time (string,            |</span>
+<span class="sd">        |                  | ``L_Ap_SOL_Time``)                            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | earth_lighttime  | observer lighttime from center of Earth       |</span>
+<span class="sd">        |                  | (float, minutes, ``399_ins_LT``               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA_3sigma        | 3 sigma positional uncertainty in RA (float,  |</span>
+<span class="sd">        |                  | arcsec, ``RA_3sigma``)                        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC_3sigma       | 3 sigma positional uncertainty in  DEC (float,|</span>
+<span class="sd">        |                  | arcsec, ``DEC_3sigma``)                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | SMAA_3sigma      | 3sig pos unc error ellipse semi-major axis    |</span>
+<span class="sd">        |                  | (float, arcsec, ``SMAA_3sig``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | SMIA_3sigma      | 3sig pos unc error ellipse semi-minor axis    |</span>
+<span class="sd">        |                  | (float, arcsec, ``SMIA_3sig``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Theta_3sigma     | pos unc error ellipse position angle          |</span>
+<span class="sd">        |                  | (float, deg, ``Theta``)                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Area_3sigma      | 3sig pos unc error ellipse are                |</span>
+<span class="sd">        |                  | (float, arcsec^2, ``Area_3sig``)              |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RSS_3sigma       | 3sig pos unc error ellipse root-sum-square    |</span>
+<span class="sd">        |                  | (float, arcsec, ``POS_3sigma``)               |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | r_3sigma         | 3sig range uncertainty                        |</span>
+<span class="sd">        |                  | (float, km, ``RNG_3sigma``)                   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | r_rate_3sigma    | 3sig range rate uncertainty                   |</span>
+<span class="sd">        |                  | (float, km/second, ``RNGRT_3sigma``)          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | SBand_3sigma     | 3sig Doppler radar uncertainties at S-band    |</span>
+<span class="sd">        |                  | (float, Hertz, ``DOP_S_3sig``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | XBand_3sigma     | 3sig Doppler radar uncertainties at X-band    |</span>
+<span class="sd">        |                  | (float, Hertz, ``DOP_X_3sig``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DoppDelay_3sigma | 3sig Doppler radar round-trip delay           |</span>
+<span class="sd">        |                  | unc (float, second, ``RT_delay_3sig``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | hour_angle       | local apparent hour angle (float,             |</span>
+<span class="sd">        |                  | hour, ``L_Ap_Hour_Ang``)                      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | alpha_true       | true phase angle (float, deg, ``phi``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PABLon           | phase angle bisector longitude                |</span>
+<span class="sd">        |                  | (float, deg, ``PAB-LON``)                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | PABLat           | phase angle bisector latitude                 |</span>
+<span class="sd">        |                  | (float, deg, ``PAB-LAT``)                     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | App_Lon_Sun      | apparent target-centered longitude of the Sun |</span>
+<span class="sd">        |                  | (float, hour, ``App_Lon_Sun``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA_ICRF_app      | airless apparent right ascension of the target|</span>
+<span class="sd">        |                  | in the ICRF                                   |</span>
+<span class="sd">        |                  | (float, hour, ``RA_(ICRF-a-app)``)            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC_ICRF_app     | airless apparent declination of the target    |</span>
+<span class="sd">        |                  | in the ICRF                                   |</span>
+<span class="sd">        |                  | (float, deg, ``DEC_(ICRF-a-app)``)            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RA_ICRF_rate_app | RA rate of change in the targets&#39; ICRF        |</span>
+<span class="sd">        |                  | multiplied by the cosine of declination       |</span>
+<span class="sd">        |                  | (float, arcsec/hour, ``I_dRA*cosD``)          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | DEC_ICRF_rate_app| DEC rate of change in the targets&#39; ICRF       |</span>
+<span class="sd">        |                  | (float, arcsec/hour, ``I_d(DEC)/dt``)         |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Sky_motion       | Total apparent angular rate in the plane-of-  |</span>
+<span class="sd">        |                  | sky                                           |</span>
+<span class="sd">        |                  | (float, arcsec/minute, ``Sky_motion``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Sky_mot_PA       | position angle direction of motion in the     |</span>
+<span class="sd">        |                  | plane-of-sky                                  |</span>
+<span class="sd">        |                  | (float, deg, ``Sky_mot_PA``)                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | RelVel-ANG       | flight path angle of the target&#39;s relative    |</span>
+<span class="sd">        |                  | motion with respect to the observer&#39;s         |</span>
+<span class="sd">        |                  | line-of-sight                                 |</span>
+<span class="sd">        |                  | (float, deg, ``RelVel-ANG``)                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Lun_Sky_Brt      | Sky brightness due to moonlight               |</span>
+<span class="sd">        |                  | (float, mag, ``Lun_Sky_Brt``)                 |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | sky_SNR          | approximate visual signal-to-noise ratio of   |</span>
+<span class="sd">        |                  | the target&#39;s brightness divided by lunar sky  |</span>
+<span class="sd">        |                  | brightness                                    |</span>
+<span class="sd">        |                  | (float, unitless, ``sky_SNR``)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        airmass_lessthan : float, optional</span>
+<span class="sd">            Defines a maximum airmass for the query, default: 99</span>
+
+<span class="sd">        solar_elongation : tuple, optional</span>
+<span class="sd">            Permissible solar elongation range: (minimum, maximum); default:</span>
+<span class="sd">            (0,180)</span>
+
+<span class="sd">        max_hour_angle : float, optional</span>
+<span class="sd">            Defines a maximum hour angle for the query, default: 0</span>
+
+<span class="sd">        rate_cutoff : float, optional</span>
+<span class="sd">            Angular range rate upper limit cutoff in arcsec/h; default: disabled</span>
+
+<span class="sd">        skip_daylight : boolean, optional</span>
+<span class="sd">            Crop daylight epochs in query, default: False</span>
+
+<span class="sd">        refraction : boolean</span>
+<span class="sd">            If ``True``, coordinates account for a standard atmosphere</span>
+<span class="sd">            refraction model; if ``False``, coordinates do not account for</span>
+<span class="sd">            refraction (airless model); default: ``False``</span>
+
+<span class="sd">        refsystem : string</span>
+<span class="sd">            Coordinate reference system: ``&#39;ICRF&#39;`` or ``&#39;B1950&#39;``; default:</span>
+<span class="sd">            ``&#39;ICRF&#39;``</span>
+
+<span class="sd">        closest_apparition : boolean, optional</span>
+<span class="sd">            Only applies to comets. This option will choose the closest</span>
+<span class="sd">            apparition available in time to the selected epoch; default: False.</span>
+<span class="sd">            Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        no_fragments : boolean, optional</span>
+<span class="sd">            Only applies to comets. Reject all comet fragments from selection;</span>
+<span class="sd">            default: False. Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        quantities : integer or string, optional</span>
+<span class="sd">            Single integer or comma-separated list in the form of a string</span>
+<span class="sd">            corresponding to all the quantities to be queried from JPL Horizons</span>
+<span class="sd">            using the coding according to the `JPL Horizons User Manual</span>
+<span class="sd">            Definition of Observer Table Quantities</span>
+<span class="sd">            &lt;https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities&gt;`_;</span>
+<span class="sd">            default: all quantities</span>
+
+<span class="sd">        optional_settings: dict, optional</span>
+<span class="sd">            key-value based dictionary to inject some additional optional settings</span>
+<span class="sd">            See `Optional observer-table settings&quot; &lt;https://ssd.jpl.nasa.gov/horizons.cgi?s_tset=1&gt;`_;</span>
+<span class="sd">            default: empty optional setting</span>
+
+<span class="sd">        get_query_payload : boolean, optional</span>
+<span class="sd">            When set to `True` the method returns the HTTP request parameters as</span>
+<span class="sd">            a dict, default: False</span>
+
+<span class="sd">        get_raw_response : boolean, optional</span>
+<span class="sd">            Return raw data as obtained by JPL Horizons without parsing the data</span>
+<span class="sd">            into a table, default: False</span>
+
+<span class="sd">        extra_precision : boolean, optional</span>
+<span class="sd">            Enables extra precision in RA and DEC values; default: False</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplhorizons import Horizons</span>
+<span class="sd">        &gt;&gt;&gt; obj = Horizons(id=&#39;Ceres&#39;, location=&#39;568&#39;,</span>
+<span class="sd">        ...             epochs={&#39;start&#39;:&#39;2010-01-01&#39;,</span>
+<span class="sd">        ...                     &#39;stop&#39;:&#39;2010-03-01&#39;,</span>
+<span class="sd">        ...                     &#39;step&#39;:&#39;10d&#39;})</span>
+<span class="sd">        &gt;&gt;&gt; eph = obj.ephemerides()  # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; print(eph)  # doctest: +SKIP</span>
+<span class="sd">            targetname       datetime_str   datetime_jd ...  PABLon  PABLat</span>
+<span class="sd">               ---               ---             d      ...   deg     deg</span>
+<span class="sd">        ----------------- ----------------- ----------- ... -------- ------</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ... 238.2494 4.5532</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ... 241.3339 4.2832</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Jan-21 00:00   2455217.5 ... 244.3394 4.0089</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ... 247.2518 3.7289</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ... 250.0576 3.4415</span>
+<span class="sd">        1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ... 252.7383 3.1451</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">horizons_server</span>
+
+        <span class="c1"># check for required information and assemble commanddline stub</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;id&#39; parameter not set. Query aborted.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_id_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;500@399&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">jd</span>
+        <span class="c1"># expand commandline based on self.id_type</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span> <span class="s1">&#39;comet_name&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;designation&#39;</span><span class="p">:</span> <span class="s1">&#39;DES=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;NAME=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">:</span> <span class="s1">&#39;ASTNAM=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">:</span> <span class="s1">&#39;COMNAM=&#39;</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_type</span><span class="p">]</span> <span class="o">+</span> <span class="n">commandline</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;smallbody&#39;</span><span class="p">,</span> <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">,</span> <span class="s1">&#39;designation&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39;;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">closest_apparition</span><span class="p">:</span>
+                    <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP</span><span class="si">{:s}</span><span class="s1">;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_fragments</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; NOFRAG;&#39;</span>
+
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;EPHEM_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSERVER&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;QUANTITIES&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantities</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;COMMAND&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">commandline</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;SOLAR_ELONG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">solar_elongation</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
+                             <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">solar_elongation</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;LHA_CUTOFF&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_hour_angle</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s1">&#39;CSV_FORMAT&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;YES&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;CAL_FORMAT&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;BOTH&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;ANG_FORMAT&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;DEG&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;APPARENT&#39;</span><span class="p">,</span> <span class="p">({</span><span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;AIRLESS&#39;</span><span class="p">,</span>
+                           <span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;REFRACTED&#39;</span><span class="p">}[</span><span class="n">refraction</span><span class="p">])),</span>
+            <span class="p">(</span><span class="s1">&#39;REF_SYSTEM&#39;</span><span class="p">,</span> <span class="n">refsystem</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;EXTRA_PREC&#39;</span><span class="p">,</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;YES&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;NO&#39;</span><span class="p">}[</span><span class="n">extra_precision</span><span class="p">])])</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">request_payload</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">**</span><span class="n">request_payload</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_to_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;CENTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
+
+        <span class="k">if</span> <span class="n">rate_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;ANG_RATE_CUTOFF&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">rate_cutoff</span><span class="p">))</span>
+
+        <span class="c1"># parse self.epochs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span> <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;start&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">or</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">or</span> <span class="s1">&#39;step&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;epochs&#39; must contain start, stop, step&quot;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;START_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STOP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STEP_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># treat epochs as scalar</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">airmass_lessthan</span> <span class="o">&lt;</span> <span class="mi">99</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;AIRMASS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">airmass_lessthan</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">skip_daylight</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;SKIP_DAYLT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;YES&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;SKIP_DAYLT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NO&#39;</span>
+
+        <span class="c1"># inject optional settings if provided</span>
+        <span class="k">if</span> <span class="n">optional_settings</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">optional_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">request_payload</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;ephemerides&#39;</span>
+
+        <span class="c1"># return request_payload if desired</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="c1"># set return_raw flag, if raw response desired</span>
+        <span class="k">if</span> <span class="n">get_raw_response</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># query and parse</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">url</span>
+
+        <span class="c1"># check length of uri</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">((</span><span class="s1">&#39;The uri used in this query is very long &#39;</span>
+                           <span class="s1">&#39;and might have been truncated. The results of &#39;</span>
+                           <span class="s1">&#39;the query might be compromised. If you queried &#39;</span>
+                           <span class="s1">&#39;a list of epochs, consider querying a range.&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="HorizonsClass.elements_async">
+<a class="viewcode-back" href="../../../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.elements_async">[docs]</a>
+    <span class="nd">@deprecated_renamed_argument</span><span class="p">(</span><span class="s2">&quot;get_raw_response&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.4.7&quot;</span><span class="p">,</span>
+                                 <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;async methods&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">elements_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">refsystem</span><span class="o">=</span><span class="s1">&#39;ICRF&#39;</span><span class="p">,</span>
+                       <span class="n">refplane</span><span class="o">=</span><span class="s1">&#39;ecliptic&#39;</span><span class="p">,</span>
+                       <span class="n">tp_type</span><span class="o">=</span><span class="s1">&#39;absolute&#39;</span><span class="p">,</span>
+                       <span class="n">closest_apparition</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query JPL Horizons for osculating orbital elements.</span>
+
+<span class="sd">        .. deprecated:: 0.4.7</span>
+<span class="sd">           The ``get_raw_response`` keyword argument is deprecated.  The</span>
+<span class="sd">           `~HorizonsClass.elements_async` method will return a raw response.</span>
+
+<span class="sd">        The ``location`` parameter in ``HorizonsClass`` refers in this case to</span>
+<span class="sd">        the center body relative to which the elements are provided.</span>
+
+<span class="sd">        The following table lists the values queried, their definitions, data</span>
+<span class="sd">        types, units, and original Horizons designations (where available). For</span>
+<span class="sd">        more information on the definitions of these quantities, please refer to</span>
+<span class="sd">        the `Horizons User Manual &lt;https://ssd.jpl.nasa.gov/?horizons_doc&gt;`_.</span>
+
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Column Name      | Definition                                    |</span>
+<span class="sd">        +==================+===============================================+</span>
+<span class="sd">        | targetname       | official number, name, designation (string)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | H                | absolute magnitude in V band (float, mag)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | G                | photometric slope parameter (float)           |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M1               | comet total abs mag (float, mag, ``M1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k1               | total mag scaling factor (float, ``k1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k2               | nuclear mag scaling factor (float, ``k2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | e                | eccentricity (float, ``EC``)                  |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | q                | periapsis distance (float, au, ``QR``)        |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | a                | semi-major axis (float, au, ``A``)            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | incl             | inclination (float, deg, ``IN``)              |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Omega            | longitude of Asc. Node (float, deg, ``OM``)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | w                | argument of the perifocus (float, deg, ``W``) |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Tp_jd            | time of periapsis (float, Julian Date, ``Tp``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | n                | mean motion (float, deg/d, ``N``)             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M                | mean anomaly (float, deg, ``MA``)             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | nu               | true anomaly (float, deg, ``TA``)             |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | period           | orbital period (float, (Earth) d, ``PR``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Q                | apoapsis distance (float, au, ``AD``)         |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        refsystem : string</span>
+<span class="sd">            Element reference system for geometric and astrometric quantities:</span>
+<span class="sd">            ``&#39;ICRF&#39;`` or ``&#39;B1950&#39;``; default: ``&#39;ICRF&#39;``</span>
+
+<span class="sd">        refplane : string</span>
+<span class="sd">            Reference plane for all output quantities: ``&#39;ecliptic&#39;`` (ecliptic</span>
+<span class="sd">            and mean equinox of reference epoch), ``&#39;earth&#39;`` (Earth mean</span>
+<span class="sd">            equator and equinox of reference epoch), or ``&#39;body&#39;`` (body mean</span>
+<span class="sd">            equator and node of date); default: ``&#39;ecliptic&#39;``</span>
+
+<span class="sd">        tp_type : string</span>
+<span class="sd">            Representation for time-of-perihelion passage: ``&#39;absolute&#39;`` or</span>
+<span class="sd">            ``&#39;relative&#39;`` (to epoch); default: ``&#39;absolute&#39;``</span>
+
+<span class="sd">        closest_apparition : boolean, optional</span>
+<span class="sd">            Only applies to comets. This option will choose the closest</span>
+<span class="sd">            apparition available in time to the selected epoch; default: False.</span>
+<span class="sd">            Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        no_fragments : boolean, optional</span>
+<span class="sd">            Only applies to comets. Reject all comet fragments from selection;</span>
+<span class="sd">            default: False. Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        get_query_payload : boolean, optional</span>
+<span class="sd">            When set to ``True`` the method returns the HTTP request parameters</span>
+<span class="sd">            as a dict, default: False</span>
+
+<span class="sd">        get_raw_response: boolean, optional</span>
+<span class="sd">            Return raw data as obtained by JPL Horizons without parsing the data</span>
+<span class="sd">            into a table, default: False</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplhorizons import Horizons</span>
+<span class="sd">        &gt;&gt;&gt; obj = Horizons(id=&#39;433&#39;, location=&#39;500@10&#39;,</span>
+<span class="sd">        ...                epochs=2458133.33546)</span>
+<span class="sd">        &gt;&gt;&gt; el = obj.elements()  # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; print(el)  # doctest: +SKIP</span>
+<span class="sd">            targetname      datetime_jd  ...       Q            P</span>
+<span class="sd">                ---              d       ...       AU           d</span>
+<span class="sd">        ------------------ ------------- ... ------------- ------------</span>
+<span class="sd">        433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">horizons_server</span>
+
+        <span class="c1"># check for required information and assemble commandline stub</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;id&#39; parameter not set. Query aborted.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_id_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;500@10&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">jd</span>
+
+        <span class="c1"># expand commandline based on self.id_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span> <span class="s1">&#39;comet_name&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;designation&#39;</span><span class="p">:</span> <span class="s1">&#39;DES=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;NAME=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">:</span> <span class="s1">&#39;ASTNAM=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">:</span> <span class="s1">&#39;COMNAM=&#39;</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_type</span><span class="p">]</span> <span class="o">+</span> <span class="n">commandline</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;smallbody&#39;</span><span class="p">,</span> <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">,</span> <span class="s1">&#39;designation&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39;;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">closest_apparition</span><span class="p">:</span>
+                    <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP</span><span class="si">{:s}</span><span class="s1">;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_fragments</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; NOFRAG;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;cannot use topographic position in orbital &#39;</span>
+                              <span class="s1">&#39;elements query&#39;</span><span class="p">))</span>
+
+        <span class="c1"># configure request_payload for ephemerides query</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;EPHEM_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEMENTS&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;MAKE_EPHEM&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;OUT_UNITS&#39;</span><span class="p">,</span> <span class="s1">&#39;AU-D&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;COMMAND&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">commandline</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;CENTER&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;CSV_FORMAT&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;ELEM_LABELS&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;OBJ_DATA&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;REF_SYSTEM&#39;</span><span class="p">,</span> <span class="n">refsystem</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;REF_PLANE&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;ecliptic&#39;</span><span class="p">:</span> <span class="s1">&#39;ECLIPTIC&#39;</span><span class="p">,</span> <span class="s1">&#39;earth&#39;</span><span class="p">:</span> <span class="s1">&#39;FRAME&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="s2">&quot;&#39;BODY EQUATOR&#39;&quot;</span><span class="p">}[</span><span class="n">refplane</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;TP_TYPE&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;absolute&#39;</span><span class="p">:</span> <span class="s1">&#39;ABSOLUTE&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;relative&#39;</span><span class="p">:</span> <span class="s1">&#39;RELATIVE&#39;</span><span class="p">}[</span><span class="n">tp_type</span><span class="p">])])</span>
+
+        <span class="c1"># parse self.epochs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span> <span class="k">for</span>
+                                                  <span class="n">epoch</span> <span class="ow">in</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;start&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">or</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span>
+                    <span class="ow">or</span> <span class="s1">&#39;step&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;epochs&#39; must contain start, &quot;</span>
+                                 <span class="s2">&quot;stop, step&quot;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;START_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STOP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STEP_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;elements&#39;</span>
+
+        <span class="c1"># return request_payload if desired</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="c1"># set return_raw flag, if raw response desired</span>
+        <span class="k">if</span> <span class="n">get_raw_response</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># query and parse</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">url</span>
+
+        <span class="c1"># check length of uri</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">((</span><span class="s1">&#39;The uri used in this query is very long &#39;</span>
+                           <span class="s1">&#39;and might have been truncated. The results of &#39;</span>
+                           <span class="s1">&#39;the query might be compromised. If you queried &#39;</span>
+                           <span class="s1">&#39;a list of epochs, consider querying a range.&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="HorizonsClass.vectors_async">
+<a class="viewcode-back" href="../../../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.vectors_async">[docs]</a>
+    <span class="nd">@deprecated_renamed_argument</span><span class="p">(</span><span class="s2">&quot;get_raw_response&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.4.7&quot;</span><span class="p">,</span>
+                                 <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;async methods&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">vectors_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">get_query_payload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">closest_apparition</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">get_raw_response</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">refplane</span><span class="o">=</span><span class="s1">&#39;ecliptic&#39;</span><span class="p">,</span> <span class="n">aberrations</span><span class="o">=</span><span class="s1">&#39;geometric&#39;</span><span class="p">,</span>
+                      <span class="n">delta_T</span><span class="o">=</span><span class="kc">False</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query JPL Horizons for state vectors.</span>
+
+<span class="sd">        .. deprecated:: 0.4.7</span>
+<span class="sd">           The ``get_raw_response`` keyword argument is deprecated.  The</span>
+<span class="sd">           `~HorizonsClass.vectors_async` method will return a raw response.</span>
+
+<span class="sd">        The ``location`` parameter in ``HorizonsClass`` refers in this case to</span>
+<span class="sd">        the center body relative to which the vectors are provided.</span>
+
+<span class="sd">        The following table lists the values queried, their definitions, data</span>
+<span class="sd">        types, units, and original Horizons designations (where available). For</span>
+<span class="sd">        more information on the definitions of these quantities, please refer to</span>
+<span class="sd">        the `Horizons User Manual &lt;https://ssd.jpl.nasa.gov/?horizons_doc&gt;`_.</span>
+
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | Column Name      | Definition                                    |</span>
+<span class="sd">        +==================+===============================================+</span>
+<span class="sd">        | targetname       | official number, name, designation (string)   |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | H                | absolute magnitude in V band (float, mag)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | G                | photometric slope parameter (float)           |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M1               | comet total abs mag (float, mag, ``M1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k1               | total mag scaling factor (float, ``k1``)      |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | k2               | nuclear mag scaling factor (float, ``k2``)    |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | delta_T          | time-varying difference between TDB and UT    |</span>
+<span class="sd">        |                  | (float, ``delta-T``, optional)                |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | x                | x-component of position vector                |</span>
+<span class="sd">        |                  | (float, au, ``X``)                            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | y                | y-component of position vector                |</span>
+<span class="sd">        |                  | (float, au, ``Y``)                            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | z                | z-component of position vector                |</span>
+<span class="sd">        |                  | (float, au, ``Z``)                            |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | vx               | x-component of velocity vector (float, au/d,  |</span>
+<span class="sd">        |                  | ``VX``)                                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | vy               | y-component of velocity vector (float, au/d,  |</span>
+<span class="sd">        |                  | ``VY``)                                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | vz               | z-component of velocity vector (float, au/d,  |</span>
+<span class="sd">        |                  | ``VZ``)                                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | lighttime        | one-way lighttime (float, d, ``LT``)          |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | range            | range from coordinate center (float, au,      |</span>
+<span class="sd">        |                  | ``RG``)                                       |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+<span class="sd">        | range_rate       | range rate (float, au/d, ``RR``)              |</span>
+<span class="sd">        +------------------+-----------------------------------------------+</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        closest_apparition : boolean, optional</span>
+<span class="sd">            Only applies to comets. This option will choose the closest</span>
+<span class="sd">            apparition available in time to the selected epoch; default: False.</span>
+<span class="sd">            Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        no_fragments : boolean, optional</span>
+<span class="sd">            Only applies to comets. Reject all comet fragments from selection;</span>
+<span class="sd">            default: False. Do not use this option for non-cometary objects.</span>
+
+<span class="sd">        get_query_payload : boolean, optional</span>
+<span class="sd">            When set to `True` the method returns the HTTP request parameters as</span>
+<span class="sd">            a dict, default: False</span>
+
+<span class="sd">        get_raw_response: boolean, optional</span>
+<span class="sd">            Return raw data as obtained by JPL Horizons without parsing the data</span>
+<span class="sd">            into a table, default: False</span>
+
+<span class="sd">        refplane : string</span>
+<span class="sd">            Reference plane for all output quantities: ``&#39;ecliptic&#39;`` (ecliptic</span>
+<span class="sd">            and mean equinox of reference epoch), ``&#39;earth&#39;`` (Earth mean</span>
+<span class="sd">            equator and equinox of reference epoch), or ``&#39;body&#39;`` (body mean</span>
+<span class="sd">            equator and node of date); default: ``&#39;ecliptic&#39;``.</span>
+
+<span class="sd">            See :ref:`Horizons Reference Frames &lt;jpl-horizons-reference-frames&gt;`</span>
+<span class="sd">            in the astroquery documentation for details.</span>
+
+<span class="sd">        aberrations : string, optional</span>
+<span class="sd">            Aberrations to be accounted for: [``&#39;geometric&#39;``,</span>
+<span class="sd">            ``&#39;astrometric&#39;``, ``&#39;apparent&#39;``]. Default: ``&#39;geometric&#39;``</span>
+
+<span class="sd">        delta_T : boolean, optional</span>
+<span class="sd">            Triggers output of time-varying difference between TDB and UT</span>
+<span class="sd">            time-scales. Default: False</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        response : `requests.Response`</span>
+<span class="sd">            The response of the HTTP request.</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from astroquery.jplhorizons import Horizons</span>
+<span class="sd">        &gt;&gt;&gt; obj = Horizons(id=&#39;2012 TC4&#39;, location=&#39;257&#39;,</span>
+<span class="sd">        ...                epochs={&#39;start&#39;: &#39;2017-10-01&#39;,</span>
+<span class="sd">        ...                        &#39;stop&#39;: &#39;2017-10-02&#39;,</span>
+<span class="sd">        ...                        &#39;step&#39;: &#39;10m&#39;})</span>
+<span class="sd">        &gt;&gt;&gt; vec = obj.vectors()  # doctest: +REMOTE_DATA</span>
+<span class="sd">        &gt;&gt;&gt; print(vec)  # doctest: +SKIP</span>
+<span class="sd">        targetname  datetime_jd  ...      range          range_rate</span>
+<span class="sd">           ---           d       ...        AU             AU / d</span>
+<span class="sd">        ---------- ------------- ... --------------- -----------------</span>
+<span class="sd">        (2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862</span>
+<span class="sd">        (2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527</span>
+<span class="sd">        (2012 TC4) 2458027.51389 ... 0.0428765385796 -0.00408020747595</span>
+<span class="sd">        (2012 TC4) 2458027.52083 ... 0.0428482057142  -0.0040795878561</span>
+<span class="sd">        (2012 TC4) 2458027.52778 ...  0.042819878607 -0.00407854931543</span>
+<span class="sd">        (2012 TC4) 2458027.53472 ... 0.0427915601617  -0.0040770935665</span>
+<span class="sd">               ...           ... ...             ...               ...</span>
+<span class="sd">        (2012 TC4) 2458028.45833 ... 0.0392489462501 -0.00405496595173</span>
+<span class="sd">        (2012 TC4) 2458028.46528 ...   0.03922077771 -0.00405750632914</span>
+<span class="sd">        (2012 TC4) 2458028.47222 ...  0.039192592935 -0.00405964084539</span>
+<span class="sd">        (2012 TC4) 2458028.47917 ...  0.039164394759 -0.00406136516755</span>
+<span class="sd">        (2012 TC4) 2458028.48611 ... 0.0391361860433 -0.00406267574646</span>
+<span class="sd">        (2012 TC4) 2458028.49306 ... 0.0391079696711  -0.0040635698239</span>
+<span class="sd">        (2012 TC4)     2458028.5 ... 0.0390797485422 -0.00406404543822</span>
+<span class="sd">        Length = 145 rows</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">URL</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">horizons_server</span>
+
+        <span class="c1"># check for required information and assemble commandline stub</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;id&#39; parameter not set. Query aborted.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_id_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;500@10&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">jd</span>
+        <span class="c1"># expand commandline based on self.id_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;designation&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span> <span class="s1">&#39;comet_name&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;designation&#39;</span><span class="p">:</span> <span class="s1">&#39;DES=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;NAME=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;asteroid_name&#39;</span><span class="p">:</span> <span class="s1">&#39;ASTNAM=&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">:</span> <span class="s1">&#39;COMNAM=&#39;</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_type</span><span class="p">]</span> <span class="o">+</span> <span class="n">commandline</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;smallbody&#39;</span><span class="p">,</span> <span class="s1">&#39;asteroid_name&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;comet_name&#39;</span><span class="p">,</span> <span class="s1">&#39;designation&#39;</span><span class="p">]:</span>
+            <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39;;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">closest_apparition</span><span class="p">:</span>
+                    <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; CAP</span><span class="si">{:s}</span><span class="s1">;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">closest_apparition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_fragments</span><span class="p">:</span>
+                <span class="n">commandline</span> <span class="o">+=</span> <span class="s1">&#39; NOFRAG;&#39;</span>
+        <span class="c1"># configure request_payload for vectors query</span>
+        <span class="n">request_payload</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;EPHEM_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;VECTORS&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;OUT_UNITS&#39;</span><span class="p">,</span> <span class="s1">&#39;AU-D&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;COMMAND&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">commandline</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;CSV_FORMAT&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;&quot;YES&quot;&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;REF_PLANE&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;ecliptic&#39;</span><span class="p">:</span> <span class="s1">&#39;ECLIPTIC&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;earth&#39;</span><span class="p">:</span> <span class="s1">&#39;FRAME&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="s1">&#39;FRAME&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="s2">&quot;&#39;BODY EQUATOR&#39;&quot;</span><span class="p">}[</span><span class="n">refplane</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;REF_SYSTEM&#39;</span><span class="p">,</span> <span class="s1">&#39;ICRF&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;TP_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;ABSOLUTE&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;VEC_LABELS&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;VEC_CORR&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;geometric&#39;</span><span class="p">:</span> <span class="s1">&#39;&quot;NONE&quot;&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;astrometric&#39;</span><span class="p">:</span> <span class="s1">&#39;&quot;LT&quot;&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;apparent&#39;</span><span class="p">:</span> <span class="s1">&#39;&quot;LT+S&quot;&#39;</span><span class="p">}[</span><span class="n">aberrations</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;VEC_DELTA_T&#39;</span><span class="p">,</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;YES&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;NO&#39;</span><span class="p">}[</span><span class="n">delta_T</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;OBJ_DATA&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">request_payload</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="o">**</span><span class="n">request_payload</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_location_to_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;CENTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
+        <span class="c1"># parse self.epochs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span> <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;start&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">or</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="ow">or</span> <span class="s1">&#39;step&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;epochs&#39; must contain start, stop, step&quot;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;START_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STOP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;STEP_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># treat epochs as a list</span>
+            <span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;TLIST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">=</span> <span class="s1">&#39;vectors&#39;</span>
+
+        <span class="c1"># return request_payload if desired</span>
+        <span class="k">if</span> <span class="n">get_query_payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">request_payload</span>
+
+        <span class="c1"># set return_raw flag, if raw response desired</span>
+        <span class="k">if</span> <span class="n">get_raw_response</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># query and parse</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">request_payload</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">url</span>
+
+        <span class="c1"># check length of uri</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">((</span><span class="s1">&#39;The uri used in this query is very long &#39;</span>
+                           <span class="s1">&#39;and might have been truncated. The results of &#39;</span>
+                           <span class="s1">&#39;the query might be compromised. If you queried &#39;</span>
+                           <span class="s1">&#39;a list of epochs, consider querying a range.&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="c1"># ---------------------------------- parser functions</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_prep_loc_dict</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;prepare coord specification dict for &#39;location&#39; or &#39;id&#39;&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">{</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;elevation&#39;</span><span class="p">}</span> <span class="o">-</span> <span class="n">loc_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;dict values for &#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39; must contain &#39;lat&#39;, &#39;lon&#39;, &quot;</span>
+                <span class="s2">&quot;&#39;elevation&#39; (and optionally &#39;body&#39;)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;body&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loc_dict</span><span class="p">:</span>
+            <span class="n">loc_dict</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">399</span>
+        <span class="c1"># assumed units are degrees and km</span>
+        <span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loc_dict</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_location_to_params</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;translate a &#39;location&#39; dict to request parameters&quot;&quot;&quot;</span>
+
+        <span class="n">location</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;CENTER&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;coord@</span><span class="si">{</span><span class="n">loc_dict</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;COORD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;GEODETIC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SITE_COORD&quot;</span><span class="p">:</span> <span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">HorizonsClass</span><span class="o">.</span><span class="n">_format_site_coords</span><span class="p">(</span><span class="n">loc_dict</span><span class="p">)))</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">location</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dictionary to Horizons API formatted lon/lat/elevation coordinate triplet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s1">&#39;deg&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s1">&#39;deg&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">,&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s1">&#39;km&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_site_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;`location` dictionary to SITE_COORDS parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">HorizonsClass</span><span class="o">.</span><span class="n">_format_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_id_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;`id` dictionary to COMMAND parameter&#39;s coordinate format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;g:</span><span class="si">{</span><span class="n">HorizonsClass</span><span class="o">.</span><span class="n">_format_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_parse_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse query result to a `~astropy.table.Table` object.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        response : `~requests.Response`</span>
+<span class="sd">            Response from server.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        data : `~astropy.table.Table`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_response</span> <span class="o">=</span> <span class="n">response</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">HTTPError</span><span class="p">:</span>
+            <span class="c1"># don&#39;t cache any HTTP errored queries (especially when the API is down!)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_query</span><span class="o">.</span><span class="n">remove_cache_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_location</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="c1"># this is allowed: if `cache` was set to False, this</span>
+                <span class="c1"># won&#39;t be needed</span>
+                <span class="k">pass</span>
+            <span class="k">raise</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="c1"># return raw response, if desired</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span><span class="p">:</span>
+            <span class="c1"># reset return_raw flag</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_raw</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_response</span>
+
+        <span class="c1"># split response by line break</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">data_start_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">data_end_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">H</span><span class="p">,</span> <span class="n">G</span> <span class="o">=</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span>
+        <span class="n">M1</span><span class="p">,</span> <span class="n">M2</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">phcof</span> <span class="o">=</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span>
+        <span class="n">headerline</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">centername</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+            <span class="c1"># read in ephemerides header line; replace some field names</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;ephemerides&#39;</span> <span class="ow">and</span> <span class="s2">&quot;Date__(UT)__HR:MN&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">headerline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">headerline</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;solar_presence&#39;</span>
+                <span class="n">headerline</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lunar_presence&quot;</span> <span class="k">if</span> <span class="s2">&quot;Earth&quot;</span> <span class="ow">in</span> <span class="n">centername</span> <span class="k">else</span> <span class="s2">&quot;interfering_body&quot;</span>
+                <span class="n">headerline</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_dump&#39;</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;g:&#39;</span><span class="p">):</span>
+                    <span class="n">headerline</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nearside_flag&#39;</span>
+                    <span class="n">headerline</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;illumination_flag&#39;</span>
+            <span class="c1"># read in elements header line</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;elements&#39;</span> <span class="ow">and</span> <span class="s2">&quot;JDTDB,&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">headerline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">headerline</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_dump&#39;</span>
+            <span class="c1"># read in vectors header line</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;vectors&#39;</span> <span class="ow">and</span> <span class="s2">&quot;JDTDB,&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">headerline</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">headerline</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_dump&#39;</span>
+            <span class="c1"># identify end of data block</span>
+            <span class="k">if</span> <span class="s2">&quot;$$EOE&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">data_end_idx</span> <span class="o">=</span> <span class="n">idx</span>
+            <span class="c1"># identify start of data block</span>
+            <span class="k">if</span> <span class="s2">&quot;$$SOE&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">data_start_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># read in targetname</span>
+            <span class="k">if</span> <span class="s2">&quot;Target body name&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">targetname</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="mi">50</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="c1"># read in center body name</span>
+            <span class="k">if</span> <span class="s2">&quot;Center body name&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">centername</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="mi">50</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="c1"># read in H and G (if available)</span>
+            <span class="k">if</span> <span class="s2">&quot;rotational period in hours)&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">HGline</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;B-V&#39;</span> <span class="ow">in</span> <span class="n">HGline</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;G&#39;</span> <span class="ow">in</span> <span class="n">HGline</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">H</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;G&#39;</span><span class="p">))</span>
+                        <span class="n">G</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;B-V&#39;</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">H</span> <span class="o">=</span> <span class="n">nan</span>
+                        <span class="n">G</span> <span class="o">=</span> <span class="n">nan</span>
+            <span class="c1"># read in M1, M2, k1, k2, and phcof (if available)</span>
+            <span class="k">if</span> <span class="s2">&quot;Comet physical&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">HGline</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">M1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;M2&#39;</span><span class="p">))</span>
+                    <span class="n">k1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;k2&#39;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">M1</span> <span class="o">=</span> <span class="n">nan</span>
+                    <span class="n">k1</span> <span class="o">=</span> <span class="n">nan</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">M2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;k1&#39;</span><span class="p">))</span>
+                    <span class="n">k2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;PHCOF&#39;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">M2</span> <span class="o">=</span> <span class="n">nan</span>
+                    <span class="n">k2</span> <span class="o">=</span> <span class="n">nan</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">phcof</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">HGline</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">phcof</span> <span class="o">=</span> <span class="n">nan</span>
+            <span class="c1"># catch unambiguous names</span>
+            <span class="k">if</span> <span class="p">((</span><span class="s2">&quot;Multiple major-bodies match string&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="s2">&quot;Matching small-bodies:&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;No matches found&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">((</span><span class="s1">&#39;To SELECT, enter record&#39;</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;make unique selection.&#39;</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+                        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">i</span>
+                        <span class="k">break</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Ambiguous target name; provide &#39;</span>
+                                  <span class="s1">&#39;unique id:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                                  <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">])))</span>
+            <span class="c1"># catch unknown target</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Matching small-bodies&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">&quot;No matches found&quot;</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Unknown target (</span><span class="si">{:s}</span><span class="s1">). Maybe try &#39;</span>
+                                  <span class="s1">&#39;different id_type?&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+            <span class="c1"># catch any unavailability of ephemeris data</span>
+            <span class="k">if</span> <span class="s2">&quot;No ephemeris for target&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;No ephemeris for target&#39;</span><span class="p">):]</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">errormsg</span><span class="p">[:</span><span class="n">errormsg</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Horizons Error: </span><span class="si">{:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">errormsg</span><span class="p">))</span>
+            <span class="c1"># catch elements errors</span>
+            <span class="k">if</span> <span class="s2">&quot;Cannot output elements&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Cannot output elements&#39;</span><span class="p">):]</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">errormsg</span><span class="p">[:</span><span class="n">errormsg</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Horizons Error: </span><span class="si">{:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">errormsg</span><span class="p">))</span>
+            <span class="c1"># catch date error</span>
+            <span class="k">if</span> <span class="s2">&quot;Cannot interpret date&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Cannot interpret date&#39;</span><span class="p">):]</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="n">errormsg</span><span class="p">[:</span><span class="n">errormsg</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Horizons Error: </span><span class="si">{:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">errormsg</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s1">&#39;INPUT ERROR&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">headerline</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">headerline</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="n">data_start_idx</span><span class="p">:</span><span class="n">data_end_idx</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Query failed with error message:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                 <span class="o">+</span> <span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Query failed without known error message; &#39;</span>
+                                  <span class="s1">&#39;received the following response:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                  <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+        <span class="c1"># strip whitespaces from column labels</span>
+        <span class="n">headerline</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">headerline</span><span class="p">]</span>
+
+        <span class="c1"># remove all &#39;Cut-off&#39; messages</span>
+        <span class="n">raw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">data_start_idx</span><span class="p">:</span><span class="n">data_end_idx</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s1">&#39;Cut-off&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">]</span>
+
+        <span class="c1"># read in data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">raw_data</span><span class="p">,</span>
+                          <span class="n">names</span><span class="o">=</span><span class="n">headerline</span><span class="p">,</span>
+                          <span class="n">fill_values</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;.n.a.&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;n.a.&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)],</span>
+                          <span class="n">fast_reader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># force to a masked table</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">masked</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># convert data to QTable</span>
+        <span class="c1"># from astropy.table import QTable</span>
+        <span class="c1"># data = QTable(data)</span>
+        <span class="c1"># does currently not work, unit assignment in columns creates error</span>
+        <span class="c1"># results in:</span>
+        <span class="c1"># TypeError: The value must be a valid Python or Numpy numeric type.</span>
+
+        <span class="c1"># remove last column as it is empty</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">remove_column</span><span class="p">(</span><span class="s1">&#39;_dump&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add targetname and physical properties as columns</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">targetname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                               <span class="n">name</span><span class="o">=</span><span class="s1">&#39;targetname&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">H</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">H</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">G</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;G&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">M1</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">M1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;M1&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">M2</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">M2</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;M2&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">k1</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">k1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;k1&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">k2</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">k2</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;k2&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">phcof</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">Column</span><span class="p">([</span><span class="n">phcof</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;phasecoeff&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+        <span class="c1"># replace missing airmass values with 999 (not observable)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;ephemerides&#39;</span> <span class="ow">and</span> <span class="s1">&#39;a-mass&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;a-mass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;a-mass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mi">999</span><span class="p">)</span>
+
+        <span class="c1"># set column definition dictionary</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;ephemerides&#39;</span><span class="p">:</span>
+            <span class="n">column_defs</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">eph_columns</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;elements&#39;</span><span class="p">:</span>
+            <span class="n">column_defs</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">elem_columns</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;vectors&#39;</span><span class="p">:</span>
+            <span class="n">column_defs</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">vec_columns</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Query type unknown.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># set column units</span>
+        <span class="n">rename</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">column_defs</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">column_defs</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">rename</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># rename columns</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">rename</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">column_defs</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<span class="c1"># the default tool for users to interact with is an instance of the Class</span>
+<span class="n">Horizons</span> <span class="o">=</span> <span class="n">HorizonsClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

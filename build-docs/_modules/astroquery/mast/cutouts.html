@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>astroquery.mast.cutouts &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../mast.html" accesskey="U">astroquery.mast</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for astroquery.mast.cutouts</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">MAST Tesscut</span>
+<span class="sd">============</span>
+
+<span class="sd">Cutout queries on TESS FFIs.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">Angle</span>
+
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">InputWarning</span><span class="p">,</span> <span class="n">NoResultsWarning</span><span class="p">,</span> <span class="n">InvalidQueryError</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">parse_input_location</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">MastQueryWithLogin</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TesscutClass&quot;</span><span class="p">,</span> <span class="s2">&quot;Tesscut&quot;</span><span class="p">,</span> <span class="s2">&quot;ZcutClass&quot;</span><span class="p">,</span> <span class="s2">&quot;Zcut&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a user input cutout size and parse it into the regular format</span>
+<span class="sd">    [ny,nx] where nx/ny are quantities with units either pixels or degrees.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">        The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">        a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">        will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">        ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">        units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">        angular units.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    response : array</span>
+<span class="sd">        Size array in the form [ny, nx] where nx/ny are quantities with units</span>
+<span class="sd">        either pixels or degrees.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Making size into an array [ny, nx]</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Too many dimensions in cutout size, only the first two will be used.&quot;</span><span class="p">,</span>
+                      <span class="n">InputWarning</span><span class="p">)</span>
+
+    <span class="c1"># Getting x and y out of the size</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;px&quot;</span>
+    <span class="k">elif</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">pixel</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;px&quot;</span>
+    <span class="k">elif</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">physical_type</span> <span class="o">==</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Cutout size must be in pixels or angular quantity.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">units</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="TesscutClass">
+<a class="viewcode-back" href="../../../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass">[docs]</a>
+<span class="k">class</span> <span class="nc">TesscutClass</span><span class="p">(</span><span class="n">MastQueryWithLogin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAST TESS FFI cutout query class.</span>
+
+<span class="sd">    Class for accessing TESS full-frame image cutouts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sector&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;sector&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;astrocut&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;astrocut&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;mt_sector&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;moving_target/sector&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;mt_astrocut&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;moving_target/astrocut&quot;</span><span class="p">}</span>
+                    <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">set_service_params</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="s2">&quot;tesscut&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TesscutClass.get_sectors">
+<a class="viewcode-back" href="../../../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.get_sectors">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_sectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;SPOC&#39;</span><span class="p">,</span> <span class="n">objectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">moving_target</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mt_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of the TESS data sectors whose footprints intersect</span>
+<span class="sd">        with the given search area.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object, optional</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+
+<span class="sd">            NOTE: If moving_target or objectname is supplied, this argument cannot be used.</span>
+<span class="sd">        radius : str, float, or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0 degrees.</span>
+<span class="sd">            If supplied as a float degrees is the assumed unit.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `astropy.units` may also be used.</span>
+
+<span class="sd">            NOTE: If moving_target is supplied, this argument is ignored.</span>
+<span class="sd">        product : str</span>
+<span class="sd">            Default is &#39;SPOC&#39;.</span>
+<span class="sd">            The product whose sectors will be returned. Options are: &#39;SPOC&#39; or &#39;TICA&#39;, for the Science Processing</span>
+<span class="sd">            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,</span>
+<span class="sd">            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC</span>
+<span class="sd">            counterparts, but are not available for sectors 1-26.</span>
+
+<span class="sd">            NOTE: TICA is currently not available for moving targets.</span>
+<span class="sd">        objectname : str, optional</span>
+<span class="sd">            The target around which to search, by name (objectname=&quot;M104&quot;)</span>
+<span class="sd">            or TIC ID (objectname=&quot;TIC 141914082&quot;). If moving_target is True, input must be the name or ID</span>
+<span class="sd">            (as understood by the `JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__)</span>
+<span class="sd">            of a moving target such as an asteroid or comet.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        moving_target : bool, optional</span>
+<span class="sd">            Indicate whether the object is a moving target or not. Default is set to False, in other words,</span>
+<span class="sd">            not a moving target.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        mt_type : str, optional</span>
+<span class="sd">            The moving target type, valid inputs are majorbody and smallbody. If not supplied</span>
+<span class="sd">            first majorbody is tried and then smallbody if a matching majorbody is not found.</span>
+
+<span class="sd">            NOTE: If moving_target is supplied, this argument is ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">            Sector/camera/chip information for given coordinates/objectname/moving_target.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">moving_target</span><span class="p">:</span>
+
+            <span class="c1"># The Moving Targets service is currently only available for SPOC</span>
+            <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;SPOC&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only SPOC is available for moving targets queries.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Check that objectname has been passed in and coordinates</span>
+            <span class="c1"># is not</span>
+            <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only one of moving_target and coordinates may be specified. &quot;</span>
+                                        <span class="s2">&quot;Please remove coordinates if using moving_target and objectname.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">objectname</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Please specify the object name or ID (as understood by the &quot;</span>
+                                        <span class="s2">&quot;`JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__) &quot;</span>
+                                        <span class="s2">&quot;of a moving target such as an asteroid or comet.&quot;</span><span class="p">)</span>
+
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s2">&quot;obj_id&quot;</span><span class="p">:</span> <span class="n">objectname</span><span class="p">}</span>
+
+            <span class="c1"># Add optional parameter is present</span>
+            <span class="k">if</span> <span class="n">mt_type</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;obj_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mt_type</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;mt_sector&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># Get Skycoord object for coordinates/object</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">objectname</span><span class="p">)</span>
+
+            <span class="c1"># If radius is just a number we assume degrees</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+            <span class="c1"># Making sure input product is either SPOC or TICA</span>
+            <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TICA&#39;</span><span class="p">,</span> <span class="s1">&#39;SPOC&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Input product must either be SPOC or TICA.&quot;</span><span class="p">)</span>
+
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ra&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                      <span class="s2">&quot;dec&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                      <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                      <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()}</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;sector&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># Raise any errors</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="n">sector_json</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;results&#39;</span><span class="p">]</span>
+        <span class="n">sector_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sectorName&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                       <span class="s1">&#39;sector&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                       <span class="s1">&#39;camera&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                       <span class="s1">&#39;ccd&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">sector_json</span><span class="p">:</span>
+            <span class="n">sector_dict</span><span class="p">[</span><span class="s1">&#39;sectorName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;sectorName&#39;</span><span class="p">])</span>
+            <span class="n">sector_dict</span><span class="p">[</span><span class="s1">&#39;sector&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;sector&#39;</span><span class="p">]))</span>
+            <span class="n">sector_dict</span><span class="p">[</span><span class="s1">&#39;camera&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;camera&#39;</span><span class="p">]))</span>
+            <span class="n">sector_dict</span><span class="p">[</span><span class="s1">&#39;ccd&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;ccd&#39;</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">sector_json</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Coordinates are not in any TESS sector.&quot;</span><span class="p">,</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">sector_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TesscutClass.download_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.download_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;SPOC&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                         <span class="n">inflate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">objectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mt_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download cutout target pixel file(s) around the given coordinates with indicated size.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object, optional</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+
+<span class="sd">            NOTE: If moving_target or objectname is supplied, this argument cannot be used.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+<span class="sd">        sector : int</span>
+<span class="sd">            Optional.</span>
+<span class="sd">            The TESS sector to return the cutout from.  If not supplied, cutouts</span>
+<span class="sd">            from all available sectors on which the coordinate appears will be returned.</span>
+<span class="sd">        product : str</span>
+<span class="sd">            Default is &#39;SPOC&#39;.</span>
+<span class="sd">            The product that the cutouts will be made out of. Options are: &#39;SPOC&#39; or &#39;TICA&#39;, for the Science Processing</span>
+<span class="sd">            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,</span>
+<span class="sd">            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC</span>
+<span class="sd">            counterparts, but are not available for sectors 1-26.</span>
+
+<span class="sd">            NOTE: TICA is currently not available for moving targets.</span>
+<span class="sd">        path : str</span>
+<span class="sd">            Optional.</span>
+<span class="sd">            The directory in which the cutouts will be saved.</span>
+<span class="sd">            Defaults to current directory.</span>
+<span class="sd">        inflate : bool</span>
+<span class="sd">            Optional, default True.</span>
+<span class="sd">            Cutout target pixel files are returned from the server in a zip file,</span>
+<span class="sd">            by default they will be inflated and the zip will be removed.</span>
+<span class="sd">            Set inflate to false to stop before the inflate step.</span>
+<span class="sd">        objectname : str, optional</span>
+<span class="sd">            The target around which to search, by name (objectname=&quot;M104&quot;)</span>
+<span class="sd">            or TIC ID (objectname=&quot;TIC 141914082&quot;). If moving_target is True, input must be the name or ID</span>
+<span class="sd">            (as understood by the `JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__)</span>
+<span class="sd">            of a moving target such as an asteroid or comet.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        moving_target : str, optional</span>
+<span class="sd">            Indicate whether the object is a moving target or not. Default is set to False, in other words,</span>
+<span class="sd">            not a moving target.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        mt_type : str, optional</span>
+<span class="sd">            The moving target type, valid inputs are majorbody and smallbody. If not supplied</span>
+<span class="sd">            first majorbody is tried and then smallbody if a matching majorbody is not found.</span>
+
+<span class="sd">            NOTE: If moving_target is supplied, this argument is ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">moving_target</span><span class="p">:</span>
+
+            <span class="c1"># The Moving Targets service is currently only available for SPOC</span>
+            <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;SPOC&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only SPOC is available for moving targets queries.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Check that objectname has been passed in and coordinates</span>
+            <span class="c1"># is not</span>
+            <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only one of moving_target and coordinates may be specified. &quot;</span>
+                                        <span class="s2">&quot;Please remove coordinates if using moving_target and objectname.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">objectname</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Please specify the object name or ID (as understood by the &quot;</span>
+                                        <span class="s2">&quot;`JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__) &quot;</span>
+                                        <span class="s2">&quot;of a moving target such as an asteroid or comet.&quot;</span><span class="p">)</span>
+
+            <span class="n">astrocut_request</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;moving_target/astrocut?obj_id=</span><span class="si">{</span><span class="n">objectname</span><span class="si">}</span><span class="s2">&amp;product=</span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">mt_type</span><span class="p">:</span>
+                <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;obj_type=</span><span class="si">{</span><span class="n">mt_type</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># Get Skycoord object for coordinates/object</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">objectname</span><span class="p">)</span>
+
+            <span class="n">astrocut_request</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;astrocut?ra=</span><span class="si">{</span><span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="si">}</span><span class="s2">&amp;dec=</span><span class="si">{</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Adding the arguments that are common between moving/still astrocut requests</span>
+        <span class="n">size_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;y=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&amp;x=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&amp;units=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Making sure input product is either SPOC or TICA,</span>
+        <span class="c1"># and adding the argument to the request URL</span>
+        <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TICA&#39;</span><span class="p">,</span> <span class="s1">&#39;SPOC&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Input product must either be SPOC or TICA.&quot;</span><span class="p">)</span>
+        <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;product=</span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">sector</span><span class="p">:</span>
+            <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="s2">&quot;&amp;sector=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sector</span><span class="p">)</span>
+
+        <span class="n">astrocut_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">REQUEST_URL</span> <span class="o">+</span> <span class="n">astrocut_request</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">zipfile_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">tesscut_</span><span class="si">{}</span><span class="s2">.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">astrocut_url</span><span class="p">,</span> <span class="n">zipfile_path</span><span class="p">)</span>
+
+        <span class="n">localpath_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Local Path&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+
+        <span class="c1"># Checking if we got a zip file or a json no results message</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">is_zipfile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">FLE</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">FLE</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inflate</span><span class="p">:</span>  <span class="c1"># not unzipping</span>
+            <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">zipfile_path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inflating...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># unzipping the zipfile</span>
+        <span class="n">zip_ref</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">cutout_files</span> <span class="o">=</span> <span class="n">zip_ref</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="n">cutout_files</span><span class="p">)</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">)</span>
+
+        <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cutout_files</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">localpath_table</span></div>
+
+
+<div class="viewcode-block" id="TesscutClass.get_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.TesscutClass.html#astroquery.mast.TesscutClass.get_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;SPOC&#39;</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">objectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">moving_target</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mt_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get cutout target pixel file(s) around the given coordinates with indicated size,</span>
+<span class="sd">        and return them as a list of  `~astropy.io.fits.HDUList` objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object, optional</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+
+<span class="sd">            NOTE: If moving_target or objectname is supplied, this argument cannot be used.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+<span class="sd">        product : str</span>
+<span class="sd">            Default is &#39;SPOC&#39;.</span>
+<span class="sd">            The product that the cutouts will be made out of. Options are: &#39;SPOC&#39; or &#39;TICA&#39;, for the Science Processing</span>
+<span class="sd">            Operations Center (SPOC) products, and the TESS Image CAlibration (TICA) high-level science products,</span>
+<span class="sd">            respectively. TICA products will usually be available for the latest sectors sooner than their SPOC</span>
+<span class="sd">            counterparts, but are not available for sectors 1-26.</span>
+
+<span class="sd">            NOTE: TICA is currently not available for moving targets.</span>
+<span class="sd">        sector : int</span>
+<span class="sd">            Optional.</span>
+<span class="sd">            The TESS sector to return the cutout from.  If not supplied, cutouts</span>
+<span class="sd">            from all available sectors on which the coordinate appears will be returned.</span>
+<span class="sd">        objectname : str, optional</span>
+<span class="sd">            The target around which to search, by name (objectname=&quot;M104&quot;)</span>
+<span class="sd">            or TIC ID (objectname=&quot;TIC 141914082&quot;). If moving_target is True, input must be the name or ID</span>
+<span class="sd">            (as understood by the `JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__)</span>
+<span class="sd">            of a moving target such as an asteroid or comet.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        moving_target : str, optional</span>
+<span class="sd">            Indicate whether the object is a moving target or not. Default is set to False, in other words,</span>
+<span class="sd">            not a moving target.</span>
+
+<span class="sd">            NOTE: If coordinates is supplied, this argument cannot be used.</span>
+<span class="sd">        mt_type : str, optional</span>
+<span class="sd">            The moving target type, valid inputs are majorbody and smallbody. If not supplied</span>
+<span class="sd">            first majorbody is tried and then smallbody if a matching majorbody is not found.</span>
+
+<span class="sd">            NOTE: If moving_target is supplied, this argument is ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : A list of `~astropy.io.fits.HDUList` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setting up the cutout size</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="c1"># Add sector if present</span>
+        <span class="k">if</span> <span class="n">sector</span><span class="p">:</span>
+            <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;sector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sector</span>
+
+        <span class="k">if</span> <span class="n">moving_target</span><span class="p">:</span>
+
+            <span class="c1"># The Moving Targets service is currently only available for SPOC</span>
+            <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;SPOC&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only SPOC is available for moving targets queries.&quot;</span><span class="p">)</span>
+
+            <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+            <span class="c1"># Check that objectname has been passed in and coordinates</span>
+            <span class="c1"># is not</span>
+            <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Only one of moving_target and coordinates may be specified. &quot;</span>
+                                        <span class="s2">&quot;Please remove coordinates if using moving_target and objectname.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">objectname</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Please specify the object name or ID (as understood by the &quot;</span>
+                                        <span class="s2">&quot;`JPL ephemerides service &lt;https://ssd.jpl.nasa.gov/horizons.cgi&gt;`__) &quot;</span>
+                                        <span class="s2">&quot;of a moving target such as an asteroid or comet.&quot;</span><span class="p">)</span>
+
+            <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;obj_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objectname</span>
+
+            <span class="c1"># Add optional parameter if present</span>
+            <span class="k">if</span> <span class="n">mt_type</span><span class="p">:</span>
+                <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;obj_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mt_type</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;mt_astrocut&quot;</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># Making sure input product is either SPOC or TICA, then add the `product` param</span>
+            <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TICA&#39;</span><span class="p">,</span> <span class="s1">&#39;SPOC&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">InvalidQueryError</span><span class="p">(</span><span class="s2">&quot;Input product must either be SPOC or TICA.&quot;</span><span class="p">)</span>
+
+            <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+            <span class="c1"># Get Skycoord object for coordinates/object</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">objectname</span><span class="p">)</span>
+
+            <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+            <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;astrocut&quot;</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">)</span>
+
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise any errors</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ZIPFILE</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="c1"># Open all the contained fits files:</span>
+        <span class="c1"># Since we cannot seek on a compressed zip file,</span>
+        <span class="c1"># we have to read the data, wrap it in another BytesIO object,</span>
+        <span class="c1"># and then open that using fits.open</span>
+        <span class="n">cutout_hdus_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ZIPFILE</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="n">CUTOUT</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">ZIPFILE</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">cutout_hdus_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">CUTOUT</span><span class="p">))</span>
+
+            <span class="c1"># preserve the original filename in the fits object</span>
+            <span class="n">cutout_hdus_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">return</span> <span class="n">cutout_hdus_list</span></div>
+</div>
+
+
+
+<span class="n">Tesscut</span> <span class="o">=</span> <span class="n">TesscutClass</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ZcutClass">
+<a class="viewcode-back" href="../../../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass">[docs]</a>
+<span class="k">class</span> <span class="nc">ZcutClass</span><span class="p">(</span><span class="n">MastQueryWithLogin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAST ZCUT cutout query class.</span>
+
+<span class="sd">    Class for accessing deep field full-frame image cutouts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accepted_img_params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;stretch&#39;</span><span class="p">,</span> <span class="s1">&#39;minmax_percent&#39;</span><span class="p">,</span> <span class="s1">&#39;minmax_value&#39;</span><span class="p">,</span> <span class="s1">&#39;invert&#39;</span><span class="p">]</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;survey&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;survey&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;astrocut&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;astrocut&quot;</span><span class="p">}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">set_service_params</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="s2">&quot;zcut&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZcutClass.get_surveys">
+<a class="viewcode-back" href="../../../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.get_surveys">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_surveys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="s2">&quot;0d&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a list of deep field surveys available for a position in the sky</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+<span class="sd">        radius : str, float, or `~astropy.units.Quantity` object, optional</span>
+<span class="sd">            Default 0 degrees.</span>
+<span class="sd">            If supplied as a float, degrees is the assumed unit.</span>
+<span class="sd">            The string must be parsable by `~astropy.coordinates.Angle`. The</span>
+<span class="sd">            appropriate `~astropy.units.Quantity` object from</span>
+<span class="sd">            `astropy.units` may also be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : list</span>
+<span class="sd">            List of available deep field surveys at the given coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get Skycoord object for coordinates/object</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ra&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                  <span class="s2">&quot;dec&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                  <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="o">.</span><span class="n">deg</span><span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;survey&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise any errors</span>
+
+        <span class="n">survey_json</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;surveys&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">survey_json</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Coordinates are not in an available deep field survey.&quot;</span><span class="p">,</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">survey_json</span></div>
+
+
+<div class="viewcode-block" id="ZcutClass.download_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.download_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">survey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutout_format</span><span class="o">=</span><span class="s2">&quot;fits&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">inflate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">img_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download cutout FITS/image file(s) around the given coordinates with indicated size.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+<span class="sd">        survey : str</span>
+<span class="sd">            Optional</span>
+<span class="sd">            The survey to restrict the cutout. The survey parameter will restrict to</span>
+<span class="sd">            only the matching survey. Default behavior is to return all matched surveys.</span>
+<span class="sd">        cutout_format : str</span>
+<span class="sd">            Optional</span>
+<span class="sd">            The cutout file format. Default is fits, valid options are fits, jpg, png.</span>
+<span class="sd">        path : str</span>
+<span class="sd">            Optional.</span>
+<span class="sd">            The directory in which the cutouts will be saved.</span>
+<span class="sd">            Defaults to current directory.</span>
+<span class="sd">        inflate : bool</span>
+<span class="sd">            Optional, default True.</span>
+<span class="sd">            Cutout target pixel files are returned from the server in a zip file,</span>
+<span class="sd">            by default they will be inflated and the zip will be removed.</span>
+<span class="sd">            Set inflate to false to stop before the inflate step.</span>
+<span class="sd">        **img_params : dict</span>
+<span class="sd">            Optional, only used if format is jpg or png</span>
+<span class="sd">            Valid parameters are stretch, minmax_percent, minmax_value, and invert.</span>
+<span class="sd">            These arguments are documented here:</span>
+<span class="sd">            https://astrocut.readthedocs.io/en/latest/api/astrocut.img_cut.html</span>
+<span class="sd">            The Column Name is the keyword, with the argument being one or more acceptable</span>
+<span class="sd">            values for that parameter, except for fields with a float datatype where the</span>
+<span class="sd">            argument should be in the form [minVal, maxVal].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">            Cutout file(s) for given coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get Skycoord object for coordinates/object</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+        <span class="n">size_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">astrocut_request</span> <span class="o">=</span> <span class="s2">&quot;ra=</span><span class="si">{}</span><span class="s2">&amp;dec=</span><span class="si">{}</span><span class="s2">&amp;y=</span><span class="si">{}</span><span class="s2">&amp;x=</span><span class="si">{}</span><span class="s2">&amp;units=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                                                                    <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                                                                    <span class="n">size_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+                                                                    <span class="n">size_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+                                                                    <span class="n">size_dict</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">survey</span><span class="p">:</span>
+            <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="s2">&quot;&amp;survey=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">survey</span><span class="p">)</span>
+
+        <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="s2">&quot;&amp;format=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cutout_format</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">img_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted_img_params</span><span class="p">:</span>
+                <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="s2">&quot;&amp;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">img_params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="n">astrocut_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">REQUEST_URL</span> <span class="o">+</span> <span class="s2">&quot;astrocut?&quot;</span> <span class="o">+</span> <span class="n">astrocut_request</span>
+        <span class="n">zipfile_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">zcut_</span><span class="si">{}</span><span class="s2">.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">astrocut_url</span><span class="p">,</span> <span class="n">zipfile_path</span><span class="p">)</span>
+
+        <span class="n">localpath_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Local Path&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">is_zipfile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">FLE</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">FLE</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inflate</span><span class="p">:</span>  <span class="c1"># not unzipping</span>
+            <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">zipfile_path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inflating...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># unzipping the zipfile</span>
+        <span class="n">zip_ref</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">cutout_files</span> <span class="o">=</span> <span class="n">zip_ref</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="n">cutout_files</span><span class="p">)</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">)</span>
+
+        <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cutout_files</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">localpath_table</span></div>
+
+
+<div class="viewcode-block" id="ZcutClass.get_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.ZcutClass.html#astroquery.mast.ZcutClass.get_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">survey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get cutout  FITS file(s) around the given coordinates with indicated size,</span>
+<span class="sd">        and return them as a list of  `~astropy.io.fits.HDUList` objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+<span class="sd">            One and only one of coordinates and objectname must be supplied.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+<span class="sd">        survey : str</span>
+<span class="sd">            Optional</span>
+<span class="sd">            The survey to restrict the cutout. The survey parameter will restrict to</span>
+<span class="sd">            only the matching survey. Default behavior is to return all matched surveys.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : A list of `~astropy.io.fits.HDUList` objects.</span>
+<span class="sd">            Cutoutfiles for given coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get Skycoord object for coordinates/object</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="k">if</span> <span class="n">survey</span><span class="p">:</span>
+            <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;survey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">survey</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;astrocut&quot;</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise any errors</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ZIPFILE</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="c1"># Open all the contained fits files:</span>
+        <span class="c1"># Since we cannot seek on a compressed zip file,</span>
+        <span class="c1"># we have to read the data, wrap it in another BytesIO object,</span>
+        <span class="c1"># and then open that using fits.open</span>
+        <span class="n">cutout_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ZIPFILE</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="n">CUTOUT</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">ZIPFILE</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">cutout_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">CUTOUT</span><span class="p">))</span>
+
+            <span class="c1"># preserve the original filename in the fits object</span>
+            <span class="n">cutout_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">return</span> <span class="n">cutout_list</span></div>
+</div>
+
+
+
+<span class="n">Zcut</span> <span class="o">=</span> <span class="n">ZcutClass</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="HapcutClass">
+<a class="viewcode-back" href="../../../api/astroquery.mast.HapcutClass.html#astroquery.mast.HapcutClass">[docs]</a>
+<span class="k">class</span> <span class="nc">HapcutClass</span><span class="p">(</span><span class="n">MastQueryWithLogin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAST Hubble Advanced Product (HAP) cutout query class.</span>
+
+<span class="sd">    Class for accessing HAP image cutouts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;astrocut&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;astrocut&quot;</span><span class="p">}}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">set_service_params</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="s2">&quot;hapcut&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HapcutClass.download_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.HapcutClass.html#astroquery.mast.HapcutClass.download_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">inflate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download cutout images around the given coordinates with indicated size.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+<span class="sd">        path : str</span>
+<span class="sd">            Optional.</span>
+<span class="sd">            The directory in which the cutouts will be saved.</span>
+<span class="sd">            Defaults to current directory.</span>
+<span class="sd">        inflate : bool</span>
+<span class="sd">            Optional, default True.</span>
+<span class="sd">            Cutout target pixel files are returned from the server in a zip file,</span>
+<span class="sd">            by default they will be inflated and the zip will be removed.</span>
+<span class="sd">            Set inflate to false to stop before the inflate step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : `~astropy.table.Table`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get Skycoord object for coordinates/object</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="c1"># Build initial astrocut request</span>
+        <span class="n">astrocut_request</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;astrocut?ra=</span><span class="si">{</span><span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span><span class="si">}</span><span class="s2">&amp;dec=</span><span class="si">{</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Add size parameters to request</span>
+        <span class="n">size_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">astrocut_request</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;x=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&amp;y=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&amp;units=</span><span class="si">{</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Build the URL</span>
+        <span class="n">astrocut_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">REQUEST_URL</span> <span class="o">+</span> <span class="n">astrocut_request</span>
+
+        <span class="c1"># Set up the download path</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">zipfile_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">hapcut_</span><span class="si">{}</span><span class="s2">.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">))</span>
+
+        <span class="c1"># Download</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">astrocut_url</span><span class="p">,</span> <span class="n">zipfile_path</span><span class="p">)</span>
+        <span class="n">localpath_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Local Path&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+
+        <span class="c1"># Checking if we got a zip file or a json no results message</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">is_zipfile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">FLE</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">FLE</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inflate</span><span class="p">:</span>  <span class="c1"># not unzipping</span>
+            <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">zipfile_path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">localpath_table</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inflating...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># unzipping the zipfile</span>
+        <span class="n">zip_ref</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">cutout_files</span> <span class="o">=</span> <span class="n">zip_ref</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="n">cutout_files</span><span class="p">)</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">zipfile_path</span><span class="p">)</span>
+
+        <span class="n">localpath_table</span><span class="p">[</span><span class="s1">&#39;Local Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cutout_files</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">localpath_table</span></div>
+
+
+<div class="viewcode-block" id="HapcutClass.get_cutouts">
+<a class="viewcode-back" href="../../../api/astroquery.mast.HapcutClass.html#astroquery.mast.HapcutClass.get_cutouts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cutouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get cutout image(s) around the given coordinates with indicated size,</span>
+<span class="sd">        and return them as a list of  `~astropy.io.fits.HDUList` objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : str or `astropy.coordinates` object</span>
+<span class="sd">            The target around which to search. It may be specified as a</span>
+<span class="sd">            string or as the appropriate `astropy.coordinates` object.</span>
+<span class="sd">        size : int, array-like, `~astropy.units.Quantity`</span>
+<span class="sd">            Optional, default 5 pixels.</span>
+<span class="sd">            The size of the cutout array. If ``size`` is a scalar number or</span>
+<span class="sd">            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``</span>
+<span class="sd">            will be created.  If ``size`` has two elements, they should be in</span>
+<span class="sd">            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in</span>
+<span class="sd">            units of pixels. `~astropy.units.Quantity` objects must be in pixel or</span>
+<span class="sd">            angular units.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response : A list of `~astropy.io.fits.HDUList` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get Skycoord object for coordinates/object</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">parse_input_location</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="n">_parse_cutout_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="c1"># Need to convert integers from numpy dtypes</span>
+        <span class="c1"># so we can convert the dictionary into a JSON object</span>
+        <span class="c1"># in service_request_async(...)</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Adding RA and DEC to parameters dictionary</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">deg</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">deg</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_api_connection</span><span class="o">.</span><span class="n">service_request_async</span><span class="p">(</span><span class="s2">&quot;astrocut&quot;</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">,</span> <span class="n">use_json</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise any errors</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ZIPFILE</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">],</span> <span class="n">NoResultsWarning</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+        <span class="c1"># Open all the contained fits files:</span>
+        <span class="c1"># Since we cannot seek on a compressed zip file,</span>
+        <span class="c1"># we have to read the data, wrap it in another BytesIO object,</span>
+        <span class="c1"># and then open that using fits.open</span>
+        <span class="n">cutout_hdus_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ZIPFILE</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="n">CUTOUT</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">ZIPFILE</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">cutout_hdus_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">CUTOUT</span><span class="p">))</span>
+
+            <span class="c1"># preserve the original filename in the fits object</span>
+            <span class="n">cutout_hdus_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">return</span> <span class="n">cutout_hdus_list</span></div>
+</div>
+
+
+
+<span class="n">Hapcut</span> <span class="o">=</span> <span class="n">HapcutClass</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

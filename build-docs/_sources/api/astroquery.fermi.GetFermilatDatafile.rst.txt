@@ -1,0 +1,31 @@
+GetFermilatDatafile
+===================
+
+.. currentmodule:: astroquery.fermi
+
+.. autoclass:: GetFermilatDatafile
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~GetFermilatDatafile.TIMEOUT
+      ~GetFermilatDatafile.check_frequency
+      ~GetFermilatDatafile.fitsfile_re
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~GetFermilatDatafile.__call__
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: check_frequency
+   .. autoattribute:: fitsfile_re
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

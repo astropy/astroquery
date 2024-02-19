@@ -1,0 +1,29 @@
+Tap
+===
+
+.. currentmodule:: astroquery.utils.tap
+
+.. autoclass:: Tap
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~Tap.launch_job
+      ~Tap.launch_job_async
+      ~Tap.list_async_jobs
+      ~Tap.load_async_job
+      ~Tap.load_table
+      ~Tap.load_tables
+      ~Tap.save_results
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: launch_job
+   .. automethod:: launch_job_async
+   .. automethod:: list_async_jobs
+   .. automethod:: load_async_job
+   .. automethod:: load_table
+   .. automethod:: load_tables
+   .. automethod:: save_results

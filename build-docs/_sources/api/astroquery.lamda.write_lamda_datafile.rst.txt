@@ -1,0 +1,6 @@
+write_lamda_datafile
+====================
+
+.. currentmodule:: astroquery.lamda
+
+.. autofunction:: write_lamda_datafile

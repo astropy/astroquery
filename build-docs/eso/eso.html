@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ESO Queries (astroquery.eso) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EsoClass" href="../api/astroquery.eso.EsoClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.esasky.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.eso.EsoClass.html" title="EsoClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.esasky.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>ESO Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.eso</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="eso-queries-astroquery-eso">
+<span id="astroquery-eso"></span><h1>ESO Queries (<a class="reference internal" href="#module-astroquery.eso" title="astroquery.eso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.eso</span></code></a>)<a class="headerlink" href="#eso-queries-astroquery-eso" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>This is a python interface for querying the ESO archive web service.
+For now, it supports the following:</p>
+<ul class="simple">
+<li><p>listing available instruments</p></li>
+<li><p>listing available surveys (phase 3)</p></li>
+<li><p>searching all instrument specific raw data: <a class="reference external" href="http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html">http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html</a></p></li>
+<li><p>searching data products (phase 3): <a class="reference external" href="http://archive.eso.org/wdb/wdb/adp/phase3_main/form">http://archive.eso.org/wdb/wdb/adp/phase3_main/form</a></p></li>
+<li><p>downloading data by dataset identifiers: <a class="reference external" href="http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html">http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html</a></p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h2>
+<p>The following packages are required for the use of this module:</p>
+<ul class="simple">
+<li><p>keyring</p></li>
+<li><p>lxml</p></li>
+<li><p>requests &gt;= 2.4.0</p></li>
+</ul>
+</section>
+<section id="authentication-with-eso-user-portal">
+<h2>Authentication with ESO User Portal<a class="headerlink" href="#authentication-with-eso-user-portal" title="Link to this heading">¶</a></h2>
+<p>Most of the datasets in the ESO Science Archive are public and can be downloaded anonymously
+without authenticating with the ESO User Portal (<a class="reference external" href="https://www.eso.org/sso/login">https://www.eso.org/sso/login</a>).
+Data with restricted access like datasets under proprietary period can be downloaded by authorised users
+(for example PIs of the corresponding observing programmes and their delegates)
+after authentication with the ESO User Portal.
+This authentication is performed directly with the provided <a class="reference internal" href="../api/astroquery.query.QueryWithLogin.html#astroquery.query.QueryWithLogin.login" title="astroquery.query.QueryWithLogin.login"><code class="xref py py-meth docutils literal notranslate"><span class="pre">login()</span></code></a> command,
+as illustrated in the example below. This method uses your keyring to securely
+store the password in your operating system. As such you should have to enter your
+correct password only once, and later be able to use this package for automated
+interaction with the ESO archive.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.eso</span> <span class="kn">import</span> <span class="n">Eso</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span> <span class="o">=</span> <span class="n">Eso</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># First example: TEST is not a valid username, it will fail</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;TEST&quot;</span><span class="p">)</span> 
+<span class="go">WARNING: No password was found in the keychain for the provided username. [astroquery.query]</span>
+<span class="go">TEST, enter your password:</span>
+
+<span class="go">INFO: Authenticating TEST on https://www.eso.org/sso ... [astroquery.eso.core]</span>
+<span class="go">ERROR: Authentication failed! [astroquery.eso.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Second example: pretend ICONDOR is a valid username</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;ICONDOR&quot;</span><span class="p">,</span> <span class="n">store_password</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+<span class="go">WARNING: No password was found in the keychain for the provided username. [astroquery.query]</span>
+<span class="go">ICONDOR, enter your password:</span>
+
+<span class="go">INFO: Authenticating ICONDOR on https://www.eso.org/sso ... [astroquery.eso.core]</span>
+<span class="go">INFO: Authentication successful! [astroquery.eso.core]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># After the first login, your password has been stored</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;ICONDOR&quot;</span><span class="p">)</span> 
+<span class="go">INFO: Authenticating ICONDOR on https://www.eso.org/sso ... [astroquery.eso.core]</span>
+<span class="go">INFO: Authentication successful! [astroquery.eso.core]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Successful download of a public file (with or without login)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">(</span><span class="s1">&#39;AMBER.2006-03-14T07:40:19.830&#39;</span><span class="p">)</span> 
+<span class="go">INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/AMBER.2006-03-14T07:40:19.830</span>
+<span class="go">INFO: Successfully downloaded dataset AMBER.2006-03-14T07:40:19.830</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access denied to a restricted-access file (as anonymous user or as authenticated but not authorised user)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">(</span><span class="s1">&#39;ADP.2023-03-02T01:01:24.355&#39;</span><span class="p">)</span> 
+<span class="go">INFO: Downloading file 1/1 https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355</span>
+<span class="go">ERROR: Access denied to https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355</span>
+</pre></div>
+</div>
+<section id="automatic-password">
+<h3>Automatic password<a class="headerlink" href="#automatic-password" title="Link to this heading">¶</a></h3>
+<p>As shown above, your password can be stored by the <a class="reference external" href="https://pypi.python.org/pypi/keyring">keyring</a> module, if you
+pass the argument <code class="docutils literal notranslate"><span class="pre">store_password=True</span></code> to <code class="docutils literal notranslate"><span class="pre">Eso.login()</span></code>.
+For security reason, storing the password is turned off by default.</p>
+<p>MAKE SURE YOU TRUST THE MACHINE WHERE YOU USE THIS FUNCTIONALITY!!!</p>
+<p>NB: You can delete your password later with the command
+<code class="docutils literal notranslate"><span class="pre">keyring.delete_password('astroquery:www.eso.org',</span> <span class="pre">'username')</span></code>.</p>
+</section>
+<section id="automatic-login">
+<h3>Automatic login<a class="headerlink" href="#automatic-login" title="Link to this heading">¶</a></h3>
+<p>You can further automate the authentication process by configuring a default username.
+The astroquery configuration file, which can be found following the procedure
+detailed in <a class="reference external" href="http://docs.astropy.org/en/stable/config/index.html">astropy.config</a>,
+needs to be edited by adding <code class="docutils literal notranslate"><span class="pre">username</span> <span class="pre">=</span> <span class="pre">ICONDOR</span></code> in the <code class="docutils literal notranslate"><span class="pre">[eso]</span></code> section.</p>
+<p>When configured, the username in the <code class="docutils literal notranslate"><span class="pre">login()</span></code> method call can be omitted
+as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.eso</span> <span class="kn">import</span> <span class="n">Eso</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span> <span class="o">=</span> <span class="n">Eso</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">login</span><span class="p">()</span> 
+<span class="go">ICONDOR, enter your ESO password:</span>
+</pre></div>
+</div>
+<p>NB: If an automatic login is configured, other Eso methods can log you in
+automatically when needed.</p>
+</section>
+</section>
+<section id="query-the-eso-archive-for-raw-data">
+<h2>Query the ESO archive for raw data<a class="headerlink" href="#query-the-eso-archive-for-raw-data" title="Link to this heading">¶</a></h2>
+<section id="identifying-available-instrument-specific-queries">
+<h3>Identifying available instrument-specific queries<a class="headerlink" href="#identifying-available-instrument-specific-queries" title="Link to this heading">¶</a></h3>
+<p>The direct retrieval of datasets is better explained with a running example, continuing from the
+authentication example above. The first thing to do is to identify the instrument to query. The
+list of available instrument-specific queries can be obtained with the
+<a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.list_instruments" title="astroquery.eso.EsoClass.list_instruments"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list_instruments()</span></code></a> method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.eso</span> <span class="kn">import</span> <span class="n">Eso</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span> <span class="o">=</span> <span class="n">Eso</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">list_instruments</span><span class="p">()</span>
+<span class="go">[&#39;fors1&#39;, &#39;fors2&#39;, &#39;sphere&#39;, &#39;vimos&#39;, &#39;omegacam&#39;, &#39;eris&#39;, &#39;hawki&#39;, &#39;isaac&#39;, &#39;naco&#39;, &#39;visir&#39;,</span>
+<span class="go"> &#39;vircam&#39;, &#39;apex&#39;, &#39;giraffe&#39;, &#39;uves&#39;, &#39;xshooter&#39;, &#39;espresso&#39;, &#39;muse&#39;, &#39;crires&#39;,</span>
+<span class="go"> &#39;kmos&#39;, &#39;sinfoni&#39;, &#39;amber&#39;, &#39;gravity&#39;, &#39;matisse&#39;, &#39;midi&#39;, &#39;pionier&#39;, &#39;wlgsu&#39;]</span>
+</pre></div>
+</div>
+<p>In the example above, 22 instruments are available, they correspond to the instruments listed on
+the following web page: <a class="reference external" href="http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html">http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html</a>.</p>
+</section>
+<section id="inspecting-available-query-options">
+<h3>Inspecting available query options<a class="headerlink" href="#inspecting-available-query-options" title="Link to this heading">¶</a></h3>
+<p>Once an instrument is chosen, <code class="docutils literal notranslate"><span class="pre">midi</span></code> in our case, the query options for that instrument can be
+inspected by setting the <code class="docutils literal notranslate"><span class="pre">help=True</span></code> keyword of the <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_instrument" title="astroquery.eso.EsoClass.query_instrument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_instrument()</span></code></a>
+method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">query_instrument</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  
+<span class="go">List of the column_filters parameters accepted by the midi instrument query.</span>
+<span class="go">The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.</span>
+<span class="go">The default columns in the result table are shown as already ticked: [x].</span>
+
+<span class="go">Target Information</span>
+<span class="go">------------------</span>
+<span class="go">    target:</span>
+<span class="go">    resolver: simbad (SIMBAD name), ned (NED name), none (OBJECT as specified by the observer)</span>
+<span class="go">    coord_sys: eq (Equatorial (FK5)), gal (Galactic)</span>
+<span class="go">    coord1:</span>
+<span class="go">    coord2:</span>
+<span class="go">    box:</span>
+<span class="go">    format: sexagesimal (Sexagesimal), decimal (Decimal)</span>
+<span class="go">[x] wdb_input_file:</span>
+
+<span class="go">Observation  and proposal parameters</span>
+<span class="go">------------------------------------</span>
+<span class="go">[ ] night:</span>
+<span class="go">    stime:</span>
+<span class="go">    starttime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])</span>
+<span class="go">    etime:</span>
+<span class="go">    endtime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])</span>
+<span class="go">[x] prog_id:</span>
+<span class="go">[ ] prog_type: % (Any), 0 (Normal), 1 (GTO), 2 (DDT), 3 (ToO), 4 (Large), 5 (Short), 6 (Calibration)</span>
+<span class="go">[ ] obs_mode: % (All modes), s (Service), v (Visitor)</span>
+<span class="go">[ ] pi_coi:</span>
+<span class="go">    pi_coi_name: PI_only (as PI only), none (as PI or CoI)</span>
+<span class="go">[ ] prog_title:</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>Only the first two sections, of the parameters accepted by the <code class="docutils literal notranslate"><span class="pre">midi</span></code> instrument query,
+are shown in the example above: <code class="docutils literal notranslate"><span class="pre">Target</span> <span class="pre">Information</span></code> and <code class="docutils literal notranslate"><span class="pre">Observation</span> <span class="pre">and</span> <span class="pre">proposal</span> <span class="pre">parameters</span></code>.</p>
+<p>As stated at the beginning of the help message, the parameters accepted by the query are given just before
+the first <code class="docutils literal notranslate"><span class="pre">:</span></code> sign (e.g. <code class="docutils literal notranslate"><span class="pre">target</span></code>, <code class="docutils literal notranslate"><span class="pre">resolver</span></code>, <code class="docutils literal notranslate"><span class="pre">stime</span></code>, <code class="docutils literal notranslate"><span class="pre">etime</span></code>…). When a parameter is prefixed
+by <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">]</span></code>, the presence of the associated column in the query result can be controlled.</p>
+<p>Note: the instrument query forms can be opened in your web browser directly using the <code class="docutils literal notranslate"><span class="pre">open_form</span></code> option of
+the <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_instrument" title="astroquery.eso.EsoClass.query_instrument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_instrument()</span></code></a> method. This should also help with the identification of
+acceptable keywords.</p>
+</section>
+<section id="querying-with-constraints">
+<h3>Querying with constraints<a class="headerlink" href="#querying-with-constraints" title="Link to this heading">¶</a></h3>
+<p>It is now time to query the <code class="docutils literal notranslate"><span class="pre">midi</span></code> instrument for datasets. In the following example, observations of
+target <code class="docutils literal notranslate"><span class="pre">NGC</span> <span class="pre">4151</span></code> between <code class="docutils literal notranslate"><span class="pre">2007-01-01</span></code> and <code class="docutils literal notranslate"><span class="pre">2008-01-01</span></code> are searched, and the query is configured to
+return the observation date column.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">query_instrument</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="n">column_filters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;target&#39;</span><span class="p">:</span><span class="s1">&#39;NGC 4151&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                                     <span class="s1">&#39;stime&#39;</span><span class="p">:</span><span class="s1">&#39;2007-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                                     <span class="s1">&#39;etime&#39;</span><span class="p">:</span><span class="s1">&#39;2008-01-01&#39;</span><span class="p">},</span>
+<span class="gp">... </span>                             <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;night&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+<span class="go">38</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">&lt;TableColumns names=(&#39;Release Date&#39;,&#39;Object&#39;,&#39;RA&#39;,&#39;DEC&#39;,&#39;Target Ra Dec&#39;,&#39;Target l b&#39;,&#39;DATE OBS&#39;,&#39;Program ID&#39;,&#39;DP.ID&#39;,&#39;OB.ID&#39;,&#39;OBS.TARG.NAME&#39;,&#39;DPR.CATG&#39;,&#39;DPR.TYPE&#39;,&#39;DPR.TECH&#39;,&#39;INS.MODE&#39;,&#39;DIMM Seeing-avg&#39;)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="go">Release Date          Object             RA     ...       DPR.TECH       INS.MODE DIMM Seeing-avg</span>
+<span class="go">------------ ----------------------- ---------- ... -------------------- -------- ---------------</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.03]</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.06]</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.05]</span>
+<span class="go">  2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.74 [0.01]</span>
+<span class="go">         ...                     ...        ... ...                  ...      ...             ...</span>
+<span class="go">  2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.54 [0.03]</span>
+<span class="go">  2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.53 [0.04]</span>
+<span class="go">  2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]</span>
+<span class="go">  2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]</span>
+<span class="go">  2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.01]</span>
+<span class="go">  2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.02]</span>
+<span class="go">  2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.03]</span>
+<span class="go">Length = 38 rows</span>
+</pre></div>
+</div>
+<p>And indeed, 38 datasets are found, and the <code class="docutils literal notranslate"><span class="pre">DATE</span> <span class="pre">OBS</span></code> column is in the result table.</p>
+</section>
+<section id="querying-all-instruments">
+<h3>Querying all instruments<a class="headerlink" href="#querying-all-instruments" title="Link to this heading">¶</a></h3>
+<p>The ESO database can also be queried without a specific instrument in mind.
+This is what the method <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_main" title="astroquery.eso.EsoClass.query_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_main()</span></code></a> is for.
+The associated query form on the ESO archive website is <a class="reference external" href="http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form">http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form</a>.
+Except for the keyword specifying the instrument the behaviour of <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_main" title="astroquery.eso.EsoClass.query_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_main()</span></code></a>
+is identical to <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_instrument" title="astroquery.eso.EsoClass.query_instrument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_instrument()</span></code></a>.</p>
+<p>ESO instruments without a specific query interface can be queried with
+<a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_main" title="astroquery.eso.EsoClass.query_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_main()</span></code></a>, specifying the <code class="docutils literal notranslate"><span class="pre">instrument</span></code> constraint.
+This is the case of e.g. <code class="docutils literal notranslate"><span class="pre">harps</span></code>, <code class="docutils literal notranslate"><span class="pre">feros</span></code> or the all sky cameras APICAM and MASCOT. Here is an example to
+query all-sky images from APICAM with <code class="docutils literal notranslate"><span class="pre">luminance</span></code> filter.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eso</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>   <span class="c1"># Return all results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">query_main</span><span class="p">(</span><span class="n">column_filters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;APICAM&#39;</span><span class="p">,</span> <span class="s1">&#39;filter_path&#39;</span><span class="p">:</span> <span class="s1">&#39;LUMINANCE&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="s1">&#39;stime&#39;</span><span class="p">:</span><span class="s1">&#39;2019-04-26&#39;</span><span class="p">,</span> <span class="s1">&#39;etime&#39;</span><span class="p">:</span><span class="s1">&#39;2019-04-27&#39;</span><span class="p">},</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+<span class="go">207</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">&lt;TableColumns names=(&#39;OBJECT&#39;,&#39;RA&#39;,&#39;DEC&#39;,&#39;Program_ID&#39;,&#39;Instrument&#39;,&#39;Category&#39;,&#39;Type&#39;,&#39;Mode&#39;,&#39;Dataset ID&#39;,&#39;Release_Date&#39;,&#39;TPL ID&#39;,&#39;TPL START&#39;,&#39;Exptime&#39;,&#39;Exposure&#39;,&#39;filter_lambda_min&#39;,&#39;filter_lambda_max&#39;,&#39;MJD-OBS&#39;,&#39;Airmass&#39;,&#39;DIMM Seeing at Start&#39;)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="go"> OBJECT      RA         DEC      Program_ID  ...   MJD-OBS    Airmass DIMM Seeing at Start</span>
+<span class="go">------- ----------- ----------- ------------ ... ------------ ------- --------------------</span>
+<span class="go">ALL SKY 09:18:37.39 -24:32:32.7 60.A-9008(A) ... 58599.987766     1.0                  N/A</span>
+<span class="go">ALL SKY 09:21:07.68 -24:32:30.1 60.A-9008(A) ... 58599.989502     1.0                  N/A</span>
+<span class="go">ALL SKY 09:23:38.98 -24:32:27.5 60.A-9008(A) ...  58599.99125     1.0                  N/A</span>
+<span class="go">ALL SKY 09:26:10.28 -24:32:24.9 60.A-9008(A) ... 58599.992998     1.0                  N/A</span>
+<span class="go">ALL SKY 09:28:40.58 -24:32:22.4 60.A-9008(A) ... 58599.994734     1.0                  N/A</span>
+<span class="go">ALL SKY 09:31:43.93 -24:32:19.4 60.A-9008(A) ... 58599.996852     1.0                  N/A</span>
+<span class="go">ALL SKY 09:34:15.23 -24:32:17.0 60.A-9008(A) ...   58599.9986     1.0                  N/A</span>
+<span class="go">ALL SKY 09:36:47.53 -24:32:14.5 60.A-9008(A) ... 58600.000359     1.0                  N/A</span>
+<span class="go">ALL SKY 09:39:18.82 -24:32:12.2 60.A-9008(A) ... 58600.002106     1.0                  N/A</span>
+<span class="go">ALL SKY 09:41:49.11 -24:32:09.9 60.A-9008(A) ... 58600.003843     1.0                  N/A</span>
+<span class="go">    ...         ...         ...          ... ...          ...     ...                  ...</span>
+<span class="go">ALL SKY 19:07:39.21 -24:39:35.1 60.A-9008(A) ... 58600.395914     1.0                  N/A</span>
+<span class="go">ALL SKY 19:10:11.68 -24:39:39.1 60.A-9008(A) ... 58600.397674     1.0                  N/A</span>
+<span class="go">ALL SKY 19:12:44.15 -24:39:43.2 60.A-9008(A) ... 58600.399433     1.0                  N/A</span>
+<span class="go">ALL SKY 19:15:15.62 -24:39:47.1 60.A-9008(A) ... 58600.401181     1.0                  N/A</span>
+<span class="go">ALL SKY 19:17:46.09 -24:39:51.1 60.A-9008(A) ... 58600.402917     1.0                  N/A</span>
+<span class="go">ALL SKY 19:20:46.65 -24:39:55.8 60.A-9008(A) ...    58600.405     1.0                  N/A</span>
+<span class="go">ALL SKY 19:23:18.12 -24:39:59.7 60.A-9008(A) ... 58600.406748     1.0                  N/A</span>
+<span class="go">ALL SKY 19:25:51.60 -24:40:03.7 60.A-9008(A) ... 58600.408519     1.0                  N/A</span>
+<span class="go">ALL SKY 19:28:22.08 -24:40:07.6 60.A-9008(A) ... 58600.410255     1.0                  N/A</span>
+<span class="go">ALL SKY 19:30:52.55 -24:40:11.4 60.A-9008(A) ... 58600.411991     1.0                  N/A</span>
+<span class="go">Length = 207 rows</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="query-the-eso-archive-for-reduced-data">
+<h2>Query the ESO archive for reduced data<a class="headerlink" href="#query-the-eso-archive-for-reduced-data" title="Link to this heading">¶</a></h2>
+<p>In addition to raw data, ESO makes available processed data.
+In this section, we show how to obtain these processed survey data from the archive.</p>
+<section id="identify-available-surveys">
+<h3>Identify available surveys<a class="headerlink" href="#identify-available-surveys" title="Link to this heading">¶</a></h3>
+<p>The list of available surveys can be obtained with <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.list_surveys" title="astroquery.eso.EsoClass.list_surveys"><code class="xref py py-meth docutils literal notranslate"><span class="pre">astroquery.eso.EsoClass.list_surveys()</span></code></a> as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">surveys</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">list_surveys</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="query-a-specific-survey-with-constraints">
+<h3>Query a specific survey with constraints<a class="headerlink" href="#query-a-specific-survey-with-constraints" title="Link to this heading">¶</a></h3>
+<p>Let’s assume that we work with the <code class="docutils literal notranslate"><span class="pre">HARPS</span></code> survey, and that we are interested in
+target <code class="docutils literal notranslate"><span class="pre">HD203608</span></code>.
+The archive can be queried as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">query_surveys</span><span class="p">(</span><span class="n">surveys</span><span class="o">=</span><span class="s1">&#39;HARPS&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;HD203608&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The returned table has an <code class="docutils literal notranslate"><span class="pre">ARCFILE</span></code> column. It can be used to retrieve the datasets with
+<a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.retrieve_data" title="astroquery.eso.EsoClass.retrieve_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">astroquery.eso.EsoClass.retrieve_data()</span></code></a> (see next section).</p>
+</section>
+</section>
+<section id="obtaining-extended-information-on-data-products">
+<h2>Obtaining extended information on data products<a class="headerlink" href="#obtaining-extended-information-on-data-products" title="Link to this heading">¶</a></h2>
+<p>Only a small subset of the keywords presents in the data products can be obtained
+with <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_instrument" title="astroquery.eso.EsoClass.query_instrument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_instrument()</span></code></a> or <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.query_main" title="astroquery.eso.EsoClass.query_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">query_main()</span></code></a>.
+There is however a way to get the full primary header of the FITS data products,
+using <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.get_headers" title="astroquery.eso.EsoClass.get_headers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_headers()</span></code></a>.
+This method is detailed in the example below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">query_instrument</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="n">column_filters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;target&#39;</span><span class="p">:</span><span class="s1">&#39;NGC 4151&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                                     <span class="s1">&#39;stime&#39;</span><span class="p">:</span><span class="s1">&#39;2007-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                                     <span class="s1">&#39;etime&#39;</span><span class="p">:</span><span class="s1">&#39;2008-01-01&#39;</span><span class="p">},</span>
+<span class="gp">... </span>                             <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;night&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table_headers</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">get_headers</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;DP.ID&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table_headers</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>  
+<span class="go">           DP.ID             SIMPLE BITPIX ... HIERARCH ESO OCS TPL NFILE   HIERARCH ESO OCS EXPO1 FNAME3</span>
+<span class="go">---------------------------- ------ ------ ... -------------------------- ---------------------------------</span>
+<span class="go">MIDI.2007-02-07T07:01:51.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:02:49.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:03:30.695   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:05:47.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:06:28.695   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:09:03.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:09:44.695   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:13:09.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:13:50.695   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:15:55.000   True     16 ...                          0</span>
+<span class="go">                         ...    ...    ... ...                        ...                               ...</span>
+<span class="go">MIDI.2007-02-07T07:52:27.992   True     16 ...                          8 MIDI.2007-02-07T07:52:27.992.fits</span>
+<span class="go">MIDI.2007-02-07T07:56:21.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:57:35.485   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T07:59:46.000   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T08:01:00.486   True     16 ...                          0</span>
+<span class="go">MIDI.2007-02-07T08:03:42.000   True     16 ...                          8</span>
+<span class="go">MIDI.2007-02-07T08:04:56.506   True     16 ...                          8</span>
+<span class="go">MIDI.2007-02-07T08:06:11.013   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits</span>
+<span class="go">MIDI.2007-02-07T08:08:19.000   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits</span>
+<span class="go">MIDI.2007-02-07T08:09:33.506   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits</span>
+<span class="go">Length = 38 rows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">table_headers</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">340</span>
+</pre></div>
+</div>
+<p>As shown above, for each data product ID (<code class="docutils literal notranslate"><span class="pre">DP.ID</span></code>), the full header (570 columns in our case) of the archive
+FITS file is collected. In the above table <code class="docutils literal notranslate"><span class="pre">table_headers</span></code>, there are as many rows as in the column <code class="docutils literal notranslate"><span class="pre">table['DP.ID']</span></code>.</p>
+</section>
+<section id="downloading-datasets-from-the-archive">
+<h2>Downloading datasets from the archive<a class="headerlink" href="#downloading-datasets-from-the-archive" title="Link to this heading">¶</a></h2>
+<p>Continuing from the query with constraints example, the first two datasets are selected,
+using their data product IDs <code class="docutils literal notranslate"><span class="pre">DP.ID</span></code> (or <code class="docutils literal notranslate"><span class="pre">ARCFILE</span></code> for surveys), and retrieved from the ESO archive.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_files</span> <span class="o">=</span> <span class="n">eso</span><span class="o">.</span><span class="n">retrieve_data</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;DP.ID&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
+<span class="go">INFO: Downloading datasets ...</span>
+<span class="go">INFO: Downloading 2 files ...</span>
+<span class="go">INFO: Downloading file 1/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:01:51.000 to ...</span>
+<span class="go">INFO: Successfully downloaded dataset MIDI.2007-02-07T07:01:51.000 to ...</span>
+<span class="go">INFO: Downloading file 2/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:02:49.000 to ...</span>
+<span class="go">INFO: Successfully downloaded dataset MIDI.2007-02-07T07:02:49.000 to ...</span>
+<span class="go">INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:01:51.000.fits.Z</span>
+<span class="go">INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:02:49.000.fits.Z</span>
+<span class="go">INFO: Done!</span>
+</pre></div>
+</div>
+<p>The file names, returned in data_files, points to the decompressed datasets
+(without the .Z extension) that have been locally downloaded.
+They are ready to be used with <a class="reference external" href="https://docs.astropy.org/en/latest/io/fits/index.html#module-astropy.io.fits" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fits</span></code></a>.</p>
+<p>The default location (in the astropy cache) of the decompressed datasets can be adjusted by providing
+a <code class="docutils literal notranslate"><span class="pre">destination</span></code> keyword in the call to <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.retrieve_data" title="astroquery.eso.EsoClass.retrieve_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">retrieve_data()</span></code></a>.</p>
+<p>By default, if a requested dataset is already found, it is not downloaded again from the archive.
+To force the retrieval of data that are present in the destination directory, use <code class="docutils literal notranslate"><span class="pre">continuation=True</span></code>
+in the call to <a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass.retrieve_data" title="astroquery.eso.EsoClass.retrieve_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">retrieve_data()</span></code></a>.</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.eso">
+<span id="astroquery-eso-package"></span><h3>astroquery.eso Package<a class="headerlink" href="#module-astroquery.eso" title="Link to this heading">¶</a></h3>
+<p>ESO service.</p>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.eso.EsoClass.html#astroquery.eso.EsoClass" title="astroquery.eso.EsoClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EsoClass</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.eso.Conf.html#astroquery.eso.Conf" title="astroquery.eso.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.eso" title="astroquery.eso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.eso</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">ESO Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.eso</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#authentication-with-eso-user-portal">Authentication with ESO User Portal</a><ul>
+<li><a class="reference internal" href="#automatic-password">Automatic password</a></li>
+<li><a class="reference internal" href="#automatic-login">Automatic login</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#query-the-eso-archive-for-raw-data">Query the ESO archive for raw data</a><ul>
+<li><a class="reference internal" href="#identifying-available-instrument-specific-queries">Identifying available instrument-specific queries</a></li>
+<li><a class="reference internal" href="#inspecting-available-query-options">Inspecting available query options</a></li>
+<li><a class="reference internal" href="#querying-with-constraints">Querying with constraints</a></li>
+<li><a class="reference internal" href="#querying-all-instruments">Querying all instruments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#query-the-eso-archive-for-reduced-data">Query the ESO archive for reduced data</a><ul>
+<li><a class="reference internal" href="#identify-available-surveys">Identify available surveys</a></li>
+<li><a class="reference internal" href="#query-a-specific-survey-with-constraints">Query a specific survey with constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#obtaining-extended-information-on-data-products">Obtaining extended information on data products</a></li>
+<li><a class="reference internal" href="#downloading-datasets-from-the-archive">Downloading datasets from the archive</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.eso">astroquery.eso Package</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/eso/eso.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

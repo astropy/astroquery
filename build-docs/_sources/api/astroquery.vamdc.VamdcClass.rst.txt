@@ -1,0 +1,31 @@
+VamdcClass
+==========
+
+.. currentmodule:: astroquery.vamdc
+
+.. autoclass:: VamdcClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~VamdcClass.CACHE_LOCATION
+      ~VamdcClass.TIMEOUT
+      ~VamdcClass.species_lookuptable
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~VamdcClass.query_molecule
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: CACHE_LOCATION
+   .. autoattribute:: TIMEOUT
+   .. autoattribute:: species_lookuptable
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: query_molecule

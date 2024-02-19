@@ -1,0 +1,21 @@
+Conf
+====
+
+.. currentmodule:: astroquery.esasky
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.row_limit
+      ~Conf.timeout
+      ~Conf.urlBase
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: row_limit
+   .. autoattribute:: timeout
+   .. autoattribute:: urlBase

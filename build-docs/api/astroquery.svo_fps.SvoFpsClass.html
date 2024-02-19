@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SvoFpsClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.svo_fps.Conf.html" />
+    <link rel="prev" title="SVO Filter Profile Service Queries (astroquery.svo_fps)" href="../svo_fps/svo_fps.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.svo_fps.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../svo_fps/svo_fps.html" title="SVO Filter Profile Service Queries (astroquery.svo_fps)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../svo_fps/svo_fps.html" accesskey="U">SVO Filter Profile Service Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.svo_fps</span></code>)</a> &#187;</li>
+      
+      <li>SvoFpsClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="svofpsclass">
+<h1>SvoFpsClass<a class="headerlink" href="#svofpsclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.svo_fps.</span></span><span class="sig-name descname"><span class="pre">SvoFpsClass</span></span><a class="reference internal" href="../_modules/astroquery/svo_fps/core.html#SvoFpsClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>Class for querying the Spanish Virtual Observatory filter profile service</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.SVO_MAIN_URL" title="astroquery.svo_fps.SvoFpsClass.SVO_MAIN_URL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SVO_MAIN_URL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.TIMEOUT" title="astroquery.svo_fps.SvoFpsClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo" title="astroquery.svo_fps.SvoFpsClass.data_from_svo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_from_svo</span></code></a>(query, *[, cache, timeout, ...])</p></td>
+<td><p>Get data in response to the query send to SVO FPS.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_index" title="astroquery.svo_fps.SvoFpsClass.get_filter_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_index</span></code></a>(wavelength_eff_min, ...)</p></td>
+<td><p>Get master list (index) of all filters at SVO Optional parameters can be given to get filters data for specified Wavelength Effective range from SVO</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_list" title="astroquery.svo_fps.SvoFpsClass.get_filter_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_list</span></code></a>(facility, *[, instrument])</p></td>
+<td><p>Get filters data for requested facilty and instrument from SVO</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_transmission_data" title="astroquery.svo_fps.SvoFpsClass.get_transmission_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transmission_data</span></code></a>(filter_id, **kwargs)</p></td>
+<td><p>Get transmission data for the requested Filter ID from SVO</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.SVO_MAIN_URL">
+<span class="sig-name descname"><span class="pre">SVO_MAIN_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://svo2.cab.inta-csic.es/theory/fps/fps.php'</span></em><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.SVO_MAIN_URL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.data_from_svo">
+<span class="sig-name descname"><span class="pre">data_from_svo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'No</span> <span class="pre">data</span> <span class="pre">found</span> <span class="pre">for</span> <span class="pre">requested</span> <span class="pre">query'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/svo_fps/core.html#SvoFpsClass.data_from_svo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo" title="Link to this definition">¶</a></dt>
+<dd><p>Get data in response to the query send to SVO FPS.
+This method is not generally intended for users, but it can be helpful
+if you want something very specific from the SVO FPS service.
+If you don’t know what you’re doing, try <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_index" title="astroquery.svo_fps.SvoFpsClass.get_filter_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_index</span></code></a>,
+<a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_list" title="astroquery.svo_fps.SvoFpsClass.get_filter_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_list</span></code></a>, and <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_transmission_data" title="astroquery.svo_fps.SvoFpsClass.get_transmission_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transmission_data</span></code></a> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>query</strong><span class="classifier">dict</span></dt><dd><p>Used to create a HTTP query string i.e. send to SVO FPS to get data.
+In dictionary, specify keys as search parameters (str) and
+values as required. Description of search parameters can be found at
+<a class="reference external" href="http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice">http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice</a></p>
+</dd>
+<dt><strong>error_msg</strong><span class="classifier">str, optional</span></dt><dd><p>Error message to be shown in case no table element found in the
+responded VOTable. Use this to make error message verbose in context
+of the query made (default is ‘No data found for requested query’)</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the results?  Defaults to True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.table.Table object</dt><dd><p>Table containing data fetched from SVO (in response to query)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.get_filter_index">
+<span class="sig-name descname"><span class="pre">get_filter_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength_eff_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength_eff_max</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/svo_fps/core.html#SvoFpsClass.get_filter_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.get_filter_index" title="Link to this definition">¶</a></dt>
+<dd><p>Get master list (index) of all filters at SVO
+Optional parameters can be given to get filters data for specified
+Wavelength Effective range from SVO</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>wavelength_eff_min</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> with units of length</span></dt><dd><p>Minimum value of Wavelength Effective</p>
+</dd>
+<dt><strong>wavelength_eff_max</strong><span class="classifier"><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> with units of length</span></dt><dd><p>Maximum value of Wavelength Effective</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Passed to <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo" title="astroquery.svo_fps.SvoFpsClass.data_from_svo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_from_svo</span></code></a>.  Relevant arguments include <code class="docutils literal notranslate"><span class="pre">cache</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.table.Table object</dt><dd><p>Table containing data fetched from SVO (in response to query)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.get_filter_list">
+<span class="sig-name descname"><span class="pre">get_filter_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">facility</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/svo_fps/core.html#SvoFpsClass.get_filter_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.get_filter_list" title="Link to this definition">¶</a></dt>
+<dd><p>Get filters data for requested facilty and instrument from SVO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>facility</strong><span class="classifier">str</span></dt><dd><p>Facilty for filters</p>
+</dd>
+<dt><strong>instrument</strong><span class="classifier">str, optional</span></dt><dd><p>Instrument for filters (default is None).
+Leave empty if there are no instruments for specified facilty</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Passed to <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo" title="astroquery.svo_fps.SvoFpsClass.data_from_svo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_from_svo</span></code></a>.  Relevant arguments include <code class="docutils literal notranslate"><span class="pre">cache</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.table.Table object</dt><dd><p>Table containing data fetched from SVO (in response to query)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.svo_fps.SvoFpsClass.get_transmission_data">
+<span class="sig-name descname"><span class="pre">get_transmission_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/svo_fps/core.html#SvoFpsClass.get_transmission_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.svo_fps.SvoFpsClass.get_transmission_data" title="Link to this definition">¶</a></dt>
+<dd><p>Get transmission data for the requested Filter ID from SVO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filter_id</strong><span class="classifier">str</span></dt><dd><p>Filter ID in the format SVO specifies it: ‘facilty/instrument.filter’.
+This is returned by <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_list" title="astroquery.svo_fps.SvoFpsClass.get_filter_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_list</span></code></a> and <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_index" title="astroquery.svo_fps.SvoFpsClass.get_filter_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filter_index</span></code></a> as the
+<code class="docutils literal notranslate"><span class="pre">filterID</span></code> column.</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Passed to <a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo" title="astroquery.svo_fps.SvoFpsClass.data_from_svo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_from_svo</span></code></a>.  Relevant arguments include <code class="docutils literal notranslate"><span class="pre">cache</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.table.Table object</dt><dd><p>Table containing data fetched from SVO (in response to query)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">SvoFpsClass</a><ul>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.SVO_MAIN_URL"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.SVO_MAIN_URL</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.data_from_svo"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.data_from_svo()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_index"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.get_filter_index()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_filter_list"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.get_filter_list()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.svo_fps.SvoFpsClass.get_transmission_data"><code class="docutils literal notranslate"><span class="pre">SvoFpsClass.get_transmission_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.svo_fps.SvoFpsClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+VOSDatabase
+===========
+
+.. currentmodule:: astroquery.vo_conesearch.vos_catalog
+
+.. autoclass:: VOSDatabase
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~VOSDatabase.version
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~VOSDatabase.add_catalog
+      ~VOSDatabase.add_catalog_by_url
+      ~VOSDatabase.create_empty
+      ~VOSDatabase.delete_catalog
+      ~VOSDatabase.delete_catalog_by_url
+      ~VOSDatabase.from_json
+      ~VOSDatabase.from_registry
+      ~VOSDatabase.get_catalog
+      ~VOSDatabase.get_catalog_by_url
+      ~VOSDatabase.get_catalogs
+      ~VOSDatabase.get_catalogs_by_url
+      ~VOSDatabase.list_catalogs
+      ~VOSDatabase.list_catalogs_by_url
+      ~VOSDatabase.merge
+      ~VOSDatabase.to_json
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: version
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: add_catalog
+   .. automethod:: add_catalog_by_url
+   .. automethod:: create_empty
+   .. automethod:: delete_catalog
+   .. automethod:: delete_catalog_by_url
+   .. automethod:: from_json
+   .. automethod:: from_registry
+   .. automethod:: get_catalog
+   .. automethod:: get_catalog_by_url
+   .. automethod:: get_catalogs
+   .. automethod:: get_catalogs_by_url
+   .. automethod:: list_catalogs
+   .. automethod:: list_catalogs_by_url
+   .. automethod:: merge
+   .. automethod:: to_json

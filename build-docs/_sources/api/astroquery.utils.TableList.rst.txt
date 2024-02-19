@@ -1,0 +1,25 @@
+TableList
+=========
+
+.. currentmodule:: astroquery.utils
+
+.. autoclass:: TableList
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~TableList.format_table_list
+      ~TableList.keys
+      ~TableList.pprint
+      ~TableList.print_table_list
+      ~TableList.values
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: format_table_list
+   .. automethod:: keys
+   .. automethod:: pprint
+   .. automethod:: print_table_list
+   .. automethod:: values

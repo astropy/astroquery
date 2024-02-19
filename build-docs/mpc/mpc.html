@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Minor Planet Center Queries (astroquery.mpc/astroquery.solarsystem.MPC) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MPCClass" href="../api/astroquery.mpc.MPCClass.html" />
+    <link rel="prev" title="MOCServerClass" href="../api/astroquery.mocserver.MOCServerClass.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.mpc.MPCClass.html" title="MPCClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.mocserver.MOCServerClass.html" title="MOCServerClass">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Minor Planet Center Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mpc</span></code>/astroquery.solarsystem.MPC)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="minor-planet-center-queries-astroquery-mpc-astroquery-solarsystem-mpc">
+<span id="astroquery-mpc"></span><h1>Minor Planet Center Queries (<a class="reference internal" href="#module-astroquery.mpc" title="astroquery.mpc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mpc</span></code></a>/astroquery.solarsystem.MPC)<a class="headerlink" href="#minor-planet-center-queries-astroquery-mpc-astroquery-solarsystem-mpc" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>This is an Astroquery wrapper for querying services at the IAU Minor
+Planet Center (MPC).  Three services are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://minorplanetcenter.net/web_service/">Minor Planet Center Web Service</a> for comet and
+asteroid orbits and parameters</p></li>
+<li><p><a class="reference external" href="https://www.minorplanetcenter.net/iau/MPEph/MPEph.html">Minor Planet Ephemeris Service</a> for
+comet and asteroid ephemerides</p></li>
+<li><p><a class="reference external" href="https://minorplanetcenter.net/db_search">Minor Planet Center Observations Database</a> for obtaining
+observations of asteroids and comets reported to the MPC</p></li>
+</ul>
+</div></blockquote>
+<p>In addition, the module provides access to the MPC’s hosted list of
+<a class="reference external" href="https://www.minorplanetcenter.net/iau/lists/ObsCodesF.html">IAU Observatory Codes</a>.</p>
+<p>To return the orbit of Ceres and an ephemeris for the next 20 days:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mpc</span> <span class="kn">import</span> <span class="n">MPC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ceres&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>   
+<span class="go">[{&#39;absolute_magnitude&#39;: &#39;3.52&#39;,</span>
+<span class="go">  &#39;aphelion_distance&#39;: &#39;2.982&#39;,</span>
+<span class="go">  &#39;arc_length&#39;: 80185,</span>
+<span class="go">  &#39;argument_of_perihelion&#39;: &#39;73.73165&#39;,</span>
+<span class="go">  &#39;ascending_node&#39;: &#39;80.2869866&#39;,</span>
+<span class="go">  &#39;critical_list_numbered_object&#39;: False,</span>
+<span class="go">  &#39;delta_v&#39;: 10.5,</span>
+<span class="go">  &#39;designation&#39;: None,</span>
+<span class="go">  &#39;earth_moid&#39;: 1.58537,</span>
+<span class="go">  &#39;eccentricity&#39;: &#39;0.0775571&#39;,</span>
+<span class="go">  &#39;epoch&#39;: &#39;2020-05-31.0&#39;,</span>
+<span class="go">  &#39;epoch_jd&#39;: &#39;2459000.5&#39;,</span>
+<span class="go">  &#39;first_observation_date_used&#39;: &#39;1801-01-01.0&#39;,</span>
+<span class="go">  &#39;first_opposition_used&#39;: &#39;1801&#39;,</span>
+<span class="go">  &#39;inclination&#39;: &#39;10.58862&#39;,</span>
+<span class="go">  &#39;jupiter_moid&#39;: 2.09127,</span>
+<span class="go">  &#39;km_neo&#39;: False,</span>
+<span class="go">  &#39;last_observation_date_used&#39;: &#39;2020-07-17.0&#39;,</span>
+<span class="go">  &#39;last_opposition_used&#39;: &#39;2020&#39;,</span>
+<span class="go">  &#39;mars_moid&#39;: 0.93178,</span>
+<span class="go">  &#39;mean_anomaly&#39;: &#39;162.68618&#39;,</span>
+<span class="go">  &#39;mean_daily_motion&#39;: &#39;0.21406&#39;,</span>
+<span class="go">  &#39;mercury_moid&#39;: 2.1761,</span>
+<span class="go">  &#39;name&#39;: &#39;Ceres&#39;,</span>
+<span class="go">  &#39;neo&#39;: False,</span>
+<span class="go">  &#39;number&#39;: 1,</span>
+<span class="go">  &#39;observations&#39;: 7663,</span>
+<span class="go">  &#39;oppositions&#39;: 119,</span>
+<span class="go">  &#39;orbit_type&#39;: 0,</span>
+<span class="go">  &#39;orbit_uncertainty&#39;: &#39;0&#39;,</span>
+<span class="go">  &#39;p_vector_x&#39;: &#39;-0.88282454&#39;,</span>
+<span class="go">  &#39;p_vector_y&#39;: &#39;0.3292319&#39;,</span>
+<span class="go">  &#39;p_vector_z&#39;: &#39;0.33500327&#39;,</span>
+<span class="go">  &#39;perihelion_date&#39;: &#39;2018-05-01.99722&#39;,</span>
+<span class="go">  &#39;perihelion_date_jd&#39;: &#39;2458240.49722&#39;,</span>
+<span class="go">  &#39;perihelion_distance&#39;: &#39;2.5530055&#39;,</span>
+<span class="go">  &#39;period&#39;: &#39;4.6&#39;,</span>
+<span class="go">  &#39;pha&#39;: False,</span>
+<span class="go">  &#39;phase_slope&#39;: &#39;0.15&#39;,</span>
+<span class="go">  &#39;q_vector_x&#39;: &#39;-0.43337703&#39;,</span>
+<span class="go">  &#39;q_vector_y&#39;: &#39;-0.84597284&#39;,</span>
+<span class="go">  &#39;q_vector_z&#39;: &#39;-0.3106675&#39;,</span>
+<span class="go">  &#39;residual_rms&#39;: &#39;0.51&#39;,</span>
+<span class="go">  &#39;saturn_moid&#39;: 6.37764,</span>
+<span class="go">  &#39;semimajor_axis&#39;: &#39;2.7676568&#39;,</span>
+<span class="go">  &#39;tisserand_jupiter&#39;: 3.3,</span>
+<span class="go">  &#39;updated_at&#39;: &#39;2021-01-16T13:32:57Z&#39;,</span>
+<span class="go">  &#39;uranus_moid&#39;: 15.8216,</span>
+<span class="go">  &#39;venus_moid&#39;: 1.8382}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;ceres&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>    
+<span class="go">          Date                   RA         ... Uncertainty 3sig Unc. P.A.</span>
+<span class="go">                                deg         ...      arcsec         deg</span>
+<span class="go">----------------------- ------------------- ... ---------------- ---------</span>
+<span class="go">2021-01-29 03:16:34.000   355.2416666666667 ...               --        --</span>
+<span class="go">2021-01-30 03:16:34.000           355.56125 ...               --        --</span>
+<span class="go">2021-01-31 03:16:34.000   355.8812499999999 ...               --        --</span>
+<span class="go">2021-02-01 03:16:34.000   356.2029166666666 ...               --        --</span>
+<span class="go">2021-02-02 03:16:34.000   356.5254166666666 ...               --        --</span>
+<span class="go">2021-02-03 03:16:34.000   356.8491666666667 ...               --        --</span>
+<span class="go">2021-02-04 03:16:34.000           357.17375 ...               --        --</span>
+<span class="go">2021-02-05 03:16:34.000   357.4995833333333 ...               --        --</span>
+<span class="go">2021-02-06 03:16:34.000           357.82625 ...               --        --</span>
+<span class="go">2021-02-07 03:16:34.000  358.15374999999995 ...               --        --</span>
+<span class="go">2021-02-08 03:16:34.000  358.48249999999996 ...               --        --</span>
+<span class="go">2021-02-09 03:16:34.000   358.8120833333333 ...               --        --</span>
+<span class="go">2021-02-10 03:16:34.000   359.1429166666666 ...               --        --</span>
+<span class="go">2021-02-11 03:16:34.000  359.47416666666663 ...               --        --</span>
+<span class="go">2021-02-12 03:16:34.000   359.8066666666666 ...               --        --</span>
+<span class="go">2021-02-13 03:16:34.000 0.13999999999999999 ...               --        --</span>
+<span class="go">2021-02-14 03:16:34.000  0.4741666666666666 ...               --        --</span>
+<span class="go">2021-02-15 03:16:34.000             0.80875 ...               --        --</span>
+<span class="go">2021-02-16 03:16:34.000  1.1445833333333333 ...               --        --</span>
+<span class="go">2021-02-17 03:16:34.000  1.4812499999999997 ...               --        --</span>
+<span class="go">2021-02-18 03:16:34.000  1.8183333333333331 ...               --        --</span>
+</pre></div>
+</div>
+</section>
+<section id="orbits-and-parameters">
+<h2>Orbits and parameters<a class="headerlink" href="#orbits-and-parameters" title="Link to this heading">¶</a></h2>
+<section id="search-parameters">
+<h3>Search parameters<a class="headerlink" href="#search-parameters" title="Link to this heading">¶</a></h3>
+<p>Individual objects can be found with <code class="docutils literal notranslate"><span class="pre">MPC.query_object</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">MPC.query_objects</span></code> can return multiple objects.  Parameters can be
+queried in three manners:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>exact match</p></li>
+<li><p>with a _min suffix, which sets the minimum value for the parameter</p></li>
+<li><p>with a _max suffix, which sets the maximum value for the parameter</p></li>
+</ul>
+</div></blockquote>
+<p>An example of an exact match:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mpc</span> <span class="kn">import</span> <span class="n">MPC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ceres&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>   
+<span class="go">[{&#39;absolute_magnitude&#39;: &#39;3.52&#39;, &#39;aphelion_distance&#39;: &#39;2.982&#39;, &#39;arc_length&#39;: 80185,</span>
+<span class="go">&#39;argument_of_perihelion&#39;: &#39;73.73165&#39;, &#39;ascending_node&#39;: &#39;80.2869866&#39;, &#39;critical_list_numbered_object&#39;: False, &#39;delta_v&#39;: 10.5,</span>
+<span class="go">&#39;designation&#39;: None, &#39;earth_moid&#39;: 1.58537, &#39;eccentricity&#39;: &#39;0.0775571&#39;, &#39;epoch&#39;: &#39;2020-05-31.0&#39;, &#39;epoch_jd&#39;: &#39;2459000.5&#39;,</span>
+<span class="go">&#39;first_observation_date_used&#39;: &#39;1801-01-01.0&#39;, &#39;first_opposition_used&#39;: &#39;1801&#39;, &#39;inclination&#39;: &#39;10.58862&#39;, &#39;jupiter_moid&#39;: 2.09127,</span>
+<span class="go">&#39;km_neo&#39;: False, &#39;last_observation_date_used&#39;: &#39;2020-07-17.0&#39;, &#39;last_opposition_used&#39;: &#39;2020&#39;, &#39;mars_moid&#39;: 0.93178,</span>
+<span class="go">&#39;mean_anomaly&#39;: &#39;162.68618&#39;, &#39;mean_daily_motion&#39;: &#39;0.21406&#39;, &#39;mercury_moid&#39;: 2.1761, &#39;name&#39;: &#39;Ceres&#39;, &#39;neo&#39;: False,</span>
+<span class="go">&#39;number&#39;: 1, &#39;observations&#39;: 7663, &#39;oppositions&#39;: 119, &#39;orbit_type&#39;: 0, &#39;orbit_uncertainty&#39;: &#39;0&#39;, &#39;p_vector_x&#39;: &#39;-0.88282454&#39;,</span>
+<span class="go">&#39;p_vector_y&#39;: &#39;0.3292319&#39;, &#39;p_vector_z&#39;: &#39;0.33500327&#39;, &#39;perihelion_date&#39;: &#39;2018-05-01.99722&#39;, &#39;perihelion_date_jd&#39;: &#39;2458240.49722&#39;,</span>
+<span class="go">&#39;perihelion_distance&#39;: &#39;2.5530055&#39;, &#39;period&#39;: &#39;4.6&#39;, &#39;pha&#39;: False, &#39;phase_slope&#39;: &#39;0.15&#39;, &#39;q_vector_x&#39;: &#39;-0.43337703&#39;,</span>
+<span class="go">&#39;q_vector_y&#39;: &#39;-0.84597284&#39;, &#39;q_vector_z&#39;: &#39;-0.3106675&#39;, &#39;residual_rms&#39;: &#39;0.51&#39;, &#39;saturn_moid&#39;: 6.37764, &#39;semimajor_axis&#39;: &#39;2.7676568&#39;,</span>
+<span class="go">&#39;tisserand_jupiter&#39;: 3.3, &#39;updated_at&#39;: &#39;2021-01-16T13:32:57Z&#39;, &#39;uranus_moid&#39;: 15.8216, &#39;venus_moid&#39;: 1.8382}]</span>
+</pre></div>
+</div>
+<p>A minimum value:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_objects</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">inclination_min</span><span class="o">=</span><span class="mi">170</span><span class="p">)</span>    
+</pre></div>
+</div>
+<p>which will get all asteroids with an inclination of greater than or
+equal to 170.</p>
+<p>A maximum value:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_objects</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">inclination_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>    
+</pre></div>
+</div>
+<p>which will get all asteroids with an inclination of less than or equal to 1.</p>
+<p>There is another parameter that can be used, <code class="docutils literal notranslate"><span class="pre">`is_not_null`</span></code>. This
+can be used in the following fashion:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_objects</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;is_not_null&quot;</span><span class="p">)</span>   
+</pre></div>
+</div>
+<p>This will, predictably, find all named objects in the MPC
+database–but that would take a while!</p>
+</section>
+<section id="sorting-and-return-limits">
+<h3>Sorting and return limits<a class="headerlink" href="#sorting-and-return-limits" title="Link to this heading">¶</a></h3>
+<p>The MPC web service allows a consumer to sort results in order to find
+a number of objects fitting into the top or bottom of a range of
+values (or all, if truly desired).</p>
+<p>The service also allows a consumer to limit their results to a number
+of objects, which, when paired with sorting, creates very flexible
+options.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_objects</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">order_by_desc</span><span class="o">=</span><span class="s2">&quot;semimajor_axis&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>   
+</pre></div>
+</div>
+<p>This will return the 10 furthest asteroids.</p>
+</section>
+<section id="customizing-return-fields">
+<h3>Customizing return fields<a class="headerlink" href="#customizing-return-fields" title="Link to this heading">¶</a></h3>
+<p>If a consumer isn’t interested in some return fields, they can use the
+MPC to limit the fields they’re interested in.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span><span class="s1">&#39;asteroid&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ceres&quot;</span><span class="p">,</span> <span class="n">return_fields</span><span class="o">=</span><span class="s2">&quot;name,number&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="go">[{&#39;name&#39;: &#39;Ceres&#39;, &#39;number&#39;: 1}]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ephemerides">
+<h2>Ephemerides<a class="headerlink" href="#ephemerides" title="Link to this heading">¶</a></h2>
+<p>Comet and asteroid ephemerides can be generated using the <a class="reference external" href="https://www.minorplanetcenter.net/iau/MPEph/MPEph.html">Minor
+Planet Ephemeris Service</a> (MPES).
+The MPES supports queries for any comet or asteroid by name,
+designation, or packed designation, and any Earth-based location.
+Ephemerides are computed starting on a specific date, then for
+equally-spaced intervals thereafter.  The ephemeris is returned as an
+Astropy <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>.</p>
+<section id="dates-and-intervals">
+<h3>Dates and intervals<a class="headerlink" href="#dates-and-intervals" title="Link to this heading">¶</a></h3>
+<p>For the ephemeris of asteroid (24) Themis, starting today with the
+default time step (1 day) and location (geocenter):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.mpc</span> <span class="kn">import</span> <span class="n">MPC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;24&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>    
+<span class="go">          Date                  RA                Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.</span>
+<span class="go">                               deg                deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg</span>
+<span class="go">----------------------- ------------------ ------------------ ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------</span>
+<span class="go">2018-08-16 14:34:53.000  96.46708333333333 23.749722222222225 3.502 2.916       47.5  14.8 12.9         53.08      92.1               --        --</span>
+<span class="go">2018-08-17 14:34:53.000  96.85291666666666  23.73638888888889 3.491 2.915       48.1  15.0 12.9         52.91      92.3               --        --</span>
+<span class="go">2018-08-18 14:34:53.000  97.23708333333333 23.721944444444443  3.48 2.914       48.7  15.1 12.9         52.74      92.4               --        --</span>
+<span class="go">2018-08-19 14:34:53.000  97.62041666666666 23.706666666666667 3.469 2.912       49.3  15.3 12.9         52.56      92.6               --        --</span>
+<span class="go">                    ...                ...                ...   ...   ...        ...   ...  ...           ...       ...              ...       ...</span>
+<span class="go">2018-09-02 14:34:53.000 102.82333333333332 23.412499999999998 3.302 2.898       58.1  17.2 12.8          49.7      94.5               --        --</span>
+<span class="go">2018-09-03 14:34:53.000 103.18208333333332  23.38611111111111 3.289 2.897       58.7  17.3 12.8         49.46      94.6               --        --</span>
+<span class="go">2018-09-04 14:34:53.000 103.53916666666666 23.359166666666667 3.277 2.896       59.4  17.4 12.8         49.21      94.8               --        --</span>
+<span class="go">2018-09-05 14:34:53.000 103.89458333333332 23.331666666666667 3.264 2.895       60.0  17.6 12.8         48.96      94.9               --        --</span>
+<span class="go">Length = 21 rows</span>
+</pre></div>
+</div>
+<p>Step sizes are parsed with Astropy’s <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.  For a time step of 1 hour:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;24&#39;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>     
+<span class="go">          Date                  RA               Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.</span>
+<span class="go">                               deg               deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg</span>
+<span class="go">----------------------- ----------------- ------------------ ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------</span>
+<span class="go">2018-08-16 14:00:00.000 96.45791666666666              23.75 3.503 2.916       47.5  14.8 12.9         53.09      92.1               --        --</span>
+<span class="go">2018-08-16 15:00:00.000 96.47374999999998 23.749444444444446 3.502 2.916       47.5  14.8 12.9         53.08      92.1               --        --</span>
+<span class="go">2018-08-16 16:00:00.000             96.49  23.74888888888889 3.502 2.916       47.6  14.8 12.9         53.07      92.1               --        --</span>
+<span class="go">2018-08-16 17:00:00.000 96.50624999999998 23.748333333333335 3.501 2.916       47.6  14.9 12.9         53.06      92.1               --        --</span>
+<span class="go">                    ...               ...                ...   ...   ...        ...   ...  ...           ...       ...              ...       ...</span>
+<span class="go">2018-08-18 11:00:00.000 97.17999999999998 23.724166666666665 3.482 2.914       48.6  15.1 12.9         52.76      92.4               --        --</span>
+<span class="go">2018-08-18 12:00:00.000 97.19583333333333 23.723611111111108 3.481 2.914       48.7  15.1 12.9         52.76      92.4               --        --</span>
+<span class="go">2018-08-18 13:00:00.000 97.21208333333333 23.723055555555554 3.481 2.914       48.7  15.1 12.9         52.75      92.4               --        --</span>
+<span class="go">2018-08-18 14:00:00.000 97.22791666666666  23.72222222222222  3.48 2.914       48.7  15.1 12.9         52.74      92.4               --        --</span>
+<span class="go">Length = 49 rows</span>
+</pre></div>
+</div>
+<p>Start dates are parsed with Astropy’s <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Time</span></code></a>.  For a
+weekly ephemeris in 2020:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;24&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;7d&#39;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">52</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>     
+<span class="go">          Date                  RA                 Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.</span>
+<span class="go">                               deg                 deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg</span>
+<span class="go">----------------------- ------------------ ------------------- ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------</span>
+<span class="go">2020-01-01 00:00:00.000 209.16749999999996  -11.63361111111111 3.066 2.856       68.5  18.7 12.7         45.15     110.6               --        --</span>
+<span class="go">2020-01-08 00:00:00.000 211.11999999999995 -12.342500000000001  2.98 2.863       73.6  19.2 12.7         42.09     110.2               --        --</span>
+<span class="go">2020-01-15 00:00:00.000 212.93749999999997 -12.987222222222222 2.892  2.87       78.9  19.7 12.6          38.7     109.8               --        --</span>
+<span class="go">2020-01-22 00:00:00.000 214.60083333333333 -13.564722222222223 2.803 2.877       84.3  19.9 12.6         34.89     109.5               --        --</span>
+<span class="go">                    ...                ...                 ...   ...   ...        ...   ...  ...           ...       ...              ...       ...</span>
+<span class="go">2020-12-02 00:00:00.000 252.88041666666666  -22.87638888888889 4.224 3.242        4.3   1.3 12.9         54.42      96.9               --        --</span>
+<span class="go">2020-12-09 00:00:00.000 255.62041666666664 -23.159166666666664 4.235  3.25        0.5   0.1 12.8         54.31      95.9               --        --</span>
+<span class="go">2020-12-16 00:00:00.000 258.36208333333326             -23.395 4.237 3.258        4.9   1.5 13.0         54.07      94.8               --        --</span>
+<span class="go">2020-12-23 00:00:00.000 261.09624999999994 -23.583055555555557 4.232 3.265        9.5   2.8 13.1         53.67      93.8               --        --</span>
+<span class="go">Length = 52 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="observer-location">
+<h3>Observer location<a class="headerlink" href="#observer-location" title="Link to this heading">¶</a></h3>
+<p>Ephemerides may be calculated for Earth-based observers.  To calculate
+Makemake’s ephemeris for the Discovery Channel Telescope (IAU
+observatory code G37):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;Makemake&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;G37&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>   
+<span class="go">          Date                  RA                Dec         Delta    r    Elongation Phase  V   Proper motion Direction Azimuth Altitude Sun altitude Moon phase Moon distance Moon altitude Uncertainty 3sig Unc. P.A.</span>
+<span class="go">                               deg                deg           AU     AU      deg      deg  mag    arcsec / h     deg      deg     deg        deg                      deg           deg           arcsec         deg</span>
+<span class="go">----------------------- ------------------ ------------------ ------ ------ ---------- ----- ---- ------------- --------- ------- -------- ------------ ---------- ------------- ------------- ---------------- ---------</span>
+<span class="go">2018-08-16 14:42:27.000 194.66791666666663 24.109722222222224 53.211 52.528       47.2   0.8 17.2          2.62     134.2      53       -9           23       0.33            36           -43               --        --</span>
+<span class="go">2018-08-17 14:42:27.000 194.68166666666664  24.09722222222222  53.22 52.528       46.5   0.8 17.2          2.65     133.7      53       -8           23       0.43            46           -54               --        --</span>
+<span class="go">2018-08-18 14:42:27.000  194.6958333333333 24.084999999999997 53.229 52.528       45.7   0.8 17.2          2.67     133.1      54       -7           22       0.53            57           -64               --        --</span>
+<span class="go">2018-08-19 14:42:27.000 194.70999999999998 24.072777777777777 53.238 52.528       45.0   0.8 17.2          2.69     132.6      55       -7           22       0.63            68           -72               --        --</span>
+<span class="go">                    ...                ...                ...    ...    ...        ...   ...  ...           ...       ...     ...      ...          ...        ...           ...           ...              ...       ...</span>
+<span class="go">2018-09-02 14:42:27.000 194.93124999999995  23.90583333333333 53.343 52.529       35.9   0.6 17.2          2.93     126.0      63        3           21       0.56           119            58               --        --</span>
+<span class="go">2018-09-03 14:42:27.000 194.94874999999996 23.894166666666667 53.349 52.529       35.3   0.6 17.2          2.94     125.6      63        3           20       0.45           106            69               --        --</span>
+<span class="go">2018-09-04 14:42:27.000 194.96624999999997  23.88277777777778 53.355 52.529       34.8   0.6 17.2          2.96     125.2      64        4           20       0.33            93            76               --        --</span>
+<span class="go">2018-09-05 14:42:27.000 194.98374999999996  23.87138888888889  53.36 52.529       34.2   0.6 17.2          2.97     124.7      64        5           20       0.23            80            72               --        --</span>
+<span class="go">Length = 21 rows</span>
+</pre></div>
+</div>
+<p>Note additional columns are returned for topocentric coordinates.</p>
+<p>The observer location may be specified with an IAU observatory code,
+an array of longitude (east), latitude, and altitude (parsed with
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>), or an
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.EarthLocation.html#astropy.coordinates.EarthLocation" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EarthLocation</span></code></a>.  For example, to compute
+Encke’s parallax between Mauna Kea and Botswana:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;2P&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;586&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2003-11-01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mko</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="o">.</span><span class="n">guess_from_table</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;2P&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;24d&#39;</span><span class="p">,</span> <span class="s1">&#39;-22d&#39;</span><span class="p">,</span> <span class="s1">&#39;1000m&#39;</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2003-11-01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bw</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="o">.</span><span class="n">guess_from_table</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="n">mko</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">bw</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tab</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">],</span> <span class="n">mu</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;Parallax&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span>   
+<span class="go">          Date                 Parallax</span>
+<span class="go">                                 deg</span>
+<span class="go">----------------------- ---------------------</span>
+<span class="go">2003-11-01 00:00:00.000  0.005050002777840046</span>
+<span class="go">2003-11-02 00:00:00.000  0.005439170027971742</span>
+<span class="go">2003-11-03 00:00:00.000  0.005202581443927997</span>
+<span class="go">2003-11-04 00:00:00.000  0.005302672506812041</span>
+<span class="go">                    ...                   ...</span>
+<span class="go">2003-11-18 00:00:00.000  0.006954051057362872</span>
+<span class="go">2003-11-19 00:00:00.000  0.007231766703916716</span>
+<span class="go">2003-11-20 00:00:00.000  0.007537846117097956</span>
+<span class="go">2003-11-21 00:00:00.000 0.0075389478267517745</span>
+<span class="go">Length = 21 rows</span>
+</pre></div>
+</div>
+</section>
+<section id="working-with-ephemeris-tables">
+<h3>Working with ephemeris tables<a class="headerlink" href="#working-with-ephemeris-tables" title="Link to this heading">¶</a></h3>
+<p>Columns in the returned ephemeris tables carry the appropriate units.
+Convert the columns to Astropy quantities using the <code class="docutils literal notranslate"><span class="pre">.quantity</span></code>
+attribute.  To find comet Hyakutake’s peak proper motion in the sky in
+degrees per hour:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;C/1996 B2&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;1996-03-01&#39;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="mi">24</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;Proper motion&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;deg/h&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="go">0.17234444444444447 deg / h</span>
+</pre></div>
+</div>
+<p>Sky coordinates are returned as quantities carrying units of degrees.
+If a sexagesimal representation is desired, they may be replaced with
+strings using the <code class="docutils literal notranslate"><span class="pre">ra_format</span></code> and <code class="docutils literal notranslate"><span class="pre">dec_format</span></code> keyword arguments
+(see <code class="docutils literal notranslate"><span class="pre">Angle</span></code>’s <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.Angle.html#astropy.coordinates.Angle.to_string" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_string</span></code></a> for formatting
+options):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_ephemeris</span><span class="p">(</span><span class="s1">&#39;2P&#39;</span><span class="p">,</span> <span class="n">ra_format</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;sep&#39;</span><span class="p">:</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;hourangle&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">dec_format</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;sep&#39;</span><span class="p">:</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>    
+<span class="go">          Date              RA       Dec    Delta   r   Elongation Phase  V   Proper motion Direction</span>
+<span class="go">                        hourangle    deg      AU    AU     deg      deg  mag    arcsec / h     deg</span>
+<span class="go">----------------------- ---------- -------- ----- ----- ---------- ----- ---- ------------- ---------</span>
+<span class="go">2018-08-16 14:12:18.000 22:52:30.5 -6:18:57 3.076 4.048      161.4   4.6 22.4         36.34     250.9</span>
+<span class="go">2018-08-17 14:12:18.000 22:51:35.0 -6:23:43 3.072 4.049      162.6   4.3 22.4         36.67     250.9</span>
+<span class="go">2018-08-18 14:12:18.000 22:50:38.9 -6:28:33 3.069  4.05      163.8   4.0 22.3         36.98     250.9</span>
+<span class="go">2018-08-19 14:12:18.000 22:49:42.4 -6:33:24 3.066 4.052      165.0   3.7 22.3         37.26     250.9</span>
+<span class="go">                    ...        ...      ...   ...   ...        ...   ...  ...           ...       ...</span>
+<span class="go">2018-09-02 14:12:18.000 22:36:03.8 -7:43:45 3.057 4.066      177.7   0.6 22.1         38.71     250.9</span>
+<span class="go">2018-09-03 14:12:18.000 22:35:04.7 -7:48:48 3.059 4.067      176.5   0.9 22.1         38.62     251.0</span>
+<span class="go">2018-09-04 14:12:18.000 22:34:05.8 -7:53:50 3.062 4.068      175.3   1.2 22.1         38.52     251.0</span>
+<span class="go">2018-09-05 14:12:18.000 22:33:07.1 -7:58:51 3.064 4.068      174.1   1.5 22.2         38.38     251.0</span>
+<span class="go">Length = 21 rows</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="iau-observatory-codes-and-locations">
+<h2>IAU Observatory Codes and Locations<a class="headerlink" href="#iau-observatory-codes-and-locations" title="Link to this heading">¶</a></h2>
+<p>Two methods are available for working with the MPC’s observatory list.
+To retrieve a list of all observatories:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_observatory_codes</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>   
+<span class="go">Code Longitude   cos      sin                      Name</span>
+<span class="go">---- --------- -------- -------- ----------------------------------------</span>
+<span class="go"> 000       0.0  0.62411  0.77873                                Greenwich</span>
+<span class="go"> 001    0.1542  0.62992  0.77411                              Crowborough</span>
+<span class="go"> 002      0.62    0.622    0.781                                 Rayleigh</span>
+<span class="go"> 003       3.9    0.725    0.687                              Montpellier</span>
+<span class="go"> 004    1.4625   0.7252  0.68627                                 Toulouse</span>
+<span class="go"> 005     2.231 0.659891 0.748875                                   Meudon</span>
+<span class="go"> ...       ...      ...      ...                                      ...</span>
+<span class="go"> Z94  358.8565  0.62725  0.77623                                Kempshott</span>
+<span class="go"> Z95  358.8909  0.76782  0.63883 Astronomia Para Todos Remote Observatory</span>
+<span class="go"> Z96 359.19369 0.747818 0.661731                Observatorio Cesaraugusto</span>
+<span class="go"> Z97 359.41647 0.704568  0.70727          OPERA Observatory, Saint Palais</span>
+<span class="go"> Z98  359.5216  0.77156  0.63405                 Observatorio TRZ, Betera</span>
+<span class="go"> Z99 359.97874 0.595468 0.800687          Clixby Observatory, Cleethorpes</span>
+<span class="go">Length = 2099 rows</span>
+</pre></div>
+</div>
+<p>The results are cached by default.  To update the cache, use the
+<code class="docutils literal notranslate"><span class="pre">cache=False</span></code> optional keyword:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_observatory_codes</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>   
+</pre></div>
+</div>
+<p>To get the location (longitude, parallax constants, and name) of a
+single observatory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">MPC</span><span class="o">.</span><span class="n">get_observatory_location</span><span class="p">(</span><span class="s1">&#39;371&#39;</span><span class="p">))</span>    
+<span class="go">(&lt;Angle 133.5965 deg&gt;, 0.82433, 0.56431, &#39;Tokyo-Okayama&#39;)</span>
+</pre></div>
+</div>
+<p>The parallax constants are <code class="docutils literal notranslate"><span class="pre">rho</span> <span class="pre">*</span> <span class="pre">cos(phi)</span></code> and <code class="docutils literal notranslate"><span class="pre">rho</span> <span class="pre">*</span> <span class="pre">sin(phi)</span></code> where
+<code class="docutils literal notranslate"><span class="pre">rho</span></code> is the geocentric distance in earth radii, and <code class="docutils literal notranslate"><span class="pre">phi</span></code> is the
+geocentric latitude.</p>
+</section>
+<section id="observations">
+<h2>Observations<a class="headerlink" href="#observations" title="Link to this heading">¶</a></h2>
+<p>The following code snippet queries all reported observations for
+asteroid 12893:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">MPC</span><span class="o">.</span><span class="n">get_observations</span><span class="p">(</span><span class="mi">12893</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>   
+<span class="go">number   desig   discovery note1 ...         DEC          mag  band observatory</span>
+<span class="go">                                 ...         deg          mag</span>
+<span class="go">------ --------- --------- ----- ... ------------------- ----- ---- -----------</span>
+<span class="go"> 12893 1998 QS55        --    -- ...  -15.78888888888889   0.0   --         413</span>
+<span class="go"> 12893 1998 QS55        --    -- ... -15.788944444444445   0.0   --         413</span>
+<span class="go"> 12893 1998 QS55         *     4 ...   5.526472222222222   0.0   --         809</span>
+<span class="go"> 12893 1998 QS55        --     4 ...   5.525555555555555   0.0   --         809</span>
+<span class="go"> 12893 1998 QS55        --     4 ...   5.524805555555555   0.0   --         809</span>
+<span class="go"> 12893 1998 QS55        --     4 ...   5.440555555555556  18.4   --         809</span>
+<span class="go">   ...       ...       ...   ... ...                 ...   ...  ...         ...</span>
+<span class="go"> 12893 1998 QS55        --    -- ...            12.63075 18.53    c         T05</span>
+<span class="go"> 12893 1998 QS55        --    -- ...   12.63088888888889 18.63    c         T05</span>
+<span class="go"> 12893 1998 QS55        --    -- ...  12.631472222222223 18.55    c         T05</span>
+<span class="go"> 12893 1998 QS55        --    -- ...  12.669888888888888  18.3    r         I41</span>
+<span class="go"> 12893 1998 QS55        --    -- ...            12.71525  18.3    r         I41</span>
+<span class="go"> 12893 1998 QS55        --    -- ...  12.716833333333334  18.2    r         I41</span>
+<span class="go"> 12893 1998 QS55        --    -- ...  12.717527777777779  18.3    r         I41</span>
+<span class="go">Length = 1401 rows</span>
+</pre></div>
+</div>
+<p>The query results of <a class="reference internal" href="../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass.get_observations" title="astroquery.mpc.MPCClass.get_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_observations</span></code></a> are parsed
+into a <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.QTable.html#astropy.table.QTable" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QTable</span></code></a> by default; it is also possible to
+output the original MPC 80-column format strings using the optional
+argument <code class="docutils literal notranslate"><span class="pre">get_mpcformat</span></code>.</p>
+<p>The query can only be run for single targets. The target body is
+identified either through an asteroid number (as int or str), a
+periodic comet number (as str, e.g., <code class="docutils literal notranslate"><span class="pre">'2P'</span></code>), a provisional asteroid
+designation (as str, e.g., <code class="docutils literal notranslate"><span class="pre">'1998</span> <span class="pre">QS55'</span></code>), or a provisional comet
+designation (as str, e.g., <code class="docutils literal notranslate"><span class="pre">'P/2019</span> <span class="pre">A4'</span></code>). Note that comet
+identifiers have to be accompanied by a comet type identifier (<code class="docutils literal notranslate"><span class="pre">P</span></code>,
+<code class="docutils literal notranslate"><span class="pre">C</span></code>, <code class="docutils literal notranslate"><span class="pre">X</span></code>, etc.), e.g., <code class="docutils literal notranslate"><span class="pre">'1P'</span></code>, <code class="docutils literal notranslate"><span class="pre">'354P'</span></code>, <code class="docutils literal notranslate"><span class="pre">'P/2019</span> <span class="pre">A4'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'C/1932</span> <span class="pre">Y1'</span></code>. The lack of a comet type identifier may lead to a
+misleading target identification or an error being raised. If the
+target identifier is not parsed properly, the user can use the keyword
+argument <code class="docutils literal notranslate"><span class="pre">id_type</span></code> to set the target type and identifier type
+manually. Asteroid or comet names cannot be queried, as well as
+Palomar-Leiden Survey designations, and individual comet fragments. In
+case an object name cannot be resolved, a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> is raised. If
+a query returns no results, a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> is raised.</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.mpc">
+<span id="astroquery-mpc-package"></span><h3>astroquery.mpc Package<a class="headerlink" href="#module-astroquery.mpc" title="Link to this heading">¶</a></h3>
+<section id="mpc-query-tool">
+<h4>MPC Query Tool<a class="headerlink" href="#mpc-query-tool" title="Link to this heading">¶</a></h4>
+<p>The International Astronomical Union Minor Planet Center is “the single worldwide location for
+receipt and distribution of positional measurements of minor planets, comets, and outer irregular
+natural satellites of the major planets”.</p>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.mpc.MPCClass.html#astroquery.mpc.MPCClass" title="astroquery.mpc.MPCClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MPCClass</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Minor Planet Center Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.mpc</span></code>/astroquery.solarsystem.MPC)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#orbits-and-parameters">Orbits and parameters</a><ul>
+<li><a class="reference internal" href="#search-parameters">Search parameters</a></li>
+<li><a class="reference internal" href="#sorting-and-return-limits">Sorting and return limits</a></li>
+<li><a class="reference internal" href="#customizing-return-fields">Customizing return fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ephemerides">Ephemerides</a><ul>
+<li><a class="reference internal" href="#dates-and-intervals">Dates and intervals</a></li>
+<li><a class="reference internal" href="#observer-location">Observer location</a></li>
+<li><a class="reference internal" href="#working-with-ephemeris-tables">Working with ephemeris tables</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iau-observatory-codes-and-locations">IAU Observatory Codes and Locations</a></li>
+<li><a class="reference internal" href="#observations">Observations</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.mpc">astroquery.mpc Package</a><ul>
+<li><a class="reference internal" href="#mpc-query-tool">MPC Query Tool</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/mpc/mpc.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

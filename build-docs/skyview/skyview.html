@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Skyview Queries (astroquery.skyview) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SkyViewClass" href="../api/astroquery.skyview.SkyViewClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.simbad.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.skyview.SkyViewClass.html" title="SkyViewClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.simbad.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>Skyview Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.skyview</span></code>)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="skyview-queries-astroquery-skyview">
+<span id="astroquery-skyview"></span><h1>Skyview Queries (<a class="reference internal" href="#module-astroquery.skyview" title="astroquery.skyview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.skyview</span></code></a>)<a class="headerlink" href="#skyview-queries-astroquery-skyview" title="Link to this heading">¶</a></h1>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference external" href="https://skyview.gsfc.nasa.gov/">SkyView</a> service offers a cutout service for a
+number of imaging surveys.</p>
+<p>To see the list of surveys, use the <a class="reference internal" href="../api/astroquery.skyview.SkyViewClass.html#astroquery.skyview.SkyViewClass.list_surveys" title="astroquery.skyview.SkyViewClass.list_surveys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_surveys</span></code></a> method.
+Note that the list here is not necessarily up-to-date; if SkyView has added surveys recently, they will appear when you run this code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.skyview</span> <span class="kn">import</span> <span class="n">SkyView</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">SkyView</span><span class="o">.</span><span class="n">list_surveys</span><span class="p">()</span>  
+<span class="go"> {&#39;Allbands:GOODS/HDF/CDF&#39;: [&#39;GOODS: Chandra ACIS HB&#39;,</span>
+<span class="go">                             &#39;GOODS: Chandra ACIS FB&#39;,</span>
+<span class="go">                             &#39;GOODS: Chandra ACIS SB&#39;,</span>
+<span class="go">                             &#39;GOODS: VLT VIMOS U&#39;,</span>
+<span class="go">                             &#39;GOODS: VLT VIMOS R&#39;,</span>
+<span class="go">                             &#39;GOODS: HST ACS B&#39;,</span>
+<span class="go">                             &#39;GOODS: HST ACS V&#39;,</span>
+<span class="go">                             &#39;GOODS: HST ACS I&#39;,</span>
+<span class="go">                             &#39;GOODS: HST ACS Z&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF U&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF B&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF V0201&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF V0401&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF R&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF I&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF z&#39;,</span>
+<span class="go">                             &#39;Hawaii HDF HK&#39;,</span>
+<span class="go">                             &#39;GOODS: HST NICMOS&#39;,</span>
+<span class="go">                             &#39;GOODS: VLT ISAAC J&#39;,</span>
+<span class="go">                             &#39;GOODS: VLT ISAAC H&#39;,</span>
+<span class="go">                             &#39;GOODS: VLT ISAAC Ks&#39;,</span>
+<span class="go">                             &#39;HUDF: VLT ISAAC Ks&#39;,</span>
+<span class="go">                             &#39;GOODS: Spitzer IRAC 3.6&#39;,</span>
+<span class="go">                             &#39;GOODS: Spitzer IRAC 4.5&#39;,</span>
+<span class="go">                             &#39;GOODS: Spitzer IRAC 5.8&#39;,</span>
+<span class="go">                             &#39;GOODS: Spitzer IRAC 8.0&#39;,</span>
+<span class="go">                             &#39;GOODS: Spitzer MIPS 24&#39;,</span>
+<span class="go">                             &#39;GOODS: Herschel 100&#39;,</span>
+<span class="go">                             &#39;GOODS: Herschel 160&#39;,</span>
+<span class="go">                             &#39;GOODS: Herschel 250&#39;,</span>
+<span class="go">                             &#39;GOODS: Herschel 350&#39;,</span>
+<span class="go">                             &#39;GOODS: Herschel 500&#39;,</span>
+<span class="go">                             &#39;CDFS: LESS&#39;,</span>
+<span class="go">                             &#39;GOODS: VLA North&#39;],</span>
+<span class="go">  &#39;Allbands:HiPS&#39;: [&#39;UltraVista-H&#39;,</span>
+<span class="go">                    &#39;UltraVista-J&#39;,</span>
+<span class="go">                    &#39;UltraVista-Ks&#39;,</span>
+<span class="go">                    &#39;UltraVista-NB118&#39;,</span>
+<span class="go">                    &#39;UltraVista-Y&#39;,</span>
+<span class="go">                    &#39;CFHTLS-W-u&#39;,</span>
+<span class="go">                    &#39;CFHTLS-W-g&#39;,</span>
+<span class="go">                    &#39;CFHTLS-W-r&#39;,</span>
+<span class="go">                    &#39;CFHTLS-W-i&#39;,</span>
+<span class="go">                    &#39;CFHTLS-W-z&#39;,</span>
+<span class="go">                    &#39;CFHTLS-D-u&#39;,</span>
+<span class="go">                    &#39;CFHTLS-D-g&#39;,</span>
+<span class="go">                    &#39;CFHTLS-D-r&#39;,</span>
+<span class="go">                    &#39;CFHTLS-D-i&#39;,</span>
+<span class="go">                    &#39;CFHTLS-D-z&#39;],</span>
+<span class="go">  &#39;GammaRay&#39;: [&#39;Fermi 5&#39;,</span>
+<span class="go">               &#39;Fermi 4&#39;,</span>
+<span class="go">               &#39;Fermi 3&#39;,</span>
+<span class="go">               &#39;Fermi 2&#39;,</span>
+<span class="go">               &#39;Fermi 1&#39;,</span>
+<span class="go">               &#39;EGRET (3D)&#39;,</span>
+<span class="go">               &#39;EGRET &lt;100 MeV&#39;,</span>
+<span class="go">               &#39;EGRET &gt;100 MeV&#39;,</span>
+<span class="go">               &#39;COMPTEL&#39;],</span>
+<span class="go">  &#39;HardX-ray&#39;: [&#39;INT GAL 17-35 Flux&#39;,</span>
+<span class="go">                &#39;INT GAL 17-60 Flux&#39;,</span>
+<span class="go">                &#39;INT GAL 35-80 Flux&#39;,</span>
+<span class="go">                &#39;INTEGRAL/SPI GC&#39;,</span>
+<span class="go">                &#39;GRANAT/SIGMA&#39;,</span>
+<span class="go">                &#39;RXTE Allsky 3-8keV Flux&#39;,</span>
+<span class="go">                &#39;RXTE Allsky 3-20keV Flux&#39;,</span>
+<span class="go">                &#39;RXTE Allsky 8-20keV Flux&#39;],</span>
+<span class="go">  &#39;IR:2MASS&#39;: [&#39;2MASS-J&#39;, &#39;2MASS-H&#39;, &#39;2MASS-K&#39;],</span>
+<span class="go">  &#39;IR:AKARI&#39;: [&#39;AKARI N60&#39;, &#39;AKARI WIDE-S&#39;, &#39;AKARI WIDE-L&#39;, &#39;AKARI N160&#39;],</span>
+<span class="go">  &#39;IR:IRAS&#39;: [&#39;IRIS  12&#39;,</span>
+<span class="go">              &#39;IRIS  25&#39;,</span>
+<span class="go">              &#39;IRIS  60&#39;,</span>
+<span class="go">              &#39;IRIS 100&#39;,</span>
+<span class="go">              &#39;SFD100m&#39;,</span>
+<span class="go">              &#39;SFD Dust Map&#39;,</span>
+<span class="go">              &#39;IRAS  12 micron&#39;,</span>
+<span class="go">              &#39;IRAS  25 micron&#39;,</span>
+<span class="go">              &#39;IRAS  60 micron&#39;,</span>
+<span class="go">              &#39;IRAS 100 micron&#39;],</span>
+<span class="go">  &#39;IR:Planck&#39;: [&#39;Planck 857&#39;,</span>
+<span class="go">                &#39;Planck 545&#39;,</span>
+<span class="go">                &#39;Planck 353&#39;,</span>
+<span class="go">                &#39;Planck 217&#39;,</span>
+<span class="go">                &#39;Planck 143&#39;,</span>
+<span class="go">                &#39;Planck 100&#39;,</span>
+<span class="go">                &#39;Planck 070&#39;,</span>
+<span class="go">                &#39;Planck 044&#39;,</span>
+<span class="go">                &#39;Planck 030&#39;],</span>
+<span class="go">  &#39;IR:UKIDSS&#39;: [&#39;UKIDSS-Y&#39;, &#39;UKIDSS-J&#39;, &#39;UKIDSS-H&#39;, &#39;UKIDSS-K&#39;],</span>
+<span class="go">  &#39;IR:WISE&#39;: [&#39;WISE 3.4&#39;, &#39;WISE 4.6&#39;, &#39;WISE 12&#39;, &#39;WISE 22&#39;],</span>
+<span class="go">  &#39;IR:WMAP&amp;COBE&#39;: [&#39;WMAP ILC&#39;,</span>
+<span class="go">                   &#39;WMAP Ka&#39;,</span>
+<span class="go">                   &#39;WMAP K&#39;,</span>
+<span class="go">                   &#39;WMAP Q&#39;,</span>
+<span class="go">                   &#39;WMAP V&#39;,</span>
+<span class="go">                   &#39;WMAP W&#39;,</span>
+<span class="go">                   &#39;COBE DIRBE/AAM&#39;,</span>
+<span class="go">                   &#39;COBE DIRBE/ZSMA&#39;],</span>
+<span class="go">  &#39;Optical:DSS&#39;: [&#39;DSS&#39;,</span>
+<span class="go">                  &#39;DSS1 Blue&#39;,</span>
+<span class="go">                  &#39;DSS1 Red&#39;,</span>
+<span class="go">                  &#39;DSS2 Red&#39;,</span>
+<span class="go">                  &#39;DSS2 Blue&#39;,</span>
+<span class="go">                  &#39;DSS2 IR&#39;],</span>
+<span class="go">  &#39;Optical:SDSS&#39;: [&#39;SDSSg&#39;,</span>
+<span class="go">                   &#39;SDSSi&#39;,</span>
+<span class="go">                   &#39;SDSSr&#39;,</span>
+<span class="go">                   &#39;SDSSu&#39;,</span>
+<span class="go">                   &#39;SDSSz&#39;,</span>
+<span class="go">                   &#39;SDSSdr7g&#39;,</span>
+<span class="go">                   &#39;SDSSdr7i&#39;,</span>
+<span class="go">                   &#39;SDSSdr7r&#39;,</span>
+<span class="go">                   &#39;SDSSdr7u&#39;,</span>
+<span class="go">                   &#39;SDSSdr7z&#39;],</span>
+<span class="go">  &#39;OtherOptical&#39;: [&#39;Mellinger Red&#39;,</span>
+<span class="go">                   &#39;Mellinger Green&#39;,</span>
+<span class="go">                   &#39;Mellinger Blue&#39;,</span>
+<span class="go">                   &#39;NEAT&#39;,</span>
+<span class="go">                   &#39;H-Alpha Comp&#39;,</span>
+<span class="go">                   &#39;SHASSA H&#39;,</span>
+<span class="go">                   &#39;SHASSA CC&#39;,</span>
+<span class="go">                   &#39;SHASSA C&#39;,</span>
+<span class="go">                   &#39;SHASSA Sm&#39;],</span>
+<span class="go">  &#39;ROSATDiffuse&#39;: [&#39;RASS Background 1&#39;,</span>
+<span class="go">                   &#39;RASS Background 2&#39;,</span>
+<span class="go">                   &#39;RASS Background 3&#39;,</span>
+<span class="go">                   &#39;RASS Background 4&#39;,</span>
+<span class="go">                   &#39;RASS Background 5&#39;,</span>
+<span class="go">                   &#39;RASS Background 6&#39;,</span>
+<span class="go">                   &#39;RASS Background 7&#39;],</span>
+<span class="go">  &#39;ROSATw/sources&#39;: [&#39;RASS-Cnt Soft&#39;,</span>
+<span class="go">                     &#39;RASS-Cnt Hard&#39;,</span>
+<span class="go">                     &#39;RASS-Cnt Broad&#39;,</span>
+<span class="go">                     &#39;PSPC 2.0 Deg-Int&#39;,</span>
+<span class="go">                     &#39;PSPC 1.0 Deg-Int&#39;,</span>
+<span class="go">                     &#39;PSPC 0.6 Deg-Int&#39;,</span>
+<span class="go">                     &#39;HRI&#39;],</span>
+<span class="go">  &#39;Radio:GHz&#39;: [&#39;CO&#39;,</span>
+<span class="go">                &#39;GB6 (4850MHz)&#39;,</span>
+<span class="go">                &#39;VLA FIRST (1.4 GHz)&#39;,</span>
+<span class="go">                &#39;NVSS&#39;,</span>
+<span class="go">                &#39;Stripe82VLA&#39;,</span>
+<span class="go">                &#39;1420MHz (Bonn)&#39;,</span>
+<span class="go">                &#39;HI4PI&#39;,</span>
+<span class="go">                &#39;EBHIS&#39;,</span>
+<span class="go">                &#39;nH&#39;],</span>
+<span class="go">  &#39;Radio:GLEAM&#39;: [&#39;GLEAM 72-103 MHz&#39;,</span>
+<span class="go">                  &#39;GLEAM 103-134 MHz&#39;,</span>
+<span class="go">                  &#39;GLEAM 139-170 MHz&#39;,</span>
+<span class="go">                  &#39;GLEAM 170-231 MHz&#39;],</span>
+<span class="go">  &#39;Radio:MHz&#39;: [&#39;SUMSS 843 MHz&#39;,</span>
+<span class="go">                &#39;0408MHz&#39;,</span>
+<span class="go">                &#39;WENSS&#39;,</span>
+<span class="go">                &#39;TGSS ADR1&#39;,</span>
+<span class="go">                &#39;VLSSr&#39;,</span>
+<span class="go">                &#39;0035MHz&#39;],</span>
+<span class="go">  &#39;SoftX-ray&#39;: [&#39;SwiftXRTCnt&#39;, &#39;SwiftXRTExp&#39;, &#39;SwiftXRTInt&#39;, &#39;HEAO 1 A-2&#39;],</span>
+<span class="go">  &#39;SwiftUVOT&#39;: [&#39;UVOT WHITE Intensity&#39;,</span>
+<span class="go">                &#39;UVOT V Intensity&#39;,</span>
+<span class="go">                &#39;UVOT B Intensity&#39;,</span>
+<span class="go">                &#39;UVOT U Intensity&#39;,</span>
+<span class="go">                &#39;UVOT UVW1 Intensity&#39;,</span>
+<span class="go">                &#39;UVOT UVM2 Intensity&#39;,</span>
+<span class="go">                &#39;UVOT UVW2 Intensity&#39;],</span>
+<span class="go">  &#39;UV&#39;: [&#39;GALEX Near UV&#39;,</span>
+<span class="go">         &#39;GALEX Far UV&#39;,</span>
+<span class="go">         &#39;ROSAT WFC F1&#39;,</span>
+<span class="go">         &#39;ROSAT WFC F2&#39;,</span>
+<span class="go">         &#39;EUVE 83 A&#39;,</span>
+<span class="go">         &#39;EUVE 171 A&#39;,</span>
+<span class="go">         &#39;EUVE 405 A&#39;,</span>
+<span class="go">         &#39;EUVE 555 A&#39;],</span>
+<span class="go">  &#39;X-ray:SwiftBAT&#39;: [&#39;BAT SNR 14-195&#39;,</span>
+<span class="go">                     &#39;BAT SNR 14-20&#39;,</span>
+<span class="go">                     &#39;BAT SNR 20-24&#39;,</span>
+<span class="go">                     &#39;BAT SNR 24-35&#39;,</span>
+<span class="go">                     &#39;BAT SNR 35-50&#39;,</span>
+<span class="go">                     &#39;BAT SNR 50-75&#39;,</span>
+<span class="go">                     &#39;BAT SNR 75-100&#39;,</span>
+<span class="go">                     &#39;BAT SNR 100-150&#39;,</span>
+<span class="go">                     &#39;BAT SNR 150-195&#39;]}</span>
+</pre></div>
+</div>
+<p>There are two essential methods:
+<a class="reference internal" href="../api/astroquery.skyview.SkyViewClass.html#astroquery.skyview.SkyViewClass.get_images" title="astroquery.skyview.SkyViewClass.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a> searches for and downloads
+files, while <a class="reference internal" href="../api/astroquery.skyview.SkyViewClass.html#astroquery.skyview.SkyViewClass.get_image_list" title="astroquery.skyview.SkyViewClass.get_image_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_image_list</span></code></a> just searches
+for the files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">SkyView</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s1">&#39;Eta Carinae&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="n">survey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Fermi 5&#39;</span><span class="p">,</span> <span class="s1">&#39;HRI&#39;</span><span class="p">,</span> <span class="s1">&#39;DSS&#39;</span><span class="p">])</span>
+<span class="go">Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_1.fits</span>
+<span class="go">|=========================================================================================================================| 371k/371k (100.00%)         0s</span>
+<span class="go">Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_2.fits</span>
+<span class="go">|=========================================================================================================================| 371k/371k (100.00%)         0s</span>
+<span class="go">Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_3.fits</span>
+<span class="go">|=========================================================================================================================| 374k/374k (100.00%)         0s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>  
+<span class="go">[[&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x10ef3a250&gt;], [&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f096f10&gt;], [&lt;astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f0aea50&gt;]]</span>
+</pre></div>
+</div>
+<p>Without the download:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">SkyView</span><span class="o">.</span><span class="n">get_image_list</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s1">&#39;Eta Carinae&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="n">survey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Fermi 5&#39;</span><span class="p">,</span> <span class="s1">&#39;HRI&#39;</span><span class="p">,</span> <span class="s1">&#39;DSS&#39;</span><span class="p">])</span>  
+<span class="go">[&#39;http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_1.fits&#39;,</span>
+<span class="go"> &#39;http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_2.fits&#39;,</span>
+<span class="go"> &#39;http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_3.fits&#39;]</span>
+</pre></div>
+</div>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.skyview">
+<span id="astroquery-skyview-package"></span><h3>astroquery.skyview Package<a class="headerlink" href="#module-astroquery.skyview" title="Link to this heading">¶</a></h3>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.skyview.SkyViewClass.html#astroquery.skyview.SkyViewClass" title="astroquery.skyview.SkyViewClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkyViewClass</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.skyview.Conf.html#astroquery.skyview.Conf" title="astroquery.skyview.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.skyview" title="astroquery.skyview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.skyview</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Skyview Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.skyview</span></code>)</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.skyview">astroquery.skyview Package</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/skyview/skyview.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

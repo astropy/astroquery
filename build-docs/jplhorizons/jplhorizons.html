@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>JPL Horizons Queries (astroquery.jplhorizons/astroquery.solarsystem.jpl.horizons) &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HorizonsClass" href="../api/astroquery.jplhorizons.HorizonsClass.html" />
+    <link rel="prev" title="Conf" href="../api/astroquery.fermi.Conf.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../api/astroquery.jplhorizons.HorizonsClass.html" title="HorizonsClass">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../api/astroquery.fermi.Conf.html" title="Conf">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      
+      <li>JPL Horizons Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.jplhorizons</span></code>/astroquery.solarsystem.jpl.horizons)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="jpl-horizons-queries-astroquery-jplhorizons-astroquery-solarsystem-jpl-horizons">
+<span id="astroquery-jplhorizons"></span><h1>JPL Horizons Queries (<a class="reference internal" href="#module-astroquery.jplhorizons" title="astroquery.jplhorizons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.jplhorizons</span></code></a>/astroquery.solarsystem.jpl.horizons)<a class="headerlink" href="#jpl-horizons-queries-astroquery-jplhorizons-astroquery-solarsystem-jpl-horizons" title="Link to this heading">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The default search behavior has changed.  In v0.4.3 and earlier, the default
+<code class="docutils literal notranslate"><span class="pre">id_type</span></code> was <code class="docutils literal notranslate"><span class="pre">'smallbody'</span></code>.  With v0.4.4, the default is <code class="docutils literal notranslate"><span class="pre">None</span></code>, which
+implements JPL Horizons’s <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#select">default behavior</a>: search major bodies
+first, and if no major bodies are found, then search small bodies.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Due to serverside changes the <code class="docutils literal notranslate"><span class="pre">jplhorizons</span></code> module requires astroquery v0.4.1 or newer.
+Previous versions are not expected to function, please upgrade the package if you observe any issues.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass" title="astroquery.jplhorizons.HorizonsClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a> class provides an
+interface to services provided by the <a class="reference external" href="https://ssd.jpl.nasa.gov/">Solar System Dynamics group at
+the Jet Propulation Laboratory</a>.</p>
+<p>Because of its relevance to Solar System science, this service can
+also be accessed from the topical submodule
+<a class="reference internal" href="../solarsystem/jpl/jpl.html#module-astroquery.solarsystem.jpl" title="astroquery.solarsystem.jpl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.solarsystem.jpl</span></code></a>. The functionality of that service is
+identical to the one presented here.</p>
+<p>In order to query information for a specific Solar System body, a
+<code class="docutils literal notranslate"><span class="pre">Horizons</span></code> object has to be instantiated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Ceres&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mf">2458133.33546</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="go">JPLHorizons instance &quot;Ceres&quot;; location=568, epochs=[2458133.33546], id_type=None</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">id</span></code> refers to the target object and is mandatory. <code class="docutils literal notranslate"><span class="pre">``str</span></code> and <code class="docutils literal notranslate"><span class="pre">int</span></code> values
+are valid for all query types. <code class="docutils literal notranslate"><span class="pre">Mapping</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">dict</span></code>) values are valid for
+observer (<code class="docutils literal notranslate"><span class="pre">ephemerides</span></code>) and vectors queries only. <code class="docutils literal notranslate"><span class="pre">str</span></code> or <code class="docutils literal notranslate"><span class="pre">int</span></code> values will be
+passed directly to Horizons. See the description of the <code class="docutils literal notranslate"><span class="pre">id_type</span></code> argument below
+for how Horizons interprets these values. See the paragraph below the description
+of the <code class="docutils literal notranslate"><span class="pre">location</span></code> argument for valid <code class="docutils literal notranslate"><span class="pre">dict</span></code> formatting.</p>
+<p><code class="docutils literal notranslate"><span class="pre">location</span></code> refers to the coordinate center for the ephemeris, which has
+slightly different physical interpretations depending on the query type:
+observer (<code class="docutils literal notranslate"><span class="pre">ephemerides</span></code>) queries: observer location
+vectors queries: coordinate origin for vectors
+elements queries: relative body for orbital elements</p>
+<p><code class="docutils literal notranslate"><span class="pre">str</span></code> and <code class="docutils literal notranslate"><span class="pre">int</span></code> values are valid for all query types. <code class="docutils literal notranslate"><span class="pre">Mapping</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">dict</span></code>) values are valid for observer (<code class="docutils literal notranslate"><span class="pre">ephemerides</span></code>) and vectors queries only. <code class="docutils literal notranslate"><span class="pre">str</span></code> or <code class="docutils literal notranslate"><span class="pre">int</span></code>
+arguments will be passed directly to Horizons. See <a class="reference external" href="&lt;https://ssd.jpl.nasa.gov/horizons/manual.html#center&gt;">this section of the Horizons
+manual</a> for how Horizons interprets coordinate center codes; also note that,
+unlike <code class="docutils literal notranslate"><span class="pre">id</span></code>, these include (most) <a class="reference external" href="https://minorplanetcenter.net/iau/lists/ObsCodesF.html">MPC Observatory codes</a>. See below for valid
+<code class="docutils literal notranslate"><span class="pre">dict</span></code> formatting. The default is <code class="docutils literal notranslate"><span class="pre">location=None</span></code>, which uses Earth body center
+for observer queries, and Sun body center for orbital elements and vectors queries.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dict</span></code>-like arguments to <code class="docutils literal notranslate"><span class="pre">id</span></code> or <code class="docutils literal notranslate"><span class="pre">location</span></code> define a topocentric location
+relative to a major body. Note that this is not possible for elements queries,
+and will only work for bodies with defined rotation models (Horizons does not
+have rotation models for many small or recently-discovered natural satellites).
+The dictionary has to be formatted as follows: {<code class="docutils literal notranslate"><span class="pre">'lon'</span></code>: longitude in degrees,
+<code class="docutils literal notranslate"><span class="pre">'lat'</span></code>: latitude in degrees (North positive, South negative), <code class="docutils literal notranslate"><span class="pre">'elevation'</span></code>:
+elevation in km above the reference ellipsoid, <code class="docutils literal notranslate"><span class="pre">body</span></code>: Horizons ID of center body,
+optional; default Earth}.</p>
+<p>Horizons always interprets longitude values as eastward. However, there are two
+major gotchas in this:
+1. For most prograde rotators, which is to say most major bodies, Horizons
+interprets west-longitude as positive and east-longitude as negative. However, values
+must still be entered in east-longitude, which means they must be negative; Horizons
+will raise an error if given any positive longitude value for such bodies. Instead enter
+the west-longitude - 360. For instance, a site on Mars (id code 499) at 30 degrees
+longitude, 30 degrees latitude, 0 km elevation should be specified as
+<code class="docutils literal notranslate"><span class="pre">{'body':</span> <span class="pre">499,</span> <span class="pre">'elevation':</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">u.km,</span> <span class="pre">'lon':</span> <span class="pre">-330</span> <span class="pre">*</span> <span class="pre">u.deg,</span> <span class="pre">'lat':</span> <span class="pre">30</span> <span class="pre">*</span> <span class="pre">u.deg}</span></code>.
+2. This does not apply to the Earth, Moon, and Sun. Although they are prograde,
+Horizons interprets east-longitude as positive and west-longitude as negative for these
+bodies.</p>
+<p>Here is a complete list of retrograde major bodies in Horizons:  Venus (299), Arial (701),
+Umbriel (702), Titania (703), Oberon (704), Miranda (705), Cordelia (706), Ophelia (707),
+Bianca (708), Cressida (709), Desdemona (710), Juliet (711), Portia (712), Rosalind (713),
+Belinda (714), Puck (715), Uranus (799), Triton (801). All other major bodies are prograde.</p>
+<p>Two examples of usage for specified topocentric coordinates follow.</p>
+<p>1. This observer (<code class="docutils literal notranslate"><span class="pre">ephemerides</span></code>) query uses the coordinates of the <a class="reference external" href="https://www.google.com/maps/place/Statue+of+Liberty+National+Monument/&#64;40.6892534,-74.0466891,17z/data=!3m1!4b1!4m5!3m4!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004">Statue of Liberty</a>
+as the observer’s location, and Ceres as the target:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statue_of_liberty</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">74.0466891</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="mf">40.6892534</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="s1">&#39;elevation&#39;</span><span class="p">:</span> <span class="mf">0.093</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Ceres&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">location</span><span class="o">=</span><span class="n">statue_of_liberty</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="mf">2458133.33546</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="go">JPLHorizons instance &quot;Ceres&quot;; location={&#39;lon&#39;: &lt;Quantity -74.0466891 deg&gt;, &#39;lat&#39;: &lt;Quantity 40.6892534 deg&gt;, &#39;elevation&#39;: &lt;Quantity 0.093 km&gt;, &#39;body&#39;: 399}, epochs=[2458133.33546], id_type=None</span>
+</pre></div>
+</div>
+<p>2. Specifying topocentric coordinates for both location and observer is often
+useful when performing geometric calculations for artificial satellites without
+completely-specified ephemeris data. For instance, published reduced data for the
+lunar satellite Chang’e-2 include orbital height and lat/lon. Although there is no published
+ephemeris for Chang’e-2, Horizons (combined with the fact that Chang’e-2 looked nadir),
+can be used to compute vectors from Chang’e-2 to specific points on the lunar surface.
+Here is an example of using <code class="docutils literal notranslate"><span class="pre">jplhorizons</span></code> to find the distance from Chang’e-2
+at a particular point in time to the center of the crater Double:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ce_2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="mf">23.522</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="mf">0.637</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;elevation&#39;</span><span class="p">:</span> <span class="mf">181.2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span> <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="mi">301</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">double</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="mf">23.47</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="mf">0.67</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;elevation&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span> <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="mi">301</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">double</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">ce_2</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mf">2454483.84247</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vecs</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">vectors</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distance_km</span> <span class="o">=</span> <span class="p">(</span><span class="n">vecs</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vecs</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vecs</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">1.496e8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">distance_km</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">181.213</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">epochs</span></code> is either a scalar or list of Julian dates (floats or strings) in the
+case of discrete epochs, or, in the case of a range of epochs, a dictionary that
+has to include the keywords <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code> (both using the following format
+“YYYY-MM-DD [HH:MM:SS]”), and <code class="docutils literal notranslate"><span class="pre">step</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">'1m'</span></code> for one minute,
+<code class="docutils literal notranslate"><span class="pre">'3h'</span></code> three hours, <code class="docutils literal notranslate"><span class="pre">'10d'</span></code> for ten days). Note that all input epochs, both
+calendar dates/times and Julian Dates, refer to UTC for ephemerides queries, TDB
+for element queries and vector queries. By default, <code class="docutils literal notranslate"><span class="pre">epochs=None</span></code>, which uses
+the current date and time.</p>
+<p><code class="docutils literal notranslate"><span class="pre">id_type</span></code> controls how <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#select">Horizons resolves the ‘id’</a>
+to match a Solar System body:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">id_type</span></code></p></th>
+<th class="head"><p>Query behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">None</span></code> (default)</p></td>
+<td><p>Searches major bodies (planets, natural satellites, spacecraft, special cases) first, and if none are found, then searches small bodies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smallbody</span></code></p></td>
+<td><p>Limits the search to small solar system bodies (comets and asteroids).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">designation</span></code></p></td>
+<td><p>Limits the search to small body designations, e.g., 73P or 2014 MU69.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>Limits the search to asteroid or comet names, e.g., Halley will match 1P/Halley and (2688) Halley.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">asteroid_name</span></code></p></td>
+<td><p>Limits the search to asteroid names, e.g., Don Quixote.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">comet_name</span></code></p></td>
+<td><p>Limits the search to comet names, e.g., Encke will only match comet 2P/Encke, and not (9134) Encke.</p></td>
+</tr>
+</tbody>
+</table>
+<p>In the case of ambiguities in the name resolution, a list of matching objects
+will be provided. In order to select an object from this list, provide the
+respective id number or record number as <code class="docutils literal notranslate"><span class="pre">id</span></code> and use <code class="docutils literal notranslate"><span class="pre">id_type=None</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Encke&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">())</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">Ambiguous target name; provide unique id:</span>
+<span class="x">    Record #  Epoch-yr  Primary Desig  &gt;MATCH NAME&lt;</span>
+<span class="x">    --------  --------  -------------  -------------------------</span>
+<span class="x">        9134            4822 P-L        Encke</span>
+<span class="x">    90000031    1786    2P              Encke</span>
+<span class="x">    90000032    1796    2P              Encke</span>
+<span class="x">    90000033    1805    2P              Encke</span>
+<span class="x">         ...     ...    ...               ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;90000034&#39;</span><span class="p">,</span> <span class="n">id_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">())</span>  
+<span class="go">targetname       datetime_str          datetime_jd    ... RA_3sigma DEC_3sigma</span>
+<span class="go">   ---               ---                    d         ...   arcsec    arcsec</span>
+<span class="go">---------- ------------------------ ----------------- ... --------- ----------</span>
+<span class="go">  2P/Encke 2018-Jan-17 05:06:07.709 2458135.712589224 ...        --         --</span>
+</pre></div>
+</div>
+<p>The <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/">JPL Horizons</a> system provides ephemerides, orbital elements, and state
+vectors for almost all known Solar System bodies. These queries are provided
+through three functions:
+<a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides" title="astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ephemerides()</span></code></a>,
+<a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.elements" title="astroquery.jplhorizons.HorizonsClass.elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">elements()</span></code></a>, and
+<a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.vectors" title="astroquery.jplhorizons.HorizonsClass.vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vectors()</span></code></a>.</p>
+<section id="ephemerides">
+<h3>Ephemerides<a class="headerlink" href="#ephemerides" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides" title="astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ephemerides()</span></code></a> returns ephemerides
+for a given observer location (<code class="docutils literal notranslate"><span class="pre">location</span></code>) and epoch or range of epochs
+(<code class="docutils literal notranslate"><span class="pre">epochs</span></code>) in the form of an astropy table. The following example queries the
+ephemerides of asteroid (1) Ceres for a range of dates as seen from Mauna Kea:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;Ceres&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="s1">&#39;2010-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;stop&#39;</span><span class="p">:</span><span class="s1">&#39;2010-03-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="s1">&#39;10d&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+<span class="go">     targetname       datetime_str   datetime_jd ... alpha_true  PABLon  PABLat</span>
+<span class="go">        ---               ---             d      ...    deg       deg     deg</span>
+<span class="go"> ----------------- ----------------- ----------- ... ---------- -------- ------</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ...    12.3609 238.2494 4.5532</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ...    14.1057 241.3339 4.2832</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Jan-21 00:00   2455217.5 ...    15.7313 244.3394 4.0089</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ...    17.2067 247.2518 3.7289</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ...    18.5029 250.0576 3.4415</span>
+<span class="go"> 1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ...    19.5814 252.7383 3.1451</span>
+</pre></div>
+</div>
+<p>The following fields are available for each ephemerides query:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>  
+<span class="go">&lt;TableColumns names=(&#39;targetname&#39;,&#39;datetime_str&#39;,&#39;datetime_jd&#39;,&#39;H&#39;,&#39;G&#39;,&#39;solar_presence&#39;,&#39;lunar_presence&#39;,&#39;RA&#39;,&#39;DEC&#39;,&#39;RA_app&#39;,&#39;DEC_app&#39;,&#39;RA_rate&#39;,&#39;DEC_rate&#39;,&#39;AZ&#39;,&#39;EL&#39;,&#39;AZ_rate&#39;,&#39;EL_rate&#39;,&#39;sat_X&#39;,&#39;sat_Y&#39;,&#39;sat_PANG&#39;,&#39;siderealtime&#39;,&#39;airmass&#39;,&#39;magextinct&#39;,&#39;V&#39;,&#39;surfbright&#39;,&#39;illumination&#39;,&#39;illum_defect&#39;,&#39;sat_sep&#39;,&#39;sat_vis&#39;,&#39;ang_width&#39;,&#39;PDObsLon&#39;,&#39;PDObsLat&#39;,&#39;PDSunLon&#39;,&#39;PDSunLat&#39;,&#39;SubSol_ang&#39;,&#39;SubSol_dist&#39;,&#39;NPole_ang&#39;,&#39;NPole_dist&#39;,&#39;EclLon&#39;,&#39;EclLat&#39;,&#39;r&#39;,&#39;r_rate&#39;,&#39;delta&#39;,&#39;delta_rate&#39;,&#39;lighttime&#39;,&#39;vel_sun&#39;,&#39;vel_obs&#39;,&#39;elong&#39;,&#39;elongFlag&#39;,&#39;alpha&#39;,&#39;lunar_elong&#39;,&#39;lunar_illum&#39;,&#39;sat_alpha&#39;,&#39;sunTargetPA&#39;,&#39;velocityPA&#39;,&#39;OrbPlaneAng&#39;,&#39;constellation&#39;,&#39;TDB-UT&#39;,&#39;ObsEclLon&#39;,&#39;ObsEclLat&#39;,&#39;NPole_RA&#39;,&#39;NPole_DEC&#39;,&#39;GlxLon&#39;,&#39;GlxLat&#39;,&#39;solartime&#39;,&#39;earth_lighttime&#39;,&#39;RA_3sigma&#39;,&#39;DEC_3sigma&#39;,&#39;SMAA_3sigma&#39;,&#39;SMIA_3sigma&#39;,&#39;Theta_3sigma&#39;,&#39;Area_3sigma&#39;,&#39;RSS_3sigma&#39;,&#39;r_3sigma&#39;,&#39;r_rate_3sigma&#39;,&#39;SBand_3sigma&#39;,&#39;XBand_3sigma&#39;,&#39;DoppDelay_3sigma&#39;,&#39;true_anom&#39;,&#39;hour_angle&#39;,&#39;alpha_true&#39;,&#39;PABLon&#39;,&#39;PABLat&#39;)&gt;</span>
+</pre></div>
+</div>
+<p>The values in these columns are the same as those defined in the Horizons
+<a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table">Definition of Observer Table Quantities</a>; names have been simplified in a few
+cases. Quantities <code class="docutils literal notranslate"><span class="pre">H</span></code> and <code class="docutils literal notranslate"><span class="pre">G</span></code> are the target’s Solar System absolute
+magnitude and photometric phase curve slope, respectively. In the case of
+comets, <code class="docutils literal notranslate"><span class="pre">H</span></code> and <code class="docutils literal notranslate"><span class="pre">G</span></code> are replaced by <code class="docutils literal notranslate"><span class="pre">M1</span></code>, <code class="docutils literal notranslate"><span class="pre">M2</span></code>, <code class="docutils literal notranslate"><span class="pre">k1</span></code>, <code class="docutils literal notranslate"><span class="pre">k2</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">phasecoeff</span></code>; please refer to the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table">Horizons documentation</a> for definitions.</p>
+<p>Optional parameters of <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides" title="astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ephemerides()</span></code></a>
+correspond to optional features of the Horizons system: <code class="docutils literal notranslate"><span class="pre">airmass_lessthan</span></code>
+sets an upper limit to airmass, <code class="docutils literal notranslate"><span class="pre">solar_elongation</span></code> enables the definition of a
+solar elongation range, <code class="docutils literal notranslate"><span class="pre">max_hour_angle</span></code> sets a cutoff of the hour angle,
+<code class="docutils literal notranslate"><span class="pre">skip_daylight=True</span></code> rejects epochs during daylight, <code class="docutils literal notranslate"><span class="pre">rate_cutoff</span></code> rejects
+targets with sky motion rates higher than provided (in units of arcsec/h),
+<code class="docutils literal notranslate"><span class="pre">refraction</span></code> accounts for refraction in the computation of the ephemerides
+(disabled by default), and <code class="docutils literal notranslate"><span class="pre">refsystem</span></code> defines the coordinate reference system
+used (ICRF by default). For comets, the options <code class="docutils literal notranslate"><span class="pre">closest_apparition</span></code> and
+<code class="docutils literal notranslate"><span class="pre">no_fragments</span></code> are available, which selects the closest apparition in time and
+limits fragment matching (73P-B would only match 73P-B), respectively.  Note
+that these options should only be used for comets and will crash the query for
+other object types. Extra precision in the queried properties can be requested
+using the <code class="docutils literal notranslate"><span class="pre">extra_precision</span></code> option.  Furthermore, <code class="docutils literal notranslate"><span class="pre">get_query_payload=True</span></code>
+skips the query and only returns the query payload. To pass additional settings
+to the request use the <code class="docutils literal notranslate"><span class="pre">optional_settings</span></code> passing a key-value
+dictionary.</p>
+<p><a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides" title="astroquery.jplhorizons.HorizonsClass.ephemerides"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ephemerides()</span></code></a> queries by default most
+available quantities from the JPL Horizons servers. This might take a while. If
+you are only interested in a subset of the available quantities, you can query
+only those. The corresponding optional parameter to be set is <code class="docutils literal notranslate"><span class="pre">quantities</span></code>.
+This parameter uses the same numerical codes as JPL Horizons defined in the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table">JPL
+Horizons User Manual Definition of Observer Table Quantities</a>. For instance,
+if you only want to query astrometric RA and Dec, you can use <code class="docutils literal notranslate"><span class="pre">quantities=1</span></code>;
+if you only want the heliocentric and geocentric distances, you can use
+<code class="docutils literal notranslate"><span class="pre">quantities='19,20'</span></code> (note that in this case a string with comma-separated
+codes has to be provided).</p>
+</section>
+<section id="orbital-elements">
+<h3>Orbital elements<a class="headerlink" href="#orbital-elements" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.elements" title="astroquery.jplhorizons.HorizonsClass.elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">elements()</span></code></a> returns orbital elements
+relative to some Solar System body (<code class="docutils literal notranslate"><span class="pre">location</span></code>, referred to as “CENTER” in
+Horizons) and for a given epoch or a range of epochs (<code class="docutils literal notranslate"><span class="pre">epochs</span></code>) in the form of
+an astropy table. The following example queries the osculating elements of
+asteroid (433) Eros for a given date relative to the Sun:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;433&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;500@10&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="mf">2458133.33546</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">elements</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+<span class="go">    targetname      datetime_jd  ...        Q                 P</span>
+<span class="go">       ---               d       ...        AU                d</span>
+<span class="go">------------------ ------------- ... ---------------- -----------------</span>
+<span class="go">433 Eros (A898 PA) 2458133.33546 ... 1.78244269692907 642.9387351308188</span>
+</pre></div>
+</div>
+<p>The following fields are queried:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>  
+<span class="go">&lt;TableColumns names=(&#39;targetname&#39;,&#39;datetime_jd&#39;,&#39;datetime_str&#39;,&#39;H&#39;,&#39;G&#39;,&#39;e&#39;,&#39;q&#39;,&#39;incl&#39;,&#39;Omega&#39;,&#39;w&#39;,&#39;Tp_jd&#39;,&#39;n&#39;,&#39;M&#39;,&#39;nu&#39;,&#39;a&#39;,&#39;Q&#39;,&#39;P&#39;)&gt;</span>
+</pre></div>
+</div>
+<p>Optional parameters of <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.elements" title="astroquery.jplhorizons.HorizonsClass.elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">elements()</span></code></a>
+include <code class="docutils literal notranslate"><span class="pre">refsystem</span></code>, which defines the coordinate reference system used (ICRF
+by default), <code class="docutils literal notranslate"><span class="pre">refplane</span></code> which defines the reference plane of the orbital
+elements queried, and <code class="docutils literal notranslate"><span class="pre">tp_type</span></code>, which switches between a relative and
+absolute representation of the time of perihelion passage.  For comets, the
+options <code class="docutils literal notranslate"><span class="pre">closest_apparition</span></code> and <code class="docutils literal notranslate"><span class="pre">no_fragments</span></code> are available, which select
+the closest apparition in time and reject fragments, respectively. Note that
+these options should only be used for comets and will crash the query for other
+object types. Also available is <code class="docutils literal notranslate"><span class="pre">get_query_payload=True</span></code>, which skips the
+query and only returns the query payload.</p>
+</section>
+<section id="vectors">
+<h3>Vectors<a class="headerlink" href="#vectors" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.vectors" title="astroquery.jplhorizons.HorizonsClass.vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vectors()</span></code></a> returns the
+state vector of the target body in cartesian coordinates relative to
+some Solar System body (<code class="docutils literal notranslate"><span class="pre">location</span></code>, referred to as “CENTER” in
+Horizons) and for a given epoch or a range of epochs (<code class="docutils literal notranslate"><span class="pre">epochs</span></code>) in
+the form of an astropy table. The following example queries the state
+vector of asteroid 2012 TC4 as seen from Goldstone for a range of
+epochs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;2012 TC4&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;257&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="s1">&#39;2017-10-01&#39;</span><span class="p">,</span> <span class="s1">&#39;stop&#39;</span><span class="p">:</span><span class="s1">&#39;2017-10-02&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="s1">&#39;10m&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vec</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">vectors</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>  
+<span class="go">targetname    datetime_jd    ...        range              range_rate</span>
+<span class="go">   ---             d         ...          AU                 AU / d</span>
+<span class="go">---------- ----------------- ... ------------------- ---------------------</span>
+<span class="go">(2012 TC4)         2458027.5 ... 0.04293321034545636 -0.004080187115743425</span>
+<span class="go">(2012 TC4) 2458027.506944444 ... 0.04290487470540343 -0.004080407262389858</span>
+<span class="go">(2012 TC4) 2458027.513888889 ... 0.04287653899449449 -0.004080207473059529</span>
+<span class="go">       ...               ... ...                 ...                   ...</span>
+<span class="go">(2012 TC4) 2458028.486111111 ... 0.03913618646225701 -0.004062675741730004</span>
+<span class="go">(2012 TC4) 2458028.493055556 ...  0.0391079700901548 -0.004063569819149637</span>
+<span class="go">(2012 TC4)         2458028.5 ... 0.03907974896127458 -0.004064045433438098</span>
+<span class="go">Length = 145 rows</span>
+</pre></div>
+</div>
+<p>The following fields are queried:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>  
+<span class="go">&lt;TableColumns names=(&#39;targetname&#39;,&#39;datetime_jd&#39;,&#39;datetime_str&#39;,&#39;H&#39;,&#39;G&#39;,&#39;x&#39;,&#39;y&#39;,&#39;z&#39;,&#39;vx&#39;,&#39;vy&#39;,&#39;vz&#39;,&#39;lighttime&#39;,&#39;range&#39;,&#39;range_rate&#39;)&gt;</span>
+</pre></div>
+</div>
+<p>Similar to the other <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass" title="astroquery.jplhorizons.HorizonsClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a> functions,
+optional parameters of <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.vectors" title="astroquery.jplhorizons.HorizonsClass.vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vectors()</span></code></a> is
+<code class="docutils literal notranslate"><span class="pre">get_query_payload=True</span></code>, which skips the query and only returns the query
+payload. For comets, the options <code class="docutils literal notranslate"><span class="pre">closest_apparation</span></code> and
+<code class="docutils literal notranslate"><span class="pre">no_fragments</span></code> are available, which select the closest apparition in time and
+reject fragments, respectively. Note that these options should only be used for
+comets and will crash the query for other object types. Options <code class="docutils literal notranslate"><span class="pre">aberrations</span></code>
+and <code class="docutils literal notranslate"><span class="pre">delta_T</span></code> provide different choices for aberration corrections as well as
+a measure for time-varying differences between TDB and UT time-scales,
+respectively.</p>
+</section>
+</section>
+<section id="how-to-use-the-query-tables">
+<h2>How to Use the Query Tables<a class="headerlink" href="#how-to-use-the-query-tables" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> objects created by the query functions are extremely versatile
+and easy to use. Since all query functions return the same type of table, they
+can all be used in the same way.</p>
+<p>We provide some examples to illustrate how to use them based on the following
+JPL Horizons ephemerides query of near-Earth asteroid (3552) Don Quixote since
+its year of Discovery:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;3552&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;568&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">epochs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="s1">&#39;2010-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;stop&#39;</span><span class="p">:</span><span class="s1">&#39;2019-12-31&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="s1">&#39;1y&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As we have seen before, we can display a truncated version of table
+<code class="docutils literal notranslate"><span class="pre">eph</span></code> by simply using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>  
+<span class="go">        targetname            datetime_str   ...  PABLon   PABLat</span>
+<span class="go">           ---                    ---        ...   deg      deg</span>
+<span class="go">-------------------------- ----------------- ... -------- --------</span>
+<span class="go">3552 Don Quixote (1983 SA) 2010-Jan-01 00:00 ...   8.0371  18.9349</span>
+<span class="go">3552 Don Quixote (1983 SA) 2011-Jan-01 00:00 ...  85.4082  34.5611</span>
+<span class="go">3552 Don Quixote (1983 SA) 2012-Jan-01 00:00 ... 109.2959  30.3834</span>
+<span class="go">3552 Don Quixote (1983 SA) 2013-Jan-01 00:00 ... 123.0777   26.136</span>
+<span class="go">3552 Don Quixote (1983 SA) 2014-Jan-01 00:00 ... 133.9392  21.8962</span>
+<span class="go">3552 Don Quixote (1983 SA) 2015-Jan-01 00:00 ... 144.2701  17.1908</span>
+<span class="go">3552 Don Quixote (1983 SA) 2016-Jan-01 00:00 ... 156.1007  11.1447</span>
+<span class="go">3552 Don Quixote (1983 SA) 2017-Jan-01 00:00 ... 174.0245   1.3487</span>
+<span class="go">3552 Don Quixote (1983 SA) 2018-Jan-01 00:00 ... 228.9956 -21.6723</span>
+<span class="go">3552 Don Quixote (1983 SA) 2019-Jan-01 00:00 ...  45.1979  32.3885</span>
+</pre></div>
+</div>
+<p>Please note the formatting of this table, which is done automatically. Above the
+dashes in the first two lines, you have the column name and its unit. Every
+column is assigned a unit from <a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a>. We will learn later how to use
+these units.</p>
+<section id="columns">
+<h3>Columns<a class="headerlink" href="#columns" title="Link to this heading">¶</a></h3>
+<p>We can get at list of all the columns in this table with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>     
+<span class="go">&lt;TableColumns names=(&#39;targetname&#39;,&#39;datetime_str&#39;,&#39;datetime_jd&#39;,&#39;H&#39;,&#39;G&#39;,&#39;solar_presence&#39;,&#39;lunar_presence&#39;,&#39;RA&#39;,&#39;DEC&#39;,&#39;RA_app&#39;,&#39;DEC_app&#39;,&#39;RA_rate&#39;,&#39;DEC_rate&#39;,&#39;AZ&#39;,&#39;EL&#39;,&#39;AZ_rate&#39;,&#39;EL_rate&#39;,&#39;sat_X&#39;,&#39;sat_Y&#39;,&#39;sat_PANG&#39;,&#39;siderealtime&#39;,&#39;airmass&#39;,&#39;magextinct&#39;,&#39;V&#39;,&#39;surfbright&#39;,&#39;illumination&#39;,&#39;illum_defect&#39;,&#39;sat_sep&#39;,&#39;sat_vis&#39;,&#39;ang_width&#39;,&#39;PDObsLon&#39;,&#39;PDObsLat&#39;,&#39;PDSunLon&#39;,&#39;PDSunLat&#39;,&#39;SubSol_ang&#39;,&#39;SubSol_dist&#39;,&#39;NPole_ang&#39;,&#39;NPole_dist&#39;,&#39;EclLon&#39;,&#39;EclLat&#39;,&#39;r&#39;,&#39;r_rate&#39;,&#39;delta&#39;,&#39;delta_rate&#39;,&#39;lighttime&#39;,&#39;vel_sun&#39;,&#39;vel_obs&#39;,&#39;elong&#39;,&#39;elongFlag&#39;,&#39;alpha&#39;,&#39;lunar_elong&#39;,&#39;lunar_illum&#39;,&#39;sat_alpha&#39;,&#39;sunTargetPA&#39;,&#39;velocityPA&#39;,&#39;OrbPlaneAng&#39;,&#39;constellation&#39;,&#39;TDB-UT&#39;,&#39;ObsEclLon&#39;,&#39;ObsEclLat&#39;,&#39;NPole_RA&#39;,&#39;NPole_DEC&#39;,&#39;GlxLon&#39;,&#39;GlxLat&#39;,&#39;solartime&#39;,&#39;earth_lighttime&#39;,&#39;RA_3sigma&#39;,&#39;DEC_3sigma&#39;,&#39;SMAA_3sigma&#39;,&#39;SMIA_3sigma&#39;,&#39;Theta_3sigma&#39;,&#39;Area_3sigma&#39;,&#39;RSS_3sigma&#39;,&#39;r_3sigma&#39;,&#39;r_rate_3sigma&#39;,&#39;SBand_3sigma&#39;,&#39;XBand_3sigma&#39;,&#39;DoppDelay_3sigma&#39;,&#39;true_anom&#39;,&#39;hour_angle&#39;,&#39;alpha_true&#39;,&#39;PABLon&#39;,&#39;PABLat&#39;)&gt;</span>
+</pre></div>
+</div>
+<p>We can address each column individually by indexing it using its name as
+provided in this list. For instance, we can get all RAs for Don Quixote by using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">])</span>     
+<span class="go">   RA</span>
+<span class="go">   deg</span>
+<span class="go">---------</span>
+<span class="go">345.50204</span>
+<span class="go"> 78.77158</span>
+<span class="go">119.85659</span>
+<span class="go">136.60021</span>
+<span class="go">147.44947</span>
+<span class="go">156.58967</span>
+<span class="go">166.32129</span>
+<span class="go"> 180.6992</span>
+<span class="go">232.11974</span>
+<span class="go">  16.1066</span>
+</pre></div>
+</div>
+<p>This column is formatted like the entire table; it has a column name and a unit.
+We can select several columns at a time, for instance RA and DEC for each epoch</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;datetime_str&#39;</span><span class="p">,</span> <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">])</span>    
+<span class="go">   datetime_str       RA      DEC</span>
+<span class="go">       ---           deg      deg</span>
+<span class="go">----------------- --------- --------</span>
+<span class="go">2010-Jan-01 00:00 345.50204 13.43621</span>
+<span class="go">2011-Jan-01 00:00  78.77158 61.48831</span>
+<span class="go">2012-Jan-01 00:00 119.85659 54.21955</span>
+<span class="go">2013-Jan-01 00:00 136.60021 45.82409</span>
+<span class="go">2014-Jan-01 00:00 147.44947 37.79876</span>
+<span class="go">2015-Jan-01 00:00 156.58967 29.23058</span>
+<span class="go">2016-Jan-01 00:00 166.32129 18.48174</span>
+<span class="go">2017-Jan-01 00:00  180.6992  1.20453</span>
+<span class="go">2018-Jan-01 00:00 232.11974 -37.9554</span>
+<span class="go">2019-Jan-01 00:00   16.1066 45.50296</span>
+</pre></div>
+</div>
+<p>We can use the same representation to do math with these columns. For instance,
+let’s calculate the total rate of the object by summing ‘RA_rate’ and ‘DEC_rate’
+in quadrature:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;RA_rate&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">eph</span><span class="p">[</span><span class="s1">&#39;DEC_rate&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">     dRA*cosD</span>
+<span class="go">------------------</span>
+<span class="go"> 86.18728612153883</span>
+<span class="go">26.337249029653798</span>
+<span class="go">21.520859656742434</span>
+<span class="go">17.679843758686584</span>
+<span class="go">14.775809055378625</span>
+<span class="go">11.874886005626538</span>
+<span class="go"> 7.183281978025435</span>
+<span class="go"> 7.295600209387093</span>
+<span class="go"> 94.84824546372009</span>
+<span class="go">23.952470898018017</span>
+</pre></div>
+</div>
+<p>Please note that the column name is wrong (copied from the name of the first
+column used), and that the unit is lost.</p>
+</section>
+<section id="units">
+<h3>Units<a class="headerlink" href="#units" title="Link to this heading">¶</a></h3>
+<p>Columns have units assigned to them. For instance, the <code class="docutils literal notranslate"><span class="pre">RA</span></code> column has
+the unit <code class="docutils literal notranslate"><span class="pre">deg</span></code> assigned to it, i.e., degrees. More complex units are
+available, too, e.g., the <code class="docutils literal notranslate"><span class="pre">RA_rate</span></code> column is expressed in <code class="docutils literal notranslate"><span class="pre">arcsec</span> <span class="pre">/</span>
+<span class="pre">h</span></code> - arcseconds per hour:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;RA_rate&#39;</span><span class="p">])</span>  
+<span class="go"> RA_rate</span>
+<span class="go">arcsec / h</span>
+<span class="go">----------</span>
+<span class="go">  72.35438</span>
+<span class="go">  -23.8239</span>
+<span class="go">  -20.7151</span>
+<span class="go">  -15.5509</span>
+<span class="go">   -12.107</span>
+<span class="go">  -9.32616</span>
+<span class="go">  -5.80004</span>
+<span class="go">  3.115853</span>
+<span class="go">  85.22719</span>
+<span class="go">  19.02548</span>
+</pre></div>
+</div>
+<p>The unit of this column can be easily converted to any other unit describing the
+same dimensions. For instance, we can turn <code class="docutils literal notranslate"><span class="pre">RA_rate</span></code> into <code class="docutils literal notranslate"><span class="pre">arcsec</span> <span class="pre">/</span> <span class="pre">s</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;RA_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">convert_unit_to</span><span class="p">(</span><span class="s1">&#39;arcsec/s&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="s1">&#39;RA_rate&#39;</span><span class="p">])</span>
+<span class="go">       RA_rate</span>
+<span class="go">      arcsec / s</span>
+<span class="go">----------------------</span>
+<span class="go">   0.02009843888888889</span>
+<span class="go">-0.0066177499999999995</span>
+<span class="go"> -0.005754194444444445</span>
+<span class="go"> -0.004319694444444445</span>
+<span class="go">-0.0033630555555555553</span>
+<span class="go">-0.0025905999999999998</span>
+<span class="go">-0.0016111222222222222</span>
+<span class="go"> 0.0008655147222222222</span>
+<span class="go">  0.023674219444444443</span>
+<span class="go">  0.005284855555555556</span>
+</pre></div>
+</div>
+<p>Please refer to the <a class="reference external" href="https://docs.astropy.org/en/latest/table/ref_api.html#module-astropy.table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.table</span></code></a> and <a class="reference external" href="https://docs.astropy.org/en/latest/units/ref_api.html#module-astropy.units" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> documentations for
+more information.</p>
+</section>
+</section>
+<section id="hints-and-tricks">
+<h2>Hints and Tricks<a class="headerlink" href="#hints-and-tricks" title="Link to this heading">¶</a></h2>
+<section id="checking-the-original-jpl-horizons-output">
+<h3>Checking the original JPL Horizons output<a class="headerlink" href="#checking-the-original-jpl-horizons-output" title="Link to this heading">¶</a></h3>
+<p>Once either of the query methods has been called, the retrieved raw response is
+stored in the attribute <code class="docutils literal notranslate"><span class="pre">raw_response</span></code>. Inspecting this response can help to
+understand issues with your query, or you can process the results differently.</p>
+<p>For all query types, the query URI (the URI is what you would put into the URL
+field of your web browser) that is used to request the data from the JPL
+Horizons server can be obtained from the
+<a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass" title="astroquery.jplhorizons.HorizonsClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a> object after a query has been
+performed (before the query only <code class="docutils literal notranslate"><span class="pre">None</span></code> would be returned):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span>  
+<span class="go">https://ssd.jpl.nasa.gov/api/horizons.api?format=text&amp;EPHEM_TYPE=OBSERVER&amp;QUANTITIES=%271%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%2C12%2C13%2C14%2C15%2C16%2C17%2C18%2C19%2C20%2C21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36%2C37%2C38%2C39%2C40%2C41%2C42%2C43%27&amp;COMMAND=%223552%22&amp;SOLAR_ELONG=%220%2C180%22&amp;LHA_CUTOFF=0&amp;CSV_FORMAT=YES&amp;CAL_FORMAT=BOTH&amp;ANG_FORMAT=DEG&amp;APPARENT=AIRLESS&amp;REF_SYSTEM=ICRF&amp;EXTRA_PREC=NO&amp;CENTER=%27568%27&amp;START_TIME=%222010-01-01%22&amp;STOP_TIME=%222019-12-31%22&amp;STEP_SIZE=%221y%22&amp;SKIP_DAYLT=NO</span>
+</pre></div>
+</div>
+<p>If your query failed, it might be useful for you to put the URI into a web
+browser to get more information why it failed. Please note that <code class="docutils literal notranslate"><span class="pre">uri</span></code> is an
+attribute of <a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass" title="astroquery.jplhorizons.HorizonsClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a> and not the results
+table.</p>
+</section>
+<section id="date-formats">
+<h3>Date Formats<a class="headerlink" href="#date-formats" title="Link to this heading">¶</a></h3>
+<p>JPL Horizons puts somewhat strict guidelines on the date formats: individual
+epochs have to be provided as Julian dates, whereas epoch ranges have to be
+provided as ISO dates (YYYY-MM-DD HH-MM UT). If you have your epoch dates in one
+of these formats but you need the other format, make use of
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">astropy.time.Time</span></code></a> for the conversion. An example is provided here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mydate_fromiso</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="s1">&#39;2018-07-23 15:55:23&#39;</span><span class="p">)</span>  <span class="c1"># pass date as string</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">mydate_fromiso</span><span class="o">.</span><span class="n">jd</span><span class="p">)</span>  <span class="c1"># convert Time object to Julian date</span>
+<span class="go">2458323.163460648</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mydate_fromjd</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="mf">2458323.163460648</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">mydate_fromjd</span><span class="o">.</span><span class="n">iso</span><span class="p">)</span> <span class="c1"># convert Time object to ISO</span>
+<span class="go">2018-07-23 15:55:23.000</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">astropy.time.Time</span></code></a> allows you to convert dates across a wide range of
+formats. Please note that when reading in Julian dates, you have to specify the
+date format as <code class="docutils literal notranslate"><span class="pre">'jd'</span></code>, as number passed to <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.time.Time.html#astropy.time.Time" title="(in Astropy v6.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Time</span></code></a> is
+ambiguous.</p>
+</section>
+<section id="keep-queries-short">
+<h3>Keep Queries Short<a class="headerlink" href="#keep-queries-short" title="Link to this heading">¶</a></h3>
+<p>Keep in mind that queries are sent as URIs to the Horizons server. If
+you query a large number of epochs (in the form of a list), this list
+might be truncated as URIs are typically expected to be shorter than
+2,000 symbols and your results might be compromised. If your query URI
+is longer than this limit, a warning is given. In that case, please
+try using a range of dates instead of a list of individual dates.</p>
+</section>
+<section id="reference-frames">
+<span id="jpl-horizons-reference-frames"></span><h3>Reference Frames<a class="headerlink" href="#reference-frames" title="Link to this heading">¶</a></h3>
+<p>The coordinate reference frame for Horizons output is controlled by the
+<code class="docutils literal notranslate"><span class="pre">refplane</span></code> and <code class="docutils literal notranslate"><span class="pre">refsystem</span></code> keyword arguments.  See the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table">Horizons
+documentation</a> for details. Some output reference frames are included in
+astropy’s <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">location</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">refplane</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">refsystem</span></code></p></th>
+<th class="head"><p>astropy frame</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.vectors()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'&#64;0'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'custombarycentricecliptic'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">.vectors()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'&#64;0'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'earth'</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'icrs'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.vectors()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'&#64;10'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'ecliptic'</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'heliocentriceclipticiau76'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>For example, get the barycentric coordinates of Jupiter as an astropy
+<a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.coordinates.SkyCoord.html#astropy.coordinates.SkyCoord" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkyCoord</span></code></a> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astroquery.jplhorizons</span> <span class="kn">import</span> <span class="n">Horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">Horizons</span><span class="p">(</span><span class="s1">&#39;599&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;@0&#39;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epoch</span><span class="o">.</span><span class="n">tdb</span><span class="o">.</span><span class="n">jd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tab</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">vectors</span><span class="p">(</span><span class="n">refplane</span><span class="o">=</span><span class="s1">&#39;earth&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantity</span><span class="p">,</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantity</span><span class="p">,</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantity</span><span class="p">,</span>
+<span class="gp">... </span>             <span class="n">representation_type</span><span class="o">=</span><span class="s1">&#39;cartesian&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;icrs&#39;</span><span class="p">,</span>
+<span class="gp">... </span>             <span class="n">obstime</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">&lt;SkyCoord (ICRS): (x, y, z) in AU</span>
+<span class="go">    [(3.03483263, -3.72503309, -1.67054586)]&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">¶</a></h2>
+<p>This submodule makes use of the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/">JPL Horizons</a> system.</p>
+<p>The development of this submodule is in part funded through NASA PDART Grant No.
+80NSSC18K0987 to the <a class="reference external" href="https://sbpy.org">sbpy project</a>.</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading">¶</a></h2>
+<section id="module-astroquery.jplhorizons">
+<span id="astroquery-jplhorizons-package"></span><h3>astroquery.jplhorizons Package<a class="headerlink" href="#module-astroquery.jplhorizons" title="Link to this heading">¶</a></h3>
+<section id="jplhorizons">
+<h4>JPLHorizons<a class="headerlink" href="#jplhorizons" title="Link to this heading">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Michael Mommert (<a class="reference external" href="mailto:mommermiscience&#37;&#52;&#48;gmail&#46;com">mommermiscience<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+</dd>
+</dl>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass" title="astroquery.jplhorizons.HorizonsClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HorizonsClass</span></code></a>([id, location, epochs, id_type])</p></td>
+<td><p><p>Query the <a class="reference external" href="https://ssd.jpl.nasa.gov/horizons/">JPL Horizons</a> service.</p>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/astroquery.jplhorizons.Conf.html#astroquery.jplhorizons.Conf" title="astroquery.jplhorizons.Conf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conf</span></code></a>()</p></td>
+<td><p>Configuration parameters for <a class="reference internal" href="#module-astroquery.jplhorizons" title="astroquery.jplhorizons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.jplhorizons</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">JPL Horizons Queries (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.jplhorizons</span></code>/astroquery.solarsystem.jpl.horizons)</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#ephemerides">Ephemerides</a></li>
+<li><a class="reference internal" href="#orbital-elements">Orbital elements</a></li>
+<li><a class="reference internal" href="#vectors">Vectors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use-the-query-tables">How to Use the Query Tables</a><ul>
+<li><a class="reference internal" href="#columns">Columns</a></li>
+<li><a class="reference internal" href="#units">Units</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hints-and-tricks">Hints and Tricks</a><ul>
+<li><a class="reference internal" href="#checking-the-original-jpl-horizons-output">Checking the original JPL Horizons output</a></li>
+<li><a class="reference internal" href="#date-formats">Date Formats</a></li>
+<li><a class="reference internal" href="#keep-queries-short">Keep Queries Short</a></li>
+<li><a class="reference internal" href="#reference-frames">Reference Frames</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
+<li><a class="reference internal" href="#reference-api">Reference/API</a><ul>
+<li><a class="reference internal" href="#module-astroquery.jplhorizons">astroquery.jplhorizons Package</a><ul>
+<li><a class="reference internal" href="#jplhorizons">JPLHorizons</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/jplhorizons/jplhorizons.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>

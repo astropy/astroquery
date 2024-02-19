@@ -1,0 +1,33 @@
+IrsaClass
+=========
+
+.. currentmodule:: astroquery.ipac.irsa
+
+.. autoclass:: IrsaClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~IrsaClass.tap
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~IrsaClass.list_catalogs
+      ~IrsaClass.print_catalogs
+      ~IrsaClass.query_region
+      ~IrsaClass.query_tap
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: tap
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: list_catalogs
+   .. automethod:: print_catalogs
+   .. automethod:: query_region
+   .. automethod:: query_tap

@@ -1,0 +1,45 @@
+HSAClass
+========
+
+.. currentmodule:: astroquery.esa.hsa
+
+.. autoclass:: HSAClass
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~HSAClass.data_url
+      ~HSAClass.metadata_url
+      ~HSAClass.timeout
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~HSAClass.download_data
+      ~HSAClass.get_columns
+      ~HSAClass.get_observation
+      ~HSAClass.get_postcard
+      ~HSAClass.get_tables
+      ~HSAClass.query_hsa_tap
+      ~HSAClass.query_observations
+      ~HSAClass.query_region
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: data_url
+   .. autoattribute:: metadata_url
+   .. autoattribute:: timeout
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: download_data
+   .. automethod:: get_columns
+   .. automethod:: get_observation
+   .. automethod:: get_postcard
+   .. automethod:: get_tables
+   .. automethod:: query_hsa_tap
+   .. automethod:: query_observations
+   .. automethod:: query_region

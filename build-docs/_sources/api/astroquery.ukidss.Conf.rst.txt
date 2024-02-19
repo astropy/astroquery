@@ -1,0 +1,41 @@
+Conf
+====
+
+.. currentmodule:: astroquery.ukidss
+
+.. autoclass:: Conf
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Conf.server
+      ~Conf.timeout
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~Conf.help
+      ~Conf.items
+      ~Conf.keys
+      ~Conf.reload
+      ~Conf.reset
+      ~Conf.set_temp
+      ~Conf.values
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: server
+   .. autoattribute:: timeout
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: help
+   .. automethod:: items
+   .. automethod:: keys
+   .. automethod:: reload
+   .. automethod:: reset
+   .. automethod:: set_temp
+   .. automethod:: values

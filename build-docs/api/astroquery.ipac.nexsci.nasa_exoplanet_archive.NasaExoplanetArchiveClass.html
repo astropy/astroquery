@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>NasaExoplanetArchiveClass &#8212; astroquery v0.4.7.dev9024</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css?v=9d21690f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=4195d067"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conf" href="astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf.html" />
+    <link rel="prev" title="NASA Exoplanet Archive (astroquery.ipac.nexsci.nasa_exoplanet_archive)" href="../ipac/nexsci/nasa_exoplanet_archive.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">query</span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="astroquery.ipac.nexsci.nasa_exoplanet_archive.Conf.html" title="Conf">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../ipac/nexsci/nasa_exoplanet_archive.html" title="NASA Exoplanet Archive (astroquery.ipac.nexsci.nasa_exoplanet_archive)">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">astroquery v0.4.7.dev9024</a>
+	 &#187;
+      </li>
+      <li><a href="../ipac/nexsci/nasa_exoplanet_archive.html" accesskey="U">NASA Exoplanet Archive (<code class="xref py py-obj docutils literal notranslate"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive</span></code>)</a> &#187;</li>
+      
+      <li>NasaExoplanetArchiveClass</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="nasaexoplanetarchiveclass">
+<h1>NasaExoplanetArchiveClass<a class="headerlink" href="#nasaexoplanetarchiveclass" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">astroquery.ipac.nexsci.nasa_exoplanet_archive.</span></span><span class="sig-name descname"><span class="pre">NasaExoplanetArchiveClass</span></span><a class="reference internal" href="../_modules/astroquery/ipac/nexsci/nasa_exoplanet_archive/core.html#NasaExoplanetArchiveClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="astroquery.query.BaseVOQuery.html#astroquery.query.BaseVOQuery" title="astroquery.query.BaseVOQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVOQuery</span></code></a>, <a class="reference internal" href="astroquery.query.BaseQuery.html#astroquery.query.BaseQuery" title="astroquery.query.BaseQuery"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuery</span></code></a></p>
+<p>The interface for querying the NASA Exoplanet Archive TAP and API services</p>
+<p>A full discussion of the available tables and query syntax is available on the documentation
+pages for <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">TAP</a> and
+<a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">API</a>.</p>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.CACHE" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.CACHE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CACHE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TAP_TABLES" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TAP_TABLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TAP_TABLES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TIMEOUT" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_API" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_API"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL_API</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_TAP" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_TAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">URL_TAP</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_aliases" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_aliases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_aliases</span></code></a>(object_name, *[, cache])</p></td>
+<td><p>Search for aliases for a given confirmed planet or planet host</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria_async" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_criteria_async</span></code></a>(table[, ...])</p></td>
+<td><p>Search a table given a set of criteria or return the full table</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object_async" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_object_async</span></code></a>(object_name, *[, table, ...])</p></td>
+<td><p>Search the tables of confirmed exoplanets for information about a planet or planet host</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Queries the service and returns a table object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region_async" title="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_region_async</span></code></a>(table, coordinates, radius, *)</p></td>
+<td><p>Filter a table using a cone search around specified coordinates</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.CACHE">
+<span class="sig-name descname"><span class="pre">CACHE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.CACHE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TAP_TABLES">
+<span class="sig-name descname"><span class="pre">TAP_TABLES</span></span><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TAP_TABLES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></em><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TIMEOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_API">
+<span class="sig-name descname"><span class="pre">URL_API</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI'</span></em><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_API" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_TAP">
+<span class="sig-name descname"><span class="pre">URL_TAP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://exoplanetarchive.ipac.caltech.edu/TAP/'</span></em><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_TAP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_aliases">
+<span class="sig-name descname"><span class="pre">query_aliases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/nexsci/nasa_exoplanet_archive/core.html#NasaExoplanetArchiveClass.query_aliases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_aliases" title="Link to this definition">¶</a></dt>
+<dd><p>Search for aliases for a given confirmed planet or planet host</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The name of a planet or star to regularize using the <code class="docutils literal notranslate"><span class="pre">aliaslookup</span></code> service.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>response</strong><span class="classifier">list</span></dt><dd><p>A list of aliases found for the object name. The default name will be listed first.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria">
+<span class="sig-name descname"><span class="pre">query_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Search a table given a set of criteria or return the full table</p>
+<p>The syntax for these queries is described on the Exoplanet Archive TAP[Rb480749af1eb-1]_ API[Rb480749af1eb-2]_ documentation pages.
+In particular, the most commonly used criteria will be <code class="docutils literal notranslate"><span class="pre">select</span></code> and <code class="docutils literal notranslate"><span class="pre">where</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">str</span></dt><dd><p>The name of the table to query. A list of the tables on the Exoplanet Archive can be
+found on the documentation pages <a class="reference internal" href="#rb480749af1eb-1" id="id1">[1]</a>, <a class="reference internal" href="#rb480749af1eb-2" id="id2">[2]</a>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>The filtering criteria to apply. These are described in detail in the archive
+documentation <a class="reference internal" href="#rb480749af1eb-1" id="id3">[1]</a>, <a class="reference internal" href="#rb480749af1eb-2" id="id4">[2]</a> but some examples include <code class="docutils literal notranslate"><span class="pre">select=&quot;*&quot;</span></code> to return all columns of
+the queried table or <code class="docutils literal notranslate"><span class="pre">where=pl_name='K2-18</span> <span class="pre">b'</span></code> to filter a specific column.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rb480749af1eb-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="rb480749af1eb-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id4">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria_async">
+<span class="sig-name descname"><span class="pre">query_criteria_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">criteria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/nexsci/nasa_exoplanet_archive/core.html#NasaExoplanetArchiveClass.query_criteria_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria_async" title="Link to this definition">¶</a></dt>
+<dd><p>Search a table given a set of criteria or return the full table</p>
+<p>The syntax for these queries is described on the Exoplanet Archive TAP[Re5bd529a510c-1]_ API[Re5bd529a510c-2]_ documentation pages.
+In particular, the most commonly used criteria will be <code class="docutils literal notranslate"><span class="pre">select</span></code> and <code class="docutils literal notranslate"><span class="pre">where</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">str</span></dt><dd><p>The name of the table to query. A list of the tables on the Exoplanet Archive can be
+found on the documentation pages <a class="reference internal" href="#re5bd529a510c-1" id="id7">[1]</a>, <a class="reference internal" href="#re5bd529a510c-2" id="id8">[2]</a>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>The filtering criteria to apply. These are described in detail in the archive
+documentation <a class="reference internal" href="#re5bd529a510c-1" id="id9">[1]</a>, <a class="reference internal" href="#re5bd529a510c-2" id="id10">[2]</a> but some examples include <code class="docutils literal notranslate"><span class="pre">select=&quot;*&quot;</span></code> to return all columns of
+the queried table or <code class="docutils literal notranslate"><span class="pre">where=pl_name='K2-18</span> <span class="pre">b'</span></code> to filter a specific column.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The HTTP response returned from the service.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="re5bd529a510c-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id7">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="re5bd529a510c-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id8">1</a>,<a role="doc-backlink" href="#id10">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object">
+<span class="sig-name descname"><span class="pre">query_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Search the tables of confirmed exoplanets for information about a planet or planet host</p>
+<p>The tables available to this query are the following (more information can be found on
+the archive’s documentation pages <a class="reference internal" href="#r3a45f2709daa-1" id="id15">[1]</a>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ps</span></code>: This table compiles parameters derived from a multiple published
+references on separate rows, each row containing self-consistent values from one reference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pscomppars</span></code>: This table compiles all parameters of confirmed exoplanets from multiple,
+published references in one row (not all self-consistent) per object.</p></li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The name of the planet or star.  If <code class="docutils literal notranslate"><span class="pre">regularize</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, an attempt will be made
+to regularize this name using the <code class="docutils literal notranslate"><span class="pre">aliastable</span></code> table. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt><strong>table</strong><span class="classifier">[<code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pscomppars&quot;</span></code>], optional</span></dt><dd><p>The table to query, must be one of the supported tables: <code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pscomppars&quot;</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>regularize</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the <code class="docutils literal notranslate"><span class="pre">aliastable</span></code> will be used to regularize the target name.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>Any other filtering criteria to apply. Values provided using the <code class="docutils literal notranslate"><span class="pre">where</span></code> keyword will
+be ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r3a45f2709daa-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="r3a45f2709daa-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object_async">
+<span class="sig-name descname"><span class="pre">query_object_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">criteria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/nexsci/nasa_exoplanet_archive/core.html#NasaExoplanetArchiveClass.query_object_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object_async" title="Link to this definition">¶</a></dt>
+<dd><p>Search the tables of confirmed exoplanets for information about a planet or planet host</p>
+<p>The tables available to this query are the following (more information can be found on
+the archive’s documentation pages <a class="reference internal" href="#rddcabf565a63-1" id="id20">[1]</a>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ps</span></code>: This table compiles parameters derived from a multiple published
+references on separate rows, each row containing self-consistent values from one reference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pscomppars</span></code>: This table compiles all parameters of confirmed exoplanets from multiple,
+published references in one row (not all self-consistent) per object.</p></li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>object_name</strong><span class="classifier">str</span></dt><dd><p>The name of the planet or star.  If <code class="docutils literal notranslate"><span class="pre">regularize</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, an attempt will be made
+to regularize this name using the <code class="docutils literal notranslate"><span class="pre">aliastable</span></code> table. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt><strong>table</strong><span class="classifier">[<code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pscomppars&quot;</span></code>], optional</span></dt><dd><p>The table to query, must be one of the supported tables: <code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pscomppars&quot;</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ps&quot;</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>regularize</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the <code class="docutils literal notranslate"><span class="pre">aliastable</span></code> will be used to regularize the target name.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>Any other filtering criteria to apply. Values provided using the <code class="docutils literal notranslate"><span class="pre">where</span></code> keyword will
+be ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The HTTP response returned from the service.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rddcabf565a63-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id20">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="rddcabf565a63-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region">
+<span class="sig-name descname"><span class="pre">query_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region" title="Link to this definition">¶</a></dt>
+<dd><p>Queries the service and returns a table object.</p>
+<p>Filter a table using a cone search around specified coordinates</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>table</strong><span class="classifier">str</span></dt><dd><p>The name of the table to query. A list of the tables on the Exoplanet Archive can be
+found on the documentation pages <a class="reference internal" href="#r868944752ed9-1" id="id25">[1]</a>, <a class="reference internal" href="#r868944752ed9-2" id="id26">[2]</a>.</p>
+</dd>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></span></dt><dd><p>The coordinates around which to query.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>The radius of the cone search. Assumed to be have units of degrees if not provided as
+a <code class="docutils literal notranslate"><span class="pre">Quantity</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>Any other filtering criteria to apply. These are described in detail in the archive
+documentation <a class="reference internal" href="#r868944752ed9-1" id="id27">[1]</a>,[R868944752ed9-2]_ but some examples include <code class="docutils literal notranslate"><span class="pre">select=&quot;*&quot;</span></code> to return all columns of
+the queried table or <code class="docutils literal notranslate"><span class="pre">where=pl_name='K2-18</span> <span class="pre">b'</span></code> to filter a specific column.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>table</strong><span class="classifier">A <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> object.</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r868944752ed9-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id25">1</a>,<a role="doc-backlink" href="#id27">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="r868944752ed9-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id26">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region_async">
+<span class="sig-name descname"><span class="pre">query_region_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_query_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">criteria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/astroquery/ipac/nexsci/nasa_exoplanet_archive/core.html#NasaExoplanetArchiveClass.query_region_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region_async" title="Link to this definition">¶</a></dt>
+<dd><p>Filter a table using a cone search around specified coordinates</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>table</strong><span class="classifier">str</span></dt><dd><p>The name of the table to query. A list of the tables on the Exoplanet Archive can be
+found on the documentation pages <a class="reference internal" href="#r97e77e5c5942-1" id="id32">[1]</a>, <a class="reference internal" href="#r97e77e5c5942-2" id="id33">[2]</a>.</p>
+</dd>
+<dt><strong>coordinates</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/coordinates/ref_api.html#module-astropy.coordinates" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></span></dt><dd><p>The coordinates around which to query.</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">str or <a class="reference external" href="https://docs.astropy.org/en/latest/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></span></dt><dd><p>The radius of the cone search. Assumed to be have units of degrees if not provided as
+a <code class="docutils literal notranslate"><span class="pre">Quantity</span></code>.</p>
+</dd>
+<dt><strong>get_query_payload</strong><span class="classifier">bool, optional</span></dt><dd><p>Just return the dict of HTTP request parameters. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Should the request result be cached? This can be useful for large repeated queries,
+but since the data in the archive is updated regularly, this defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt><strong>**criteria</strong></dt><dd><p>Any other filtering criteria to apply. These are described in detail in the archive
+documentation <a class="reference internal" href="#r97e77e5c5942-1" id="id34">[1]</a>,[R97e77e5c5942-2]_ but some examples include <code class="docutils literal notranslate"><span class="pre">select=&quot;*&quot;</span></code> to return all columns of
+the queried table or <code class="docutils literal notranslate"><span class="pre">where=pl_name='K2-18</span> <span class="pre">b'</span></code> to filter a specific column.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>response</strong><span class="classifier"><a class="reference external" href="https://requests.kennethreitz.org/en/stable/api/#requests.Response" title="(in Requests v2.31.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a></span></dt><dd><p>The HTTP response returned from the service.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r97e77e5c5942-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id32">1</a>,<a role="doc-backlink" href="#id34">2</a>)</span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA Exoplanet Archive TAP Documentation</a></p>
+</div>
+<div class="citation" id="r97e77e5c5942-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id33">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html">NASA Exoplanet Archive API Documentation</a></p>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">NasaExoplanetArchiveClass</a><ul>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass</span></code></a><ul>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.CACHE"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.CACHE</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TAP_TABLES"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.TAP_TABLES</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_API"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.URL_API</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.URL_TAP"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.URL_TAP</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_aliases"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_aliases()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_criteria()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria_async"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_criteria_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_object()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object_async"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_object_async()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_region()</span></code></a></li>
+<li><a class="reference internal" href="#astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region_async"><code class="docutils literal notranslate"><span class="pre">NasaExoplanetArchiveClass.query_region_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2023, The Astroquery Developers.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Last built 11 Dec 2023. <br/>
+  </p>
+</footer>
+  </body>
+</html>
