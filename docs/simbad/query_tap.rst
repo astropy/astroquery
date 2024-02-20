@@ -1,3 +1,5 @@
+.. _query-tap-documentation:
+
 `~astroquery.simbad.SimbadClass.query_tap` (for Table Access Protocol) is the one
 query to rule them all. It allows one to access all the information in SIMBAD with the
 Astronomical Data Query Language (ADQL). ADQL is a flavor of the Structured
@@ -6,7 +8,7 @@ see the `ADQL documentation <https://ivoa.net/documents/ADQL/index.html>`__
 or the `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`__.
 
 Structure of an ADQL query
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 The method `~astroquery.simbad.SimbadClass.query_tap` is called with a string containing the
 ADQL query.
@@ -56,7 +58,7 @@ of stars, and have a redshift < 1. The following sections cover methods that hel
 queries. A showcase of more complex queries comes after.
 
 Available tables
-^^^^^^^^^^^^^^^^
+----------------
 
 SIMBAD is a relational database. This means that it is a collection of tables with
 links between them. You can access a `graphic representation of Simbad's tables and
@@ -126,7 +128,7 @@ join statement: ``[...] mesDiameter JOIN basic ON mesDiameter.oidref = basic.oid
     :alt: This interactive graph summarizes the information that can be obtained with `~astroquery.simbad.SimbadClass.list_tables` and `~astroquery.simbad.SimbadClass.list_linked_tables`.
 
 Available columns
-^^^^^^^^^^^^^^^^^
+-----------------
 
 `~astroquery.simbad.SimbadClass.list_columns` lists the columns in all or a subset of SIMBAD tables.
 Calling it with no argument returns the 289 columns of SIMBAD. To restrict the output to
@@ -177,12 +179,12 @@ in the column name or in its description. This is not case-sensitive.
     mesVelocities          origin ...                                    meta.note
 
 Example TAP queries
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 This section lists more complex queries by looking at use cases from former astroquery issues.
 
 Getting all bibcodes containing a certain type of measurement for a given object
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The measurement tables -- the ones with names starting with ``mes``-- have a bibcode column
 that corresponds to the paper in which the information was found.
@@ -212,7 +214,7 @@ that is the measurement table for rotations. Their common column is ``oidref``.
 This returns six papers in which the SIMBAD team found rotation data for Sirius.
 
 Criteria on region, measurements and object types
-"""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Here we search for objects that are not stars and have a redshift<0.4 in a cone search. All this information
 is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
@@ -246,7 +248,7 @@ is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
 This returns a few galaxies 'G' and emission-line galaxies 'EmG'.
 
 Get the members of a galaxy cluster
-"""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All membership information is in the ``h_link`` table. We first need to retrieve the ``oidref``
 corresponding to the parent cluster SDSSCGB 350. This is done is the sub-query between parenthesis.
@@ -277,7 +279,7 @@ Then, the ``basic`` table is joined with ``h_link`` and the sub-query result.
                 LEDA 1831614      G         243.189153 ...        100    SDSSCGB 350
 
 Query a long list of object
-"""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To query a list of objects (or coordinates, of bibliographic references), we can use the
 ADQL criteria ``IN`` like so:
