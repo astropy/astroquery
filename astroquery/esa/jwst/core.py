@@ -571,9 +571,12 @@ class JwstClass(BaseQuery):
         if target_resolver == "ALL" or target_resolver == "SIMBAD":
             try:
                 result_table = Simbad.query_object(target_name)
-                return SkyCoord((f'{result_table["RA"][0]} '
-                                 f'{result_table["DEC"][0]}'),
-                                unit=(units.hourangle,
+                # new simbad behavior does not return None but an empty table
+                if len(result_table) == 0:
+                    result_table = None
+                return SkyCoord((f'{result_table["ra"][0]} '
+                                 f'{result_table["dec"][0]}'),
+                                unit=(units.deg,
                                       units.deg), frame="icrs")
             except (KeyError, TypeError, ConnectionError):
                 log.info("SIMBAD could not resolve this target")
