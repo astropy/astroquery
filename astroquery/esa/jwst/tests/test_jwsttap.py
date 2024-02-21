@@ -11,7 +11,7 @@ European Space Agency (ESA)
 import os
 import shutil
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import sys
 import io
 
@@ -21,6 +21,7 @@ import pytest
 from astropy import units
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
+from astropy.io.votable import parse_single_table
 from astropy.table import Table
 from astropy.units import Quantity
 from astroquery.exceptions import TableParseError
@@ -28,7 +29,7 @@ from astroquery.exceptions import TableParseError
 from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
-from astroquery.simbad import Simbad
+from astroquery.simbad import SimbadClass
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -914,53 +915,58 @@ class TestTap:
                 raise ValueError(f"Not found expected file: {f}")
 
     def test_query_target_error(self):
-        jwst = JwstClass(show_messages=False)
-        simbad = Simbad()
-        ned = Ned()
-        vizier = Vizier()
-        # Testing default parameters
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="M1", target_resolver="")
-        assert "This target resolver is not allowed" in err.value.args[0]
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target("TEST")
-        assert ('This target name cannot be determined with this '
-                'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="M1", target_resolver="ALL")
-        assert err.value.args[0] in ["This target name cannot be determined "
-                                     "with this resolver: ALL", "Missing "
-                                     "required argument: 'width'"]
+        # need to patch simbad query object here
+        with patch("astroquery.simbad.SimbadClass.query_object",
+                   side_effect=lambda object_name: parse_single_table(
+                       Path(__file__).parent / "data" / f"simbad_{object_name}.vot"
+                   ).to_table()):
+            jwst = JwstClass(show_messages=False)
+            simbad = SimbadClass()
+            ned = Ned()
+            vizier = Vizier()
+            # Testing default parameters
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="M1", target_resolver="")
+                assert "This target resolver is not allowed" in err.value.args[0]
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target("TEST")
+                assert ('This target name cannot be determined with this '
+                        'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="M1", target_resolver="ALL")
+                assert err.value.args[0] in ["This target name cannot be determined "
+                                             "with this resolver: ALL", "Missing "
+                                             "required argument: 'width'"]
 
-        # Testing no valid coordinates from resolvers
-        simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
-        simbad_table = Table.read(simbad_file)
-        simbad.query_object = MagicMock(return_value=simbad_table)
-        ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
-        ned_table = Table.read(ned_file)
-        ned.query_object = MagicMock(return_value=ned_table)
-        vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
-        vizier_table = Table.read(vizier_file)
-        vizier.query_object = MagicMock(return_value=vizier_table)
+            # Testing no valid coordinates from resolvers
+            simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            simbad_table = Table.read(simbad_file)
+            simbad.query_object = MagicMock(return_value=simbad_table)
+            ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            ned_table = Table.read(ned_file)
+            ned.query_object = MagicMock(return_value=ned_table)
+            vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
+            vizier_table = Table.read(vizier_file)
+            vizier.query_object = MagicMock(return_value=vizier_table)
 
-        # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="SIMBAD",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this '
-                'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="SIMBAD",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this '
+                        'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="NED",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this '
-                'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="NED",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this '
+                        'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="VIZIER",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: '
-                'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="VIZIER",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this resolver: '
+                        'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()
