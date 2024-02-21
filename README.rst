@@ -35,9 +35,10 @@ website <https://simbad.cds.unistra.fr/simbad/>`_, use the ``simbad`` sub-packag
     >>> from astroquery.simbad import Simbad
     >>> theta1c = Simbad.query_object('tet01 Ori C')
     >>> theta1c.pprint()
-       MAIN_ID          RA           DEC      ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-    ------------- ------------- ------------- ... -------- -------------- -------------------
-    * tet01 Ori C 05 35 16.4637 -05 23 22.848 ...        A              O 2007A&A...474..653V
+       main_id          ra           dec      ... coo_wavelength     coo_bibcode       matched_id 
+                       deg           deg      ...                                                 
+    ------------- ------------- ------------- ... -------------- ------------------- -------------
+    * tet01 Ori C 83.8186095697 -5.3897005033 ...              O 2020yCat.1350....0G * tet01 Ori C
 
 Installation and Requirements
 -----------------------------

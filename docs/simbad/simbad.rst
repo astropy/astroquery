@@ -422,7 +422,7 @@ Choosing the columns in the output tables
 
 Some query methods outputs can be customized. This is the case for:
 
-- `~astroquery.simbad.SimbadClass.query_criteria`
+- `~astroquery.simbad.DeprecatedSimbadClass.query_criteria`
 - `~astroquery.simbad.SimbadClass.query_object`
 - `~astroquery.simbad.SimbadClass.query_objects`
 - `~astroquery.simbad.SimbadClass.query_region`
@@ -487,7 +487,7 @@ Additional criteria
 
 .. Warning::
 
-    Before astroquery v0.4.7, this was only possible within `~astroquery.simbad.SimbadClass.query_criteria`. This is not
+    Before astroquery v0.4.7, this was only possible within `~astroquery.simbad.DeprecatedSimbadClass.query_criteria`. This is not
     the case anymore, and a lot of query methods now admit criteria strings. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
 
 Some query methods take a ``criteria`` argument. They are listed here:
