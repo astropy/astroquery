@@ -190,34 +190,34 @@ By default Astroquery employs query caching with a timeout of 1 week.
 The user can clear their cache at any time, as well as suspend cache usage,
 and change the cache location. Caching persists between Astroquery sessions.
 If you know the service you are using has released new data recently, or if you believe you are
-not recieving the newest data, try clearing the cache.
+not receiving the newest data, try clearing the cache.
 
 Service specific settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Astroquery cache location is specific to individual services,
-so each service's cache should be managed invidually.
+so each service's cache should be managed individually.
 The cache location can be viewed with the following command
-(using :ref:`Simbad <astroquery_simbad>` as an example):
+(using :ref:`VizieR <astroquery_vizier>` as an example):
 
 .. code-block:: python
 
-    >>> from astroquery.simbad import Simbad
-    >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
-    /Users/username/.astropy/cache/astroquery/Simbad
+    >>> from astroquery.vizier import Vizier
+    >>> print(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
+    /Users/username/.astropy/cache/astroquery/Vizier
 
 Each service's cache is cleared with the ``clear_cache`` function within that service.
 
 .. code-block:: python
 
     >>> import os
-    >>> from astroquery.simbad import Simbad
+    >>> from astroquery.vizier import Vizier
     ...
-    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    >>> os.listdir(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
     ['8abafe54f49661237bdbc2707179df53b6ee0d74ca6b7679c0e4fac0.pickle',
     '0e4766a7673ddfa4adaee2cfa27a924ed906badbfae8cc4a4a04256c.pickle']
-    >>> Simbad.clear_cache()
-    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    >>> Vizier.clear_cache()
+    >>> os.listdir(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
     []
 
 Astroquery-wide settings
@@ -231,7 +231,7 @@ temporarily or permanently changing configuration values can be found
 
 .. code-block:: python
 
-  >>> from astroquery import cache_conf 
+  >>> from astroquery import cache_conf
   ...
   >>> # Is the cache active?
   >>> print(cache_conf.cache_active)
@@ -239,7 +239,6 @@ temporarily or permanently changing configuration values can be found
   >>> # Cache timout in seconds
   >>> print(cache_conf.cache_timeout)
   604800
-
 
 
 Available Services
