@@ -22,10 +22,10 @@ if there is some missing information.
 Translating query_criteria into criteria
 ****************************************
 
-The method `~astroquery.simbad.SimbadClass.query_criteria` is now deprecated in SIMBAD.
+The method `~astroquery.simbad.DeprecatedSimbadClass.query_criteria` is now deprecated in SIMBAD.
 It is still possible to use it from astroquery for now, but any existing bug will not
 be fixed. There are also a number of missing features.
-This page shows how the former functionalities of `~astroquery.simbad.SimbadClass.query_criteria`
+This page shows how the former functionalities of `~astroquery.simbad.DeprecatedSimbadClass.query_criteria`
 can be replaced.
 
 The new interface to connect to SIMBAD is build on TAP and ADQL. 
@@ -44,7 +44,7 @@ a ``criteria`` argument, it concerns:
 - `~astroquery.simbad.SimbadClass.query_objectids`
 
 There is a helper method to translate a criteria from
-`~astroquery.simbad.SimbadClass.query_criteria` into a string that will work as ``criteria``
+`~astroquery.simbad.DeprecatedSimbadClass.query_criteria` into a string that will work as ``criteria``
 in the other query methods cited above:
 
 .. code-block:: python
@@ -137,7 +137,7 @@ The label can also be used in a query.
 And the ``path`` column is a representation of the hierarchy of objects. Here ``PN`` (Planetary Nebula) derives
 from ``Ev*`` (Evolved Star) which itself derives from ``*`` (Star). This is the classification of objects
 in place in SIMBAD since 2020. If you don't find an object type you used to see with
-`~astroquery.simbad.SimbadClass.query_criteria`, you might be interested in this
+`~astroquery.simbad.DeprecatedSimbadClass.query_criteria`, you might be interested in this
 `table of correspondence <http://simbad.cds.unistra.fr/guide/otypes.labels.txt>`_ between old and new labels
 for object types.
 

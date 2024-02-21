@@ -141,10 +141,10 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
-    MAIN_ID     RA        DEC    ...    COO_BIBCODE      SCRIPT_NUMBER_ID
-             "h:m:s"    "d:m:s"  ...
-    ------- ---------- --------- ... ------------------- ----------------
-      M   1 05 34 30.9 +22 00 53 ... 1995AuJPh..48..143S                1
+    main_id    ra     dec   coo_err_maj ... coo_err_angle coo_wavelength     coo_bibcode     matched_id
+              deg     deg       mas     ...      deg                                                   
+    ------- ------- ------- ----------- ... ------------- -------------- ------------------- ----------
+      M   1 83.6287 22.0147     18500.0 ...             0              R 1995AuJPh..48..143S      M   1
 
 All query tools allow coordinate-based queries:
 
@@ -152,19 +152,18 @@ All query tools allow coordinate-based queries:
 
     >>> from astropy import coordinates
     >>> import astropy.units as u
-    >>> # works only for ICRS coordinates:
     >>> c = coordinates.SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True, max_width=80, max_lines=5)
-            MAIN_ID               RA      ...     COO_BIBCODE     SCRIPT_NUMBER_ID
-                               "h:m:s"    ...
-    ----------------------- ------------- ... ------------------- ----------------
-            NAME Ori Region   05 35 17.30 ...                                    1
-                        ...           ... ...                 ...              ...
-    2MASS J05353573-0525256 05 35 35.7755 ... 2020yCat.1350....0G                1
-               V* V2114 Ori 05 35 01.6720 ... 2020yCat.1350....0G                1
-    Length = 3272 rows
+           main_id                ra        ... coo_wavelength     coo_bibcode    
+                                 deg        ...                                   
+    --------------------- ----------------- ... -------------- -------------------
+    COUP J053515.3-052225 83.81426666666665 ...              O 1999AJ....117.1375S
+                      ...               ... ...            ...                 ...
+           [OW94] 135-356 83.80624999999998 ...              O 2007AJ....133.2192H
+              [H97b] 9009    83.79990004111 ...              O 2020yCat.1350....0G
+    Length = 3271 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 

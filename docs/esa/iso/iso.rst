@@ -247,11 +247,11 @@ All these tables can be queried using the TAP interface and allow geometrical qu
   >>> # First we obtain the coordinates of a certain object (M31) in degrees
   >>> result_table = Simbad.query_object("M31")
   >>> print(result_table)    # doctest: +IGNORE_OUTPUT
-  MAIN_ID      RA          DEC      ... COO_WAVELENGTH     COO_BIBCODE
-            "h:m:s"      "d:m:s"    ...
-  ------- ------------ ------------ ... -------------- -------------------
-    M  31 00 42 44.330 +41 16 07.50 ...              I 2006AJ....131.1163S
-  >>> c = SkyCoord(result_table['RA'], result_table['DEC'], unit=(u.hourangle, u.deg),
+  main_id         ra                dec         ...     coo_bibcode     matched_id
+                 deg                deg         ...                               
+  ------- ------------------ ------------------ ... ------------------- ----------
+    M  31 10.684708333333333 41.268750000000004 ... 2006AJ....131.1163S      M  31
+  >>> c = SkyCoord(result_table['ra'], result_table['dec'], unit=(u.deg, u.deg),
   ...              frame='icrs')
   >>> ra = str(c.ra.degree[0])
   >>> dec = str(c.dec.degree[0])
