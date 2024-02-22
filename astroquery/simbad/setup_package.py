@@ -12,6 +12,7 @@ def get_package_data():
                   str(Path('data') / 'query_error.data'),
                   str(Path('data') / 'query_*.data'),
                   str(Path('data') / 'm1.data'),
+                  str(Path('data') / 'simbad_output_options.xml'),
                   ]
 
     paths_core = [str(Path('data') / 'query_criteria_fields.json'),
