@@ -120,6 +120,7 @@ class NistClass(BaseQuery):
         request_payload["term_out"] = "on"
         request_payload["enrg_out"] = "on"
         request_payload["J_out"] = "on"
+        request_payload["g_out"] = "on"
         request_payload["page_size"] = 15
         request_payload["remove_js"] = "on"
         request_payload["show_wn"] = 1
