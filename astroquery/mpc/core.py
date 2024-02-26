@@ -868,6 +868,8 @@ class MPCClass(BaseQuery):
         +-------------------+--------------------------------------------+
         | ``phottype`` (*)  | comet photometry type (nuclear/total, str) |
         +-------------------+--------------------------------------------+
+        | ``catalog`` (!)   | star catalog used in the observation (str) |
+        +-------------------+--------------------------------------------+
         | ``observatory``   | IAU observatory code (str)                 |
         +-------------------+--------------------------------------------+
 
@@ -877,29 +879,30 @@ class MPCClass(BaseQuery):
         (#): Parameters ``Note1`` and ``Note2`` are defined `here
         <https://minorplanetcenter.net/iau/info/OpticalObs.html>`_.
 
+        (!): Definitions of catalog codes can be found `here
+        <https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html>`_.
+
 
         Examples
         --------
         >>> from astroquery.mpc import MPC
         >>> MPC.get_observations(12893)  # doctest: +SKIP
-        <QTable masked=True length=1401>
-        number   desig   discovery note1 ...   mag   band observatory
-                                         ...   mag
-        int64     str9      str1    str1 ... float64 str1     str3
-        ------ --------- --------- ----- ... ------- ---- -----------
-         12893 1998 QS55        --    -- ...     0.0   --         413
-         12893 1998 QS55        --    -- ...     0.0   --         413
-         12893 1998 QS55         *     4 ...     0.0   --         809
-         12893 1998 QS55        --     4 ...     0.0   --         809
-         12893 1998 QS55        --     4 ...     0.0   --         809
-         12893 1998 QS55        --     4 ...    18.4   --         809
-           ...       ...       ...   ... ...     ...  ...         ...
-         12893 1998 QS55        --    -- ...   18.63    c         T05
-         12893 1998 QS55        --    -- ...   18.55    c         T05
-         12893 1998 QS55        --    -- ...    18.3    r         I41
-         12893 1998 QS55        --    -- ...    18.3    r         I41
-         12893 1998 QS55        --    -- ...    18.2    r         I41
-         12893 1998 QS55        --    -- ...    18.3    r         I41
+        <QTable length=2772>
+        number   desig   discovery note1 ... band catalog observatory
+                                         ...                         
+        int32     str9      str1    str1 ... str1   str1      str3   
+        ------ --------- --------- ----- ... ---- ------- -----------
+         12893 1998 QS55        --    -- ...   --      --         413
+         12893 1998 QS55        --    -- ...   --      --         413
+         12893 1998 QS55         *     4 ...   --      --         809
+         12893 1998 QS55        --     4 ...   --      --         809
+         12893 1998 QS55        --     4 ...   --      --         809
+           ...       ...       ...   ... ...  ...     ...         ...
+         12893 1998 QS55        --    -- ...    o       V         T05
+         12893 1998 QS55        --    -- ...    o       V         M22
+         12893 1998 QS55        --    -- ...    o       V         M22
+         12893 1998 QS55        --    -- ...    o       V         M22
+         12893 1998 QS55        --    -- ...    o       V         M22
         """
 
         request_payload = {'table': 'observations'}
@@ -1207,11 +1210,11 @@ class MPCClass(BaseQuery):
                                   names=('number', 'pdesig', 'discovery',
                                          'note1', 'note2', 'epoch',
                                          'RA', 'DEC', 'mag', 'band',
-                                         'observatory'),
+                                         'catalog', 'observatory'),
                                   col_starts=(0, 5, 12, 13, 14, 15,
-                                              32, 44, 65, 70, 77),
+                                              32, 44, 65, 70, 71, 77),
                                   col_ends=(4, 11, 12, 13, 14, 31,
-                                            43, 55, 69, 70, 79),
+                                            43, 55, 69, 70, 71, 79),
                                   fast_reader=False)
 
                 # convert asteroid designations
@@ -1252,11 +1255,11 @@ class MPCClass(BaseQuery):
                                   names=('number', 'comettype', 'desig',
                                          'note1', 'note2', 'epoch',
                                          'RA', 'DEC', 'mag', 'phottype',
-                                         'observatory'),
+                                         'catalog', 'observatory'),
                                   col_starts=(0, 4, 5, 13, 14, 15,
-                                              32, 44, 65, 70, 77),
+                                              32, 44, 65, 70, 71, 77),
                                   col_ends=(3, 4, 12, 13, 14, 31,
-                                            43, 55, 69, 70, 79),
+                                            43, 55, 69, 70, 71, 79),
                                   fast_reader=False)
 
                 # convert comet designations
