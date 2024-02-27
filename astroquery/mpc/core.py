@@ -889,8 +889,8 @@ class MPCClass(BaseQuery):
         >>> MPC.get_observations(12893)  # doctest: +SKIP
         <QTable length=2772>
         number   desig   discovery note1 ... band catalog observatory
-                                         ...                         
-        int32     str9      str1    str1 ... str1   str1      str3   
+                                         ...
+        int32     str9      str1    str1 ... str1   str1      str3
         ------ --------- --------- ----- ... ---- ------- -----------
          12893 1998 QS55        --    -- ...   --      --         413
          12893 1998 QS55        --    -- ...   --      --         413
