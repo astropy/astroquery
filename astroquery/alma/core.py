@@ -19,6 +19,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 try:
     from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
@@ -37,7 +38,7 @@ from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
 from . import conf, auth_urls
 from astroquery.exceptions import CorruptDataWarning
 
-__all__ = {'AlmaClass', 'ALMA_BANDS'}
+__all__ = {'AlmaClass', 'ALMA_BANDS', 'get_enhanced_table'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
@@ -212,6 +213,88 @@ def _gen_sql(payload):
     return sql + where
 
 
+def get_enhanced_table(result):
+    try:
+        import regions
+    except ImportError:
+        print(
+            "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma"
+            "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+
+    def _parse_stcs_string(input):
+        csys = 'icrs'
+
+        def _get_region(tokens):
+            if tokens[0] == 'polygon':
+                if csys == tokens[1].lower():
+                    tokens = tokens[2:]
+                else:
+                    tokens = tokens[1:]
+                try:
+                    points = SkyCoord(
+                        [(float(tokens[ii]), float(tokens[ii + 1])) * u.deg
+                            for ii in range(0, len(tokens), 2)], frame=csys)
+                except Exception as ex:
+                    print(ex)
+                return regions.PolygonSkyRegion(points)
+            elif tokens[0] == 'circle':
+                if csys == tokens[1].lower():
+                    tokens = tokens[2:]
+                else:
+                    tokens = tokens[1:]
+                return regions.CircleSkyRegion(
+                    SkyCoord(float(tokens[0]), float(tokens[1]), unit=u.deg),
+                    float(tokens[2]) * u.deg)
+            else:
+                raise ValueError("Unrecognized shape: " + tokens[0])
+        s_region = input.lower().strip()
+        if s_region.startswith('union'):
+            res = None
+            # skip the union operator
+            input_regions = re.split(r'\(|\)', s_region)[1]
+            # omit the first char in the string to force it look for the second
+            # occurrence
+            last_pos = None
+            for shape in re.finditer(r'polygon|circle', input_regions):
+                pos = shape.span()[0]
+                if last_pos is None:
+                    last_pos = pos
+                    continue  # this is the first elem
+                if res is not None:
+                    next_shape = _get_region(input_regions[last_pos:pos-1].strip().split())
+                    res = res | next_shape
+                else:
+                    res = _get_region(input_regions[last_pos:pos-1].strip().split())
+                last_pos = pos
+            if last_pos:
+                next_shape = _get_region(input_regions[last_pos:].strip().split())
+                res = res | next_shape
+            return res
+        elif "not" in s_region:
+            # shape with "holes"
+            comps = s_region.split('not')
+            result = _get_region(comps[0].strip(' ()').split())
+            for comp in comps[1:]:
+                hole = _get_region(comp.strip(' ()').split())
+                result = (result or hole) ^ hole
+            return result
+        else:
+            return _get_region(s_region.split())
+    prep_table = result.to_qtable()
+    s_region_parser = None
+    for field in result.resultstable.fields:
+        if ('s_region' == field.ID) and \
+                ('obscore:Char.SpatialAxis.Coverage.Support.Area' == field.utype):
+            if 'adql:REGION' == field.xtype:
+                s_region_parser = _parse_stcs_string
+            # this is where to add other xtype parsers such as shape
+            break
+    if (s_region_parser):
+        for row in prep_table:
+            row['s_region'] = s_region_parser(row['s_region'])
+    return prep_table
+
+
 class AlmaAuth(BaseVOQuery, BaseQuery):
     """Authentication session information for passing credentials to an OIDC instance
 
@@ -381,7 +464,8 @@ class AlmaClass(QueryWithLogin):
         return self._tap_url
 
     def query_object_async(self, object_name, *, public=True,
-                           science=True, payload=None, **kwargs):
+                           science=True, payload=None, enhanced_results=False,
+                           **kwargs):
         """
         Query the archive for a source name.
 
@@ -403,10 +487,12 @@ class AlmaClass(QueryWithLogin):
         else:
             payload = {'source_name_resolver': object_name}
         return self.query_async(public=public, science=science,
-                                payload=payload, **kwargs)
+                                payload=payload, enhanced_results=enhanced_results,
+                                **kwargs)
 
     def query_region_async(self, coordinate, radius, *, public=True,
-                           science=True, payload=None, **kwargs):
+                           science=True, payload=None, enhanced_results=False,
+                           **kwargs):
         """
         Query the ALMA archive with a source name and radius
 
@@ -438,11 +524,12 @@ class AlmaClass(QueryWithLogin):
             payload['ra_dec'] = ra_dec
 
         return self.query_async(public=public, science=science,
-                                payload=payload, **kwargs)
+                                payload=payload, enhanced_results=enhanced_results,
+                                **kwargs)
 
     def query_async(self, payload, *, public=True, science=True,
                     legacy_columns=False, get_query_payload=False,
-                    maxrec=None, **kwargs):
+                    maxrec=None, enhanced_results=False, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -497,7 +584,10 @@ class AlmaClass(QueryWithLogin):
         result = self.query_tap(query, maxrec=maxrec)
 
         if result is not None:
-            result = result.to_table()
+            if enhanced_results:
+                result = get_enhanced_table(result)
+            else:
+                result = result.to_table()
         else:
             # Should not happen
             raise RuntimeError('BUG: Unexpected result None')
