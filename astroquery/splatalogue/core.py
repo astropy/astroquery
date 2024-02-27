@@ -7,6 +7,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
 import warnings
+import json
 from astropy.io import ascii
 from astropy import units as u
 from astroquery import log
@@ -150,8 +151,8 @@ class SplatalogueClass(BaseQuery):
                       max_frequency=100 * u.THz,
                       chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
-                      line_strengths=('ls1', 'ls2', 'ls3', 'ls4', 'ls5'),
-                      energy_levels=('el1', 'el2', 'el3', 'el4'),
+                      line_strengths=('CDMSJPL', 'SijMu2', 'Sij', 'Aij', 'LovasAST'),
+                      energy_levels=('One', 'Two', 'Three', 'Four'),
                       exclude=('potential', 'atmospheric', 'probable'),
                       version='v3.0',
                       only_NRAO_recommended=None,
@@ -179,7 +180,10 @@ class SplatalogueClass(BaseQuery):
                       show_qn_code=None, show_lovas_labref=None,
                       show_lovas_obsref=None, show_orderedfreq_only=None,
                       show_nrao_recommended=None,
-                      parse_chemistry_locally=True):
+                      parse_chemistry_locally=True,
+                      export_start=0,
+                      export_stop=250,
+                     ):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -296,119 +300,161 @@ class SplatalogueClass(BaseQuery):
                    'frequency_units': 'GHz',
                    }
 
-        if band != 'any':
-            if band not in self.FREQUENCY_BANDS:
-                raise ValueError("Invalid frequency band.")
-            if min_frequency is not None or max_frequency is not None:
-                warnings.warn("Band was specified, so the frequency "
-                              "specification is overridden")
-            payload['band'] = band
-        elif min_frequency is not None and max_frequency is not None:
+        payload = {"searchSpecies":"",
+                   "speciesSelectBox":[],
+                   "dataVersion":"v3.0",
+                   "userInputFrequenciesFrom":[],
+                   "userInputFrequenciesTo":[],
+                   "userInputFrequenciesUnit":"GHz",
+                   "frequencyRedshift":0,
+                   "energyFrom":0,
+                   "energyTo":0,
+                   "energyRangeType":"el_cm-1",
+                   "lineIntensity":"None",
+                   "lineIntensityLowerLimit":0,
+                   "excludeAtmosSpecies":False,
+                   "excludePotentialInterstellarSpecies":False,
+                   "excludeProbableInterstellarSpecies":False,
+                   "excludeKnownASTSpecies":False,
+                   "showOnlyAstronomicallyObservedTransitions":False,
+                   "showOnlyNRAORecommendedFrequencies":False,
+                   "lineListDisplayJPL":True,
+                   "lineListDisplayCDMS":True,
+                   "lineListDisplayLovasNIST":True,
+                   "lineListDisplaySLAIM":True,
+                   "lineListDisplayToyaMA":True,
+                   "lineListDisplayOSU":True,
+                   "lineListDisplayRecombination":True,
+                   "lineListDisplayTopModel":True,
+                   "lineListDisplayRFI":True,
+                   "lineStrengthDisplayCDMSJPL":True,
+                   "lineStrengthDisplaySijMu2":False,
+                   "lineStrengthDisplaySij":False,
+                   "lineStrengthDisplayAij":False,
+                   "lineStrengthDisplayLovasAST":True,
+                   "energyLevelOne":True,
+                   "energyLevelTwo":False,
+                   "energyLevelThree":False,
+                   "energyLevelFour":False,
+                   "displayObservedTransitions":False,
+                   "displayG358MaserTransitions":False,
+                   "displayObservationReference":False,
+                   "displayObservationSource":False,
+                   "displayTelescopeLovasNIST":False,
+                   "frequencyErrorLimit":False,
+                   "displayHFSIntensity":False,
+                   "displayUnresolvedQuantumNumbers":False,
+                   "displayUpperStateDegeneracy":False,
+                   "displayMoleculeTag":False,
+                   "displayQuantumNumberCode":False,
+                   "displayLabRef":False,
+                   "displayOrderedFrequencyOnly":False,
+                   "displayNRAORecommendedFrequencies":False,
+                   "displayUniqueSpeciesTag":False,
+                   "displayUniqueLineIDNumber":False,
+                   "exportType":"current",
+                   "exportDelimiter":"tab",
+                   "exportLimit":"allRecords",
+                   "exportStart":1,
+                   "exportStop":250}
+
+        if min_frequency is not None and max_frequency is not None:
             # allow setting payload without having *ANY* valid frequencies set
             min_frequency = min_frequency.to(u.GHz, u.spectral())
             max_frequency = max_frequency.to(u.GHz, u.spectral())
             if min_frequency > max_frequency:
                 min_frequency, max_frequency = max_frequency, min_frequency
 
-            payload['from'] = min_frequency.value
-            payload['to'] = max_frequency.value
+            payload['userInputFrequenciesFrom'] = [min_frequency.value]
+            payload['userInputFrequenciesTo'] = [max_frequency.value]
 
-        if top20 is not None:
-            if top20 in self.TOP20_LIST:
-                payload['top20'] = top20
-            else:
-                raise ValueError("Top20 is not one of the allowed values")
-        elif chemical_name in ('', {}, (), [], set()):
+        if chemical_name in ('', {}, (), [], set()):
             # include all
-            payload['sid[]'] = []
+            payload['speciesSelectBox'] = []
         elif chemical_name is not None:
             if parse_chemistry_locally:
                 species_ids = self.get_species_ids(species_regex=chemical_name, reflags=chem_re_flags)
                 if len(species_ids) == 0:
                     raise ValueError("No matching chemical species found.")
-                payload['sid[]'] = list(species_ids.values())
+                payload['speciesSelectBox'] = list(species_ids.values())
             else:
-                payload['chemical_name'] = chemical_name
+                payload['searchSpecies'] = chemical_name
 
         if energy_min is not None:
-            payload['energy_range_from'] = float(energy_min)
+            payload['energyFrom'] = float(energy_min)
         if energy_max is not None:
-            payload['energy_range_to'] = float(energy_max)
+            payload['energyTo'] = float(energy_max)
         if energy_type is not None:
             validate_energy_type(energy_type)
-            payload['energy_range_type'] = energy_type
+            payload['energyRangeType'] = energy_type
 
-        if intensity_type is not None:
-            payload['lill'] = 'lill_' + intensity_type
-            if intensity_lower_limit is not None:
-                payload[payload['lill']] = intensity_lower_limit
+        # I don't know how to enter this right now
+        # if intensity_type is not None:
+        #     payload['lineIntensity'] = 'lill_' + intensity_type
+        #     if intensity_lower_limit is not None:
+        #         payload[payload['lill']] = intensity_lower_limit
 
-        if transition is not None:
-            payload['tran'] = transition
+        #if transition is not None:
+        #    payload['tran'] = transition
 
         if version in self.versions:
-            payload['data_version'] = version
+            payload['dataVersion'] = version
         elif version is not None:
             raise ValueError("Invalid version specified.  Allowed versions "
                              "are {vers}".format(vers=str(self.versions)))
 
-        if exclude == 'none':
-            for e in ('potential', 'atmospheric', 'probable', 'known'):
-                # Setting a keyword value to 'None' removes it (see query_lines_async)
-                log.debug("Setting no_{0} to None".format(e))
-                payload['no_' + e] = None
-        elif exclude is not None:
-            for e in exclude:
-                payload['no_' + e] = 'no_' + e
+        if exclude is not None:
+            if 'potential' in exclude:
+                payload['excludePotentialInterstellarSpecies'] = True
+            if 'atmospheric' in exclude:
+                payload['excludeAtmosSpecies'] = True
+            if 'probable' in exclude:
+                payload['excludeProbableInterstellarSpecies'] = True
+            if 'known' in exclude:
+                payload['excludeKnownASTSpecies'] = True
 
         if only_astronomically_observed:
-            payload['include_only_observed'] = 'include_only_observed'
+            payload['showOnlyAstronomicallyObservedTransitions'] = True
         if only_NRAO_recommended:
-            payload['include_only_nrao'] = 'include_only_nrao'
+            payload['showOnlyNRAORecommendedFrequencies'] = True
 
         if line_lists is not None:
             if type(line_lists) not in (tuple, list):
                 raise TypeError("Line lists should be a list of linelist "
                                 "names.  See Splatalogue.ALL_LINE_LISTS")
             for L in self.ALL_LINE_LISTS:
-                kwd = 'display' + L
-                if L in line_lists:
-                    payload[kwd] = kwd
-                else:
-                    payload[kwd] = ''
+                kwd = 'lineListDisplay' + L
+                payload[kwd] = L in line_lists
 
         if line_strengths is not None:
             for LS in line_strengths:
-                payload[LS] = LS
+                payload['lineStrengthDisplay' + LS] = True
 
         if energy_levels is not None:
             for EL in energy_levels:
-                payload[EL] = EL
+                payload['energyLevel' + EL] = True
 
-        for b in ("noHFS", "displayHFS", "show_unres_qn",
-                  "show_upper_degeneracy", "show_molecule_tag",
-                  "show_qn_code", "show_lovas_labref",
-                  "show_orderedfreq_only", "show_lovas_obsref",
-                  "show_nrao_recommended"):
-            if locals()[b]:
-                payload[b] = b
-
-        # default arg, unmodifiable...
-        payload['jsMath'] = 'font:symbol,warn:0'
-        payload['__utma'] = ''
-        payload['__utmc'] = ''
+        for b in ("displayHFSIntensity", "displayUnresolvedQuantumNumbers",
+                  "displayUpperStateDegeneracy", "displayMoleculeTag",
+                  "displayQuantumNumberCode", "displayLabRef",
+                  "displayOrderedFrequencyOnly", "displayNRAORecommendedFrequencies",
+                  "displayUniqueLineIDNumber", "displayUniqueSpeciesTag"):
+            if b in locals() and locals()[b]:
+                payload[b] = True
 
         if export:
-            payload['submit'] = 'Export'
-            payload['export_delimiter'] = 'colon'  # or tab or comma
-            payload['export_type'] = 'current'
-            payload['offset'] = 0
-            payload['range'] = 'on'
+            payload['exportDelimiter'] = 'tab'  # or tab or comma
+            payload['exportType'] = 'current'
+            payload['exportStart'] = export_start
+            payload['exportStop'] = export_stop
 
         if export_limit is not None:
-            payload['limit'] = export_limit
+            payload['exportLimit'] = export_limit
         else:
-            payload['limit'] = self.LINES_LIMIT
+            payload['exportLimit'] = self.LINES_LIMIT
+
+        payload = {'body': json.dumps(payload),
+                   'headers': {'normalizedNames': {}, 'lazyUpdate': None}}
 
         return payload
 
@@ -458,7 +504,7 @@ class SplatalogueClass(BaseQuery):
 
         response = self._request(method='POST',
                                  url=self.QUERY_URL,
-                                 data=data_payload,
+                                 json=data_payload,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
 
