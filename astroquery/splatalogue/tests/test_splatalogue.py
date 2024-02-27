@@ -8,7 +8,7 @@ from astropy import units as u
 from ... import splatalogue
 
 
-SPLAT_DATA = 'CO_colons.csv'
+SPLAT_DATA = 'CO.json'
 
 
 def data_path(filename):
@@ -48,7 +48,8 @@ def test_get_payload():
     q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
                                                        max_frequency=10 * u.GHz,
                                                        get_query_payload=True)
-    assert '__utma' in q
+    assert q['body']["userInputFrequenciesFrom"] == [1.0]
+    assert q['body']["userInputFrequenciesTo"] == [10.0]
 
 
 # regression test: line lists should ask for only one line list, not all
@@ -57,8 +58,8 @@ def test_line_lists():
                                                        max_frequency=10 * u.GHz,
                                                        line_lists=['JPL'],
                                                        get_query_payload=True)
-    assert q['displayJPL'] == 'displayJPL'
-    assert q['displaySLAIM'] == ''
+    assert q['body']['lineListDisplayCDMSJPL']
+    assert not q['body']['lineListDisplaySLAIM']
 
 
 # regression test: raise an exception if a string is passed to line_lists

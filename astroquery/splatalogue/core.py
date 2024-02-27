@@ -77,7 +77,7 @@ class SplatalogueClass(BaseQuery):
         Modify the default options.
         See `query_lines`
         """
-        self.data.update(self._parse_kwargs(**kwargs))
+        self.data.update(json.loads(self._parse_kwargs(**kwargs)['body']))
 
     @deprecated_renamed_argument("restr", "species_regex", since="0.4.7")
     def get_species_ids(self, species_regex=None, *, reflags=0, recache=False):
@@ -163,7 +163,7 @@ class SplatalogueClass(BaseQuery):
                       show_qn_code=False, show_lovas_labref=False,
                       show_lovas_obsref=False, show_orderedfreq_only=False,
                       show_nrao_recommended=False,)
-        return self._parse_kwargs(**kwargs)
+        return json.loads(self._parse_kwargs(**kwargs)['body'])
 
     def _parse_kwargs(self, *, min_frequency=None, max_frequency=None,
                       band='any', top20=None, chemical_name=None,
@@ -481,19 +481,18 @@ class SplatalogueClass(BaseQuery):
         self._validate_kwargs(min_frequency=min_frequency,
                               max_frequency=max_frequency, **kwargs)
 
+        data_payload = self._parse_kwargs(min_frequency=min_frequency,
+                                                           max_frequency=max_frequency,
+                                                           **kwargs)
         if hasattr(self, 'data'):
-            data_payload = self.data.copy()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
+            body = self.data.copy()
         else:
-            data_payload = self._default_kwargs()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
+            body = self._default_kwargs()
 
-        # Add an extra step: sometimes, need to REMOVE keywords
-        data_payload = {k: v for k, v in data_payload.items() if v is not None}
+        body.update(json.loads(
+            self._parse_kwargs(min_frequency=min_frequency,
+                               max_frequency=max_frequency, **kwargs)['body']))
+        data_payload['body'] = json.dumps(body)
 
         if get_query_payload:
             return data_payload
