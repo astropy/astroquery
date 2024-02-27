@@ -8,7 +8,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 """
 import warnings
 import json
-from astropy.io import ascii
+from astropy.table import Table
 from astropy import units as u
 from astroquery import log
 from ..query import BaseQuery
@@ -182,8 +182,7 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=None,
                       parse_chemistry_locally=True,
                       export_start=0,
-                      export_stop=250,
-                     ):
+                      export_stop=250):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -300,63 +299,63 @@ class SplatalogueClass(BaseQuery):
                    'frequency_units': 'GHz',
                    }
 
-        payload = {"searchSpecies":"",
-                   "speciesSelectBox":[],
-                   "dataVersion":"v3.0",
-                   "userInputFrequenciesFrom":[],
-                   "userInputFrequenciesTo":[],
-                   "userInputFrequenciesUnit":"GHz",
-                   "frequencyRedshift":0,
-                   "energyFrom":0,
-                   "energyTo":0,
-                   "energyRangeType":"el_cm-1",
-                   "lineIntensity":"None",
-                   "lineIntensityLowerLimit":0,
-                   "excludeAtmosSpecies":False,
-                   "excludePotentialInterstellarSpecies":False,
-                   "excludeProbableInterstellarSpecies":False,
-                   "excludeKnownASTSpecies":False,
-                   "showOnlyAstronomicallyObservedTransitions":False,
-                   "showOnlyNRAORecommendedFrequencies":False,
-                   "lineListDisplayJPL":True,
-                   "lineListDisplayCDMS":True,
-                   "lineListDisplayLovasNIST":True,
-                   "lineListDisplaySLAIM":True,
-                   "lineListDisplayToyaMA":True,
-                   "lineListDisplayOSU":True,
-                   "lineListDisplayRecombination":True,
-                   "lineListDisplayTopModel":True,
-                   "lineListDisplayRFI":True,
-                   "lineStrengthDisplayCDMSJPL":True,
-                   "lineStrengthDisplaySijMu2":False,
-                   "lineStrengthDisplaySij":False,
-                   "lineStrengthDisplayAij":False,
-                   "lineStrengthDisplayLovasAST":True,
-                   "energyLevelOne":True,
-                   "energyLevelTwo":False,
-                   "energyLevelThree":False,
-                   "energyLevelFour":False,
-                   "displayObservedTransitions":False,
-                   "displayG358MaserTransitions":False,
-                   "displayObservationReference":False,
-                   "displayObservationSource":False,
-                   "displayTelescopeLovasNIST":False,
-                   "frequencyErrorLimit":False,
-                   "displayHFSIntensity":False,
-                   "displayUnresolvedQuantumNumbers":False,
-                   "displayUpperStateDegeneracy":False,
-                   "displayMoleculeTag":False,
-                   "displayQuantumNumberCode":False,
-                   "displayLabRef":False,
-                   "displayOrderedFrequencyOnly":False,
-                   "displayNRAORecommendedFrequencies":False,
-                   "displayUniqueSpeciesTag":False,
-                   "displayUniqueLineIDNumber":False,
-                   "exportType":"current",
-                   "exportDelimiter":"tab",
-                   "exportLimit":"allRecords",
-                   "exportStart":1,
-                   "exportStop":250}
+        payload = {"searchSpecies": "",
+                   "speciesSelectBox": [],
+                   "dataVersion": "v3.0",
+                   "userInputFrequenciesFrom": [],
+                   "userInputFrequenciesTo": [],
+                   "userInputFrequenciesUnit": "GHz",
+                   "frequencyRedshift": 0,
+                   "energyFrom": 0,
+                   "energyTo": 0,
+                   "energyRangeType": "el_cm-1",
+                   "lineIntensity": "None",
+                   "lineIntensityLowerLimit": 0,
+                   "excludeAtmosSpecies": False,
+                   "excludePotentialInterstellarSpecies": False,
+                   "excludeProbableInterstellarSpecies": False,
+                   "excludeKnownASTSpecies": False,
+                   "showOnlyAstronomicallyObservedTransitions": False,
+                   "showOnlyNRAORecommendedFrequencies": False,
+                   "lineListDisplayJPL": True,
+                   "lineListDisplayCDMS": True,
+                   "lineListDisplayLovasNIST": True,
+                   "lineListDisplaySLAIM": True,
+                   "lineListDisplayToyaMA": True,
+                   "lineListDisplayOSU": True,
+                   "lineListDisplayRecombination": True,
+                   "lineListDisplayTopModel": True,
+                   "lineListDisplayRFI": True,
+                   "lineStrengthDisplayCDMSJPL": True,
+                   "lineStrengthDisplaySijMu2": False,
+                   "lineStrengthDisplaySij": False,
+                   "lineStrengthDisplayAij": False,
+                   "lineStrengthDisplayLovasAST": True,
+                   "energyLevelOne": True,
+                   "energyLevelTwo": False,
+                   "energyLevelThree": False,
+                   "energyLevelFour": False,
+                   "displayObservedTransitions": False,
+                   "displayG358MaserTransitions": False,
+                   "displayObservationReference": False,
+                   "displayObservationSource": False,
+                   "displayTelescopeLovasNIST": False,
+                   "frequencyErrorLimit": False,
+                   "displayHFSIntensity": False,
+                   "displayUnresolvedQuantumNumbers": False,
+                   "displayUpperStateDegeneracy": False,
+                   "displayMoleculeTag": False,
+                   "displayQuantumNumberCode": False,
+                   "displayLabRef": False,
+                   "displayOrderedFrequencyOnly": False,
+                   "displayNRAORecommendedFrequencies": False,
+                   "displayUniqueSpeciesTag": False,
+                   "displayUniqueLineIDNumber": False,
+                   "exportType": "current",
+                   "exportDelimiter": "tab",
+                   "exportLimit": "allRecords",
+                   "exportStart": 1,
+                   "exportStop": 250}
 
         if min_frequency is not None and max_frequency is not None:
             # allow setting payload without having *ANY* valid frequencies set
@@ -393,9 +392,6 @@ class SplatalogueClass(BaseQuery):
         #     payload['lineIntensity'] = 'lill_' + intensity_type
         #     if intensity_lower_limit is not None:
         #         payload[payload['lill']] = intensity_lower_limit
-
-        #if transition is not None:
-        #    payload['tran'] = transition
 
         if version in self.versions:
             payload['dataVersion'] = version
@@ -523,8 +519,8 @@ class SplatalogueClass(BaseQuery):
             splatalogue to make them more terminal-friendly
         """
 
-        result = ascii.read(response.text.split('\n'), delimiter=':',
-                            format='basic', fast_reader=False)
+        jdat = response.json()
+        result = Table([x for x in jdat if x['species_id'] is not None])
 
         return result
 
