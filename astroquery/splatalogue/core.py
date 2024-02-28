@@ -34,8 +34,8 @@ class SplatalogueClass(BaseQuery):
     LINES_LIMIT = conf.lines_limit
     versions = ('v1.0', 'v2.0', 'v3.0', 'vall')
     # global constant, not user-configurable
-    ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
-                      'Recomb', 'Lisa', 'RFI')
+    ALL_LINE_LISTS = ('LovasNIST', 'SLAIM', 'JPL', 'CDMS', 'ToyaMA', 'OSU',
+                      'Recombination', 'RFI')
     TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
                   'ism_diffusecloud')
     FREQUENCY_BANDS = {"any": "Any",
@@ -251,7 +251,7 @@ class SplatalogueClass(BaseQuery):
             Show only NRAO recommended species?
         line_lists : list
             Options:
-            Lovas, SLAIM, JPL, CDMS, ToyoMA, OSU, Recomb, Lisa, RFI
+            Lovas, SLAIM, JPL, CDMS, ToyaMA, OSU, Recombination, RFI
         line_strengths : list
             * CDMS/JPL Intensity : ls1
             * Sij : ls3
