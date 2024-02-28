@@ -111,30 +111,30 @@ def test_band_crashorno():
 
 def test_exclude(patch_post):
     # regression test for issue 616
-    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                  max_frequency=116 * u.GHz,
-                                                  chemical_name=' CO ',
-                                                  exclude=None,
-                                                  get_query_payload=True)
+    payload = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                        max_frequency=116 * u.GHz,
+                                                        chemical_name=' CO ',
+                                                        exclude=None,
+                                                        get_query_payload=True)
 
-    exclusions = {'no_atmospheric': 'no_atmospheric',
-                  'no_potential': 'no_potential',
-                  'no_probable': 'no_probable', }
-
-    for k, v in exclusions.items():
-        assert d[k] == v
-
-    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                  max_frequency=116 * u.GHz,
-                                                  chemical_name=' CO ',
-                                                  exclude='none',
-                                                  get_query_payload=True)
+    exclusions = {'excludePotentialInterstellarSpecies': False,
+                  'excludeAtmosSpecies': False,
+                  'excludeProbableInterstellarSpecies': False
+                  'excludeKnownASTSpecies': False
+                 }
 
     for k, v in exclusions.items():
-        assert k not in d
+        assert payload[k] == v
 
-    for k in d:
-        assert k[:3] != 'no_'
+    # 'none' doesn't mean None, but it should have the same effect
+    payload = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                        max_frequency=116 * u.GHz,
+                                                        chemical_name=' CO ',
+                                                        exclude='none',
+                                                        get_query_payload=True)
+
+    for key in exclusions:
+        assert not payload[key]
 
 
 @pytest.mark.remote_data
