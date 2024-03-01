@@ -876,11 +876,11 @@ class MPCClass(BaseQuery):
         (*): Column names are optional and
         depend on whether an asteroid or a comet has been queried.
 
-        (#): Parameters ``Note1`` and ``Note2`` are defined `here
-        <https://minorplanetcenter.net/iau/info/OpticalObs.html>`_.
+        (#): Parameters ``Note1`` and ``Note2`` are defined here:
+        https://minorplanetcenter.net/iau/info/OpticalObs.html.
 
-        (!): Definitions of catalog codes can be found `here
-        <https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html>`_.
+        (!): Definitions of star catalog codes can be found here:
+        https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html.
 
 
         Examples
