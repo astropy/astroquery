@@ -6,11 +6,9 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
-import warnings
 import json
 from astropy.table import Table
 from astropy import units as u
-from astroquery import log
 from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
@@ -494,8 +492,8 @@ class SplatalogueClass(BaseQuery):
                               max_frequency=max_frequency, **kwargs)
 
         data_payload = self._parse_kwargs(min_frequency=min_frequency,
-                                                           max_frequency=max_frequency,
-                                                           **kwargs)
+                                          max_frequency=max_frequency,
+                                          **kwargs)
         if hasattr(self, 'data'):
             body = self.data.copy()
         else:
