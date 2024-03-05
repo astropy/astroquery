@@ -5,32 +5,14 @@ Utilities for working with Splatalogue query results
 import numpy as np
 import astropy
 
-# Remap column headings to something IPAC-compatible
-column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
-                       'Resolved QNs': 'QNs',
-                       'CDMS/JPL Intensity': 'CDMSJPL_Intensity',
-                       'S<sub>ij</sub>': 'Sij',
-                       'Freq-GHz': 'FreqGHz',
-                       'Meas Freq-GHz': 'MeasFreqGHz',
-                       'Lovas/AST Intensity': 'LovasAST_Intensity',
-                       'E_L (cm^-1)': 'EL_percm',
-                       'E_L (K)': 'EL_K',
-                       'E_U (cm^-1)': 'EU_percm',
-                       'E_U (K)': 'EU_K',
-                       'Chemical Name': 'ChemicalName',
-                       'Freq Err': 'FreqErr',
-                       'Meas Freq Err': 'MeasFreqErr',
-                       'Freq-GHz(rest frame,redshifted)': 'FreqGHz',
-                       'Freq Err(rest frame,redshifted)': 'eFreqGHz',
-                       'Meas Freq-GHz(rest frame,redshifted)': 'MeasFreqGHz',
-                       'Meas Freq Err(rest frame,redshifted)': 'eMeasFreqGHz',
-                       }
 
-
-def clean_column_headings(table, *, renaming_dict=column_headings_map):
+def clean_column_headings(table, *, renaming_dict={}):
     """
     Rename column headings to shorter version that are easier for display
     on-screen / at the terminal
+
+    As of March 2024, the default column names are all valid and no longer need
+    renaming.
     """
 
     for key in renaming_dict:
@@ -41,10 +23,10 @@ def clean_column_headings(table, *, renaming_dict=column_headings_map):
 
 
 def merge_frequencies(table, *, prefer='measured',
-                      theor_kwd='Freq-GHz(rest frame,redshifted)',
-                      meas_kwd='Meas Freq-GHz(rest frame,redshifted)'):
+                      theor_kwd='orderedFreq',
+                      meas_kwd='measFreq'):
     """
-    Replace "Freq-GHz" and "Meas Freq-GHz" with a single "Freq" column.
+    Replace "orderedFreq" and "measFreq" with a single "Freq" column.
 
     Parameters
     ----------
@@ -101,6 +83,10 @@ def minimize_table(table, *, columns=['Species', 'Chemical Name',
     clean_column_headings : bool
         Run clean_column_headings to shorted the headers?
     """
+    from .core import colname_mapping_feb2024
+
+    columns = [colname_mapping_feb2024[c] if c in colname_mapping_feb2024 else c
+               for c in columns]
 
     table = table[columns]
 
