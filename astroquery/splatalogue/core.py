@@ -25,11 +25,13 @@ __all__ = ['Splatalogue', 'SplatalogueClass']
 # https://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
 # for backward-compatibility
+# (As of March 5, this is incomplete, but is enough to make `minimize_table` work)
 colname_mapping_feb2024 = {
     'Species': 'name',
     'Chemical Name': 'chemical_name',
     'Resolved QNs': 'resolved_QNs',
-    'Freq-GHz(rest frame,redshifted)': 'orderedfreq',
+    'Freq-GHz(rest frame,redshifted)': 'orderedFreq',
+    'Meas Freq-GHz(rest frame,redshifted)': 'measFreq',
     'Log<sub>10</sub> (A<sub>ij</sub>)': 'aij',
     'E_U (K)': 'upper_state_energy_K',
 }
