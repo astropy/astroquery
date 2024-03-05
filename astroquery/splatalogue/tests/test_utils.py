@@ -13,7 +13,7 @@ def test_clean(patch_post):
                                             chemical_name=' CO ')
     c = utils.clean_column_headings(x)
     assert 'Resolved QNs' not in c.colnames
-    assert 'QNs' in c.colnames
+    assert 'resolved_QNs' in c.colnames
 
 
 def test_merge(patch_post):
@@ -49,5 +49,6 @@ def test_minimize_issue2135():
 
     minimized = utils.minimize_table(rslt)
 
-    theomask = rslt['Freq-GHz(rest frame,redshifted)'].mask
-    np.testing.assert_allclose(minimized['Freq'][theomask], rslt['Meas Freq-GHz(rest frame,redshifted)'][theomask])
+    theomask = rslt['orderedFreq'].mask
+    np.testing.assert_allclose(minimized['Freq'][theomask],
+                               rslt['measFreq'][theomask])

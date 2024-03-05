@@ -119,9 +119,8 @@ def test_exclude(patch_post):
 
     exclusions = {'excludePotentialInterstellarSpecies': False,
                   'excludeAtmosSpecies': False,
-                  'excludeProbableInterstellarSpecies': False
-                  'excludeKnownASTSpecies': False
-                 }
+                  'excludeProbableInterstellarSpecies': False,
+                  'excludeKnownASTSpecies': False}
 
     for k, v in exclusions.items():
         assert payload[k] == v
