@@ -396,6 +396,14 @@ kind of S/N to expect:
     >>> filelist = Alma.download_files(readmes)  # doctest: +IGNORE_OUTPUT
 
 
+Notebooks
+=========
+
+A set of ALMA-maintained Jupyter Notebooks that showcase further examples of how to programmatically access
+the archive can be found `here
+<https://almascience.nrao.edu/alma-data/archive/archive-notebooks>`_.
+
+
 Reference/API
 =============
 
