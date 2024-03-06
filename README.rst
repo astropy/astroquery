@@ -1,7 +1,7 @@
 `Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_
 
 .. image:: https://img.shields.io/pypi/v/astroquery.svg
-    :target: https://img.shields.io/pypi/v/astroquery.svg
+    :target: https://pypi.org/project/astroquery/#history
     :alt: Latest PyPI version
 
 .. image:: https://readthedocs.org/projects/astroquery/badge/?version=latest
