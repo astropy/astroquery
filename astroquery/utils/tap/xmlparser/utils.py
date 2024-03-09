@@ -27,14 +27,14 @@ def util_create_string_from_buffer(buffer):
     return ''.join(map(str, buffer))
 
 
-def read_http_response(response, output_format, *, correct_units=True):
+def read_http_response(response, output_format, *, correct_units=True, use_names_over_ids=False):
     astropy_format = get_suitable_astropy_format(output_format)
 
     # If we want to use astropy.table, we have to read the data
     data = io.BytesIO(response.read())
 
     try:
-        result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format)
+        result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format, use_names_over_ids=use_names_over_ids)
     except OSError:
         # data is not a valid gzip file by BadGzipFile.
 

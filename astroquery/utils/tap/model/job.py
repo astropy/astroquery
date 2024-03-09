@@ -32,7 +32,7 @@ class Job:
     """Job class
     """
 
-    def __init__(self, async_job, *, query=None, connhandler=None):
+    def __init__(self, async_job, *, query=None, connhandler=None, use_names_over_ids=False):
         """Constructor
 
         Parameters
@@ -43,6 +43,12 @@ class Job:
             Query
         connhandler : TapConn, optional, default None
             Connection handler
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
         """
         # async is a reserved keyword starting python 3.7
         self.async_ = async_job
@@ -75,6 +81,7 @@ class Job:
         self.parameters['query'] = query
         # default output format
         self.parameters['format'] = 'votable'
+        self.use_names_over_ids= use_names_over_ids
 
     def set_phase(self, phase):
         """Sets the job phase
@@ -227,9 +234,9 @@ class Job:
         # try load results from file
         # read_results_table_from_file checks whether
         # the file already exists or not
-        outputFormat = self.parameters['format']
+        output_format = self.parameters['format']
         results = modelutils.read_results_table_from_file(self.outputFile,
-                                                          outputFormat)
+                                                          output_format, use_names_over_ids=self.use_names_over_ids)
         if results is not None:
             self.results = results
             return results
@@ -360,7 +367,7 @@ class Job:
             else:
                 outputFormat = self.parameters['format']
                 results = utils.read_http_response(resultsResponse,
-                                                   outputFormat)
+                                                   outputFormat, use_names_over_ids=self.use_names_over_ids)
                 self.set_results(results)
 
     def __handle_redirect_if_required(self, resultsResponse, *, verbose=False):
