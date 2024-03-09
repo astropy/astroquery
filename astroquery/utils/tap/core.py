@@ -243,7 +243,7 @@ class Tap:
     def launch_job(self, query, *, name=None, output_file=None,
                    output_format="votable", verbose=False,
                    dump_to_file=False, upload_resource=None,
-                   upload_table_name=None, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
+                   upload_table_name=None, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv'), use_names_over_ids=False):
         """Launches a synchronous job
 
         Parameters
@@ -270,6 +270,12 @@ class Tap:
             maximum number of rows to return (TAP ``MAXREC`` parameter)
         format_with_results_compressed: tuple, zipped result formats
             list of result formats that are returned as zipped files
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
 
         Returns
         -------
@@ -318,7 +324,7 @@ class Tap:
             subcontext = self.__extract_sync_subcontext(location)
             response = self.__connHandler.execute_tapget(subcontext,
                                                          verbose=verbose)
-        job = Job(async_job=False, query=query, connhandler=self.__connHandler)
+        job = Job(async_job=False, query=query, connhandler=self.__connHandler, use_names_over_ids=use_names_over_ids)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   200,
@@ -357,7 +363,7 @@ class Tap:
                     print(f"Saving results to: {suitableOutputFile}")
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
-                results = utils.read_http_response(response, output_format)
+                results = utils.read_http_response(response, output_format, use_names_over_ids=use_names_over_ids)
                 job.set_results(results)
             if verbose:
                 print("Query finished.")
@@ -368,7 +374,7 @@ class Tap:
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None,
-                         autorun=True, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv')):
+                         autorun=True, maxrec=None, format_with_results_compressed=('votable', 'fits', 'ecsv'), use_names_over_ids=False):
         """Launches an asynchronous job
 
         Parameters
@@ -401,6 +407,12 @@ class Tap:
             maximum number of rows to return (TAP ``MAXREC`` parameter)
         format_with_results_compressed: tuple, zipped result formats
             list of result formats that are returned as zipped files
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
 
         Returns
         -------
@@ -439,7 +451,7 @@ class Tap:
                                                                   verbose,
                                                                   303,
                                                                   raise_exception=False)
-        job = Job(async_job=True, query=query, connhandler=self.__connHandler)
+        job = Job(async_job=True, query=query, connhandler=self.__connHandler, use_names_over_ids=use_names_over_ids)
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                True,
@@ -838,7 +850,7 @@ class TapPlus(Tap):
                                       include_shared_tables=include_shared_tables,  # noqa
                                       verbose=verbose)
 
-    def load_data(self, *, params_dict=None, output_file=None, verbose=False):
+    def load_data(self, *, params_dict=None, output_file=None, verbose=False, use_names_over_ids=False):
         """Loads the specified data
 
         Parameters
@@ -848,6 +860,12 @@ class TapPlus(Tap):
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -890,7 +908,7 @@ class TapPlus(Tap):
                     output_format = params_dict['FORMAT'].lower()
                 else:
                     output_format = "votable"
-            results = utils.read_http_response(response, output_format)
+            results = utils.read_http_response(response, output_format, use_names_over_ids=use_names_over_ids)
             if verbose:
                 print("Done.")
             return results
@@ -1267,7 +1285,7 @@ class TapPlus(Tap):
             print(f"USER response = {user}")
         return user.startswith(f"{user_id}:") and user.count("\\n") == 0
 
-    def get_datalinks(self, ids, *, linking_parameter=None, verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter=None, verbose=False, use_names_over_ids=False):
         """Gets datalinks associated to the provided identifiers
 
         Parameters
@@ -1279,6 +1297,12 @@ class TapPlus(Tap):
             SOURCE_ID: the identifiers are considered as source_id
             TRANSIT_ID: the identifiers are considered as transit_id
             IMAGE_ID: the identifiers are considered as sif_observation_id
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1315,7 +1339,7 @@ class TapPlus(Tap):
                                                  200)
         if verbose:
             print("Done.")
-        results = utils.read_http_response(response, "votable")
+        results = utils.read_http_response(response, "votable", use_names_over_ids=use_names_over_ids)
 
         return results
 
@@ -1406,7 +1430,7 @@ class TapPlus(Tap):
 
     def upload_table(self, *, upload_resource=None, table_name=None,
                      table_description=None,
-                     format=None, verbose=False):
+                     format=None, verbose=False, use_names_over_ids=False):
         """Uploads a table to the user private space
 
         Parameters
@@ -1421,6 +1445,12 @@ class TapPlus(Tap):
             resource format
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause
+           some columns to be renamed by appending numbers to the end.
+           Otherwise (default), use the ID attributes as the column
+           names.
         """
 
         if upload_resource is None:
@@ -1448,7 +1478,7 @@ class TapPlus(Tap):
             jobid = taputils.get_jobid_from_location(location)
             job = Job(async_job=True,
                       query=None,
-                      connhandler=self.__getconnhandler())
+                      connhandler=self.__getconnhandler(), use_names_over_ids=False)
             job.jobid = jobid
             job.name = 'Table upload'
             job.set_phase('EXECUTING')

@@ -32,7 +32,7 @@ def check_file_exists(file_name):
     return os.path.exists(file_name)
 
 
-def read_results_table_from_file(file_name, output_format, *, correct_units=True):
+def read_results_table_from_file(file_name, output_format, *, correct_units=True, use_names_over_ids=False):
     astropy_format = utils.get_suitable_astropy_format(output_format)
 
     if check_file_exists(file_name):
@@ -65,7 +65,7 @@ def read_results_table_from_file(file_name, output_format, *, correct_units=True
                 return result
 
         else:
-            result = APTable.read(file_name, format=astropy_format)
+            result = APTable.read(file_name, format=astropy_format, use_names_over_ids=use_names_over_ids)
 
             if correct_units:
                 utils.modify_unrecognized_table_units(result)

@@ -48,6 +48,12 @@ class GaiaClass(TapPlus):
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
     VALID_LINKING_PARAMETERS = conf.VALID_LINKING_PARAMETERS
     GAIA_MESSAGES = "notification?action=GetNotifications"
+    USE_NAMES_OVER_IDS = True
+    """When `True` use the ``name`` attributes of columns as the names of columns in the `astropy.table.Table` instance.
+          Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers 
+          to the end. Otherwise (default), use the ID attributes as the column names.
+    """
+
 
     def __init__(self, *, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -342,7 +348,6 @@ class GaiaClass(TapPlus):
             if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
-                    # print(hduList)
                     num_hdus = len(hduList)
                     for i in range(1, num_hdus):
                         table = Table.read(hduList[i], format='fits')

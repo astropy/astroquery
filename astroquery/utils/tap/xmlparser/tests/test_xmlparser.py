@@ -99,7 +99,7 @@ def test_table_list_parser_with_size_bytes():
 def test_job_results_parser():
     fileName = data_path('test_job_results.xml')
     file = open(fileName, 'rb')
-    resultTable = utils.read_http_response(file, 'votable')
+    resultTable = utils.read_http_response(file, 'votable', use_names_over_ids=False)
     assert len(resultTable.columns) == 57
     file.close()
 
