@@ -50,7 +50,7 @@ class GaiaClass(TapPlus):
     GAIA_MESSAGES = "notification?action=GetNotifications"
     USE_NAMES_OVER_IDS = True
     """When `True` use the ``name`` attributes of columns as the names of columns in the `astropy.table.Table` instance.
-          Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers 
+          Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers
           to the end. Otherwise (default), use the ID attributes as the column names.
     """
 
@@ -312,7 +312,8 @@ class GaiaClass(TapPlus):
         try:
             self.__gaiadata.load_data(params_dict=params_dict,
                                       output_file=output_file,
-                                      verbose=verbose)
+                                      verbose=verbose,
+                                      use_names_over_ids=self.USE_NAMES_OVER_IDS)
             files = Gaia.__get_data_files(output_file=output_file, path=path)
         except Exception as err:
             raise err
@@ -465,7 +466,8 @@ class GaiaClass(TapPlus):
         if linking_parameter != 'SOURCE_ID':
             final_linking_parameter = linking_parameter
 
-        return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose)
+        return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose,
+                                             use_names_over_ids=self.USE_NAMES_OVER_IDS)
 
     def __query_object(self, coordinate, *, radius=None, width=None, height=None,
                        async_job=False, verbose=False, columns=()):
@@ -979,7 +981,8 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file,
                                   upload_resource=upload_resource,
                                   upload_table_name=upload_table_name,
-                                  format_with_results_compressed=('votable_gzip',))
+                                  format_with_results_compressed=('votable_gzip',),
+                                  use_names_over_ids=self.USE_NAMES_OVER_IDS)
 
     def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable_gzip", verbose=False,
@@ -1032,7 +1035,8 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun,
-                                        format_with_results_compressed=('votable_gzip',))
+                                        format_with_results_compressed=('votable_gzip',),
+                                        use_names_over_ids=self.USE_NAMES_OVER_IDS)
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
