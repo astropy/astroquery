@@ -54,7 +54,6 @@ class GaiaClass(TapPlus):
           to the end. Otherwise (default), use the ID attributes as the column names.
     """
 
-
     def __init__(self, *, tap_plus_conn_handler=None,
                  datalink_handler=None,
                  gaia_tap_server='https://gea.esac.esa.int/',
@@ -70,7 +69,8 @@ class GaiaClass(TapPlus):
                                         data_context="data",
                                         datalink_context="datalink",
                                         connhandler=tap_plus_conn_handler,
-                                        verbose=verbose)
+                                        verbose=verbose,
+                                        use_names_over_ids=self.USE_NAMES_OVER_IDS)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
             self.__gaiadata = TapPlus(url=gaia_data_server,
@@ -80,7 +80,8 @@ class GaiaClass(TapPlus):
                                       table_edit_context="TableTool",
                                       data_context="data",
                                       datalink_context="datalink",
-                                      verbose=verbose)
+                                      verbose=verbose,
+                                      use_names_over_ids=self.USE_NAMES_OVER_IDS)
         else:
             self.__gaiadata = datalink_handler
 
@@ -116,8 +117,8 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging in TAP server")
             return
-        new_user = self._TapPlus__user
-        new_password = self._TapPlus__pwd
+        new_user = self.__user
+        new_password = self.__pwd
         try:
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=new_user, password=new_password,
@@ -141,8 +142,8 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging in TAP server")
             return
-        new_user = self._TapPlus__user
-        new_password = self._TapPlus__pwd
+        new_user = self.__user
+        new_password = self.__pwd
         try:
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=new_user, password=new_password,
@@ -312,8 +313,7 @@ class GaiaClass(TapPlus):
         try:
             self.__gaiadata.load_data(params_dict=params_dict,
                                       output_file=output_file,
-                                      verbose=verbose,
-                                      use_names_over_ids=self.USE_NAMES_OVER_IDS)
+                                      verbose=verbose)
             files = Gaia.__get_data_files(output_file=output_file, path=path)
         except Exception as err:
             raise err
@@ -466,8 +466,7 @@ class GaiaClass(TapPlus):
         if linking_parameter != 'SOURCE_ID':
             final_linking_parameter = linking_parameter
 
-        return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose,
-                                             use_names_over_ids=self.USE_NAMES_OVER_IDS)
+        return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose)
 
     def __query_object(self, coordinate, *, radius=None, width=None, height=None,
                        async_job=False, verbose=False, columns=()):
@@ -981,8 +980,7 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file,
                                   upload_resource=upload_resource,
                                   upload_table_name=upload_table_name,
-                                  format_with_results_compressed=('votable_gzip',),
-                                  use_names_over_ids=self.USE_NAMES_OVER_IDS)
+                                  format_with_results_compressed=('votable_gzip',))
 
     def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable_gzip", verbose=False,
@@ -1035,8 +1033,7 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun,
-                                        format_with_results_compressed=('votable_gzip',),
-                                        use_names_over_ids=self.USE_NAMES_OVER_IDS)
+                                        format_with_results_compressed=('votable_gzip',))
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
@@ -1044,7 +1041,7 @@ class GaiaClass(TapPlus):
         """
         try:
             sub_context = self.GAIA_MESSAGES
-            conn_handler = self._TapPlus__getconnhandler()
+            conn_handler = self.__getconnhandler()
             response = conn_handler.execute_tapget(sub_context, verbose=False)
             if response.status == 200:
                 if isinstance(response, Iterable):
