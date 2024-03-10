@@ -188,9 +188,7 @@ class Tap:
                                                      verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        self.__connHandler.check_launch_response_status(response,
-                                                        verbose,
-                                                        200)
+        self.__connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print(f"Parsing table '{table}'...")
         tsp = TableSaxParser()
@@ -235,8 +233,7 @@ class Tap:
                                                          verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        is_error = self.__connHandler.check_launch_response_status(response,
-                                                                   verbose, 200)
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200)
         if is_error:
             log.info(f"{response.status} {response.reason}")
             raise requests.exceptions.HTTPError(response.reason)
@@ -327,10 +324,7 @@ class Tap:
                                                          verbose=verbose)
         job = Job(async_job=False, query=query, connhandler=self.__connHandler,
                   use_names_over_ids=self.use_names_over_ids)
-        is_error = self.__connHandler.check_launch_response_status(response,
-                                                                   verbose,
-                                                                   200,
-                                                                   raise_exception=False)
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200, raise_exception=False)
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                False,
@@ -570,17 +564,13 @@ class Tap:
             name = os.path.basename(uploadResource)
         files = [[uploadTableName, name, chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
-        response = self.__connHandler.execute_tappost(context,
-                                                      body,
-                                                      contentType,
-                                                      verbose=verbose)
+        response = self.__connHandler.execute_tappost(context, body, contentType, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
         return response
 
-    def __launchJob(self, query, outputFormat, context, verbose, *, name=None,
-                    autorun=True, maxrec=None):
+    def __launchJob(self, query, outputFormat, context, verbose, *, name=None, autorun=True, maxrec=None):
         args = {
             "REQUEST": "doQuery",
             "LANG": "ADQL",
@@ -593,9 +583,7 @@ class Tap:
             args['PHASE'] = 'RUN'
         if name is not None:
             args['jobname'] = name
-        response = self.__connHandler.execute_tappost(subcontext=context,
-                                                      data=urlencode(args),
-                                                      verbose=verbose)
+        response = self.__connHandler.execute_tappost(subcontext=context, data=urlencode(args), verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -801,14 +789,11 @@ class TapPlus(Tap):
             log.info("No job identifier found")
             return None
         sub_context = f"async/{jobid}"
-        response = self.__connHandler.execute_tapget(sub_context,
-                                                     verbose=verbose)
+        response = self.__connHandler.execute_tapget(sub_context, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        is_error = self.__connHandler.check_launch_response_status(response,
-                                                                   verbose,
-                                                                   200)
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200)
         if is_error:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
@@ -872,9 +857,7 @@ class TapPlus(Tap):
         response = connHandler.execute_datapost(data=data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print("Reading...")
         chunk = True
@@ -918,9 +901,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print("Parsing groups...")
         gsp = GroupSaxParser()
@@ -973,9 +954,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
@@ -1024,9 +1003,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Shared table '{table_name}' to group '{group_name}'."
         log.info(msg)
 
@@ -1070,9 +1047,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
 
         msg = f"Stop sharing table '{table_name}' to group '{group_name}'."
         log.info(msg)
@@ -1106,9 +1081,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Created group '{group_name}'."
         log.info(msg)
 
@@ -1135,9 +1108,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Deleted group '{group_name}'."
         log.info(msg)
 
@@ -1184,9 +1155,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Added user '{user_id}' from group '{group_name}'."
         log.info(msg)
 
@@ -1234,9 +1203,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Deleted user '{user_id}' from group '{group_name}'."
         log.info(msg)
 
@@ -1263,9 +1230,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         responseBytes = response.read()
         user = responseBytes.decode('utf-8')
         if verbose:
@@ -1315,9 +1280,7 @@ class TapPlus(Tap):
                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print("Done.")
         results = utils.read_http_response(response, "votable", use_names_over_ids=self.use_names_over_ids)
@@ -1349,9 +1312,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         # parse jobs
         jsp = JobSaxParser(async_job=True)
         jobs = jsp.parseData(response)
@@ -1385,15 +1346,11 @@ class TapPlus(Tap):
         data = f"JOB_IDS={jobs_ids}"
         subContext = "deletejobs"
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_tappost(subContext,
-                                               data,
-                                               verbose=verbose)
+        response = connHandler.execute_tappost(subContext, data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Removed jobs: '{jobs_list}'."
         log.info(msg)
 
@@ -1474,6 +1431,7 @@ class TapPlus(Tap):
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
                 "FORMAT": 'votable'}
+
             log.info("Sending pytable.")
             fh = tempfile.NamedTemporaryFile(delete=False)
             resource.write(fh, format='votable')
@@ -1510,9 +1468,7 @@ class TapPlus(Tap):
             print(response.status, response.reason)
             print(response.getheaders())
         if response.status != 303 and response.status != 302:
-            connHandler.check_launch_response_status(response,
-                                                     verbose,
-                                                     200)
+            connHandler.check_launch_response_status(response, verbose, 200)
         return response
 
     def upload_table_from_job(self, *, job=None, table_name=None,
@@ -1563,6 +1519,7 @@ class TapPlus(Tap):
             "TABLE_NAME": str(table_name),
             "TABLE_DESC": str(table_description),
             "FORMAT": str(format)}
+
         files = [['FILE', "", ""]]
         connHandler = self.__getconnhandler()
         contentType, body = connHandler.encode_multipart(args, files)
@@ -1570,9 +1527,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         return response
 
     def delete_user_table(self, *, table_name=None, force_removal=False,
@@ -1605,9 +1560,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Table '{table_name}' deleted."
         log.info(msg)
 
@@ -1657,9 +1610,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         if verbose:
             msg = f"Table '{table_name}' updated."
             print(msg)
@@ -1735,9 +1686,7 @@ class TapPlus(Tap):
                             found = True
                             break
                     if found is False:
-                        raise ValueError(f"Column name introduced "
-                                         f"{value}"
-                                         f" was not found in the table")
+                        raise ValueError(f"Column name introduced {value} was not found in the table")
                 index = index + 1
 
         new_ra_column = TapPlus.__changesContainFlag(changes=list_of_changes, flag="Ra")
@@ -1757,9 +1706,7 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+        connHandler.check_launch_response_status(response, verbose, 200)
         msg = f"Table '{table_name}' updated."
         log.info(msg)
 
@@ -1806,28 +1753,20 @@ class TapPlus(Tap):
     def get_current_column_values_for_update(column):
         column_name = column.name
         flags = column.flags
-        if str(flags) == '1':
+        flags_string = str(flags)
+        if flags_string == '1' or flags_string == '33':
             flags = 'Ra'
-        elif str(flags) == '2':
+        elif flags_string == '2' or flags_string == '34':
             flags = 'Dec'
-        elif str(flags) == '4':
+        elif flags_string == '4' or flags_string == '38':
             flags = 'Flux'
-        elif str(flags) == '8':
+        elif flags_string == '8' or flags_string == '40':
             flags = 'Mag'
-        elif str(flags) == '16':
-            flags = 'PK'
-        elif str(flags) == '33':
-            flags = 'Ra'
-        elif str(flags) == '34':
-            flags = 'Dec'
-        elif str(flags) == '38':
-            flags = 'Flux'
-        elif str(flags) == '40':
-            flags = 'Mag'
-        elif str(flags) == '48':
+        elif flags_string == '16' or flags_string == '48':
             flags = 'PK'
         else:
             flags = None
+
         indexed = (str(column.flag) == 'indexed'
                    or str(flags) == 'Ra'
                    or str(flags) == 'Dec'
@@ -1926,10 +1865,8 @@ class TapPlus(Tap):
         }
         connHandler = self.__getconnhandler()
         response = connHandler.execute_table_edit(urlencode(args), verbose=verbose)
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
+        is_error = connHandler.check_launch_response_status(response, verbose, 200)
+        if is_error:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
         msg = f"Table '{table_name}' updated (ra/dec)."
@@ -1999,10 +1936,8 @@ class TapPlus(Tap):
         response = self.__execLogin(usr=self.__user, pwd=self.__pwd, verbose=verbose)
         # check response
         connHandler = self.__getconnhandler()
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
+        is_error = connHandler.check_launch_response_status(response, verbose, 200)
+        if is_error:
             log.info(f"Login error: {response.reason}")
             raise requests.exceptions.HTTPError(f"Login error: {response.reason}")
         else:
@@ -2034,19 +1969,20 @@ class TapPlus(Tap):
         c = None
         if columns is not None and len(columns) > 0:
             for column in columns:
-                f = column.flags
-                if str(f) == '1' or str(f) == '33':
+                flags_string = str(column.flags)
+                if flags_string == '1' or flags_string == '33':
                     f = 'Ra'
-                elif str(f) == '2' or str(f) == '34':
+                elif flags_string == '2' or flags_string == '34':
                     f = 'Dec'
-                elif str(f) == '4' or str(f) == '38':
+                elif flags_string == '4' or flags_string == '38':
                     f = 'Flux'
-                elif str(f) == '8' or str(f) == '40':
+                elif flags_string == '8' or flags_string == '40':
                     f = 'Mag'
-                elif str(f) == '16' or str(f) == '48':
+                elif flags_string == '16' or flags_string == '48':
                     f = 'PK'
                 else:
                     f = None
+
                 if str(flag) == str(f):
                     c = column.name
                     break
