@@ -492,58 +492,6 @@ class Tap:
                         log.info("Query finished.")
         return job
 
-    def load_async_job(self, *, jobid=None, name=None, verbose=False,
-                       load_results=True):
-        """Loads an asynchronous job
-
-        Parameters
-        ----------
-        jobid : str, mandatory if no name is provided, default None
-            job identifier
-        name : str, mandatory if no jobid is provided, default None
-            job name
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        load_results : bool, optional, default 'True'
-            load results associated to this job
-
-        Returns
-        -------
-        A Job object
-        """
-        if name is not None:
-            jobfilter = Filter()
-            jobfilter.add_filter('name', name)
-            jobs = self.search_async_jobs(jobfilter)
-            if jobs is None or len(jobs) < 1:
-                log.info(f"No job found for name '{name}'")
-                return None
-            jobid = jobs[0].jobid
-        if jobid is None:
-            log.info("No job identifier found")
-            return None
-        sub_context = f"async/{jobid}"
-        response = self.__connHandler.execute_tapget(sub_context,
-                                                     verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response,
-                                                                  verbose,
-                                                                  200)
-        if isError:
-            log.info(response.reason)
-            raise requests.exceptions.HTTPError(response.reason)
-
-        # parse job
-        jsp = JobSaxParser(async_job=True)
-        job = jsp.parseData(response)[0]
-        job.connHandler = self.__connHandler
-        # load resulst
-        if load_results:
-            job.get_results()
-        return job
-
     def list_async_jobs(self, *, verbose=False):
         """Returns all the asynchronous jobs
 
@@ -557,15 +505,12 @@ class Tap:
         A list of Job objects
         """
         subContext = "async"
-        response = self.__connHandler.execute_tapget(subContext,
-                                                     verbose=verbose)
+        response = self.__connHandler.execute_tapget(subContext, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response,
-                                                                  verbose,
-                                                                  200)
-        if isError:
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        if is_error:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
 
@@ -577,17 +522,8 @@ class Tap:
                 j.connHandler = self.__connHandler
         return jobs
 
-    def __appendData(args):
-        data = urlencode(args)
-        result = ""
-        first_time = True
-        for k in data:
-            if first_time:
-                first_time = False
-                result = f"{k}={data[k]}"
-            else:
-                result = f"{result}&{k}={data[k]}"
-        return result
+    def __appendData(self, args):
+        return urlencode(args)
 
     def save_results(self, job, *, verbose=False):
         """Saves job results
@@ -833,6 +769,58 @@ class TapPlus(Tap):
     def __set_client_id(self, client_id):
         if client_id:
             self.tap_client_id = client_id
+
+    def load_async_job(self, *, jobid=None, name=None, verbose=False,
+                       load_results=True):
+        """Loads an asynchronous job
+
+        Parameters
+        ----------
+        jobid : str, mandatory if no name is provided, default None
+            job identifier
+        name : str, mandatory if no jobid is provided, default None
+            job name
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        load_results : bool, optional, default 'True'
+            load results associated to this job
+
+        Returns
+        -------
+        A Job object
+        """
+        if name is not None:
+            jobfilter = Filter()
+            jobfilter.add_filter('name', name)
+            jobs = self.search_async_jobs(jobfilter=jobfilter)
+            if jobs is None or len(jobs) < 1:
+                log.info(f"No job found for name '{name}'")
+                return None
+            jobid = jobs[0].jobid
+        if jobid is None:
+            log.info("No job identifier found")
+            return None
+        sub_context = f"async/{jobid}"
+        response = self.__connHandler.execute_tapget(sub_context,
+                                                     verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        is_error = self.__connHandler.check_launch_response_status(response,
+                                                                   verbose,
+                                                                   200)
+        if is_error:
+            log.info(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
+
+        # parse job
+        jsp = JobSaxParser(async_job=True)
+        job = jsp.parseData(response)[0]
+        job.connHandler = self.__connHandler
+        # load resulst
+        if load_results:
+            job.get_results()
+        return job
 
     def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
@@ -1353,7 +1341,7 @@ class TapPlus(Tap):
         # jobs/list?[&session=][&limit=][&offset=][&order=][&metadata_only=true|false]
         subContext = "jobs/async"
         if jobfilter is not None:
-            data = jobfilter.createUrlRequest()
+            data = jobfilter.create_url_data_request()
             if data is not None:
                 subContext = f"{subContext}?{self.__appendData(data)}"
         connHandler = self.__getconnhandler()
