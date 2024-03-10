@@ -114,8 +114,8 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging in TAP server")
             return
-        new_user = self.__user
-        new_password = self.__pwd
+        new_user = self._TapPlus__user
+        new_password = self._TapPlus__pwd
         try:
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=new_user, password=new_password, verbose=verbose)
@@ -138,8 +138,8 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging in TAP server")
             return
-        new_user = self.__user
-        new_password = self.__pwd
+        new_user = self._TapPlus__user
+        new_password = self._TapPlus__pwd
         try:
             log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=new_user, password=new_password, verbose=verbose)
@@ -1016,7 +1016,7 @@ class GaiaClass(TapPlus):
         """
         try:
             sub_context = self.GAIA_MESSAGES
-            conn_handler = self.__getconnhandler()
+            conn_handler = self._TapPlus__getconnhandler()
             response = conn_handler.execute_tapget(sub_context, verbose=False)
             if response.status == 200:
                 if isinstance(response, Iterable):

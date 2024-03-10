@@ -1951,4 +1951,4 @@ class TapPlus(Tap):
         return c
 
     def __getconnhandler(self):
-        return self.__connHandler
+        return self._Tap__connHandler
