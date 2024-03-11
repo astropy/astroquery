@@ -61,7 +61,7 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
             else:
                 result = APTable.read(data, format=astropy_format)
         else:
-            result = APTable.read(data, format=astropy_format)
+            result = APTable.read(data, format=astropy_format, use_names_over_ids=use_names_over_ids)
 
     if correct_units:
         modify_unrecognized_table_units(result)

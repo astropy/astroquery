@@ -36,6 +36,8 @@ GAIA_QUERIER = GaiaClass(show_server_messages=False)
 
 package = "astroquery.gaia.tests"
 JOB_DATA_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'job_1.vot'), package=package)
+JOB_DATA_FILE_NAME_NEW = get_pkg_data_filename(os.path.join("data", '1710099405832VAL-result.vot'), package=package)
+
 JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'cone_search_async.json'),
                                                                   package=package)
 JOB_DATA_QUERIER_ASYNC_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'launch_job_async.json'), package=package)
@@ -44,6 +46,8 @@ JOB_DATA_QUERIER_ECSV_FILE_NAME = get_pkg_data_filename(os.path.join("data", '17
                                                         package=package)
 
 JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
+JOB_DATA_NEW = Path(JOB_DATA_FILE_NAME_NEW).read_text()
+
 JOB_DATA_CONE_SEARCH_ASYNC_JSON = Path(JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME).read_text()
 JOB_DATA_QUERIER_ASYNC_JSON = Path(JOB_DATA_QUERIER_ASYNC_FILE_NAME).read_text()
 JOB_DATA_ECSV = Path(JOB_DATA_QUERIER_ECSV_FILE_NAME).read_text()
@@ -76,6 +80,36 @@ def column_attrs():
     columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
 
     columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    return columns
+
+
+@pytest.fixture(scope="module")
+def column_attrs_lower_case_new():
+    columns = {}
+    columns["designation"] = Column(name="designation",
+                                    description='Unique source designation (unique across all Data Releases)',
+                                    dtype=object)
+    columns["source_id"] = Column(name="source_id",
+                                  description='Unique source identifier (unique within a particular Data Release)',
+                                  unit=None, dtype=np.int64)
+    columns["ra"] = Column(name="ra", description='Right ascension', unit='deg', dtype=np.float64)
+    columns["dec"] = Column(name="dec", description='Declination', unit='deg', dtype=np.float64)
+    columns["parallax"] = Column(name="parallax", description='Parallax', unit='mas', dtype=np.float64)
+    return columns
+
+
+@pytest.fixture(scope="module")
+def column_attrs_upper_case_new():
+    columns = {}
+    columns["DESIGNATION"] = Column(name="DESIGNATION",
+                                    description='Unique source designation (unique across all Data Releases)',
+                                    dtype=object)
+    columns["SOURCE_ID"] = Column(name="SOURCE_ID",
+                                  description='Unique source identifier (unique within a particular Data Release)',
+                                  unit=None, dtype=np.int64)
+    columns["ra"] = Column(name="ra", description='Right ascension', unit='deg', dtype=np.float64)
+    columns["dec"] = Column(name="dec", description='Declination', unit='deg', dtype=np.float64)
+    columns["parallax"] = Column(name="parallax", description='Parallax', unit='mas', dtype=np.float64)
     return columns
 
 
@@ -150,6 +184,77 @@ def mock_querier_async():
     results_response.set_data(method="GET", body=JOB_DATA)
     conn_handler.set_response("async/" + jobid + "/results/result", results_response)
 
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_querier_async_names_new():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler, use_names_over_ids=True)
+    jobid = "12345"
+
+    launch_response = DummyResponse(303)
+    launch_response_headers = [["location", "http://test:1111/tap/async/" + jobid]]
+    launch_response.set_data(method="POST", headers=launch_response_headers)
+    conn_handler.set_default_response(launch_response)
+
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body="COMPLETED")
+    conn_handler.set_response("async/" + jobid + "/phase", phase_response)
+
+    results_response = DummyResponse(200)
+    results_response.set_data(method="GET", body=JOB_DATA_NEW)
+    conn_handler.set_response("async/" + jobid + "/results/result", results_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_querier_async_ids_new():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler, use_names_over_ids=False)
+    jobid = "12345"
+
+    launch_response = DummyResponse(303)
+    launch_response_headers = [["location", "http://test:1111/tap/async/" + jobid]]
+    launch_response.set_data(method="POST", headers=launch_response_headers)
+    conn_handler.set_default_response(launch_response)
+
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body="COMPLETED")
+    conn_handler.set_response("async/" + jobid + "/phase", phase_response)
+
+    results_response = DummyResponse(200)
+    results_response.set_data(method="GET", body=JOB_DATA_NEW)
+    conn_handler.set_response("async/" + jobid + "/results/result", results_response)
+
+    GaiaClass.USE_NAMES_OVER_IDS = False
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_querier_names_new():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler, use_names_over_ids=True)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA_QUERIER_ASYNC_JSON)
+    conn_handler.set_default_response(launch_response)
+
+    GaiaClass.USE_NAMES_OVER_IDS = True
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_querier_ids_new():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler, use_names_over_ids=False)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA_QUERIER_ASYNC_JSON)
+    conn_handler.set_default_response(launch_response)
+
+    GaiaClass.USE_NAMES_OVER_IDS = False
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
 
@@ -266,6 +371,8 @@ def test_query_object_missing_argument(kwargs, reported_missing):
 @pytest.mark.parametrize(
     "kwargs", ({"width": 12 * u.deg, "height": 10 * u.deg}, {"radius": RADIUS}))
 def test_query_object_async(column_attrs, mock_querier_async, kwargs):
+    assert mock_querier_async.USE_NAMES_OVER_IDS is True
+
     table = mock_querier_async.query_object_async(SKYCOORD, **kwargs)
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
@@ -273,6 +380,8 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
 
 
 def test_cone_search_sync(column_attrs, mock_querier):
+    assert mock_querier.USE_NAMES_OVER_IDS is True
+
     job = mock_querier.cone_search(SKYCOORD, radius=RADIUS)
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
@@ -299,6 +408,8 @@ def test_cone_search_sync_ecsv_format(column_attrs, mock_querier_ecsv):
 
 
 def test_cone_search_async(column_attrs, mock_querier_async):
+    assert mock_querier_async.USE_NAMES_OVER_IDS is True
+
     job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
     assert job.async_ is True
     assert job.get_phase() == "COMPLETED"
@@ -317,6 +428,8 @@ def test_cone_search_async_json_format(tmp_path_factory, column_attrs_conesearch
     output_file = str(d)
     dump_to_file = True
     output_format = 'json'
+
+    assert mock_cone_search_async_json.USE_NAMES_OVER_IDS is True
 
     job = mock_cone_search_async_json.cone_search_async(SKYCOORD, radius=RADIUS, output_file=output_file,
                                                         output_format=output_format, dump_to_file=dump_to_file,
@@ -380,6 +493,7 @@ def test_launch_job_async_json_format(tmp_path_factory, column_attrs_launch_json
     assert job.async_ is True
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
+    assert job.use_names_over_ids is True
     # results
     results = job.get_results()
 
@@ -408,6 +522,8 @@ def test_launch_job_json_format(tmp_path_factory, column_attrs_launch_json, mock
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
+    assert job.use_names_over_ids is True
+
     # results
     results = job.get_results()
 
@@ -431,6 +547,8 @@ def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_js
     assert job.async_ is False
     assert job.get_phase() == "COMPLETED"
     assert job.failed is False
+    assert job.use_names_over_ids is True
+
     # results
     results = job.get_results()
 
@@ -438,6 +556,126 @@ def test_launch_job_json_format_no_dump(tmp_path_factory, column_attrs_launch_js
     assert 1 == len(results), len(results)
 
     for colname, attrs in column_attrs_launch_json.items():
+        assert results[colname].name == attrs.name
+        assert results[colname].description == attrs.description
+        assert results[colname].unit == attrs.unit
+        assert results[colname].dtype == attrs.dtype
+
+
+def test_launch_job_async_vot_format_no_dump_names(tmp_path_factory, column_attrs_lower_case_new,
+                                                   mock_querier_async_names_new):
+    dump_to_file = False
+    output_format = 'votable_plain'
+    query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
+
+    assert mock_querier_async_names_new.USE_NAMES_OVER_IDS is True
+
+    job = mock_querier_async_names_new.launch_job_async(query, output_format=output_format, dump_to_file=dump_to_file)
+
+    assert job.async_ is True
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    assert job.use_names_over_ids is True
+
+    # results
+    results = job.get_results()
+
+    assert type(results) is Table
+    assert 2 == len(results)
+
+    print(results.columns)
+
+    for colname, attrs in column_attrs_lower_case_new.items():
+        assert results[colname].name == attrs.name
+        assert results[colname].description == attrs.description
+        assert results[colname].unit == attrs.unit
+        assert results[colname].dtype == attrs.dtype
+
+
+def test_launch_job_async_vot_format_no_dump_ids(tmp_path_factory, column_attrs_upper_case_new,
+                                                 mock_querier_async_ids_new):
+    dump_to_file = False
+    output_format = 'votable_plain'
+    query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
+
+    assert mock_querier_async_ids_new.USE_NAMES_OVER_IDS is False
+
+    job = mock_querier_async_ids_new.launch_job_async(query, output_format=output_format, dump_to_file=dump_to_file)
+
+    assert job.async_ is True
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    assert job.use_names_over_ids is False
+
+    # results
+    results = job.get_results()
+
+    assert type(results) is Table
+    assert 2 == len(results)
+
+    print(results.columns)
+
+    for colname, attrs in column_attrs_upper_case_new.items():
+        assert results[colname].name == attrs.name
+        assert results[colname].description == attrs.description
+        assert results[colname].unit == attrs.unit
+        assert results[colname].dtype == attrs.dtype
+
+
+def test_launch_job_vot_format_names(tmp_path_factory, column_attrs_lower_case_new, mock_querier_names_new):
+    d = tmp_path_factory.mktemp("data") / 'launch_job.vot'
+    d.write_text(JOB_DATA_NEW, encoding="utf-8")
+
+    output_file = str(d)
+    dump_to_file = True
+    output_format = 'votable_plain'
+    query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
+
+    job = mock_querier_names_new.launch_job(query, output_file=output_file, output_format=output_format,
+                                            dump_to_file=dump_to_file)
+
+    assert job.async_ is False
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    assert job.use_names_over_ids is True
+
+    # results
+    results = job.get_results()
+
+    assert type(results) is Table
+    assert 2 == len(results)
+
+    for colname, attrs in column_attrs_lower_case_new.items():
+        assert results[colname].name == attrs.name
+        assert results[colname].description == attrs.description
+        assert results[colname].unit == attrs.unit
+        assert results[colname].dtype == attrs.dtype
+
+
+def test_launch_job_vot_format_ids(tmp_path_factory, column_attrs_upper_case_new, mock_querier_ids_new):
+    d = tmp_path_factory.mktemp("data") / 'launch_job.vot'
+    d.write_text(JOB_DATA_NEW, encoding="utf-8")
+
+    output_file = str(d)
+    dump_to_file = True
+    output_format = 'votable_plain'
+    query = "SELECT TOP 1 source_id, ra, dec, parallax from gaiadr3.gaia_source"
+
+    job = mock_querier_ids_new.launch_job(query, output_file=output_file, output_format=output_format,
+                                          dump_to_file=dump_to_file)
+
+    assert job.async_ is False
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    assert job.use_names_over_ids is False
+
+    # results
+    results = job.get_results()
+
+    assert type(results) is Table
+    assert 2 == len(results)
+
+    for colname, attrs in column_attrs_upper_case_new.items():
         assert results[colname].name == attrs.name
         assert results[colname].description == attrs.description
         assert results[colname].unit == attrs.unit
