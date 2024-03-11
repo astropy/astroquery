@@ -470,6 +470,88 @@ class Tap:
                         log.info("Query finished.")
         return job
 
+    def load_async_job(self, *, jobid=None, name=None, verbose=False, load_results=True):
+        """Loads an asynchronous job
+
+        Parameters
+        ----------
+        jobid : str, mandatory if no name is provided, default None
+            job identifier
+        name : str, mandatory if no jobid is provided, default None
+            job name
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        load_results : bool, optional, default 'True'
+            load results associated to this job
+
+        Returns
+        -------
+        A Job object
+        """
+        if name is not None:
+            jobfilter = Filter()
+            jobfilter.add_filter('name', name)
+            jobs = self.search_async_jobs(jobfilter=jobfilter)
+            if jobs is None or len(jobs) < 1:
+                log.info(f"No job found for name '{name}'")
+                return None
+            jobid = jobs[0].jobid
+        if jobid is None:
+            log.info("No job identifier found")
+            return None
+        sub_context = f"async/{jobid}"
+        response = self.__connHandler.execute_tapget(sub_context, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        if is_error:
+            log.info(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
+
+        # parse job
+        jsp = JobSaxParser(async_job=True)
+        job = jsp.parseData(response)[0]
+        job.connHandler = self.__connHandler
+        # load resulst
+        if load_results:
+            job.get_results()
+        return job
+
+    def search_async_jobs(self, *, jobfilter=None, verbose=False):
+        """Searches for jobs applying the specified filter
+
+        Parameters
+        ----------
+        jobfilter : JobFilter, optional, default None
+            job filter
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of Job objects
+        """
+        # jobs/list?[&session=][&limit=][&offset=][&order=][&metadata_only=true|false]
+        sub_context = "jobs/async"
+        if jobfilter is not None:
+            data = jobfilter.create_url_data_request()
+            if data is not None:
+                sub_context = f"{sub_context}?{self.__appendData(data)}"
+        connHandler = self.__connHandler
+        response = connHandler.execute_tapget(sub_context, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        connHandler.check_launch_response_status(response, verbose, 200)
+        # parse jobs
+        jsp = JobSaxParser(async_job=True)
+        jobs = jsp.parseData(response)
+        if jobs is not None:
+            for j in jobs:
+                j.connHandler = connHandler
+        return jobs
+
     def list_async_jobs(self, *, verbose=False):
         """Returns all the asynchronous jobs
 
@@ -742,54 +824,6 @@ class TapPlus(Tap):
         if client_id:
             self.tap_client_id = client_id
 
-    def load_async_job(self, *, jobid=None, name=None, verbose=False, load_results=True):
-        """Loads an asynchronous job
-
-        Parameters
-        ----------
-        jobid : str, mandatory if no name is provided, default None
-            job identifier
-        name : str, mandatory if no jobid is provided, default None
-            job name
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        load_results : bool, optional, default 'True'
-            load results associated to this job
-
-        Returns
-        -------
-        A Job object
-        """
-        if name is not None:
-            jobfilter = Filter()
-            jobfilter.add_filter('name', name)
-            jobs = self.search_async_jobs(jobfilter=jobfilter)
-            if jobs is None or len(jobs) < 1:
-                log.info(f"No job found for name '{name}'")
-                return None
-            jobid = jobs[0].jobid
-        if jobid is None:
-            log.info("No job identifier found")
-            return None
-        sub_context = f"async/{jobid}"
-        response = self.__connHandler.execute_tapget(sub_context, verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        is_error = self.__connHandler.check_launch_response_status(response, verbose, 200)
-        if is_error:
-            log.info(response.reason)
-            raise requests.exceptions.HTTPError(response.reason)
-
-        # parse job
-        jsp = JobSaxParser(async_job=True)
-        job = jsp.parseData(response)[0]
-        job.connHandler = self.__connHandler
-        # load resulst
-        if load_results:
-            job.get_results()
-        return job
-
     def load_tables(self, *, only_names=False, include_shared_tables=False, verbose=False):
         """Loads all public tables
 
@@ -807,7 +841,7 @@ class TapPlus(Tap):
         A list of table objects
         """
         return self._Tap__load_tables(only_names=only_names, include_shared_tables=include_shared_tables,  # noqa
-                                  verbose=verbose)
+                                      verbose=verbose)
 
     def load_data(self, *, params_dict=None, output_file=None, verbose=False):
         """Loads the specified data
@@ -1246,40 +1280,6 @@ class TapPlus(Tap):
         results = utils.read_http_response(response, "votable", use_names_over_ids=self.use_names_over_ids)
 
         return results
-
-    def search_async_jobs(self, *, jobfilter=None, verbose=False):
-        """Searches for jobs applying the specified filter
-
-        Parameters
-        ----------
-        jobfilter : JobFilter, optional, default None
-            job filter
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        # jobs/list?[&session=][&limit=][&offset=][&order=][&metadata_only=true|false]
-        subContext = "jobs/async"
-        if jobfilter is not None:
-            data = jobfilter.create_url_data_request()
-            if data is not None:
-                subContext = f"{subContext}?{self._Tap__appendData(data)}"
-        connHandler = self.__getconnhandler()
-        response = connHandler.execute_tapget(subContext, verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        connHandler.check_launch_response_status(response, verbose, 200)
-        # parse jobs
-        jsp = JobSaxParser(async_job=True)
-        jobs = jsp.parseData(response)
-        if jobs is not None:
-            for j in jobs:
-                j.connHandler = connHandler
-        return jobs
 
     def remove_jobs(self, jobs_list, *, verbose=False):
         """Removes the specified jobs
