@@ -804,7 +804,7 @@ class TapPlus(Tap):
         -------
         A list of table objects
         """
-        return self.__load_tables(only_names=only_names, include_shared_tables=include_shared_tables,  # noqa
+        return self._Tap__load_tables(only_names=only_names, include_shared_tables=include_shared_tables,  # noqa
                                   verbose=verbose)
 
     def load_data(self, *, params_dict=None, output_file=None, verbose=False):
@@ -1264,7 +1264,7 @@ class TapPlus(Tap):
         if jobfilter is not None:
             data = jobfilter.create_url_data_request()
             if data is not None:
-                subContext = f"{subContext}?{self.__appendData(data)}"
+                subContext = f"{subContext}?{self._Tap__appendData(data)}"
         connHandler = self.__getconnhandler()
         response = connHandler.execute_tapget(subContext, verbose=verbose)
         if verbose:
@@ -1888,7 +1888,7 @@ class TapPlus(Tap):
             raise requests.exceptions.HTTPError(f"Login error: {response.reason}")
         else:
             # extract cookie
-            cookie = self.__findCookieInHeader(response.getheaders())
+            cookie = self._Tap__findCookieInHeader(response.getheaders())
             if cookie is not None:
                 self.__isLoggedIn = True
                 connHandler.set_cookie(cookie)

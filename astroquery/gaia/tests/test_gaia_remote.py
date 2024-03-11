@@ -3,6 +3,7 @@ import pytest
 from astropy.coordinates import SkyCoord
 
 from .. import GaiaClass
+from ...utils.tap.model.filter import Filter
 
 
 @pytest.mark.remote_data
@@ -56,3 +57,12 @@ def test_cone_search_row_limit():
     r = j.get_results()
 
     assert len(r) == 1218
+
+@pytest.mark.remote_data
+def test_search_async_jobs():
+    # Regression test: `columns` were ignored if `radius` was provided [#2025]
+    gaia = GaiaClass()
+    jobfilter = Filter()
+    jobfilter.limit = 10
+    jobs = gaia.search_async_jobs(jobfilter=jobfilter, verbose=True)
+    assert len(jobs) == 10
