@@ -58,6 +58,7 @@ def test_cone_search_row_limit():
 
     assert len(r) == 1218
 
+
 @pytest.mark.remote_data
 def test_search_async_jobs():
     # Regression test: `columns` were ignored if `radius` was provided [#2025]
