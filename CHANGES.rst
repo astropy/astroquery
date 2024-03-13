@@ -14,6 +14,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 
 
+- Versions of Python <3.9 are no longer supported.
 
 
 0.4.7 (2024-03-08)
