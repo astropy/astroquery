@@ -12,8 +12,9 @@ Service fixes and enhancements
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- Versions of astropy <5.0 and numpy <1.20 are no longer supported. [#2966]
 
-
+- Versions of Python <3.9 are no longer supported. [#2966]
 
 
 0.4.7 (2024-03-08)
