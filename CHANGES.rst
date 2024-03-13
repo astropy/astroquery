@@ -13,6 +13,11 @@ mpc
 
 - Parse star catalog information when querying observations database [#2957]
 
+splatalogue
+^^^^^^^^^^^
+
+- Fix incompatibilities with the major changes made to the Splatalogue's upstream server in March 2024. [#2960]
+
 vizier
 ^^^^^^
 
