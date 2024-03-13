@@ -43,45 +43,6 @@ def clean_columns(table):
             ]
 
 
-def merge_frequencies(table, *, prefer='measured',
-                      theor_kwd='orderedFreq',
-                      meas_kwd='measFreq'):
-    """
-    Replace "orderedFreq" and "measFreq" with a single "Freq" column.
-
-    Parameters
-    ----------
-    table : table
-        The Splatalogue table
-    prefer: 'measured' or 'theoretical'
-        Which of the two columns to prefer if there is a conflict
-    """
-
-    if prefer == 'measured':
-        Freq = np.copy(table[theor_kwd]).astype('float')
-        if hasattr(table[meas_kwd], 'mask'):
-            measmask = np.logical_not(table[meas_kwd].mask)
-        else:
-            measmask = slice(None)  # equivalent to [:] - all data are good
-        Freq[measmask] = table[meas_kwd][measmask].astype('float')
-    elif prefer == 'theoretical':
-        Freq = np.copy(table[meas_kwd]).astype('float')
-        if hasattr(table[theor_kwd], 'mask'):
-            theomask = np.logical_not(table[theor_kwd].mask)
-        else:
-            theomask = slice(None)  # equivalent to [:] - all data are good
-        Freq[theomask] = table[theor_kwd][theomask].astype('float')
-    else:
-        raise ValueError('prefer must be one of "measured" or "theoretical"')
-
-    index = table.index_column(theor_kwd)
-    table.remove_columns([theor_kwd, meas_kwd])
-    newcol = astropy.table.Column(name='Freq', data=Freq)
-    table.add_column(newcol, index=index)
-
-    return table
-
-
 def minimize_table(table, *, columns=['Species', 'Chemical Name',
                                       'Resolved QNs',
                                       'orderedfreq',
