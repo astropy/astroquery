@@ -28,6 +28,9 @@ vizier
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- Versions of Python <3.9 are no longer supported.
+
+
 utils.tap
 ^^^^^^^^^
 
