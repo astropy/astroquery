@@ -2,11 +2,12 @@ import os
 
 import pytest
 import requests
+import json
 
 from astroquery.utils.mocks import MockResponse
 
 
-SPLAT_DATA = 'CO_colons.csv'
+SPLAT_DATA = 'CO.json'
 
 
 def data_path(filename):
@@ -27,6 +28,6 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
     if method != 'POST':
         raise ValueError("A 'post request' was made with method != POST")
     filename = data_path(SPLAT_DATA)
-    with open(filename, 'rb') as infile:
-        content = infile.read()
+    with open(filename, 'r') as infile:
+        content = json.load(infile)
     return MockResponse(content, **kwargs)
