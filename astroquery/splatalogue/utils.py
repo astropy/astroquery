@@ -4,6 +4,7 @@ Utilities for working with Splatalogue query results
 """
 import numpy as np
 import astropy
+from bs4 import BeautifulSoup
 
 
 def clean_column_headings(table, *, renaming_dict={}):
@@ -20,6 +21,26 @@ def clean_column_headings(table, *, renaming_dict={}):
             table.rename_column(key, renaming_dict[key])
 
     return table
+
+
+def try_clean(row):
+    if row:
+        return BeautifulSoup(row, features='html5lib').text
+
+
+def clean_columns(table):
+    """
+    Remove HTML tags in table columns
+
+    (modifies table inplace)
+    """
+    for col in table.colnames:
+        # check for any html tag
+        if isinstance(table[col][0], str) and '<' in table[col][0]:
+            table[col] = [
+                try_clean(row)
+                for row in table[col]
+            ]
 
 
 def merge_frequencies(table, *, prefer='measured',
@@ -63,8 +84,7 @@ def merge_frequencies(table, *, prefer='measured',
 
 def minimize_table(table, *, columns=['Species', 'Chemical Name',
                                       'Resolved QNs',
-                                      'Freq-GHz(rest frame,redshifted)',
-                                      'Meas Freq-GHz(rest frame,redshifted)',
+                                      'orderedfreq',
                                       'Log<sub>10</sub> (A<sub>ij</sub>)',
                                       'E_U (K)'],
                    merge=True,
@@ -85,13 +105,16 @@ def minimize_table(table, *, columns=['Species', 'Chemical Name',
     """
     from .core import colname_mapping_feb2024
 
+    clean_columns(table)
+
     columns = [colname_mapping_feb2024[c] if c in colname_mapping_feb2024 else c
                for c in columns]
 
     table = table[columns]
 
     if merge:
-        table = merge_frequencies(table)
+        #table = merge_frequencies(table)
+        table.rename_column('orderedfreq', 'Freq')
     if clean:
         table = clean_column_headings(table)
 

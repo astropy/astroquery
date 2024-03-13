@@ -523,13 +523,24 @@ class SplatalogueClass(BaseQuery):
 
         Parameters
         ----------
-        clean_headers : bool
-            Attempt to simplify / clean up the column headers returned by
-            splatalogue to make them more terminal-friendly
+        verbose : bool
+            Has no effect; kept for API compatibility
         """
 
+        # these are metadata items not intended to be part of the table
+        meta_columns = ['orderFreqColName', 'measFreqColName']
+        meta = {}
+
         jdat = response.json()
+
         result = Table([x for x in jdat if x['species_id'] is not None])
+
+        for key in meta_columns:
+            if key in result.colnames:
+                meta[key] = result[key][0]
+                del result[key]
+
+        result.meta = meta
 
         return result
 
