@@ -2,6 +2,7 @@
 
 import os
 import pytest
+import json
 
 from astropy import units as u
 
@@ -117,6 +118,7 @@ def test_exclude(patch_post):
                                                         exclude=None,
                                                         get_query_payload=True)
 
+    payload = json.loads(payload['body'])
     exclusions = {'excludePotentialInterstellarSpecies': False,
                   'excludeAtmosSpecies': False,
                   'excludeProbableInterstellarSpecies': False,
@@ -131,6 +133,7 @@ def test_exclude(patch_post):
                                                         chemical_name=' CO ',
                                                         exclude='none',
                                                         get_query_payload=True)
+    payload = json.loads(payload['body'])
 
     for key in exclusions:
         assert not payload[key]

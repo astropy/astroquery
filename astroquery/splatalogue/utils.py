@@ -43,10 +43,10 @@ def clean_columns(table):
             ]
 
 
-def minimize_table(table, *, columns=['Species', 'Chemical Name',
-                                      'Resolved QNs',
+def minimize_table(table, *, columns=['name', 'chemical_name',
+                                      'resolved_QNs',
                                       'orderedfreq',
-                                      'Log<sub>10</sub> (A<sub>ij</sub>)',
+                                      'aij',
                                       'E_U (K)'],
                    merge=True,
                    clean=True):
