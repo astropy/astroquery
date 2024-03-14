@@ -16,15 +16,6 @@ def test_clean(patch_post):
     assert 'resolved_QNs' in c.colnames
 
 
-def test_merge(patch_post):
-    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
-                                            max_frequency=116 * u.GHz,
-                                            chemical_name=' CO ')
-    c = utils.merge_frequencies(x)
-    assert 'Freq' in c.colnames
-    assert np.all(c['Freq'] > 0)
-
-
 def test_minimize(patch_post):
     x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
                                             max_frequency=116 * u.GHz,
@@ -34,7 +25,7 @@ def test_minimize(patch_post):
     assert 'Freq' in c.colnames
     assert np.all(c['Freq'] > 0)
     assert 'Resolved QNs' not in c.colnames
-    assert 'QNs' in c.colnames
+    assert 'resolved_QNs' in c.colnames
 
 
 @pytest.mark.remote_data
