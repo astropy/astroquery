@@ -50,8 +50,8 @@ class GaiaClass(TapPlus):
     GAIA_MESSAGES = "notification?action=GetNotifications"
     USE_NAMES_OVER_IDS = True
     """When `True` use the ``name`` attributes of columns as the names of columns in the `astropy.table.Table` instance.
-          Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers
-          to the end. Otherwise (default), use the ID attributes as the column names.
+       Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers to
+       the end. Otherwise, use the ID attributes as the column names.
     """
 
     def __init__(self, *, tap_plus_conn_handler=None,

@@ -88,9 +88,8 @@ class Tap:
             new one is created.
         use_names_over_ids : When `True` use the ``name`` attributes of columns as the
            names of columns in the `astropy.table.Table` instance.
-           Since names are not guaranteed to be unique, this may cause
-           some columns to be renamed by appending numbers to the end.
-           Otherwise, (default), use the ID attributes as the column names.
+           Since names are not guaranteed to be unique, this may cause some columns to be renamed by appending numbers
+           to the end. Otherwise, (default), use the ID attributes as the column names.
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
@@ -792,10 +791,8 @@ class TapPlus(Tap):
             new one is created.
         use_names_over_ids : When `True` use the ``name`` attributes of columns as the
            names of columns in the `astropy.table.Table` instance.
-           Since names are not guaranteed to be unique, this may cause
-           some columns to be renamed by appending numbers to the end.
-           Otherwise (default), use the ID attributes as the column
-           names.
+           Since names are not guaranteed to be unique, this may cause some columns to be renamed by appending numbers
+           to the end. Otherwise (default), use the ID attributes as the column names.
         verbose : bool, optional, default 'True'
             flag to display information about the process
         """
@@ -1367,9 +1364,8 @@ class TapPlus(Tap):
                 response.getheaders(),
                 "location")
             jobid = taputils.get_jobid_from_location(location)
-            job = Job(async_job=True,
-                      query=None,
-                      connhandler=self.__getconnhandler(), use_names_over_ids=self.use_names_over_ids)
+            job = Job(async_job=True, query=None, connhandler=self.__getconnhandler(),
+                      use_names_over_ids=self.use_names_over_ids)
             job.jobid = jobid
             job.name = 'Table upload'
             job.set_phase('EXECUTING')

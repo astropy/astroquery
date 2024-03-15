@@ -45,10 +45,8 @@ class Job:
             Connection handler
         use_names_over_ids : When `True` use the ``name`` attributes of columns as the
            names of columns in the `astropy.table.Table` instance.
-           Since names are not guaranteed to be unique, this may cause
-           some columns to be renamed by appending numbers to the end.
-           Otherwise (default), use the ID attributes as the column
-           names.
+           Since names are not guaranteed to be unique, this may cause some columns to be renamed by appending numbers
+           to the end. Otherwise (default), use the ID attributes as the column names.
         """
         # async is a reserved keyword starting python 3.7
         self.async_ = async_job
