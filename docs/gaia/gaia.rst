@@ -865,7 +865,7 @@ The DataLink products are stored inside a Python Dictionary. Each of its element
   >>> dl_keys.sort()
   >>> print(f'The following Datalink products have been downloaded:')
   >>> for dl_key in dl_keys:
-        print(f' * {dl_key}')
+  ...   print(f' * {dl_key}')
 
 .. Note::
 
