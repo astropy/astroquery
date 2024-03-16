@@ -2,8 +2,6 @@
 """
 Utilities for working with Splatalogue query results
 """
-import numpy as np
-import astropy
 from bs4 import BeautifulSoup
 
 
@@ -74,7 +72,6 @@ def minimize_table(table, *, columns=['name', 'chemical_name',
     table = table[columns]
 
     if merge:
-        #table = merge_frequencies(table)
         table.rename_column('orderedfreq', 'Freq')
     if clean:
         table = clean_column_headings(table)
