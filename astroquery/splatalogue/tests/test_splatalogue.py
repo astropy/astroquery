@@ -127,3 +127,20 @@ def test_exclude_remote():
         chemical_name='Formaldehyde',
         exclude='none')
     assert len(results) >= 1
+
+
+@pytest.mark.remote_data
+def test_energy_limits():
+    # first, check that there are high-energy things to exclude
+    rslt = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                               max_frequency=116 * u.GHz,
+                                               chemical_name=' CO ')
+    assert rslt['upper_state_energy'].max() > 1000
+
+    # then, verify that they are successfully excluded
+    rslt = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                               max_frequency=116 * u.GHz,
+                                               energy_max=1000,
+                                               energy_min=0,
+                                               chemical_name=' CO ')
+    assert rslt['upper_state_energy'].max() < 5
