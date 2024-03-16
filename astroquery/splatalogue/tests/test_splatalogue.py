@@ -14,6 +14,13 @@ def test_simple(patch_post):
                                         chemical_name=' CO ')
 
 
+def test_backward_freqs(patch_post):
+    """ check that reversed frequencies still work """
+    splatalogue.Splatalogue.query_lines(min_frequency=116 * u.GHz,
+                                        max_frequency=114 * u.GHz,
+                                        chemical_name=' CO ')
+
+
 @pytest.mark.remote_data
 def test_init_remote():
     x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
