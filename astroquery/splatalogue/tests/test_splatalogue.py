@@ -24,7 +24,7 @@ def test_simple(patch_post):
 
 
 @pytest.mark.remote_data
-def test_init(patch_post):
+def test_init_remote(patch_post):
     x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
                                             max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
@@ -34,9 +34,20 @@ def test_init(patch_post):
     # masked arrays fail
     # assert y == x
     assert len(x) == len(y)
-    assert all(y['Species'] == x['Species'])
-    assert all(x['Chemical Name'] == y['Chemical Name'])
+    assert all(y['species_id'] == x['species_id'])
+    assert all(y['name'] == x['name'])
+    assert all(y['chemical_name'] == x['chemical_name'])
 
+
+def test_init():
+    splat = splatalogue.Splatalogue(chemical_name=' CO ')
+    assert splat.data['speciesSelectBox'] == ['204', '990', '991', '1343']
+    payload = splat.query_lines(min_frequency=114 * u.GHz, max_frequency=116 * u.GHz,
+                                get_query_payload=True)
+    payload = json.loads(payload['body'])
+    assert payload['speciesSelectBox'] == ['204', '990', '991', '1343']
+    assert payload['userInputFrequenciesFrom'] == [114.0]
+    assert payload['userInputFrequenciesTo'] == [116.0]
 
 def test_load_species_table():
     tbl = splatalogue.load_species_table.species_lookuptable()

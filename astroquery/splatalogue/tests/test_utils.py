@@ -30,6 +30,10 @@ def test_minimize(patch_post):
 
 @pytest.mark.remote_data
 def test_minimize_issue2135():
+    """
+    This was a regression test for 2135, but is now just a basic test for the
+    new (March 2024) keywords
+    """
     rslt = splatalogue.Splatalogue.query_lines(min_frequency=100*u.GHz,
                                                max_frequency=200*u.GHz,
                                                chemical_name=' SiO ',
@@ -40,6 +44,4 @@ def test_minimize_issue2135():
 
     minimized = utils.minimize_table(rslt)
 
-    theomask = rslt['orderedFreq'].mask
-    np.testing.assert_allclose(minimized['Freq'][theomask],
-                               rslt['measFreq'][theomask])
+    np.testing.assert_allclose(minimized['Freq'], rslt['orderedfreq'])
