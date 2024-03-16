@@ -10,28 +10,6 @@ from astroquery.utils.mocks import MockResponse
 from astroquery import splatalogue
 
 
-SPLAT_DATA = 'CO.json'
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
-
-
-def mockreturn(*args, method='POST', data={}, url='', **kwargs):
-    with open(data_path("CO.json"), 'rb') as fh:
-        jdata = fh.read()
-    return MockResponse(content=jdata)
-
-
-@pytest.fixture
-def patch_post(request):
-    mp = request.getfixturevalue("monkeypatch")
-
-    mp.setattr(splatalogue.Splatalogue, '_request', mockreturn)
-    return mp
-
-
 def test_simple(patch_post):
     splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
                                         max_frequency=116 * u.GHz,
