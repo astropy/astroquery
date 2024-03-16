@@ -6,7 +6,8 @@ import json
 
 from astropy import units as u
 
-from ... import splatalogue
+from astroquery.utils.mocks import MockResponse
+from astroquery import splatalogue
 
 
 SPLAT_DATA = 'CO.json'
@@ -23,8 +24,22 @@ def test_simple(patch_post):
                                         chemical_name=' CO ')
 
 
+def mockreturn(*args, method='POST', data={}, url='', **kwargs):
+    with open(data_path("CO.json"), 'rb') as fh:
+        jdata = fh.read()
+    return MockResponse(content=jdata)
+
+
+@pytest.fixture
+def patch_post(request):
+    mp = request.getfixturevalue("monkeypatch")
+
+    mp.setattr(splatalogue.Splatalogue, '_request', mockreturn)
+    return mp
+
+
 @pytest.mark.remote_data
-def test_init_remote(patch_post):
+def test_init_remote():
     x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
                                             max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
