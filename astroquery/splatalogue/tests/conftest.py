@@ -2,7 +2,6 @@ import os
 
 import pytest
 import requests
-import json
 
 from astroquery.utils.mocks import MockResponse
 
