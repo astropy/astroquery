@@ -76,6 +76,9 @@ Examples
 
 This query searches for all the objects contained in an arbitrary rectangular projection of the sky.
 
+WARNING: This method implements the ADQL BOX function that is deprecated in the latest version of the standard
+(ADQL 2.1,  see: https://ivoa.net/documents/ADQL/20231107/PR-ADQL-2.1-20231107.html#tth_sEc4.2.9).
+
 It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example::
 
   >>> from astroquery.gaia import Gaia
@@ -199,7 +202,7 @@ To load only table names metadata (TAP+ capability):
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  >>> for table in (tables):
+  >>> for table in tables:
   ...   print(table.get_qualified_name())
   external.external.apassdr9
   external.external.catwise2020
@@ -636,13 +639,13 @@ table named: user_<your_login_name>.'t'<job_id>::
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr3.gaia_source")
-  >>> job = Gaia.upload_table_from_job(j1)
+  >>> Gaia.upload_table_from_job(job = j1)
   Created table 't1539932994481O' from job: '1539932994481O'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
 i.e.: *user_<your_login_name>.t<job_id>*)::
 
-  >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
+  >>> full_qualified_table_name = 'user_<your_login_name>."t1710251325268O"'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
@@ -750,12 +753,11 @@ The following example uploads a table and then, the table is used in a cross mat
 
 Once you have your cross match finished, you can obtain the results::
 
+
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = ('SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr3.gaia_source AS a, '
-  ...          'full_qualified_table_name+' AS b, '
-  ...          'xmatch_table+' AS c '
-  ...          'WHERE (c.gaia_source_source_id = a.source_id AND '
-  ...          'c.my_sources_my_sources_oid = b.my_sources_oid)'
+  >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM gaiadr3.gaia_source AS a, "
+  ...          f"{full_qualified_table_name} AS b, {xmatch_table} AS c WHERE c.gaia_source_source_id = a.source_id AND "
+  ...          f"c.my_sources_my_sources_oid = b.my_sources_oid")
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
 
@@ -855,16 +857,20 @@ The following example shows how to retrieve the DataLink products associated wit
   >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
   >>> datalink = Gaia.load_data(ids=[2263166706630078848, 2263178457660566784, 2268372099615724288],
   ...                           data_release=data_release, retrieval_type=retrieval_type, data_structure=data_structure)
-  >>> datalink.keys()
-  dict_keys(['MCMC_GSPPHOT_COMBINED.xml', 'EPOCH_PHOTOMETRY_COMBINED.xml', 'RVS_COMBINED.xml', 'MCMC_MSC_COMBINED.xml', 'XP_SAMPLED_COMBINED.xml', 'XP_CONTINUOUS_COMBINED.xml'])
 
+The DataLink products are stored inside a Python Dictionary. Each of its elements (keys) contains a one-element list that can be extracted as follows:
+.. code-block:: python
+
+  >>> dl_keys  = [inp for inp in datalink.keys()]
+  >>> dl_keys.sort()
+  >>> print(f'The following Datalink products have been downloaded:')
+  >>> for dl_key in dl_keys:
+        print(f' * {dl_key}')
 
 .. Note::
 
-   It is not possible to search for and retrieve the DataLink products
-   associated to more than 5000 sources in one and the same call.
-   However, it is possible to overcome this limit programmatically using a
-   sequential download, as explained in this tutorial_.
+   It is not possible to search for and retrieve the DataLink products associated to more than 5000 sources in one and the same call.
+   However, it is possible to overcome this limit programmatically using a sequential download, as explained in this tutorial_.
 
 .. _tutorial: https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products#datalink_jntb_get_above_lim
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
