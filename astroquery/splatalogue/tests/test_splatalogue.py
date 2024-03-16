@@ -18,12 +18,6 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def test_simple(patch_post):
-    splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
-                                        max_frequency=116 * u.GHz,
-                                        chemical_name=' CO ')
-
-
 def mockreturn(*args, method='POST', data={}, url='', **kwargs):
     with open(data_path("CO.json"), 'rb') as fh:
         jdata = fh.read()
@@ -36,6 +30,12 @@ def patch_post(request):
 
     mp.setattr(splatalogue.Splatalogue, '_request', mockreturn)
     return mp
+
+
+def test_simple(patch_post):
+    splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                        max_frequency=116 * u.GHz,
+                                        chemical_name=' CO ')
 
 
 @pytest.mark.remote_data
