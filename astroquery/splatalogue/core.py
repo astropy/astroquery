@@ -45,9 +45,7 @@ class SplatalogueClass(BaseQuery):
     versions = ('v1.0', 'v2.0', 'v3.0', 'vall')
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('LovasNIST', 'SLAIM', 'JPL', 'CDMS', 'ToyaMA', 'OSU',
-                      'Recombination', 'RFI')
-    TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
-                  'ism_diffusecloud')
+                      'TopModel', 'Recombination', 'RFI')
 
     def __init__(self, **kwargs):
         """
@@ -154,7 +152,7 @@ class SplatalogueClass(BaseQuery):
         return json.loads(self._parse_kwargs(**kwargs)['body'])
 
     def _parse_kwargs(self, *, min_frequency=None, max_frequency=None,
-                      top20=None, chemical_name=None,
+                      chemical_name=None,
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
@@ -181,10 +179,6 @@ class SplatalogueClass(BaseQuery):
             Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
             Maximum frequency (or any spectral() equivalent)
-        top20: str
-            One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
-            ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
-            Overrides chemical_name
         chemical_name : str
             Name of the chemical to search for. Treated as a regular
             expression.  An empty set ('', (), [], {}) will match *any*

@@ -75,41 +75,6 @@ def test_linelist_type():
                                  "names.  See Splatalogue.ALL_LINE_LISTS")
 
 
-def test_top20_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                   max_frequency=116 * u.GHz,
-                                                   top20='top20',
-                                                   get_query_payload=True)
-    with pytest.raises(ValueError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(
-            min_frequency=114 * u.GHz, max_frequency=116 * u.GHz,
-            top20='invalid', get_query_payload=True)
-    assert exc.value.args[0] == "Top20 is not one of the allowed values"
-
-
-def test_band_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(band='alma3',
-                                                   get_query_payload=True)
-    with pytest.raises(ValueError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(band='invalid',
-                                                       get_query_payload=True)
-    assert exc.value.args[0] == "Invalid frequency band."
-
-
-# Upstream changed: there is no distinction between versions for this molecule
-# # regression test : version selection should work
-# # Unfortunately, it looks like version1 = version2 on the web page now, so this
-# # may no longer be a valid test
-# @pytest.mark.remote_data
-# def test_version_selection():
-#     results = splatalogue.Splatalogue.query_lines(
-# 			    min_frequency= 703*u.GHz,
-# 			    max_frequency=706*u.GHz,
-# 			    chemical_name='Acetaldehyde',
-# 			    version='v1.0'
-# 			    )
-#     assert len(results)==1
-
 def test_exclude(patch_post):
     # regression test for issue 616
     payload = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
