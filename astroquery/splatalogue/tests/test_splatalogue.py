@@ -46,21 +46,24 @@ def test_load_species_table():
 
 # regression test: get_query_payload should work (#308)
 def test_get_payload():
-    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+    payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
                                                        max_frequency=10 * u.GHz,
                                                        get_query_payload=True)
-    assert q['body']["userInputFrequenciesFrom"] == [1.0]
-    assert q['body']["userInputFrequenciesTo"] == [10.0]
+    payload = json.loads(payload['body'])
+    assert payload["userInputFrequenciesFrom"] == [1.0]
+    assert payload["userInputFrequenciesTo"] == [10.0]
 
 
 # regression test: line lists should ask for only one line list, not all
 def test_line_lists():
-    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+    payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
                                                        max_frequency=10 * u.GHz,
                                                        line_lists=['JPL'],
                                                        get_query_payload=True)
-    assert q['body']['lineListDisplayCDMSJPL']
-    assert not q['body']['lineListDisplaySLAIM']
+    payload = json.loads(payload['body'])
+    assert payload['lineListDisplayJPL']
+    assert not payload['lineListDisplaySLAIM']
+    assert not payload['lineListDisplayCDMS']
 
 
 # regression test: raise an exception if a string is passed to line_lists
