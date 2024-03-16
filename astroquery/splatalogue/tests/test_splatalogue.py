@@ -49,6 +49,7 @@ def test_init():
     assert payload['userInputFrequenciesFrom'] == [114.0]
     assert payload['userInputFrequenciesTo'] == [116.0]
 
+
 def test_load_species_table():
     tbl = splatalogue.load_species_table.species_lookuptable()
     CO = tbl.find(' CO ')
@@ -58,8 +59,8 @@ def test_load_species_table():
 # regression test: get_query_payload should work (#308)
 def test_get_payload():
     payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
-                                                       max_frequency=10 * u.GHz,
-                                                       get_query_payload=True)
+                                                             max_frequency=10 * u.GHz,
+                                                             get_query_payload=True)
     payload = json.loads(payload['body'])
     assert payload["userInputFrequenciesFrom"] == [1.0]
     assert payload["userInputFrequenciesTo"] == [10.0]
@@ -68,9 +69,9 @@ def test_get_payload():
 # regression test: line lists should ask for only one line list, not all
 def test_line_lists():
     payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
-                                                       max_frequency=10 * u.GHz,
-                                                       line_lists=['JPL'],
-                                                       get_query_payload=True)
+                                                             max_frequency=10 * u.GHz,
+                                                             line_lists=['JPL'],
+                                                             get_query_payload=True)
     payload = json.loads(payload['body'])
     assert payload['lineListDisplayJPL']
     assert not payload['lineListDisplaySLAIM']
