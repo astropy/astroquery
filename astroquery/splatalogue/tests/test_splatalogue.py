@@ -1,12 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os
 import pytest
 import json
 
 from astropy import units as u
 
-from astroquery.utils.mocks import MockResponse
 from astroquery import splatalogue
 
 
