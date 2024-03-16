@@ -274,10 +274,6 @@ class SplatalogueClass(BaseQuery):
 
         """
 
-        payload = {'submit': 'Search',
-                   'frequency_units': 'GHz',
-                   }
-
         payload = {"searchSpecies": "",
                    "speciesSelectBox": [],
                    "dataVersion": "v3.0",
@@ -346,9 +342,11 @@ class SplatalogueClass(BaseQuery):
             payload['userInputFrequenciesFrom'] = [min_frequency.value]
             payload['userInputFrequenciesTo'] = [max_frequency.value]
 
-        if chemical_name in ('', {}, (), [], set()):
-            # include all
-            payload['speciesSelectBox'] = []
+        if chemical_name in ('', {}, (), [], set(), None):
+            # include all by default, or whatever default was set
+            payload['speciesSelectBox'] = (self.data['speciesSelectBox']
+                                           if hasattr(self, 'data')
+                                           else [])
         elif chemical_name is not None:
             if parse_chemistry_locally:
                 species_ids = self.get_species_ids(species_regex=chemical_name, reflags=chem_re_flags)
