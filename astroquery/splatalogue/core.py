@@ -48,28 +48,6 @@ class SplatalogueClass(BaseQuery):
                       'Recombination', 'RFI')
     TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
                   'ism_diffusecloud')
-    FREQUENCY_BANDS = {"any": "Any",
-                       "alma3": "ALMA Band 3 (84-116 GHz)",
-                       "alma4": " ALMA Band 4 (125-163 GHz)",
-                       "alma5": " ALMA Band 5 (163-211 GHz)",
-                       "alma6": "ALMA Band 6 (211-275 GHz)",
-                       "alma7": "ALMA Band 7 (275-373 GHz)",
-                       "alma8": "ALMA Band 8 (385-500 GHz)",
-                       "alma9": "ALMA Band 9 (602-720 GHz)",
-                       "alma10": "ALMA Band 10 (787-950 GHz)",
-                       "pf1": "GBT PF1 (0.29-0.92 GHz)",
-                       "pf2": "GBT PF2 (0.91-1.23 GHz)",
-                       "l": "GBT/VLA L (1-2 GHz)",
-                       "s": "GBT/VLA S (1.7-4 GHz)",
-                       "c": "GBT/VLA C (3.9-8 GHz)",
-                       "x": "GBT/VLA X (8-12 GHz)",
-                       "ku": " GBT/VLA Ku (12-18 GHz)",
-                       "kfpa": "GBT KFPA (18-27.5 GHz)",
-                       "k": "VLA K (18-26.5 GHz)",
-                       "ka": " GBT/VLA Ka (26-40 GHz)",
-                       "q": "GBT/VLA Q (38-50 GHz)",
-                       "w": "GBT W (67-93.3 GHz)",
-                       "mustang": "GBT Mustang (80-100 GHz)", }
 
     def __init__(self, **kwargs):
         """
@@ -176,7 +154,7 @@ class SplatalogueClass(BaseQuery):
         return json.loads(self._parse_kwargs(**kwargs)['body'])
 
     def _parse_kwargs(self, *, min_frequency=None, max_frequency=None,
-                      band='any', top20=None, chemical_name=None,
+                      top20=None, chemical_name=None,
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
@@ -203,9 +181,6 @@ class SplatalogueClass(BaseQuery):
             Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
             Maximum frequency (or any spectral() equivalent)
-        band : str
-            The observing band.  If it is not 'any', it overrides
-            minfreq/maxfreq.
         top20: str
             One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
             ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
@@ -465,14 +440,12 @@ class SplatalogueClass(BaseQuery):
         return payload
 
     def _validate_kwargs(self, *, min_frequency=None, max_frequency=None,
-                         band='any', **kwargs):
+                         **kwargs):
         """
-        Check that either min_frequency + max_frequency or band are specified
+        Check that min_frequency + max_frequency are specified
         """
-        if band == 'any':
-            if min_frequency is None or max_frequency is None:
-                raise ValueError("Must specify either min/max frequency or "
-                                 "a valid Band.")
+        if min_frequency is None or max_frequency is None:
+            raise ValueError("Must specify min/max frequency")
 
     @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None, *,
