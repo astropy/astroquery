@@ -27,6 +27,7 @@ class TapTableMeta:
         self.name = None
         self.schema = None
         self.description = None
+        self.size_bytes = 0
 
     def get_qualified_name(self):
         """Returns the qualified TAP table name. I.e. schema+table
@@ -50,4 +51,5 @@ class TapTableMeta:
     def __str__(self):
         return f"TAP Table name: {self.get_qualified_name()}" \
             f"\nDescription: {self.description}" \
+            f"\nSize (bytes): {self.size_bytes}" \
             f"\nNum. columns: {len(self.columns)}"
