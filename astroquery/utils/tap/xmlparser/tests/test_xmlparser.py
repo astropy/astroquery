@@ -69,7 +69,7 @@ def test_table_list_parser():
 
 def test_table_list_parser_with_size_bytes():
     fileName = data_path('test_tables_gaia.xml')
-    file = open(fileName, 'r')
+    file = open(fileName, 'r', encoding="utf8")
     parser = TableSaxParser()
     tables = parser.parseData(file)
     assert len(tables) == 3
