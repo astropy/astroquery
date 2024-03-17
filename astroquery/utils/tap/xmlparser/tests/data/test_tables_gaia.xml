@@ -1,0 +1,1286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vod:tableset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vod="http://www.ivoa.net/xml/VODataService/v1.1" xsi:type="vod:TableSet" xmlns:esatapplus="http://esa.int/xml/EsaTapPlus" xsi:schemaLocation="http://www.ivoa.net/xml/VODataService/v1.1 http://www.ivoa.net/xml/VODataService/v1.1 http://esa.int/xml/EsaTapPlus https://gea.esac.esa.int/tap-server/xml/esaTapPlusAttributes.xsd">
+	<schema  esatapplus:public="true">
+		<name>external</name>
+		<description><![CDATA[TAP Schema for external catalogues]]></description>
+		<table type="base_table" esatapplus:size="61176401" esatapplus:size_bytes="22474547200" esatapplus:flags="1" esatapplus:hierarchy="Other/External catalogues">
+			<name>external.apassdr9</name>
+			<description><![CDATA[The AAVSO Photometric All-Sky Survey - Data Release 9
+    This publication makes use of data products from the AAVSO
+    Photometric All Sky Survey (APASS). Funded by the Robert Martin Ayers
+    Sciences Fund and the National Science Foundation. Original catalogue released by Henden et al. 2015 AAS Meeting #225, id.336.16. Data retrieved using the VizieR catalogue access tool, CDS, Strasbourg, France. The original description of the VizieR service was published in A&AS 143, 23. VizieR catalogue II/336.]]></description>
+			<column std="false" esatapplus:flags="16" esatapplus:ref="">
+				<name>recno</name>
+				<description><![CDATA[Record number assigned by the VizieR team. Should Not be used for identification. However, the lack of a unique ID in APASS has made the VizieR recno the de-facto source identifier. For instance, it is used as such in the Gaia DR2 cross-match tables.]]></description>
+				<ucd>meta.record</ucd>
+				<dataType xsi:type="vod:VOTableType">long</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="1" esatapplus:ref="">
+				<name>raj2000</name>
+				<description><![CDATA[Right ascension in decimal degrees (J2000)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.ra;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="2" esatapplus:ref="">
+				<name>dej2000</name>
+				<description><![CDATA[Declination in decimal degrees (J2000)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.dec;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_ra</name>
+				<description><![CDATA[[0/2.4] RA uncertainty]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error;pos.eq.ra</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_dec</name>
+				<description><![CDATA[[0/2.4] DEC uncertainty]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error;pos.eq.dec</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>field</name>
+				<description><![CDATA[[20110001/9999988888] Field name]]></description>
+				<ucd>meta.id;obs.field</ucd>
+				<dataType xsi:type="vod:VOTableType">long</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>nobs</name>
+				<description><![CDATA[[2/387] Number of observed nights]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mobs</name>
+				<description><![CDATA[[2/3476] Number of images for this field, usually nobs*5]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>b_v</name>
+				<description><![CDATA[[-7.5/13]? B-V color index]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.color</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_b_v</name>
+				<description><![CDATA[[0/10.1]? B-V uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.color</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>vmag</name>
+				<description><![CDATA[[5.5/27.4]? Johnson V-band magnitude]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.V</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_vmag</name>
+				<description><![CDATA[[0/7]? Vmag uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.V</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>u_e_vmag</name>
+				<description><![CDATA[[0/1]? Uncertainty flag on e_Vmag (1)]]></description>
+				<ucd>meta.code.error</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>bmag</name>
+				<description><![CDATA[[5.4/27.3]? Johnson B-band magnitude]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_bmag</name>
+				<description><![CDATA[[0/10]? Bmag uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>u_e_bmag</name>
+				<description><![CDATA[[0/1]? Uncertainty flag on e_Bmag (1)]]></description>
+				<ucd>meta.code.error</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>g_mag</name>
+				<description><![CDATA[[5.9/24.2]? g'-band AB magnitude, Sloan filter]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_g_mag</name>
+				<description><![CDATA[[0/9.7]? g'mag uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>u_e_g_mag</name>
+				<description><![CDATA[[0/1]? Uncertainty flag on e_g'mag (1)]]></description>
+				<ucd>meta.code.error</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>r_mag</name>
+				<description><![CDATA[[5.1/23.9]? r'-band AB magnitude, Sloan filter]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_r_mag</name>
+				<description><![CDATA[[0/6.5]? r'mag uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>u_e_r_mag</name>
+				<description><![CDATA[[0/1]? Uncertainty flag on e_r'mag (1)]]></description>
+				<ucd>meta.code.error</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>i_mag</name>
+				<description><![CDATA[[4.2/29.1]? i'-band AB magnitude, Sloan filter]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.I</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_i_mag</name>
+				<description><![CDATA[[0/9.6]? i'mag uncertainty]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.I</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>u_e_i_mag</name>
+				<description><![CDATA[[0/1]? Uncertainty flag on e_i'mag (1)]]></description>
+				<ucd>meta.code.error</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+		</table>
+		<table type="base_table" esatapplus:size="1890715640" esatapplus:size_bytes="1366190997504" esatapplus:flags="1" esatapplus:hierarchy="Other/External catalogues">
+			<name>external.catwise2020</name>
+			<description><![CDATA[The CatWISE2020 Catalogue consists of 1,890,715,640 sources over the entire sky selected from Wide-field Infrared Survey Explorer (WISE) and NEOWISE survey data at 3.4 and 4.6 micrometer (W1 and W2) collected from 7 January 2010 to 13 December 2018. This data set adds two years to that used for the CatWISE Preliminary Catalogue (Eisenhardt+, 2020ApJS..247...69E, 2020ApJS..247...69E), bringing the total to six times as many exposures spanning over sixteen times as large a time baseline as the AllWISE catalogue. The other major change from the CatWISE Preliminary Catalogue is that the detection list for the CatWISE2020 Catalogue was generated using "crowdsource" software (Schlafly+, 2019ApJS..240...30S, 2019ApJS..240...30S), while the CatWISE Preliminary Catalogue used the detection software used for AllWISE. These two factors result in roughly twice as many sources in the CatWISE2020 Catalogue. The 90% completeness depth for the CatWISE2020 Catalogue is at W1 = 17.7 mag and W2 = 17.5 mag, 1.7 mag deeper than in the CatWISE Preliminary Catalogue. This table has been created in May 2023 based on the VizieR version of the CatWISE2020 Catalogue (see <a href="https://vizier.cfa.harvard.edu/viz-bin/VizieR?-source=II/365" class="external-link" target="_blank" rel="nofollow noopener" title="Follow link">https://vizier.cfa.harvard.edu/viz-bin/VizieR?-source=II/365</a>). The corrections to the astrometry (positions and proper motions) identified in Marocco+ (2021ApJS..253....8M) have been included by CDS/VizieR and are therefore also included in this table.]]></description>
+			<column std="false" esatapplus:flags="48" esatapplus:ref="">
+				<name>obj_id</name>
+				<description><![CDATA[Tile name + processing code + wphot index (source_id)]]></description>
+				<ucd>meta.id</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="1" esatapplus:ref="CATWISE2020">
+				<name>ra_icrs</name>
+				<description><![CDATA[Right ascension (ICRS) (1)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.ra;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_ra_icrs</name>
+				<description><![CDATA[[0/74.3] Uncertainty in ra (sigra)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error;pos.eq.ra</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="2" esatapplus:ref="CATWISE2020">
+				<name>de_icrs</name>
+				<description><![CDATA[Declination (ICRS) (1)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.dec;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_de_icrs</name>
+				<description><![CDATA[[0/83.3] Uncertainty in dec (sigdec)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error;pos.eq.dec</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>name</name>
+				<description><![CDATA[Source name (JHHMMSS.ss+DDMMSS.s; <CWISE JHHMMSS.ss+DDMMSS.s> in Simbad) (source_name)]]></description>
+				<ucd>meta.id;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_pos</name>
+				<description><![CDATA[[-25.7/44.2] Uncertainty cross-term (sigradec)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>xpos</name>
+				<description><![CDATA[X-pixel coordinate in the unWISE full depth coadd (wx)]]></description>
+				<unit><![CDATA[pix]]></unit>
+				<ucd>pos.cartesian.x</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ypos</name>
+				<description><![CDATA[Y-pixel coordinate in the unWISE full depth coadd (wy)]]></description>
+				<unit><![CDATA[pix]]></unit>
+				<ucd>pos.cartesian.y</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>sky_w1</name>
+				<description><![CDATA[[-98.2/4997]? Frame sky background value, band-1; in dn units (w1sky) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>instr.background</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_sky_w1</name>
+				<description><![CDATA[[0.4/999]? Frame sky background value uncertainty; band-1 (w1sigsk) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>conf_w1</name>
+				<description><![CDATA[[0/999]? Frame sky confusion based on the UNC images; in dn units (w1conf) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>instr.skyLevel</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>sky_w2</name>
+				<description><![CDATA[[-99/5000]? Frame sky background value, band-2; in dn (w2sky) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>instr.background</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_sky_w2</name>
+				<description><![CDATA[[0.7/999]? Frame sky background value uncertainty; band-2 (w2sigsk) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>conf_w2</name>
+				<description><![CDATA[[0/999]? Frame sky confusion based on the UNC images; in dn units (w2conf) (2)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>instr.skyLevel</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>n_w1</name>
+				<description><![CDATA[[0/221]? Number of profile-fit flux measurements for source with SNR>=3, band 1 (w1NM)]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>m_w1</name>
+				<description><![CDATA[[0/221]? Number of profile-fit flux measurements for source, band-1 (w1M)]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>n_w2</name>
+				<description><![CDATA[[0/221]? Number of profile-fit flux measurements for source with SNR>=3, band-2 (w2NM)]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>m_w2</name>
+				<description><![CDATA[[0/221]? Number of profile-fit flux measurements for source, band-2 (w2M)]]></description>
+				<ucd>meta.number</ucd>
+				<dataType xsi:type="vod:VOTableType">short</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mjd</name>
+				<description><![CDATA[[55205/58465] Mean observation epoch (MeanObsMJD)]]></description>
+				<unit><![CDATA[d]]></unit>
+				<ucd>time.epoch</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ra_pm_deg</name>
+				<description><![CDATA[Right ascension (ICRS) at Ep=2015.4 (ra_pm) (3)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.ra</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_ra_pm_deg</name>
+				<description><![CDATA[[1e-4/99.94]? Uncertainty in ra_pm (sigra_pm)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>de_pm_deg</name>
+				<description><![CDATA[Declination (ICRS) at Ep=2015.4 (dec_pm) (3)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.eq.dec</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_de_pm_deg</name>
+				<description><![CDATA[[0/99.8]? Uncertainty in dec_pm (sigdec_pm)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_pos_pm</name>
+				<description><![CDATA[[-99.2/99.9]? Uncertainty cross-term (sigradec_pm)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="CATWISE2020">
+				<name>pm_ra</name>
+				<description><![CDATA[[-100/100] Proper motion in ra (PMRA) (1)]]></description>
+				<unit><![CDATA[arcsec/yr]]></unit>
+				<ucd>pos.pm;pos.eq.ra</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_pm_ra</name>
+				<description><![CDATA[[7e-4/1000] Uncertainty in PMRA (sigPMRA)]]></description>
+				<unit><![CDATA[arcsec/yr]]></unit>
+				<ucd>stat.error;pos.pm;pos.eq.ra</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="CATWISE2020">
+				<name>pm_de</name>
+				<description><![CDATA[[-100/100] Proper motion in dec (PMDec) (1)]]></description>
+				<unit><![CDATA[arcsec/yr]]></unit>
+				<ucd>pos.pm;pos.eq.dec</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_pm_de</name>
+				<description><![CDATA[[7e-4/1000] Uncertainty in PMDec (sigPMDec)]]></description>
+				<unit><![CDATA[arcsec/yr]]></unit>
+				<ucd>stat.error;pos.pm;pos.eq.dec</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>snr_w1pm</name>
+				<description><![CDATA[[0/1000]? Flux S/N ratio; band-1 (w1snr_pm)]]></description>
+				<ucd>stat.snr</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>snr_w2pm</name>
+				<description><![CDATA[[0/1000]? Flux S/N ratio; band-2 (w2snr_pm)]]></description>
+				<ucd>stat.snr</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>fw1pm</name>
+				<description><![CDATA[[-1.2e8/2e14]? WPRO raw flux, band-1 (W1, 3.35um) in dn units (w1flux_pm)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_fw1pm</name>
+				<description><![CDATA[[3.7e-4/3.5e12]? WPRO raw flux uncertainty; band-1 (w1sigflux_pm)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>fw2pm</name>
+				<description><![CDATA[[-4.8e8/2e10]? WPRO raw flux, band-2 (W2, 4.6um); in dn units (w2flux_pm)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_fw2pm</name>
+				<description><![CDATA[[1e-4/3.2e13]? Fit WPRO raw flux uncertainty; band-2 (w2sigflux_pm)]]></description>
+				<unit><![CDATA[ct]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w1mpro_pm</name>
+				<description><![CDATA[[-10/27]? WPRO magnitude in band-1 (W1: 3.35um) (w1mpro_pm) (4)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_w1mpro_pm</name>
+				<description><![CDATA[[0/0.6]? W1mproPM uncertainty (w1sigmpro_pm)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2_w1pm</name>
+				<description><![CDATA[[8.3e-7/6.4e21]? WPRO reduced chi^2^; band-1 (w1rchi2_pm)]]></description>
+				<ucd>stat.fit.chi2</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w2mpro_pm</name>
+				<description><![CDATA[[-10/25.5]? WPRO magnitude in band-2 (W2: 4.6um) (w2mpro_pm) (4)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+				<flag>indexed</flag>
+				<flag>primary</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_w2mpro_pm</name>
+				<description><![CDATA[[0/0.6]? W2mproPM uncertainty (w2sigmpro_pm)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2_w2pm</name>
+				<description><![CDATA[[2.6e-6/375600]? WPRO reduced chi^2^; band-2 (w2rchi2_pm)]]></description>
+				<ucd>stat.fit.chi2</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2pm</name>
+				<description><![CDATA[[8.3e-7/92260]? Reduced chi squared; total (rchi2_pm)]]></description>
+				<ucd>stat.fit.chi2</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>pm_qual</name>
+				<description><![CDATA[Quality of the PM solution (pmcode) (5)]]></description>
+				<ucd>meta.code.qual</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>dist</name>
+				<description><![CDATA[[0/20]? Radial distance between apparitions (dist)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>phys.angSize</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>d_w1mpro</name>
+				<description><![CDATA[[-9.2/9.3]? W1mpro difference (dw1mag)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;arith.diff</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2d_w1mpro</name>
+				<description><![CDATA[[0/100]? Chi-square for dw1mag (1 DF) (rch2w1)]]></description>
+				<ucd>meta.note</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>d_w2mpro</name>
+				<description><![CDATA[[-9.4/10.2]? W2mpro difference (dw2mag)]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;arith.diff</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2d_w2mpro</name>
+				<description><![CDATA[[0/100]? Chi-square for dw2mag (1 DF) (rch2w2)]]></description>
+				<ucd>meta.note</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>elon_avg</name>
+				<description><![CDATA[? Averaged ecliptic longitude (elon_avg)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.ecliptic.lon</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_elon_avg</name>
+				<description><![CDATA[[0.001/1.6]? One-sigma uncertainty in elon (elonSig)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>elat_avg</name>
+				<description><![CDATA[? Averaged ecliptic latitude (elat_avg)]]></description>
+				<unit><![CDATA[deg]]></unit>
+				<ucd>pos.ecliptic.lat</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_elat_avg</name>
+				<description><![CDATA[[0.001/1.7]? One-sigma uncertainty in elat (elatSig)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>d_elon</name>
+				<description><![CDATA[? Descending-ascending ecliptic longitude (Delon) (6)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>pos;arith.diff</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_d_elon</name>
+				<description><![CDATA[[0.001/101.5]? One-sigma uncertainty in Delon (DelonSig)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>d_elat</name>
+				<description><![CDATA[? Descending-ascending ecliptic latitude (Delat)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>pos;arith.diff</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_d_elat</name>
+				<description><![CDATA[[0.001/105.8]? One-sigma uncertainty in Delat (DelatSig)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>snrd_elon</name>
+				<description><![CDATA[[0/1065]? |Delon|/DelonSig (DelonSNR)]]></description>
+				<ucd>stat.snr</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>snrd_elat</name>
+				<description><![CDATA[[0/475]? |Delat|/DelatSig (DelatSNR)]]></description>
+				<ucd>stat.snr</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2pm_ra</name>
+				<description><![CDATA[[0/7.3e7]? Chi-square for PMRA difference (1 DF) (chi2pmra)]]></description>
+				<ucd>meta.note</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>chi2pm_de</name>
+				<description><![CDATA[[0/2.2e8]? Chi-square for PMRA difference (1 DF) (chi2pmdec)]]></description>
+				<ucd>meta.note</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ka</name>
+				<description><![CDATA[[0123n] Astrometry usage code (7)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>k1</name>
+				<description><![CDATA[[0123n] W1 photometry usage code (7)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>k2</name>
+				<description><![CDATA[[0123n] W2 photometry usage code (7)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>km</name>
+				<description><![CDATA[[0123n] Proper motion usage code (7)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>plx1</name>
+				<description><![CDATA[[-831/569]? Parallax from PM desc-asce elon (par_pm)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>pos.parallax.trig</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_plx1</name>
+				<description><![CDATA[[0.001/53]? One-sigma uncertainty in par_pm (par_pmSig)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>plx2</name>
+				<description><![CDATA[[-831/504]? Parallax estimate from stationary solution (par_stat)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>pos.parallax.trig</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>e_plx2</name>
+				<description><![CDATA[[0.001/189]? One-sigma uncertainty in par_stat (par_sigma)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>stat.error</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>sep</name>
+				<description><![CDATA[[0/2.75]? Distance between CatWISE and AllWISE source (dist_x)]]></description>
+				<unit><![CDATA[arcsec]]></unit>
+				<ucd>pos.angDistance</ucd>
+				<dataType xsi:type="vod:VOTableType">double</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ccf</name>
+				<description><![CDATA[[0DHOPdhop] Worst case 4 character cc_flag from AllWISE (cc_flags) (8)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>abf</name>
+				<description><![CDATA[[0DHOP] Two character (W1 W2) artifact flag (ab_flags) (8)]]></description>
+				<ucd>meta.code</ucd>
+				<dataType xsi:type="vod:VOTableType">char</dataType>
+			</column>
+		</table>
+		<table type="base_table" esatapplus:size="123076271" esatapplus:size_bytes="201703940096" esatapplus:flags="0" esatapplus:hierarchy="Other/External catalogues">
+			<name>external.gaiadr2_astrophysical_parameters</name>
+			<description><![CDATA[Fouesneau et al. (2022) Gaia DR2 astrophysical parameters. "Astrophysical Parameters from Gaia DR2, 2MASS & AllWISE", Fouesneau et al., 2022, A&A (https://ui.adsabs.harvard.edu/abs/2022arXiv220103252F/abstract). Data replicated from the gdr2ap.main table at the GAVO Data Centre TAP service https://dc.g-vo.org/tap and TAP metadata as of January 2022.
+
+Original table description: Stellar physical and dynamical properties are essential knowledge to understanding the structure, formation, and evolution of our Galaxy. We produced an all-sky uniformly derived catalog of stellar astrophysical parameters (APs; age, mass, temperature, bolometric luminosity, distance, dust extinction) to give insight into the physical properties of Milky-Way stars. Exploiting the power of multi-wavelength and multi-survey observations from Gaia DR2 parallaxes and integrated photometry along with 2MASS and AllWISE photometry, we introduce an all-sky uniformly derived catalog of stellar astrophysical parameters, including dust extinction (A0) and average grain size (R0) along the line of sight, for 123,076,271 stars. In contrast with previous works, we do not use a Galactic model as prior in our analysis. We validate our results against other literature (e.g., benchmark stars, interferometry, Bayestar, StarHorse). The limited optical information in the Gaia photometric bands or the lack of ultraviolet or spectroscopic information renders the chemistry inference prior dominated. We demonstrate that Gaia parallaxes bring sufficient leverage to explore the detailed structures of the interstellar medium in our Milky Way. In Gaia DR3, we will obtain the dispersed optical light information to break through some limitations of this analysis, allowing us to infer stellar chemistry in particular. Gaia promises us data to construct the most detailed view of the chemo-dynamics of field star populations in our Galaxy.]]></description>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>source_id</name>
+				<description><![CDATA[Unique source identifier. Note that this *cannot* be matched against the DR1 source_id.]]></description>
+				<ucd>meta.id;meta.main</ucd>
+				<dataType xsi:type="vod:VOTableType">long</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a0_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the dust exctinction A₀ towards this source.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a0_p50</name>
+				<description><![CDATA[median of the distribution of dust exctinction A₀ towards this source.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a0_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the dust exctinction A₀ towards this source. In ADQL, write a0_dist[1] for the minimum, a0_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>r0_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the average dust grain size extinction parameter.]]></description>
+				<ucd>phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>r0_p50</name>
+				<description><![CDATA[median of the distribution of average dust grain size extinction parameter.]]></description>
+				<ucd>phys.absorption;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>r0_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the average dust grain size extinction parameter. In ADQL, write r0_dist[1] for the minimum, r0_dist[2] for the 16th percentile, and so on.]]></description>
+				<ucd>stat;phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>loga_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log10 of the age.]]></description>
+				<unit><![CDATA[log(yr)]]></unit>
+				<ucd>time.age</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>loga_p50</name>
+				<description><![CDATA[median of the distribution of log10 of the age.]]></description>
+				<unit><![CDATA[log(yr)]]></unit>
+				<ucd>time.age;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>loga_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log10 of the age. In ADQL, write loga_dist[1] for the minimum, loga_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(yr)]]></unit>
+				<ucd>stat;time.age</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logl_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log10 of the luminosity.]]></description>
+				<unit><![CDATA[log(solLum)]]></unit>
+				<ucd>phys.luminosity</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logl_p50</name>
+				<description><![CDATA[median of the distribution of log10 of the luminosity.]]></description>
+				<unit><![CDATA[log(solLum)]]></unit>
+				<ucd>phys.luminosity;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logl_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log10 of the luminosity. In ADQL, write logl_dist[1] for the minimum, logl_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(solLum)]]></unit>
+				<ucd>stat;phys.luminosity</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logm_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log10 of the mass.]]></description>
+				<unit><![CDATA[log(solMass)]]></unit>
+				<ucd>phys.mass</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logm_p50</name>
+				<description><![CDATA[median of the distribution of log10 of the mass.]]></description>
+				<unit><![CDATA[log(solMass)]]></unit>
+				<ucd>phys.mass;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logm_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log10 of the mass. In ADQL, write logm_dist[1] for the minimum, logm_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(solMass)]]></unit>
+				<ucd>stat;phys.mass</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logt_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log10 of the effective temperature.]]></description>
+				<unit><![CDATA[log(K)]]></unit>
+				<ucd>phys.temperature</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logt_p50</name>
+				<description><![CDATA[median of the distribution of log10 of the effective temperature.]]></description>
+				<unit><![CDATA[log(K)]]></unit>
+				<ucd>phys.temperature;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logt_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log10 of the effective temperature. In ADQL, write logt_dist[1] for the minimum, logt_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(K)]]></unit>
+				<ucd>stat;phys.temperature</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logg_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log10 of the surface gravity.]]></description>
+				<unit><![CDATA[log(cm/s**2)]]></unit>
+				<ucd>phys.gravity</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logg_p50</name>
+				<description><![CDATA[median of the distribution of log10 of the surface gravity.]]></description>
+				<unit><![CDATA[log(cm/s**2)]]></unit>
+				<ucd>phys.gravity;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>logg_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log10 of the surface gravity. In ADQL, write logg_dist[1] for the minimum, logg_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(cm/s**2)]]></unit>
+				<ucd>stat;phys.gravity</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_bp_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the attenuation in the Gaia BP band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_bp_p50</name>
+				<description><![CDATA[median of the distribution of attenuation in the Gaia BP band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;em.opt.B;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_bp_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the attenuation in the Gaia BP band towards this source.. In ADQL, write a_bp_dist[1] for the minimum, a_bp_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phys.absorption;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_g_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the attenuation in the Gaia G band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_g_p50</name>
+				<description><![CDATA[median of the distribution of attenuation in the Gaia G band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;em.opt;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_g_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the attenuation in the Gaia G band towards this source.. In ADQL, write a_g_dist[1] for the minimum, a_g_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phys.absorption;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_rp_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the attenuation in the Gaia RP band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_rp_p50</name>
+				<description><![CDATA[median of the distribution of attenuation in the Gaia RP band towards this source..]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phys.absorption;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>a_rp_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the attenuation in the Gaia RP band towards this source.. In ADQL, write a_rp_dist[1] for the minimum, a_rp_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phys.absorption</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_bp</name>
+				<description><![CDATA[Recalibrated Gaia BP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_bp</name>
+				<description><![CDATA[Recalibrated error from original Gaia BP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>bp_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the Gaia BP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>bp_p50</name>
+				<description><![CDATA[median of the distribution of Gaia BP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.B;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>bp_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the Gaia BP magnitude. In ADQL, write bp_dist[1] for the minimum, bp_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.opt.B</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_g</name>
+				<description><![CDATA[Recalibrated Gaia G magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_g</name>
+				<description><![CDATA[Recalibrated error from original Gaia G magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>g_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the Gaia G magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>g_p50</name>
+				<description><![CDATA[median of the distribution of Gaia G magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>g_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the Gaia G magnitude. In ADQL, write g_dist[1] for the minimum, g_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.opt</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_rp</name>
+				<description><![CDATA[Recalibrated Gaia RP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_rp</name>
+				<description><![CDATA[Recalibrated error from original Gaia RP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>rp_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the Gaia RP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>rp_p50</name>
+				<description><![CDATA[median of the distribution of Gaia RP magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.opt.R;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>rp_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the Gaia RP magnitude. In ADQL, write rp_dist[1] for the minimum, rp_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.opt.R</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_j</name>
+				<description><![CDATA[Recalibrated 2MASS J magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.J</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_j</name>
+				<description><![CDATA[Recalibrated error from original 2MASS J magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.IR.J</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>j_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the 2MASS J magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.J</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>j_p50</name>
+				<description><![CDATA[median of the distribution of 2MASS J magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.J;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>j_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the 2MASS J magnitude. In ADQL, write j_dist[1] for the minimum, j_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.IR.J</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_h</name>
+				<description><![CDATA[Recalibrated 2MASS H magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.H</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_h</name>
+				<description><![CDATA[Recalibrated error from original 2MASS H magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.IR.H</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>h_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the 2MASS H magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.H</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>h_p50</name>
+				<description><![CDATA[median of the distribution of 2MASS H magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.H;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>h_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the 2MASS H magnitude. In ADQL, write h_dist[1] for the minimum, h_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.IR.H</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_ks</name>
+				<description><![CDATA[Recalibrated 2MASS Ks magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.K</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_ks</name>
+				<description><![CDATA[Recalibrated error from original 2MASS Ks magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.IR.K</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ks_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the 2MASS Ks magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.K</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ks_p50</name>
+				<description><![CDATA[median of the distribution of 2MASS Ks magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.K;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>ks_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the 2MASS Ks magnitude. In ADQL, write ks_dist[1] for the minimum, ks_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.IR.K</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_w1</name>
+				<description><![CDATA[Recalibrated WISE W1 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_w1</name>
+				<description><![CDATA[Recalibrated error from original WISE W1 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w1_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the WISE W1 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w1_p50</name>
+				<description><![CDATA[median of the distribution of WISE W1 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.3-4um;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w1_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the WISE W1 magnitude. In ADQL, write w1_dist[1] for the minimum, w1_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.IR.3-4um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>mag_w2</name>
+				<description><![CDATA[Recalibrated WISE W2 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_w2</name>
+				<description><![CDATA[Recalibrated error from original WISE W2 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat.error;phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w2_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the WISE W2 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w2_p50</name>
+				<description><![CDATA[median of the distribution of WISE W2 magnitude.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag;em.IR.4-8um;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>w2_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the WISE W2 magnitude. In ADQL, write w2_dist[1] for the minimum, w2_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag;em.IR.4-8um</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>dmod_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the distance modulus.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag.distMod</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>dmod_p50</name>
+				<description><![CDATA[median of the distribution of distance modulus.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>phot.mag.distMod;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>dmod_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the distance modulus. In ADQL, write dmod_dist[1] for the minimum, dmod_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[mag]]></unit>
+				<ucd>stat;phot.mag.distMod</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnlike_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log likelihood of the solution (paper Eq. 1).]]></description>
+				<ucd>stat.likelihood</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnlike_p50</name>
+				<description><![CDATA[median of the distribution of log likelihood of the solution (paper Eq. 1).]]></description>
+				<ucd>stat.likelihood;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnlike_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log likelihood of the solution (paper Eq. 1). In ADQL, write lnlike_dist[1] for the minimum, lnlike_dist[2] for the 16th percentile, and so on.]]></description>
+				<ucd>stat.likelihood</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnp_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log posterior of the solution (paper Eq. 2).]]></description>
+				<ucd>stat.probability</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnp_p50</name>
+				<description><![CDATA[median of the distribution of log posterior of the solution (paper Eq. 2).]]></description>
+				<ucd>stat.probability;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>lnp_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log posterior of the solution (paper Eq. 2). In ADQL, write lnp_dist[1] for the minimum, lnp_dist[2] for the 16th percentile, and so on.]]></description>
+				<ucd>stat;stat.probability</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>log10jitter_best</name>
+				<description><![CDATA[multivariate maximum posterior estimate for the log photometric likelihood jitter common to all bands.]]></description>
+				<unit><![CDATA[log(mag)]]></unit>
+				<ucd>stat.param</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>log10jitter_p50</name>
+				<description><![CDATA[median of the distribution of log photometric likelihood jitter common to all bands.]]></description>
+				<unit><![CDATA[log(mag)]]></unit>
+				<ucd>stat.param;stat.median</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>log10jitter_dist</name>
+				<description><![CDATA[Distribution (min, p16, p25, p50, p75, p84, max) of the log photometric likelihood jitter common to all bands. In ADQL, write log10jitter_dist[1] for the minimum, log10jitter_dist[2] for the 16th percentile, and so on.]]></description>
+				<unit><![CDATA[log(mag)]]></unit>
+				<ucd>stat;stat.param</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>parallax</name>
+				<description><![CDATA[Recalibrated parallax.]]></description>
+				<unit><![CDATA[mas]]></unit>
+				<ucd>pos.parallax</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0" esatapplus:ref="">
+				<name>err_parallax</name>
+				<description><![CDATA[Error in recalibrated parallax.]]></description>
+				<unit><![CDATA[mas]]></unit>
+				<ucd>stat.error;pos.parallax</ucd>
+				<dataType xsi:type="vod:VOTableType">float</dataType>
+			</column>
+		</table>
+	</schema>
+</vod:tableset>

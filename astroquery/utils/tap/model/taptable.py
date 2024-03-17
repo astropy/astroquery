@@ -36,6 +36,9 @@ class TapTableMeta:
         -------
         The the qualified TAP table name (schema+table)
         """
+        if '.' in self.name:
+            return self.name
+
         return f"{self.schema}.{self.name}"
 
     def add_column(self, tap_column):
