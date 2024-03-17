@@ -94,6 +94,8 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__status = READING_TABLE
             self.__currentTable = TapTableMeta()
             self.__currentTable.schema = self.__currentSchemaName
+            self.__currentTable.size_bytes = TapColumn(attrs.getValue('esatapplus:size_bytes'))
+
 
     def __end_schema(self, name):
         if self.__check_item_id("name", name):
