@@ -81,13 +81,6 @@ def test_table_list_parser_with_size_bytes():
                    'e_vmag', 'u_e_vmag', 'bmag', 'e_bmag', 'u_e_bmag', 'g_mag', 'e_g_mag', 'u_e_g_mag', 'r_mag',
                    'e_r_mag', 'u_e_r_mag', 'i_mag', 'e_i_mag', 'u_e_i_mag'], 22474547200)
 
-    c = tables[1].columns
-    a = []
-    for i in range(0, 71):
-        a.append("'" + c[i].name + "'")
-
-    print(','.join(a))
-
     __check_table(tables[1],
                   "external.catwise2020",
                   71,
