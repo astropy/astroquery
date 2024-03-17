@@ -212,7 +212,7 @@ gaia
 - Default Gaia catalog updated to DR3. [#2596]
 
 - Include table size in the class TapTableMeta returned by the functions load_tables and load_table, in the class Tap.
-  [#2596]
+  [#2970]
 
 heasarc
 ^^^^^^^
