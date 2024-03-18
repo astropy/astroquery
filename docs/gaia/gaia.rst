@@ -566,7 +566,8 @@ Your schema name will be automatically added to the provided table name::
   Job '1539932326689O' created to upload table 'table_test_from_url'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
-i.e.: *user_<your_login_name>.<table_name>*)::
+i.e.: *user_<your_login_name>.<table_name>*. Note that if the <table_name> contains capital letters, it must be
+surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -593,7 +594,8 @@ Your schema name will be automatically added to the provided table name.
   Uploaded table 'table_test_from_file'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
-i.e.: *user_<your_login_name>.<table_name>*)::
+i.e.: *user_<your_login_name>.<table_name>*. Note that if the <table_name> contains capital letters, it must be
+surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -620,7 +622,8 @@ Your schema name will be automatically added to the provided table name.
 
 
 Now, you can query your table as follows (a full qualified table name must be provided,
-i.e.: *user_<your_login_name>.<table_name>*)::
+i.e.: *user_<your_login_name>.<table_name>*. Note that if the <table_name> contains capital letters, it must be
+surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_astropy'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -643,7 +646,8 @@ table named: user_<your_login_name>.'t'<job_id>::
   Created table 't1539932994481O' from job: '1539932994481O'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
-i.e.: *user_<your_login_name>.t<job_id>*)::
+i.e.: *user_<your_login_name>."t<job_id>"*. Note that the previous table name must be
+surrounded by quotation marks since it contains capital letters.)::
 
   >>> full_qualified_table_name = 'user_<your_login_name>."t1710251325268O"'
   >>> query = 'select * from ' + full_qualified_table_name
