@@ -211,6 +211,9 @@ gaia
 
 - Default Gaia catalog updated to DR3. [#2596]
 
+- The function upload_table in the TapPlus class does not allow table names that contain a dot. [#2596]
+
+
 heasarc
 ^^^^^^^
 
