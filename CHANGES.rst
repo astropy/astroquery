@@ -214,6 +214,11 @@ gaia
 
 - Default Gaia catalog updated to DR3. [#2596]
 
+- New parameter USE_NAMES_OVER_IDS that gives preference to ``name`` over ID attributes of columns as the names of
+  columns in the `astropy.table.Table` instance. By default, value True is set, that gives name preference.  [#2967]
+
+- Fix method search_async_jobs in the class TapPlus. [#2967]
+
 heasarc
 ^^^^^^^
 

@@ -18,12 +18,12 @@ Created on 30 jun. 2016
 import time
 from urllib.parse import urlencode
 
+import requests
+from astropy.logger import log
+
+from astroquery.utils.tap import taputils
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap import taputils
-from astropy.logger import log
-import requests
-
 
 __all__ = ['Job']
 
@@ -32,7 +32,7 @@ class Job:
     """Job class
     """
 
-    def __init__(self, async_job, *, query=None, connhandler=None):
+    def __init__(self, async_job, *, query=None, connhandler=None, use_names_over_ids=False):
         """Constructor
 
         Parameters
@@ -43,6 +43,10 @@ class Job:
             Query
         connhandler : TapConn, optional, default None
             Connection handler
+        use_names_over_ids : When `True` use the ``name`` attributes of columns as the
+           names of columns in the `astropy.table.Table` instance.
+           Since names are not guaranteed to be unique, this may cause some columns to be renamed by appending numbers
+           to the end. Otherwise (default), use the ID attributes as the column names.
         """
         # async is a reserved keyword starting python 3.7
         self.async_ = async_job
@@ -57,7 +61,7 @@ class Job:
         self.responseStatus = 0
         self.responseMsg = None
         self.results = None
-        self.__resultInMemory = False    # only used within class
+        self.__resultInMemory = False  # only used within class
         self.failed = False
         self.runid = None
         self.ownerid = None
@@ -75,6 +79,7 @@ class Job:
         self.parameters['query'] = query
         # default output format
         self.parameters['format'] = 'votable'
+        self.use_names_over_ids = use_names_over_ids
 
     def set_phase(self, phase):
         """Sets the job phase
@@ -227,9 +232,9 @@ class Job:
         # try load results from file
         # read_results_table_from_file checks whether
         # the file already exists or not
-        outputFormat = self.parameters['format']
+        output_format = self.parameters['format']
         results = modelutils.read_results_table_from_file(self.outputFile,
-                                                          outputFormat)
+                                                          output_format, use_names_over_ids=self.use_names_over_ids)
         if results is not None:
             self.results = results
             return results
@@ -279,7 +284,7 @@ class Job:
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
-                isError = self.connHandler.\
+                isError = self.connHandler. \
                     check_launch_response_status(response,
                                                  verbose,
                                                  200)
@@ -344,7 +349,7 @@ class Job:
 
         resultsResponse = self.__handle_redirect_if_required(resultsResponse,
                                                              verbose=debug)
-        isError = self.connHandler.\
+        isError = self.connHandler. \
             check_launch_response_status(resultsResponse,
                                          debug,
                                          200)
@@ -360,14 +365,14 @@ class Job:
             else:
                 outputFormat = self.parameters['format']
                 results = utils.read_http_response(resultsResponse,
-                                                   outputFormat)
+                                                   outputFormat, use_names_over_ids=self.use_names_over_ids)
                 self.set_results(results)
 
     def __handle_redirect_if_required(self, resultsResponse, *, verbose=False):
         # Thanks @emeraldTree24
         numberOfRedirects = 0
         while ((resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20):
-            joblocation = self.connHandler.\
+            joblocation = self.connHandler. \
                 find_header(resultsResponse.getheaders(), "location")
             if verbose:
                 print(f"Redirecting to: {joblocation}")
@@ -403,7 +408,7 @@ class Job:
         else:
             if resultsResponse.status == 303 or resultsResponse.status == 302:
                 # get location
-                location = self.connHandler.\
+                location = self.connHandler. \
                     find_header(resultsResponse.getheaders(), "location")
                 if location is None:
                     raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
@@ -412,11 +417,11 @@ class Job:
                 # load
                 relativeLocation = self.__extract_relative_location(location, self.jobid)
                 relativeLocationSubContext = f"async/{self.jobid}/{relativeLocation}"
-                response = self.connHandler.\
+                response = self.connHandler. \
                     execute_tapget(relativeLocationSubContext)
                 response = self.__handle_redirect_if_required(response,
                                                               verbose=verbose)
-                isError = self.connHandler.\
+                isError = self.connHandler. \
                     check_launch_response_status(response, verbose, 200)
                 if isError:
                     errMsg = taputils.get_http_response_error(resultsResponse)
@@ -462,7 +467,7 @@ class Job:
         else:
             result = self.results.info()
         return f"Jobid: {self.jobid}" \
-            f"\nPhase: {self._phase}" \
-            f"\nOwner: {self.ownerid}" \
-            f"\nOutput file: {self.outputFile}" \
-            f"\nResults: {result}"
+               f"\nPhase: {self._phase}" \
+               f"\nOwner: {self.ownerid}" \
+               f"\nOutput file: {self.outputFile}" \
+               f"\nResults: {result}"
