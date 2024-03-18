@@ -8,6 +8,12 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+splatalogue
+^^^^^^^^^^^
+- Splatalogue's upstream server underwent major changes in early March 2024.
+  #2960 is a refactor to fix the breakage noted in #2956. [#2960]
+
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
