@@ -12,8 +12,11 @@ Service fixes and enhancements
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+utils.tap
+^^^^^^^^^
 
-
+- ``TapPlus.upload_table`` should not allow table names to contain a
+  dot. ``ValueError`` is now raised for such cases. [#2971]
 
 
 0.4.7 (2024-03-08)
@@ -210,9 +213,6 @@ gaia
   [#2376]
 
 - Default Gaia catalog updated to DR3. [#2596]
-
-- The function upload_table in the TapPlus class does not allow table names that contain a dot. [#2971]
-
 
 heasarc
 ^^^^^^^
