@@ -1425,6 +1425,8 @@ class TapPlus(Tap):
             raise ValueError("Missing mandatory argument 'upload_resource'")
         if table_name is None:
             raise ValueError("Missing mandatory argument 'table_name'")
+        if "." in table_name:
+            raise ValueError(f"Table name is not allowed to contain a dot: {table_name}")
         if table_description is None:
             description = ""
         else:

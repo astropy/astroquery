@@ -27,6 +27,7 @@ from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap import taputils
+from astropy.table import Table
 
 
 def read_file(filename):
@@ -936,3 +937,17 @@ def test_logout(mock_logout):
     with pytest.raises(HTTPError):
         tap.logout()
     assert (mock_logout.call_count == 2)
+
+
+def test_upload_table():
+    conn_handler = DummyConnHandler()
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    a = [1, 2, 3]
+    b = ['a', 'b', 'c']
+    table = Table([a, b], names=['col1', 'col2'], meta={'meta': 'first table'})
+
+    table_name = 'hola.table_test_from_astropy'
+    with pytest.raises(ValueError) as exc_info:
+        tap.upload_table(upload_resource=table, table_name=table_name)
+
+    assert str(exc_info.value) == f"Table name is not allowed to contain a dot: {table_name}"
