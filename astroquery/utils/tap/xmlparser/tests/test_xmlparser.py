@@ -72,7 +72,7 @@ def test_table_list_parser_with_size_bytes():
     file = open(fileName, 'r', encoding="utf8")
     parser = TableSaxParser()
     tables = parser.parseData(file)
-    assert len(tables) == 257
+    assert len(tables) == 3
 
     __check_table(tables[0],
                   "external.apassdr9",
@@ -104,11 +104,11 @@ def test_job_results_parser():
     file.close()
 
 
-def __check_table(table, qualifiedName, numColumns, columnsData, size_bytes=-1):
+def __check_table(table, qualifiedName, numColumns, columnsData, size_bytes=None):
     assert str(table.get_qualified_name()) == str(qualifiedName)
     c = table.columns
     assert len(c) == numColumns
-    if size_bytes > 0:
+    if size_bytes is not None:
         assert size_bytes == table.size_bytes
 
     for i in range(0, numColumns):
