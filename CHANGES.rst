@@ -1202,6 +1202,7 @@ mpc
 ^^^
 
 - Functionality added to query observations database. [#1350]
+- Parse star catalog information when querying observations database [#2957]
 
 
 Service fixes and enhancements
