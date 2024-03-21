@@ -22,9 +22,12 @@ class Lookuptable(dict):
 
         Returns
         -------
-        The list of values corresponding to the matches
+        The dictionary containing only values whose keys match the regex
 
         """
+
+        if s in self:
+            return {s: self[s]}
 
         R = re.compile(s, flags)
 
