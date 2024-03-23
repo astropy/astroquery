@@ -17,8 +17,8 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.model.tapcolumn import TapColumn
+from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.xmlparser import utils as Utils
 
 READING_SCHEMA = 10
@@ -94,6 +94,8 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__status = READING_TABLE
             self.__currentTable = TapTableMeta()
             self.__currentTable.schema = self.__currentSchemaName
+            if 'esatapplus:size_bytes' in attrs:
+                self.__currentTable.size_bytes = int(attrs.getValue('esatapplus:size_bytes'))
 
     def __end_schema(self, name):
         if self.__check_item_id("name", name):

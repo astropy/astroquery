@@ -143,7 +143,8 @@ class Tap:
         self.tap_client_id = f"aqtappy1-{VERSION}"
 
     def load_tables(self, *, verbose=False):
-        """Loads all public tables
+        """Loads all public table metadata. If the user is logged in, it also returns metadata for those tables in the
+        user's private area.
 
         Parameters
         ----------
@@ -152,12 +153,13 @@ class Tap:
 
         Returns
         -------
-        A list of table objects
+        A list of TapTableMeta objects
         """
         return self.__load_tables(verbose=verbose)
 
     def load_table(self, table, *, verbose=False):
-        """Loads the specified table
+        """Loads the table metadata, for the specified table. If the user is logged in, the table can refer to a
+        table in the user's private area.
 
         Parameters
         ----------
@@ -168,7 +170,7 @@ class Tap:
 
         Returns
         -------
-        A table object
+        A TapTableMeta object
         """
         if table is None:
             raise ValueError("Table name is required")
