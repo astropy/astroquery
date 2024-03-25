@@ -28,13 +28,17 @@ class Conf(_config.ConfigNamespace):
 
     row_limit = _config.ConfigItem(
         # O defaults to the maximum limit
-        0,
+        -1,
         'Maximum number of rows that will be fetched from the result.')
+
+    # should be columns of 'basic'
+    default_columns = ["main_id", "ra", "dec", "coo_err_maj", "coo_err_min",
+                       "coo_err_angle", "coo_wavelength", "coo_bibcode"]
 
 
 conf = Conf()
 
-from .core import Simbad, SimbadClass, SimbadBaseQuery
+from .core import Simbad, SimbadClass
 
 __all__ = ['Simbad', 'SimbadClass',
            'SimbadBaseQuery',
