@@ -57,9 +57,10 @@ def _catch_deprecated_fields_with_arguments(votable_field):
                          "See section on catalogs in "
                          "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html")
     if votable_field.startswith("bibcodelist("):
-        raise ValueError("Selecting a range of years for bibcode is now a criteria. "
-                         "See section on bibcodelist in"
-                         "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html")
+        raise ValueError("Selecting a range of years for bibcode is removed. You can still use "
+                         "bibcodelist without parenthesis and get the full list of bibliographic references. "
+                         "See https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html for "
+                         "more details.")
 
 # ----------------------------
 # To support wildcard argument
