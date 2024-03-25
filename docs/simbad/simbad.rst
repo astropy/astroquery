@@ -110,10 +110,10 @@ To see the available wildcards and their functions:
 
     >>> from astroquery.simbad.utils import list_wildcards
     >>> list_wildcards()
-    * : Any string of characters (including an empty one)
-    ? : Any character (exactly one character)
-    [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
-    [^0-9] : Any (one) character not in the list.
+    *: Any string of characters (including an empty one)
+    ?: Any character (exactly one character)
+    [abc]: Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
+    [^0-9]: Any (one) character not in the list.
 
 Query to get all names (identifiers) of an object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
