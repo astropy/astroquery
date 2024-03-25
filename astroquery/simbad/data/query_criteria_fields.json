@@ -4,6 +4,11 @@
     "tap_table": "flux",
     "type": "alias table"
   },
+  "bibcodelist": {
+    "description": "List of references for an object",
+    "tap_table": "biblio",
+    "type": "alias table"
+  },
   "cel": {
     "description": "Celescope catalog of ultra-violet photometry",
     "type": "historical measurement"

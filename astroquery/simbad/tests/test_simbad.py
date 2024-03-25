@@ -164,7 +164,7 @@ def test_add_to_output():
         simbad_instance.add_to_output("coo(s)", "dec(d)")
     with pytest.raises(ValueError, match="Catalog Ids are no longer supported as an output option.*"):
         simbad_instance.add_to_output("ID(Gaia)")
-    with pytest.raises(ValueError, match="Selecting a range of years for bibcode is now a criteria.*"):
+    with pytest.raises(ValueError, match="Selecting a range of years for bibcode is removed.*"):
         simbad_instance.add_to_output("bibcodelist(2042-2050)")
     # historical measurements
     with pytest.raises(ValueError, match="'einstein' is no longer a part of SIMBAD.*"):
