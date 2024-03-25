@@ -8,28 +8,6 @@ from astropy.utils.parsing import lex, yacc
 from astropy.utils import classproperty
 
 
-def list_wildcards():
-    """
-    Displays the available wildcards that may be used in SIMBAD queries and
-    their usage.
-
-    Examples
-    --------
-    >>> from astroquery.simbad.utils import list_wildcards
-    >>> list_wildcards()
-    * : Any string of characters (including an empty one)
-    ? : Any character (exactly one character)
-    [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
-    [^0-9] : Any (one) character not in the list.
-    """
-    WILDCARDS = {'*': 'Any string of characters (including an empty one)',
-                 '?': 'Any character (exactly one character)',
-                 '[abc]': ('Exactly one character taken in the list. '
-                           'Can also be defined by a range of characters: [A-Z]'),
-                 '[^0-9]': 'Any (one) character not in the list.'}
-    print("\n".join(f"{k} : {v}" for k, v in WILDCARDS.items()))
-
-
 def _catch_deprecated_fields_with_arguments(votable_field):
     """Raise informative errors for deprecated votable fields.
 
@@ -65,6 +43,28 @@ def _catch_deprecated_fields_with_arguments(votable_field):
 # ----------------------------
 # To support wildcard argument
 # ----------------------------
+
+
+def list_wildcards():
+    """
+    Displays the available wildcards that may be used in SIMBAD queries and
+    their usage.
+
+    Examples
+    --------
+    >>> from astroquery.simbad.utils import list_wildcards
+    >>> list_wildcards()
+    *: Any string of characters (including an empty one)
+    ?: Any character (exactly one character)
+    [abc]: Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
+    [^0-9]: Any (one) character not in the list.
+    """
+    WILDCARDS = {'*': 'Any string of characters (including an empty one)',
+                 '?': 'Any character (exactly one character)',
+                 '[abc]': ('Exactly one character taken in the list. '
+                           'Can also be defined by a range of characters: [A-Z]'),
+                 '[^0-9]': 'Any (one) character not in the list.'}
+    print("\n".join(f"{k}: {v}" for k, v in WILDCARDS.items()))
 
 
 def _wildcard_to_regexp(wildcard_string):
@@ -186,8 +186,6 @@ def _region_to_contains(region_string):
             contains += f", {coordinates.ra.value}, {coordinates.dec.value}"
         contains += ")) = 1"
 
-    else:
-        raise ValueError("Simbad TAP supports regions of types 'circle', 'box', or 'polygon'.")
     return contains
 
 
@@ -195,6 +193,8 @@ def _parse_coordinate_and_convert_to_icrs(string_coordinate, *,
                                           frame="icrs", epoch=None, equinox=None):
     """Convert a string into a SkyCoord object in the ICRS frame."""
     if re.search(r"\d+ *[\+\- ]\d+", string_coordinate):
+        if equinox:
+            equinox = f"J{equinox}"
         center = SkyCoord(string_coordinate, unit="deg", frame=frame, obstime=epoch, equinox=equinox)
     else:
         center = SkyCoord.from_name(string_coordinate)

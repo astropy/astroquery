@@ -1,20 +1,44 @@
 
 import pytest
 
+from astroquery.simbad.setup_package import get_package_data
+
 from astroquery.simbad.utils import (CriteriaTranslator, _parse_coordinate_and_convert_to_icrs,
-                                     _region_to_contains)
+                                     _region_to_contains, list_wildcards, _wildcard_to_regexp)
 
 from astropy.coordinates.builtin_frames.icrs import ICRS
+from astropy.coordinates import SkyCoord
+
+
+def test_setup_package():
+    data = get_package_data()
+    assert data["astroquery.simbad.tests"] == ["data/simbad_output_options.xml"]
+    assert data["astroquery.simbad"] == ["data/query_criteria_fields.json"]
 
 
 @pytest.mark.parametrize("coord_string, frame, epoch, equinox", [
     ("12 34 56.78 +12 34 56.78", None, None, None),
     ("10 +20", "galactic", None, None),
-    ("10 20", "fk4", "J2000", "B1950")
+    ("10 20", "fk4", "J2000", "1950")
 ])
 def test_parse_coordinates_and_convert_to_icrs(coord_string, frame, epoch, equinox):
     coord = _parse_coordinate_and_convert_to_icrs(coord_string, frame=frame, equinox=equinox, epoch=epoch)
     assert isinstance(coord.frame, ICRS)
+
+
+def test_list_wildcards(capsys):
+    list_wildcards()
+    wildcards = capsys.readouterr()
+    assert "*: Any string of characters (including an empty one)" in wildcards.out
+
+
+def test_wildcard_to_regexp():
+    # should add beginning and end operators, and translate * into .*
+    assert _wildcard_to_regexp("test*") == "^test.*$"
+    # should not replace escaped characters
+    assert _wildcard_to_regexp(r"test\*") == "^test\\*$"
+    # wildcard ? is regexp .
+    assert _wildcard_to_regexp("test?") == "^test.$"
 
 
 @pytest.mark.remote_data()
@@ -23,7 +47,7 @@ def test_parse_coordinates_and_convert_to_icrs_sesame():
     assert isinstance(coord.frame, ICRS)
 
 
-def test_region_to_contains():
+def test_region_to_contains(monkeypatch):
     # default shape is a circle, default frame is ICRS
     assert "CIRCLE" in _region_to_contains("0 0, 1d")
     assert "ICRS" in _region_to_contains("0 0,1d")
@@ -32,10 +56,17 @@ def test_region_to_contains():
         _region_to_contains("rotatedbox, 0 0, 1d")
     # shapes should not be case-sensitive
     box = "CONTAINS(POINT('ICRS', ra, dec), BOX('ICRS', 0.0, 0.0, 2.0, 0.025)) = 1"
-    assert _region_to_contains("BoX, 0 0, 2d 1.5m") == box
+    assert _region_to_contains("BoX, J2000, 2024, 0 0, 2d 1.5m") == box
     # polygons can have a lot of points
     polygon = "CONTAINS(POINT('ICRS', ra, dec), POLYGON('ICRS', 0.0, 0.0, 1.0, 2.0, 65.0, 25.0, 10.0, -9.0)) = 1"
     assert _region_to_contains("PolyGon, 0 0, 01 +02, 65 25, 10 -9") == polygon
+    # here we mock a case where the coordinates are given through a name
+
+    def mockreturn(name):
+        return SkyCoord(0, 0, unit="deg")
+    monkeypatch.setattr(SkyCoord, "from_name", mockreturn)
+    assert _region_to_contains("zero_zero, 2d") == ("CONTAINS(POINT('ICRS', ra, dec), "
+                                                    "CIRCLE('ICRS', 0.0, 0.0, 2.0)) = 1")
 
 
 def test_tokenizer():
@@ -70,9 +101,17 @@ def test_tokenizer():
       " AND otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)")),
     ("otype != 'Galaxy..'", "otype != 'Galaxy..'"),
     ("author ∼ 'egret*'", "regexp(author, '^egret.*$') = 1"),
-    ("cat in ('hd','hip','ppm')", "cat IN ('hd','hip','ppm')")
+    ("cat in ('hd','hip','ppm')", "cat IN ('hd','hip','ppm')"),
+    ("author !~ 'test'", "regexp(author, '^test$') = 0")
 ])  # these are the examples from http://simbad.cds.unistra.fr/guide/sim-fsam.htx
 def test_transpiler(test, result):
     # to regenerate transpiler after a change in utils.py, delete `criteria_parsetab.py` and run this test file again.
     translated = CriteriaTranslator.parse(test)
     assert translated == result
+
+
+def test_transpiler_errors(capsys):
+    with pytest.raises(ValueError, match="Syntax error for sim-script criteria"):
+        CriteriaTranslator.parse("otype % 'G'")
+        printed = capsys.readouterr().out
+        assert printed == "Unrecognized character '%' at position 6 for a sim-script criteria."
