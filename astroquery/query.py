@@ -203,6 +203,10 @@ class BaseVOQuery:
 
         self.name = self.__class__.__name__.split("Class")[0]
 
+    def __call__(self, *args, **kwargs):
+        """ init a fresh copy of self """
+        return self.__class__(*args, **kwargs)
+
 
 class BaseQuery(metaclass=LoginABCMeta):
     """

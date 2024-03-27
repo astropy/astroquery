@@ -1,0 +1,291 @@
+{
+  "all_fluxdata": {
+    "description": "All fluxes referenced for this object.",
+    "tap_table": "flux",
+    "type": "alias table"
+  },
+  "bibcodelist": {
+    "description": "List of references for an object",
+    "tap_table": "biblio",
+    "type": "alias table"
+  },
+  "cel": {
+    "description": "Celescope catalog of ultra-violet photometry",
+    "type": "historical measurement"
+  },
+  "cl.g": {
+    "description": "Cluster of Galaxies: Abell & Corwin,Astrophys. J. Suppl.,70,1 (1989)",
+    "type": "historical measurement"
+  },
+  "coo_err_maja": {
+    "description": "major axis of the error ellipse",
+    "tap_column": "coo_err_maj",
+    "type": "alias"
+  },
+  "coo_err_mina": {
+    "description": "minor axis of the error ellipse",
+    "tap_column": "coo_err_min",
+    "type": "alias"
+  },
+  "coordinates": {
+    "description": "all fields related with coordinates",
+    "tap_startswith": "coo_",
+    "tap_column": ["ra", "dec", "ra_prec", "dec_prec"],
+    "type": "bundle"
+  },
+  "dim": {
+    "description": "major and minor axis, angle and inclination",
+    "tap_startswith": "galdim_",
+    "type": "bundle"
+  },
+  "dim_angle": {
+    "description": "angle of the object",
+    "tap_column": "galdim_angle",
+    "type": "alias"
+  },
+  "dim_bibcode": {
+    "description": "Bibliographical reference",
+    "tap_column": "galdim_bibcode",
+    "type": "alias"
+  },
+  "dim_incl": {
+    "description": "inclination (unit of 15d: value from 0 to 6)",
+    "type": "alias",
+    "tap_column": "galdim_angle"
+  },
+  "dim_majaxis": {
+    "description": "Major axis",
+    "tap_column": "galdim_majaxis",
+    "type": "alias"
+  },
+  "dim_minaxis": {
+    "description": "Minor axis",
+    "tap_column": "galdim_min_axis",
+    "type": "alias"
+  },
+  "dim_qual": {
+    "description": "quality (A: best, .., E: worst)",
+    "tap_column": "galdim_qual",
+    "type": "alias"
+  },
+  "dim_wavelength": {
+    "description": "wavelength type in which these dimensions were measured (Radio, IR, Visible, UV, X, Gamma)",
+    "tap_column": "galdim_wavelength",
+    "type": "alias"
+  },
+  "dimensions": {
+    "description": "all fields related to object dimensions",
+    "tap_startswith": "galdim_",
+    "type": "bundle"
+  },
+  "distance": {
+    "description": "Measure of distances by several means",
+    "tap_table": "mesdistance",
+    "type": "alias table"
+  },
+  "einstein": {
+    "description": "The Einstein Observatory Soft X-ray Source List",
+    "type": "historical measurement"
+  },
+  "fe_h": {
+    "description": "Stellar parameters (Teff, log(g) and [Fe/H]) taken from the literature.",
+    "type": "alias table",
+    "tap_table": "mesfe_h"
+  },
+  "flux": {
+    "description": "value of the flux for the given filter",
+    "type": "alias table",
+    "tap_table": "flux"
+  },
+  "gcrv": {
+    "description": "General Catalogue of Radial Velocities",
+    "type": "historical measurement"
+  },
+  "gen": {
+    "description": "Geneva Photometric System Catalogue",
+    "type": "historical measurement"
+  },
+  "gj": {
+    "description": "Gliese Jahreiss Nearby Stars (Catalog of stars within 20 parsecs of the Sun)",
+    "type": "historical measurement"
+  },
+  "hbet": {
+    "description": "The Hbeta photometric system (Crawford and Mander,1966,Astron. J. 7,114)",
+    "type": "historical measurement"
+  },
+  "hbet1": {
+    "description": "The Hbeta photometric system (Crawford and Mander,1966,Astron. J. 7,114)",
+    "type": "historical measurement"
+  },
+  "hgam": {
+    "description": "Catalogue of equivalent width of Hgamma line from Petrie et al. (1973PDAO...14..151P)",
+    "type": "historical measurement"
+  },
+  "id(1)": {
+    "description": "1 : display the first (main identifier) of the object. Is the same as main_id.",
+    "type": "alias",
+    "tap_column": "main_id"
+  },
+  "id(cat)": {
+    "description": "Creates as much columns as cat entries with the identifier in this nomenclature if it exists. Example: 'id(Gaia|NGC)'. This is case-sensitive.",
+    "type": "criteria"
+  },
+  "iras": {
+    "description": "InfraRed Astronomical Satellite Measurements extracted from the IRAS Point Source Catalog, 2nd Edition",
+    "type": "historical measurement"
+  },
+  "irc": {
+    "description": "Infra-red measurements by Neugebauer and Leighton, Caltech, NASA, 1969",
+    "type": "historical measurement"
+  },
+  "iso": {
+    "description": "Infrared Space Observatory (ISO) log",
+    "type": "alias table",
+    "tap_table": "mesiso"
+  },
+  "iue": {
+    "description": "International Ultraviolet Explorer",
+    "type": "alias table",
+    "tap_table": "mesiue"
+  },
+  "jp11": {
+    "description": "UBVRIJKLMNH Johnson s photometry",
+    "type": "alias table",
+    "tap_table": "flux"
+  },
+  "maintype": {
+    "type": "alias",
+    "tap_column": "otype"
+  },
+  "mk": {
+    "description": "MK classifications in the Morgan-Keenan system and the Michigan Catalogues of Two-Dimensional Spectral Types for the HD stars (Houk N.,1975,and seq.)",
+    "type": "alias table",
+    "tap_table": "messpt"
+  },
+  "modifdate": {
+    "description": "date of last modification",
+    "type": "alias",
+    "tap_column": "date_modif"
+  },
+  "morphtype": {
+    "description": "all fields related to the morphological type",
+    "type": "bundle",
+    "tap_startswith": "morph_"
+  },
+  "mt": {
+    "description": "morphological type value",
+    "tap_column": "morph_type",
+    "type": "alias"
+  },
+  "mt_bibcode": {
+    "description": "Bibliographical reference",
+    "tap_column": "morph_bibcode",
+    "type": "alias"
+  },
+  "mt_qual": {
+    "description": "morphological type quality (A: best, .., E: worst)",
+    "tap_column": "morph_type",
+    "type": "alias"
+  },
+  "otype(V)": {
+    "tap_table": "otypedef",
+    "type": "alias table"
+  },
+  "otype(S)": {
+    "tap_table": "otypedef",
+    "type": "alias table"
+  },
+  "parallax": {
+    "description": "all fields related to parallaxes",
+    "tap_startswith": "plx_",
+    "type": "bundle"
+  },
+  "plx": {
+    "description": "parallax value",
+    "tap_column": "plx_value",
+    "type": "alias"
+  },
+  "plx_error": {
+    "description": "parallax error",
+    "tap_column": "plx_err",
+    "type": "alias"
+  },
+  "pm_err_maja": {
+    "description": "major axis of the error ellipse",
+    "tap_column": "pm_err_maj",
+    "type": "alias"
+  },
+  "pm_err_mina": {
+    "description": "minor axis of the error ellipse",
+    "tap_column": "pm_err_min",
+    "type": "alias"
+  },
+  "propermotions": {
+    "description": "all fields related with the proper motions",
+    "tap_startswith": "pm",
+    "type": "bundle"
+  },
+  "radvel": {
+    "description": "Radial velocity",
+    "tap_column": "rvz_radvel",
+    "type": "alias"
+  },
+  "redshift": {
+    "type": "alias",
+    "tap_column": "rvz_redshift"
+  },
+  "rot": {
+    "description": "Stellar Rotational Velocities",
+    "type": "alias table",
+    "tap_table": "mesrot"
+  },
+  "rv_value": {
+    "description": "Radial velocity value. Eventually translated from a redshift",
+    "type": "alias",
+    "tap_column": "rvz_value"
+  },
+  "rvz_error": {
+    "description": "Error. In the same unit as rvz_radvel",
+    "type": "alias",
+    "tap_column": "rvz_err"
+  },
+  "rvz_radvel": {
+    "description": "stored value. Either a radial velocity, or a redshift,\ndepending on the rvz_type field",
+    "type": "alias",
+    "tap_column": "rvz_value"
+  },
+  "sao": {
+    "description": "SAO catalogue (Star catalog of 258997 stars for the epoch and equinox 1950.0,1966)",
+    "type": "historical measurement"
+  },
+  "sp": {
+    "description": "all fields related with the spectral type",
+    "type": "bundle",
+    "tap_startswith": "sp_"
+  },
+  "sptype": {
+    "description": "spectral type value",
+    "type": "alias",
+    "tap_column": "sp_type"
+  },
+  "v*": {
+    "description": "variable stars parameters extracted mainly from the General Catalog of Variable Stars by Kukarkin et al. USSR Academy of Sciences (3rd edition in 1969,and continuations)",
+    "type": "alias table",
+    "tap_table": "mesvar"
+  },
+  "velocity": {
+    "description": "all fields related with radial velocity and redshift",
+    "type": "bundle",
+    "tap_startswith": "rvz_"
+  },
+  "xmm": {
+    "description": "XMM log",
+    "type": "alias table",
+    "tap_table": "mesxmm"
+  },
+  "z_value": {
+    "description": "Redshift value. Eventually translated from a radial velocity",
+    "type": "alias",
+    "tap_column": "rvz_redshift"
+  }
+}

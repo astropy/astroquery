@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 6.0.0
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <TABLE ID="result_S1711442375218" name="result_S1711442375218">
+   <FIELD ID="table_name" arraysize="*" datatype="char" name="table_name">
+    <DESCRIPTION>
+     table name from TAP_SCHEMA.tables
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="column_name" arraysize="*" datatype="char" name="column_name">
+    <DESCRIPTION>
+     column name
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="datatype" arraysize="*" datatype="char" name="datatype">
+    <DESCRIPTION>
+     ADQL datatype as in section 2.5
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="description" arraysize="*" datatype="char" name="description">
+    <DESCRIPTION>
+     brief description of column
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="unit" arraysize="*" datatype="char" name="unit">
+    <DESCRIPTION>
+     unit in VO standard format
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ucd" arraysize="*" datatype="char" name="ucd">
+    <DESCRIPTION>
+     UCD of column if any
+    </DESCRIPTION>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>basic</TD>
+      <TD>dec</TD>
+      <TD>DOUBLE</TD>
+      <TD>Declination</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.dec;meta.main</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>main_id</TD>
+      <TD>VARCHAR</TD>
+      <TD>Main identifier for an object</TD>
+      <TD/>
+      <TD>meta.id;meta.main</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>otype_txt</TD>
+      <TD>VARCHAR</TD>
+      <TD>Object type</TD>
+      <TD/>
+      <TD>src.class</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>ra</TD>
+      <TD>DOUBLE</TD>
+      <TD>Right ascension</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.ra;meta.main</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Coordinate reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_err_angle</TD>
+      <TD>SMALLINT</TD>
+      <TD>Coordinate error angle</TD>
+      <TD>deg</TD>
+      <TD>pos.posAng;pos.errorEllipse;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_err_maj</TD>
+      <TD>REAL</TD>
+      <TD>Coordinate error major axis</TD>
+      <TD>mas</TD>
+      <TD>phys.angSize.smajAxis;pos.errorEllipse;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_err_maj_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Coordinate error major axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_err_min</TD>
+      <TD>REAL</TD>
+      <TD>Coordinate error minor axis</TD>
+      <TD>mas</TD>
+      <TD>phys.angSize.sminAxis;pos.errorEllipse;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_err_min_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Coordinate error minor axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Coordinate quality</TD>
+      <TD/>
+      <TD>meta.code.qual;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>coo_wavelength</TD>
+      <TD>CHAR</TD>
+      <TD>Wavelength class for the origin of the coordinates (R,I,V,U,X,G)</TD>
+      <TD/>
+      <TD>instr.bandpass;pos.eq</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>dec_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Declination precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_angle</TD>
+      <TD>SMALLINT</TD>
+      <TD>Galaxy ellipse angle</TD>
+      <TD>deg</TD>
+      <TD>pos.posAng</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Galaxy dimension reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;phys.angSize</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_majaxis</TD>
+      <TD>REAL</TD>
+      <TD>Angular size major axis</TD>
+      <TD>arcmin</TD>
+      <TD>phys.angSize.smajAxis</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_majaxis_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Angular size major axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_minaxis</TD>
+      <TD>REAL</TD>
+      <TD>Angular size minor axis</TD>
+      <TD>arcmin</TD>
+      <TD>phys.angSize.sminAxis</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_minaxis_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Angular size minor axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Galaxy dimension quality</TD>
+      <TD/>
+      <TD>meta.code.qual;phys.angSize</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>galdim_wavelength</TD>
+      <TD>CHAR</TD>
+      <TD>Wavelength class for the origin of the Galaxy dimension</TD>
+      <TD/>
+      <TD>instr.bandpass;phys.angSize</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>hpx</TD>
+      <TD>BIGINT</TD>
+      <TD>Healpix number at ORDER=10</TD>
+      <TD/>
+      <TD>meta.id</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>morph_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>morphological type reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;src.morph.type</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>morph_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Morphological type quality</TD>
+      <TD/>
+      <TD>meta.code.qual;src.morph.type</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>morph_type</TD>
+      <TD>VARCHAR</TD>
+      <TD>Morphological type</TD>
+      <TD/>
+      <TD>src.morph.type</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>nbref</TD>
+      <TD>INTEGER</TD>
+      <TD>number of references</TD>
+      <TD/>
+      <TD>meta.bib;meta.number</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>oid</TD>
+      <TD>BIGINT</TD>
+      <TD>Object internal identifier</TD>
+      <TD/>
+      <TD>meta.record;meta.id</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>otype</TD>
+      <TD>VARCHAR</TD>
+      <TD>Object type</TD>
+      <TD/>
+      <TD>src.class</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Parallax reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;pos.parallax.trig</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_err</TD>
+      <TD>REAL</TD>
+      <TD>Parallax error</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.parallax.trig</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_err_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Parallax error precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Parallax precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Parallax quality</TD>
+      <TD/>
+      <TD>meta.code.qual;pos.parallax.trig</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>plx_value</TD>
+      <TD>DOUBLE</TD>
+      <TD>Parallax</TD>
+      <TD>mas</TD>
+      <TD>pos.parallax.trig</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Proper motion reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;pos.pm</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_err_angle</TD>
+      <TD>SMALLINT</TD>
+      <TD>Proper motion error angle</TD>
+      <TD>deg</TD>
+      <TD>pos.posAng;pos.errorEllipse;pos.pm</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_err_maj</TD>
+      <TD>REAL</TD>
+      <TD>Proper motion error major axis</TD>
+      <TD>mas.yr-1</TD>
+      <TD>phys.angSize.smajAxis;pos.errorEllipse;pos.pm</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_err_maj_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Proper motion error major axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_err_min</TD>
+      <TD>REAL</TD>
+      <TD>Proper motion error minor axis</TD>
+      <TD>mas.yr-1</TD>
+      <TD>phys.angSize.sminAxis;pos.errorEllipse;pos.pm</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_err_min_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Proper motion error minor axis precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pm_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Proper motion quality</TD>
+      <TD/>
+      <TD>meta.code.qual;pos.pm</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pmdec</TD>
+      <TD>DOUBLE</TD>
+      <TD>Proper motion in DEC</TD>
+      <TD>mas.yr-1</TD>
+      <TD>pos.pm;pos.eq.dec</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pmdec_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Proper motion in DEC precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pmra</TD>
+      <TD>DOUBLE</TD>
+      <TD>Proper motion in RA</TD>
+      <TD>mas.yr-1</TD>
+      <TD>pos.pm;pos.eq.ra</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>pmra_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Proper motion in RA precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>ra_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Right ascension precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Radial velocity / redshift reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;spect.dopplerVeloc</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_err</TD>
+      <TD>REAL</TD>
+      <TD>Radial velocity / redshift error</TD>
+      <TD>km.s-1</TD>
+      <TD>stat.error;spect.dopplerVeloc</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_err_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Radial velocity / redshift error precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_nature</TD>
+      <TD>CHAR</TD>
+      <TD>velocity / redshift nature</TD>
+      <TD/>
+      <TD>meta.code;spect.dopplerVeloc</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Radial velocity / redshift quality</TD>
+      <TD/>
+      <TD>meta.code.qual;spect.dopplerVeloc</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_radvel</TD>
+      <TD>DOUBLE</TD>
+      <TD>Radial Velocity</TD>
+      <TD>km.s-1</TD>
+      <TD>spect.dopplerVeloc.opt</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_radvel_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>Radial velocity precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_redshift</TD>
+      <TD>DOUBLE</TD>
+      <TD>redshift</TD>
+      <TD/>
+      <TD>src.redshift</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_redshift_prec</TD>
+      <TD>SMALLINT</TD>
+      <TD>redshift precision</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_type</TD>
+      <TD>CHAR</TD>
+      <TD>Radial velocity / redshift type</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>rvz_wavelength</TD>
+      <TD>CHAR</TD>
+      <TD>Wavelength class for the origin of the radial velocity/reshift</TD>
+      <TD/>
+      <TD>instr.bandpass;spect.dopplerVeloc.opt</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>sp_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>spectral type reference</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;src.spType</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>sp_qual</TD>
+      <TD>CHAR</TD>
+      <TD>Spectral type quality</TD>
+      <TD/>
+      <TD>meta.code.qual;src.spType</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>sp_type</TD>
+      <TD>VARCHAR</TD>
+      <TD>MK spectral type</TD>
+      <TD/>
+      <TD>src.spType</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>update_date</TD>
+      <TD>date</TD>
+      <TD>Date of last modification</TD>
+      <TD/>
+      <TD>time.processing</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr</TD>
+      <TD>DOUBLE</TD>
+      <TD>velocity in Local Standard of Rest reference frame</TD>
+      <TD>km.s-1</TD>
+      <TD>phys.veloc;pos.lsr;stat.mean</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr_bibcode</TD>
+      <TD>CHAR</TD>
+      <TD>Reference for the origin of the LSR velocity</TD>
+      <TD/>
+      <TD>meta.bib.bibcode;phys.veloc;pos.lsr</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr_err</TD>
+      <TD>DOUBLE</TD>
+      <TD>Error incertainty of the VLSR velocity</TD>
+      <TD>km.s-1</TD>
+      <TD>stat.error;phys.veloc;pos.lsr</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr_max</TD>
+      <TD>REAL</TD>
+      <TD>Maximum for the mean value of the LSR velocity</TD>
+      <TD>km.s-1</TD>
+      <TD>phys.veloc;pos.lsr;stat.max</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr_min</TD>
+      <TD>REAL</TD>
+      <TD>Minimum for the mean value of the LSR velocity</TD>
+      <TD>km.s-1</TD>
+      <TD>phys.veloc;pos.lsr;stat.min</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>vlsr_wavelength</TD>
+      <TD>CHAR</TD>
+      <TD>Wavelength class for the origin of the LSR velocity</TD>
+      <TD/>
+      <TD>instr.bandpass;phys.veloc;pos.lsr</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>
