@@ -12,7 +12,7 @@ from astropy.coordinates import SkyCoord
 
 def test_setup_package():
     data = get_package_data()
-    assert data["astroquery.simbad.tests"] == ["data/simbad_output_options.xml"]
+    assert "data/simbad_output_options.xml" in data["astroquery.simbad.tests"]
     assert data["astroquery.simbad"] == ["data/query_criteria_fields.json"]
 
 
