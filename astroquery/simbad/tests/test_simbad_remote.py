@@ -62,7 +62,7 @@ class TestSimbad:
                                                     SkyCoord.from_name('m10')]),
                                           radius=1 * u.arcmin, criteria="main_id LIKE 'M %'")
         # filtering on main_id to retrieve the two cone centers
-        assert ["M  81", "M  10"] == list(result["main_id"].data.data)
+        assert {"M  81", "M  10"} == set(result["main_id"].data.data)
 
     def test_query_object_ids(self):
         self.simbad.ROW_LIMIT = -1

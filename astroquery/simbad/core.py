@@ -89,14 +89,14 @@ class SimbadClass(BaseVOQuery):
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
     ROW_LIMIT = conf.row_limit
 
-    @dataclass
+    @dataclass(frozen=True)
     class Column:
         """A class to define a column in a SIMBAD query."""
         table: str
         name: str
         alias: str = field(default=None)
 
-    @dataclass
+    @dataclass(frozen=True)
     class Join:
         """A class to define a join between two tables."""
         table: str
@@ -199,11 +199,12 @@ class SimbadClass(BaseVOQuery):
              velocity ...
         """
         # get the tables with a simple link to basic
-        query_tables = """SELECT table_name AS name, tables.description
+        query_tables = """SELECT DISTINCT table_name AS name, tables.description
         FROM TAP_SCHEMA.keys JOIN  TAP_SCHEMA.key_columns USING (key_id)
         JOIN TAP_SCHEMA.tables ON TAP_SCHEMA.keys.from_table = TAP_SCHEMA.tables.table_name
+        OR TAP_SCHEMA.keys.target_table = TAP_SCHEMA.tables.table_name
         WHERE TAP_SCHEMA.tables.schema_name = 'public'
-        AND target_table = 'basic'
+        AND (from_table = 'basic' OR target_table = 'basic')
         AND from_table != 'h_link'
         """
         tables = self.query_tap(query_tables)

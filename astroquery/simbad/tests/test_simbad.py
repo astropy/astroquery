@@ -1,70 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
 from pathlib import Path
 import re
 
 from astropy.coordinates import SkyCoord
 from astropy.io.votable import parse_single_table
+from astropy.table import Table
 import astropy.units as u
+from pyvo.dal.tap import TAPService
 
 import pytest
 
 from ... import simbad
 from .test_simbad_remote import multicoords
-from astroquery.utils.mocks import MockResponse
+from astroquery.exceptions import LargeQueryWarning
 
 
 GALACTIC_COORDS = SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg, frame="galactic")
 ICRS_COORDS = SkyCoord("05h35m17.3s -05h23m28s", frame="icrs")
 FK4_COORDS = SkyCoord(ra=84.90759 * u.deg, dec=-80.89403 * u.deg, frame="fk4")
 FK5_COORDS = SkyCoord(ra=83.82207 * u.deg, dec=-80.86667 * u.deg, frame="fk5")
-
-DATA_FILES = {
-    'sample': 'query_sample.data',
-    'region': 'query_sample_region.data',
-}
-
-
-class MockResponseSimbad(MockResponse):
-    query_regex = re.compile(r'query\s+([a-z]+)\s+')
-
-    def __init__(self, script, cache=False, **kwargs):
-        # preserve, e.g., headers
-        super().__init__(**kwargs)
-        self.content = self.get_content(script)
-
-    def get_content(self, script):
-        match = self.query_regex.search(script)
-        if match:
-            filename = DATA_FILES[match.group(1)]
-            with open(data_path(filename), "rb") as infile:
-                content = infile.read()
-            return content
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
-
-
-@pytest.fixture
-def patch_post(request):
-    mp = request.getfixturevalue("monkeypatch")
-
-    mp.setattr(simbad.SimbadClass, '_request', post_mockreturn)
-
-    return mp
-
-
-def post_mockreturn(self, method, url, data, timeout, **kwargs):
-    response = MockResponseSimbad(data['script'], **kwargs)
-
-    class last_query:
-        pass
-
-    self._last_query = last_query()
-    self._last_query.data = data
-    return response
 
 
 @pytest.fixture()
@@ -77,11 +31,51 @@ def _mock_simbad_class(monkeypatch):
     # >>> from astroquery.simbad import Simbad
     # >>> options = Simbad.list_output_options()
     # >>> options.write("simbad_output_options.xml", format="votable")
-
-    def mock_output_options(self):
-        return table
     monkeypatch.setattr(simbad.SimbadClass, "hardlimit", 2000000)
-    monkeypatch.setattr(simbad.SimbadClass, "list_output_options", mock_output_options)
+    monkeypatch.setattr(simbad.SimbadClass, "list_output_options", lambda self: table)
+
+
+@pytest.fixture()
+def _mock_basic_columns(monkeypatch):
+    """Avoid a request to get the columns of basic."""
+    with open(Path(__file__).parent / "data" / "simbad_basic_columns.xml", "rb") as f:
+        table = parse_single_table(f).to_table()
+    # This should not change too often, to regenerate this file, do:
+    # >>> from astroquery.simbad import Simbad
+    # >>> columns = Simbad.list_columns("basic")
+    # >>> columns.write("simbad_basic_columns.xml", format="votable")
+
+    def _mock_list_columns(self, table_name=None):
+        """Patch a call with basic as an argument only."""
+        if table_name == "basic":
+            return table
+        # to test in add_to_output
+        if table_name == "mesdistance":
+            return Table(
+                [["bibcode"]], names=["column_name"]
+            )
+        return simbad.SimbadClass().list_columns(table_name)
+
+    monkeypatch.setattr(simbad.SimbadClass, "list_columns", _mock_list_columns)
+
+
+@pytest.fixture()
+def _mock_linked_to_basic(monkeypatch):
+    """Avoid a request to get the columns of basic."""
+    with open(Path(__file__).parent / "data" / "simbad_linked_to_basic.xml", "rb") as f:
+        table = parse_single_table(f).to_table()
+    # This should not change too often, to regenerate this file, do:
+    # >>> from astroquery.simbad import Simbad
+    # >>> linked = Simbad.list_linked_tables("basic")
+    # >>> linked.write("simbad_linked_to_basic.xml", format="votable")
+
+    def _mock_linked_to_basic(self, table_name=None):
+        """Patch a call with basic as an argument only."""
+        if table_name == "basic":
+            return table
+        return simbad.SimbadClass().list_linked_tables(table_name)
+
+    monkeypatch.setattr(simbad.SimbadClass, "list_linked_tables", _mock_linked_to_basic)
 
 
 def test_adql_parameter():
@@ -116,6 +110,12 @@ def test_simbad_create_tap_service():
     assert 'simbad/sim-tap' in simbadtap.baseurl
 
 
+def test_simbad_hardlimit(monkeypatch):
+    simbad_instance = simbad.Simbad()
+    monkeypatch.setattr(TAPService, "hardlimit", 2)
+    assert simbad_instance.hardlimit == 2
+
+
 def test_init_columns_in_output():
     simbad_instance = simbad.Simbad()
     default_columns = simbad_instance.columns_in_output
@@ -139,7 +139,53 @@ def test_mocked_simbad():
 # ----------------------------
 
 
+@pytest.mark.usefixtures("_mock_basic_columns")
+def test_list_output_options(monkeypatch):
+    monkeypatch.setattr(simbad.SimbadClass, "query_tap",
+                        lambda self, _: Table([["biblio"], ["biblio description"]],
+                                              names=["name", "description"],
+                                              dtype=["object", "object"]))
+    options = simbad.SimbadClass().list_output_options()
+    assert set(options.group_by("type").groups.keys["type"]) == {"table",
+                                                                 "column of basic",
+                                                                 "bundle of basic columns"}
+
+
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.parametrize(("bundle_name", "column"),
+                         [("coordinates", simbad.SimbadClass.Column("basic", "ra")),
+                          ("coordinates", simbad.SimbadClass.Column("basic", "coo_bibcode")),
+                          ("dim", simbad.SimbadClass.Column("basic", "galdim_wavelength"))])
+def test_get_bundle_columns(bundle_name, column):
+    assert column in simbad.SimbadClass()._get_bundle_columns(bundle_name)
+
+
+@pytest.mark.usefixtures("_mock_linked_to_basic")
+def test_add_table_to_output(monkeypatch):
+    # if table = basic, no need to add a join
+    simbad_instance = simbad.Simbad()
+    simbad_instance._add_table_to_output("basic")
+    assert simbad.SimbadClass.Column("basic", "*") in simbad_instance.columns_in_output
+    # cannot add h_link (two ways to join it, it's not a simple link)
+    with pytest.raises(ValueError, match="'h_link' has no explicit link to 'basic'.*"):
+        simbad_instance._add_table_to_output("h_link")
+    # add a table with a link and an alias needed
+    monkeypatch.setattr(simbad.SimbadClass, "list_columns", lambda self, _: Table([["oidref", "bibcode"]],
+                                                                                  names=["column_name"]))
+    simbad_instance._add_table_to_output("mesDiameter")
+    assert simbad.SimbadClass.Join("mesdiameter",
+                                   simbad.SimbadClass.Column("basic", "oid"),
+                                   simbad.SimbadClass.Column("mesdiameter", "oidref")
+                                   ) in simbad_instance.joins
+    assert simbad.SimbadClass.Column("mesdiameter", "bibcode", '"mesdiameter.bibcode"'
+                                     ) in simbad_instance.columns_in_output
+    assert simbad.SimbadClass.Column("mesdiameter", "oidref", '"mesdiameter.oidref"'
+                                     ) not in simbad_instance.columns_in_output
+
+
 @pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.usefixtures("_mock_linked_to_basic")
 def test_add_to_output():
     simbad_instance = simbad.Simbad()
     # add columns from basic (one value)
@@ -150,6 +196,13 @@ def test_add_to_output():
     expected = [simbad.SimbadClass.Column("basic", "pmdec"),
                 simbad.SimbadClass.Column("basic", "pm_bibcode")]
     assert all(column in simbad_instance.columns_in_output for column in expected)
+    # add a table
+    simbad_instance.columns_in_output = []
+    simbad_instance.add_to_output("basic")
+    assert [simbad.SimbadClass.Column("basic", "*")] == simbad_instance.columns_in_output
+    # add a bundle
+    simbad_instance.add_to_output("dimensions")
+    assert simbad.SimbadClass.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
     # a column which name has changed should raise a warning but still
     # be added under its new name
     simbad_instance.columns_in_output = []
@@ -157,6 +210,9 @@ def test_add_to_output():
                       "appearing with its new name in the output table"):
         simbad_instance.add_to_output("id(1)")
     assert simbad.SimbadClass.Column("basic", "main_id") in simbad_instance.columns_in_output
+    # a table which name has changed should raise a warning too
+    with pytest.warns(DeprecationWarning, match="'distance' has been renamed 'mesdistance'*"):
+        simbad_instance.add_to_output("distance")
     # errors are raised for the deprecated fields with options
     with pytest.raises(ValueError, match="Criteria on filters are deprecated when defining Simbad's output.*"):
         simbad_instance.add_to_output("fluxdata(V)")
@@ -192,6 +248,13 @@ def test_query_bibcode_class():
     assert adql == ('SELECT TOP 5 "bibcode", "doi", "journal", "nbobject", "page", "last_page",'
                     ' "title", "volume", "year", "abstract" FROM ref WHERE bibcode ='
                     ' \'1968ZA.....68..366D\' ORDER BY bibcode')
+    # with a criteria
+    adql = simbad_instance.query_bibcode("200*", wildcard=True,
+                                         criteria="abstract LIKE '%exoplanet%'", get_adql=True)
+    assert adql == ('SELECT TOP 5 "bibcode", "doi", "journal", "nbobject", "page", "last_page", '
+                    '"title", "volume", "year" FROM ref '
+                    'WHERE regexp(lowercase(bibcode), \'^200.*$\') = 1 '
+                    'AND abstract LIKE \'%exoplanet%\' ORDER BY bibcode')
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -224,30 +287,59 @@ def test_query_catalog():
     assert adql.endswith(where_clause)
 
 
-@pytest.mark.parametrize(('coordinates', 'radius'),
-                         [(ICRS_COORDS, 2*u.arcmin),
-                          (GALACTIC_COORDS, 5 * u.deg),
-                          (FK4_COORDS, '5d0m0s'),
-                          (FK5_COORDS, 2*u.arcmin),
-                          (multicoords, 0.5*u.arcsec),
-                          (multicoords, "0.5s"),
+@pytest.mark.parametrize(('coordinates', 'radius', 'where'),
+                         [(ICRS_COORDS, 2*u.arcmin,
+                           r"WHERE CONTAINS\(POINT\('ICRS', basic\.ra, basic\.dec\), "
+                           r"CIRCLE\('ICRS', 83\.\d*, -80\.\d*, 0\.\d*\)\) = 1"),
+                          (GALACTIC_COORDS, 5 * u.deg,
+                           r"WHERE CONTAINS\(POINT\(\'ICRS\', basic\.ra, basic\.dec\), "
+                           r"CIRCLE\(\'ICRS\', 83\.\d*, -80\.\d*, 5\.0\)\) = 1"),
+                          (FK4_COORDS, '5d0m0s',
+                           r"WHERE CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 83.\d*, -80.\d*, 5.0\)\) = 1"),
+                          (FK5_COORDS, 2*u.arcmin,
+                           r"WHERE CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 83.\d*, -80.\d*, 0.\d*\)\) = 1"),
+                          (multicoords, 0.5*u.arcsec,
+                           r"WHERE  \(CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 266.835, -28.38528, 0.\d*\)\) "
+                           r"= 1 OR CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 266.835, -28.38528, 0.\d*\)\) = 1 \)"),
+                          (multicoords, ["0.5s", "0.2s"],
+                           r"WHERE  \(CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 266.835, -28.38528, 0.\d*\)\) "
+                           r"= 1 OR CONTAINS\(POINT\(\'ICRS\', basic.ra, basic.dec\), "
+                           r"CIRCLE\(\'ICRS\', 266.835, -28.38528, 5.\d*e-05\)\) = 1 \)"),
                           ])
 @pytest.mark.usefixtures("_mock_simbad_class")
-def test_query_region(coordinates, radius):
-    # looks like this also tests class as Simbad or Simbad()
+def test_query_region(coordinates, radius, where):
     adql = simbad.core.Simbad.query_region(coordinates, radius=radius, get_adql=True)
     adql_2 = simbad.core.Simbad().query_region(coordinates, radius=radius, get_adql=True)
     assert adql == adql_2
+    assert re.search(where, adql) is not None
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_region_with_criteria():
+    adql = simbad.core.Simbad.query_region(ICRS_COORDS, radius="0.1s",
+                                           criteria="galdim_majaxis>0.2", get_adql=True)
+    assert adql.endswith("AND (galdim_majaxis>0.2)")
+
+
+# transform large query warning into error to save execution time
+@pytest.mark.filterwarnings("error:For very large queries")
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_region_errors():
     with pytest.raises(u.UnitsError):
         simbad.core.Simbad().query_region(ICRS_COORDS, radius=0)
-
+    with pytest.raises(TypeError, match="The cone radius must be specified as an angle-equivalent quantity"):
+        simbad.SimbadClass().query_region(ICRS_COORDS, radius=None)
     with pytest.raises(ValueError, match="Mismatch between radii of length 3 "
                        "and center coordinates of length 2."):
         simbad.SimbadClass().query_region(multicoords, radius=[1, 2, 3] * u.deg)
+    centers = SkyCoord([0] * 10001, [0] * 10001, unit="deg", frame="icrs")
+    with pytest.raises(LargeQueryWarning, match="For very large queries, you may receive a timeout error.*"):
+        simbad.core.Simbad.query_region(centers, radius="2m", get_adql=True)
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -277,6 +369,10 @@ def test_query_object():
     adql = simbad.core.Simbad.query_object("m [0-9]", wildcard=True, get_adql=True)
     end = "WHERE  regexp(id, '^m +[0-9]$') = 1"
     assert adql.endswith(end)
+    # with criteria
+    adql = simbad.core.Simbad.query_object("NGC*", wildcard=True, criteria="otype = 'G..'", get_adql=True)
+    end = "AND (otype = 'G..')"
+    assert adql.endswith(end)
 
 # -------------------------
 # Test query_tap exceptions
@@ -291,6 +387,13 @@ def test_query_tap_errors():
     # test the escape of single quotes
     with pytest.raises(ValueError, match="Query string contains an odd number of single quotes.*"):
         simbad.Simbad.query_tap("'''")
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_tap_cache_call(monkeypatch):
+    msg = "called_cached_query_tap"
+    monkeypatch.setattr(simbad.core, "_cached_query_tap", lambda tap, query, maxrec: msg)
+    assert simbad.Simbad.query_tap("select top 1 * from basic") == msg
 
 
 # ---------------------------------------------------

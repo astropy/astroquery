@@ -70,22 +70,23 @@ See for example:
     >>> # we add the main type and all the types that have historically been attributed to the object
     >>> simbad.add_to_output("otype", "alltypes")
     >>> result = simbad.query_catalog("M", criteria=CriteriaTranslator.parse(old_criteria))
+    >>> result.sort("catalog_id")
     >>> result[["main_id", "catalog_id", "otype", "otypes"]]
     <Table length=11>
-     main_id  catalog_id otype                   otypes             
+     main_id  catalog_id otype                   otypes                 
       object    object   object                  object                 
     --------- ---------- ------ ----------------------------------------
-        M  27      M  27     PN           *|G|HS?|IR|PN|UV|WD*|WD?|X|blu
+        M   1      M   1    SNR                 HII|IR|Psr|Rad|SNR|X|gam
         M  24      M  24    As*                              As*|Cl*|GNe
+        M  27      M  27     PN           *|G|HS?|IR|PN|UV|WD*|WD?|X|blu
         M  40      M  40      ?                                        ?
-        M  78      M  78    RNe                          C?*|Cl*|ISM|RNe
-    NGC  6994      M  73    err                                  Cl*|err
-        M  43      M  43    HII                               HII|IR|Rad
         M  42      M  42    HII                    C?*|Cl*|HII|OpC|Rad|X
-        M   1      M   1    SNR                     HII|IR|Rad|SNR|X|gam
-        M  76      M  76     PN                          *|IR|PN|Rad|WD*
-        M  97      M  97     PN *|HS?|IR|NIR|Opt|PN|Rad|UV|WD*|WD?|X|blu
+        M  43      M  43    HII                               HII|IR|Rad
         M  57      M  57     PN              *|HS?|IR|PN|Rad|WD*|WD?|blu
+    NGC  6994      M  73    err                                  Cl*|err
+        M  76      M  76     PN                          *|IR|PN|Rad|WD*
+        M  78      M  78    RNe                          C?*|Cl*|ISM|RNe
+        M  97      M  97     PN *|HS?|IR|NIR|Opt|PN|Rad|UV|WD*|WD?|X|blu
 
 And we indeed get objects from the Messier catalog (as `~astroquery.simbad.SimbadClass.query_catalog` is
 meant to return), but with the additional criteria that these objects should be neither galaxies

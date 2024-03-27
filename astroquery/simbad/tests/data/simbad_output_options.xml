@@ -3,7 +3,7 @@
      http://www.astropy.org/ -->
 <VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
  <RESOURCE type="results">
-  <TABLE ID="result_1706688730023" name="result_1706688730023">
+  <TABLE ID="result_S1711533763224" name="result_S1711533763224">
    <FIELD ID="name" arraysize="*" datatype="char" name="name">
     <DESCRIPTION>
      column name
@@ -18,13 +18,28 @@
    <DATA>
     <TABLEDATA>
      <TR>
-      <TD>ids</TD>
-      <TD>all names concatenated with pipe</TD>
+      <TD>mesDiameter</TD>
+      <TD>Collection of stellar diameters.</TD>
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>otypedef</TD>
-      <TD>all names and definitions for the object types</TD>
+      <TD>mesPM</TD>
+      <TD>Collection of proper motions.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesISO</TD>
+      <TD>Infrared Space Observatory (ISO) observing log.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesSpT</TD>
+      <TD>Collection of spectral types.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>allfluxes</TD>
+      <TD>all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_</TD>
       <TD>table</TD>
      </TR>
      <TR>
@@ -38,13 +53,13 @@
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>allfluxes</TD>
-      <TD>all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_</TD>
+      <TD>mesPLX</TD>
+      <TD>Collection of trigonometric parallaxes.</TD>
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>has_ref</TD>
-      <TD>Associations between astronomical objects and their bibliographic references</TD>
+      <TD>otypedef</TD>
+      <TD>all names and definitions for the object types</TD>
       <TD>table</TD>
      </TR>
      <TR>
@@ -53,38 +68,8 @@
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>mesDiameter</TD>
-      <TD>Collection of stellar diameters.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesFe_h</TD>
-      <TD>Collection of metallicity, as well as Teff, logg for stars.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesISO</TD>
-      <TD>Infrared Space Observatory (ISO) observing log.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesIUE</TD>
-      <TD>International Ultraviolet Explorer observing log.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesPLX</TD>
-      <TD>Collection of trigonometric parallaxes.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesPM</TD>
-      <TD>Collection of proper motions.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesRot</TD>
-      <TD>Stellar Rotational Velocities.</TD>
+      <TD>otypes</TD>
+      <TD>List of all object types associated with an object</TD>
       <TD>table</TD>
      </TR>
      <TR>
@@ -93,18 +78,23 @@
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>mesVelocities</TD>
-      <TD>Collection of HRV, Vlsr, cz and redshifts.</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
       <TD>mesXmm</TD>
       <TD>XMM observing log.</TD>
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>mesHerschel</TD>
-      <TD>The Herschel observing Log</TD>
+      <TD>mesVelocities</TD>
+      <TD>Collection of HRV, Vlsr, cz and redshifts.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>has_ref</TD>
+      <TD>Associations between astronomical objects and their bibliographic references</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesRot</TD>
+      <TD>Stellar Rotational Velocities.</TD>
       <TD>table</TD>
      </TR>
      <TR>
@@ -113,18 +103,33 @@
       <TD>table</TD>
      </TR>
      <TR>
+      <TD>ids</TD>
+      <TD>all names concatenated with pipe</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesHerschel</TD>
+      <TD>The Herschel observing Log</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesIUE</TD>
+      <TD>International Ultraviolet Explorer observing log.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesFe_h</TD>
+      <TD>Collection of metallicity, as well as Teff, logg for stars.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
       <TD>alltypes</TD>
       <TD>all object types concatenated with pipe</TD>
       <TD>table</TD>
      </TR>
      <TR>
-      <TD>otypes</TD>
-      <TD>List of all object types associated with an object</TD>
-      <TD>table</TD>
-     </TR>
-     <TR>
-      <TD>mesSpT</TD>
-      <TD>Collection of spectral types.</TD>
+      <TD>basic</TD>
+      <TD>General data about an astronomical object</TD>
       <TD>table</TD>
      </TR>
      <TR>
@@ -469,7 +474,7 @@
      </TR>
      <TR>
       <TD>dim</TD>
-      <TD>main fields related to object dimensions: major and minor axis, angle and inclination</TD>
+      <TD>major and minor axis, angle and inclination</TD>
       <TD>bundle of basic columns</TD>
      </TR>
      <TR>

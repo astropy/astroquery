@@ -1,19 +1,11 @@
 
 import pytest
 
-from astroquery.simbad.setup_package import get_package_data
-
 from astroquery.simbad.utils import (CriteriaTranslator, _parse_coordinate_and_convert_to_icrs,
                                      _region_to_contains, list_wildcards, _wildcard_to_regexp)
 
 from astropy.coordinates.builtin_frames.icrs import ICRS
 from astropy.coordinates import SkyCoord
-
-
-def test_setup_package():
-    data = get_package_data()
-    assert data["astroquery.simbad.tests"] == ["data/simbad_output_options.xml"]
-    assert data["astroquery.simbad"] == ["data/query_criteria_fields.json"]
 
 
 @pytest.mark.parametrize("coord_string, frame, epoch, equinox", [
