@@ -43,7 +43,7 @@ TAP provides two operation modes:
 Gaia TAP+ server provides two access modes:
 
 * Public: this is the standard TAP access. A user can execute ADQL queries and
-  upload tables to be used in a query 'on-the-fly' (these tables will be removed
+  upload votables to be used in a query 'on-the-fly' (these tables will be removed
   once the query is executed). The results are available to any other user and
   they will remain in the server for a limited time.
 
@@ -364,7 +364,7 @@ Note: you can inspect the status of the job by typing:
 1.5. Synchronous query on an 'on-the-fly' uploaded table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A table can be uploaded to the server in order to be used in a query.
+A votable can be uploaded to the server in order to be used in a query.
 
 You have to provide the local path to the file you want to upload. In the following example,
 the file 'my_table.xml' is located to the relative location where your python program is
