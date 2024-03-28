@@ -198,7 +198,7 @@ Service specific settings
 The Astroquery cache location is specific to individual services,
 so each service's cache should be managed individually.
 The cache location can be viewed with the following command
-(using :ref:`VizieR <astroquery_vizier>` as an example):
+(using :ref:`VizieR <astroquery.vizier>` as an example):
 
 .. code-block:: python
 
