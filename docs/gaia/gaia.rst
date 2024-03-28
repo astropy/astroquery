@@ -367,8 +367,7 @@ Note: you can inspect the status of the job by typing:
 A votable can be uploaded to the server in order to be used in a query.
 
 You have to provide the local path to the file you want to upload. In the following example,
-the file 'my_table.xml' is located to the relative location where your python program is
-running. See note below.
+the file 'my_table.xml' is located to the relative location where your python program is running. See note below.
 
 .. doctest-skip::
 
