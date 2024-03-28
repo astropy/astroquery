@@ -259,8 +259,8 @@ class Tap:
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
-        upload_resource : str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
+        upload_resource : str, bytes, os.PathLike object or astropy.table.table.Table object, optional, default None
+            votable to be uploaded to UPLOAD_SCHEMA
         upload_table_name : str, optional, default None
             resource temporary table name associated to the uploaded resource.
             This argument is required if upload_resource is provided.
@@ -387,8 +387,8 @@ class Tap:
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
-        upload_resource : str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
+        upload_resource : str, bytes, os.PathLike object or astropy.table.table.Table object, optional, default None
+            votable to be uploaded to UPLOAD_SCHEMA
         upload_table_name : str, optional, default None
             resource temporary table name associated to the uploaded resource.
             This argument is required if upload_resource is provided.
