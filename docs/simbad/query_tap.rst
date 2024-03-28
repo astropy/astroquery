@@ -31,7 +31,7 @@ ADQL query.
   the objects cited by the largest number of papers.*/
   ORDER BY nbref DESC
 
-This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`: 
+This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`:
 
 .. nbref changes often so we ignore the output here
 .. doctest-remote-data::
@@ -44,7 +44,7 @@ This ADQL query can be called with `~astroquery.simbad.SimbadClass.query_tap`:
     ...                  ORDER BY nbref DESC""") # doctest: +IGNORE_OUTPUT
         <Table length=5>
             ra                dec         main_id  nbref
-           deg                deg                       
+           deg                deg
          float64            float64        object  int32
     ------------------ ------------------ -------- -----
     10.684708333333333 41.268750000000004    M  31 12412
@@ -71,8 +71,8 @@ the names and descriptions of each table with the
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_tables() # doctest: +IGNORE_OUTPUT
     <Table length=30>
-      table_name                                  description                                 
-        object                                       object                                   
+      table_name                                  description
+        object                                       object
     ------------- ----------------------------------------------------------------------------
             basic                                    General data about an astronomical object
               ids                                             all names concatenated with pipe
@@ -139,8 +139,8 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_columns("ref", "biblio")
     <Table length=13>
-    table_name column_name   datatype  ...  unit          ucd         
-      object      object      object   ... object        object       
+    table_name column_name   datatype  ...  unit          ucd
+      object      object      object   ... object        object
     ---------- ----------- ----------- ... ------ --------------------
         biblio      biblio        TEXT ...        meta.record;meta.bib
         biblio      oidref      BIGINT ...         meta.record;meta.id
@@ -202,7 +202,7 @@ that is the measurement table for rotations. Their common column is ``oidref``.
     >>> Simbad.query_tap(query)
     <Table length=6>
     Rotation Measurements Bibcodes
-                object            
+                object
     ------------------------------
             2016A&A...589A..83G
             2002A&A...393..897R
@@ -223,14 +223,14 @@ is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
 
     >>> from astroquery.simbad import Simbad
     >>> query = """SELECT ra, dec, main_id, rvz_redshift, otype
-    ...         FROM basic 
+    ...         FROM basic
     ...         WHERE otype != 'star..'
     ...         AND CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', 331.92, +12.44 , 0.25)) = 1
     ...         AND rvz_redshift <= 0.4"""
     >>> Simbad.query_tap(query)
     <Table length=11>
-           ra              dec                 main_id          rvz_redshift otype 
-          deg              deg                                                     
+           ra              dec                 main_id          rvz_redshift otype
+          deg              deg
         float64          float64                object            float64    object
     --------------- ------------------ ------------------------ ------------ ------
     331.86493815752     12.61105991847 SDSS J220727.58+123639.8      0.11816    EmG
@@ -244,7 +244,7 @@ is in the ``basic`` column. The ``star..`` syntax refers to any type of star.
          331.951995          12.431051 SDSS J220748.47+122551.7      0.16484      G
          332.171805          12.430204 SDSS J220841.23+122548.7      0.14762      G
          332.084711          12.486509 SDSS J220820.33+122911.4      0.12246      G
-        
+
 This returns a few galaxies 'G' and emission-line galaxies 'EmG'.
 
 Get the members of a galaxy cluster
@@ -267,8 +267,8 @@ Then, the ``basic`` table is joined with ``h_link`` and the sub-query result.
     >>> Simbad.query_tap(query)
     <Table length=7>
             child id         otype          ra         ... membership parent cluster
-                                           deg         ...  percent                 
-             object          object      float64       ...   int16        object    
+                                           deg         ...  percent
+             object          object      float64       ...   int16        object
     ------------------------ ------ ------------------ ... ---------- --------------
                SDSSCGB 350.4      G 243.18303333333336 ...         75    SDSSCGB 350
     SDSS J161245.36+281652.4      G 243.18900464937997 ...         75    SDSSCGB 350
@@ -278,8 +278,8 @@ Then, the ``basic`` table is joined with ``h_link`` and the sub-query result.
                SDSSCGB 350.1      G 243.18618110644002 ...        100    SDSSCGB 350
                 LEDA 1831614      G         243.189153 ...        100    SDSSCGB 350
 
-Query a long list of object
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Query a long list of objects
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To query a list of objects (or coordinates, of bibliographic references), we can use the
 ADQL criteria ``IN`` like so:
@@ -307,10 +307,10 @@ an `~astropy.table.Table` containing the desired list and use it in a ``JOIN`` t
     >>> from astropy.table import Table
     >>> list_of_objects = Table([["M1", "M2", "M3"]], names=["Messier_objects"])
     >>> query = """SELECT main_id, otype FROM basic
-    ...            JOIN TAP_UPLOAD.messiers 
+    ...            JOIN TAP_UPLOAD.messiers
     ...            ON basic.main_id = TAP_UPLOAD.messiers.Messier_objects
     ...         """
-    >>> Simbad.query_tap(query, messiers=list_of_objects) 
+    >>> Simbad.query_tap(query, messiers=list_of_objects)
     <Table length=3>
     main_id otype
      object object

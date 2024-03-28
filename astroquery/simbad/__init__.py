@@ -3,10 +3,9 @@
 SIMBAD Query Tool
 =================
 
-The SIMBAD query tool creates a `script query
-<https://simbad.cds.unistra.fr/simbad/sim-fscript>`__ that returns VOtable XML
-data that is then parsed into a SimbadResult object.  This object then
-parses the data and returns a table parsed with `astropy.io.votable.parse`.
+The SIMBAD query tool creates `TAP ADQL queries
+<https://cds.unistra.fr/help/documentation/simbad-more/adql-simbad/>`__ that return VOtable XML
+data. This is then parsed into a `~astropy.table.Table` object.
 """
 from astropy import config as _config
 
@@ -40,7 +39,4 @@ conf = Conf()
 
 from .core import Simbad, SimbadClass
 
-__all__ = ['Simbad', 'SimbadClass',
-           'SimbadBaseQuery',
-           'Conf', 'conf',
-           ]
+__all__ = ['Simbad', 'SimbadClass', 'Conf', 'conf']

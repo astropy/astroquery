@@ -17,17 +17,18 @@ A warning about query rate
 
 The SIMBAD database is widely used and has to limit the rate of incoming queries.
 If you spam the server with more that ~5-10 queries per second you will be
-blacklisted for an hour. This can happen when a query method is called within a loop.
-There is always a way to send the information in a bigger query. You can pass
-`~astroquery.simbad.SimbadClass.query_region` a vector of coordinates or
-`~astroquery.simbad.SimbadClass.query_objects` a list of object names,
-and SIMBAD will treat this submission as a single query.
+blacklisted for up to an hour. This can happen when a query method is called within a loop.
+There is always a way to send the information in a bigger query rather than in a lot of
+smaller ones. Frequent use cases are that you can pass a vector of coordinates to
+`~astroquery.simbad.SimbadClass.query_region` or a list of names to
+`~astroquery.simbad.SimbadClass.query_objects`, and SIMBAD will treat this submission as
+a single query.
 
-About deprecation warnings
---------------------------
+Simbad Evolutions
+-----------------
 
-The SIMBAD module has been rewritten with astroquery > 0.4.7. If you're here following a
-deprecation warning, this is your go-to page:
+The SIMBAD module follows evolutions of the SIMBAD database.
+Some of these changes are documented into more details here:
 
 .. toctree::
     :maxdepth: 2
@@ -37,10 +38,10 @@ deprecation warning, this is your go-to page:
 Different ways to access SIMBAD
 -------------------------------
 
-The SIMBAD module described here provides methods that write pre-defined ADQL queries. These
+The SIMBAD module described here provides methods that write ADQL queries. These
 methods are described in the next sections.
 
-A more versatile option is to query SIMBAD directly with your own ADQL query via
+A more versatile option is to query SIMBAD directly with your own ADQL queries via
 Table Access Protocol (TAP) with the `~astroquery.simbad.SimbadClass.query_tap` method.
 This is described in :ref:`query TAP <query-tap>`.
 
@@ -66,11 +67,11 @@ the messier object M1:
     ------- ------- ------- ... -------------- ------------------- ----------
       M   1 83.6287 22.0147 ...              R 1995AuJPh..48..143S      M   1
     
-Wildcards are supported, but they render the query case-sensitive. So for instance to query messier
-objects from 1 through 9:
+`Wildcards`_ are supported. Note that this makes the query case-sensitive.
+This allows, for instance, to query messier objects from 1 through 9:
 
 ..
-    The following example is very slow ~6s due to a current (early 2024) bug in
+    The following example is very slow ~20s due to a current (2024) bug in
     the SIMBAD regexp. This should be removed from the skipped tests
     once the bug is fixed upstream.
 
@@ -93,18 +94,22 @@ objects from 1 through 9:
         M   5 229.63841666666673 ... 2010AJ....140.1830G      M   5
 
 
-We can see that the messier objects are indeed found. Their ``main_id`` is not necessarly
-the one corresponding to the wildcard expression. The column ``matched_id`` will return which
-identifier was matched. The wildcard parameter can often be replaced by a way faster query
-done with `~astroquery.simbad.SimbadClass.query_objects`. 
+The messier objects from 1 to 9 are found. Their ``main_id`` is not necessarily
+the one corresponding to the wildcard expression. The column ``matched_id`` contains
+the identifier that was matched. 
 
-Wildcards are supported by:
+Note that in this example, the wildcard parameter could have been replaced by a way
+faster query done with `~astroquery.simbad.SimbadClass.query_objects`. 
+
+Wildcards
+"""""""""
+
+Wildcards are supported in these methods:
  - `~astroquery.simbad.SimbadClass.query_object`
  - `~astroquery.simbad.SimbadClass.query_objects`
  - `~astroquery.simbad.SimbadClass.query_bibcode`
 
-The wildcards that are supported and their usage across all these queries is the same.
-To see the available wildcards and their functions:
+To see the available wildcards and their meaning:
 
 .. code-block:: python
 
@@ -122,13 +127,13 @@ These queries can be used to retrieve all of the names (identifiers)
 associated with an object.
 
 .. 
-    This could change often (each time someone invents a new name for Polaris).
+    This could change (each time someone invents a new name for Polaris).
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_objectids("Polaris")
-    >>> print(result_table)  # doctest: +IGNORE_OUTPUT
+    >>> result_table
     <Table length=46>
                id          
              object        
@@ -155,9 +160,13 @@ Query a region
 Query in a cone with a specified radius. The center can be a string with an
 identifier, a string representing coordinates, or a `~astropy.coordinates.SkyCoord`.
 
+.. 
+    This output will also change often.
+
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
+    >>> # get 10 objects in a radius of 0.5° around M81
     >>> simbad = Simbad()
     >>> simbad.ROW_LIMIT = 10
     >>> result_table = simbad.query_region("m81", radius="0.5d")
@@ -181,41 +190,16 @@ explicitly specified it can be either a string accepted by
 `~astropy.coordinates.Angle` (ex: ``radius='0d6m0s'``)or directly a
 `~astropy.units.Quantity` object.
 
-If coordinates are used, then they should be entered using an `astropy.coordinates.SkyCoord`
-object.
-
-.. doctest-remote-data::
-
-    >>> from astroquery.simbad import Simbad
-    >>> from astropy.coordinates import SkyCoord
-    >>> simbad = Simbad()
-    >>> simbad.ROW_LIMIT = 10
-    >>> coordinate = SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
-    >>> simbad.query_region(coordinate, radius='1d0m0s')   # doctest: +IGNORE_OUTPUT
-    <Table length=10>
-              main_id                    ra               dec         ... coo_err_angle coo_wavelength     coo_bibcode    
-                                        deg               deg         ...      deg                                        
-               object                 float64           float64       ...     int16          str1             object      
-    ---------------------------- ----------------- ------------------ ... ------------- -------------- -------------------
-                 TYC 9390-1857-1 89.18327041666667 -81.31254972222223 ...            71              O 2016A&A...595A...2G
-                    PKS 0602-813 89.37791666666668 -81.37027777777777 ...            --                                   
-                 TYC 9390-1786-1    89.14477451271    -81.41309658604 ...            90              O 2020yCat.1350....0G
-                 TYC 9390-1878-1    88.75276112064    -81.44513030144 ...            90              O 2020yCat.1350....0G
-    Gaia DR3 4621434189736118144     89.2148880241    -81.42047989066 ...            90              O 2020yCat.1350....0G
-    Gaia DR3 4621443844823809536 89.77428052292792 -81.21112425878056 ...            90              O 2020yCat.1350....0G
-                     CD-81   190 89.17676879332167 -81.38640963209807 ...            90              O 2020yCat.1350....0G
-                  PKS J0557-8122           89.3624           -81.3742 ...             0              R 2012MNRAS.422.1527M
-                UCAC4 044-003417    89.50051776702    -81.21953460424 ...            90              O 2020yCat.1350....0G
-                IRAS F05246-8120 80.00253626975339 -81.29356823821976 ...           100              F 1990IRASF.C......0M
-
+If the center is defined by coordinates, then the best solution is to use a
+`astropy.coordinates.SkyCoord` object.
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> from astropy.coordinates import SkyCoord
     >>> import astropy.units as u
-    >>> Simbad.query_region(SkyCoord(31.0087, 14.0627, unit=(u.deg, u.deg), frame='galactic'),
-    ...                     radius=2 * u.arcsec)
+    >>> Simbad.query_region(SkyCoord(31.0087, 14.0627, unit=(u.deg, u.deg),
+    ...                     frame='galactic'), radius=2 * u.arcsec)
     <Table length=2>
           main_id               ra        ... coo_wavelength     coo_bibcode    
                                deg        ...                                   
@@ -224,9 +208,11 @@ object.
                GJ 699 b 269.4520769586187 ...              O 2020yCat.1350....0G
     NAME Barnard's star 269.4520769586187 ...              O 2020yCat.1350....0G         
 
-Calling `~astroquery.simbad.SimbadClass.query_region` within a loop is *very*
-inefficient. If you need to query many regions, use a `~astropy.coordinates.SkyCoord`
-with a list of centers and a list of radii. It looks like this:
+.. Note::
+
+    Calling `~astroquery.simbad.SimbadClass.query_region` within a loop is **very**
+    inefficient. If you need to query many regions, use a multi-coordinate
+    `~astropy.coordinates.SkyCoord` and a list of radii. It looks like this:
 
 .. doctest-remote-data::
 
@@ -248,18 +234,20 @@ with a list of centers and a list of radii. It looks like this:
        PLCKECC G118.25-52.70  9.981250000000001 ... 2011A&A...536A...7P
       GALEX J004011.0+095752 10.045982309580001 ... 2020yCat.1350....0G
 
+If the radius is the same in every cone, you can also just give this single radius without
+having to create the list (ex: ``radius = "5arcmin"``).
+
 Query a catalogue
 ^^^^^^^^^^^^^^^^^
 
-Queries can also be formulated to return all the objects from a catalogue. For
-instance to query the ESO catalog:
+Queries can also return all the objects from a catalogue. For instance to query
+the ESO catalog:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> limitedSimbad = Simbad()
-    >>> limitedSimbad.ROW_LIMIT = 6
-    >>> limitedSimbad.query_catalog('ESO')
+    >>> simbad = Simbad(ROW_LIMIT=6)
+    >>> simbad.query_catalog('ESO')
     <Table length=6>
      main_id          ra         ...     coo_bibcode     catalog_id
                      deg         ...                               
@@ -272,16 +260,23 @@ instance to query the ESO catalog:
     ESO   1-5  133.2708583333333 ... 2006AJ....131.1163S  ESO   1-5
     ESO   1-6    216.83122280179 ... 2020yCat.1350....0G  ESO   1-6
 
-To see the available catalogues, you can write a custom ADQL query on the ``cat`` table. 
+Note that the name in ``main_id`` is not necessarily from the queried catalog. This
+information is in the ``catalog_id`` column.
+
+To see the available catalogues, you can write a custom ADQL query
+(see :ref:`query_tap <query-tap-documentation>`.) on the ``cat`` table.
 For example to get the 10 biggest catalogs in SIMBAD, it looks like this:
+
+..
+    This changes quite often. Hence the doctest skip
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.query_tap('SELECT TOP 10 cat_name, description FROM cat ORDER BY "size" DESC')
+    >>> Simbad.query_tap('SELECT TOP 10 cat_name, description FROM cat ORDER BY "size" DESC')  # doctest: +IGNORE_OUTPUT
     <Table length=10>
     cat_name                           description                           
-     object                               object                             
+    object                               object                             
     -------- ----------------------------------------------------------------
         Gaia                                                             Gaia
        2MASS                               2 Micron Sky Survey, Point Sources
@@ -290,10 +285,11 @@ For example to get the 10 biggest catalogs in SIMBAD, it looks like this:
          TYC                                                    Tycho mission
         OGLE                              Optical Gravitational Lensing Event
        UCAC4                               Fourth USNO CCD Astrograph Catalog
-         GSC                                             Guide Star Catalogue
         WISE Wide-field Infrared Survey Explorer Final Release Source Catalog
+         GSC                                             Guide Star Catalogue
         LEDA                              Lyon-Meudon Extragalactic DatabaseA
 
+Where you can remove ``TOP 10`` to get **all** the catalogues (there's a lot of them).
 
 Bibliographic queries
 ---------------------
@@ -301,7 +297,7 @@ Bibliographic queries
 Query a bibcode
 ^^^^^^^^^^^^^^^
 
-This retrieves the reference corresponding to a bibcode.
+This retrieves information about the article corresponding to a bibcode.
 
 .. doctest-remote-data::
 
@@ -313,31 +309,33 @@ This retrieves the reference corresponding to a bibcode.
     ------------------- -------------------------- ------- ... ------ -----
     2005A&A...430..165F 10.1051/0004-6361:20041272     A&A ...    430  2005
 
-The abstract of the article can also be added as an other column in the output by setting
-the ``abstract`` parameter to ``True``.
+The abstract of the reference can also be added as an other column in the output by
+setting the ``abstract`` parameter to ``True``.
 
-Wildcards can be used in these queries as well. So to retrieve all the bibcodes
-from a given journal in a given year:
+`Wildcards`_ can be used in these queries as well. This can be useful to retrieve all
+the bibcodes from a given journal in a given year:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.query_bibcode('2013A&ARv.*', wildcard=True)  # doctest: +IGNORE_OUTPUT
+    >>> biblio = Simbad.query_bibcode('2013A&ARv.*', wildcard=True)
+    >>> biblio.sort("bibcode")
+    >>> biblio
         <Table length=9>
           bibcode                  doi            journal ... volume  year
            object                 object           object ... int32  int16
     ------------------- ------------------------- ------- ... ------ -----
-    2013A&ARv..21...62D 10.1007/s00159-013-0062-7   A&ARv ...     21  2013
     2013A&ARv..21...59I 10.1007/s00159-013-0059-2   A&ARv ...     21  2013
-    2013A&ARv..21...70B 10.1007/s00159-013-0070-7   A&ARv ...     21  2013
-    2013A&ARv..21...69R 10.1007/s00159-013-0069-0   A&ARv ...     21  2013
     2013A&ARv..21...61R 10.1007/s00159-013-0061-8   A&ARv ...     21  2013
-    2013A&ARv..21...64D 10.1007/s00159-013-0064-5   A&ARv ...     21  2013
-    2013A&ARv..21...68G 10.1007/s00159-013-0068-1   A&ARv ...     21  2013
+    2013A&ARv..21...62D 10.1007/s00159-013-0062-7   A&ARv ...     21  2013
     2013A&ARv..21...63T 10.1007/s00159-013-0063-6   A&ARv ...     21  2013
+    2013A&ARv..21...64D 10.1007/s00159-013-0064-5   A&ARv ...     21  2013
     2013A&ARv..21...67B 10.1007/s00159-013-0067-2   A&ARv ...     21  2013
+    2013A&ARv..21...68G 10.1007/s00159-013-0068-1   A&ARv ...     21  2013
+    2013A&ARv..21...69R 10.1007/s00159-013-0069-0   A&ARv ...     21  2013
+    2013A&ARv..21...70B 10.1007/s00159-013-0070-7   A&ARv ...     21  2013
 
-To look for articles published between 2010 and 2012 with a given keyword:
+or to look for articles published between 2010 and 2012 with a given keyword:
 
 .. doctest-remote-data::
 
@@ -357,15 +355,15 @@ To look for articles published between 2010 and 2012 with a given keyword:
     2010A&A...511A..36C 10.1051/0004-6361/200913629     A&A ...    511  2010
     2010A&A...511L...1M 10.1051/0004-6361/201014139     A&A ...    511  2010
 
-As you can see, some wildcards can be replaced by a criteria (ex we could also
+As you can see, some wildcards can be replaced by a criteria (ex: we could also
 write: ``"journal" = 'A&A'`` in the criteria string). It is often faster to avoid
 wildcards and use a criteria instead.
 
 Query a bibobj
 ^^^^^^^^^^^^^^
 
-These queries can be used to retrieve all the objects that are contained in the
-article specified by the bibcode:
+These queries can be used to retrieve all the objects that are discussed in the
+article specified by a bibcode:
 
 .. doctest-remote-data::
 
@@ -388,16 +386,15 @@ article specified by the bibcode:
 Customizing the default settings
 ================================
 
-There may be times when you wish to change the defaults that have been set for
-the Simbad queries.
+This section describe how the default output for the SIMBAD queries can be changed.
 
 Changing the row limit
 ----------------------
 
-To fetch all the rows in the result, the row limit must be set to -1. However for some
-queries, results are likely to be very large, in such cases it may be best to
-limit the rows to a smaller number. If you want to do this only for the current
-python session then:
+To fetch all the rows in the result, the row limit must be set to -1. This is the default
+behavior. However if you're only interested in a certain number of objects, or if 
+the result would be too large, you can change this behavior.
+If you want to do this only for the current python session then:
 
 .. code-block:: python
 
@@ -409,6 +406,7 @@ modifying the setting in the Astroquery configuration file.
 
 .. Note::
 
+    This works with every ``query_***`` method, but 
     `~astroquery.simbad.SimbadClass.query_tap` is an exception as the number
     of returned rows is fixed in the ADQL string with the ``TOP`` instruction.
 
@@ -417,18 +415,17 @@ Choosing the columns in the output tables
 
 .. Warning::
 
-    Before astroquery v0.4.7, this was done with ``votable_fields``. This is not
+    Before astroquery v0.4.8, this was done with ``votable_fields``. This is not
     the case anymore. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
 
 Some query methods outputs can be customized. This is the case for:
 
-- `~astroquery.simbad.DeprecatedSimbadClass.query_criteria`
 - `~astroquery.simbad.SimbadClass.query_object`
 - `~astroquery.simbad.SimbadClass.query_objects`
 - `~astroquery.simbad.SimbadClass.query_region`
 - `~astroquery.simbad.SimbadClass.query_bibobj`
 
-Their default columns are:
+For these methods, the default columns in the output are:
 
 - main_id
 - ra
@@ -437,20 +434,32 @@ Their default columns are:
 - coo_err_min
 - coo_err_angle
 - coo_wavelength
-- coo_bibcode'
+- coo_bibcode
 
-This can be permanently changed in astroquery's configuration files. To do this within a session or
-for a single query, use `~astroquery.simbad.SimbadClass.add_to_output`:
+.. Note::
+
+    The columns that will appear in the output are in the
+    `~astroquery.simbad.SimbadClass.columns_in_output` attribute
+
+    .. code-block:: python
+
+        >>> from astroquery.simbad import Simbad
+        >>> simbad = Simbad()
+        >>> simbad.columns_in_output[0]
+        SimbadClass.Column(table='basic', name='main_id', alias=None)
+
+This can be permanently changed in astroquery's configuration files. To do this within 
+a session or for a single query, use `~astroquery.simbad.SimbadClass.add_to_output`:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> simbad = Simbad()
-    >>> simbad.add_to_output("otype")  # here we add a single column about object type
+    >>> simbad.add_to_output("otype")  # here we add a single column about the main object type
 
-Some options add a single column and others add columns that are relevant for a theme (ex: fluxes,
-proper motions...).
-The list of possible options is printed with:
+Some options add a single column and others add  a bunch of columns that are relevant
+for a theme (ex: fluxes, proper motions...). The list of possible options is printed
+with:
 
 .. doctest-remote-data::
 
@@ -487,10 +496,11 @@ Additional criteria
 
 .. Warning::
 
-    Before astroquery v0.4.7, this was only possible within `~astroquery.simbad.DeprecatedSimbadClass.query_criteria`. This is not
-    the case anymore, and a lot of query methods now admit criteria strings. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
+    Before astroquery v0.4.8, criteria could only be used with the method ``query_criteria``.
+    This method does not exist anymore and is replaced by the criteria argument in every
+    other methods. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
 
-Some query methods take a ``criteria`` argument. They are listed here:
+Most query methods take a ``criteria`` argument. They are listed here:
 
 - `~astroquery.simbad.SimbadClass.query_object`
 - `~astroquery.simbad.SimbadClass.query_objects`
@@ -500,9 +510,13 @@ Some query methods take a ``criteria`` argument. They are listed here:
 - `~astroquery.simbad.SimbadClass.query_bibcode`
 - `~astroquery.simbad.SimbadClass.query_objectids`
 
-A the criteria argument expect a string that fits in the ``WHERE`` clause of an ADQL query. Some examples can
-be found in the `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`__. A way
-of writing them is to first query a blank table to inspect the columns the method will return:
+The criteria argument expect a string that fits in the ``WHERE`` clause of an ADQL query.
+Some examples can be found in the
+`Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`__.
+
+To help writing criteria, a good tip is to inspect the columns that the query would
+return by querying a blank table (of zero rows).
+This allows to inspect the columns the method would return:
 
 .. doctest-remote-data::
 
@@ -538,9 +552,12 @@ of writing them is to first query a blank table to inspect the columns the metho
         mespm.pmra_prec   int16              Precision (# of decimal positions) associated with the column pmra
              matched_id  object                                                                      Identifier
 
-With the information on the columns that will be returned by the query, it is now possible to write a criteria.
-For example, to get only proper motions measurements more recent than 2000, we can add a constraint on the
-first character of the bibcode (the first 4 digits of a bibcode are the year of publication of the article):
+Now that we know which columns will be returned by the query, we can edit the number of
+returned rows and add a criteria.
+
+For example, to get only proper motion measurements more recent than 2000, we can add a
+constraint on the first character of the ``mespm.bibcode`` column
+(the first 4 digits of a bibcode are the year of publication of the article):
 
 .. doctest-remote-data::
 
@@ -570,12 +587,11 @@ Query TAP
 
 .. include:: query_tap.rst
 
-
-
 Troubleshooting
 ===============
 
-If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
+If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing
+your cache:
 
 .. code-block:: python
 
@@ -585,11 +601,15 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
 If this function is unavailable, upgrade your version of astroquery. 
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
+Citation
+========
+
+If SIMBAD was useful for your research, you can
+`read its acknowledgement page <https://cds.unistra.fr/help/acknowledgement/>`__.
+
     
 Reference/API
 =============
 
 .. automodapi:: astroquery.simbad
     :no-inheritance-diagram:
-
-.. _criteria interface: https://simbad.cds.unistra.fr/simbad/sim-fsam
