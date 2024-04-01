@@ -38,19 +38,19 @@ jobs:
 
           - name: oldest version for all dependencies
             os: ubuntu-latest
-            python: 3.9
+            python: "3.9"
             toxenv: py39-test-oldestdeps-alldeps
             toxargs: -v
 
           - name: Python 3.10 with all optional dependencies (MacOS X)
             os: macos-latest
-            python: 3.10
+            python: "3.10"
             toxenv: py310-test-alldeps
             toxargs: -v
 
           - name: Python 3.11 with mandatory dependencies (Windows)
             os: windows-latest
-            python: 3.11
+            python: "3.11"
             toxenv: py311-test
             toxargs: -v
 
@@ -84,6 +84,6 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: "3.9"
     - name: Run egg_info
       run: python setup.py egg_info
