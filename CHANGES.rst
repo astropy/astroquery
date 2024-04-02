@@ -25,6 +25,13 @@ vizier
   from ``IndexError`` to ``EmptyResponseError`` [#2980]
 
 
+skyview
+^^^^^^^
+
+- Overlay arguments `lut`, `grid`, and `gridlabel` are removed, as they
+  only apply to output types not returned by Astroquery [#2979]
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
