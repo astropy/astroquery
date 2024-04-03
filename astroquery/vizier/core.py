@@ -23,7 +23,7 @@ from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
 from . import conf
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, EmptyResponseError
 
 
 __all__ = ['Vizier', 'VizierClass']
@@ -345,6 +345,9 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return metadata
         result = metadata.execute().to_table()
+        if len(result) == 0:
+            raise EmptyResponseError(f"'{catalog}' was not found in VizieR. Valid catalog names "
+                                     "look like: 'IX/58', 'J/MNRAS/491/215', 'J/ApJS/256/33'...")
         # apply mask if the `alt_identifier` value is not a doi
         result["doi"].mask = True if "doi:" not in result["doi"][0] else False
         return result

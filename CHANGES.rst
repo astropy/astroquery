@@ -13,6 +13,12 @@ mpc
 
 - Parse star catalog information when querying observations database [#2957]
 
+vizier
+^^^^^^
+
+- Change the type of raised error when the catalog is not found in ``Vizier.get_catalog_metadata``
+  from ``IndexError`` to ``EmptyResponseError`` [#2980]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
