@@ -432,7 +432,7 @@ def test_load_data(monkeypatch, tmp_path):
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable_gzip",
+            "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
@@ -501,7 +501,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable_gzip",
+            "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
