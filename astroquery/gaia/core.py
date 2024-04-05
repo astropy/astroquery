@@ -974,7 +974,7 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file,
                                   upload_resource=upload_resource,
                                   upload_table_name=upload_table_name,
-                                  format_with_results_compressed=('votable_gzip', 'fits', 'ecsv'))
+                                  format_with_results_compressed=('votable_gzip',))
 
     def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable_gzip", verbose=False,
@@ -1027,7 +1027,7 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun,
-                                        format_with_results_compressed=('votable_gzip', 'fits', 'ecsv'))
+                                        format_with_results_compressed=('votable_gzip',))
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
