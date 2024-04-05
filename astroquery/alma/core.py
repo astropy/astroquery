@@ -564,10 +564,6 @@ class AlmaClass(QueryWithLogin):
             maxrec=maxrec,
             **kwargs)
 
-    # SIA2_PARAMETERS_DESC contains links that Sphinx can't resolve.
-    for var in ('POLARIZATION_STATES', 'CALIBRATION_LEVELS'):
-        SIA2_PARAMETERS_DESC = SIA2_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
-                                                            f'pyvo.dam.obscore.{var}')
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
     def query_tap(self, query, maxrec=None):
