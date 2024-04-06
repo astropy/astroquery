@@ -46,6 +46,13 @@ class SplatalogueClass(BaseQuery):
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('LovasNIST', 'SLAIM', 'JPL', 'CDMS', 'ToyaMA', 'OSU',
                       'TopModel', 'Recombination', 'RFI')
+    VALID_LINE_STRENGTHS = ('CDMSJPL', 'SijMu2', 'Sij', 'Aij', 'LovasAST')
+    VALID_ENERGY_LEVELS = {'One': 'EL_cm-1',
+                           'Two': 'EL_K',
+                           'Three': 'EU_cm-1',
+                           'Four': 'EU_K'}
+    VALID_ENERGY_TYPES = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
+    VALID_INTENSITY_TYPES = ('CDMS/JPL (log)', 'Sij-mu2', 'Aij (log)')
 
     def __init__(self, **kwargs):
         """
@@ -137,8 +144,8 @@ class SplatalogueClass(BaseQuery):
                       max_frequency=100 * u.THz,
                       chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
-                      line_strengths=('CDMSJPL', 'SijMu2', 'Sij', 'Aij', 'LovasAST'),
-                      energy_levels=('One', 'Two', 'Three', 'Four'),
+                      line_strengths=self.VALID_LINE_STRENGTHS,
+                      energy_levels=self.VALID_ENERGY_LEVELS.keys(),
                       exclude=('potential', 'atmospheric', 'probable'),
                       version='v3.0',
                       only_NRAO_recommended=None,
@@ -237,10 +244,10 @@ class SplatalogueClass(BaseQuery):
             * Aij : ls4
             * Lovas/AST : ls5
         energy_levels : list
-            * E_lower (cm^-1) : el1
-            * E_lower (K) : el2
-            * E_upper (cm^-1) : el3
-            * E_upper (K) : el4
+            * E_lower (cm^-1) : "One"
+            * E_lower (K) : "Two"
+            * E_upper (cm^-1) : "Three"
+            * E_upper (K) : "Four"
         export : bool
             Set up arguments for the export server (as opposed to the HTML
             server)?
@@ -361,14 +368,17 @@ class SplatalogueClass(BaseQuery):
         if energy_max is not None:
             payload['energyTo'] = float(energy_max)
         if energy_type is not None:
-            validate_energy_type(energy_type)
+            if energy_type not in self.VALID_ENERGY_TYPES:
+                raise ValueError(f'energy_type must be one of {self.VALID_ENERGY_TYPES}')
             payload['energyRangeType'] = energy_type
 
-        # I don't know how to enter this right now
-        # if intensity_type is not None:
-        #     payload['lineIntensity'] = 'lill_' + intensity_type
-        #     if intensity_lower_limit is not None:
-        #         payload[payload['lill']] = intensity_lower_limit
+        if intensity_lower_limit is not None:
+            if intensity_type is None:
+                raise ValueError("If you specify an intensity lower limit, you must also specify its intensity_type.")
+            elif intensity_type not in self.VALID_INTENSITY_TYPES:
+                raise ValueError(f'intensity_type must be one of {self.VALID_INTENSITY_TYPES}')
+            payload['lineIntensity'] = intensity_type
+            payload['lineIntensityLowerLimit'] = intensity_lower_limit
 
         if version in self.versions:
             payload['dataVersion'] = version
@@ -401,10 +411,15 @@ class SplatalogueClass(BaseQuery):
 
         if line_strengths is not None:
             for LS in line_strengths:
+                if LS not in self.VALID_LINE_STRENGTHS:
+                    raise ValueError(f"Line strengths must be one of {self.VALID_LINE_STRENGTHS}")
                 payload['lineStrengthDisplay' + LS] = True
 
         if energy_levels is not None:
             for EL in energy_levels:
+                if EL not in self.VALID_ENERGY_LEVELS:
+                    raise ValueError("Energy levels must be a number spelled out, i.e., "
+                                     f"one of {self.VALID_ENERGY_LEVELS}")
                 payload['energyLevel' + EL] = True
 
         for b in ("displayHFSIntensity", "displayUnresolvedQuantumNumbers",
@@ -523,13 +538,6 @@ class SplatalogueClass(BaseQuery):
                        'E_U (K)')
         table = clean_column_headings(self.table[columns])
         return table
-
-
-def validate_energy_type(etype):
-    valid_energy_types = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
-    if etype not in valid_energy_types:
-        raise ValueError("Energy type must be one of {0}"
-                         .format(valid_energy_types))
 
 
 Splatalogue = SplatalogueClass()

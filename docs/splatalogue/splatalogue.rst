@@ -104,32 +104,32 @@ size of the printout and assist with doctests; it is not needed as the default
 
    >>> from astropy import units as u
    >>> CO1to0 = Splatalogue.query_lines(115.271*u.GHz, 115.273*u.GHz)
-   >>> CO1to0.pprint(max_width=100)
-          Species                  Chemical Name             ...  E_U (K)   Linelist
-    ------------------- ------------------------------------ ... ---------- --------
-            GA-n-C4H9CN                      n-Butyl cyanide ...  332.23706     CDMS
-       NH2CH2CH2OHv26=1                         Aminoethanol ...  390.35352      JPL
-                  COv=0                      Carbon Monoxide ...    5.53211     CDMS
-                  COv=0                      Carbon Monoxide ...    5.53211      JPL
-                  COv=0                      Carbon Monoxide ...        0.0    Lovas
-                  COv=0                      Carbon Monoxide ...    5.53211    SLAIM
-                   FeCO                    Iron Monocarbonyl ...  103.95656     CDMS
-         CH3CHNH2COOH-I                      &alpha;-Alanine ...  129.92964     CDMS
-     s-trans-H2C=CHCOOH                       Propenoic acid ...   18.49667     CDMS
-          CH3CHOv=0,1&2                         Acetaldehyde ...  223.65667    SLAIM
-          CH3CHOv=0,1&2                         Acetaldehyde ...   223.6558      JPL
-                c-C5H5N                             Pyridine ...  230.47644     CDMS
-                c-C5H5N                             Pyridine ...  230.47644     CDMS
-             c-CH2CHCHO                             Propenal ... 1266.35462      JPL
-             c-CH2CHCHO                             Propenal ... 1266.35462      JPL
-       NH2CH2CH2OHv26=1                         Aminoethanol ...  766.11681      JPL
-       NH2CH2CH2OHv26=1                         Aminoethanol ...  766.11681      JPL
-       NH2CH2CH2OHv26=1                         Aminoethanol ...  766.11681      JPL
-       NH2CH2CH2OHv26=1                         Aminoethanol ...  766.11681      JPL
-    CH3O13CHO(TopModel)                       Methyl Formate ...  272.75041 TopModel
-       CH3O13CHO,vt=0,1 Methyl formate, v<sub>t</sub> = 0, 1 ...  272.75358     CDMS
-       H2NCH2COOH-IIv=1                              Glycine ...  2355.1427      JPL
-        cis-CH2OHCHOv=3                       Glycolaldehyde ...  887.56625      JPL
+   >>> CO1to0.pprint(max_width=200)
+    species_id                                          name                                                     chemical_name             ... searchErrorMessage sqlquery requestnumber
+    ---------- -------------------------------------------------------------------------------------- ------------------------------------ ... ------------------ -------- -------------
+         21228                                        <i>GA</i>-<i>n</i>-C<sub>4</sub>H<sub>9</sub>CN                      n-Butyl cyanide ...                        None             0
+          1288 NH<sub>2</sub>CH<sub>2</sub>CH<sub>2</sub>OH <font color="red">v<sub>26</sub>=1</font>                         Aminoethanol ...                        None             0
+           204                                                      CO <font color="red">v = 0</font>                      Carbon Monoxide ...                        None             0
+           204                                                      CO <font color="red">v = 0</font>                      Carbon Monoxide ...                        None             0
+           204                                                      CO <font color="red">v = 0</font>                      Carbon Monoxide ...                        None             0
+           204                                                      CO <font color="red">v = 0</font>                      Carbon Monoxide ...                        None             0
+             8                                                                                   FeCO                    Iron Monocarbonyl ...                        None             0
+          1321                                                 CH<sub>3</sub>CHNH<sub>2</sub>COOH - I                      &alpha;-Alanine ...                        None             0
+         21092                                                                     s-trans-H2C=CHCOOH                       Propenoic acid ...                        None             0
+           529                               CH<sub>3</sub>CHO <font color="red">v = 0, 1 & 2 </font>                         Acetaldehyde ...                        None             0
+           529                               CH<sub>3</sub>CHO <font color="red">v = 0, 1 & 2 </font>                         Acetaldehyde ...                        None             0
+         21067                                                   <i>c</i>-C<sub>5</sub>H<sub>5</sub>N                             Pyridine ...                        None             0
+         21067                                                   <i>c</i>-C<sub>5</sub>H<sub>5</sub>N                             Pyridine ...                        None             0
+          1275                                                           <i>c</i>-CH<sub>2</sub>CHCHO                             Propenal ...                        None             0
+          1275                                                           <i>c</i>-CH<sub>2</sub>CHCHO                             Propenal ...                        None             0
+          1288 NH<sub>2</sub>CH<sub>2</sub>CH<sub>2</sub>OH <font color="red">v<sub>26</sub>=1</font>                         Aminoethanol ...                        None             0
+          1288 NH<sub>2</sub>CH<sub>2</sub>CH<sub>2</sub>OH <font color="red">v<sub>26</sub>=1</font>                         Aminoethanol ...                        None             0
+          1288 NH<sub>2</sub>CH<sub>2</sub>CH<sub>2</sub>OH <font color="red">v<sub>26</sub>=1</font>                         Aminoethanol ...                        None             0
+          1288 NH<sub>2</sub>CH<sub>2</sub>CH<sub>2</sub>OH <font color="red">v<sub>26</sub>=1</font>                         Aminoethanol ...                        None             0
+          1370                                             CH<sub>3</sub>O<sup>13</sup>CHO (TopModel)                       Methyl Formate ...                        None             0
+         21026                                                                   CH3O13CHO, vt = 0, 1 Methyl formate, v<sub>t</sub> = 0, 1 ...                        None             0
+          1314                     H<sub>2</sub>NCH<sub>2</sub>COOH - II <font color="red">v=1</font>                              Glycine ...                        None             0
+          1284                                   cis-CH<sub>2</sub>OHCHO <font color="red">v=3</font>                       Glycolaldehyde ...                        None             0          
 
 Querying just by frequency isn't particularly effective; a nicer approach is to
 use both frequency and chemical name.  If you can remember that CO 2-1 is approximately
@@ -139,30 +139,30 @@ this query works:
 .. doctest-remote-data::
 
    >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ")
-   >>> CO2to1.pprint(max_width=100)
-   Species  Chemical Name  Freq-GHz(rest frame,redshifted) ... E_U (cm^-1)  E_U (K)   Linelist
-   ------- --------------- ------------------------------- ... ----------- ---------- --------
-     COv=3 Carbon Monoxide                     224.2417699 ...    6361.659  9152.9556     CDMS
-     COv=2 Carbon Monoxide                              -- ...   4271.3871  6145.5379     CDMS
-     COv=2 Carbon Monoxide                      226.340357 ...   4271.3869 6145.53761    SLAIM
-     COv=1 Carbon Monoxide                              -- ...  2154.70101 3100.11628     CDMS
-     COv=1 Carbon Monoxide                       228.43911 ...  2154.70191 3100.11758    SLAIM
-     COv=0 Carbon Monoxide                              -- ...    11.53492   16.59608     CDMS
-     COv=0 Carbon Monoxide                              -- ...    11.53492   16.59608      JPL
-     COv=0 Carbon Monoxide                         230.538 ...         0.0        0.0    Lovas
-     COv=0 Carbon Monoxide                         230.538 ...    11.53492   16.59608    SLAIM
+   >>> CO2to1.pprint(max_width=200)
+   species_id                name                chemical_name  resolved_QNs linelist LovasASTIntensity ... telescope_Lovas_NIST transitionBandColor  searchErrorMessage sqlquery requestnumber
+    ---------- --------------------------------- --------------- ------------ -------- ----------------- ... -------------------- -------------------- ------------------ -------- -------------
+          1343        CO <font color="red">v = 3 Carbon Monoxide         2- 1     CDMS                   ...                      datatablelightpurple                        None             0
+           991 CO <font color="red">v = 2</font> Carbon Monoxide         2- 1     CDMS                   ...                      datatablelightpurple                        None             0
+           991 CO <font color="red">v = 2</font> Carbon Monoxide         2- 1    SLAIM                   ...                      datatablelightpurple                        None             0
+           990 CO <font color="red">v = 1</font> Carbon Monoxide         2- 1     CDMS                   ...                      datatablelightpurple                        None             0
+           990 CO <font color="red">v = 1</font> Carbon Monoxide         2- 1    SLAIM           0.62 Jy ...                      datatablelightpurple                        None             0
+           204 CO <font color="red">v = 0</font> Carbon Monoxide          2-1     CDMS               70. ...         NRAO     11m datatablelightpurple                        None             0
+           204 CO <font color="red">v = 0</font> Carbon Monoxide          2-1      JPL                   ...                      datatablelightpurple                        None             0
+           204 CO <font color="red">v = 0</font> Carbon Monoxide          2-1    Lovas               70. ...         NRAO     11m datatablelightpurple                        None             0
+           204 CO <font color="red">v = 0</font> Carbon Monoxide         2- 1    SLAIM               70. ...                      datatablelightpurple                        None             0
 
 Of course, there's some noise in there: both the vibrationally excited line and a whole lot of different line lists.
 Start by thinning out the line lists used:
 
 .. doctest-remote-data::
 
-   >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",only_NRAO_recommended=True)
-   >>> CO2to1.pprint(max_width=100)
-   Species  Chemical Name  Freq-GHz(rest frame,redshifted) ... E_U (cm^-1)  E_U (K)   Linelist
-    ------- --------------- ------------------------------- ... ----------- ---------- --------
-      COv=1 Carbon Monoxide                              -- ...  2154.70101 3100.11628     CDMS
-      COv=0 Carbon Monoxide                              -- ...    11.53492   16.59608     CDMS
+   >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ", only_NRAO_recommended=True)
+   >>> CO2to1.pprint(max_width=200)
+    species_id                name                chemical_name  resolved_QNs linelist LovasASTIntensity ... telescope_Lovas_NIST transitionBandColor  searchErrorMessage sqlquery requestnumber
+    ---------- --------------------------------- --------------- ------------ -------- ----------------- ... -------------------- -------------------- ------------------ -------- -------------
+           990 CO <font color="red">v = 1</font> Carbon Monoxide         2- 1     CDMS                   ...                      datatablelightpurple                        None             0
+           204 CO <font color="red">v = 0</font> Carbon Monoxide          2-1     CDMS               70. ...         NRAO     11m datatablelightpurple                        None             0
 
 Then get rid of the vibrationally excited line by setting an energy upper limit in Kelvin:
 
@@ -171,10 +171,10 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
    >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",
    ...                                  only_NRAO_recommended=True,
    ...                                  energy_max=50, energy_type='eu_k')
-   >>> CO2to1.pprint(max_width=100)
-   Species  Chemical Name  Freq-GHz(rest frame,redshifted) ... E_U (cm^-1) E_U (K)  Linelist
-   ------- --------------- ------------------------------- ... ----------- -------- --------
-     COv=0 Carbon Monoxide                              -- ...    11.53492 16.59608     CDMS
+   >>> CO2to1.pprint(max_width=200)
+   species_id                name                chemical_name  resolved_QNs linelist LovasASTIntensity ... telescope_Lovas_NIST transitionBandColor  searchErrorMessage sqlquery requestnumber
+    ---------- --------------------------------- --------------- ------------ -------- ----------------- ... -------------------- -------------------- ------------------ -------- -------------
+           204 CO <font color="red">v = 0</font> Carbon Monoxide          2-1     CDMS               70. ...         NRAO     11m datatablelightpurple                        None             0
 
 A note on recombination lines
 -----------------------------
@@ -189,25 +189,25 @@ these symbols (Hα, Hβ, Hγ, Hδ, Hε, Hζ), even though they will show up as
 .. doctest-remote-data::
 
    >>> ha_result = Splatalogue.query_lines(84*u.GHz, 115*u.GHz, chemical_name='Hα')
-   >>> ha_result.pprint(max_width=100)
-   Species         Chemical Name        Freq-GHz(rest frame,redshifted) ... E_U (K) Linelist
-   -------- --------------------------- ------------------------------- ... ------- --------
-   H&alpha; Hydrogen Recombination Line                        85.68839 ...     0.0   Recomb
-   H&alpha; Hydrogen Recombination Line                       92.034434 ...     0.0   Recomb
-   H&alpha; Hydrogen Recombination Line                       99.022952 ...     0.0   Recomb
-   H&alpha; Hydrogen Recombination Line                      106.737357 ...     0.0   Recomb
+   >>> ha_result.pprint(max_width=200)
+    species_id   name          chemical_name           resolved_QNs    linelist LovasASTIntensity ... source_Lovas_NIST telescope_Lovas_NIST transitionBandColor searchErrorMessage sqlquery requestnumber
+    ---------- -------- --------------------------- ------------------ -------- ----------------- ... ----------------- -------------------- ------------------- ------------------ -------- -------------
+          1154 H&alpha; Hydrogen Recombination Line  H ( 42 ) &alpha;    Recomb                   ...                                           datatableskyblue                        None             0
+          1154 H&alpha; Hydrogen Recombination Line  H ( 41 ) &alpha;    Recomb                   ...                                           datatableskyblue                        None             0
+          1154 H&alpha; Hydrogen Recombination Line  H ( 40 ) &alpha;    Recomb                   ...                                           datatableskyblue                        None             0
+          1154 H&alpha; Hydrogen Recombination Line  H ( 39 ) &alpha;    Recomb                   ...                                           datatableskyblue                        None             0
 
 You could also search by specifying the line list
 
 .. doctest-remote-data::
 
-    >>> recomb_result = Splatalogue.query_lines(84*u.GHz, 85*u.GHz, line_lists=['Recomb'])
-    >>> recomb_result.pprint(max_width=100)
-     Species         Chemical Name        Freq-GHz(rest frame,redshifted) ... E_U (K) Linelist
-    --------- --------------------------- ------------------------------- ... ------- --------
-     H&gamma; Hydrogen Recombination Line                       84.914394 ...     0.0   Recomb
-    He&gamma;   Helium Recombination Line                       84.948997 ...     0.0   Recomb
-     C&gamma;   Carbon Recombination Line                       84.956762 ...     0.0   Recomb
+    >>> recomb_result = Splatalogue.query_lines(84*u.GHz, 85*u.GHz, line_lists=['Recombination'])
+    >>> recomb_result.pprint(max_width=200)
+    species_id    name          chemical_name            resolved_QNs    linelist LovasASTIntensity ... source_Lovas_NIST telescope_Lovas_NIST transitionBandColor searchErrorMessage sqlquery requestnumber
+    ---------- --------- --------------------------- ------------------- -------- ----------------- ... ----------------- -------------------- ------------------- ------------------ -------- -------------
+          1156  H&gamma; Hydrogen Recombination Line   H ( 60 ) &gamma;    Recomb                   ...                                           datatableskyblue                        None             0
+          1162 He&gamma;   Helium Recombination Line  He ( 60 ) &gamma;    Recomb                   ...                                           datatableskyblue                        None             0
+          1166  C&gamma;   Carbon Recombination Line   C ( 60 ) &gamma;    Recomb                   ...                                           datatableskyblue                        None             0
 
 Cleaning Up the Returned Data
 -----------------------------
@@ -218,48 +218,37 @@ regular basis.  For example, if you want data returned preferentially in units
 of K rather than inverse cm, you're interested in low-energy lines, and you want your
 data sorted by energy, you can use an approach like this:
 
-(note that as of March 2023, there is an upstream error in which the ``noHFS`` keyword
-is not respected; we include it here as a demonstration in the hope that that error will
-be fixed)
-
 .. doctest-remote-data::
 
     >>> S = Splatalogue(energy_max=500,
-    ...    energy_type='eu_k',energy_levels=['el4'],
-    ...    line_strengths=['ls4'],
-    ...    only_NRAO_recommended=True,
-    ...    noHFS=True,
-    ...    displayHFS=False)
+    ...    energy_type='eu_k', energy_levels=['Four'],
+    ...    line_strengths=['CDMSJPL'])
     >>> def trimmed_query(*args,**kwargs):
-    ...     columns = ('Species','Chemical Name','Resolved QNs',
-    ...                'Freq-GHz(rest frame,redshifted)',
-    ...                'Meas Freq-GHz(rest frame,redshifted)',
-    ...                'Log<sub>10</sub> (A<sub>ij</sub>)',
-    ...                'E_U (K)')
+    ...     columns = ('species_id', 'chemical_name', 'name', 'resolved_QNs',
+    ...                'orderedfreq',
+    ...                'aij',
+    ...                'upper_state_energy_K')
     ...     table = S.query_lines(*args, **kwargs)[columns]
-    ...     table.rename_column('Log<sub>10</sub> (A<sub>ij</sub>)','log10(Aij)')
-    ...     table.rename_column('E_U (K)','EU_K')
-    ...     table.rename_column('Resolved QNs','QNs')
-    ...     table.rename_column('Freq-GHz(rest frame,redshifted)', 'Freq-GHz'),
-    ...     table.rename_column('Meas Freq-GHz(rest frame,redshifted)', 'Meas Freq-GHz'),
-    ...     table.sort('EU_K')
+    ...     table.sort('upper_state_energy_K')
     ...     return table
     >>> trimmed_query(1*u.GHz,30*u.GHz,
     ...     chemical_name='(H2.*Formaldehyde)|( HDCO )',
-    ...     energy_max=50)[:10].pprint(max_width=100)
-    Species Chemical Name         QNs          Freq-GHz Meas Freq-GHz log10(Aij)   EU_K
-    ------- ------------- ------------------- --------- ------------- ---------- --------
-       HDCO  Formaldehyde       1(1,0)-1(1,1)        --     5.3461416   -8.31616 11.18301
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=1-0 4.3887783            --    -9.0498 15.30206
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=0-1 4.3887957            --   -8.57268 15.30206
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=2-2 4.3887965            --   -8.69765 15.30206
-     H2C18O  Formaldehyde       1(1,0)-1(1,1)  4.388797            --   -8.57272 15.30206
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=2-1 4.3888012            --   -9.17475 15.30206
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=1-2 4.3888036            --    -8.9529 15.30206
-     H2C18O  Formaldehyde 1(1,0)-1(1,1),F=1-1 4.3888083            --    -9.1748 15.30206
-     H213CO  Formaldehyde       1(1,0)-1(1,1)        --     4.5930885   -8.51332 15.34693
-       H2CO  Formaldehyde 1(1,0)-1(1,1),F=1-2 4.8296665            --   -8.82819 15.39497
+    ...     energy_max=50)[:10].pprint(max_width=150)
+    species_id chemical_name             name                     resolved_QNs         orderedfreq   aij    upper_state_energy_K
+    ---------- ------------- ---------------------------- ---------------------------- ----------- -------- --------------------
+           109  Formaldehyde                         HDCO       1(  1, 0)-   1(  1, 1)    5346.142 -8.44112             11.18258
+           109  Formaldehyde                         HDCO           1( 1, 0)- 1( 1, 1)   5346.1616 -8.31295             11.18287
+           109  Formaldehyde                         HDCO              1(1,0) - 1(1,1)   5346.1416 -8.31616             11.18301
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O       1(  1, 0)-   1(  1, 1)    4388.797 -8.22052             15.30187
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 1- 0   4388.7783  -9.0498             15.30206
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 0- 1   4388.7957 -8.57268             15.30206
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 2- 2   4388.7965 -8.69765             15.30206
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O              1(1,0) - 1(1,1)    4388.797 -8.57272             15.30206
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 2- 1   4388.8012 -9.17475             15.30206
+           155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 1- 2   4388.8036  -8.9529             15.30206
 
+There are utility functions in `astroquery.splatalogue.utils` that automate
+some of the above cleanup.
 
 Troubleshooting
 ===============
