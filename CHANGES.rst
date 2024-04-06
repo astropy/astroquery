@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+mpc
+^^^
+
+- Parse star catalog information when querying observations database [#2957]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
