@@ -24,6 +24,13 @@ utils.tap
   dot. ``ValueError`` is now raised for such cases. [#2971]
 
 
+gaia
+^^^^
+
+- Include table size in the class TapTableMeta returned by the functions load_tables and load_table, in the class Tap.
+  [#2970]
+
+
 0.4.7 (2024-03-08)
 ==================
 
@@ -218,6 +225,7 @@ gaia
   [#2376]
 
 - Default Gaia catalog updated to DR3. [#2596]
+
 
 heasarc
 ^^^^^^^
