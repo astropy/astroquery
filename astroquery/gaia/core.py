@@ -226,7 +226,7 @@ class GaiaClass(TapPlus):
 
         Returns
         -------
-        A table object
+        A dictionary where the keys are the file names and its value is a list of astropy.table.table.Table objects
         """
         now = datetime.now(timezone.utc)
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
