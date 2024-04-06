@@ -81,6 +81,8 @@ WARNING: This method implements the ADQL BOX function that is deprecated in the 
 
 It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example::
 
+.. doctest-remote-data::
+
   >>> from astroquery.gaia import Gaia
   >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Select Data Release 2
   >>> Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"  # Reselect Data Release 3, default
@@ -641,7 +643,7 @@ table named: user_<your_login_name>.'t'<job_id>::
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr3.gaia_source")
-  >>> Gaia.upload_table_from_job(job = j1)
+  >>> Gaia.upload_table_from_job(job=j1)
   Created table 't1539932994481O' from job: '1539932994481O'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
