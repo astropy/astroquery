@@ -48,7 +48,7 @@ gaia
   [#2970]
 
 - For the functions that return files in FITS/ECSV format, the files are now provided as uncompressed files.
-  [#2970]
+  [#2983]
 
 
 jplhorizons
