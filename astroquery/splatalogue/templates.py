@@ -6,6 +6,6 @@ Template queries modifying the defaults of Splatalogue
 from .core import SplatalogueClass
 
 SplatalogueKelvins = SplatalogueClass(energy_max=500, energy_type='eu_k',
-                                      energy_levels=['el4'],
-                                      line_strengths=['ls4'],
+                                      energy_levels=['Four'],
+                                      line_strengths=['CDMSJPL'],
                                       only_NRAO_recommended=True, noHFS=True)
