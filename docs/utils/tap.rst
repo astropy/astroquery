@@ -800,7 +800,7 @@ Example 1: TAPVizieR.cds.unistra.fr
   >>> #Inspect tables
   >>> tables = tap.load_tables()
   >>> for table in (tables):
-  >>>   print(table.get_name())
+  >>>   print(table.get_qualified_name())
 
   ...
   J/ApJS/173/104/memb
