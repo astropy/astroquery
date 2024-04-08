@@ -347,7 +347,7 @@ class VizierClass(BaseQuery):
         result = metadata.execute().to_table()
         if len(result) == 0:
             raise EmptyResponseError(f"'{catalog}' was not found in VizieR. Valid catalog names "
-                                     "look like: 'IX/58', 'J/MNRAS/491/215', 'J/ApJS/256/33'...")
+                                     "often look like: 'IX/58', 'J/MNRAS/491/215', 'J/ApJS/256/33', etc.")
         # apply mask if the `alt_identifier` value is not a doi
         result["doi"].mask = True if "doi:" not in result["doi"][0] else False
         return result
