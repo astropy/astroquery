@@ -247,7 +247,7 @@ data sorted by energy, you can use an approach like this:
            155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 2- 1   4388.8012 -9.17475             15.30206
            155  Formaldehyde H<sub>2</sub>C<sup>18</sup>O  1( 1, 0)- 1( 1, 1), F= 1- 2   4388.8036  -8.9529             15.30206
 
-There are utility functions in `astroquery.splatalogue.utils` that automate
+There are utility functions in ``astroquery.splatalogue.utils`` that automate
 some of the above cleanup.
 
 Troubleshooting
