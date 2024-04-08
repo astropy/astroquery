@@ -31,12 +31,13 @@ __all__ = ['parse_coordinates',
            'validate_email',
            'ASTROPY_LT_4_3',
            'ASTROPY_LT_5_0',
-           'ASTROPY_LT_5_1']
+           'ASTROPY_LT_5_1',
+           'ASTROPY_LT_6_0']
 
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
-
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
+ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 
 
 def parse_coordinates(coordinates):

@@ -3,11 +3,14 @@ import os
 import requests
 from numpy import testing as npt
 import pytest
+from pyvo import registry
 from astropy.coordinates import SkyCoord
+import astropy.io.votable.tree as votree
 from astropy.table import Table
 import astropy.units as u
 
 from ... import vizier
+from ...exceptions import EmptyResponseError
 from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from .conftest import scalar_skycoord, vector_skycoord
@@ -271,3 +274,19 @@ class TestVizierClass:
         assert "WHERE ivoid = 'ivo://cds.vizier/test'" in request_dict["QUERY"]
         with pytest.raises(ValueError, match="No catalog name was provided"):
             vizier.core.Vizier().get_catalog_metadata()
+
+    def test_get_catalog_metadata_empty_result(self, monkeypatch):
+        """Checks that an empty result raises a meaningful error."""
+        v = vizier.core.Vizier(catalog="should_return_empty_result")
+
+        def return_empty_votable(_):
+            if commons.ASTROPY_LT_6_0:
+                table = votree.Table(votree.VOTableFile())
+            else:
+                table = votree.TableElement(votree.VOTableFile())
+            return table
+
+        monkeypatch.setattr(registry.regtap.RegistryQuery, "execute",
+                            return_empty_votable)
+        with pytest.raises(EmptyResponseError, match="'*' was not found in VizieR*"):
+            v.get_catalog_metadata()
