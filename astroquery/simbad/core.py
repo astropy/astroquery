@@ -87,7 +87,6 @@ class SimbadClass(BaseVOQuery):
     (https://simbad.cds.unistra.fr/guide/sim-url.htx)
     """
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
-    ROW_LIMIT = conf.row_limit
 
     @dataclass(frozen=True)
     class Column:
@@ -104,7 +103,7 @@ class SimbadClass(BaseVOQuery):
         column_right: Any
         join_type: str = field(default="JOIN")
 
-    def __init__(self):
+    def __init__(self, ROW_LIMIT=None):
         super().__init__()
         # to create the TAPService
         self._server = conf.server
@@ -114,6 +113,22 @@ class SimbadClass(BaseVOQuery):
         self._columns_in_output = None  # a list of Simbad.Column
         self.joins = []  # a list of Simbad.Join
         self.criteria = []  # a list of strings
+        self.ROW_LIMIT = ROW_LIMIT
+
+    @property
+    def ROW_LIMIT(self):
+        return self._ROW_LIMIT
+
+    @ROW_LIMIT.setter
+    def ROW_LIMIT(self, ROW_LIMIT):
+        if ROW_LIMIT is None:
+            self._ROW_LIMIT = conf.row_limit
+        elif isinstance(ROW_LIMIT, int) and ROW_LIMIT >= -1:
+            self._ROW_LIMIT = ROW_LIMIT
+        else:
+            raise ValueError("ROW_LIMIT can be either -1 to set the limit to SIMBAD's "
+                             "maximum capability, 0 to retrieve an empty table, "
+                             "or a positive integer.")
 
     @property
     def server(self):

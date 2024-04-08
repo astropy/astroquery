@@ -101,6 +101,23 @@ def test_simbad_mirror():
         simbad_instance.server = "test"
 
 
+def test_simbad_row_limit():
+    simbad_instance = simbad.SimbadClass()
+    # default value is -1
+    assert simbad_instance.ROW_LIMIT == -1
+    # we can assign afterward
+    simbad_instance.ROW_LIMIT = 5
+    assert simbad_instance.ROW_LIMIT == 5
+    # or from the beginning
+    simbad_instance = simbad.SimbadClass(ROW_LIMIT=10)
+    assert simbad_instance.ROW_LIMIT == 10
+    # non-valid values trigger an error
+    with pytest.raises(ValueError, match="ROW_LIMIT can be either -1 to set the limit "
+                       "to SIMBAD's maximum capability, 0 to retrieve an empty table, "
+                       "or a positive integer."):
+        simbad_instance = simbad.SimbadClass(ROW_LIMIT='test')
+
+
 def test_simbad_create_tap_service():
     simbad_instance = simbad.Simbad()
     # newly created should have no tap service
