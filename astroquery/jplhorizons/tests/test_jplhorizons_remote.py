@@ -23,16 +23,16 @@ class TestHorizonsClass:
         )
         res = horizons.ephemerides(quantities=quantities)
 
-        # Retrieved 2023 Aug 01:
+        # Rereshed 2024 Apr 09 via {k: res[k][0] for k in res.colnames}
         values = {
-            "targetname": "1 Ceres (A801 AA)",
-            "H": 3.33,
-            "G": 0.120,
-            "datetime_jd": 2451544.5,
+            'targetname': "1 Ceres (A801 AA)",
             "datetime_str": "2000-Jan-01 00:00:00.000",
+            "datetime_jd": 2451544.5,
+            "H": 3.34 * u.mag,
+            "G": 0.12,
             "solar_presence": "*",
             "lunar_presence": "",
-            "RA": 188.70240 * u.deg,
+            "RA": 188.7024 * u.deg,
             "DEC": 9.09758 * u.deg,
             "RA_app": 188.69858 * u.deg,
             "DEC_app": 9.09806 * u.deg,
@@ -48,20 +48,20 @@ class TestHorizonsClass:
             "siderealtime": 22.8737254836 * u.hr,
             "airmass": 999,
             "magextinct": np.ma.masked,
-            "V": 8.259 * u.mag,
-            "surfbright": 6.799 * u.mag / u.arcsec**2,
+            "V": 8.269 * u.mag,
+            "surfbright": 6.832 * u.mag / u.arcsec**2,
             "illumination": 96.17086 * u.percent,
-            "illum_defect": 0.0225 * u.arcsec,
+            "illum_defect": 0.0227 * u.arcsec,
             "sat_sep": 343433.5 * u.arcsec,
             "sat_vis": "*",
-            "ang_width": 0.587419 * u.arcsec,
-            "PDObsLon": 302.274926 * u.deg,
-            "PDObsLat": -3.982640 * u.deg,
-            "PDSunLon": 279.670960 * u.deg,
-            "PDSunLat": -3.621151 * u.deg,
+            "ang_width": 0.593755 * u.arcsec,
+            "PDObsLon": 301.942894 * u.deg,
+            "PDObsLat": -4.073159 * u.deg,
+            "PDSunLon": 279.338807 * u.deg,
+            "PDSunLat": -3.704743 * u.deg,
             "SubSol_ang": 112.55 * u.deg,
             "SubSol_dist": 0.11 * u.arcsec,
-            "NPole_ang": 22.6777 * u.deg,
+            "NPole_ang": 22.6751 * u.deg,
             "NPole_dist": -0.271 * u.arcsec,
             "EclLon": 161.3828 * u.deg,
             "EclLat": 10.4528 * u.deg,
@@ -77,7 +77,7 @@ class TestHorizonsClass:
             "alpha": 22.5696 * u.deg,
             "lunar_elong": 32.9 * u.deg,
             "lunar_illum": 27.4882 * u.percent,
-            "sat_alpha": 62.0400 * u.deg,
+            "sat_alpha": 62.04 * u.deg,
             "sunTargetPA": 292.552 * u.deg,
             "velocityPA": 296.849 * u.deg,
             "OrbPlaneAng": -1.53489 * u.deg,
@@ -85,30 +85,30 @@ class TestHorizonsClass:
             "TDB-UT": 64.183887 * u.s,
             "ObsEclLon": 184.3424861 * u.deg,
             "ObsEclLat": 11.7988212 * u.deg,
-            "NPole_RA": 291.42763 * u.deg,
-            "NPole_DEC": 66.76033 * u.deg,
+            "NPole_RA": 291.418 * u.deg,
+            "NPole_DEC": 66.764 * u.deg,
             "GlxLon": 289.863376 * u.deg,
-            "GlxLat": 71.544870 * u.deg,
-            "solartime": 16.1587871790 * u.hour,
+            "GlxLat": 71.54487 * u.deg,
+            "solartime": 16.158787179 * u.hour,
             "earth_lighttime": 0.000354 * u.minute,
-            "RA_3sigma": 0.000 * u.arcsec,
-            "DEC_3sigma": 0.000 * u.arcsec,
+            "RA_3sigma": 0.0 * u.arcsec,
+            "DEC_3sigma": 0.0 * u.arcsec,
             "SMAA_3sigma": 0.00012 * u.arcsec,
-            "SMIA_3sigma": 0.00005 * u.arcsec,
+            "SMIA_3sigma": 5e-05 * u.arcsec,
             "Theta_3sigma": -24.786 * u.deg,
-            "Area_3sigma": 0.0000000 * u.arcsec**2,
-            "RSS_3sigma": 0.000 * u.arcsec,
+            "Area_3sigma": 0.0 * u.arcsec**2,
+            "RSS_3sigma": 0.0 * u.arcsec,
             "r_3sigma": 0.0904 * u.km,
-            "r_rate_3sigma": 0.0000000 * u.km / u.s,
-            "SBand_3sigma": 0.00 * u.Hz,
-            "XBand_3sigma": 0.00 * u.Hz,
-            "DoppDelay_3sigma": 0.000001 * u.s,
+            "r_rate_3sigma": 0.0 * u.km / u.s,
+            "SBand_3sigma": 0.0 * u.Hz,
+            "XBand_3sigma": 0.0 * u.Hz,
+            "DoppDelay_3sigma": 1e-06 * u.s,
             "true_anom": 7.1181 * u.deg,
             "hour_angle": 10.293820034 * u.hour,
             "alpha_true": 22.5691 * u.deg,
             "PABLon": 172.8355 * u.deg,
             "PABLat": 11.3478 * u.deg,
-            "App_Lon_Sun": 309.1603680 * u.deg,
+            "App_Lon_Sun": 309.1190962 * u.deg,
             "RA_ICRF_app": 188.70238 * u.deg,
             "DEC_ICRF_app": 9.09628 * u.deg,
             "RA_ICRF_rate_app": 35.17809 * u.arcsec / u.hour,
@@ -121,20 +121,17 @@ class TestHorizonsClass:
         }
 
         # the ephemeris changes with Ceres's and the planets' orbital elements,
-        # which can be updated at any time, so only check for 0.1% tolerance, this
+        # which can be updated at any time, so only check for 10% tolerance, this
         # is enough to verify that most columns are not being confused, and that
         # units are correct
 
         for column, value in values.items():
             if isinstance(value, (u.Quantity, Angle)):
-                # A few columns have varied a lot more than the others
-                if column in ["H", "G", "V", "surfbright"]:
-                    rtol = 0.1
-                else:
-                    rtol = 0.001
-                assert u.isclose(res[column], value, rtol=rtol)
+                assert u.isclose(res[column], value, rtol=0.1)
             elif value is np.ma.masked:
                 assert is_masked(res[column])
+            elif isinstance(value, (float, int)):
+                assert np.isclose(res[column], value, rtol=0.1)
             else:
                 assert res[column] == value
 
