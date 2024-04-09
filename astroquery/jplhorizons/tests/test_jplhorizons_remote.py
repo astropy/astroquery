@@ -242,10 +242,10 @@ class TestHorizonsClass:
 
     def test_ephemerides_query_six(self):
         """Tests optional constraints for ephemerides queries.
-        
+
         Also acts as a regression test for issue #2977 using refraction=True and
         extra_precision=True
-        
+
         """
 
         obj = jplhorizons.Horizons(id='3552', id_type='smallbody',
