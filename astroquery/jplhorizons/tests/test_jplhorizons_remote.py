@@ -241,7 +241,13 @@ class TestHorizonsClass:
             assert value in res.colnames
 
     def test_ephemerides_query_six(self):
-        # tests optional constrains for ephemerides queries
+        """Tests optional constraints for ephemerides queries.
+        
+        Also acts as a regression test for issue #2977 using refraction=True and
+        extra_precision=True
+        
+        """
+
         obj = jplhorizons.Horizons(id='3552', id_type='smallbody',
                                    location='I33',
                                    epochs={'start': '2018-05-01',
@@ -251,6 +257,7 @@ class TestHorizonsClass:
         res = obj.ephemerides(skip_daylight=True,
                               max_hour_angle=8,
                               refraction=True,
+                              extra_precision=True,
                               refsystem='B1950',
                               rate_cutoff=100,
                               airmass_lessthan=5)
