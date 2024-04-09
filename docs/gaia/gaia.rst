@@ -17,18 +17,21 @@ how to acknowledge and cite Gaia data.
 .. _guide: https://gea.esac.esa.int/archive/documentation/credits.html
 
 This package allows the access to the European Space Agency Gaia Archive
-(https//gea.esac.esa.int/archive/).
+(https://gea.esac.esa.int/archive/).
 
 Gaia Archive access is based on a TAP+ REST_ service. TAP+ is an extension of
-Table Access Protocol (TAP: https//www.ivoa.net/documents/TAP/) specified by the
+Table Access Protocol (TAP_) specified by the
 International Virtual Observatory Alliance (IVOA_).
 
-.. _IVOA: https//www.ivoa.net
+.. _TAP: https://www.ivoa.net/documents/TAP/
+.. _IVOA: https://www.ivoa.net
 .. _REST: https://en.wikipedia.org/wiki/Representational_state_transfer
 
 The TAP query language is Astronomical Data Query Language
-(ADQL: https//www.ivoa.net/documents/ADQL/2.0), which is similar
+(ADQL_), which is similar
 to Structured Query Language (SQL), widely used to query databases.
+
+.. _ADQL: https://www.ivoa.net/documents/ADQL/2.0
 
 TAP provides two operation modes:
 
@@ -192,8 +195,6 @@ radius argument.
 
 Table and columns metadata are specified by IVOA TAP_ recommendation
 (to access to the actual data, an ADQL query must be executed).
-
-.. _TAP: https//ivoa.info/documents/TAP/20100327/
 
 To load only table names metadata (TAP+ capability):
 
@@ -540,7 +541,7 @@ It is now possible to store a table in the private user space. The table to be u
 be in a VOTable_ located in a given URL, a table stored in a local file in the user machine,
 a pre-computed Astropy table file or a job executed in the Gaia archive.
 
-.. _VOTable: https//www.ivoa.net/documents/VOTable/
+.. _VOTable: https://www.ivoa.net/documents/VOTable/
 
 Each user has a database schema described as: 'user_<user_login_name>'. For instance, if a
 login name is 'joe', the database schema is 'user_joe'. Your uploaded table can be
@@ -688,8 +689,8 @@ The metadata parameter to be changed can be 'utype', 'ucd', 'flags' or 'indexed'
 
 * value for 'indexed' is a boolean indicating whether the column is indexed or not.
 
-.. _UCD: https//www.ivoa.net/documents/latest/UCD.html
-.. _UTypes: https//www.ivoa.net/documents/Notes/UTypesUsage/index.html
+.. _UCD: https://www.ivoa.net/documents/latest/UCD.html
+.. _UTypes: https://www.ivoa.net/documents/Notes/UTypesUsage/index.html
 
 For instance, the 'ra' column in the gaiadr2.gaia_source catalogue is specified as::
 
