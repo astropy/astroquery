@@ -31,6 +31,12 @@ gaia
   [#2970]
 
 
+jplhorizons
+^^^^^^^^^^^
+
+- Add missing column definitions, especially for ``refraction=True`` and ``extra_precision=True``. [#2986]
+
+
 0.4.7 (2024-03-08)
 ==================
 
