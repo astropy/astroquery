@@ -196,8 +196,6 @@ radius argument.
 Table and columns metadata are specified by IVOA TAP_ recommendation
 (to access to the actual data, an ADQL query must be executed).
 
-.. _TAP: https://ivoa.info/documents/TAP/20100327/
-
 To load only table names metadata (TAP+ capability):
 
 .. doctest-remote-data::
