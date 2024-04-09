@@ -6,7 +6,7 @@ import requests
 from astroquery.utils.mocks import MockResponse
 
 
-SPLAT_DATA = 'CO_colons.csv'
+SPLAT_DATA = 'CO.json'
 
 
 def data_path(filename):

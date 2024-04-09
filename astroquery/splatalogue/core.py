@@ -6,10 +6,9 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
-import warnings
-from astropy.io import ascii
+import json
+from astropy.table import Table
 from astropy import units as u
-from astroquery import log
 from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
@@ -23,6 +22,18 @@ __all__ = ['Splatalogue', 'SplatalogueClass']
 # example query of SPLATALOGUE directly:
 # https://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
+# for backward-compatibility
+# (As of March 5, this is incomplete, but is enough to make `minimize_table` work)
+colname_mapping_feb2024 = {
+    'Species': 'name',
+    'Chemical Name': 'chemical_name',
+    'Resolved QNs': 'resolved_QNs',
+    'Freq-GHz(rest frame,redshifted)': 'orderedFreq',
+    'Meas Freq-GHz(rest frame,redshifted)': 'measFreq',
+    'Log<sub>10</sub> (A<sub>ij</sub>)': 'aij',
+    'E_U (K)': 'upper_state_energy_K',
+}
+
 
 @async_to_sync
 class SplatalogueClass(BaseQuery):
@@ -33,32 +44,15 @@ class SplatalogueClass(BaseQuery):
     LINES_LIMIT = conf.lines_limit
     versions = ('v1.0', 'v2.0', 'v3.0', 'vall')
     # global constant, not user-configurable
-    ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
-                      'Recomb', 'Lisa', 'RFI')
-    TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
-                  'ism_diffusecloud')
-    FREQUENCY_BANDS = {"any": "Any",
-                       "alma3": "ALMA Band 3 (84-116 GHz)",
-                       "alma4": " ALMA Band 4 (125-163 GHz)",
-                       "alma5": " ALMA Band 5 (163-211 GHz)",
-                       "alma6": "ALMA Band 6 (211-275 GHz)",
-                       "alma7": "ALMA Band 7 (275-373 GHz)",
-                       "alma8": "ALMA Band 8 (385-500 GHz)",
-                       "alma9": "ALMA Band 9 (602-720 GHz)",
-                       "alma10": "ALMA Band 10 (787-950 GHz)",
-                       "pf1": "GBT PF1 (0.29-0.92 GHz)",
-                       "pf2": "GBT PF2 (0.91-1.23 GHz)",
-                       "l": "GBT/VLA L (1-2 GHz)",
-                       "s": "GBT/VLA S (1.7-4 GHz)",
-                       "c": "GBT/VLA C (3.9-8 GHz)",
-                       "x": "GBT/VLA X (8-12 GHz)",
-                       "ku": " GBT/VLA Ku (12-18 GHz)",
-                       "kfpa": "GBT KFPA (18-27.5 GHz)",
-                       "k": "VLA K (18-26.5 GHz)",
-                       "ka": " GBT/VLA Ka (26-40 GHz)",
-                       "q": "GBT/VLA Q (38-50 GHz)",
-                       "w": "GBT W (67-93.3 GHz)",
-                       "mustang": "GBT Mustang (80-100 GHz)", }
+    ALL_LINE_LISTS = ('LovasNIST', 'SLAIM', 'JPL', 'CDMS', 'ToyaMA', 'OSU',
+                      'TopModel', 'Recombination', 'RFI')
+    VALID_LINE_STRENGTHS = ('CDMSJPL', 'SijMu2', 'Sij', 'Aij', 'LovasAST')
+    VALID_ENERGY_LEVELS = {'One': 'EL_cm-1',
+                           'Two': 'EL_K',
+                           'Three': 'EU_cm-1',
+                           'Four': 'EU_K'}
+    VALID_ENERGY_TYPES = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
+    VALID_INTENSITY_TYPES = ('CDMS/JPL (log)', 'Sij-mu2', 'Aij (log)')
 
     def __init__(self, **kwargs):
         """
@@ -76,7 +70,7 @@ class SplatalogueClass(BaseQuery):
         Modify the default options.
         See `query_lines`
         """
-        self.data.update(self._parse_kwargs(**kwargs))
+        self.data.update(json.loads(self._parse_kwargs(**kwargs)['body']))
 
     @deprecated_renamed_argument("restr", "species_regex", since="0.4.7")
     def get_species_ids(self, species_regex=None, *, reflags=0, recache=False):
@@ -150,8 +144,8 @@ class SplatalogueClass(BaseQuery):
                       max_frequency=100 * u.THz,
                       chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
-                      line_strengths=('ls1', 'ls2', 'ls3', 'ls4', 'ls5'),
-                      energy_levels=('el1', 'el2', 'el3', 'el4'),
+                      line_strengths=self.VALID_LINE_STRENGTHS,
+                      energy_levels=self.VALID_ENERGY_LEVELS.keys(),
                       exclude=('potential', 'atmospheric', 'probable'),
                       version='v3.0',
                       only_NRAO_recommended=None,
@@ -162,10 +156,10 @@ class SplatalogueClass(BaseQuery):
                       show_qn_code=False, show_lovas_labref=False,
                       show_lovas_obsref=False, show_orderedfreq_only=False,
                       show_nrao_recommended=False,)
-        return self._parse_kwargs(**kwargs)
+        return json.loads(self._parse_kwargs(**kwargs)['body'])
 
     def _parse_kwargs(self, *, min_frequency=None, max_frequency=None,
-                      band='any', top20=None, chemical_name=None,
+                      chemical_name=None,
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
@@ -179,7 +173,9 @@ class SplatalogueClass(BaseQuery):
                       show_qn_code=None, show_lovas_labref=None,
                       show_lovas_obsref=None, show_orderedfreq_only=None,
                       show_nrao_recommended=None,
-                      parse_chemistry_locally=True):
+                      parse_chemistry_locally=True,
+                      export_start=0,
+                      export_stop=250):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -190,13 +186,6 @@ class SplatalogueClass(BaseQuery):
             Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
             Maximum frequency (or any spectral() equivalent)
-        band : str
-            The observing band.  If it is not 'any', it overrides
-            minfreq/maxfreq.
-        top20: str
-            One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
-            ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
-            Overrides chemical_name
         chemical_name : str
             Name of the chemical to search for. Treated as a regular
             expression.  An empty set ('', (), [], {}) will match *any*
@@ -248,17 +237,17 @@ class SplatalogueClass(BaseQuery):
             Show only NRAO recommended species?
         line_lists : list
             Options:
-            Lovas, SLAIM, JPL, CDMS, ToyoMA, OSU, Recomb, Lisa, RFI
+            Lovas, SLAIM, JPL, CDMS, ToyaMA, OSU, Recombination, RFI
         line_strengths : list
             * CDMS/JPL Intensity : ls1
             * Sij : ls3
             * Aij : ls4
             * Lovas/AST : ls5
         energy_levels : list
-            * E_lower (cm^-1) : el1
-            * E_lower (K) : el2
-            * E_upper (cm^-1) : el3
-            * E_upper (K) : el4
+            * E_lower (cm^-1) : "One"
+            * E_lower (K) : "Two"
+            * E_upper (cm^-1) : "Three"
+            * E_upper (K) : "Four"
         export : bool
             Set up arguments for the export server (as opposed to the HTML
             server)?
@@ -292,135 +281,178 @@ class SplatalogueClass(BaseQuery):
 
         """
 
-        payload = {'submit': 'Search',
-                   'frequency_units': 'GHz',
-                   }
+        payload = {"searchSpecies": "",
+                   "speciesSelectBox": [],
+                   "dataVersion": "v3.0",
+                   "userInputFrequenciesFrom": [],
+                   "userInputFrequenciesTo": [],
+                   "userInputFrequenciesUnit": "GHz",
+                   "frequencyRedshift": 0,
+                   "energyFrom": 0,
+                   "energyTo": 0,
+                   "energyRangeType": "el_cm-1",
+                   "lineIntensity": "None",
+                   "lineIntensityLowerLimit": 0,
+                   "excludeAtmosSpecies": False,
+                   "excludePotentialInterstellarSpecies": False,
+                   "excludeProbableInterstellarSpecies": False,
+                   "excludeKnownASTSpecies": False,
+                   "showOnlyAstronomicallyObservedTransitions": False,
+                   "showOnlyNRAORecommendedFrequencies": False,
+                   "lineListDisplayJPL": True,
+                   "lineListDisplayCDMS": True,
+                   "lineListDisplayLovasNIST": True,
+                   "lineListDisplaySLAIM": True,
+                   "lineListDisplayToyaMA": True,
+                   "lineListDisplayOSU": True,
+                   "lineListDisplayRecombination": True,
+                   "lineListDisplayTopModel": True,
+                   "lineListDisplayRFI": True,
+                   "lineStrengthDisplayCDMSJPL": True,
+                   "lineStrengthDisplaySijMu2": False,
+                   "lineStrengthDisplaySij": False,
+                   "lineStrengthDisplayAij": False,
+                   "lineStrengthDisplayLovasAST": True,
+                   "energyLevelOne": True,
+                   "energyLevelTwo": False,
+                   "energyLevelThree": False,
+                   "energyLevelFour": False,
+                   "displayObservedTransitions": False,
+                   "displayG358MaserTransitions": False,
+                   "displayObservationReference": False,
+                   "displayObservationSource": False,
+                   "displayTelescopeLovasNIST": False,
+                   "frequencyErrorLimit": False,
+                   "displayHFSIntensity": False,
+                   "displayUnresolvedQuantumNumbers": False,
+                   "displayUpperStateDegeneracy": False,
+                   "displayMoleculeTag": False,
+                   "displayQuantumNumberCode": False,
+                   "displayLabRef": False,
+                   "displayOrderedFrequencyOnly": False,
+                   "displayNRAORecommendedFrequencies": False,
+                   "displayUniqueSpeciesTag": False,
+                   "displayUniqueLineIDNumber": False,
+                   "exportType": "current",
+                   "exportDelimiter": "tab",
+                   "exportLimit": "allRecords",
+                   "exportStart": 1,
+                   "exportStop": 250}
 
-        if band != 'any':
-            if band not in self.FREQUENCY_BANDS:
-                raise ValueError("Invalid frequency band.")
-            if min_frequency is not None or max_frequency is not None:
-                warnings.warn("Band was specified, so the frequency "
-                              "specification is overridden")
-            payload['band'] = band
-        elif min_frequency is not None and max_frequency is not None:
+        if min_frequency is not None and max_frequency is not None:
             # allow setting payload without having *ANY* valid frequencies set
             min_frequency = min_frequency.to(u.GHz, u.spectral())
             max_frequency = max_frequency.to(u.GHz, u.spectral())
             if min_frequency > max_frequency:
                 min_frequency, max_frequency = max_frequency, min_frequency
 
-            payload['from'] = min_frequency.value
-            payload['to'] = max_frequency.value
+            payload['userInputFrequenciesFrom'] = [min_frequency.value]
+            payload['userInputFrequenciesTo'] = [max_frequency.value]
 
-        if top20 is not None:
-            if top20 in self.TOP20_LIST:
-                payload['top20'] = top20
-            else:
-                raise ValueError("Top20 is not one of the allowed values")
-        elif chemical_name in ('', {}, (), [], set()):
-            # include all
-            payload['sid[]'] = []
+        if chemical_name in ('', {}, (), [], set(), None):
+            # include all by default, or whatever default was set
+            payload['speciesSelectBox'] = (self.data['speciesSelectBox']
+                                           if hasattr(self, 'data')
+                                           else [])
         elif chemical_name is not None:
             if parse_chemistry_locally:
                 species_ids = self.get_species_ids(species_regex=chemical_name, reflags=chem_re_flags)
                 if len(species_ids) == 0:
                     raise ValueError("No matching chemical species found.")
-                payload['sid[]'] = list(species_ids.values())
+                payload['speciesSelectBox'] = list(species_ids.values())
             else:
-                payload['chemical_name'] = chemical_name
+                payload['searchSpecies'] = chemical_name
 
         if energy_min is not None:
-            payload['energy_range_from'] = float(energy_min)
+            payload['energyFrom'] = float(energy_min)
         if energy_max is not None:
-            payload['energy_range_to'] = float(energy_max)
+            payload['energyTo'] = float(energy_max)
         if energy_type is not None:
-            validate_energy_type(energy_type)
-            payload['energy_range_type'] = energy_type
+            if energy_type not in self.VALID_ENERGY_TYPES:
+                raise ValueError(f'energy_type must be one of {self.VALID_ENERGY_TYPES}')
+            payload['energyRangeType'] = energy_type
 
-        if intensity_type is not None:
-            payload['lill'] = 'lill_' + intensity_type
-            if intensity_lower_limit is not None:
-                payload[payload['lill']] = intensity_lower_limit
-
-        if transition is not None:
-            payload['tran'] = transition
+        if intensity_lower_limit is not None:
+            if intensity_type is None:
+                raise ValueError("If you specify an intensity lower limit, you must also specify its intensity_type.")
+            elif intensity_type not in self.VALID_INTENSITY_TYPES:
+                raise ValueError(f'intensity_type must be one of {self.VALID_INTENSITY_TYPES}')
+            payload['lineIntensity'] = intensity_type
+            payload['lineIntensityLowerLimit'] = intensity_lower_limit
 
         if version in self.versions:
-            payload['data_version'] = version
+            payload['dataVersion'] = version
         elif version is not None:
             raise ValueError("Invalid version specified.  Allowed versions "
                              "are {vers}".format(vers=str(self.versions)))
 
-        if exclude == 'none':
-            for e in ('potential', 'atmospheric', 'probable', 'known'):
-                # Setting a keyword value to 'None' removes it (see query_lines_async)
-                log.debug("Setting no_{0} to None".format(e))
-                payload['no_' + e] = None
-        elif exclude is not None:
-            for e in exclude:
-                payload['no_' + e] = 'no_' + e
+        if exclude is not None:
+            if 'potential' in exclude:
+                payload['excludePotentialInterstellarSpecies'] = True
+            if 'atmospheric' in exclude:
+                payload['excludeAtmosSpecies'] = True
+            if 'probable' in exclude:
+                payload['excludeProbableInterstellarSpecies'] = True
+            if 'known' in exclude:
+                payload['excludeKnownASTSpecies'] = True
 
         if only_astronomically_observed:
-            payload['include_only_observed'] = 'include_only_observed'
+            payload['showOnlyAstronomicallyObservedTransitions'] = True
         if only_NRAO_recommended:
-            payload['include_only_nrao'] = 'include_only_nrao'
+            payload['showOnlyNRAORecommendedFrequencies'] = True
 
         if line_lists is not None:
             if type(line_lists) not in (tuple, list):
                 raise TypeError("Line lists should be a list of linelist "
                                 "names.  See Splatalogue.ALL_LINE_LISTS")
             for L in self.ALL_LINE_LISTS:
-                kwd = 'display' + L
-                if L in line_lists:
-                    payload[kwd] = kwd
-                else:
-                    payload[kwd] = ''
+                kwd = 'lineListDisplay' + L
+                payload[kwd] = L in line_lists
 
         if line_strengths is not None:
             for LS in line_strengths:
-                payload[LS] = LS
+                if LS not in self.VALID_LINE_STRENGTHS:
+                    raise ValueError(f"Line strengths must be one of {self.VALID_LINE_STRENGTHS}")
+                payload['lineStrengthDisplay' + LS] = True
 
         if energy_levels is not None:
             for EL in energy_levels:
-                payload[EL] = EL
+                if EL not in self.VALID_ENERGY_LEVELS:
+                    raise ValueError("Energy levels must be a number spelled out, i.e., "
+                                     f"one of {self.VALID_ENERGY_LEVELS}")
+                payload['energyLevel' + EL] = True
 
-        for b in ("noHFS", "displayHFS", "show_unres_qn",
-                  "show_upper_degeneracy", "show_molecule_tag",
-                  "show_qn_code", "show_lovas_labref",
-                  "show_orderedfreq_only", "show_lovas_obsref",
-                  "show_nrao_recommended"):
-            if locals()[b]:
-                payload[b] = b
-
-        # default arg, unmodifiable...
-        payload['jsMath'] = 'font:symbol,warn:0'
-        payload['__utma'] = ''
-        payload['__utmc'] = ''
+        for b in ("displayHFSIntensity", "displayUnresolvedQuantumNumbers",
+                  "displayUpperStateDegeneracy", "displayMoleculeTag",
+                  "displayQuantumNumberCode", "displayLabRef",
+                  "displayOrderedFrequencyOnly", "displayNRAORecommendedFrequencies",
+                  "displayUniqueLineIDNumber", "displayUniqueSpeciesTag"):
+            if b in locals() and locals()[b]:
+                payload[b] = True
 
         if export:
-            payload['submit'] = 'Export'
-            payload['export_delimiter'] = 'colon'  # or tab or comma
-            payload['export_type'] = 'current'
-            payload['offset'] = 0
-            payload['range'] = 'on'
+            payload['exportDelimiter'] = 'tab'  # or tab or comma
+            payload['exportType'] = 'current'
+            payload['exportStart'] = export_start
+            payload['exportStop'] = export_stop
 
         if export_limit is not None:
-            payload['limit'] = export_limit
+            payload['exportLimit'] = export_limit
         else:
-            payload['limit'] = self.LINES_LIMIT
+            payload['exportLimit'] = self.LINES_LIMIT
+
+        payload = {'body': json.dumps(payload),
+                   'headers': {'normalizedNames': {}, 'lazyUpdate': None}}
 
         return payload
 
     def _validate_kwargs(self, *, min_frequency=None, max_frequency=None,
-                         band='any', **kwargs):
+                         **kwargs):
         """
-        Check that either min_frequency + max_frequency or band are specified
+        Check that min_frequency + max_frequency are specified
         """
-        if band == 'any':
-            if min_frequency is None or max_frequency is None:
-                raise ValueError("Must specify either min/max frequency or "
-                                 "a valid Band.")
+        if min_frequency is None or max_frequency is None:
+            raise ValueError("Must specify min/max frequency")
 
     @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None, *,
@@ -439,26 +471,25 @@ class SplatalogueClass(BaseQuery):
         self._validate_kwargs(min_frequency=min_frequency,
                               max_frequency=max_frequency, **kwargs)
 
+        data_payload = self._parse_kwargs(min_frequency=min_frequency,
+                                          max_frequency=max_frequency,
+                                          **kwargs)
         if hasattr(self, 'data'):
-            data_payload = self.data.copy()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
+            body = self.data.copy()
         else:
-            data_payload = self._default_kwargs()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
+            body = self._default_kwargs()
 
-        # Add an extra step: sometimes, need to REMOVE keywords
-        data_payload = {k: v for k, v in data_payload.items() if v is not None}
+        body.update(json.loads(
+            self._parse_kwargs(min_frequency=min_frequency,
+                               max_frequency=max_frequency, **kwargs)['body']))
+        data_payload['body'] = json.dumps(body)
 
         if get_query_payload:
             return data_payload
 
         response = self._request(method='POST',
                                  url=self.QUERY_URL,
-                                 data=data_payload,
+                                 json=data_payload,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
 
@@ -472,13 +503,24 @@ class SplatalogueClass(BaseQuery):
 
         Parameters
         ----------
-        clean_headers : bool
-            Attempt to simplify / clean up the column headers returned by
-            splatalogue to make them more terminal-friendly
+        verbose : bool
+            Has no effect; kept for API compatibility
         """
 
-        result = ascii.read(response.text.split('\n'), delimiter=':',
-                            format='basic', fast_reader=False)
+        # these are metadata items not intended to be part of the table
+        meta_columns = ['orderFreqColName', 'measFreqColName']
+        meta = {}
+
+        jdat = response.json()
+
+        result = Table([x for x in jdat if x['species_id'] is not None])
+
+        for key in meta_columns:
+            if key in result.colnames:
+                meta[key] = result[key][0]
+                del result[key]
+
+        result.meta = meta
 
         return result
 
@@ -496,13 +538,6 @@ class SplatalogueClass(BaseQuery):
                        'E_U (K)')
         table = clean_column_headings(self.table[columns])
         return table
-
-
-def validate_energy_type(etype):
-    valid_energy_types = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
-    if etype not in valid_energy_types:
-        raise ValueError("Energy type must be one of {0}"
-                         .format(valid_energy_types))
 
 
 Splatalogue = SplatalogueClass()

@@ -1,7 +1,0 @@
-Species:Chemical Name:Freq-GHz(rest frame,redshifted):Freq Err(rest frame,redshifted):Meas Freq-GHz(rest frame,redshifted):Meas Freq Err(rest frame,redshifted):Resolved QNs:CDMS/JPL Intensity:S<sub>ij</sub>&#956;<sup>2</sup> (D<sup>2</sup>):S<sub>ij</sub>:Log<sub>10</sub> (A<sub>ij</sub>):Lovas/AST Intensity:E_L (cm^-1):E_L (K):E_U (cm^-1):E_U (K):Linelist
-COv=1:Carbon Monoxide:114.2217523:1.3e-06:::1-0:-9.7069:0.00723:1.0:-7.37879::2143.2711:3083.67129:2147.08113:3089.15304:CDMS
-COv=1:Carbon Monoxide:114.221757:3e-06:114.22174:4e-05:1-0:0.0:0.01212:1.0:-7.15428::2143.272:3083.67258:2147.08203:3089.15433:SLAIM
-COv=0:Carbon Monoxide:::115.2712018:5e-07:1-0:-5.0105:0.01212:1.0:-7.14246:60.0:0.0:0.0:3.84503:5.53211:CDMS
-COv=0:Carbon Monoxide:::115.2712018:5e-07:1-0:-5.0105:0.01212:1.0:-7.14246::0.0:0.0:3.84503:5.53211:JPL
-COv=0:Carbon Monoxide:115.271202:1e-06:::1-0:0.0:0.0:0.0:0.0:60.0:0.0:0.0:0.0:0.0:Lovas
-COv=0:Carbon Monoxide:115.271202:0.0:115.271202:1e-06:1-0:0.0:0.01212:1.0:-7.14236:60.0:0.0:0.0:3.84503:5.53211:SLAIM

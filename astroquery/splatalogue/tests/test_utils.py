@@ -13,16 +13,7 @@ def test_clean(patch_post):
                                             chemical_name=' CO ')
     c = utils.clean_column_headings(x)
     assert 'Resolved QNs' not in c.colnames
-    assert 'QNs' in c.colnames
-
-
-def test_merge(patch_post):
-    x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
-                                            max_frequency=116 * u.GHz,
-                                            chemical_name=' CO ')
-    c = utils.merge_frequencies(x)
-    assert 'Freq' in c.colnames
-    assert np.all(c['Freq'] > 0)
+    assert 'resolved_QNs' in c.colnames
 
 
 def test_minimize(patch_post):
@@ -34,11 +25,15 @@ def test_minimize(patch_post):
     assert 'Freq' in c.colnames
     assert np.all(c['Freq'] > 0)
     assert 'Resolved QNs' not in c.colnames
-    assert 'QNs' in c.colnames
+    assert 'resolved_QNs' in c.colnames
 
 
 @pytest.mark.remote_data
 def test_minimize_issue2135():
+    """
+    This was a regression test for 2135, but is now just a basic test for the
+    new (March 2024) keywords
+    """
     rslt = splatalogue.Splatalogue.query_lines(min_frequency=100*u.GHz,
                                                max_frequency=200*u.GHz,
                                                chemical_name=' SiO ',
@@ -49,5 +44,4 @@ def test_minimize_issue2135():
 
     minimized = utils.minimize_table(rslt)
 
-    theomask = rslt['Freq-GHz(rest frame,redshifted)'].mask
-    np.testing.assert_allclose(minimized['Freq'][theomask], rslt['Meas Freq-GHz(rest frame,redshifted)'][theomask])
+    np.testing.assert_allclose(minimized['Freq'], rslt['orderedfreq'])

@@ -2,35 +2,16 @@
 """
 Utilities for working with Splatalogue query results
 """
-import numpy as np
-import astropy
-
-# Remap column headings to something IPAC-compatible
-column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
-                       'Resolved QNs': 'QNs',
-                       'CDMS/JPL Intensity': 'CDMSJPL_Intensity',
-                       'S<sub>ij</sub>': 'Sij',
-                       'Freq-GHz': 'FreqGHz',
-                       'Meas Freq-GHz': 'MeasFreqGHz',
-                       'Lovas/AST Intensity': 'LovasAST_Intensity',
-                       'E_L (cm^-1)': 'EL_percm',
-                       'E_L (K)': 'EL_K',
-                       'E_U (cm^-1)': 'EU_percm',
-                       'E_U (K)': 'EU_K',
-                       'Chemical Name': 'ChemicalName',
-                       'Freq Err': 'FreqErr',
-                       'Meas Freq Err': 'MeasFreqErr',
-                       'Freq-GHz(rest frame,redshifted)': 'FreqGHz',
-                       'Freq Err(rest frame,redshifted)': 'eFreqGHz',
-                       'Meas Freq-GHz(rest frame,redshifted)': 'MeasFreqGHz',
-                       'Meas Freq Err(rest frame,redshifted)': 'eMeasFreqGHz',
-                       }
+from bs4 import BeautifulSoup
 
 
-def clean_column_headings(table, *, renaming_dict=column_headings_map):
+def clean_column_headings(table, *, renaming_dict={}):
     """
     Rename column headings to shorter version that are easier for display
     on-screen / at the terminal
+
+    As of March 2024, the default column names are all valid and no longer need
+    renaming.
     """
 
     for key in renaming_dict:
@@ -40,50 +21,30 @@ def clean_column_headings(table, *, renaming_dict=column_headings_map):
     return table
 
 
-def merge_frequencies(table, *, prefer='measured',
-                      theor_kwd='Freq-GHz(rest frame,redshifted)',
-                      meas_kwd='Meas Freq-GHz(rest frame,redshifted)'):
+def try_clean(row):
+    if row:
+        return BeautifulSoup(row, features='html5lib').text
+
+
+def clean_columns(table):
     """
-    Replace "Freq-GHz" and "Meas Freq-GHz" with a single "Freq" column.
+    Remove HTML tags in table columns
 
-    Parameters
-    ----------
-    table : table
-        The Splatalogue table
-    prefer: 'measured' or 'theoretical'
-        Which of the two columns to prefer if there is a conflict
+    (modifies table inplace)
     """
-
-    if prefer == 'measured':
-        Freq = np.copy(table[theor_kwd]).astype('float')
-        if hasattr(table[meas_kwd], 'mask'):
-            measmask = np.logical_not(table[meas_kwd].mask)
-        else:
-            measmask = slice(None)  # equivalent to [:] - all data are good
-        Freq[measmask] = table[meas_kwd][measmask].astype('float')
-    elif prefer == 'theoretical':
-        Freq = np.copy(table[meas_kwd]).astype('float')
-        if hasattr(table[theor_kwd], 'mask'):
-            theomask = np.logical_not(table[theor_kwd].mask)
-        else:
-            theomask = slice(None)  # equivalent to [:] - all data are good
-        Freq[theomask] = table[theor_kwd][theomask].astype('float')
-    else:
-        raise ValueError('prefer must be one of "measured" or "theoretical"')
-
-    index = table.index_column(theor_kwd)
-    table.remove_columns([theor_kwd, meas_kwd])
-    newcol = astropy.table.Column(name='Freq', data=Freq)
-    table.add_column(newcol, index=index)
-
-    return table
+    for col in table.colnames:
+        # check for any html tag
+        if isinstance(table[col][0], str) and '<' in table[col][0]:
+            table[col] = [
+                try_clean(row)
+                for row in table[col]
+            ]
 
 
-def minimize_table(table, *, columns=['Species', 'Chemical Name',
-                                      'Resolved QNs',
-                                      'Freq-GHz(rest frame,redshifted)',
-                                      'Meas Freq-GHz(rest frame,redshifted)',
-                                      'Log<sub>10</sub> (A<sub>ij</sub>)',
+def minimize_table(table, *, columns=['name', 'chemical_name',
+                                      'resolved_QNs',
+                                      'orderedfreq',
+                                      'aij',
                                       'E_U (K)'],
                    merge=True,
                    clean=True):
@@ -101,11 +62,17 @@ def minimize_table(table, *, columns=['Species', 'Chemical Name',
     clean_column_headings : bool
         Run clean_column_headings to shorted the headers?
     """
+    from .core import colname_mapping_feb2024
+
+    clean_columns(table)
+
+    columns = [colname_mapping_feb2024[c] if c in colname_mapping_feb2024 else c
+               for c in columns]
 
     table = table[columns]
 
     if merge:
-        table = merge_frequencies(table)
+        table.rename_column('orderedfreq', 'Freq')
     if clean:
         table = clean_column_headings(table)
 

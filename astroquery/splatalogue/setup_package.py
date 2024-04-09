@@ -5,7 +5,7 @@ import os
 
 
 def get_package_data():
-    paths_test = [os.path.join('data', 'CO_colons.csv'),
+    paths_test = [os.path.join('data', 'CO.json'),
                   ]
 
     paths_data = [os.path.join('data', '*.json'),

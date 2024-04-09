@@ -1,19 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os
 import pytest
+import json
 
 from astropy import units as u
 
-from ... import splatalogue
-
-
-SPLAT_DATA = 'CO_colons.csv'
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
+from astroquery import splatalogue
 
 
 def test_simple(patch_post):
@@ -22,8 +14,15 @@ def test_simple(patch_post):
                                         chemical_name=' CO ')
 
 
+def test_backward_freqs(patch_post):
+    """ check that reversed frequencies still work """
+    splatalogue.Splatalogue.query_lines(min_frequency=116 * u.GHz,
+                                        max_frequency=114 * u.GHz,
+                                        chemical_name=' CO ')
+
+
 @pytest.mark.remote_data
-def test_init(patch_post):
+def test_init_remote():
     x = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
                                             max_frequency=116 * u.GHz,
                                             chemical_name=' CO ')
@@ -33,8 +32,20 @@ def test_init(patch_post):
     # masked arrays fail
     # assert y == x
     assert len(x) == len(y)
-    assert all(y['Species'] == x['Species'])
-    assert all(x['Chemical Name'] == y['Chemical Name'])
+    assert all(y['species_id'] == x['species_id'])
+    assert all(y['name'] == x['name'])
+    assert all(y['chemical_name'] == x['chemical_name'])
+
+
+def test_init():
+    splat = splatalogue.Splatalogue(chemical_name=' CO ')
+    assert splat.data['speciesSelectBox'] == ['204', '990', '991', '1343']
+    payload = splat.query_lines(min_frequency=114 * u.GHz, max_frequency=116 * u.GHz,
+                                get_query_payload=True)
+    payload = json.loads(payload['body'])
+    assert payload['speciesSelectBox'] == ['204', '990', '991', '1343']
+    assert payload['userInputFrequenciesFrom'] == [114.0]
+    assert payload['userInputFrequenciesTo'] == [116.0]
 
 
 def test_load_species_table():
@@ -45,20 +56,24 @@ def test_load_species_table():
 
 # regression test: get_query_payload should work (#308)
 def test_get_payload():
-    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
-                                                       max_frequency=10 * u.GHz,
-                                                       get_query_payload=True)
-    assert '__utma' in q
+    payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+                                                             max_frequency=10 * u.GHz,
+                                                             get_query_payload=True)
+    payload = json.loads(payload['body'])
+    assert payload["userInputFrequenciesFrom"] == [1.0]
+    assert payload["userInputFrequenciesTo"] == [10.0]
 
 
 # regression test: line lists should ask for only one line list, not all
 def test_line_lists():
-    q = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
-                                                       max_frequency=10 * u.GHz,
-                                                       line_lists=['JPL'],
-                                                       get_query_payload=True)
-    assert q['displayJPL'] == 'displayJPL'
-    assert q['displaySLAIM'] == ''
+    payload = splatalogue.core.Splatalogue.query_lines_async(min_frequency=1 * u.GHz,
+                                                             max_frequency=10 * u.GHz,
+                                                             line_lists=['JPL'],
+                                                             get_query_payload=True)
+    payload = json.loads(payload['body'])
+    assert payload['lineListDisplayJPL']
+    assert not payload['lineListDisplaySLAIM']
+    assert not payload['lineListDisplayCDMS']
 
 
 # regression test: raise an exception if a string is passed to line_lists
@@ -73,67 +88,33 @@ def test_linelist_type():
                                  "names.  See Splatalogue.ALL_LINE_LISTS")
 
 
-def test_top20_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                   max_frequency=116 * u.GHz,
-                                                   top20='top20',
-                                                   get_query_payload=True)
-    with pytest.raises(ValueError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(
-            min_frequency=114 * u.GHz, max_frequency=116 * u.GHz,
-            top20='invalid', get_query_payload=True)
-    assert exc.value.args[0] == "Top20 is not one of the allowed values"
-
-
-def test_band_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(band='alma3',
-                                                   get_query_payload=True)
-    with pytest.raises(ValueError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(band='invalid',
-                                                       get_query_payload=True)
-    assert exc.value.args[0] == "Invalid frequency band."
-
-
-# Upstream changed: there is no distinction between versions for this molecule
-# # regression test : version selection should work
-# # Unfortunately, it looks like version1 = version2 on the web page now, so this
-# # may no longer be a valid test
-# @pytest.mark.remote_data
-# def test_version_selection():
-#     results = splatalogue.Splatalogue.query_lines(
-# 			    min_frequency= 703*u.GHz,
-# 			    max_frequency=706*u.GHz,
-# 			    chemical_name='Acetaldehyde',
-# 			    version='v1.0'
-# 			    )
-#     assert len(results)==1
-
 def test_exclude(patch_post):
     # regression test for issue 616
-    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                  max_frequency=116 * u.GHz,
-                                                  chemical_name=' CO ',
-                                                  exclude=None,
-                                                  get_query_payload=True)
+    payload = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                        max_frequency=116 * u.GHz,
+                                                        chemical_name=' CO ',
+                                                        exclude=None,
+                                                        get_query_payload=True)
 
-    exclusions = {'no_atmospheric': 'no_atmospheric',
-                  'no_potential': 'no_potential',
-                  'no_probable': 'no_probable', }
-
-    for k, v in exclusions.items():
-        assert d[k] == v
-
-    d = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
-                                                  max_frequency=116 * u.GHz,
-                                                  chemical_name=' CO ',
-                                                  exclude='none',
-                                                  get_query_payload=True)
+    payload = json.loads(payload['body'])
+    exclusions = {'excludePotentialInterstellarSpecies': False,
+                  'excludeAtmosSpecies': False,
+                  'excludeProbableInterstellarSpecies': False,
+                  'excludeKnownASTSpecies': False}
 
     for k, v in exclusions.items():
-        assert k not in d
+        assert payload[k] == v
 
-    for k in d:
-        assert k[:3] != 'no_'
+    # 'none' doesn't mean None, but it should have the same effect
+    payload = splatalogue.Splatalogue.query_lines_async(min_frequency=114 * u.GHz,
+                                                        max_frequency=116 * u.GHz,
+                                                        chemical_name=' CO ',
+                                                        exclude='none',
+                                                        get_query_payload=True)
+    payload = json.loads(payload['body'])
+
+    for key in exclusions:
+        assert not payload[key]
 
 
 @pytest.mark.remote_data
@@ -146,3 +127,20 @@ def test_exclude_remote():
         chemical_name='Formaldehyde',
         exclude='none')
     assert len(results) >= 1
+
+
+@pytest.mark.remote_data
+def test_energy_limits():
+    # first, check that there are high-energy things to exclude
+    rslt = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                               max_frequency=116 * u.GHz,
+                                               chemical_name=' CO ')
+    assert rslt['upper_state_energy'].max() > 1000
+
+    # then, verify that they are successfully excluded
+    rslt = splatalogue.Splatalogue.query_lines(min_frequency=114 * u.GHz,
+                                               max_frequency=116 * u.GHz,
+                                               energy_max=1000,
+                                               energy_min=0,
+                                               chemical_name=' CO ')
+    assert rslt['upper_state_energy'].max() < 5
