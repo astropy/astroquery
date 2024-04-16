@@ -305,7 +305,7 @@ class SimbadClass(BaseVOQuery):
         self.joins += [Simbad.Join(table, Simbad.Column("basic", link["target_column"]),
                                    Simbad.Column(table, link["from_column"]))]
 
-    def add_to_output(self, *args):
+    def add_output_columns(self, *args):
         """Add columns to the output of a SIMBAD query.
 
         The list of possible arguments and their description for this method
@@ -328,7 +328,7 @@ class SimbadClass(BaseVOQuery):
         --------
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
-        >>> simbad.add_to_output('sp_type', 'sp_qual', 'sp_bibcode') # doctest: +REMOTE_DATA
+        >>> simbad.add_output_columns('sp_type', 'sp_qual', 'sp_bibcode') # doctest: +REMOTE_DATA
         >>> simbad.columns_in_output[0] # doctest: +REMOTE_DATA
         SimbadClass.Column(table='basic', name='main_id', alias=None)
         """
@@ -436,7 +436,7 @@ class SimbadClass(BaseVOQuery):
 
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
-        >>> simbad.add_to_output("dim") # doctest: +REMOTE_DATA
+        >>> simbad.add_output_columns("dim") # doctest: +REMOTE_DATA
         >>> result = simbad.query_object("m101") # doctest: +REMOTE_DATA
         >>> result["main_id", "ra", "dec", "galdim_majaxis", "galdim_minaxis", "galdim_bibcode"] # doctest: +REMOTE_DATA
         <Table length=1>
@@ -587,7 +587,7 @@ class SimbadClass(BaseVOQuery):
         >>> from astropy.coordinates import SkyCoord
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
-        >>> simbad.add_to_output("otype") # doctest: +REMOTE_DATA
+        >>> simbad.add_output_columns("otype") # doctest: +REMOTE_DATA
         >>> coordinates = SkyCoord([SkyCoord(186.6, 12.7, unit=("deg", "deg")),
         ...                         SkyCoord(170.75, 23.9, unit=("deg", "deg"))])
         >>> result = simbad.query_region(coordinates, radius="2d5m",

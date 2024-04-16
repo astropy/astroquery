@@ -49,7 +49,7 @@ def _mock_basic_columns(monkeypatch):
         """Patch a call with basic as an argument only."""
         if table_name == "basic":
             return table
-        # to test in add_to_output
+        # to test in add_output_columns
         if table_name == "mesdistance":
             return Table(
                 [["bibcode"]], names=["column_name"]
@@ -203,49 +203,49 @@ def test_add_table_to_output(monkeypatch):
 @pytest.mark.usefixtures("_mock_simbad_class")
 @pytest.mark.usefixtures("_mock_basic_columns")
 @pytest.mark.usefixtures("_mock_linked_to_basic")
-def test_add_to_output():
+def test_add_output_columns():
     simbad_instance = simbad.Simbad()
     # add columns from basic (one value)
-    simbad_instance.add_to_output("pmra")
+    simbad_instance.add_output_columns("pmra")
     assert simbad.SimbadClass.Column("basic", "pmra") in simbad_instance.columns_in_output
     # add two columns from basic
-    simbad_instance.add_to_output("pmdec", "pm_bibcodE")  # also test case insensitive
+    simbad_instance.add_output_columns("pmdec", "pm_bibcodE")  # also test case insensitive
     expected = [simbad.SimbadClass.Column("basic", "pmdec"),
                 simbad.SimbadClass.Column("basic", "pm_bibcode")]
     assert all(column in simbad_instance.columns_in_output for column in expected)
     # add a table
     simbad_instance.columns_in_output = []
-    simbad_instance.add_to_output("basic")
+    simbad_instance.add_output_columns("basic")
     assert [simbad.SimbadClass.Column("basic", "*")] == simbad_instance.columns_in_output
     # add a bundle
-    simbad_instance.add_to_output("dimensions")
+    simbad_instance.add_output_columns("dimensions")
     assert simbad.SimbadClass.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
     # a column which name has changed should raise a warning but still
     # be added under its new name
     simbad_instance.columns_in_output = []
     with pytest.warns(DeprecationWarning, match=r"'id\(1\)' has been renamed 'main_id'. You'll see it "
                       "appearing with its new name in the output table"):
-        simbad_instance.add_to_output("id(1)")
+        simbad_instance.add_output_columns("id(1)")
     assert simbad.SimbadClass.Column("basic", "main_id") in simbad_instance.columns_in_output
     # a table which name has changed should raise a warning too
     with pytest.warns(DeprecationWarning, match="'distance' has been renamed 'mesdistance'*"):
-        simbad_instance.add_to_output("distance")
+        simbad_instance.add_output_columns("distance")
     # errors are raised for the deprecated fields with options
     with pytest.raises(ValueError, match="Criteria on filters are deprecated when defining Simbad's output.*"):
         simbad_instance.add_to_output("fluxdata(V)")
     with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported.*"):
         simbad_instance.add_to_output("coo(s)", "dec(d)")
     with pytest.raises(ValueError, match="Catalog Ids are no longer supported as an output option.*"):
-        simbad_instance.add_to_output("ID(Gaia)")
+        simbad_instance.add_output_columns("ID(Gaia)")
     with pytest.raises(ValueError, match="Selecting a range of years for bibcode is removed.*"):
-        simbad_instance.add_to_output("bibcodelist(2042-2050)")
+        simbad_instance.add_output_columns("bibcodelist(2042-2050)")
     # historical measurements
     with pytest.raises(ValueError, match="'einstein' is no longer a part of SIMBAD.*"):
-        simbad_instance.add_to_output("einstein")
+        simbad_instance.add_output_columns("einstein")
     # typos should have suggestions
     with pytest.raises(ValueError, match="'alltype' is not one of the accepted options which can be "
                        "listed with 'list_output_options'. Did you mean 'alltypes' or 'otype' or 'otypes'?"):
-        simbad_instance.add_to_output("ALLTYPE")
+        simbad_instance.add_output_columns("ALLTYPE")
     # bundles and tables require a connection to the tap_schema and are thus tested in test_simbad_remote
 
 

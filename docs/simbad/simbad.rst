@@ -449,13 +449,13 @@ For these methods, the default columns in the output are:
         SimbadClass.Column(table='basic', name='main_id', alias=None)
 
 This can be permanently changed in astroquery's configuration files. To do this within 
-a session or for a single query, use `~astroquery.simbad.SimbadClass.add_to_output`:
+a session or for a single query, use `~astroquery.simbad.SimbadClass.add_output_columns`:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> simbad = Simbad()
-    >>> simbad.add_to_output("otype")  # here we add a single column about the main object type
+    >>> simbad.add_output_columns("otype")  # here we add a single column about the main object type
 
 Some options add a single column and others add  a bunch of columns that are relevant
 for a theme (ex: fluxes, proper motions...). The list of possible options is printed
@@ -524,7 +524,7 @@ This allows to inspect the columns the method would return:
     >>> simbad = Simbad()
     >>> simbad.ROW_LIMIT = 0  # get no lines, just the table structure
     >>> # add the table about proper motion measurements, and the object type column
-    >>> simbad.add_to_output("mesPM", "otype")
+    >>> simbad.add_output_columns("mesPM", "otype")
     >>> peek = simbad.query_object("BD+30  2512") # a query on an object
     >>> peek.info
     <Table length=0>
@@ -564,7 +564,7 @@ constraint on the first character of the ``mespm.bibcode`` column
     >>> from astroquery.simbad import Simbad
     >>> criteria = "mespm.bibcode LIKE '2%'" # starts with 2, anything after
     >>> simbad = Simbad()
-    >>> simbad.add_to_output("mesPM", "otype")
+    >>> simbad.add_output_columns("mesPM", "otype")
     >>> pm_measurements = simbad.query_object("BD+30  2512", criteria=criteria)
     >>> pm_measurements[["main_id", "mespm.pmra", "mespm.pmde", "mespm.bibcode"]]
     <Table length=6>

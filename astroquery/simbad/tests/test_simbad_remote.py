@@ -40,7 +40,7 @@ class TestSimbad:
 
     def test_query_bibobj(self):
         self.simbad.ROW_LIMIT = 5
-        self.simbad.add_to_output("otype")
+        self.simbad.add_output_columns("otype")
         bibcode = '2005A&A...430..165F'
         result = self.simbad.query_bibobj(bibcode, criteria="otype='*..'")
         assert all((bibcode == code) for code in result["bibcode"].data.data)
@@ -82,7 +82,7 @@ class TestSimbad:
     def test_simbad_flux_qual(self):
         '''Regression test for issue 680'''
         simbad_instance = Simbad()
-        simbad_instance.add_to_output("flux")
+        simbad_instance.add_output_columns("flux")
         response = simbad_instance.query_object('algol', criteria="filter='V'")
         # this is bugged, it should be "flux.qual", see https://github.com/gmantele/vollt/issues/154
         # when the issue upstream in vollt (the TAP software used in SIMBAD) is fixed we can rewrite this test
@@ -148,7 +148,7 @@ class TestSimbad:
         # empty before the test
         simbad_instance.columns_in_output = []
         # add a bundle
-        simbad_instance.add_to_output("dim")
+        simbad_instance.add_output_columns("dim")
         # check the length
         assert len(simbad_instance.columns_in_output) == 8
         assert Simbad.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
@@ -157,7 +157,7 @@ class TestSimbad:
         simbad_instance = Simbad()
         # empty before the test
         simbad_instance.columns_in_output = []
-        simbad_instance.add_to_output("otypes")
+        simbad_instance.add_output_columns("otypes")
         assert Simbad.Column("otypes", "otype", '"otypes.otype"') in simbad_instance.columns_in_output
         # tables also require a join
         assert Simbad.Join("otypes",
@@ -165,9 +165,9 @@ class TestSimbad:
                            Simbad.Column("otypes", "oidref")) == simbad_instance.joins[0]
         # tables that have been renamed should warn
         with pytest.warns(DeprecationWarning, match="'iue' has been renamed 'mesiue'.*"):
-            simbad_instance.add_to_output("IUE")
+            simbad_instance.add_output_columns("IUE")
         # empty before the test
         simbad_instance.columns_in_output = []
         # mixed columns bundles and tables
-        simbad_instance.add_to_output("flux", "velocity", "update_date")
+        simbad_instance.add_output_columns("flux", "velocity", "update_date")
         assert len(simbad_instance.columns_in_output) == 19
