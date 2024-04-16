@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 from astropy.io.votable import parse_single_table
 from astropy.table import Table
 import astropy.units as u
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal.tap import TAPService
 
 import pytest
@@ -483,3 +484,24 @@ def test_construct_query():
                                           [column],
                                           [],
                                           ["ra < 6", "ra > 5"], get_adql=True) == expected
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.parametrize(
+    ("query_method", "args", "deprecated_kwargs"),
+    [
+        (simbad.Simbad.query_objectids, ["M1"], {"verbose", "get_query_payload", "cache"}),
+        (simbad.Simbad.query_bibcode, ["1992AJ....103..983B"], {"verbose", "get_query_payload", "cache"}),
+        (simbad.Simbad.query_bibobj, ["1992AJ....103..983B"], {"verbose", "get_query_payload"}),
+        (simbad.Simbad.query_catalog, ["M"], {"verbose", "get_query_payload", "cache"}),
+        (simbad.Simbad.query_region, ["M1", "2d"], {"get_query_payload", "equinox", "epoch", "cache"}),
+        (simbad.Simbad.query_objects, [["M1", "M2"]], {"verbose", "get_query_payload"}),
+        (simbad.Simbad.query_object, ["M1"], {"verbose", "get_query_payload"}),
+    ]
+)
+def test_deprecated_arguments(query_method, args, deprecated_kwargs):
+    for argument in deprecated_kwargs:
+        with pytest.warns(AstropyDeprecationWarning,
+                          match=f'"{argument}" was deprecated in version 0.4.8 and will be '
+                          'removed in a future version.*'):
+            query_method(*args, get_adql=True, **{argument: True})
