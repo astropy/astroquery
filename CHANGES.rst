@@ -34,6 +34,7 @@ utils.tap
 - ``TapPlus.upload_table`` should not allow table names to contain a
   dot. ``ValueError`` is now raised for such cases. [#2971]
 
+- fix method read_http_response. This fix the previous PR #2947. [#2970]
 
 gaia
 ^^^^
