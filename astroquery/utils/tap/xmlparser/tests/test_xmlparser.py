@@ -104,6 +104,14 @@ def test_job_results_parser():
     file.close()
 
 
+def test_job_results_parser_json():
+    file_name = data_path('test.json')
+    file = open(file_name, 'rb')
+    result_table = utils.read_http_response(file, 'json')
+    assert len(result_table.columns) == 152
+    file.close()
+
+
 def __check_table(table, qualifiedName, numColumns, columnsData, size_bytes=None):
     assert str(table.get_qualified_name()) == str(qualifiedName)
     c = table.columns
