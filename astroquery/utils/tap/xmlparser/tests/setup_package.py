@@ -21,6 +21,7 @@ import os
 
 def get_package_data():
     paths = [os.path.join('data', '*.data'),
-             os.path.join('data', '*.xml')
+             os.path.join('data', '*.xml'),
+             os.path.join('data', '*.json')
              ]
     return {'astroquery.utils.tap.xmlparser.tests': paths}

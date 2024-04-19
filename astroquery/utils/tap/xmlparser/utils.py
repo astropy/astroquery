@@ -40,17 +40,19 @@ def read_http_response(response, output_format, *, correct_units=True):
 
         if output_format == 'json':
 
-            data = json.load(response)
+            # Set the file’s current position
+            data.seek(0)
+            data_json = json.load(data)
 
-            if data.get('data') and data.get('metadata'):
+            if data_json.get('data') and data_json.get('metadata'):
 
                 column_name = []
-                for name in data['metadata']:
+                for name in data_json['metadata']:
                     column_name.append(name['name'])
 
-                result = Table(rows=data['data'], names=column_name, masked=True)
+                result = Table(rows=data_json['data'], names=column_name, masked=True)
 
-                for v in data['metadata']:
+                for v in data_json['metadata']:
                     col_name = v['name']
                     result[col_name].unit = v['unit']
                     result[col_name].description = v['description']
