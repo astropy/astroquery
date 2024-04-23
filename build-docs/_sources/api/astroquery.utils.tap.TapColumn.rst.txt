@@ -1,7 +1,0 @@
-TapColumn
-=========
-
-.. currentmodule:: astroquery.utils.tap
-
-.. autoclass:: TapColumn
-   :show-inheritance:

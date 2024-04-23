@@ -1,6 +1,0 @@
-get_catalogue
-=============
-
-.. currentmodule:: astroquery.open_exoplanet_catalogue
-
-.. autofunction:: get_catalogue

@@ -1,7 +1,0 @@
-class_or_instance
-=================
-
-.. currentmodule:: astroquery.utils
-
-.. autoclass:: class_or_instance
-   :show-inheritance:

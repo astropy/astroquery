@@ -1,6 +1,0 @@
-clean_catalog
-=============
-
-.. currentmodule:: astroquery.wfau
-
-.. autofunction:: clean_catalog

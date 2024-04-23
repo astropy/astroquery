@@ -1,7 +1,0 @@
-SimbadBaseQuery
-===============
-
-.. currentmodule:: astroquery.simbad
-
-.. autoclass:: SimbadBaseQuery
-   :show-inheritance:

@@ -1,6 +1,0 @@
-validate_email
-==============
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: validate_email

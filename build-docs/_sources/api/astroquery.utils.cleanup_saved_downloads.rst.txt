@@ -1,6 +1,0 @@
-cleanup_saved_downloads
-=======================
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: cleanup_saved_downloads

@@ -1,6 +1,0 @@
-BaseVOError
-===========
-
-.. currentmodule:: astroquery.vo_conesearch.exceptions
-
-.. autoexception:: BaseVOError
