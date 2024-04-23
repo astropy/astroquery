@@ -83,6 +83,15 @@ class JwstClass(BaseQuery):
         if show_messages:
             self.get_status_messages()
 
+    def __check_list_strings(self, list):
+        if list is None:
+            return False
+        if list and all(isinstance(elem, str) for elem in list):
+            return True
+        else:
+            raise ValueError("One of the lists is empty or there are "
+                             "elements that are not strings")
+
     def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
         """Loads all public tables
@@ -968,10 +977,10 @@ class JwstClass(BaseQuery):
             composite products based on level 2 products). To request upper
             levels, please use get_related_observations functions first.
             Possible values: 'ALL', 3, 2, 1, -1
-        product_type : str, optional, default None
+        product_type : str or list, optional, default None
             List only products of the given type. If None, all products are \
             listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
-            'science'.
+            'science', 'info'.
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -997,10 +1006,17 @@ class JwstClass(BaseQuery):
                                                 max_cal_level=max_cal_level,
                                                 is_url=True)
         params_dict['planeid'] = plane_ids
+
+        if self.__check_list_strings(product_type):
+            if type(product_type) is list: tap_product_type=",".join(str(elem) for elem in product_type)
+            else: tap_product_type=product_type
+        else:
+            tap_product_type=None
+
         self.__set_additional_parameters(param_dict=params_dict,
                                          cal_level=cal_level,
                                          max_cal_level=max_cal_level,
-                                         product_type=product_type)
+                                         product_type=tap_product_type)
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file,
                                                             observation_id=observation_id)
         # Get file name only
