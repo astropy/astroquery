@@ -276,7 +276,7 @@ To download a data product
   >>> output_file = Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')  # doctest: +SKIP
 
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
-than get_product_list.
+than get_product_list, it also supports product_type parameter as string or list.
 
 .. doctest-remote-data::
 
