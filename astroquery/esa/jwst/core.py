@@ -1008,10 +1008,12 @@ class JwstClass(BaseQuery):
         params_dict['planeid'] = plane_ids
 
         if self.__check_list_strings(product_type):
-            if type(product_type) is list: tap_product_type=",".join(str(elem) for elem in product_type)
-            else: tap_product_type=product_type
+            if type(product_type) is list:
+                tap_product_type = ",".join(str(elem) for elem in product_type)
+            else:
+                tap_product_type = product_type
         else:
-            tap_product_type=None
+            tap_product_type = None
 
         self.__set_additional_parameters(param_dict=params_dict,
                                          cal_level=cal_level,
