@@ -1,6 +1,0 @@
-DuplicateCatalogName
-====================
-
-.. currentmodule:: astroquery.vo_conesearch.exceptions
-
-.. autoexception:: DuplicateCatalogName

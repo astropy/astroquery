@@ -1,6 +1,0 @@
-ValidationMultiprocessingError
-==============================
-
-.. currentmodule:: astroquery.vo_conesearch.validator.exceptions
-
-.. autoexception:: ValidationMultiprocessingError

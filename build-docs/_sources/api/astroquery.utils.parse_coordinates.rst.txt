@@ -1,6 +1,0 @@
-parse_coordinates
-=================
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: parse_coordinates

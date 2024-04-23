@@ -1,6 +1,0 @@
-parse_besancon_model_string
-===========================
-
-.. currentmodule:: astroquery.besancon
-
-.. autofunction:: parse_besancon_model_string

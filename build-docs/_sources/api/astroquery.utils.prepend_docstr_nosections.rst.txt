@@ -1,6 +1,0 @@
-prepend_docstr_nosections
-=========================
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: prepend_docstr_nosections

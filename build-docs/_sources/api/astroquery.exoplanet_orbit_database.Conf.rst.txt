@@ -1,7 +1,0 @@
-Conf
-====
-
-.. currentmodule:: astroquery.exoplanet_orbit_database
-
-.. autoclass:: Conf
-   :show-inheritance:

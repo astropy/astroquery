@@ -1,6 +1,0 @@
-suppress_vo_warnings
-====================
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: suppress_vo_warnings

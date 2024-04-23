@@ -1,6 +1,0 @@
-call_vo_service
-===============
-
-.. currentmodule:: astroquery.vo_conesearch.vos_catalog
-
-.. autofunction:: call_vo_service

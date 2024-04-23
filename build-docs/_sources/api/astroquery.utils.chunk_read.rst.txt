@@ -1,6 +1,0 @@
-chunk_read
-==========
-
-.. currentmodule:: astroquery.utils
-
-.. autofunction:: chunk_read

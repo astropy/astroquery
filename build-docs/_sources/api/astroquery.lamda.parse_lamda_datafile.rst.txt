@@ -1,6 +1,0 @@
-parse_lamda_datafile
-====================
-
-.. currentmodule:: astroquery.lamda
-
-.. autofunction:: parse_lamda_datafile
