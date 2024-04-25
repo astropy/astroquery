@@ -760,4 +760,3 @@ class TestESAHubble:
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)
         ehst.get_datalabs_path(filename="ib4x04ivq_flt.jpg", default_volume="")
         dummyTapHandler.check_call("get_datalabs_path", parameters)
-

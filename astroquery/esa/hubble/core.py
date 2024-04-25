@@ -1011,19 +1011,18 @@ class ESAHubbleClass(BaseQuery):
         filename : string, mandatory, default None
             file name to search for its full path
         default_volume : string, optional, default ''
-            Default volume path in datalabs 
+            Default volume path in datalabs
 
         Returns
         -------
         The complete path of the file name in Datalabs
         """
-        
+
         query = f"select file_path from ehst.artifact where file_name = '{filename}'"
         job = self.query_tap(query=query)
         if job is None:
             return None
-    
+
         return default_volume + self._get_decoded_string(string=job["file_path"][0])
 
-                
 ESAHubble = ESAHubbleClass()
