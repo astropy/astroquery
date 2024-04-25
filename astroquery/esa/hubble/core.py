@@ -1025,4 +1025,5 @@ class ESAHubbleClass(BaseQuery):
 
         return default_volume + self._get_decoded_string(string=job["file_path"][0])
 
+
 ESAHubble = ESAHubbleClass()
