@@ -11,33 +11,31 @@ This is a python interface for querying the
 `HEASARC <https://heasarc.gsfc.nasa.gov/>`__
 archive web service.
 
-There are two interfaces for the Heasarc services:``heasarc.Heasac`` and 
-``heasarc.Xamin``. The first uses the classical Browse interface, and offers 
-limited search capabilities. The second uses the new ``Xamin`` interface, 
-which relies on the Virtual Observatory protocols. It offser more powerful
-search options.
+There main interface for the Heasarc services``heasarc.Heasac`` now uses
+Virtual Observatory protocols with the Xamin interface, which offers
+more powerful search options than the old Browse interface.
 
-- :ref:`Heasarc Xamin Interface`.
+- :ref:`Heasarc Main (Xamin) Interface`.
 - :ref:`Old Browse Interface`.
 
-.. _Heasarc Xamin Interface:
+.. _Heasarc Main Interface:
 
-Heasarc Xamin Interface
+Heasarc Main Interface
 =======================
 
 Query a Table
 -------------
-The basic use case is one where you wants to query a table from some position in the sky.
-In this example, we query the NuSTAR master table ``numaster`` table for all observations
+The basic use case is one where we wants to query a table from some position in the sky.
+In this example, we query the NuSTAR master table ``numaster`` for all observations
 of the AGN ``NGC 3783``. We use `~astropy.coordinates.SkyCoord` to obtain the coordinates
-and then pass them to `~astroquery.heasarc.HeasarcXaminClass.query_region`:
+and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
+    >>> from astroquery.heasarc import Heasarc
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3783')
-    >>> tab = Xamin.query_region(pos, table='numaster')
+    >>> tab = Heasarc.query_region(pos, table='numaster')
     >>> tab['name', 'obsid', 'ra', 'dec'][:3].pprint()
       name    obsid      ra      dec   
                         deg      deg   
@@ -46,16 +44,16 @@ and then pass them to `~astroquery.heasarc.HeasarcXaminClass.query_region`:
     NGC_3783 60901023 174.7571 -37.7385
     NGC_3783 60902005 174.7571 -37.7385
 
-To query a region around some position, specifying the search radius.
-You use `~astropy.units`:
+To query a region around some position, specifying the search radius,
+we use `~astropy.units`:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
+    >>> from astroquery.heasarc import Heasac
     >>> from astropy.coordinates import SkyCoord
     >>> from astropy import units as u
     >>> pos = SkyCoord('120 38', unit=u.deg)
-    >>> tab = Xamin.query_region(pos, table='chanmaster', radius=2*u.deg)
+    >>> tab = Heasac.query_region(pos, table='chanmaster', radius=2*u.deg)
     >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint()
                name           obsid     ra      dec   
                                        deg      deg   
@@ -66,25 +64,34 @@ You use `~astropy.units`:
         1RXS J075526.1+391111 13008 118.85875 39.18639
      SDSS J080040.77+391700.5 18110 120.17000 39.28344
 
-The list of requested tables can also be passed to `~~astroquery.heasarc.HeasarcXaminClass.query_region`:
+If no radius value is given, a default that is appropriate
+for each table is used. You can see the value of the default
+radius values by calling `~~astroquery.heasarc.HeasarcClass.get_default_radius`,
+passing the name of the table.
+
+The list of returned columns can also be given as a comma-separated string to
+`~~astroquery.heasarc.HeasarcClass.query_region`:
 
 .. doctest-skip::
 
-    >>> Xamin.query_region(pos, table='chanmaster', radius=2*u.deg,
+    >>> Heasac.query_region(pos, table='chanmaster', radius=2*u.deg,
     ...                    columns='obsid, name, time, pi_lname')
+
+If no columns are given, the call will return a set of default columns.
+If you want all the columns returned, use ``columns='*'```
 
 List Available Tables
 ---------------------
-The collection of available tables can be obtained by calling the `~astroquery.heasarc.HeasarcXaminClass.tables` 
+The collection of available tables can be obtained by calling the `~astroquery.heasarc.HeasarcClass.tables` 
 method. In this example, we query the master tables only by passing ``master=True``.
-which is ``False`` by default (i.e. query all table). `~astroquery.heasarc.HeasarcXaminClass.tables` returns an 
+which is ``False`` by default (i.e. return all table). `~astroquery.heasarc.HeasarcClass.tables` returns an 
 `~astropy.table.Table` with two columns containing the names and description of the available
 tables.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> tables = Xamin.tables(master=True)
+    >>> from astroquery.heasarc import Heasac
+    >>> tables = Heasac.tables(master=True)
     >>> tables.pprint(align='<')
        name                             description                         
     ---------- -------------------------------------------------------------
@@ -94,13 +101,13 @@ tables.
     erosmaster eROSITA Observations Master Catalog
 
 If you do not know the name of the table you are looking for, you can use the ``keywords`` 
-parameter in `~astroquery.heasarc.HeasarcXaminClass.tables`. For example, if you want to find all tables that 
+parameter in `~astroquery.heasarc.HeasarcClass.tables`. For example, if you want to find all tables that 
 are related to Chandra, you can do:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> tab = Xamin.tables(keywords='chandra')
+    >>> from astroquery.heasarc import Heasac
+    >>> tab = Heasac.tables(keywords='chandra')
     >>> # list the first 10
     >>> tab[:10].pprint()
        name                              description                           
@@ -120,8 +127,8 @@ If you are interested only finding the master tables, you can also set ``master`
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> tab = Xamin.tables(keywords='chandra', master=True)
+    >>> from astroquery.heasarc import Heasac
+    >>> tab = Heasac.tables(keywords='chandra', master=True)
     >>> tab.pprint()
        name        description     
     ---------- --------------------
@@ -132,8 +139,8 @@ following find all tables that have both 'xmm' and 'chandra' keyworkds:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> tab = Xamin.tables(keywords='xmm chandra')
+    >>> from astroquery.heasarc import Heasac
+    >>> tab = Heasac.tables(keywords='xmm chandra')
     >>> tab.pprint()
        name                              description                           
     ---------- ----------------------------------------------------------------
@@ -147,8 +154,8 @@ following for instance will find master tables that have keywords 'nicer' or 'sw
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> tab = Xamin.tables(keywords=['nicer', 'swift'], master=True)
+    >>> from astroquery.heasarc import Heasac
+    >>> tab = Heasac.tables(keywords=['nicer', 'swift'], master=True)
     >>> tab.pprint()
        name        description     
     ---------- --------------------
@@ -162,11 +169,11 @@ with those results.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
+    >>> from astroquery.heasarc import Heasac
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3516')
-    >>> tab = Xamin.query_region(pos, table='nicermastr')
-    >>> links = Xamin.get_links(tab[:2])
+    >>> tab = Heasac.query_region(pos, table='nicermastr')
+    >>> links = Heasac.get_links(tab[:2])
     >>> links.pprint(max_width=120)
       ID                                access_url                              ... content_length
                                                                                 ...      byte     
@@ -179,12 +186,12 @@ The first gives the url to the data from the main heasarc server. The second giv
 the local path to the data on Sciserver. The last gives the S3 URI to the data in the cloud.
 You can specify where the data are to be downloaded using the ``location`` parameter.
 
-To download the data, you can pass ``links`` table to `~astroquery.heasarc.HeasarcXaminClass.download_data`,
+To download the data, you can pass ``links`` table to `~astroquery.heasarc.HeasarcClass.download_data`,
 specifying from where you want the data to fetched by specifying the ``host`` parameter. By default,
 the data is fetched from the main HEASARC servers.
 The recommendation is to use different hosts depending on where you can is running:
 * ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
-all the archive can be mounted locally there, `~astroquery.heasarc.HeasarcXaminClass.download_data`
+all the archive can be mounted locally there, `~astroquery.heasarc.HeasarcClass.download_data`
 will only copy the relevent data.
 * ``host='aws'``: Use this option if you are running the analysis in Amazon Web Services (AWS).
 Data will be downloaded from AWS S3 storage.
@@ -194,18 +201,18 @@ before being untarred.
 
 Advanced Queries
 ----------------
-Behind the scenes, `~astroquery.heasarc.HeasarcXaminClass.query_region` constructs an query in the 
+Behind the scenes, `~astroquery.heasarc.HeasarcClass.query_region` constructs an query in the 
 Astronomical Data Query Language ADQL, which is powerful in constructing
-complex queries. Passing ``get_query_payload=True`` to `~astroquery.heasarc.HeasarcXaminClass.query_region`
+complex queries. Passing ``get_query_payload=True`` to `~astroquery.heasarc.HeasarcClass.query_region`
 returns the constructed ADQL query.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
+    >>> from astroquery.heasarc import Heasac
     >>> from astropy.coordinates import SkyCoord
     >>> from astropy import units as u
     >>> pos = SkyCoord('120 38', unit=u.deg)
-    >>> query = Xamin.query_region(pos, table='xmmmaster', radius=2*u.deg, 
+    >>> query = Heasac.query_region(pos, table='xmmmaster', radius=2*u.deg, 
     >>>                            get_query_payload=True)
     >>> query
     "SELECT * FROM xmmmaster WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"
@@ -213,7 +220,7 @@ returns the constructed ADQL query.
     >>> # The query can be modified and then submitted using:
     >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster 
     ...            WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
-    >>> tab = Xamin.query_tap(query).to_table()
+    >>> tab = Heasac.query_tap(query).to_table()
     >>> tab[:10].pprint()
         ra      dec            name           obsid   
        deg      deg                                   
@@ -231,33 +238,33 @@ returns the constructed ADQL query.
 
 Complex Regions
 ---------------
-In additon to a cone search (some position and search radius), ```Xamin.query_region``` accepts
+In additon to a cone search (some position and search radius), ```Heasac.query_region``` accepts
 other options too, including ``'box'``, ``'polygon'`` and ``'all-sky'``. Details can be found
-in `~astroquery.heasarc.HeasarcXaminClass.query_region`. Examples include:
+in `~astroquery.heasarc.HeasarcClass.query_region`. Examples include:
 
 .. doctest-skip::
 
     >>> # query box region
     >>> pos = SkyCoord('226.2 10.6', unit=u.deg)
-    >>> Xamin.query_region(pos, table='xmmmaster', spatial='box', width=0.5*u.deg)
+    >>> Heasac.query_region(pos, table='xmmmaster', spatial='box', width=0.5*u.deg)
 
 for ``'box'`` and:
 
 .. doctest-skip::
-    >>> Xamin.query_region(table='xmmmaster', spatial='polygon',
+    >>> Heasac.query_region(table='xmmmaster', spatial='polygon',
                   polygon=[(226.2,10.6),(225.9,10.5),(225.8,10.2),(226.2,10.3)])
 
 for ``'polygon'``.  
 
 List Table Columns
 ------------------
-To list the columns of some table, use `~astroquery.heasarc.HeasarcXaminClass.columns`. Here we list the columns
+To list the columns of some table, use `~astroquery.heasarc.HeasarcClass.columns`. Here we list the columns
 in the XMM master table ``xmmmaster``:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.heasarc import Xamin
-    >>> columns = Xamin.columns(table_name='xmmmaster')
+    >>> from astroquery.heasarc import Heasac
+    >>> columns = Heasac.columns(table_name='xmmmaster')
     >>> columns[:10].pprint(align='<')
          name                                description                          
     -------------- ---------------------------------------------------------------
@@ -277,6 +284,12 @@ in the XMM master table ``xmmmaster``:
 
 Old Browse Interface
 ====================
+:::{admonition} Limited Support
+:class: warning
+
+The old Browse interface has only limited support from the Heasarc,
+please consider using the main `~astroquery.heasarc.HeasarcClas` interface.
+:::
 
 Getting lists of available datasets
 -----------------------------------
