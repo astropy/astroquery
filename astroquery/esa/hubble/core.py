@@ -1003,5 +1003,27 @@ class ESAHubbleClass(BaseQuery):
         except (UnicodeDecodeError, AttributeError):
             return string
 
+    def get_datalabs_path(self, filename, default_volume=''):
+        """Get the available columns for a table in EHST TAP service
 
+        Parameters
+        ----------
+        filename : string, mandatory, default None
+            file name to search for its full path
+        default_volume : string, optional, default ''
+            Default volume path in datalabs 
+
+        Returns
+        -------
+        The complete path of the file name in Datalabs
+        """
+        
+        query = f"select file_path from ehst.artifact where file_name = '{filename}'"
+        job = self.query_tap(query=query)
+        if job is None:
+            return None
+    
+        return default_volume + self._get_decoded_string(string=job["file_path"][0])
+
+                
 ESAHubble = ESAHubbleClass()
