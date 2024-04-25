@@ -5,12 +5,12 @@ import requests
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 
-from ...heasarc import Heasarc, Conf
+from ...heasarc import HeasarcBrowse as Heasarc, Conf
 from .conftest import MockResponse, parametrization_local_save_remote, skycoord_3C_273
 
 
 @parametrization_local_save_remote
-class TestHeasarcISDC:
+class TestHeasarcBrowseISDC:
 
     @pytest.fixture(autouse=True)
     def _patch_get(self, patch_get):
@@ -162,9 +162,8 @@ class TestHeasarcISDC:
         with self.isdc_context:
             missions = heasarc.query_mission_list()
 
-        # Assert that there are indeed a large number of tables
-        # Number of tables could change, but should be > 900 (currently 956)
-        assert len(missions) == 5
+        # The number changes
+        assert len(missions) >= 5
 
     def test_mission_cols(self):
         heasarc = Heasarc()
