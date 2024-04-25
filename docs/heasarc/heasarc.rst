@@ -15,7 +15,7 @@ There main interface for the Heasarc services``heasarc.Heasac`` now uses
 Virtual Observatory protocols with the Xamin interface, which offers
 more powerful search options than the old Browse interface.
 
-- :ref:`Heasarc Main (Xamin) Interface`.
+- :ref:`Heasarc Main Interface`.
 - :ref:`Old Browse Interface`.
 
 .. _Heasarc Main Interface:
@@ -284,12 +284,10 @@ in the XMM master table ``xmmmaster``:
 
 Old Browse Interface
 ====================
-:::{admonition} Limited Support
-:class: warning
 
-The old Browse interface has only limited support from the Heasarc,
-please consider using the main `~astroquery.heasarc.HeasarcClas` interface.
-:::
+.. warning::
+    The old Browse interface has limited support from the Heasarc,
+    please consider using the main `~astroquery.heasarc.HeasarcClass` interface.
 
 Getting lists of available datasets
 -----------------------------------

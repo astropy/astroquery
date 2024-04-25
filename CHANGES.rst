@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^^^^^
+
+- Refactor heasarc to use the VO backend. The old Heasarc class is now HeasarcBrowser [#2997]
+
 mpc
 ^^^
 

@@ -29,7 +29,7 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         30,
         'Time limit for connecting to HEASARC server.')
-    
+
     VO_URL = _config.ConfigItem(
         'https://heasarc.gsfc.nasa.gov/xamin/vo',
         'Base Url for VO services')
