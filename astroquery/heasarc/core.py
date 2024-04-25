@@ -21,6 +21,7 @@ from . import conf
 
 from .heasarc_browse import HeasarcBrowseClass
 
+
 @async_to_sync
 class HeasarcClass(BaseQuery):
     """Class for accessing HEASARC data using XAMIN.
@@ -48,14 +49,16 @@ class HeasarcClass(BaseQuery):
     def tap(self):
         """TAP service"""
         if self._tap is None:
-            self._tap = pyvo.dal.TAPService(f'{self.VO_URL}/tap', session=self._session)
+            self._tap = pyvo.dal.TAPService(
+                f'{self.VO_URL}/tap', session=self._session
+            )
             self._session = self._tap._session
         return self._tap
-    
+
     @property
     def _meta(self):
         """Queries and holds meta-information about the tables.
-        
+
         This is a table that holds useful information such as
         the list of default columns per table, the reasonable default
         search radius per table that is appropriate for a mission etc.
@@ -65,19 +68,20 @@ class HeasarcClass(BaseQuery):
         These are not meant to be used directly by the user.
         """
         if self._meta_info is None:
-            query = ("SELECT split_part(name, '.', 1) AS table, "
-                    "split_part(name, '.', 2) AS par, "
-                    "CAST(value AS DECIMAL) AS value "
-                    "FROM metainfo "
-                    "WHERE (type = 'parameter' and relation = 'order') "
-                    "OR relation LIKE 'defaultSearchRadius' "
-                    "ORDER BY value"
-                    )
+            query = (
+                "SELECT split_part(name, '.', 1) AS table, "
+                "split_part(name, '.', 2) AS par, "
+                "CAST(value AS DECIMAL) AS value "
+                "FROM metainfo "
+                "WHERE (type = 'parameter' and relation = 'order') "
+                "OR relation LIKE 'defaultSearchRadius' "
+                "ORDER BY value"
+            )
             self._meta_info = self.query_tap(query).to_table()
-            self._meta_info['value'] = np.array(self._meta_info['value'], np.float32)
+            self._meta_info['value'] = np.array(
+                self._meta_info['value'], np.float32)
             self._meta_info = self._meta_info[self._meta_info['value'] > 0]
         return self._meta_info
-
 
     def _get_default_cols(self, table_name):
         """Get a list of default columns for a table
@@ -93,13 +97,13 @@ class HeasarcClass(BaseQuery):
 
         """
         meta = self._meta[
-            (self._meta['table'] == table_name) &
-            (self._meta['par'] != '')
-            ]
+            (self._meta['table'] == table_name)
+            and (self._meta['par'] != '')
+        ]
         meta.sort('value')
         defaults = meta['par']
         return defaults
-    
+
     def get_default_radius(self, table_name):
         """Get a mission-appropriate default radius for a table
 
@@ -108,15 +112,15 @@ class HeasarcClass(BaseQuery):
         table_name: str
             The name of table as a str
 
-        Return
-        ------
+        Returns
+        -------
         The radius as ~astropy.units
 
         """
         meta = self._meta[
-            (self._meta['table'] == table_name) &
-            (self._meta['par'] == '')
-            ]
+            (self._meta['table'] == table_name)
+            and (self._meta['par'] == '')
+        ]
         radius = np.double(meta['value'][0]) * u.arcmin
         return radius
 
@@ -134,7 +138,6 @@ class HeasarcClass(BaseQuery):
 
         self._session = session
 
-
     def tables(self, *, master=False, keywords=None):
         """Return a dictionay of all available table in the
         form {name: description}
@@ -148,8 +151,8 @@ class HeasarcClass(BaseQuery):
             terms for tables. Words with a str separated by a space
             are AND'ed, while words in a list are OR'ed
 
-        Return
-        ------
+        Returns
+        -------
         `~astropy.table.Table` with columns: name, description
 
         """
@@ -164,30 +167,33 @@ class HeasarcClass(BaseQuery):
             if 'TAP' in lab or (master and 'mast' not in lab):
                 continue
             if keywords is not None:
-                matched = any([all([wrd.lower() in f'{lab} {tab.description}'.lower() 
-                                for wrd in wrds.split()])
-                                for wrds in keywords])
+                matched = any(
+                    [
+                        all([wrd.lower() in f'{lab} {tab.description}'.lower()
+                            for wrd in wrds.split()])
+                        for wrds in keywords
+                    ]
+                )
                 if not matched:
                     continue
             names.append(lab)
             desc.append(tab.description)
-        return Table({'name': names, 'description':desc})
-
+        return Table({'name': names, 'description': desc})
 
     @deprecated(
         since='TBD',
-        message='Heasarc.query_mission_list is deprecated. Use ~Heasarc.tables instead',
+        message=('Heasarc.query_mission_list is deprecated. '
+                 'Use ~Heasarc.tables instead'),
     )
     def query_mission_list(self, *, cache=True, get_query_payload=False):
         """Returns a list of all available mission tables with descriptions.
 
-        NOTE: This method is deprecated, and is included only for limited backward
-        compatibility with the old astroquery.Heasarc that uses the Browse interface.
-        Please use ~Heasarc.tables instead.
+        This method is deprecated, and is included only for limited
+        backward compatibility with the old astroquery.Heasarc that uses
+        the Browse interface. Please use ~Heasarc.tables instead.
 
         """
         return self.tables(master=False)
-
 
     def columns(self, table_name, full=False):
         """Return a dictionay of the columns available in table_name
@@ -208,10 +214,11 @@ class HeasarcClass(BaseQuery):
         """
         tables = self.tap.tables
         if table_name not in tables.keys():
-            msg = f'{table_name} is not available as a public table. '
-            msg += 'Try passing keywords to ~Heasarc.tables() to find the table name'
+            msg = (f'{table_name} is not available as a public table. '
+                   'Try passing keywords to ~Heasarc.tables() to find '
+                   'the table name')
             raise ValueError(msg)
-        
+
         default_cols = self._get_default_cols(table_name)
 
         names, desc, unit = [], [], []
@@ -220,21 +227,22 @@ class HeasarcClass(BaseQuery):
                 names.append(col.name)
                 desc.append(col.description)
                 unit.append(col.unit or '')
-        cols = Table({'name': names, 'description':desc, 'unit': unit})
+        cols = Table({'name': names, 'description': desc, 'unit': unit})
 
         return cols
 
     @deprecated(
         since='TBD',
-        message='Heasarc.query_mission_cols is deprecated. Use ~Heasarc.columns instead',
+        message=('Heasarc.query_mission_cols is deprecated. '
+                 'Use ~Heasarc.columns instead'),
     )
-    def query_mission_cols(self, mission, *, cache=True, get_query_payload=False,
-                           **kwargs):
+    def query_mission_cols(self, mission, *, cache=True,
+                           get_query_payload=False, **kwargs):
         """Query around a specific object within a given mission catalog
 
-        NOTE: This method is deprecated, and is included only for limited backward
-        compatibility with the old astroquery.Heasarc that uses the Browse interface.
-        Please use ~Heasarc.columns instead.
+        NOTE: This method is deprecated, and is included only for limited
+        backward compatibility with the old astroquery.Heasarc that uses
+        the Browse interface. Please use ~Heasarc.columns instead.
 
         Parameters
         ----------
@@ -256,8 +264,6 @@ class HeasarcClass(BaseQuery):
         cols = self.columns(mission, full=full)
         cols = [col.upper() for col in cols['name'] if '__' not in col]
         return cols
-        
-
 
     def query_tap(self, query, *, maxrec=None):
         """
@@ -288,38 +294,44 @@ class HeasarcClass(BaseQuery):
 
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
-             'displaymode', 'action', 'sortvar', 'cache'),
-        ('table', 'columns', 'maxrec', None, None, None, None, None, None, None),
-        since=('TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD'),
-        arg_in_kwargs=(False, True, True, True, True, True, True, True, True, False)
+         'displaymode', 'action', 'sortvar', 'cache'),
+        ('table', 'columns', 'maxrec', None, None, None,
+         None, None, None, None),
+        since=('TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD',
+               'TBD', 'TBD', 'TBD', 'TBD'),
+        arg_in_kwargs=(False, True, True, True, True, True,
+                       True, True, True, False)
     )
-    def query_region(self, position=None, table=None, radius=None, * ,
+    def query_region(self, position=None, table=None, radius=None, *,
                      spatial='cone', width=None, polygon=None,
                      get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
                      **kwargs):
-        """
-        Queries the HEASARC TAP server around a coordinate and returns a `~astropy.table.Table` object.
+        """Queries the HEASARC TAP server around a coordinate and returns a
+        `~astropy.table.Table` object.
 
         Parameters
         ----------
         position : str, `astropy.coordinates` object
-            Gives the position of the center of the cone or box if performing a cone or box search.
-            Required if spatial is ``'cone'`` or ``'box'``. Ignored if spatial is ``'polygon'`` or
-            ``'all-sky'``.
+            Gives the position of the center of the cone or box if performing
+            a cone or box search. Required if spatial is ``'cone'`` or
+            ``'box'``. Ignored if spatial is ``'polygon'`` or ``'all-sky'``.
         table : str
             The table to query. To list the available tables, use
             :meth:`~astroquery.heasarc.HeasarcClass.tables`.
         spatial : str
             Type of spatial query: ``'cone'``, ``'box'``, ``'polygon'``, and
             ``'all-sky'``. Defaults to ``'cone'``.
-        radius : str or `~astropy.units.Quantity` object, [optional for spatial == ``'cone'``]
+        radius : str or `~astropy.units.Quantity` object, [optional for
+            spatial == ``'cone'``].
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. If None, a default value appropriate for the 
-            selected table is used. To see the default radius for the table, see
+            `astropy.units` may also be used. If None, a default value
+            appropriate for the selected table is used. To see the default
+            radius for the table, see
             ~astroquery.heasarc.Heasarc.get_default_radius.
-        width : str, `~astropy.units.Quantity` object [Required for spatial == ``'box'``.]
+        width : str, `~astropy.units.Quantity` object [Required for
+            spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
@@ -358,21 +370,27 @@ class HeasarcClass(BaseQuery):
             if '__row' not in columns:
                 columns += ',__row'
 
-
         if spatial.lower() == 'all-sky':
             where = ''
         elif spatial.lower() == 'polygon':
             try:
-                coords_list = [parse_coordinates(coord).icrs for coord in polygon]
+                coords_list = [parse_coordinates(coord).icrs
+                               for coord in polygon]
             except TypeError:
                 try:
-                    coords_list = [coordinates.SkyCoord(*coord).icrs for coord in polygon]
+                    coords_list = [coordinates.SkyCoord(*coord).icrs
+                                   for coord in polygon]
                 except u.UnitTypeError:
                     warnings.warn("Polygon endpoints are being interpreted as "
-                                  "RA/Dec pairs specified in decimal degree units.")
-                    coords_list = [coordinates.SkyCoord(*coord, unit='deg').icrs for coord in polygon]
+                                  "RA/Dec pairs specified in decimal degree "
+                                  "units.")
+                    coords_list = [
+                        coordinates.SkyCoord(*coord, unit='deg').icrs
+                        for coord in polygon
+                    ]
 
-            coords_str = [f'{coord.ra.deg},{coord.dec.deg}' for coord in coords_list]
+            coords_str = [f'{coord.ra.deg},{coord.dec.deg}'
+                          for coord in coords_list]
             where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
@@ -384,8 +402,8 @@ class HeasarcClass(BaseQuery):
                     radius = self.get_default_radius(table)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
-                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
-                         f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
+                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
+                         f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
                 # add search_offset_ for the case of cone
                 columns += (",DISTANCE(POINT('ICRS',ra,dec), "
                             f"POINT('ICRS',{ra},{dec})) as search_offset_")
@@ -393,10 +411,11 @@ class HeasarcClass(BaseQuery):
                 if isinstance(width, str):
                     width = coordinates.Angle(width)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
-                         f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},{width.to(u.deg).value}))=1")
+                         f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},"
+                         f"{width.to(u.deg).value}))=1")
             else:
-                raise ValueError("Unrecognized spatial query type. Must be one of "
-                                 "'cone', 'box', 'polygon', or 'all-sky'.")
+                raise ValueError("Unrecognized spatial query type. Must be one"
+                                 " of 'cone', 'box', 'polygon', or 'all-sky'.")
 
         adql = f'SELECT {columns} FROM {table}{where}'
 
@@ -412,10 +431,15 @@ class HeasarcClass(BaseQuery):
         if 'search_offset_' in table.colnames:
             table['search_offset_'].unit = u.arcmin
         if len(table) == 0:
-            warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+            warnings.warn(
+                NoResultsWarning("No matching rows were found in the query.")
+            )
         return table
 
-    @deprecated(since='TBD', message='query_object is being deprecated. Use query_region instead')
+    @deprecated(
+        since='TBD',
+        message='query_object is being deprecated. Use query_region instead'
+    )
     def query_object(self, object_name, mission, *,
                      cache=True, get_query_payload=False,
                      **kwargs):
@@ -440,7 +464,6 @@ class HeasarcClass(BaseQuery):
         return self.query_region(pos, table=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-
     def get_links(self, query_result=None, tablename=None):
         """Get links to data products
         Use vo/datalinks to query the data products for some query_results.
@@ -460,7 +483,10 @@ class HeasarcClass(BaseQuery):
         table : A `~astropy.table.Table` object.
         """
         if query_result is None:
-            if not hasattr(self, '_query_result') or self._query_result is None:
+            if (
+                not hasattr(self, '_query_result')
+                or self._query_result is None
+            ):
                 raise ValueError('query_result is None, and none '
                                  'found from a previous search')
             else:
@@ -472,11 +498,15 @@ class HeasarcClass(BaseQuery):
         # make sure we have a column __row
         if '__row' not in query_result.colnames:
             raise ValueError('No __row column found in query_result. '
-                             'query_result needs to be the output of query_region or a subset.')
+                             'query_result needs to be the output of '
+                             'query_region or a subset.')
 
         if tablename is None:
             tablename = self._tablename
-        if not (isinstance(tablename, str) and tablename in self.tap.tables.keys()):
+        if (
+            not isinstance(tablename, str)
+            and tablename in self.tap.tables.keys()
+        ):
             raise ValueError(f'Unknown table name: {tablename}')
 
         # datalink url
@@ -492,11 +522,14 @@ class HeasarcClass(BaseQuery):
         dl_result = dl_result[['ID', 'access_url', 'content_length']]
 
         # add sciserver and s3 columns
-        newcol = [f"/FTP/{row.split('FTP/')[1]}".replace('//', '/') if 'FTP' in row else ''
-                for row in dl_result['access_url']]
+        newcol = [
+            f"/FTP/{row.split('FTP/')[1]}".replace('//', '/')
+            if 'FTP' in row else ''
+            for row in dl_result['access_url']
+        ]
         dl_result.add_column(newcol, name='sciserver', index=2)
         newcol = [f"s3://{self.S3_BUCKET}/{row[5:]}" if row != '' else ''
-                for row in dl_result['sciserver']]
+                  for row in dl_result['sciserver']]
         dl_result.add_column(newcol, name='aws', index=3)
 
         return dl_result
@@ -509,20 +542,26 @@ class HeasarcClass(BaseQuery):
         Parameters
         ----------
         provider : str
-            Which cloud data provider to use. Currently, only 'aws' is supported
+            Which cloud data provider to use. Currently, only 'aws' is
+            supported.
         profile : str
-            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
+            Profile to use to identify yourself to the cloud provider
+            (usually in ~/.aws/config).
         """
 
         try:
             import boto3
             import botocore
         except ImportError:
-            raise ImportError('The cloud feature requires the boto3 package. Install it first.')
+            raise ImportError(
+                'The cloud feature requires the boto3 package. '
+                'Install it first.'
+            )
 
         if profile is None:
             log.info('Enabling annonymous cloud data access ...')
-            config = botocore.client.Config(signature_version=botocore.UNSIGNED)
+            config = botocore.client.Config(
+                signature_version=botocore.UNSIGNED)
             self.s3_resource = boto3.resource('s3', config=config)
 
         elif isinstance(profile, bool) and not profile:
@@ -536,7 +575,6 @@ class HeasarcClass(BaseQuery):
 
         self.s3_client = self.s3_resource.meta.client
 
-
     def download_data(self, links, host='heasarc', location='.'):
         """Download data products in links with a choice of getting the
         data from either the heasarc server, sciserver, or the cloud in AWS.
@@ -548,16 +586,18 @@ class HeasarcClass(BaseQuery):
             The result from get_links
         host : str
             The data host. The options are: heasarc (defaul), sciserver, aws.
-            If host == 'sciserver', data is copied from the local mounted data drive.
-            If host == 'aws', data is downloaded from Amazon S3 Open Data Repository.
+            If host == 'sciserver', data is copied from the local mounted
+            data drive.
+            If host == 'aws', data is downloaded from Amazon S3 Open
+            Data Repository.
         location : str
             local folder where the downloaded file will be saved.
             Default is current working directory
 
-        Note
-        ----
-        Downloading more than ~10 observations from the HEASARC will likely fail.
-        If you have more than 10 links, group them and make several requests.
+        Note that ff you are downloading large datasets (more 10 10GB),
+        from the main heasarc server, it is recommended that you split
+        it up, so that if the downloaded is intrrupted, you do not need
+        to start again.
         """
 
         if len(links) == 0:
@@ -569,7 +609,8 @@ class HeasarcClass(BaseQuery):
         host_column = 'access_url' if host == 'heasarc' else host
         if host_column not in links.colnames:
             raise ValueError(
-                f'No {host_column} column found in the table. Call ~get_links first'
+                f'No {host_column} column found in the table. Call '
+                '~get_links first'
             )
 
         if host == 'heasarc':
@@ -586,7 +627,6 @@ class HeasarcClass(BaseQuery):
 
             log.info('Downloading data AWS S3 ...')
             self._download_s3(links, location)
-
 
     def _download_heasarc(self, links, location='.'):
         """Download data from the heasarc main server using xamin's tar servlet
@@ -607,9 +647,11 @@ class HeasarcClass(BaseQuery):
         if 'content_length' in links.columns:
             size = links['content_length'].sum() / 2**30
             if size > 10:
-                warnings.warn(f"The size of the requested file is large {size:.3f} GB. "
-                              "If the download is interrupted, you may need to start again. "
-                              "Consider downloading the data in chunks")
+                warnings.warn(
+                    f"The size of the requested file is large {size:.3f} GB. "
+                    "If the download is interrupted, you may need to start "
+                    "again. Consider downloading the data in chunks."
+                )
 
         file_list = [f"/FTP/{link.split('FTP/')[1]}"
                      for link in links['access_url']]
@@ -639,8 +681,9 @@ class HeasarcClass(BaseQuery):
             tfile.close()
             os.remove(local_filepath)
         else:
-            raise ValueError('An error ocurred when downloading the data. Retry again.')
-
+            raise ValueError(
+                'An error ocurred when downloading the data. Retry again.'
+            )
 
     def _copy_sciserver(self, links, location='.'):
         """Copy data from the local archive on sciserver
@@ -664,13 +707,13 @@ class HeasarcClass(BaseQuery):
                 raise ValueError(
                     f'No data found in {link}. '
                     'Make sure you are running this on Sciserver. '
-                    'If you think data is missing, please contact the Heasarc Help desk'
+                    'If you think data is missing, please contact the '
+                    'Heasarc Help desk'
                 )
             if os.path.isdir(link):
                 shutil.copytree(link, location)
             else:
                 shutil.copy(link, location)
-
 
     def _download_s3(self, links, location='.'):
         """Download data from AWS S3
@@ -701,6 +744,7 @@ class HeasarcClass(BaseQuery):
             log.info(f'downloading {key}')
             path = key.replace(f's3://{self.S3_BUCKET}/', '')
             _s3_tree_download(self.s3_client, self.S3_BUCKET, path, location)
+
 
 Heasarc = HeasarcClass()
 HeasarcBrowse = HeasarcBrowseClass()
