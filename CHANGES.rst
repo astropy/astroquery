@@ -193,8 +193,8 @@ esa.hubble
 - New methods to retrieve metadata (``get_observations_from_program``) and
   files (``download_files_from_program``) associated to a proposal. [#2910]
 
-- New method ``get_datalabs_path``to return the complete path of a file in
-  datalambs by combining the datalabs volume path with the path of the file
+- New method ``get_datalabs_path`` to return the complete path of a file in
+  datalabs by combining the datalabs volume path with the path of the file
   in the table ehst.artifact [#2998]
 
 esa.jwst
