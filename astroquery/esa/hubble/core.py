@@ -1025,14 +1025,14 @@ class ESAHubbleClass(BaseQuery):
 
         # Output example for path: /hstdata/hstdata_i/i/b4x/04, or hstdata_i/i/b4x/04 for path_parsed
         path = self._get_decoded_string(string=job["file_path"][0])
-        path_parsed = path.split("hstdata/",1)[1]
-        
+        path_parsed = path.split("hstdata/", 1)[1]
+
         # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
         if default_volume is None:
             return "/data/user/hub_" + path_parsed + path
-        
+
         # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
-        path_parsed = path_parsed.split("/",1)[1]
+        path_parsed = path_parsed.split("/", 1)[1]
         return "/data/user/" + default_volume + "/" + path_parsed
 
 
