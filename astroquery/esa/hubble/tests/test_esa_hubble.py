@@ -754,7 +754,7 @@ class TestESAHubble:
 
     def test_get_datalabs_path(self):
         parameters = {'filename': "ib4x04ivq_flt.jpg",
-                      'default_volume': ''}
+                      'default_volume': None}
 
         dummyTapHandler = DummyHubbleTapHandler("get_datalabs_path", parameters)
         ehst = ESAHubbleClass(tap_handler=self.get_dummy_tap_handler(), show_messages=False)

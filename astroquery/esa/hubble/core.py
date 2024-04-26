@@ -1003,15 +1003,15 @@ class ESAHubbleClass(BaseQuery):
         except (UnicodeDecodeError, AttributeError):
             return string
 
-    def get_datalabs_path(self, filename, default_volume=''):
+    def get_datalabs_path(self, filename, default_volume=None):
         """Get the available columns for a table in EHST TAP service
 
         Parameters
         ----------
         filename : string, mandatory, default None
             file name to search for its full path
-        default_volume : string, optional, default ''
-            Default volume path in datalabs
+        default_volume : string, optional, default None
+            Default folder name in datalabs. If None, it is filled automatically
 
         Returns
         -------
@@ -1023,7 +1023,17 @@ class ESAHubbleClass(BaseQuery):
         if job is None:
             return None
 
-        return default_volume + self._get_decoded_string(string=job["file_path"][0])
+        # Output example for path: /hstdata/hstdata_i/i/b4x/04, or hstdata_i/i/b4x/04 for path_parsed
+        path = self._get_decoded_string(string=job["file_path"][0])
+        path_parsed = path.split("hstdata/",1)[1]
+        
+        # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
+        if default_volume is None:
+            return "/data/user/hub_" + path_parsed + path
+        
+        # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
+        path_parsed = path_parsed.split("/",1)[1]
+        return "/data/user/" + default_volume + "/" + path_parsed
 
 
 ESAHubble = ESAHubbleClass()
