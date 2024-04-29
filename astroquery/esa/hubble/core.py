@@ -1029,7 +1029,7 @@ class ESAHubbleClass(BaseQuery):
 
         # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
         if default_volume is None:
-            return "/data/user/hub_" + path_parsed + path + "/" + filename
+            return "/data/user/hub_" + path_parsed + "/" + filename
 
         # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
         path_parsed = path_parsed.split("/", 1)[1]
