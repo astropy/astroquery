@@ -11,8 +11,11 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io.votable import parse
-from astropy.io.votable.exceptions import W03, W50
+from astropy.io.votable.exceptions import W03, W06, W50
 from astroquery import log
+from astroquery.utils.commons import ASTROPY_LT_5_3
+from contextlib import nullcontext
+
 import numpy as np
 
 from astroquery.casda import Casda
@@ -270,8 +273,10 @@ def test_query_region_async_box(patch_get):
 
 
 def test_filter_out_unreleased():
-    with pytest.warns(W03):
-        all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
+    # The ``W06: Invalid UCD 'meta.ref.url;meta.curation'`` warning is only raised with older astropy
+    with pytest.warns(W06) if ASTROPY_LT_5_3 else nullcontext():
+        with pytest.warns(W03):
+            all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
     assert all_records[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
     assert all_records[1]['obs_release_date'] == '2218-01-02T16:51:00.728Z'
     assert all_records[2]['obs_release_date'] == ''
