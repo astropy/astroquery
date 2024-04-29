@@ -5,16 +5,7 @@
 import os
 
 # ASTROPY
-import astropy
-from astropy.utils.data import get_pkg_data_filename
-from astropy.utils.introspection import minversion
-
-ASTROPY_LT_4_3 = not minversion(astropy, '4.3')
-
-if ASTROPY_LT_4_3:
-    from astropy.utils.data import _find_pkg_data_path as get_pkg_data_path
-else:
-    from astropy.utils.data import get_pkg_data_path
+from astropy.utils.data import get_pkg_data_filename, get_pkg_data_path
 
 # LOCAL
 from .. import inspect

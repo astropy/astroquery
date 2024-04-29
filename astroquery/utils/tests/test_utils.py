@@ -353,9 +353,8 @@ def patch_getreadablefileobj(request):
     _is_url = aud._is_url
     aud._is_url = lambda x: True
 
-    if not commons.ASTROPY_LT_4_3:
-        _try_url_open = aud._try_url_open
-        aud._try_url_open = lambda x, **kwargs: MockRemote(x, **kwargs)
+    _try_url_open = aud._try_url_open
+    aud._try_url_open = lambda x, **kwargs: MockRemote(x, **kwargs)
 
     _urlopen = urllib.request.urlopen
     _urlopener = urllib.request.build_opener
@@ -405,8 +404,7 @@ def patch_getreadablefileobj(request):
     def closing():
         aud._is_url = _is_url
 
-        if not commons.ASTROPY_LT_4_3:
-            aud._try_url_open = _try_url_open
+        aud._try_url_open = _try_url_open
 
         urllib.request.urlopen = _urlopen
         aud.urllib.request.urlopen = _urlopen

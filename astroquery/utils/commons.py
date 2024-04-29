@@ -29,14 +29,12 @@ __all__ = ['parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
-           'ASTROPY_LT_4_3',
-           'ASTROPY_LT_5_0',
            'ASTROPY_LT_5_1',
+           'ASTROPY_LT_5_3',
            'ASTROPY_LT_6_0']
 
-ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
-ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
+ASTROPY_LT_5_3 = not minversion('astropy', '5.3')
 ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 
 
@@ -74,8 +72,7 @@ def parse_coordinates(coordinates):
                           "appropriate astropy.coordinates object.", InputWarning)
             raise u.UnitsError
         except ValueError as err:
-            if ((ASTROPY_LT_5_0 and isinstance(err.args[1], u.UnitsError))
-                    or (not ASTROPY_LT_5_0 and isinstance(err.__context__, u.UnitsError))):
+            if isinstance(err.__context__, u.UnitsError):
                 try:
                     c = SkyCoord(coordinates, unit="deg", frame="icrs")
                     warnings.warn("Coordinate string is being interpreted as an "
