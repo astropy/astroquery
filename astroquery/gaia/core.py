@@ -168,8 +168,7 @@ class GaiaClass(TapPlus):
 
     def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
-                  format="votable_gzip",
-                  output_file=None, overwrite_output_file=False, verbose=False):
+                  format="votable", output_file=None, overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -215,8 +214,8 @@ class GaiaClass(TapPlus):
         avoid_datatype_check: boolean, optional, default False.
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
-        format : str, optional, default 'votable_gzip'
-            loading format. Other available formats are 'votable', 'csv', 'ecsv','votable_plain' and 'fits'
+        format : str, optional, default 'votable'
+            loading format. Other available formats are 'csv', 'ecsv','votable_plain' and 'fits'
         output_file : string or pathlib.PosixPath, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -227,7 +226,7 @@ class GaiaClass(TapPlus):
 
         Returns
         -------
-        A table object
+        A dictionary where the keys are the file names and its value is a list of astropy.table.table.Table objects
         """
         now = datetime.now(timezone.utc)
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
@@ -975,7 +974,7 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file,
                                   upload_resource=upload_resource,
                                   upload_table_name=upload_table_name,
-                                  format_with_results_compressed=('votable_gzip', 'fits', 'ecsv'))
+                                  format_with_results_compressed=('votable_gzip',))
 
     def launch_job_async(self, query, *, name=None, output_file=None,
                          output_format="votable_gzip", verbose=False,
@@ -1028,7 +1027,7 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun,
-                                        format_with_results_compressed=('votable_gzip', 'fits', 'ecsv'))
+                                        format_with_results_compressed=('votable_gzip',))
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about

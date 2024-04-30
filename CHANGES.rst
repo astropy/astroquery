@@ -47,6 +47,9 @@ gaia
 - Include table size in the class TapTableMeta returned by the functions load_tables and load_table, in the class Tap.
   [#2970]
 
+- For the functions that return files in FITS/ECSV format, the files are now provided as uncompressed files.
+  [#2983]
+
 
 jplhorizons
 ^^^^^^^^^^^

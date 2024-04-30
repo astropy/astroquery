@@ -40,9 +40,13 @@ JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME = get_pkg_data_filename(os.path.join("
                                                                   package=package)
 JOB_DATA_QUERIER_ASYNC_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'launch_job_async.json'), package=package)
 
+JOB_DATA_QUERIER_ECSV_FILE_NAME = get_pkg_data_filename(os.path.join("data", '1712337806100O-result.ecsv'),
+                                                        package=package)
+
 JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
 JOB_DATA_CONE_SEARCH_ASYNC_JSON = Path(JOB_DATA_CONE_SEARCH_ASYNC_JSON_FILE_NAME).read_text()
 JOB_DATA_QUERIER_ASYNC_JSON = Path(JOB_DATA_QUERIER_ASYNC_FILE_NAME).read_text()
+JOB_DATA_ECSV = Path(JOB_DATA_QUERIER_ECSV_FILE_NAME).read_text()
 
 ids_ints = [1104405489608579584, '1104405489608579584, 1809140662896080256', (1104405489608579584, 1809140662896080256),
             ('1104405489608579584', '1809140662896080256'), '4295806720-38655544960',
@@ -108,6 +112,19 @@ def mock_querier():
 
     launch_response = DummyResponse(200)
     launch_response.set_data(method="POST", body=JOB_DATA)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_querier_ecsv():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA_ECSV)
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
 
@@ -263,8 +280,22 @@ def test_cone_search_sync(column_attrs, mock_querier):
     # results
     results = job.get_results()
     assert len(results) == 3
-    for colname, attrs in column_attrs.items():
-        assert results[colname].attrs_equal(attrs)
+    for col_name, attrs in column_attrs.items():
+        assert results[col_name].attrs_equal(attrs)
+
+
+def test_cone_search_sync_ecsv_format(column_attrs, mock_querier_ecsv):
+    job = mock_querier_ecsv.cone_search(SKYCOORD, radius=RADIUS, output_format="ecsv")
+    assert job.async_ is False
+    assert job.get_phase() == "COMPLETED"
+    assert job.failed is False
+    # results
+    results = job.get_results()
+    print(results)
+    assert len(results) == 5
+
+    assert results['designation'][0] == 'Gaia DR3 6636090334814214528'
+    assert results['designation'][1] == 'Gaia DR3 6636090339112400000'
 
 
 def test_cone_search_async(column_attrs, mock_querier_async):
@@ -275,8 +306,8 @@ def test_cone_search_async(column_attrs, mock_querier_async):
     # results
     results = job.get_results()
     assert len(results) == 3
-    for colname, attrs in column_attrs.items():
-        assert results[colname].attrs_equal(attrs)
+    for col_name, attrs in column_attrs.items():
+        assert results[col_name].attrs_equal(attrs)
 
 
 def test_cone_search_async_json_format(tmp_path_factory, column_attrs_conesearch_json, mock_cone_search_async_json):
@@ -299,11 +330,11 @@ def test_cone_search_async_json_format(tmp_path_factory, column_attrs_conesearch
     assert type(results) is Table
     assert 50 == len(results), len(results)
 
-    for colname, attrs in column_attrs_conesearch_json.items():
-        assert results[colname].name == attrs.name
-        assert results[colname].description == attrs.description
-        assert results[colname].unit == attrs.unit
-        assert results[colname].dtype == attrs.dtype
+    for col_name, attrs in column_attrs_conesearch_json.items():
+        assert results[col_name].name == attrs.name
+        assert results[col_name].description == attrs.description
+        assert results[col_name].unit == attrs.unit
+        assert results[col_name].dtype == attrs.dtype
 
 
 def test_cone_search_json_format(tmp_path_factory, column_attrs_conesearch_json, mock_cone_search_json):
@@ -432,7 +463,7 @@ def test_load_data(monkeypatch, tmp_path):
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable_gzip",
+            "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
@@ -477,7 +508,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable_gzip",
+            "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
@@ -501,7 +532,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable_gzip",
+            "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,

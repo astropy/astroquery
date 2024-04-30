@@ -1,0 +1,1044 @@
+# %ECSV 1.0
+# ---
+# delimiter: ','
+# datatype:
+# -
+#   name: solution_id
+#   datatype: int64
+#   description: Solution Identifier
+#   meta:
+#     ucd: meta.version
+# -
+#   name: designation
+#   datatype: string
+#   description: Unique source designation (unique across all Data Releases)
+#   meta:
+#     ucd: meta.id;meta.main
+# -
+#   name: source_id
+#   datatype: int64
+#   description: Unique source identifier (unique within a particular Data Release)
+#   meta:
+#     ucd: meta.id
+# -
+#   name: random_index
+#   datatype: int64
+#   description: Random index for use when selecting subsets
+#   meta:
+#     ucd: meta.code
+# -
+#   name: ref_epoch
+#   datatype: float64
+#   unit: yr
+#   description: Reference epoch
+#   meta:
+#     ucd: meta.ref;time.epoch
+#     utype: stc:AstroCoords.Time.TimeInstant
+# -
+#   name: ra
+#   datatype: float64
+#   unit: deg
+#   description: Right ascension
+#   meta:
+#     ucd: pos.eq.ra;meta.main
+#     utype: stc:AstroCoords.Position3D.Value3.C1
+#     CoosysSystem: ICRS
+#     CoosysEpoch: J2016.0
+# -
+#   name: ra_error
+#   datatype: float32
+#   unit: mas
+#   description: Standard error of right ascension
+#   meta:
+#     ucd: stat.error;pos.eq.ra
+#     utype: stc:AstroCoords.Position3D.Error3.C1
+# -
+#   name: dec
+#   datatype: float64
+#   unit: deg
+#   description: Declination
+#   meta:
+#     ucd: pos.eq.dec;meta.main
+#     utype: stc:AstroCoords.Position3D.Value3.C2
+#     CoosysSystem: ICRS
+#     CoosysEpoch: J2016.0
+# -
+#   name: dec_error
+#   datatype: float32
+#   unit: mas
+#   description: Standard error of declination
+#   meta:
+#     ucd: stat.error;pos.eq.dec
+#     utype: stc:AstroCoords.Position3D.Error3.C2
+# -
+#   name: parallax
+#   datatype: float64
+#   unit: mas
+#   description: Parallax
+#   meta:
+#     ucd: pos.parallax.trig
+# -
+#   name: parallax_error
+#   datatype: float32
+#   unit: mas
+#   description: Standard error of parallax
+#   meta:
+#     ucd: stat.error;pos.parallax.trig
+# -
+#   name: parallax_over_error
+#   datatype: float32
+#   description: Parallax divided by its standard error
+#   meta:
+#     ucd: stat.snr;pos.parallax.trig
+# -
+#   name: pm
+#   datatype: float32
+#   unit: mas.yr**-1
+#   description: Total proper motion
+#   meta:
+#     ucd: pos.pm;pos.eq
+# -
+#   name: pmra
+#   datatype: float64
+#   unit: mas.yr**-1
+#   description: Proper motion in right ascension direction
+#   meta:
+#     ucd: pos.pm;pos.eq.ra
+#     utype: stc:AstroCoords.Velocity3D.Value3.C1
+# -
+#   name: pmra_error
+#   datatype: float32
+#   unit: mas.yr**-1
+#   description: Standard error of proper motion in right ascension direction
+#   meta:
+#     ucd: stat.error;pos.pm;pos.eq.ra
+#     utype: stc:AstroCoords.Velocity3D.Error3.C1
+# -
+#   name: pmdec
+#   datatype: float64
+#   unit: mas.yr**-1
+#   description: Proper motion in declination direction
+#   meta:
+#     ucd: pos.pm;pos.eq.dec
+#     utype: stc:AstroCoords.Velocity3D.Value3.C2
+# -
+#   name: pmdec_error
+#   datatype: float32
+#   unit: mas.yr**-1
+#   description: Standard error of proper motion in declination direction
+#   meta:
+#     ucd: stat.error;pos.pm;pos.eq.dec
+#     utype: stc:AstroCoords.Velocity3D.Error3.C2
+# -
+#   name: ra_dec_corr
+#   datatype: float32
+#   description: Correlation between right ascension and declination
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: ra_parallax_corr
+#   datatype: float32
+#   description: 'Correlation between right ascension and parallax		'
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: ra_pmra_corr
+#   datatype: float32
+#   description: Correlation between right ascension and proper motion in right ascension
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: ra_pmdec_corr
+#   datatype: float32
+#   description: Correlation between right ascension and proper motion in declination
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: dec_parallax_corr
+#   datatype: float32
+#   description: Correlation between declination and parallax
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: dec_pmra_corr
+#   datatype: float32
+#   description: Correlation between declination and proper motion in right ascension
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: dec_pmdec_corr
+#   datatype: float32
+#   description: Correlation between declination and proper motion in declination
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: parallax_pmra_corr
+#   datatype: float32
+#   description: Correlation between parallax and proper motion in right ascension
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: parallax_pmdec_corr
+#   datatype: float32
+#   description: Correlation between parallax and proper motion in declination
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: pmra_pmdec_corr
+#   datatype: float32
+#   description: Correlation between proper motion in right ascension and proper motion in declination
+#   meta:
+#     ucd: stat.correlation
+# -
+#   name: astrometric_n_obs_al
+#   datatype: int16
+#   description: Total number of observations in the along-scan (AL) direction
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_n_obs_ac
+#   datatype: int16
+#   description: Total number of observations in the across-scan (AC) direction
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_n_good_obs_al
+#   datatype: int16
+#   description: Number of good observations in the along-scan (AL) direction
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_n_bad_obs_al
+#   datatype: int16
+#   description: Number of bad observations in the along-scan (AL) direction
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_gof_al
+#   datatype: float32
+#   description: Goodness of fit statistic of model wrt along-scan observations
+#   meta:
+#     ucd: stat.fit.goodness
+# -
+#   name: astrometric_chi2_al
+#   datatype: float32
+#   description: AL chi-square value
+#   meta:
+#     ucd: stat.fit.chi2
+# -
+#   name: astrometric_excess_noise
+#   datatype: float32
+#   unit: mas
+#   description: Excess noise of the source
+#   meta:
+#     ucd: stat.value
+# -
+#   name: astrometric_excess_noise_sig
+#   datatype: float32
+#   description: Significance of excess noise
+#   meta:
+#     ucd: stat.value
+# -
+#   name: astrometric_params_solved
+#   datatype: int16
+#   description: Which parameters have been solved for?
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_primary_flag
+#   datatype: bool
+#   description: Primary or seconday
+#   meta:
+#     ucd: meta.code
+# -
+#   name: nu_eff_used_in_astrometry
+#   datatype: float32
+#   unit: um**-1
+#   description: Effective wavenumber of the source used in the astrometric solution
+#   meta:
+#     ucd: em.wavenumber
+# -
+#   name: pseudocolour
+#   datatype: float32
+#   unit: um**-1
+#   description: Astrometrically estimated pseudocolour of the source
+#   meta:
+#     ucd: em.wavenumber
+# -
+#   name: pseudocolour_error
+#   datatype: float32
+#   unit: um**-1
+#   description: Standard error of the pseudocolour of the source
+#   meta:
+#     ucd: stat.error;em.wavenumber
+# -
+#   name: ra_pseudocolour_corr
+#   datatype: float32
+#   description: Correlation between right ascension and pseudocolour
+#   meta:
+#     ucd: stat.correlation;em.wavenumber;pos.eq.ra
+# -
+#   name: dec_pseudocolour_corr
+#   datatype: float32
+#   description: Correlation between declination and pseudocolour
+#   meta:
+#     ucd: stat.correlation;em.wavenumber;pos.eq.dec
+# -
+#   name: parallax_pseudocolour_corr
+#   datatype: float32
+#   description: Correlation between parallax and pseudocolour
+#   meta:
+#     ucd: stat.correlation;em.wavenumber;pos.parallax
+# -
+#   name: pmra_pseudocolour_corr
+#   datatype: float32
+#   description: Correlation between proper motion in right asension and pseudocolour
+#   meta:
+#     ucd: stat.correlation;em.wavenumber;pos.pm;pos.eq.ra
+# -
+#   name: pmdec_pseudocolour_corr
+#   datatype: float32
+#   description: Correlation between proper motion in declination and pseudocolour
+#   meta:
+#     ucd: stat.correlation;em.wavenumber;pos.pm;pos.eq.dec
+# -
+#   name: astrometric_matched_transits
+#   datatype: int16
+#   description: Matched FOV transits used in the AGIS solution
+#   meta:
+#     ucd: meta.number
+# -
+#   name: visibility_periods_used
+#   datatype: int16
+#   description: Number of visibility periods used in Astrometric solution
+#   meta:
+#     ucd: meta.number
+# -
+#   name: astrometric_sigma5d_max
+#   datatype: float32
+#   unit: mas
+#   description: The longest semi-major axis of the 5-d error ellipsoid
+#   meta:
+#     ucd: stat;pos.errorEllipse
+# -
+#   name: matched_transits
+#   datatype: int16
+#   description: The number of transits matched to this source
+#   meta:
+#     ucd: meta.number
+# -
+#   name: new_matched_transits
+#   datatype: int16
+#   description: The number of transits newly incorporated into an existing source in the current cycle
+#   meta:
+#     ucd: meta.number
+# -
+#   name: matched_transits_removed
+#   datatype: int16
+#   description: The number of transits removed from an existing source in the current cycle
+#   meta:
+#     ucd: meta.number
+# -
+#   name: ipd_gof_harmonic_amplitude
+#   datatype: float32
+#   description: Amplitude of the IPD GoF versus position angle of scan
+#   meta:
+#     ucd: stat.value
+# -
+#   name: ipd_gof_harmonic_phase
+#   datatype: float32
+#   unit: deg
+#   description: Phase of the IPD GoF versus position angle of scan
+#   meta:
+#     ucd: pos.posAng;stat.value
+# -
+#   name: ipd_frac_multi_peak
+#   datatype: int16
+#   description: Percent of successful-IPD windows with more than one peak
+#   meta:
+#     ucd: stat.value
+# -
+#   name: ipd_frac_odd_win
+#   datatype: int16
+#   description: Percent of transits with truncated windows or multiple gate
+#   meta:
+#     ucd: stat.value
+# -
+#   name: ruwe
+#   datatype: float32
+#   description: Renormalised unit weight error
+#   meta:
+#     ucd: stat.error
+# -
+#   name: scan_direction_strength_k1
+#   datatype: float32
+#   description: Degree of concentration of scan directions across the source
+#   meta:
+#     ucd: stat.value
+# -
+#   name: scan_direction_strength_k2
+#   datatype: float32
+#   description: Degree of concentration of scan directions across the source
+#   meta:
+#     ucd: stat.value
+# -
+#   name: scan_direction_strength_k3
+#   datatype: float32
+#   description: Degree of concentration of scan directions across the source
+#   meta:
+#     ucd: stat.value
+# -
+#   name: scan_direction_strength_k4
+#   datatype: float32
+#   description: Degree of concentration of scan directions across the source
+#   meta:
+#     ucd: stat.value
+# -
+#   name: scan_direction_mean_k1
+#   datatype: float32
+#   unit: deg
+#   description: Mean position angle of scan directions across the source
+#   meta:
+#     ucd: pos.posAng;stat.mean
+# -
+#   name: scan_direction_mean_k2
+#   datatype: float32
+#   unit: deg
+#   description: Mean position angle of scan directions across the source
+#   meta:
+#     ucd: pos.posAng;stat.mean
+# -
+#   name: scan_direction_mean_k3
+#   datatype: float32
+#   unit: deg
+#   description: Mean position angle of scan directions across the source
+#   meta:
+#     ucd: pos.posAng;stat.mean
+# -
+#   name: scan_direction_mean_k4
+#   datatype: float32
+#   unit: deg
+#   description: Mean position angle of scan directions across the source
+#   meta:
+#     ucd: pos.posAng;stat.mean
+# -
+#   name: duplicated_source
+#   datatype: bool
+#   description: Source with multiple source identifiers
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: phot_g_n_obs
+#   datatype: int16
+#   description: Number of observations contributing to G photometry
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_g_mean_flux
+#   datatype: float64
+#   unit: '''electron''.s**-1'
+#   description: G-band mean flux
+#   meta:
+#     ucd: phot.flux;em.opt
+# -
+#   name: phot_g_mean_flux_error
+#   datatype: float32
+#   unit: '''electron''.s**-1'
+#   description: Error on G-band mean flux
+#   meta:
+#     ucd: stat.error;phot.flux;em.opt
+# -
+#   name: phot_g_mean_flux_over_error
+#   datatype: float32
+#   description: G-band mean flux divided by its error
+#   meta:
+#     ucd: stat.snr;phot.flux;em.opt
+# -
+#   name: phot_g_mean_mag
+#   datatype: float32
+#   unit: mag
+#   description: G-band mean magnitude
+#   meta:
+#     ucd: phot.mag;em.opt
+# -
+#   name: phot_bp_n_obs
+#   datatype: int16
+#   description: Number of observations contributing to BP photometry
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_bp_mean_flux
+#   datatype: float64
+#   unit: '''electron''.s**-1'
+#   description: Integrated BP mean flux
+#   meta:
+#     ucd: phot.flux;em.opt.B
+# -
+#   name: phot_bp_mean_flux_error
+#   datatype: float32
+#   unit: '''electron''.s**-1'
+#   description: Error on the integrated BP mean flux
+#   meta:
+#     ucd: stat.error;phot.flux;em.opt.B
+# -
+#   name: phot_bp_mean_flux_over_error
+#   datatype: float32
+#   description: Integrated BP mean flux divided by its error
+#   meta:
+#     ucd: stat.snr;phot.flux;em.opt.B
+# -
+#   name: phot_bp_mean_mag
+#   datatype: float32
+#   unit: mag
+#   description: Integrated BP mean magnitude
+#   meta:
+#     ucd: phot.mag;em.opt.B
+# -
+#   name: phot_rp_n_obs
+#   datatype: int16
+#   description: Number of observations contributing to RP photometry
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_rp_mean_flux
+#   datatype: float64
+#   unit: '''electron''.s**-1'
+#   description: Integrated RP mean flux
+#   meta:
+#     ucd: phot.flux;em.opt.R
+# -
+#   name: phot_rp_mean_flux_error
+#   datatype: float32
+#   unit: '''electron''.s**-1'
+#   description: Error on the integrated RP mean flux
+#   meta:
+#     ucd: stat.error;phot.flux;em.opt.R
+# -
+#   name: phot_rp_mean_flux_over_error
+#   datatype: float32
+#   description: Integrated RP mean flux divided by its error
+#   meta:
+#     ucd: stat.snr;phot.flux;em.opt.R
+# -
+#   name: phot_rp_mean_mag
+#   datatype: float32
+#   unit: mag
+#   description: Integrated RP mean magnitude
+#   meta:
+#     ucd: phot.mag;em.opt.R
+# -
+#   name: phot_bp_rp_excess_factor
+#   datatype: float32
+#   description: BP/RP excess factor
+#   meta:
+#     ucd: arith.factor;phot.flux;em.opt
+# -
+#   name: phot_bp_n_contaminated_transits
+#   datatype: int16
+#   description: Number of BP contaminated transits
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_bp_n_blended_transits
+#   datatype: int16
+#   description: Number of BP blended transits
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_rp_n_contaminated_transits
+#   datatype: int16
+#   description: Number of RP contaminated transits
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_rp_n_blended_transits
+#   datatype: int16
+#   description: Number of RP blended transits
+#   meta:
+#     ucd: meta.number
+# -
+#   name: phot_proc_mode
+#   datatype: int16
+#   description: Photometry processing mode
+#   meta:
+#     ucd: meta.code
+# -
+#   name: bp_rp
+#   datatype: float32
+#   unit: mag
+#   description: BP - RP colour
+#   meta:
+#     ucd: phot.color;em.opt.B;em.opt.R
+# -
+#   name: bp_g
+#   datatype: float32
+#   unit: mag
+#   description: BP - G colour
+#   meta:
+#     ucd: phot.color;em.opt.B;em.opt
+# -
+#   name: g_rp
+#   datatype: float32
+#   unit: mag
+#   description: G - RP colour
+#   meta:
+#     ucd: phot.color;em.opt;em.opt.R
+# -
+#   name: radial_velocity
+#   datatype: float32
+#   unit: km.s**-1
+#   description: Radial velocity 
+#   meta:
+#     ucd: spect.dopplerVeloc.opt;em.opt.I
+#     utype: stc:AstroCoords.Velocity3D.Value3.C3
+# -
+#   name: radial_velocity_error
+#   datatype: float32
+#   unit: km.s**-1
+#   description: Radial velocity error 
+#   meta:
+#     ucd: stat.error;spect.dopplerVeloc.opt;em.opt.I
+#     utype: stc:AstroCoords.Velocity3D.Error3.C3
+# -
+#   name: rv_method_used
+#   datatype: int16
+#   description: Method used to obtain the radial velocity
+#   meta:
+#     ucd: meta.code.class
+# -
+#   name: rv_nb_transits
+#   datatype: int16
+#   description: Number of transits used to compute the radial velocity 
+#   meta:
+#     ucd: meta.number
+# -
+#   name: rv_nb_deblended_transits
+#   datatype: int16
+#   description: Number of valid transits that have undergone deblending
+#   meta:
+#     ucd: meta.number
+# -
+#   name: rv_visibility_periods_used
+#   datatype: int16
+#   description: Number of visibility periods used to estimate the radial velocity
+#   meta:
+#     ucd: meta.number
+# -
+#   name: rv_expected_sig_to_noise
+#   datatype: float32
+#   description: Expected signal to noise ratio in the combination of the spectra used to obtain the radial velocity
+#   meta:
+#     ucd: stat.snr
+# -
+#   name: rv_renormalised_gof
+#   datatype: float32
+#   description: Radial velocity renormalised goodness of fit
+#   meta:
+#     ucd: stat.fit.goodness
+# -
+#   name: rv_chisq_pvalue
+#   datatype: float32
+#   description: P-value for constancy based on a chi-squared criterion
+#   meta:
+#     ucd: stat.fit.param
+# -
+#   name: rv_time_duration
+#   datatype: float32
+#   unit: d
+#   description: Time coverage of the radial velocity time series
+#   meta:
+#     ucd: time.duration
+# -
+#   name: rv_amplitude_robust
+#   datatype: float32
+#   unit: km.s**-1
+#   description: Total amplitude in the radial velocity time series after outlier removal
+#   meta:
+#     ucd: stat.error;spect.dopplerVeloc.opt;em.opt.I
+# -
+#   name: rv_template_teff
+#   datatype: float32
+#   unit: K
+#   description: Teff of the template used to compute the radial velocity 
+#   meta:
+#     ucd: stat.fit.param
+# -
+#   name: rv_template_logg
+#   datatype: float32
+#   unit: log(cm.s**-2)
+#   description: Logg of the template used to compute the radial velocity 
+#   meta:
+#     ucd: stat.fit.param
+# -
+#   name: rv_template_fe_h
+#   datatype: float32
+#   unit: '''dex'''
+#   description: '[Fe/H] of the template used to compute the radial velocityy'
+#   meta:
+#     ucd: stat.fit.param
+# -
+#   name: rv_atm_param_origin
+#   datatype: int16
+#   description: Origin of the atmospheric parameters associated to the template
+#   meta:
+#     ucd: meta.code.class
+# -
+#   name: vbroad
+#   datatype: float32
+#   unit: km.s**-1
+#   description: Spectral line broadening parameter
+#   meta:
+#     ucd: spect.dopplerVeloc.opt;em.opt.I
+#     utype: stc:AstroCoords.Velocity3D.Value3.C3
+# -
+#   name: vbroad_error
+#   datatype: float32
+#   unit: km.s**-1
+#   description: Uncertainty on the spectral line broadening
+#   meta:
+#     ucd: stat.error;spect.dopplerVeloc.opt;em.opt.I
+#     utype: stc:AstroCoords.Velocity3D.Error3.C3
+# -
+#   name: vbroad_nb_transits
+#   datatype: int16
+#   description: Number of transits used to compute vbroad
+#   meta:
+#     ucd: meta.number
+# -
+#   name: grvs_mag
+#   datatype: float32
+#   unit: mag
+#   description: Integrated Grvs magnitude
+#   meta:
+#     ucd: phot.mag;em.opt
+#     utype: stc:AstroCoords.Velocity3D.Value3.C3
+# -
+#   name: grvs_mag_error
+#   datatype: float32
+#   unit: mag
+#   description: Grvs magnitude uncertainty
+#   meta:
+#     ucd: stat.error;phot.mag;em.opt
+#     utype: stc:AstroCoords.Velocity3D.Error3.C3
+# -
+#   name: grvs_mag_nb_transits
+#   datatype: int16
+#   description: Number of transits used to compute Grvs
+#   meta:
+#     ucd: meta.number
+# -
+#   name: rvs_spec_sig_to_noise
+#   datatype: float32
+#   description: Signal to noise ratio in the mean RVS spectrum
+#   meta:
+#     ucd: stat.snr
+# -
+#   name: phot_variable_flag
+#   datatype: string
+#   description: Photometric variability flag
+#   meta:
+#     ucd: meta.code;src.var
+# -
+#   name: l
+#   datatype: float64
+#   unit: deg
+#   description: Galactic longitude
+#   meta:
+#     ucd: pos.galactic.lon
+#     utype: stc:AstroCoords.Position2D.Value2.C1
+# -
+#   name: b
+#   datatype: float64
+#   unit: deg
+#   description: Galactic latitude
+#   meta:
+#     ucd: pos.galactic.lat
+#     utype: stc:AstroCoords.Position2D.Value2.C2
+# -
+#   name: ecl_lon
+#   datatype: float64
+#   unit: deg
+#   description: Ecliptic longitude
+#   meta:
+#     ucd: pos.ecliptic.lon
+#     utype: stc:AstroCoords.Position2D.Value2.C1
+# -
+#   name: ecl_lat
+#   datatype: float64
+#   unit: deg
+#   description: Ecliptic latitude
+#   meta:
+#     ucd: pos.ecliptic.lat
+#     utype: stc:AstroCoords.Position2D.Value2.C2
+# -
+#   name: in_qso_candidates
+#   datatype: bool
+#   description: Flag indicating the availability of additional information in the QSO candidates table
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: in_galaxy_candidates
+#   datatype: bool
+#   description: Flag indicating the availability of additional information in the galaxy candidates table
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: non_single_star
+#   datatype: int16
+#   description: Flag indicating the availability of additional information in the various Non-Single Star tables
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_xp_continuous
+#   datatype: bool
+#   description: Flag indicating the availability of mean BP/RP spectrum in continuous representation for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_xp_sampled
+#   datatype: bool
+#   description: Flag indicating the availability of mean BP/RP spectrum in sampled form for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_rvs
+#   datatype: bool
+#   description: Flag indicating the availability of mean RVS spectrum for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_epoch_photometry
+#   datatype: bool
+#   description: Flag indicating the availability of epoch photometry for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_epoch_rv
+#   datatype: bool
+#   description: Flag indicating the availability of epoch radial velocity for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_mcmc_gspphot
+#   datatype: bool
+#   description: Flag indicating the availability of GSP-Phot MCMC samples for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: has_mcmc_msc
+#   datatype: bool
+#   description: Flag indicating the availability of MSC MCMC samples for this source
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: in_andromeda_survey
+#   datatype: bool
+#   description: Flag indicating that the source is present in the Gaia Andromeda Photometric Survey (GAPS)
+#   meta:
+#     ucd: meta.code.status
+# -
+#   name: classprob_dsc_combmod_quasar
+#   datatype: float32
+#   description: 'Probability from DSC-Combmod of being a quasar (data used: BP/RP spectrum, photometry, astrometry)'
+#   meta:
+#     ucd: stat.probability
+# -
+#   name: classprob_dsc_combmod_galaxy
+#   datatype: float32
+#   description: 'Probability from DSC-Combmod of being a galaxy (data used: BP/RP spectrum, photometry, astrometry)'
+#   meta:
+#     ucd: stat.probability
+# -
+#   name: classprob_dsc_combmod_star
+#   datatype: float32
+#   description: 'Probability from DSC-Combmod of being a single star (but not a white dwarf) (data used: BP/RP spectrum, photometry, astrometry)'
+#   meta:
+#     ucd: stat.probability
+# -
+#   name: teff_gspphot
+#   datatype: float32
+#   unit: K
+#   description: Effective temperature from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.temperature.effective
+# -
+#   name: teff_gspphot_lower
+#   datatype: float32
+#   unit: K
+#   description: Lower confidence level (16%) of effective temperature from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.temperature.effective;stat.min
+# -
+#   name: teff_gspphot_upper
+#   datatype: float32
+#   unit: K
+#   description: Upper confidence level (84%) of effective temperature from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.temperature.effective;stat.max
+# -
+#   name: logg_gspphot
+#   datatype: float32
+#   unit: log(cm.s**-2)
+#   description: Surface gravity from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.gravity
+# -
+#   name: logg_gspphot_lower
+#   datatype: float32
+#   unit: log(cm.s**-2)
+#   description: Lower confidence level (16%) of surface gravity from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.gravity;stat.min
+# -
+#   name: logg_gspphot_upper
+#   datatype: float32
+#   unit: log(cm.s**-2)
+#   description: Upper confidence level (84%) of surface gravity from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.gravity;stat.max
+# -
+#   name: mh_gspphot
+#   datatype: float32
+#   unit: '''dex'''
+#   description: Iron abundance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.abund.Z
+# -
+#   name: mh_gspphot_lower
+#   datatype: float32
+#   unit: '''dex'''
+#   description: Lower confidence level (16%) of iron abundance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.abund.Z;stat.min
+# -
+#   name: mh_gspphot_upper
+#   datatype: float32
+#   unit: '''dex'''
+#   description: Upper confidence level (84%) of iron abundance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.abund.Z;stat.max
+# -
+#   name: distance_gspphot
+#   datatype: float32
+#   unit: pc
+#   description: Distance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: pos.distance;pos.eq
+# -
+#   name: distance_gspphot_lower
+#   datatype: float32
+#   unit: pc
+#   description: Lower confidence level (16%) of distance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: pos.distance;pos.eq
+# -
+#   name: distance_gspphot_upper
+#   datatype: float32
+#   unit: pc
+#   description: Upper confidence level (84%) of distance from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: pos.distance;pos.eq
+# -
+#   name: azero_gspphot
+#   datatype: float32
+#   unit: mag
+#   description: Monochromatic extinction $A_0$ at 547.7nm from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: azero_gspphot_lower
+#   datatype: float32
+#   unit: mag
+#   description: Lower confidence level (16%) of monochromatic extinction $A_0$ at 547.7nm from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: azero_gspphot_upper
+#   datatype: float32
+#   unit: mag
+#   description: Upper confidence level (84%) of monochromatic extinction $A_0$ at 547.7nm from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: ag_gspphot
+#   datatype: float32
+#   unit: mag
+#   description: Extinction in G band from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: ag_gspphot_lower
+#   datatype: float32
+#   unit: mag
+#   description: Lower confidence level (16%) of extinction in G band from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: ag_gspphot_upper
+#   datatype: float32
+#   unit: mag
+#   description: Upper confidence level (84%) of extinction in G band from GSP-Phot Aeneas best library using BP/RP spectra
+#   meta:
+#     ucd: phys.absorption;em.opt
+# -
+#   name: ebpminrp_gspphot
+#   datatype: float32
+#   unit: mag
+#   description: 'Reddening $E(G_{\rm BP} - G_{\rm RP})$ from GSP-Phot Aeneas best library using BP/RP spectra'
+#   meta:
+#     ucd: phot.color.excess
+# -
+#   name: ebpminrp_gspphot_lower
+#   datatype: float32
+#   unit: mag
+#   description: 'Lower confidence level (16%) of reddening  $E(G_{\rm BP} - G_{\rm RP})$ from GSP-Phot Aeneas best library using BP/RP spectra'
+#   meta:
+#     ucd: phot.color.excess;stat.min
+# -
+#   name: ebpminrp_gspphot_upper
+#   datatype: float32
+#   unit: mag
+#   description: 'Upper confidence level (84%) of reddening  $E(G_{\rm BP} - G_{\rm RP})$ from GSP-Phot Aeneas best library using BP/RP spectra'
+#   meta:
+#     ucd: phot.color.excess;stat.max
+# -
+#   name: libname_gspphot
+#   datatype: string
+#   description: Name of library that achieves the highest mean log-posterior in MCMC samples and was used to derive GSP-Phot parameters in this table
+#   meta:
+#     ucd: meta.note
+# -
+#   name: dist
+#   datatype: float64
+# meta:
+#   QUERY_STATUS: OK
+#   QUERY: 
+#   |
+#    
+#                    SELECT
+#                      TOP 50
+#                      *,
+#                      DISTANCE(
+#                        POINT('ICRS', ra, dec),
+#                        POINT('ICRS', 280.0000090102581, -59.99999411725738)
+#                      ) AS dist
+#                    FROM
+#                      gaiadr3.gaia_source
+#                    WHERE
+#                      1 = CONTAINS(
+#                        POINT('ICRS', ra, dec),
+#                        CIRCLE('ICRS', 280.0000090102581, -59.99999411725738, 0.005555555555555556)
+#                      )
+#                    ORDER BY
+#                      dist ASC
+#                    
+#   CAPTION: 'How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html'
+#   CITATION: 'How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html'
+#   RELEASE: Gaia DR3
+#   JOBID: 1712337806100O
+solution_id,designation,source_id,random_index,ref_epoch,ra,ra_error,dec,dec_error,parallax,parallax_error,parallax_over_error,pm,pmra,pmra_error,pmdec,pmdec_error,ra_dec_corr,ra_parallax_corr,ra_pmra_corr,ra_pmdec_corr,dec_parallax_corr,dec_pmra_corr,dec_pmdec_corr,parallax_pmra_corr,parallax_pmdec_corr,pmra_pmdec_corr,astrometric_n_obs_al,astrometric_n_obs_ac,astrometric_n_good_obs_al,astrometric_n_bad_obs_al,astrometric_gof_al,astrometric_chi2_al,astrometric_excess_noise,astrometric_excess_noise_sig,astrometric_params_solved,astrometric_primary_flag,nu_eff_used_in_astrometry,pseudocolour,pseudocolour_error,ra_pseudocolour_corr,dec_pseudocolour_corr,parallax_pseudocolour_corr,pmra_pseudocolour_corr,pmdec_pseudocolour_corr,astrometric_matched_transits,visibility_periods_used,astrometric_sigma5d_max,matched_transits,new_matched_transits,matched_transits_removed,ipd_gof_harmonic_amplitude,ipd_gof_harmonic_phase,ipd_frac_multi_peak,ipd_frac_odd_win,ruwe,scan_direction_strength_k1,scan_direction_strength_k2,scan_direction_strength_k3,scan_direction_strength_k4,scan_direction_mean_k1,scan_direction_mean_k2,scan_direction_mean_k3,scan_direction_mean_k4,duplicated_source,phot_g_n_obs,phot_g_mean_flux,phot_g_mean_flux_error,phot_g_mean_flux_over_error,phot_g_mean_mag,phot_bp_n_obs,phot_bp_mean_flux,phot_bp_mean_flux_error,phot_bp_mean_flux_over_error,phot_bp_mean_mag,phot_rp_n_obs,phot_rp_mean_flux,phot_rp_mean_flux_error,phot_rp_mean_flux_over_error,phot_rp_mean_mag,phot_bp_rp_excess_factor,phot_bp_n_contaminated_transits,phot_bp_n_blended_transits,phot_rp_n_contaminated_transits,phot_rp_n_blended_transits,phot_proc_mode,bp_rp,bp_g,g_rp,radial_velocity,radial_velocity_error,rv_method_used,rv_nb_transits,rv_nb_deblended_transits,rv_visibility_periods_used,rv_expected_sig_to_noise,rv_renormalised_gof,rv_chisq_pvalue,rv_time_duration,rv_amplitude_robust,rv_template_teff,rv_template_logg,rv_template_fe_h,rv_atm_param_origin,vbroad,vbroad_error,vbroad_nb_transits,grvs_mag,grvs_mag_error,grvs_mag_nb_transits,rvs_spec_sig_to_noise,phot_variable_flag,l,b,ecl_lon,ecl_lat,in_qso_candidates,in_galaxy_candidates,non_single_star,has_xp_continuous,has_xp_sampled,has_rvs,has_epoch_photometry,has_epoch_rv,has_mcmc_gspphot,has_mcmc_msc,in_andromeda_survey,classprob_dsc_combmod_quasar,classprob_dsc_combmod_galaxy,classprob_dsc_combmod_star,teff_gspphot,teff_gspphot_lower,teff_gspphot_upper,logg_gspphot,logg_gspphot_lower,logg_gspphot_upper,mh_gspphot,mh_gspphot_lower,mh_gspphot_upper,distance_gspphot,distance_gspphot_lower,distance_gspphot_upper,azero_gspphot,azero_gspphot_lower,azero_gspphot_upper,ag_gspphot,ag_gspphot_lower,ag_gspphot_upper,ebpminrp_gspphot,ebpminrp_gspphot_lower,ebpminrp_gspphot_upper,libname_gspphot,dist
+1636148068921376768,Gaia DR3 6636090334814214528,6636090334814214528,600454163,2016.0,280.0002534562339,0.2534433,-60.00259557514462,0.25305223,0.05755191318641077,0.353266,0.16291381,6.2665195,-0.1550174111492194,0.3067654,-6.264602096381666,0.2801,0.11675191,-0.043706257,-0.032089595,0.07498073,-0.12243885,0.13110165,-0.1706862,-0.22810523,0.09664722,-0.090423584,,,,,1.4725226,458.02023,0.9332003,1.1609676,,False,1.5209767,nan,nan,nan,nan,nan,nan,nan,,,0.4409708,,,,0.009413782,17.756796,,,1.0521834,0.185158,0.13832545,0.15451379,0.521788,122.43116,-42.980045,24.688213,42.276604,False,,234.576568712628,0.8080625,290.29507,19.761656,,123.63548640229328,7.2986608,16.939476,20.108185,,161.87504286727346,5.728801,28.256357,19.224945,1.2171315,,,,,,0.88323975,0.346529,0.53671074,nan,nan,,,,,nan,nan,nan,nan,nan,nan,nan,nan,,nan,nan,,nan,nan,,nan,NOT_AVAILABLE,335.4869890831875,-21.882743552825804,276.222852277878,-36.779153025899156,False,False,,False,False,False,False,False,False,False,False,2.5028593E-9,5.4327067E-13,0.99997234,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,,0.0026043272506261527
+1636148068921376768,Gaia DR3 6636090339112400000,6636090339112400000,1189238341,2016.0,279.99329161242713,3.039659,-59.99985304904723,2.2125742,nan,nan,nan,nan,nan,nan,nan,nan,0.37909248,nan,nan,nan,nan,nan,nan,nan,nan,nan,,,,,0.47029993,51.001537,2.5500135,0.4210062,,False,nan,nan,nan,nan,nan,nan,nan,nan,,,23.444826,,,,0.01955118,148.39008,,,nan,0.5795308,0.2712135,0.5856214,0.41417325,125.80018,-53.174503,9.345718,34.218063,False,,70.5431477727305,1.8319577,38.506973,21.066229,,54.22808979129155,20.108896,2.6967213,21.002981,,51.15332157876988,11.676081,4.3810353,20.475712,1.4938575,,,,,,0.52726936,-0.06324768,0.59051704,nan,nan,,,,,nan,nan,nan,nan,nan,nan,nan,nan,,nan,nan,,nan,nan,,nan,NOT_AVAILABLE,335.48874287836094,-21.87862181055533,276.21881789427215,-36.77612063074377,False,False,,False,False,False,False,False,False,False,False,3.320475E-4,1.8135128E-5,0.99910074,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,,0.0033616678530916998
+1636148068921376768,Gaia DR3 6636090339113063296,6636090339113063296,1218845243,2016.0,280.00510823916443,0.035948638,-59.99710959400066,0.036842678,2.096927412106962,0.054068767,38.782604,30.98747,-30.119519430442956,0.044501286,7.282709094639535,0.04070769,0.0025257685,0.053607624,-0.14408448,0.16819344,-0.22103356,0.22739011,-0.16482106,-0.33510476,0.18369555,-0.24595307,,,,,0.5666653,423.85156,0.060953166,0.21568213,,False,1.3557875,nan,nan,nan,nan,nan,nan,nan,,,0.06937252,,,,0.012448138,3.4072657,,,1.019498,0.14714158,0.061007585,0.118646055,0.50217426,114.89134,-50.464222,28.285662,42.841515,False,,4274.219332887841,2.193837,1948.2849,16.610226,,1291.770910638447,7.911888,163.2696,17.56058,,4350.198851884333,9.5050745,457.6712,15.651623,1.32,,,,,,1.9089565,0.9503536,0.9586029,nan,nan,,,,,nan,nan,nan,nan,nan,nan,nan,nan,,nan,nan,,nan,nan,,nan,NOT_AVAILABLE,335.49340316969744,-21.8834937797499,276.22646233468356,-36.773896878533364,False,False,,True,False,False,False,False,False,True,False,1.1064666E-13,5.530084E-13,0.99914616,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,,0.0038498801828703495
+1636148068921376768,Gaia DR3 6636090339112213760,6636090339112213760,1785434037,2016.0,279.99302733099194,3.744172,-59.99727888991126,2.4721713,nan,nan,nan,nan,nan,nan,nan,nan,0.30987868,nan,nan,nan,nan,nan,nan,nan,nan,nan,,,,,0.2632421,39.651592,0.0,0.0,,False,nan,nan,nan,nan,nan,nan,nan,nan,,,6.8983955,,,,0.099204846,118.12431,,,nan,0.08819657,0.34846744,0.37505352,0.67749673,158.65706,-15.110583,21.463882,-35.975407,False,,66.08810519299666,1.9618921,33.6859,21.137058,,32.02676038127951,27.057375,1.183661,21.57476,,72.22631203033036,17.705757,4.0792556,20.101156,1.5774862,,,,,,1.4736042,0.43770218,1.035902,nan,nan,,,,,nan,nan,nan,nan,nan,nan,nan,nan,,nan,nan,,nan,nan,,nan,NOT_AVAILABLE,335.4913590300846,-21.87775585632368,276.2189304745555,-36.77354465982053,False,False,,False,False,False,False,False,False,False,False,6.4652995E-5,1.51332515E-5,0.9994235,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,,0.004422603920589843
+1636148068921376768,Gaia DR3 6636090334814217600,6636090334814217600,998005612,2016.0,279.99469667562437,0.12915929,-59.996305527734066,0.13651462,0.6865808838113285,0.18402207,3.7309704,9.806782,-8.31888742921963,0.15327105,-5.1931759781060975,0.14821854,0.17245057,0.019529166,-0.08111799,0.04152999,-0.050263535,0.08985256,-0.23516549,-0.25400075,0.08885256,-0.07555718,,,,,1.4506595,450.753,0.0,0.0,,False,1.4838136,nan,nan,nan,nan,nan,nan,nan,,,0.22320311,,,,0.030735187,15.51448,,,1.0514544,0.18746366,0.1501653,0.14798042,0.5184302,122.925095,-52.004528,25.2317,44.1574,False,,552.5450334267396,1.0478474,527.3144,18.831448,,259.216723854867,7.4882364,34.616524,19.304384,,395.29905657003485,7.5138607,52.609314,18.25558,1.1845474,,,,,,1.0488033,0.47293663,0.5758667,nan,nan,,,,,nan,nan,nan,nan,nan,nan,nan,nan,,nan,nan,,nan,nan,,nan,NOT_AVAILABLE,335.49262211172385,-21.878275853052315,276.2200734430413,-36.77264685813643,False,False,,False,False,False,False,False,True,False,False,1.2208255E-10,5.547721E-13,0.9999958,4925.559,4906.4546,4944.89,4.7891,4.7544,4.8169,-1.3393,-1.5573,-1.0699,2402.471,2289.2466,2565.3171,0.0079,0.0018,0.0182,0.0063,0.0014,0.0146,0.0034,7.0E-4,0.0079,MARCS,0.004545515007418226
