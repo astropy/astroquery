@@ -34,7 +34,7 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
     data = io.BytesIO(response.read())
 
     try:
-        if output_format == 'votable':
+        if astropy_format == 'votable':
             result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format,
                                   use_names_over_ids=use_names_over_ids)
         else:
@@ -66,7 +66,7 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
             else:
                 result = APTable.read(data, format=astropy_format)
 
-        elif output_format == 'votable':
+        elif astropy_format == 'votable':
             result = APTable.read(data, format=astropy_format, use_names_over_ids=use_names_over_ids)
         else:
             result = APTable.read(data, format=astropy_format)
