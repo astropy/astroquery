@@ -111,7 +111,7 @@ def test_job_results_parser_vot():
     result_table = utils.read_http_response(file, 'votable')
     assert len(result_table.columns) == 152
     assert ('solution_id' in result_table.columns) and ('DESIGNATION' in result_table.columns) and (
-                'SOURCE_ID' in result_table.columns)
+        'SOURCE_ID' in result_table.columns)
     file.close()
 
 
@@ -121,7 +121,7 @@ def test_job_results_parser_vot_lower_case():
     result_table = utils.read_http_response(file, 'votable', use_names_over_ids=True)
     assert len(result_table.columns) == 152
     assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
-                'source_id' in result_table.columns)
+        'source_id' in result_table.columns)
     file.close()
 
 
@@ -131,7 +131,7 @@ def test_job_results_parser_json():
     result_table = utils.read_http_response(file, 'json')
     assert len(result_table.columns) == 152
     assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
-                'source_id' in result_table.columns)
+        'source_id' in result_table.columns)
     file.close()
 
 
@@ -141,7 +141,7 @@ def test_job_results_parser_csv():
     result_table = utils.read_http_response(file, 'csv')
     assert len(result_table.columns) == 152
     assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
-                'source_id' in result_table.columns)
+        'source_id' in result_table.columns)
     file.close()
 
 
@@ -152,7 +152,7 @@ def test_job_results_parser_ecsv():
     assert len(result_table.columns) == 152
     print(result_table.columns)
     assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
-                'source_id' in result_table.columns)
+        'source_id' in result_table.columns)
     file.close()
 
 
