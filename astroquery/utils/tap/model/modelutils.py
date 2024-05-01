@@ -65,7 +65,10 @@ def read_results_table_from_file(file_name, output_format, *, correct_units=True
                 return result
 
         else:
-            result = APTable.read(file_name, format=astropy_format, use_names_over_ids=use_names_over_ids)
+            if output_format == 'votable':
+                result = APTable.read(file_name, format=astropy_format, use_names_over_ids=use_names_over_ids)
+            else:
+                result = APTable.read(file_name, format=astropy_format)
 
             if correct_units:
                 utils.modify_unrecognized_table_units(result)

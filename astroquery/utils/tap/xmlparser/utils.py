@@ -34,8 +34,12 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
     data = io.BytesIO(response.read())
 
     try:
-        result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format,
-                              use_names_over_ids=use_names_over_ids)
+        if output_format == 'votable':
+            result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format,
+                                  use_names_over_ids=use_names_over_ids)
+        else:
+            result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format)
+
     except OSError:
         # data is not a valid gzip file by BadGzipFile.
 
@@ -62,10 +66,10 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
             else:
                 result = APTable.read(data, format=astropy_format)
 
-        elif output_format == 'ecsv':
-            result = APTable.read(data, format=astropy_format)
-        else:
+        elif output_format == 'votable':
             result = APTable.read(data, format=astropy_format, use_names_over_ids=use_names_over_ids)
+        else:
+            result = APTable.read(data, format=astropy_format)
 
     if correct_units:
         modify_unrecognized_table_units(result)
