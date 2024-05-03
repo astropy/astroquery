@@ -14,12 +14,7 @@ from astropy.utils.decorators import deprecated_renamed_argument
 
 from pyvo.dal import TAPService
 
-try:
-    from pyvo.dal.sia2 import SIA2Service, SIA2_PARAMETERS_DESC
-except ImportError:
-    # Can be removed once min version of pyvo is 1.5
-    from pyvo.dal.sia2 import SIA_PARAMETERS_DESC as SIA2_PARAMETERS_DESC
-    from pyvo.dal.sia2 import SIAService as SIA2Service
+from pyvo.dal.sia2 import SIA2Service, SIA2_PARAMETERS_DESC
 
 from astroquery import log
 from astroquery.query import BaseVOQuery

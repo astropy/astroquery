@@ -11,13 +11,8 @@ from astroquery.simbad import Simbad
 # Maybe we need to expose SimbadVOTableResult to be in the public API?
 from astroquery.simbad.core import SimbadVOTableResult
 from astroquery.exceptions import BlankResponseWarning
-from packaging import version
-from pyvo import __version__ as pyvo_version
-try:
-    # This requires pyvo 1.4
-    from pyvo.dal.exceptions import DALOverflowWarning
-except ImportError:
-    pass
+
+from pyvo.dal.exceptions import DALOverflowWarning
 
 
 # M42 coordinates
@@ -273,11 +268,9 @@ class TestSimbad:
         expect = "letters numbers\n------- -------\n      a       1\n      b       2\n      c       3"
         assert expect == str(result)
         # Test query_tap raised errors
-        # DALOverflowWarning exists since pyvo 1.4
-        if version.parse(pyvo_version) > version.parse('1.4'):
-            with pytest.raises(DALOverflowWarning, match="Partial result set *"):
-                truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
-                assert len(truncated_result) == 2
+        with pytest.raises(DALOverflowWarning, match="Partial result set *"):
+            truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
+            assert len(truncated_result) == 2
         with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
             Simbad.query_tap("select top 5 * from basic", maxrec=10e10)
         with pytest.raises(ValueError, match="Query string contains an odd number of single quotes.*"):
