@@ -50,6 +50,10 @@ gaia
 - For the functions that return files in FITS/ECSV format, the files are now provided as uncompressed files.
   [#2983]
 
+- New parameter USE_NAMES_OVER_IDS that gives preference to ``name`` over ID attributes of columns as the names of
+  columns in the `astropy.table.Table` instance. By default, value True is set, that gives name preference.  [#2967]
+
+- Fix method search_async_jobs in the class TapPlus. [#2967]
 
 jplhorizons
 ^^^^^^^^^^^
@@ -251,7 +255,6 @@ gaia
   [#2376]
 
 - Default Gaia catalog updated to DR3. [#2596]
-
 
 heasarc
 ^^^^^^^

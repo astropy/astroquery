@@ -99,8 +99,29 @@ def test_table_list_parser_with_size_bytes():
 def test_job_results_parser():
     fileName = data_path('test_job_results.xml')
     file = open(fileName, 'rb')
-    resultTable = utils.read_http_response(file, 'votable')
-    assert len(resultTable.columns) == 57
+    result_table = utils.read_http_response(file, 'votable', use_names_over_ids=False)
+    assert len(result_table.columns) == 57
+    assert ('solution_id' in result_table.columns) and ('source_id' in result_table.columns)
+    file.close()
+
+
+def test_job_results_parser_vot():
+    file_name = data_path('1714556098855O-result.vot')
+    file = open(file_name, 'rb')
+    result_table = utils.read_http_response(file, 'votable')
+    assert len(result_table.columns) == 152
+    assert ('solution_id' in result_table.columns) and ('DESIGNATION' in result_table.columns) and (
+        'SOURCE_ID' in result_table.columns)
+    file.close()
+
+
+def test_job_results_parser_vot_lower_case():
+    file_name = data_path('1714556098855O-result.vot')
+    file = open(file_name, 'rb')
+    result_table = utils.read_http_response(file, 'votable', use_names_over_ids=True)
+    assert len(result_table.columns) == 152
+    assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
+        'source_id' in result_table.columns)
     file.close()
 
 
@@ -109,6 +130,29 @@ def test_job_results_parser_json():
     file = open(file_name, 'rb')
     result_table = utils.read_http_response(file, 'json')
     assert len(result_table.columns) == 152
+    assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
+        'source_id' in result_table.columns)
+    file.close()
+
+
+def test_job_results_parser_csv():
+    file_name = data_path('1714556098855O-result.csv')
+    file = open(file_name, 'rb')
+    result_table = utils.read_http_response(file, 'csv')
+    assert len(result_table.columns) == 152
+    assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
+        'source_id' in result_table.columns)
+    file.close()
+
+
+def test_job_results_parser_ecsv():
+    file_name = data_path('1714556098855O-result.ecsv')
+    file = open(file_name, 'rb')
+    result_table = utils.read_http_response(file, 'ecsv')
+    assert len(result_table.columns) == 152
+    print(result_table.columns)
+    assert ('solution_id' in result_table.columns) and ('designation' in result_table.columns) and (
+        'source_id' in result_table.columns)
     file.close()
 
 

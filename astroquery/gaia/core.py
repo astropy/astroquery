@@ -48,6 +48,11 @@ class GaiaClass(TapPlus):
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
     VALID_LINKING_PARAMETERS = conf.VALID_LINKING_PARAMETERS
     GAIA_MESSAGES = "notification?action=GetNotifications"
+    USE_NAMES_OVER_IDS = True
+    """When `True` use the ``name`` attributes of columns as the names of columns in the `astropy.table.Table` instance.
+       Since names are not guaranteed to be unique, this may cause  some columns to be renamed by appending numbers to
+       the end. Otherwise, use the ID attributes as the column names.
+    """
 
     def __init__(self, *, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -64,7 +69,8 @@ class GaiaClass(TapPlus):
                                         data_context="data",
                                         datalink_context="datalink",
                                         connhandler=tap_plus_conn_handler,
-                                        verbose=verbose)
+                                        verbose=verbose,
+                                        use_names_over_ids=self.USE_NAMES_OVER_IDS)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
             self.__gaiadata = TapPlus(url=gaia_data_server,
@@ -74,7 +80,8 @@ class GaiaClass(TapPlus):
                                       table_edit_context="TableTool",
                                       data_context="data",
                                       datalink_context="datalink",
-                                      verbose=verbose)
+                                      verbose=verbose,
+                                      use_names_over_ids=self.USE_NAMES_OVER_IDS)
         else:
             self.__gaiadata = datalink_handler
 
@@ -82,8 +89,7 @@ class GaiaClass(TapPlus):
         if show_server_messages:
             self.get_status_messages()
 
-    def login(self, *, user=None, password=None, credentials_file=None,
-              verbose=False):
+    def login(self, *, user=None, password=None, credentials_file=None, verbose=False):
         """Performs a login.
         User and password arguments can be used or a file that contains
         username and password
@@ -104,9 +110,7 @@ class GaiaClass(TapPlus):
         """
         try:
             log.info("Login to gaia TAP server")
-            TapPlus.login(self, user=user, password=password,
-                          credentials_file=credentials_file,
-                          verbose=verbose)
+            TapPlus.login(self, user=user, password=password, credentials_file=credentials_file, verbose=verbose)
         except HTTPError:
             log.error("Error logging in TAP server")
             return
@@ -114,8 +118,7 @@ class GaiaClass(TapPlus):
         new_password = self._TapPlus__pwd
         try:
             log.info("Login to gaia data server")
-            TapPlus.login(self.__gaiadata, user=new_user, password=new_password,
-                          verbose=verbose)
+            TapPlus.login(self.__gaiadata, user=new_user, password=new_password, verbose=verbose)
         except HTTPError:
             log.error("Error logging in data server")
             log.error("Logging out from TAP server")
@@ -139,8 +142,7 @@ class GaiaClass(TapPlus):
         new_password = self._TapPlus__pwd
         try:
             log.info("Login to gaia data server")
-            TapPlus.login(self.__gaiadata, user=new_user, password=new_password,
-                          verbose=verbose)
+            TapPlus.login(self.__gaiadata, user=new_user, password=new_password, verbose=verbose)
         except HTTPError:
             log.error("Error logging in data server")
             log.error("Logging out from TAP server")
@@ -304,9 +306,7 @@ class GaiaClass(TapPlus):
                 log.error("Creation of the directory %s failed" % path)
 
         try:
-            self.__gaiadata.load_data(params_dict=params_dict,
-                                      output_file=output_file,
-                                      verbose=verbose)
+            self.__gaiadata.load_data(params_dict=params_dict, output_file=output_file, verbose=verbose)
             files = Gaia.__get_data_files(output_file=output_file, path=path)
         except Exception as err:
             raise err
@@ -342,7 +342,6 @@ class GaiaClass(TapPlus):
             if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
-                    # print(hduList)
                     num_hdus = len(hduList)
                     for i in range(1, num_hdus):
                         table = Table.read(hduList[i], format='fits')
@@ -357,8 +356,7 @@ class GaiaClass(TapPlus):
 
             elif '.csv' in key:
                 tables = []
-                table = Table.read(value, format='ascii.csv',
-                                   fast_reader=False)
+                table = Table.read(value, format='ascii.csv', fast_reader=False)
                 tables.append(table)
                 files[key] = tables
 
@@ -492,8 +490,7 @@ class GaiaClass(TapPlus):
         coord = self.__getCoordInput(coordinate, "coordinate")
 
         if radius is not None:
-            job = self.__cone_search(coord, radius, async_job=async_job,
-                                     verbose=verbose, columns=columns)
+            job = self.__cone_search(coord, radius, async_job=async_job, verbose=verbose, columns=columns)
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
@@ -541,8 +538,7 @@ class GaiaClass(TapPlus):
                 job = self.launch_job(query, verbose=verbose)
         return job.get_results()
 
-    def query_object(self, coordinate, *, radius=None, width=None, height=None,
-                     verbose=False, columns=()):
+    def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
         """Launches a synchronous cone search for the input search radius or the box on the sky, sorted by angular
         separation
         TAP & TAP+
@@ -566,12 +562,10 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius=radius,
-                                   width=width, height=height, async_job=False,
+        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=False,
                                    verbose=verbose, columns=columns)
 
-    def query_object_async(self, coordinate, *, radius=None, width=None,
-                           height=None, verbose=False, columns=()):
+    def query_object_async(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
         """Launches an asynchronous cone search for the input search radius or the box on the sky, sorted by angular
         separation
         TAP & TAP+
@@ -595,9 +589,8 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius=radius, width=width,
-                                   height=height, async_job=True, verbose=verbose,
-                                   columns=columns)
+        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=True,
+                                   verbose=verbose, columns=columns)
 
     def __cone_search(self, coordinate, radius, *, table_name=None,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -680,17 +673,10 @@ class GaiaClass(TapPlus):
                               'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
         if async_job:
-            return self.launch_job_async(query=query,
-                                         output_file=output_file,
-                                         output_format=output_format,
-                                         verbose=verbose,
-                                         dump_to_file=dump_to_file,
-                                         background=background)
+            return self.launch_job_async(query=query, output_file=output_file, output_format=output_format,
+                                         verbose=verbose, dump_to_file=dump_to_file, background=background)
         else:
-            return self.launch_job(query=query,
-                                   output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose,
+            return self.launch_job(query=query, output_file=output_file, output_format=output_format, verbose=verbose,
                                    dump_to_file=dump_to_file)
 
     def cone_search(self, coordinate, *, radius=None,
@@ -809,23 +795,19 @@ class GaiaClass(TapPlus):
             raise ValueError(f"{msg} must be either a string or astropy.coordinates")
 
         if isinstance(value, str):
-            q = Quantity(value)
-            return q
+            return Quantity(value)
         else:
             return value
 
     def __checkCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
             raise ValueError(f"{msg} must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
             raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
-            c = commons.parse_coordinates(value)
-            return c
+            return commons.parse_coordinates(value)
         else:
             return value
 
@@ -866,8 +848,7 @@ class GaiaClass(TapPlus):
         A user
         """
 
-        return self.is_valid_user(user_id=user_id,
-                                  verbose=verbose)
+        return self.is_valid_user(user_id=user_id, verbose=verbose)
 
     def cross_match(self, *, full_qualified_table_name_a,
                     full_qualified_table_name_b,
