@@ -129,3 +129,7 @@ class TestEsaHubbleRemoteData:
                                                filters=['F814W/F450W'],
                                                folder=str(self.temp_folder_for_fits.name))
         assert len(os.listdir(self.temp_folder_for_fits.name)) > 0
+
+    def test_get_datalabs_path(self):
+        result = esa_hubble.get_datalabs_path(filename='ib4x04ivq_flt.jpg', default_volume=None)
+        assert result == '/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg'
