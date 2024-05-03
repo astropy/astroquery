@@ -17,10 +17,15 @@ Created on 30 jun. 2016
 import gzip
 import io
 import json
+import sys
+import warnings
+
+import numpy as np
 
 from astropy import units as u
 from astropy.table import Table as APTable
 from astropy.table.table import Table
+from astropy.utils.exceptions import AstropyWarning
 
 
 def util_create_string_from_buffer(buffer):
@@ -69,7 +74,15 @@ def read_http_response(response, output_format, *, correct_units=True, use_names
         elif astropy_format == 'votable':
             result = APTable.read(data, format=astropy_format, use_names_over_ids=use_names_over_ids)
         else:
-            result = APTable.read(data, format=astropy_format)
+            with warnings.catch_warnings():
+                # Capturing the warning and converting the objid column to int64 is necessary for consistency as
+                # it was convereted to string on systems with defaul integer int32 due to an overflow.
+                if sys.platform.startswith('win'):
+                    warnings.filterwarnings("ignore", category=AstropyWarning,
+                                            message=r'OverflowError converting to IntType in column.*')
+                result = APTable.read(data, format=astropy_format)
+                if 'solution_id' in result.columns:
+                    result['solution_id'] = result['solution_id'].astype(np.uint64)
 
     if correct_units:
         modify_unrecognized_table_units(result)
