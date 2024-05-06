@@ -83,15 +83,6 @@ class JwstClass(BaseQuery):
         if show_messages:
             self.get_status_messages()
 
-    def __check_list_strings(self, list):
-        if list is None:
-            return False
-        if list and all(isinstance(elem, str) for elem in list):
-            return True
-        else:
-            raise ValueError("One of the lists is empty or there are "
-                             "elements that are not strings")
-
     def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
         """Loads all public tables
@@ -990,6 +981,11 @@ class JwstClass(BaseQuery):
             Returns the local path where the product(s) are saved.
         """
 
+        if type(product_type) is list and '' in product_type:
+            raise ValueError("A list item is empty")
+        elif not product_type:
+            raise ValueError("The string is empty")
+
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
@@ -1007,13 +1003,10 @@ class JwstClass(BaseQuery):
                                                 is_url=True)
         params_dict['planeid'] = plane_ids
 
-        if self.__check_list_strings(product_type):
-            if type(product_type) is list:
-                tap_product_type = ",".join(str(elem) for elem in product_type)
-            else:
-                tap_product_type = product_type
+        if type(product_type) is list:
+            tap_product_type = ",".join(str(elem) for elem in product_type)
         else:
-            tap_product_type = None
+            tap_product_type = product_type     
 
         self.__set_additional_parameters(param_dict=params_dict,
                                          cal_level=cal_level,
