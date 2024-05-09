@@ -261,7 +261,7 @@ class CDMSClass(BaseQuery):
                 qnind = qn+suf
                 fix_keys.append(qnind)
         for key in fix_keys:
-            if result[key].dtype != int:
+            if not np.issubdtype(result[key].dtype, np.integer):
                 intcol = np.array(list(map(parse_letternumber, result[key])),
                                   dtype=int)
                 result[key] = intcol
