@@ -984,7 +984,6 @@ class JwstClass(BaseQuery):
 
         if (type(product_type) is list and '' in product_type) or not product_type:
             product_type = None
-       
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
@@ -1005,7 +1004,7 @@ class JwstClass(BaseQuery):
         if type(product_type) is list:
             tap_product_type = ",".join(str(elem) for elem in product_type)
         else:
-            tap_product_type = product_type     
+            tap_product_type = product_type
 
         self.__set_additional_parameters(param_dict=params_dict,
                                          cal_level=cal_level,
