@@ -213,8 +213,8 @@ class TestHeasarc:
         tab = Table(
             {
                 "aws": [
-                    ("s3://nasa-heasarc/rxte/data/archive/AO10/"
-                     "P91129/91129-01-68-00A/stdprod{slash}")
+                    (f"s3://nasa-heasarc/rxte/data/archive/AO10/"
+                     f"P91129/91129-01-68-00A/stdprod{slash}")
                 ]
             }
         )

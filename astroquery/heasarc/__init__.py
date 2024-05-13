@@ -47,9 +47,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Heasarc, HeasarcClass, HeasarcBrowseClass, HeasarcBrowse
+from .core import Heasarc, HeasarcClass
 
 __all__ = ['Heasarc', 'HeasarcClass',
-           'HeasarcBrowseClass', 'HeasarcBrowse',
            'Conf', 'conf',
            ]
