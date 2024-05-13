@@ -19,8 +19,6 @@ from ..utils import commons, async_to_sync, parse_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
-from .heasarc_browse import HeasarcBrowseClass
-
 
 @async_to_sync
 class HeasarcClass(BaseQuery):
@@ -98,7 +96,7 @@ class HeasarcClass(BaseQuery):
         """
         meta = self._meta[
             (self._meta['table'] == table_name)
-            and (self._meta['par'] != '')
+            & (self._meta['par'] != '')
         ]
         meta.sort('value')
         defaults = meta['par']
@@ -119,7 +117,7 @@ class HeasarcClass(BaseQuery):
         """
         meta = self._meta[
             (self._meta['table'] == table_name)
-            and (self._meta['par'] == '')
+            & (self._meta['par'] == '')
         ]
         radius = np.double(meta['value'][0]) * u.arcmin
         return radius
@@ -503,8 +501,8 @@ class HeasarcClass(BaseQuery):
 
         if tablename is None:
             tablename = self._tablename
-        if (
-            not isinstance(tablename, str)
+        if not (
+            isinstance(tablename, str)
             and tablename in self.tap.tables.keys()
         ):
             raise ValueError(f'Unknown table name: {tablename}')
@@ -747,4 +745,3 @@ class HeasarcClass(BaseQuery):
 
 
 Heasarc = HeasarcClass()
-HeasarcBrowse = HeasarcBrowseClass()
