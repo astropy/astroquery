@@ -969,9 +969,10 @@ class JwstClass(BaseQuery):
             levels, please use get_related_observations functions first.
             Possible values: 'ALL', 3, 2, 1, -1
         product_type : str or list, optional, default None
-            List only products of the given type. If None, all products are \
-            listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
-            'science', 'info'.
+            List only products of the given type. If None, empty or an element
+            of the list is empty, all products are listed.
+            Possible values: 'thumbnail', 'preview', 'auxiliary',
+            'science', 'info', ['science', 'preview']...
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -981,11 +982,9 @@ class JwstClass(BaseQuery):
             Returns the local path where the product(s) are saved.
         """
 
-        if type(product_type) is list and '' in product_type:
-            raise ValueError("A list item is empty")
-        elif not product_type:
-            raise ValueError("The string is empty")
-
+        if (type(product_type) is list and '' in product_type) or not product_type:
+            product_type = None
+       
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
