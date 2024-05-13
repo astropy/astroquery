@@ -13,6 +13,11 @@ mpc
 
 - Parse star catalog information when querying observations database [#2957]
 
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Fix result parsing incompatibility with astropy 6.1 on Windows systems. [#3008]
+
 splatalogue
 ^^^^^^^^^^^
 
