@@ -275,14 +275,24 @@ To download a data product
   >>> output_file = Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')  # doctest: +SKIP
   >>> output_file = Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')  # doctest: +SKIP
 
+
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
-than get_product_list, it also supports product_type parameter as string or list.
+than get_product_list, it also supports product_type parameter as string or list. product_type as string:
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
   >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')  # doctest: +SKIP
+
+
+Here product_type as list:
+
+.. doctest-remote-data::
+  
+  >>> from astroquery.esa.jwst import Jwst
+  >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type=['science', 'preview'])  # doctest: +SKIP
 
 A temporary directory is created with the files and a list of the them is provided.
 
