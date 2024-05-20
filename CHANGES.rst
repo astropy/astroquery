@@ -219,7 +219,7 @@ esa.hubble
 
 - New method ``get_datalabs_path`` to return the complete path of a file in
   datalabs by combining the datalabs volume path with the path of the file
-  in the table ehst.artifact [#2998]
+  in the table ehst.artifact [#2998, #3010]
 
 esa.jwst
 ^^^^^^^^
