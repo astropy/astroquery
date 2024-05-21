@@ -1018,6 +1018,10 @@ class ESAHubbleClass(BaseQuery):
         The complete path of the file name in Datalabs
         """
 
+        # FITS files are always compressed
+        if filename.endswith('.fits'):
+            filename = f"{filename}.gz"
+
         query = f"select file_path from ehst.artifact where file_name = '{filename}'"
         job = self.query_tap(query=query)
         if job is None:
