@@ -9,6 +9,7 @@ Service fixes and enhancements
 ------------------------------
 
 esa.jwst
+^^^^^^^^
 
 - get_obs_products method supports product_type parameter as string or list [#2995]
 
@@ -121,29 +122,6 @@ alfalfa
 - Removal of the non-functional ``get_spectrym`` method as that service has
   disappeared. [#2578]
 
-<<<<<<< HEAD
-=======
-atomic
-^^^^^^
-
-- Change URL and improve error handling. [#2769]
-
-esa.hubble
-^^^^^^^^^^
-
-- Refactored query_criteria to use ehst.archive table therefore making the query
-  a lot faster. [#2524]
-- Method query_hst_tap has been deprecated and is replaced with query_tap, with the same arguments. [#2597]
-- Product types in download_product method have been modified to: PRODUCT, SCIENCE_PRODUCT or POSTCARD. [#2597]
-- Added ``proposal`` keyword argument to several methods now allows to filter by Proposal ID. [#2797]
-
-esa.jwst
-^^^^^^^
-
-- Fixes in ``login`` and ``set_token`` methods. [#2807]
-- get_obs_products method supports product_type parameter as string or list [#2995]
-
->>>>>>> 57790061 (Modify CHANGES.rst file with get_obs_products method changes)
 alma
 ^^^^
 
