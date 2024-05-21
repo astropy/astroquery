@@ -20,12 +20,7 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 
-try:
-    from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
-except ImportError:
-    # Can be removed once min version of pyvo is 1.5
-    from pyvo.dal.sia2 import SIA_PARAMETERS_DESC as SIA2_PARAMETERS_DESC
-    from pyvo.dal.sia2 import SIAService as SIA2Service
+from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
 
 from ..exceptions import LoginError
 from ..utils import commons

@@ -10,11 +10,8 @@ from astropy import coordinates
 from astropy import units as u
 import numpy as np
 import pytest
-try:
-    # This requires pyvo 1.4
-    from pyvo.dal.exceptions import DALOverflowWarning
-except ImportError:
-    pass
+
+from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.exceptions import CorruptDataWarning
 from .. import Alma
@@ -52,7 +49,6 @@ def alma(request):
 @pytest.mark.remote_data
 class TestAlma:
     def test_public(self, alma):
-        # This warning was added in pyvo 1.4, but we don't test older versions with remote-data
         with pytest.warns(expected_warning=DALOverflowWarning,
                           match="Partial result set. Potential causes MAXREC, async storage space, etc."):
             results = alma.query(payload=None, public=True, maxrec=100)
@@ -88,7 +84,6 @@ class TestAlma:
     def test_bands(self, alma):
         payload = {'band_list': ['5', '7']}
         # Added maxrec here as downloading and reading the results take too long.
-        # This warning was added in pyvo 1.4, but we don't test older versions with remote-data
         with pytest.warns(expected_warning=DALOverflowWarning,
                           match="Partial result set. Potential causes MAXREC, async storage space, etc."):
             result = alma.query(payload, maxrec=1000)

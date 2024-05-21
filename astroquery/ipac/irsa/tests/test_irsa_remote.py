@@ -6,11 +6,7 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-try:
-    # This requires pyvo 1.4
-    from pyvo.dal.exceptions import DALOverflowWarning
-except ImportError:
-    pass
+from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.ipac.irsa import Irsa
 

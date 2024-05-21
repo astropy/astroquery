@@ -44,6 +44,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of Python <3.9 are no longer supported. [#2966]
 
+- Versions of PyVO <1.5 are no longer supported. [#3002]
 
 utils.tap
 ^^^^^^^^^
