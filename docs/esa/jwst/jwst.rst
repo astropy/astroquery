@@ -283,7 +283,7 @@ than get_product_list, it also supports product_type parameter as string or list
 
   >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
-  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')  # doctest: +SKIP
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
 
 
 Here product_type as list:
@@ -292,7 +292,7 @@ Here product_type as list:
   
   >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
-  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type=['science', 'preview'])  # doctest: +SKIP
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type=['science', 'preview'])
 
 A temporary directory is created with the files and a list of the them is provided.
 
