@@ -121,12 +121,12 @@ class HeasarcClass(BaseQuery):
                            cache=True, get_query_payload=False,
                            **kwargs):
         """
-        Query around a specific object within a given mission catalog
+        Query around a specific objects within a given mission catalog
 
         Parameters
         ----------
-        object_name : str
-            Object to query around. To set search radius use the 'radius'
+        object_name : str or iterable (list or tuple) of strings
+            Objects to query around. To set search radius use the 'radius'
             parameter.
         mission : str
             Mission table to search from
@@ -139,7 +139,7 @@ class HeasarcClass(BaseQuery):
         """
         request_payload = self._args_to_payload(
             mission=mission,
-            entry=object_name,
+            entry=object_name if isinstance(object_name, str) else "; ".join(object_name),
             **kwargs
         )
 

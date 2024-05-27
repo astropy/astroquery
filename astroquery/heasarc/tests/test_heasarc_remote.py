@@ -11,6 +11,7 @@ from astroquery.exceptions import NoResultsWarning
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from astropy.table import unique
 
 
 @parametrization_local_save_remote
@@ -83,12 +84,24 @@ class TestHeasarc:
 
     def test_query_object_async(self):
         mission = 'rosmaster'
-        object_name = '3c273'
+        object_names = ['3c273', 'PSR B0531+21']
 
         heasarc = Heasarc()
-        response = heasarc.query_object_async(object_name, mission=mission)
+        response = heasarc.query_object_async(object_names, mission=mission)
         assert response is not None
         assert isinstance(response, (requests.models.Response, MockResponse))
+
+    def test_query_object(self):
+        mission = "nicermastr"
+        object_names = ("Swift_J1818.0-1607", "SAX_J1808.4-3658")
+
+        heasarc = Heasarc()
+        response = heasarc.query_object(object_name=object_names,
+                                        mission=mission)
+        uresponse = unique(response, keys="NAME")
+        returned_names = [str(i).replace(" ", "") for i in uresponse["NAME"]]
+        assert "Swift_J1818.0-1607" in returned_names
+        assert "SAX_J1808.4-3658" in returned_names
 
     def test_query_region_async(self):
         heasarc = Heasarc()

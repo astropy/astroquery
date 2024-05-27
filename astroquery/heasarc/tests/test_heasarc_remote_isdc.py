@@ -184,10 +184,10 @@ class TestHeasarcISDC:
 
     def test_query_object_async(self):
         mission = 'integral_rev3_scw'
-        object_name = '3c273'
+        object_names = ['3c273', "Crab"]
 
         heasarc = Heasarc()
-        response = heasarc.query_object_async(object_name, mission=mission)
+        response = heasarc.query_object_async(object_names, mission=mission)
         assert response is not None
         assert isinstance(response, (requests.models.Response, MockResponse))
 
