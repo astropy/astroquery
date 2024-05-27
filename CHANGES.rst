@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+esa.jwst
+^^^^^^^^
+
+- get_obs_products method supports product_type parameter as string or list [#2995]
+
 mpc
 ^^^
 
