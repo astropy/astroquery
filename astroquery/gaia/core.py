@@ -182,15 +182,12 @@ class GaiaClass(TapPlus):
             data release from which data should be taken. E.g. 'Gaia DR3'
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
-            it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
+            it can be 'INDIVIDUAL' or 'RAW':
             'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped
             in a single bundle, even if only one source/file is considered
-            'COMBINED' means products are provided in a single file concatenating the data of all sourceIds together.
-            How this is organised depends on the chosen format
             'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
-            particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single
-            file is provided for the data of all sourceIds together, but in this case there will be always be one
-            row per sourceId
+            particular that parameters stored as arrays will remain as such. A single file is provided for the data of
+            all sourceIds together, but in this case there will be always be one row per sourceId
         retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For GAIA DR3, possible values are ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
