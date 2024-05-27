@@ -90,6 +90,7 @@ Available tables:
 |CHANDRA         |chandfs4ms  |Chandra Deep Field South 4-Megasecond Catalog                                   |
 |CHANDRA         |chandfs7ms  |Chandra Deep Field-South 7-Megasecond X-Ray Source Catalog                      |
 |CHANDRA         |chanextdfs  |Chandra Extended Deep Field South Survey Point Source Catalog                   |
+|CHANDRA         |changalxrb  |Chandra X-Ray Binary Catalog of SINGS Galaxies                                  |
 |CHANDRA         |changbscat  |Chandra Galactic Bulge Survey Full X-Ray Point Source Catalog                   |
 |CHANDRA         |chanmaster  |Chandra Observations                                                            |
 |CHANDRA         |channsgpsc  |Chandra Nearby Spiral Galaxies Point Source Catalog                             |
@@ -168,6 +169,7 @@ Available tables:
 |CHANDRA         |m81cxo      |M 81 Chandra X-Ray Discrete Source Catalog                                      |
 |CHANDRA         |m81cxo2     |M 81 Chandra X-Ray Point Source Catalog                                         |
 |CHANDRA         |m83cxo      |M 83 Chandra X-Ray Point Source Catalog                                         |
+|CHANDRA         |m83xrbcxo   |M 83 Chandra X-Ray Binary Classifications Using HST                             |
 |CHANDRA         |m87cxo      |M 87 Chandra X-Ray Point Source Catalog                                         |
 |CHANDRA         |monr2cxo    |Monoceros R2 Cloud Chandra X-Ray Point Source Catalog                           |
 |CHANDRA         |moxc        |Massive Star-Forming Regions Omnibus X-Ray Catalog                              |
@@ -321,14 +323,15 @@ Available tables:
 |FERMI           |fermigsol   |Fermi GBM Solar Flare Catalog                                                   |
 |FERMI           |fermigtrig  |Fermi GBM Trigger Catalog                                                       |
 |FERMI           |fermil2psr  |Fermi LAT Second Catalog of Gamma-Ray Pulsars (2PC)                             |
-|FERMI           |fermilac    |Fermi LAT Second AGN Catalog                                                    |
+|FERMI           |fermilac    |Fermi LAT Fourth AGN Catalog                                                    |
 |FERMI           |fermilasp   |Fermi LAT Monitored Source List                                                 |
 |FERMI           |fermilatra  |Fermi LAT Sources Refined Associations Catalog                                  |
+|FERMI           |fermilblaz  |Fermi LAT Gamma-Ray Blazar Classification Catalog                               |
 |FERMI           |fermilbsl   |Fermi LAT Bright Source List                                                    |
 |FERMI           |fermilgrb   |Fermi LAT Second Gamma-Ray Burst Catalog                                        |
 |FERMI           |fermilhesc  |Fermi LAT High-Energy Source Catalog (1FHL)                                     |
 |FERMI           |fermille    |Fermi LAT Low-Energy Events Catalog                                             |
-|FERMI           |fermilpsc   |Fermi LAT 10-Year Point Source Catalog (4FGL-DR2)                               |
+|FERMI           |fermilpsc   |Fermi LAT 14-Year Point Source Catalog (4FGL-DR4)                               |
 |FERMI           |fermiltrns  |Fermi LAT Long-Term Transient Source Catalog                                    |
 |FERMI           |fermilweek  |Fermi LAT Weekly Data                                                           |
 |FERMI           |wisehspcat  |2WHSP Catalog of High Synchrotron Peaked Blazars and Candidates                 |
@@ -375,7 +378,7 @@ Available tables:
 |GALAXY CATALOG  |markarian2  |Markarian Galaxies Optical Database                                             |
 |GALAXY CATALOG  |mcg         |Morphological Galaxy Catalog                                                    |
 |GALAXY CATALOG  |mcxc        |MCXC Meta-Catalog of X-Ray Detected Clusters of Galaxies                        |
-|GALAXY CATALOG  |milliquas   |Million Quasars Catalog (MILLIQUAS), Version 7.4 (12 December 2021)             |
+|GALAXY CATALOG  |milliquas   |Million Quasars Catalog (MILLIQUAS), Version 8 (2 August 2023)                  |
 |GALAXY CATALOG  |neargalcat  |Updated Nearby Galaxy Catalog                                                   |
 |GALAXY CATALOG  |noras       |Northern ROSAT All-Sky (NORAS) Galaxy Cluster Survey Catalog                    |
 |GALAXY CATALOG  |osqsonvss   |Optically-Selected QSOS NVSS-Detected Source Catalog                            |
@@ -476,7 +479,7 @@ Available tables:
 |GENERAL CATALOG |fbsbsocat   |First Byurakan Survey Blue Stellar Objects Catalog                              |
 |GENERAL CATALOG |heabib      |High Energy Astrophysics Comprehensive Bibliography Catalog                     |
 |GENERAL CATALOG |messier     |Messier Nebulae                                                                 |
-|GENERAL CATALOG |morx        |Million Optical/Radio/X-Ray Associations Catalog                                |
+|GENERAL CATALOG |morx        |Millions of Optical Radio/X-Ray (MORX) Associations Catalog, Version 2          |
 |GENERAL CATALOG |ngc2000     |NGC2000.0: Complete New General Catalog and Index Catalog                       |
 |GENERAL CATALOG |pg          |Palomar-Green Catalog of UV-Excess Stellar Objects                              |
 |GINGA           |gingaasmlc  |Ginga ASM Source Lightcurves                                                    |
@@ -486,6 +489,8 @@ Available tables:
 |GINGA           |gingamode   |Ginga LAC Mode Catalog                                                          |
 |GINGA           |gingaraw    |Ginga LAC Raw Data                                                              |
 |GROUND-BASED    |actegsrcat  |Atacama Cosmology Telescope 2008 Survey 148-GHz Extragalactic Source Catalog    |
+|GROUND-BASED    |actmadcows  |ACT Massive and Distant Clusters of WISE Survey (MaDCoWS) Candidates Catalog    |
+|GROUND-BASED    |actsouth    |Atacama Cosmology Telescope (ACT) Extragalactic Southern Sources Catalog        |
 |GROUND-BASED    |actssrcat   |Atacama Cosmology Telescope 2008 Southern Survey 148/218 GHz Source Catalog     |
 |GROUND-BASED    |actszclust  |Atacama Cosmology Telescope DR5 Sunyaev-Zeldovich Cluster Catalog               |
 |GROUND-BASED    |hesscat     |HESS (High Energy Stereoscopic System) Source Catalog                           |
@@ -499,6 +504,7 @@ Available tables:
 |GROUND-BASED    |subpfclog   |Subaru Prime Focus Camera (Suprime-Cam) Exposures Log                           |
 |GROUND-BASED    |tevcat      |TeV Gamma-Ray Source Catalog                                                    |
 |HALOSAT         |halomaster  |HaloSat Master Catalog                                                          |
+|HALOSAT         |halotimelg  |HaloSat Time Log                                                                |
 |HEAO1           |a1          |HEAO 1 A1 X-Ray Source Catalog                                                  |
 |HEAO1           |a1point     |HEAO 1 A1 Lightcurves                                                           |
 |HEAO1           |a2lcpoint   |HEAO 1 A2 Pointed Lightcurves                                                   |
@@ -522,7 +528,8 @@ Available tables:
 |HST             |hubbleudf   |Hubble Ultra Deep Field Catalog                                                 |
 |HST             |m31phatcxo  |M 31 Disk Chandra PHAT Survey: X-Ray Source Catalog                             |
 |HST             |m31phatsfh  |M 31 Disk Chandra PHAT Survey: HST-Derived Star Formation History               |
-|ICECUBE         |icecubepsc  |IceCube All-Sky Point-Source Events Catalog (2008-2018)                         |
+|HST             |m83xrbcxo   |M 83 Chandra X-Ray Binary Classifications Using HST                             |
+|ICECUBE         |icecubepsc  |IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                |
 |INTEGRAL        |ibiscat     |Fifth IBIS/ISGRI Soft Gamma-Ray Survey Catalog                                  |
 |INTEGRAL        |intagncat   |Second INTEGRAL AGN Catalog                                                     |
 |INTEGRAL        |intbsc      |INTEGRAL Bright Source Catalog                                                  |
@@ -550,6 +557,7 @@ Available tables:
 |ISO             |elaisfbmc   |European Large-Area ISO Survey (ELAIS) Final Band-Merged Catalog                |
 |ISO             |isolog      |ISO (Infrared Space Observatory) Observation Log                                |
 |IUE             |iuelog      |IUE (International Ultraviolet Explorer) Final Merged Observation Log           |
+|IXPE            |ixmaster    |IXPE Master Catalog                                                             |
 |KVANT           |kvttmcomis  |Kvant TTM/COMIS X-Ray Source Catalog                                            |
 |LPF             |lpffiles    |LISA Pathfinder Archive Data Summary                                            |
 |MASTER CATALOG  |cmbmaster   |LAMBDA Cosmic Microwave Background Experiments Master Catalog                   |
@@ -558,6 +566,7 @@ Available tables:
 |MASTER CATALOG  |mggammacat  |Gamma-Ray Source Summary Catalog (Macomb & Gehrels 1999 & 2001)                 |
 |MASTER CATALOG  |mggammadet  |Gamma-Ray Source Detailed Catalog (Macomb & Gehrels 1999)                       |
 |MASTER CATALOG  |radio       |Master Radio Catalog                                                            |
+|MASTER CATALOG  |verimaster  |VERITAS Source Catalog                                                          |
 |MASTER CATALOG  |xray        |Master X-Ray Catalog                                                            |
 |MAXI            |maxigsc7yr  |MAXI/GSC 7-Year High and Low Galactic Latitude Source Catalog (3MAXI)           |
 |MAXI            |maxigschgl  |37-Month MAXI/GSC High Galactic-Latitude Source Catalog                         |
@@ -912,6 +921,11 @@ Available tables:
 |SPITZER         |sporiabyso  |Spitzer Survey of Orion A and B Molecular Clouds YSOs Catalog                   |
 |SPITZER         |swirecxo    |Spitzer Wide-Area IR Extra-Galactic Survey Chandra X-Ray Sources                |
 |SPITZER         |swirelhcxo  |SWIRE/Chandra Lockman Hole Field X-Ray Source Catalog                           |
+|SRG-EROSITA     |efedshard   |eROSITA eFEDS Hard X-Ray (2.3-5.0 keV) Source Catalog                           |
+|SRG-EROSITA     |efedsmain   |eROSITA eFEDS Main X-Ray (0.2-2.3 keV) Source Catalog                           |
+|SRG-EROSITA     |erosmaster  |eROSITA Observations Master Catalog                                             |
+|SRG-EROSITA     |etachahard  |Eta Chamaeleontis eROSITA EDR Field X-Ray (2.3-5.0 keV) Source Catalog          |
+|SRG-EROSITA     |etachamain  |Eta Chamaeleontis eROSITA EDR Field X-Ray (0.2-2.3 keV) Source Catalog          |
 |STAR CATALOG    |aavsovsx    |AAVSO International Variable Star Index                                         |
 |STAR CATALOG    |acrs        |Astrographic Catalog of Reference Stars                                         |
 |STAR CATALOG    |asiagosn    |Asiago Supernova Catalog (Dynamic Version)                                      |
@@ -935,7 +949,7 @@ Available tables:
 |STAR CATALOG    |exoplanodb  |Exoplanet Orbit Database                                                        |
 |STAR CATALOG    |flarestars  |UV Cet-type Flare Stars & Related Objects Catalog                               |
 |STAR CATALOG    |galobstars  |Catalog of Galactic OB Stars                                                    |
-|STAR CATALOG    |gcvs        |General Catalog of Variable Stars, March 2017 Version                           |
+|STAR CATALOG    |gcvs        |General Catalog of Variable Stars (June 2022 Version)                           |
 |STAR CATALOG    |gcvsegvars  |General Catalog of Variable Stars (GCVS4.2): Extragalactic Variables            |
 |STAR CATALOG    |gcvsnsvars  |General Catalog of Variable Stars, March 2012 Version: Suspected Variable Stars |
 |STAR CATALOG    |gliese2mas  |Gliese Catalog Stars with Accurate Coordinates and 2MASS Cross-Identifications  |
@@ -947,6 +961,7 @@ Available tables:
 |STAR CATALOG    |hipnewcat   |Hipparcos New Astrometric Catalog                                               |
 |STAR CATALOG    |hipparcos   |Hipparcos Main Catalog                                                          |
 |STAR CATALOG    |hmxbcat     |Catalog of High-Mass X-Ray Binaries in the Galaxy (4th Ed.)                     |
+|STAR CATALOG    |hmxbcat2    |Catalog of High-Mass X-Ray Binaries in the Galaxy (Dynamic Version)             |
 |STAR CATALOG    |hyadesxray  |ROSAT All-Sky Survey: Hyades Cluster Region                                     |
 |STAR CATALOG    |intomcvs    |INTEGRAL OMC First Catalog of Optically Variable Sources                        |
 |STAR CATALOG    |ipclxlbol   |Einstein LX & LBL Values for IPC O Stars                                        |
@@ -1047,6 +1062,7 @@ Available tables:
 |SWIFT           |swiftbalog  |Swift BAT Instrument Log                                                        |
 |SWIFT           |swiftft     |Swift Serendipitous Survey in Deep XRT GRB Fields (SwiftFT)                     |
 |SWIFT           |swiftgrb    |Swift Gamma Ray Bursts Catalog                                                  |
+|SWIFT           |swiftguano  |Swift Gamma-ray Urgent Archiver for Novel Opportunities (GUANO) Events          |
 |SWIFT           |swiftmastr  |Swift Master Catalog                                                            |
 |SWIFT           |swifttdrss  |Swift TDRSS Messages                                                            |
 |SWIFT           |swiftuvlog  |Swift UVOT Instrument Log                                                       |
@@ -1062,6 +1078,7 @@ Available tables:
 |UIT             |uit         |Ultraviolet Imaging Telescope Near-UV Bright Objects Catalog                    |
 |UIT             |uitmaster   |Ultraviolet Imaging Telescope Master Catalog                                    |
 |VELA 5B         |vela5b      |Vela 5B All-Sky Monitor Lightcurves                                             |
+|VERITAS         |verimaster  |VERITAS Source Catalog                                                          |
 |WISE            |allwiseagn  |AllWISE Catalog of Mid-IR AGNs                                                  |
 |WISE            |nwayawgros  |AllWISE Counterparts and Gaia Matches to ROSAT/2RXS X-Ray Sources               |
 |WISE            |nwayawgxmm  |AllWISE Counterparts and Gaia Matches to XMM-Newton Slew Survey (v2.0) Sources  |
@@ -1157,19 +1174,18 @@ Available tables:
 |XMM-NEWTON      |xmmobstars  |XMM-Newton OB Stars Catalog                                                     |
 |XMM-NEWTON      |xmmomcat    |XMM-Newton OM Object Catalog                                                    |
 |XMM-NEWTON      |xmmomcdfs   |XMM-Newton Optical Monitor Chandra Deep Field-South UV Catalog                  |
-|XMM-NEWTON      |xmmomobj    |XMM-Newton OM Objects (2008 Version)                                            |
-|XMM-NEWTON      |xmmomsuob   |XMM-Newton Optical Monitor SUSS Catalog, v4.1: Observation IDs                  |
-|XMM-NEWTON      |xmmomsuss   |XMM-Newton Optical Monitor Serendipitous UV Source Survey Catalog, v4.1         |
+|XMM-NEWTON      |xmmomsuob   |XMM-Newton Optical Monitor SUSS Catalog, v6.1: Observation IDs                  |
+|XMM-NEWTON      |xmmomsuss   |XMM-Newton Optical Monitor Serendipitous UV Source Survey Catalog, v6.1         |
 |XMM-NEWTON      |xmmsdssgce  |2XMMi/SDSS Galaxy Cluster Survey Extension                                      |
 |XMM-NEWTON      |xmmsdssgcs  |2XMMi/SDSS Galaxy Cluster Survey                                                |
 |XMM-NEWTON      |xmmslewcln  |XMM-Newton Slew Survey Clean Source Catalog, v2.0                               |
 |XMM-NEWTON      |xmmslewegs  |XMM-Newton Slew Survey Extragalactic Sample                                     |
 |XMM-NEWTON      |xmmslewful  |XMM-Newton Slew Survey Full Source Catalog, v2.0                                |
-|XMM-NEWTON      |xmmssc      |XMM-Newton Serendipitous Source Catalog (4XMM-DR11 Version)                     |
+|XMM-NEWTON      |xmmssc      |XMM-Newton Serendipitous Source Catalog (4XMM-DR13 Version)                     |
 |XMM-NEWTON      |xmmsscgps   |XMM-Newton Survey Science Center Survey of the Galactic Plane                   |
 |XMM-NEWTON      |xmmssclwbd  |XMM-Newton 2XMMi-DR3 Selected Source Detections Catalog                         |
 |XMM-NEWTON      |xmmssclwbs  |XMM-Newton 2XMMi-DR3 Selected Source Classifications Catalog                    |
-|XMM-NEWTON      |xmmstack    |XMM-Newton Serendipitous Source Catalog from Stacked Observations (4XMM-DR11s)  |
+|XMM-NEWTON      |xmmstack    |XMM-Newton Serendipitous Source Catalog from Stacked Observations (4XMM-DR13s)  |
 |XMM-NEWTON      |xmmstackob  |XMM-Newton Serendipitous Source Catalog from Stacked Observations: Obs. Data    |
 |XMM-NEWTON      |xmmt2flare  |2XMM Flares Detected from Tycho-2 Stars                                         |
 |XMM-NEWTON      |xmmvaragn   |Ensemble X-Ray Variability of AGN in 2XMMi-DR3                                  |

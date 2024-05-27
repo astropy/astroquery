@@ -12,4 +12,7 @@ Available tables:
 |INTEGRAL-REV3|integral_rev3_prop    |Proposals                                      |
 |INTEGRAL-REV3|integral_rev3_prop_obs|Proposal Information and Observation Parameters|
 |INTEGRAL-REV3|integral_rev3_scw     |SCW - Science Window Data                      |
+|INTEGRAL-REV4|integral_rev4_prop    |Proposals                                      |
+|INTEGRAL-REV4|integral_rev4_prop_obs|Proposal Information and Observation Parameters|
+|INTEGRAL-REV4|integral_rev4_scw     |SCW - Science Window Data                      |
 BatchEnd
