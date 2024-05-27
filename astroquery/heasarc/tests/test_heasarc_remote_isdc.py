@@ -162,9 +162,10 @@ class TestHeasarcISDC:
         with self.isdc_context:
             missions = heasarc.query_mission_list()
 
-        # Assert that there are indeed a large number of tables
-        # Number of tables could change, but should be > 900 (currently 956)
-        assert len(missions) == 5
+        # Assert that there are indeed numerous tables from ISDC
+        # Qunatity of tables could change due to breakdown of the descriptions
+        # Accessing via isdc returns only Integral related tables from HEASARC
+        assert len(missions) >= 5
 
     def test_mission_cols(self):
         heasarc = Heasarc()
