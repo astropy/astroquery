@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^
+
+- Added vectoring for querying objects [#3013]
+
 mpc
 ^^^
 
