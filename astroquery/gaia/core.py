@@ -217,7 +217,8 @@ class GaiaClass(TapPlus):
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
             loading format. Other available formats are 'csv', 'ecsv','votable_plain', 'json' and 'fits'
-        dump_to_file:  boolean, optional, default False
+        dump_to_file: boolean, optional, default False.
+            If it is true, a compressed directory named "datalink_output.zip" with all the DataLink files is made
         overwrite_output_file : boolean, optional, default False
             To overwrite the output_file if it already exists.
         verbose : bool, optional, default 'False'
@@ -241,6 +242,8 @@ class GaiaClass(TapPlus):
             output_file = 'datalink_output.zip'
             output_file_specified = True
             output_file = os.path.abspath(output_file)
+            print(f"DataLink products are stored inside the {output_file} file")
+
             if not overwrite_output_file and os.path.exists(output_file):
                 print(f"{output_file} file already exists and will be overwritten")
 
