@@ -69,8 +69,8 @@ gaia
 - Fix method search_async_jobs in the class TapPlus. [#2967]
 
 - Change the signature of the function load_data: the parameter output_file that defined the file where the results were
-  saved, is replaced by dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
-  all the DataLink files is made. So user cannot specified the output file anymore  [#2967]
+  saved, is replaced by boolean parameter dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
+  all the DataLink files is made. So the users cannot specified the output file anymore  [#2967]
 
 jplhorizons
 ^^^^^^^^^^^
