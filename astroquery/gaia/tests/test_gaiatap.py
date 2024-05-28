@@ -15,6 +15,7 @@ Created on 30 jun. 2016
 
 """
 import os
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -44,6 +45,22 @@ JOB_DATA_QUERIER_ASYNC_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'l
 
 JOB_DATA_QUERIER_ECSV_FILE_NAME = get_pkg_data_filename(os.path.join("data", '1712337806100O-result.ecsv'),
                                                         package=package)
+
+DL_PRODUCTS_VOT = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_vot.zip'),
+    package=package)
+
+DL_PRODUCTS_ECSV = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_ecsv.zip'),
+    package=package)
+
+DL_PRODUCTS_CSV = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_csv.zip'),
+    package=package)
+
+DL_PRODUCTS_FITS = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_fits.zip'),
+    package=package)
 
 JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
 JOB_DATA_NEW = Path(JOB_DATA_FILE_NAME_NEW).read_text()
@@ -148,6 +165,23 @@ def mock_querier():
     launch_response.set_data(method="POST", body=JOB_DATA)
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_datalink_querier():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=DL_PRODUCTS_VOT)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    conn_handler.set_response(
+        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=votable&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
+        launch_response)
 
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
@@ -696,29 +730,100 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
-def test_load_data(monkeypatch, tmp_path):
+def test_load_data(mock_datalink_querier):
+    mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3', data_structure='INDIVIDUAL',
+                                    retrieval_type="ALL",
+                                    linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                    avoid_datatype_check=False,
+                                    format="votable", dump_to_file=True, overwrite_output_file=True, verbose=False)
+
+    assert os.path.exists('datalink_output.zip')
+
+    extracted_files = []
+
+    with zipfile.ZipFile('datalink_output.zip', "r") as zip_ref:
+        extracted_files.extend(zip_ref.namelist())
+
+    assert len(extracted_files) == 3
+
+    os.remove(os.path.join(os.getcwd(), 'datalink_output.zip'))
+
+    assert not os.path.exists('datalink_output.zip')
+
+
+@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
+def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_FITS, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
-            "FORMAT": "votable",
+            "FORMAT": "fits",
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "datalink_output.zip")
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
     GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
         valid_data=True,
+        ids="1,2,3,4",
+        format='fits',
+        retrieval_type="epoch_photometry",
         verbose=True,
         dump_to_file=True)
 
+    path.unlink()
 
-def test_load_data_ecsv(monkeypatch, tmp_path):
+
+def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_CSV, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
+            "VALID_DATA": "true",
+            "ID": "1,2,3,4",
+            "FORMAT": "csv",
+            "RETRIEVAL_TYPE": "epoch_photometry",
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "USE_ZIP_ALWAYS": "true"}
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    GAIA_QUERIER.load_data(
+        valid_data=True,
+        ids="1,2,3,4",
+        format='csv',
+        retrieval_type="epoch_photometry",
+        verbose=True,
+        dump_to_file=True)
+
+    path.unlink()
+
+
+def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_ECSV, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -727,21 +832,30 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "datalink_output.zip")
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
     GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
         valid_data=True,
-        verbose=True,
+        ids="1,2,3,4",
         format='ecsv',
+        retrieval_type="epoch_photometry",
+        verbose=True,
         dump_to_file=True)
+
+    path.unlink()
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -750,7 +864,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "datalink_output.zip")
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -763,9 +877,18 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         verbose=True,
         dump_to_file=True)
 
+    path.unlink()
+
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
 def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -775,7 +898,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
             "USE_ZIP_ALWAYS": "true", }
-        assert output_file == str(tmp_path / "datalink_output.zip")
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -787,6 +910,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         valid_data=True,
         verbose=True,
         dump_to_file=True)
+
+    path.unlink()
 
 
 def test_get_datalinks(monkeypatch):

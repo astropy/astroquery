@@ -24,6 +24,7 @@ class DummyResponse:
     STATUS_MESSAGES = {200: "OK", 303: "OK", 500: "ERROR"}
 
     def __init__(self, status_code=None):
+        self.zip_bytes = None
         self.reason = ""
         self.set_status_code(status_code)
         self.index = 0
@@ -57,11 +58,29 @@ class DummyResponse:
         if v is None:
             return None
         else:
+
+            if v.endswith('zip'):
+                if self.zip_bytes is None:
+                    with open(v, 'rb') as file:
+                        self.zip_bytes = file.read()
+
             if size is None or size < 0:
+
+                if v.endswith('zip'):
+                    return self.zip_bytes
+
                 # read all
                 return v.encode(encoding='utf_8', errors='strict')
             else:
-                bodyLength = len(v)
+                is_zip = False
+
+                if v.endswith('zip'):
+                    is_zip = True
+                    bodyLength = len(self.zip_bytes)
+                    v = self.zip_bytes
+                else:
+                    bodyLength = len(v)
+
                 if self.index < 0:
                     return ""
                 if size >= bodyLength:
@@ -73,7 +92,11 @@ class DummyResponse:
                 self.index = endPos
                 if endPos >= (bodyLength - 1):
                     self.index = -1
-                return tmp.encode(encoding='utf_8', errors='strict')
+
+                if is_zip:
+                    return tmp
+                else:
+                    return tmp.encode(encoding='utf_8', errors='strict')
 
     def close(self):
         self.index = 0

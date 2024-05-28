@@ -218,7 +218,8 @@ class GaiaClass(TapPlus):
         format : str, optional, default 'votable'
             loading format. Other available formats are 'csv', 'ecsv','votable_plain', 'json' and 'fits'
         dump_to_file: boolean, optional, default False.
-            If it is true, a compressed directory named "datalink_output.zip" with all the DataLink files is made
+            If it is true, a compressed directory named "datalink_output.zip" with all the DataLink files is made in the
+             current working directory
         overwrite_output_file : boolean, optional, default False
             To overwrite the output_file if it already exists.
         verbose : bool, optional, default 'False'
@@ -242,22 +243,23 @@ class GaiaClass(TapPlus):
             output_file = 'datalink_output.zip'
             output_file_specified = True
             output_file = os.path.abspath(output_file)
-            print(f"DataLink products are stored inside the {output_file} file")
+            log.info(f"DataLink products will be stored in the {output_file} file")
 
             if not overwrite_output_file and os.path.exists(output_file):
-                print(f"{output_file} file already exists and will be overwritten")
+                log.warn(f"{output_file} file already exists and will be overwritten")
 
         path = os.path.dirname(output_file)
 
         log.debug(f"Directory where the data will be saved: {path}")
 
         if path != '':
-            try:
-                os.mkdir(path)
-            except FileExistsError:
-                log.error("Path %s already exist" % path)
-            except OSError:
-                log.error("Creation of the directory %s failed" % path)
+            if not os.path.isdir(path):
+                try:
+                    os.mkdir(path)
+                except FileExistsError:
+                    log.warn("Path %s already exist" % path)
+                except OSError:
+                    log.error("Creation of the directory %s failed" % path)
 
         if avoid_datatype_check is False:
             # we need to check params
@@ -312,8 +314,7 @@ class GaiaClass(TapPlus):
                 shutil.rmtree(path)
             else:
                 for file in files.keys():
-                    os.remove(os.path.join(os.getcwd(), path, file)
-                              )
+                    os.remove(os.path.join(os.getcwd(), path, file))
 
         if verbose:
             if output_file_specified:
@@ -332,9 +333,8 @@ class GaiaClass(TapPlus):
         extracted_files = []
 
         with zipfile.ZipFile(output_file, "r") as zip_ref:
-            for name in zip_ref.namelist():
-                local_file_path = zip_ref.extract(name, os.path.dirname(output_file))
-                extracted_files.append(local_file_path)
+            extracted_files.extend(zip_ref.namelist())
+            zip_ref.extractall(os.path.dirname(output_file))
 
         # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
@@ -344,7 +344,7 @@ class GaiaClass(TapPlus):
 
         for key, value in files.items():
 
-            if '.fits' in key:
+            if key.endswith('.fits'):
                 tables = []
                 with fits.open(value) as hduList:
                     num_hdus = len(hduList)
@@ -354,19 +354,19 @@ class GaiaClass(TapPlus):
                         tables.append(table)
                     files[key] = tables
 
-            elif '.xml' in key:
+            elif key.endswith('.xml'):
                 tables = []
                 for table in votable.parse(value).iter_tables():
                     tables.append(table)
                 files[key] = tables
 
-            elif '.csv' in key:
+            elif key.endswith('.csv'):
                 tables = []
                 table = Table.read(value, format='ascii.csv', fast_reader=False)
                 tables.append(table)
                 files[key] = tables
 
-            elif '.json' in key:
+            elif key.endswith('.json'):
                 tables = []
                 with open(value) as f:
                     data = json.load(f)
