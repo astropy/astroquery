@@ -19,7 +19,6 @@ import shutil
 import zipfile
 from collections.abc import Iterable
 from datetime import datetime, timezone
-from pathlib import Path
 
 from astropy import units
 from astropy import units as u
@@ -170,7 +169,7 @@ class GaiaClass(TapPlus):
 
     def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
-                  format="votable", output_file=None, overwrite_output_file=False, verbose=False):
+                  format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -217,10 +216,8 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
-            loading format. Other available formats are 'csv', 'ecsv','votable_plain' and 'fits'
-        output_file : string or pathlib.PosixPath, optional, default None
-            file where the results are saved.
-            If it is not provided, the http response contents are returned.
+            loading format. Other available formats are 'csv', 'ecsv','votable_plain', 'json' and 'fits'
+        dump_to_file:  boolean, optional, default False
         overwrite_output_file : boolean, optional, default False
             To overwrite the output_file if it already exists.
         verbose : bool, optional, default 'False'
@@ -235,25 +232,29 @@ class GaiaClass(TapPlus):
         temp_dirname = "temp_" + now_formatted
         downloadname_formated = "download_" + now_formatted
 
+        overwrite_output_file = True
         output_file_specified = False
-        if output_file is None:
+
+        if not dump_to_file:
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
         else:
+            output_file = 'datalink_output.zip'
             output_file_specified = True
-
-            if isinstance(output_file, str):
-                if not output_file.lower().endswith('.zip'):
-                    output_file = output_file + '.zip'
-            elif isinstance(output_file, Path):
-                if not output_file.suffix.endswith('.zip'):
-                    output_file.with_suffix('.zip')
-
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
-                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
-                                 f"overwrite output file.")
+                print(f"{output_file} file already exists and will be overwritten")
 
         path = os.path.dirname(output_file)
+
+        log.debug(f"Directory where the data will be saved: {path}")
+
+        if path != '':
+            try:
+                os.mkdir(path)
+            except FileExistsError:
+                log.error("Path %s already exist" % path)
+            except OSError:
+                log.error("Creation of the directory %s failed" % path)
 
         if avoid_datatype_check is False:
             # we need to check params
@@ -297,14 +298,7 @@ class GaiaClass(TapPlus):
             if linking_parameter != 'SOURCE_ID':
                 params_dict['LINKING_PARAMETER'] = linking_parameter
 
-        if path != '':
-            try:
-                os.mkdir(path)
-            except FileExistsError:
-                log.error("Path %s already exist" % path)
-            except OSError:
-                log.error("Creation of the directory %s failed" % path)
-
+        files = dict()
         try:
             self.__gaiadata.load_data(params_dict=params_dict, output_file=output_file, verbose=verbose)
             files = Gaia.__get_data_files(output_file=output_file, path=path)
@@ -313,6 +307,10 @@ class GaiaClass(TapPlus):
         finally:
             if not output_file_specified:
                 shutil.rmtree(path)
+            else:
+                for file in files.keys():
+                    os.remove(os.path.join(os.getcwd(), path, file)
+                              )
 
         if verbose:
             if output_file_specified:
@@ -328,17 +326,21 @@ class GaiaClass(TapPlus):
     @staticmethod
     def __get_data_files(output_file, path):
         files = {}
-        if zipfile.is_zipfile(output_file):
-            with zipfile.ZipFile(output_file, 'r') as zip_ref:
-                zip_ref.extractall(os.path.dirname(output_file))
+        extracted_files = []
+
+        with zipfile.ZipFile(output_file, "r") as zip_ref:
+            for name in zip_ref.namelist():
+                local_file_path = zip_ref.extract(name, os.path.dirname(output_file))
+                extracted_files.append(local_file_path)
 
         # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
             for file in f:
-                if file.lower().endswith(('.fits', '.xml', '.csv', '.ecsv')):
+                if file in extracted_files:
                     files[file] = os.path.join(r, file)
 
         for key, value in files.items():
+
             if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
@@ -348,6 +350,7 @@ class GaiaClass(TapPlus):
                         Gaia.correct_table_units(table)
                         tables.append(table)
                     files[key] = tables
+
             elif '.xml' in key:
                 tables = []
                 for table in votable.parse(value).iter_tables():

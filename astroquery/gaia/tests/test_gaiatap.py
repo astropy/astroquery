@@ -705,7 +705,7 @@ def test_load_data(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+        assert output_file == str(tmp_path / "datalink_output.zip")
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -715,7 +715,7 @@ def test_load_data(monkeypatch, tmp_path):
         retrieval_type="epoch_photometry",
         valid_data=True,
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True)
 
 
 def test_load_data_ecsv(monkeypatch, tmp_path):
@@ -727,7 +727,7 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file.zip")
+        assert output_file == str(tmp_path / "datalink_output.zip")
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -738,7 +738,7 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
         valid_data=True,
         verbose=True,
         format='ecsv',
-        output_file=str(tmp_path / "output_file"))
+        dump_to_file=True)
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
@@ -750,7 +750,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+        assert output_file == str(tmp_path / "datalink_output.zip")
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -761,7 +761,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         linking_parameter="SOURCE_ID",
         valid_data=True,
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True)
 
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
@@ -774,8 +774,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
-            "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+            "USE_ZIP_ALWAYS": "true", }
+        assert output_file == str(tmp_path / "datalink_output.zip")
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -786,7 +786,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         linking_parameter=linking_param,
         valid_data=True,
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True)
 
 
 def test_get_datalinks(monkeypatch):
