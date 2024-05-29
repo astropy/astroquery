@@ -185,6 +185,7 @@ def mock_datalink_querier():
 
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
+
 @pytest.fixture(scope="module")
 def mock_datalink_querier_ecsv():
     conn_handler = DummyConnHandler()
@@ -779,9 +780,9 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
         assert "name_from_class" in job.parameters["query"]
 
+
 @pytest.mark.parametrize("overwrite_output_file", [False, True])
 def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwrite_output_file):
-
     file_final = os.path.join(os.getcwd(), 'datalink_output.zip')
     Path(file_final).touch()
 
@@ -800,8 +801,9 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
                                             verbose=False)
 
         assert str(
-            excinfo.value) == (f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite "
-                               f"output file.")
+            excinfo.value) == (
+                   f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite "
+                   f"output file.")
 
     else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
