@@ -781,6 +781,24 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
+def test_datalink_querier_load_data_no_dump_vot(mock_datalink_querier):
+    result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                  data_structure='INDIVIDUAL',
+                                                  retrieval_type="ALL",
+                                                  linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                  avoid_datatype_check=False,
+                                                  format="votable", dump_to_file=False, overwrite_output_file=True,
+                                                  verbose=False)
+
+    assert len(result_dict) == 3
+
+    files = list(result_dict.keys())
+    files.sort()
+    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.xml'
+    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.xml'
+    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.xml'
+
+
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                   data_structure='INDIVIDUAL',
