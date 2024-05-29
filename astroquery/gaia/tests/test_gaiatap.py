@@ -906,6 +906,38 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     assert not os.path.exists('datalink_output.zip')
 
 
+def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
+    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
+            "VALID_DATA": "true",
+            "ID": "1,2,3,4",
+            "FORMAT": "votable",
+            "RETRIEVAL_TYPE": "epoch_photometry",
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "USE_ZIP_ALWAYS": "true"}
+        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    GAIA_QUERIER.load_data(
+        valid_data=True,
+        ids="1,2,3,4",
+        format='votable',
+        retrieval_type="epoch_photometry",
+        verbose=True,
+        dump_to_file=True)
+
+    path.unlink()
+
+
 @pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
 def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
     path = Path(os.getcwd() + '/' + 'datalink_output.zip')
