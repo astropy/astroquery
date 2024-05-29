@@ -230,7 +230,6 @@ class GaiaClass(TapPlus):
         A dictionary where the keys are the file names and its value is a list of astropy.table.table.Table objects
         """
 
-        overwrite_output_file = True
         output_file_specified = False
 
         if not dump_to_file:
