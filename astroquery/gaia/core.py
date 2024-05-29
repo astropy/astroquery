@@ -242,7 +242,8 @@ class GaiaClass(TapPlus):
             log.info(f"DataLink products will be stored in the {output_file} file")
 
             if not overwrite_output_file and os.path.exists(output_file):
-                log.warn(f"{output_file} file already exists and will be overwritten")
+                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
+                                 f"overwrite output file.")
 
         path = os.path.dirname(output_file)
 
