@@ -781,6 +781,30 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
+def test_datalink_querier_load_data_vot_exception(mock_datalink_querier):
+    file_final = os.path.join(os.getcwd(), 'datalink_output.zip')
+    Path(file_final).touch()
+
+    assert os.path.exists(file_final)
+
+    with pytest.raises(ValueError) as excinfo:
+        mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                        data_structure='INDIVIDUAL',
+                                        retrieval_type="ALL",
+                                        linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                        avoid_datatype_check=False,
+                                        format="votable", dump_to_file=True, overwrite_output_file=False,
+                                        verbose=False)
+
+    assert str(
+        excinfo.value) == (f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite "
+                           f"output file.")
+
+    os.remove(file_final)
+
+    assert not os.path.exists(file_final)
+
+
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                   data_structure='INDIVIDUAL',
