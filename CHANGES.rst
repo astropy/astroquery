@@ -70,7 +70,7 @@ gaia
 
 - Change the signature of the function load_data: the parameter output_file that defined the file where the results were
   saved, is replaced by boolean parameter dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
-  all the DataLink files is made. So the users cannot specified the output file anymore  [#2967]
+  all the DataLink files is made. So the users cannot specified the output file anymore  [#3014]
 
 jplhorizons
 ^^^^^^^^^^^
