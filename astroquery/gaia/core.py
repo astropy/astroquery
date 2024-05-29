@@ -328,7 +328,7 @@ class GaiaClass(TapPlus):
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
         temp_dirname = "temp_" + now_formatted
         downloadname_formated = "download_" + now_formatted
-        return  os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
+        return os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
 
     @staticmethod
     def __get_data_files(output_file, path):
