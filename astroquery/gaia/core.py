@@ -221,7 +221,7 @@ class GaiaClass(TapPlus):
             If it is true, a compressed directory named "datalink_output.zip" with all the DataLink files is made in the
              current working directory
         overwrite_output_file : boolean, optional, default False
-            To overwrite the output_file if it already exists.
+            To overwrite the output file ("datalink_output.zip") if it already exists.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 

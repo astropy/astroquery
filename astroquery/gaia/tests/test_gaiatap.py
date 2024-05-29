@@ -169,7 +169,7 @@ def mock_querier():
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mock_datalink_querier():
     conn_handler = DummyConnHandler()
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
@@ -184,7 +184,6 @@ def mock_datalink_querier():
         launch_response)
 
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
-
 
 @pytest.fixture(scope="module")
 def mock_datalink_querier_ecsv():
@@ -780,25 +779,39 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         job = mock_querier_async.cone_search_async(SKYCOORD, radius=RADIUS)
         assert "name_from_class" in job.parameters["query"]
 
+@pytest.mark.parametrize("overwrite_output_file", [False, True])
+def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwrite_output_file):
 
-def test_datalink_querier_load_data_vot_exception(mock_datalink_querier):
     file_final = os.path.join(os.getcwd(), 'datalink_output.zip')
     Path(file_final).touch()
 
     assert os.path.exists(file_final)
 
-    with pytest.raises(ValueError) as excinfo:
+    if not overwrite_output_file:
+
+        with pytest.raises(ValueError) as excinfo:
+            mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                            data_structure='INDIVIDUAL',
+                                            retrieval_type="ALL",
+                                            linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                            avoid_datatype_check=False,
+                                            format="votable", dump_to_file=True,
+                                            overwrite_output_file=overwrite_output_file,
+                                            verbose=False)
+
+        assert str(
+            excinfo.value) == (f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite "
+                               f"output file.")
+
+    else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                         data_structure='INDIVIDUAL',
                                         retrieval_type="ALL",
                                         linking_parameter='SOURCE_ID', valid_data=False, band=None,
                                         avoid_datatype_check=False,
-                                        format="votable", dump_to_file=True, overwrite_output_file=False,
+                                        format="votable", dump_to_file=True,
+                                        overwrite_output_file=overwrite_output_file,
                                         verbose=False)
-
-    assert str(
-        excinfo.value) == (f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite "
-                           f"output file.")
 
     os.remove(file_final)
 
@@ -957,7 +970,8 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
         format='votable',
         retrieval_type="epoch_photometry",
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
@@ -990,7 +1004,8 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
         format='fits',
         retrieval_type="epoch_photometry",
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
@@ -1022,7 +1037,8 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
         format='csv',
         retrieval_type="epoch_photometry",
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
@@ -1054,7 +1070,8 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
         format='ecsv',
         retrieval_type="epoch_photometry",
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
@@ -1086,7 +1103,8 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         linking_parameter="SOURCE_ID",
         valid_data=True,
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
@@ -1120,7 +1138,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         linking_parameter=linking_param,
         valid_data=True,
         verbose=True,
-        dump_to_file=True)
+        dump_to_file=True,
+        overwrite_output_file=True)
 
     path.unlink()
 
