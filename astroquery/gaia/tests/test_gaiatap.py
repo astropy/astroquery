@@ -781,7 +781,7 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
-def test_load_data_vot(mock_datalink_querier):
+def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                   data_structure='INDIVIDUAL',
                                                   retrieval_type="ALL",
