@@ -508,7 +508,7 @@ class ObservationsClass(MastQueryWithLogin):
         uri : str
             The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
         local_path : str
-            Directory in which the files will be downloaded.  Defaults to current working directory.
+            Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         base_url: str
             A base url to use when downloading.  Default is the MAST Portal API
         cache : bool
@@ -532,9 +532,12 @@ class ObservationsClass(MastQueryWithLogin):
         base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = base_url + "?uri=" + uri
 
-        # create a local file path if none is input.  Use current directory as default.
+        # parse a local file path from local_path parameter.  Use current directory as default.
         filename = os.path.basename(uri)
-        local_path = os.path.join(os.path.abspath('.') if not local_path else local_path, filename)
+        if not local_path: # local file path is not defined
+            local_path = os.path.join(os.path.abspath('.'), filename)
+        elif os.path.isdir(local_path): # local file path is directory
+            local_path = os.path.join(local_path, filename) # append filename
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}
