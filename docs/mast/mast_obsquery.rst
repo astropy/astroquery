@@ -373,9 +373,9 @@ curl script that can be used to download the files at a later time.
 Downloading a Single File
 -------------------------
 
-You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file`
-method, and passing in a MAST Data URI.  The default is to download the file the current working directory,
-which can be changed with the ``local_path`` keyword argument.
+You can download a single data product file by using the `~astroquery.mast.ObservationsClass.download_file`
+method and passing in a MAST Data URI.  The default is to download the file to the current working directory, but
+you can specify the download directory or filepath with the ``local_path`` keyword argument.
 
 .. doctest-remote-data::
 
