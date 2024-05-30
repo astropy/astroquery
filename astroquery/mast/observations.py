@@ -533,9 +533,8 @@ class ObservationsClass(MastQueryWithLogin):
         data_url = base_url + "?uri=" + uri
 
         # create a local file path if none is input.  Use current directory as default.
-        if not local_path:
-            filename = os.path.basename(uri)
-            local_path = os.path.join(os.path.abspath('.'), filename)
+        filename = os.path.basename(uri)
+        local_path = os.path.join(os.path.abspath('.') if not local_path else local_path, filename)
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}
