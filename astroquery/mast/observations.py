@@ -534,10 +534,10 @@ class ObservationsClass(MastQueryWithLogin):
 
         # parse a local file path from local_path parameter.  Use current directory as default.
         filename = os.path.basename(uri)
-        if not local_path: # local file path is not defined
+        if not local_path:  # local file path is not defined
             local_path = os.path.join(os.path.abspath('.'), filename)
-        elif os.path.isdir(local_path): # local file path is directory
-            local_path = os.path.join(local_path, filename) # append filename
+        elif os.path.isdir(local_path):  # local file path is directory
+            local_path = os.path.join(local_path, filename)  # append filename
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}
