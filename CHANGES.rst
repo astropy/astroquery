@@ -53,6 +53,11 @@ jplhorizons
 
 - Add missing column definitions, especially for ``refraction=True`` and ``extra_precision=True``. [#2986]
 
+mast
+^^^^
+
+- Fix bug in which the ``local_path`` parameter for the ``mast.observations.download_file`` method does not accept a directory. [#3016]
+
 
 0.4.7 (2024-03-08)
 ==================

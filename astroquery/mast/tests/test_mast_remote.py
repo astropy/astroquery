@@ -394,10 +394,11 @@ class TestMast:
 
         # pull the URI of a single product
         uri = products['dataURI'][0]
-        local_path = Path(tmp_path, Path(uri).name)
+        filename = Path(uri).name
 
-        # download it
-        result = mast.Observations.download_file(uri, local_path=local_path)
+        # download with unspecified local_path parameter
+        # should download to current working directory
+        result = mast.Observations.download_file(uri)
         assert result == ('COMPLETE', None, None)
         assert os.path.exists(Path(os.getcwd(), filename))
         Path.unlink(filename)  # clean up file
