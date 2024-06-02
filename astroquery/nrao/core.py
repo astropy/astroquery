@@ -31,7 +31,6 @@ except ImportError:
 
 from ..exceptions import LoginError
 from ..utils import commons
-from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from . import conf, auth_urls, tap_urls
 from astroquery.exceptions import CorruptDataWarning
@@ -144,8 +143,12 @@ def _gen_sql(payload):
     return sql + where
 
 
-class NraoAuth(BaseVOQuery, BaseQuery):
-    pass
+# class NraoAuth(BaseVOQuery, BaseQuery):
+#     """
+#     TODO: this needs to be implemented
+#     """
+#     pass
+
 
 class NraoClass(BaseQuery):
     TIMEOUT = conf.timeout
@@ -161,7 +164,7 @@ class NraoClass(BaseQuery):
         self._sia_url = None
         self._tap_url = None
         self._datalink_url = None
-        self._auth = NraoAuth()
+        # TODO self._auth = NraoAuth()
 
     @property
     def auth(self):
@@ -235,7 +238,7 @@ class NraoClass(BaseQuery):
     def _get_dataarchive_url(self):
         return tap_urls[0]
 
-    def query_object_async(self, object_name, *, payload=None, **kwargs):
+    def query_object(self, object_name, *, payload=None, **kwargs):
         """
         Query the archive for a source name.
 
@@ -250,9 +253,9 @@ class NraoClass(BaseQuery):
             payload['source_name_resolver'] = object_name
         else:
             payload = {'source_name_resolver': object_name}
-        return self.query_async(payload=payload, **kwargs)
+        return self.query(payload=payload, **kwargs)
 
-    def query_region_async(self, coordinate, radius, *,
+    def query_region(self, coordinate, radius, *,
                            get_query_payload=False,
                            payload=None, **kwargs):
         """
@@ -282,9 +285,9 @@ class NraoClass(BaseQuery):
         if get_query_payload:
             return payload
 
-        return self.query_async(payload=payload, **kwargs)
+        return self.query(payload=payload, **kwargs)
 
-    def query_async(self, payload, *, get_query_payload=False,
+    def query(self, payload, *, get_query_payload=False,
                     maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
@@ -300,12 +303,12 @@ class NraoClass(BaseQuery):
             Flag to indicate whether to simply return the payload.
         maxrec : integer
             Cap on the amount of records returned.  Default is no limit.
+            [ we don't know for sure that this is implemented for NRAO ]
 
         Returns
         -------
 
-        Table with results. Columns are those in the NRAO ObsCore model
-        (see ``help_tap``) unless ``legacy_columns`` argument is set to True.
+        Table with results.
         """
 
         if payload is None:
@@ -316,9 +319,7 @@ class NraoClass(BaseQuery):
                 payload[arg] = '{} {}'.format(payload[arg], value)
             else:
                 payload[arg] = value
-        print(payload)
         query = _gen_sql(payload)
-        print(query)
         if get_query_payload:
             # Return the TAP query payload that goes out to the server rather
             # than the unprocessed payload dict from the python side
@@ -339,8 +340,10 @@ class NraoClass(BaseQuery):
                   apply_flags=True
                  ):
         """
-        Defining this as a private function for now because it's using an
-        unverified API
+        This private function can, under a very limited set of circumstances,
+        be used to retrieve the data download page from the NRAO data handler.
+        Because the data handler is run through a fairly complex, multi-step,
+        private API, we are not yet ready to make this service public.
 
         Parameters
         ----------
@@ -419,8 +422,6 @@ class NraoClass(BaseQuery):
                              )
         presp.raise_for_status()
 
-        # DEBUG print(f"presp.url: {presp.url}")
-        # DEBUG print(f"cookies: {self._session.cookies}")
         resp2 = self._request('GET', presp.url, cache=False)
         resp2.raise_for_status()
 
@@ -428,8 +429,6 @@ class NraoClass(BaseQuery):
             if 'window.location.href=' in row:
                 subrespurl = row.split("'")[1]
 
-        # DEBUG print(f"subrespurl: {subrespurl}")
-        # DEBUG print(f"cookies: {self._session.cookies}")
         nextresp = self._request('GET', subrespurl, cache=False)
         wait_url = nextresp.url
         nextresp.raise_for_status()
