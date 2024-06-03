@@ -30,10 +30,10 @@ def _mock_simbad_class(monkeypatch):
         table = parse_single_table(f).to_table()
     # This should not change too often, to regenerate this file, do:
     # >>> from astroquery.simbad import Simbad
-    # >>> options = Simbad.list_output_options()
+    # >>> options = Simbad.list_votable_fields()
     # >>> options.write("simbad_output_options.xml", format="votable")
     monkeypatch.setattr(simbad.SimbadClass, "hardlimit", 2000000)
-    monkeypatch.setattr(simbad.SimbadClass, "list_output_options", lambda self: table)
+    monkeypatch.setattr(simbad.SimbadClass, "list_votable_fields", lambda self: table)
 
 
 @pytest.fixture()
@@ -50,7 +50,7 @@ def _mock_basic_columns(monkeypatch):
         """Patch a call with basic as an argument only."""
         if table_name == "basic":
             return table
-        # to test in add_output_columns
+        # to test in add_votable_fields
         if table_name == "mesdistance":
             return Table(
                 [["bibcode"]], names=["column_name"]
@@ -146,8 +146,8 @@ def test_init_columns_in_output():
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_mocked_simbad():
     simbad_instance = simbad.Simbad()
-    # this mocks the list_output_options
-    options = simbad_instance.list_output_options()
+    # this mocks the list_votable_fields
+    options = simbad_instance.list_votable_fields()
     assert len(options) > 90
     # this mocks the hardlimit
     assert simbad_instance.hardlimit == 2000000
@@ -158,15 +158,38 @@ def test_mocked_simbad():
 
 
 @pytest.mark.usefixtures("_mock_basic_columns")
-def test_list_output_options(monkeypatch):
+def test_votable_fields_utils(monkeypatch):
     monkeypatch.setattr(simbad.SimbadClass, "query_tap",
                         lambda self, _: Table([["biblio"], ["biblio description"]],
                                               names=["name", "description"],
                                               dtype=["object", "object"]))
-    options = simbad.SimbadClass().list_output_options()
+    options = simbad.SimbadClass().list_votable_fields()
     assert set(options.group_by("type").groups.keys["type"]) == {"table",
                                                                  "column of basic",
                                                                  "bundle of basic columns"}
+
+    description = simbad.SimbadClass().get_field_description("velocity")
+    assert description == 'all fields related with radial velocity and redshift'
+    fields = simbad.SimbadClass().get_votable_fields()
+    expected_fields = [
+        'basic.main_id', 'basic.ra', 'basic.dec', 'basic.coo_err_maj',
+        'basic.coo_err_min', 'basic.coo_err_angle', 'basic.coo_wavelength',
+        'basic.coo_bibcode'
+    ]
+    assert fields == expected_fields
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.usefixtures("_mock_linked_to_basic")
+def test_reset_votable_fields():
+    simbad_instance = simbad.Simbad()
+    # add one
+    simbad_instance.add_votable_fields("otype")
+    assert simbad.Simbad.Column("basic", "otype") in simbad_instance.columns_in_output
+    # reset
+    simbad_instance.reset_votable_fields()
+    assert not simbad.Simbad.Column("basic", "otype") in simbad_instance.columns_in_output
 
 
 @pytest.mark.usefixtures("_mock_basic_columns")
@@ -204,50 +227,58 @@ def test_add_table_to_output(monkeypatch):
 @pytest.mark.usefixtures("_mock_simbad_class")
 @pytest.mark.usefixtures("_mock_basic_columns")
 @pytest.mark.usefixtures("_mock_linked_to_basic")
-def test_add_output_columns():
+def test_add_votable_fields():
     simbad_instance = simbad.Simbad()
     # add columns from basic (one value)
-    simbad_instance.add_output_columns("pmra")
+    simbad_instance.add_votable_fields("pmra")
     assert simbad.SimbadClass.Column("basic", "pmra") in simbad_instance.columns_in_output
     # add two columns from basic
-    simbad_instance.add_output_columns("pmdec", "pm_bibcodE")  # also test case insensitive
+    simbad_instance.add_votable_fields("pmdec", "pm_bibcodE")  # also test case insensitive
     expected = [simbad.SimbadClass.Column("basic", "pmdec"),
                 simbad.SimbadClass.Column("basic", "pm_bibcode")]
     assert all(column in simbad_instance.columns_in_output for column in expected)
     # add a table
     simbad_instance.columns_in_output = []
-    simbad_instance.add_output_columns("basic")
+    simbad_instance.add_votable_fields("basic")
     assert [simbad.SimbadClass.Column("basic", "*")] == simbad_instance.columns_in_output
     # add a bundle
-    simbad_instance.add_output_columns("dimensions")
+    simbad_instance.add_votable_fields("dimensions")
     assert simbad.SimbadClass.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
     # a column which name has changed should raise a warning but still
     # be added under its new name
     simbad_instance.columns_in_output = []
     with pytest.warns(DeprecationWarning, match=r"'id\(1\)' has been renamed 'main_id'. You'll see it "
                       "appearing with its new name in the output table"):
-        simbad_instance.add_output_columns("id(1)")
+        simbad_instance.add_votable_fields("id(1)")
     assert simbad.SimbadClass.Column("basic", "main_id") in simbad_instance.columns_in_output
     # a table which name has changed should raise a warning too
     with pytest.warns(DeprecationWarning, match="'distance' has been renamed 'mesdistance'*"):
-        simbad_instance.add_output_columns("distance")
+        simbad_instance.add_votable_fields("distance")
     # errors are raised for the deprecated fields with options
-    with pytest.raises(ValueError, match="Criteria on filters are deprecated when defining Simbad's output.*"):
-        simbad_instance.add_to_output("fluxdata(V)")
-    with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported.*"):
-        simbad_instance.add_to_output("coo(s)", "dec(d)")
+    simbad_instance = simbad.SimbadClass()
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(X\)\' is deprecated since 0.4.8. *"):
+        simbad_instance.add_votable_fields("flux(u)")
+        assert "u_" in str(simbad_instance.columns_in_output)
+    with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported*"):
+        simbad_instance.add_votable_fields("coo(s)", "dec(d)")
     with pytest.raises(ValueError, match="Catalog Ids are no longer supported as an output option.*"):
-        simbad_instance.add_output_columns("ID(Gaia)")
+        simbad_instance.add_votable_fields("ID(Gaia)")
     with pytest.raises(ValueError, match="Selecting a range of years for bibcode is removed.*"):
-        simbad_instance.add_output_columns("bibcodelist(2042-2050)")
+        simbad_instance.add_votable_fields("bibcodelist(2042-2050)")
     # historical measurements
     with pytest.raises(ValueError, match="'einstein' is no longer a part of SIMBAD.*"):
-        simbad_instance.add_output_columns("einstein")
+        simbad_instance.add_votable_fields("einstein")
     # typos should have suggestions
     with pytest.raises(ValueError, match="'alltype' is not one of the accepted options which can be "
-                       "listed with 'list_output_options'. Did you mean 'alltypes' or 'otype' or 'otypes'?"):
-        simbad_instance.add_output_columns("ALLTYPE")
+                       "listed with 'list_votable_fields'. Did you mean 'alltypes' or 'otype' or 'otypes'?"):
+        simbad_instance.add_votable_fields("ALLTYPE")
     # bundles and tables require a connection to the tap_schema and are thus tested in test_simbad_remote
+
+
+def test_list_wildcards(capsys):
+    simbad.SimbadClass.list_wildcards()
+    wildcards = capsys.readouterr()
+    assert "*: Any string of characters (including an empty one)" in wildcards.out
 
 
 # ------------------------------------------
@@ -277,12 +308,13 @@ def test_query_bibcode_class():
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_objectids():
-    adql = simbad.core.Simbad.query_objectids('Polaris',
-                                              criteria="ident.id LIKE 'HD%'",
-                                              get_adql=True)
-    expected = ("SELECT ident.id FROM ident AS id_typed JOIN ident USING(oidref)"
-                "WHERE id_typed.id = 'Polaris' AND ident.id LIKE 'HD%'")
-    assert adql == expected
+    with pytest.raises(AstropyDeprecationWarning, match='"get_query_payload"*'):
+        adql = simbad.core.Simbad.query_objectids('Polaris',
+                                                  criteria="ident.id LIKE 'HD%'",
+                                                  get_query_payload=True)
+        expected = ("SELECT ident.id FROM ident AS id_typed JOIN ident USING(oidref)"
+                    "WHERE id_typed.id = 'Polaris' AND ident.id LIKE 'HD%'")
+        assert adql == expected
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -392,6 +424,35 @@ def test_query_object():
     end = "AND (otype = 'G..')"
     assert adql.endswith(end)
 
+# ------------------------
+# Tests for query_criteria
+# ------------------------
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_criteria():
+    with pytest.warns(AstropyDeprecationWarning, match="'query_criteria' is deprecated*"):
+        # with a region and otype criteria
+        adql = simbad.core.Simbad.query_criteria("region(box, ICRS, 49.89 -0.3, 0.5d 0.5d)",
+                                                 otype='HII', get_adql=True)
+        expected = ("SELECT basic.\"main_id\", basic.\"ra\", basic.\"dec\", "
+                    "basic.\"coo_err_maj\", basic.\"coo_err_min\", "
+                    "basic.\"coo_err_angle\", basic.\"coo_wavelength\", "
+                    "basic.\"coo_bibcode\" FROM basic JOIN otypes ON basic.\"oid\" = "
+                    "otypes.\"oidref\" WHERE (CONTAINS(POINT('ICRS', ra, dec), "
+                    "BOX('ICRS', 49.89, -0.3, 0.5, 0.5)) = 1 "
+                    "AND otypes.otype = 'HII')")
+        assert adql == expected
+        # with a flux criteria
+        adql = simbad.core.Simbad.query_criteria("Umag < 9", get_adql=True)
+        expected = (
+            'SELECT basic."main_id", basic."ra", basic."dec", basic."coo_err_maj", '
+            'basic."coo_err_min", basic."coo_err_angle", basic."coo_wavelength", '
+            'basic."coo_bibcode" FROM basic JOIN allfluxes ON basic."oid" = '
+            'allfluxes."oidref" WHERE (allfluxes.U < 9)'
+        )
+        assert adql == expected
+
 # -------------------------
 # Test query_tap exceptions
 # -------------------------
@@ -486,6 +547,7 @@ def test_construct_query():
                                           ["ra < 6", "ra > 5"], get_adql=True) == expected
 
 
+@pytest.mark.filterwarnings("ignore:\"get_query_payload\" and \"get_adql\" keywords were set*")
 @pytest.mark.usefixtures("_mock_simbad_class")
 @pytest.mark.parametrize(
     ("query_method", "args", "deprecated_kwargs"),
@@ -494,7 +556,7 @@ def test_construct_query():
         (simbad.Simbad.query_bibcode, ["1992AJ....103..983B"], {"verbose", "get_query_payload", "cache"}),
         (simbad.Simbad.query_bibobj, ["1992AJ....103..983B"], {"verbose", "get_query_payload"}),
         (simbad.Simbad.query_catalog, ["M"], {"verbose", "get_query_payload", "cache"}),
-        (simbad.Simbad.query_region, ["M1", "2d"], {"get_query_payload", "equinox", "epoch", "cache"}),
+        (simbad.Simbad.query_region, [ICRS_COORDS, "2d"], {"get_query_payload", "equinox", "epoch", "cache"}),
         (simbad.Simbad.query_objects, [["M1", "M2"]], {"verbose", "get_query_payload"}),
         (simbad.Simbad.query_object, ["M1"], {"verbose", "get_query_payload"}),
     ]

@@ -10,11 +10,11 @@ Votable fields and Output options
 
 Votable fields are deprecated in favor of output options. Most of the former votable
 fields can now be added to the output of Simbad queries with
-`~astroquery.simbad.SimbadClass.add_output_columns`. The full list of options is available
-with the `~astroquery.simbad.SimbadClass.list_output_options` method.
+`~astroquery.simbad.SimbadClass.add_votable_fields`. The full list of options is available
+with the `~astroquery.simbad.SimbadClass.list_votable_fields` method.
 
 Some columns and tables have a new name under the TAP interface. The old name will be
-recognized by `~astroquery.simbad.SimbadClass.add_output_columns`, but only the new name will
+recognized by `~astroquery.simbad.SimbadClass.add_votable_fields`, but only the new name will
 appear in the output.
 
 A few ``votable_fields`` had options in parenthesis. This is no longer supported and can
@@ -89,8 +89,8 @@ that will work as ``criteria`` in the other query methods cited above:
 .. code-block:: python
 
     >>> from astroquery.simbad.utils import CriteriaTranslator
-    >>> CriteriaTranslator.parse("region(box, GAL, 0 +0, 3d 1d) & otype='SNR'")
-    "CONTAINS(POINT('ICRS', ra, dec), BOX('ICRS', 266.4049882865447, -28.936177761791473, 3.0, 1.0)) = 1  AND otype = 'SNR'"
+    >>> CriteriaTranslator.parse("region(box, ICRS, 0 +0, 3d 1d) & otype='SNR'")
+    "CONTAINS(POINT('ICRS', ra, dec), BOX('ICRS', 0.0, 0.0, 3.0, 1.0)) = 1 AND otypes.otype = 'SNR'"
 
 This string can now be incorporated in any of the query methods that accept a ``criteria`` argument.
 
@@ -104,10 +104,10 @@ See a more elaborated example:
     >>> from astroquery.simbad import Simbad
     >>> from astroquery.simbad.utils import CriteriaTranslator
     >>> # not a galaxy, and not a globular cluster
-    >>> old_criteria = "otype != 'Galaxy..' & otype != 'Cl*..'"
+    >>> old_criteria = "maintype != 'Galaxy..' & maintype != 'Cl*..'"
     >>> simbad = Simbad()
     >>> # we add the main type and all the types that have historically been attributed to the object
-    >>> simbad.add_output_columns("otype", "alltypes")
+    >>> simbad.add_votable_fields("otype", "alltypes")
     >>> result = simbad.query_catalog("M", criteria=CriteriaTranslator.parse(old_criteria))
     >>> result.sort("catalog_id")
     >>> result[["main_id", "catalog_id", "otype", "otypes"]]
@@ -252,7 +252,7 @@ The important information is in the column ``filtername``.
 You can now use this filter name in a criteria string. For example, to get
 fluxes for a specific object, one can use `~astroquery.simbad.SimbadClass.query_object`
 as a first base (it selects a single object by its name), add different fields to
-the output with `~astroquery.simbad.SimbadClass.add_output_columns` (here ``flux`` adds all
+the output with `~astroquery.simbad.SimbadClass.add_votable_fields` (here ``flux`` adds all
 columns about fluxes) and then select only the interesting filters with a ``criteria``
 argument:
 
@@ -263,7 +263,7 @@ argument:
 
     >>> from astroquery.simbad import Simbad
     >>> simbad = Simbad()
-    >>> simbad.add_output_columns("flux")
+    >>> simbad.add_votable_fields("flux")
     >>> result = simbad.query_object("BD-16  5701", criteria="filter IN ('U', 'B', 'G')")
     >>> result[["main_id", "flux", "flux_err", "filter", "bibcode"]]
     <Table length=2>

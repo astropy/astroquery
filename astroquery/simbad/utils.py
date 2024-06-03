@@ -1,11 +1,17 @@
 """Contains utility functions to support legacy Simbad interface."""
 
 from collections import deque
+import json
+from pathlib import Path
 import re
 
 from astropy.coordinates import SkyCoord, Angle
 from astropy.utils.parsing import lex, yacc
 from astropy.utils import classproperty
+from astropy.utils.data import get_pkg_data_filename
+
+with open(get_pkg_data_filename(str(Path("data") / "query_criteria_fields.json"))) as f:
+    query_criteria_fields = json.load(f)
 
 
 def _catch_deprecated_fields_with_arguments(votable_field):
@@ -21,50 +27,20 @@ def _catch_deprecated_fields_with_arguments(votable_field):
     votable_field : str
         one of the former votable fields (see `~astroquery.simbad.SimbadClass.list_votable_fields`)
     """
-    if re.match(r"^flux.*\(.+\)$", votable_field):
-        raise ValueError("Criteria on filters are deprecated when defining Simbad's output. "
-                         "See section on filters in "
-                         "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html")
     if re.match(r"^(ra|dec|coo)\(.+\)$", votable_field):
-        raise ValueError("Coordinates conversion and formatting is no longer supported. This "
-                         "can be done with the `~astropy.coordinates` module."
+        raise ValueError("Coordinates conversion and formatting is no longer supported within the "
+                         "SIMBAD module. This can be done with the `~astropy.coordinates` module."
                          "Coordinates are now per default in degrees and in the ICRS frame.")
     if votable_field.startswith("id("):
         raise ValueError("Catalog Ids are no longer supported as an output option. "
-                         "A good replacement can be `~astroquery.simbad.SimbadClass.query_cat`. "
-                         "See section on catalogs in "
-                         "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html")
+                         "A good replacement can be `~astroquery.simbad.SimbadClass.query_cat`")
     if votable_field.startswith("bibcodelist("):
         raise ValueError("Selecting a range of years for bibcode is removed. You can still use "
-                         "bibcodelist without parenthesis and get the full list of bibliographic references. "
-                         "See https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html for "
-                         "more details.")
+                         "bibcodelist without parenthesis and get the full list of bibliographic references.")
 
 # ----------------------------
-# To support wildcard argument
+# Support wildcard argument
 # ----------------------------
-
-
-def list_wildcards():
-    """
-    Displays the available wildcards that may be used in SIMBAD queries and
-    their usage.
-
-    Examples
-    --------
-    >>> from astroquery.simbad.utils import list_wildcards
-    >>> list_wildcards()
-    *: Any string of characters (including an empty one)
-    ?: Any character (exactly one character)
-    [abc]: Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
-    [^0-9]: Any (one) character not in the list.
-    """
-    WILDCARDS = {'*': 'Any string of characters (including an empty one)',
-                 '?': 'Any character (exactly one character)',
-                 '[abc]': ('Exactly one character taken in the list. '
-                           'Can also be defined by a range of characters: [A-Z]'),
-                 '[^0-9]': 'Any (one) character not in the list.'}
-    print("\n".join(f"{k}: {v}" for k, v in WILDCARDS.items()))
 
 
 def _wildcard_to_regexp(wildcard_string):
@@ -108,6 +84,10 @@ def _wildcard_to_regexp(wildcard_string):
     wildcard_string = wildcard_string.replace("?", ".")
     # start and end of string + whitespace means any number of whitespaces
     return f"^{wildcard_string.replace(' ', ' +')}$"
+
+# ----------------------------------------
+# Support legacy sim-script query language
+# ----------------------------------------
 
 
 def _region_to_contains(region_string):
@@ -201,6 +181,41 @@ def _parse_coordinate_and_convert_to_icrs(string_coordinate, *,
     return center.transform_to("icrs")
 
 
+def _convert_column(column, operator=None, value=None):
+    """Convert columns from the sim-script language into ADQL.
+
+    This checks the criteria names for fields that changed names between
+    sim-script and SIMBAD TAP (the old and new SIMBAD APIs). There are two exceptions
+    for magnitudes and fluxes where in sim-script the argument that was used in the criteria
+    was different from the name that wes used in votable_field (ex: flux(V) to add the
+    column and Vmag to add in a criteria).
+    """
+    # handle the change of syntax on otypes manually because they are difficult to automatize
+    if column == "maintype":
+        column = "basic.otype"
+    elif column == "otype":
+        column = "otypes.otype"
+    elif column == "maintypes":
+        column = "basic.otype"
+        value = f"{value[:-1]}..'"
+    elif column == "otypes":
+        column = "otypes.otype"
+        value = f"{value[:-1]}..'"
+    # magnitudes are also an exception
+    elif "mag" in column:
+        column = column.replace("mag", "")
+        if len(column) == 1 and column.islower():
+            column = column + "_"
+        column = "allfluxes." + column
+    # the other cases are a simple replacement by the new name
+    elif column in query_criteria_fields:
+        if query_criteria_fields[column]["type"] == "alias":
+            column = query_criteria_fields[column]["tap_column"]
+    if operator and value:
+        return column + " " + operator + " " + value
+    return column
+
+
 class CriteriaTranslator:
 
     _tokens = [
@@ -245,7 +260,7 @@ class CriteriaTranslator:
             return t
 
         def t_LIKE(t):
-            r"~|∼"  # the examples in SIMBAD documentation use the strange long ∼
+            r"~|∼"  # the examples in SIMBAD documentation use this glyph '∼'
             t.value = "LIKE"
             return t
 
@@ -264,7 +279,7 @@ class CriteriaTranslator:
             return t
 
         def t_COLUMN(t):
-            r'[a-zA-Z_][a-zA-Z_0-9]*'
+            r'[a-zA-Z_*][a-zA-Z_0-9*]*'
             return t
 
         t_ignore = ", \t\n"  # noqa: F841
@@ -296,27 +311,31 @@ class CriteriaTranslator:
         def p_criteria_string(p):
             """criteria : COLUMN BINARY_OPERATOR STRING
                         | COLUMN BINARY_OPERATOR NUMBER
+                        | COLUMN IN LIST
             """
-            p[0] = p[1] + " " + p[2] + " " + p[3]
+            p[0] = _convert_column(p[1], p[2], p[3])
+
+        def p_criteria_string_no_ticks(p):
+            """criteria : COLUMN BINARY_OPERATOR COLUMN
+            """
+            # sim-script also tolerates omitting the '' at the right side of operators
+            p[0] = _convert_column(p[1], p[2], f"'{p[3]}'")
 
         def p_criteria_like(p):
             """criteria : COLUMN LIKE STRING"""
-            p[0] = "regexp(" + p[1] + ", '" + _wildcard_to_regexp(p[3][1:-1]) + "') = 1"
+            p[0] = "regexp(" + _convert_column(p[1]) + ", '" + _wildcard_to_regexp(p[3][1:-1]) + "') = 1"
 
         def p_criteria_notlike(p):
             """criteria : COLUMN NOTLIKE STRING"""
-            p[0] = "regexp(" + p[1] + ", '" + _wildcard_to_regexp(p[3][1:-1]) + "') = 0"
-
-        def p_criteria_in(p):
-            """criteria : COLUMN IN LIST"""
-            p[0] = p[1] + " IN " + p[3]
+            p[0] = "regexp(" + _convert_column(p[1]) + ", '" + _wildcard_to_regexp(p[3][1:-1]) + "') = 0"
 
         def p_criteria_region(p):
             """criteria : REGION"""
             p[0] = _region_to_contains(p[1])
 
         def p_error(p):
-            raise ValueError("Syntax error for sim-script criteria")
+            raise ValueError(f"Syntax error for sim-script criteria at line {p.lineno}"
+                             f" character {p.lexpos - 1}")
 
         return yacc(tabmodule="criteria_parsetab", package="astroquery/simbad")
 

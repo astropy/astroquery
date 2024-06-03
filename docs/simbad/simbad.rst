@@ -113,8 +113,8 @@ To see the available wildcards and their meaning:
 
 .. code-block:: python
 
-    >>> from astroquery.simbad.utils import list_wildcards
-    >>> list_wildcards()
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad().list_wildcards()
     *: Any string of characters (including an empty one)
     ?: Any character (exactly one character)
     [abc]: Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
@@ -221,7 +221,7 @@ If the center is defined by coordinates, then the best solution is to use a
     >>> import astropy.units as u
     >>> Simbad.query_region(SkyCoord(ra=[10, 11], dec=[10, 11],
     ...                     unit=(u.deg, u.deg), frame='fk5'),
-    ...                     radius=[0.1 * u.deg, 2* u.arcmin])
+    ...                     radius=[0.1 * u.deg, 2* u.arcmin])   # doctest: +IGNORE_OUTPUT
     <Table length=6>
             main_id                  ra         ...     coo_bibcode    
                                     deg         ...                    
@@ -449,13 +449,13 @@ For these methods, the default columns in the output are:
         SimbadClass.Column(table='basic', name='main_id', alias=None)
 
 This can be permanently changed in astroquery's configuration files. To do this within 
-a session or for a single query, use `~astroquery.simbad.SimbadClass.add_output_columns`:
+a session or for a single query, use `~astroquery.simbad.SimbadClass.add_votable_fields`:
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> simbad = Simbad()
-    >>> simbad.add_output_columns("otype")  # here we add a single column about the main object type
+    >>> simbad.add_votable_fields("otype")  # here we add a single column about the main object type
 
 Some options add a single column and others add  a bunch of columns that are relevant
 for a theme (ex: fluxes, proper motions...). The list of possible options is printed
@@ -464,32 +464,31 @@ with:
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.list_output_options()[["name", "description"]]
+    >>> Simbad.list_votable_fields()[["name", "description"]]
     <Table length=98>
-          name                             description                        
-         object                               object                          
-    --------------- ----------------------------------------------------------
-        mesDiameter                           Collection of stellar diameters.
-              mesPM                              Collection of proper motions.
-             mesISO            Infrared Space Observatory (ISO) observing log.
-             mesSpT                              Collection of spectral types.
-          allfluxes           all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
-              ident                      Identifiers of an astronomical object
-               flux    Magnitude/Flux information about an astronomical object
-             mesPLX                    Collection of trigonometric parallaxes.
-           otypedef             all names and definitions for the object types
-        mesDistance Collection of distances (pc, kpc or Mpc) by several means.
-                ...                                                        ...
-           vlsr_min             Minimum for the mean value of the LSR velocity
-    vlsr_wavelength        Wavelength class for the origin of the LSR velocity
-        coordinates                        all fields related with coordinates
-                dim                major and minor axis, angle and inclination
-         dimensions                    all fields related to object dimensions
-          morphtype               all fields related to the morphological type
-           parallax                           all fields related to parallaxes
-      propermotions                 all fields related with the proper motions
-                 sp                  all fields related with the spectral type
-           velocity       all fields related with radial velocity and redshift
+          name                            description                      
+         object                              object                        
+    --------------- -------------------------------------------------------
+        mesDiameter                        Collection of stellar diameters.
+              mesPM                           Collection of proper motions.
+             mesISO         Infrared Space Observatory (ISO) observing log.
+             mesSpT                           Collection of spectral types.
+          allfluxes        all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
+              ident                   Identifiers of an astronomical object
+               flux Magnitude/Flux information about an astronomical object
+             mesPLX                 Collection of trigonometric parallaxes.
+           otypedef          all names and definitions for the object types
+                ...                                                     ...
+           vlsr_min          Minimum for the mean value of the LSR velocity
+    vlsr_wavelength     Wavelength class for the origin of the LSR velocity
+        coordinates                     all fields related with coordinates
+                dim             major and minor axis, angle and inclination
+         dimensions                 all fields related to object dimensions
+          morphtype            all fields related to the morphological type
+           parallax                        all fields related to parallaxes
+      propermotions              all fields related with the proper motions
+                 sp               all fields related with the spectral type
+           velocity    all fields related with radial velocity and redshift
 
 Additional criteria
 -------------------
@@ -524,7 +523,7 @@ This allows to inspect the columns the method would return:
     >>> simbad = Simbad()
     >>> simbad.ROW_LIMIT = 0  # get no lines, just the table structure
     >>> # add the table about proper motion measurements, and the object type column
-    >>> simbad.add_output_columns("mesPM", "otype")
+    >>> simbad.add_votable_fields("mesPM", "otype")
     >>> peek = simbad.query_object("BD+30  2512") # a query on an object
     >>> peek.info
     <Table length=0>
@@ -564,7 +563,7 @@ constraint on the first character of the ``mespm.bibcode`` column
     >>> from astroquery.simbad import Simbad
     >>> criteria = "mespm.bibcode LIKE '2%'" # starts with 2, anything after
     >>> simbad = Simbad()
-    >>> simbad.add_output_columns("mesPM", "otype")
+    >>> simbad.add_votable_fields("mesPM", "otype")
     >>> pm_measurements = simbad.query_object("BD+30  2512", criteria=criteria)
     >>> pm_measurements[["main_id", "mespm.pmra", "mespm.pmde", "mespm.bibcode"]]
     <Table length=6>

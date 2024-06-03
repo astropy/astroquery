@@ -15,7 +15,7 @@ _lextokens    = set(('BINARY_OPERATOR', 'COLUMN', 'IN', 'LIKE', 'LIST', 'NOTLIKE
 _lexreflags   = 34
 _lexliterals  = '&\\|\\(\\)'
 _lexstateinfo = {'INITIAL': 'inclusive'}
-_lexstatere   = {'INITIAL': [("(?P<t_IN>in\\b)|(?P<t_LIST>\\( *'[^\\)]*\\))|(?P<t_BINARY_OPERATOR>>=|<=|!=|>|<|=)|(?P<t_LIKE>~|∼)|(?P<t_NOTLIKE>!~|!∼)|(?P<t_STRING>'[^']*')|(?P<t_REGION>region\\([^\\)]*\\))|(?P<t_COLUMN>[a-zA-Z_][a-zA-Z_0-9]*)|(?P<t_NUMBER>\\d*\\.?\\d+)", [None, ('t_IN', 'IN'), ('t_LIST', 'LIST'), ('t_BINARY_OPERATOR', 'BINARY_OPERATOR'), ('t_LIKE', 'LIKE'), ('t_NOTLIKE', 'NOTLIKE'), ('t_STRING', 'STRING'), ('t_REGION', 'REGION'), ('t_COLUMN', 'COLUMN'), (None, 'NUMBER')])]}
+_lexstatere   = {'INITIAL': [("(?P<t_IN>in\\b)|(?P<t_LIST>\\( *'[^\\)]*\\))|(?P<t_BINARY_OPERATOR>>=|<=|!=|>|<|=)|(?P<t_LIKE>~|∼)|(?P<t_NOTLIKE>!~|!∼)|(?P<t_STRING>'[^']*')|(?P<t_REGION>region\\([^\\)]*\\))|(?P<t_COLUMN>[a-zA-Z_*][a-zA-Z_0-9*]*)|(?P<t_NUMBER>\\d*\\.?\\d+)", [None, ('t_IN', 'IN'), ('t_LIST', 'LIST'), ('t_BINARY_OPERATOR', 'BINARY_OPERATOR'), ('t_LIKE', 'LIKE'), ('t_NOTLIKE', 'NOTLIKE'), ('t_STRING', 'STRING'), ('t_REGION', 'REGION'), ('t_COLUMN', 'COLUMN'), (None, 'NUMBER')])]}
 _lexstateignore = {'INITIAL': ', \t\n'}
 _lexstateerrorf = {'INITIAL': 't_error'}
 _lexstateeoff = {}

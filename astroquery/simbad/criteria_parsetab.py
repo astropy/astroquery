@@ -17,9 +17,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = "BINARY_OPERATOR COLUMN IN LIKE LIST NOTLIKE NUMBER REGION STRINGcriteria : criteria '|' criteriacriteria : criteria '&' criteriacriteria : '(' criteria ')'criteria : COLUMN BINARY_OPERATOR STRING\n                        | COLUMN BINARY_OPERATOR NUMBER\n            criteria : COLUMN LIKE STRINGcriteria : COLUMN NOTLIKE STRINGcriteria : COLUMN IN LISTcriteria : REGION"
+_lr_signature = "BINARY_OPERATOR COLUMN IN LIKE LIST NOTLIKE NUMBER REGION STRINGcriteria : criteria '|' criteriacriteria : criteria '&' criteriacriteria : '(' criteria ')'criteria : COLUMN BINARY_OPERATOR STRING\n                        | COLUMN BINARY_OPERATOR NUMBER\n                        | COLUMN IN LIST\n            criteria : COLUMN BINARY_OPERATOR COLUMN\n            criteria : COLUMN LIKE STRINGcriteria : COLUMN NOTLIKE STRINGcriteria : REGION"
     
-_lr_action_items = {'(':([0,2,5,6,],[2,2,2,2,]),'COLUMN':([0,2,5,6,],[3,3,3,3,]),'REGION':([0,2,5,6,],[4,4,4,4,]),'$end':([1,4,12,13,14,15,16,17,18,19,],[0,-9,-1,-2,-3,-4,-5,-6,-7,-8,]),'|':([1,4,7,12,13,14,15,16,17,18,19,],[5,-9,5,5,5,-3,-4,-5,-6,-7,-8,]),'&':([1,4,7,12,13,14,15,16,17,18,19,],[6,-9,6,6,6,-3,-4,-5,-6,-7,-8,]),'BINARY_OPERATOR':([3,],[8,]),'LIKE':([3,],[9,]),'NOTLIKE':([3,],[10,]),'IN':([3,],[11,]),')':([4,7,12,13,14,15,16,17,18,19,],[-9,14,-1,-2,-3,-4,-5,-6,-7,-8,]),'STRING':([8,9,10,],[15,17,18,]),'NUMBER':([8,],[16,]),'LIST':([11,],[19,]),}
+_lr_action_items = {'(':([0,2,5,6,],[2,2,2,2,]),'COLUMN':([0,2,5,6,8,],[3,3,3,3,15,]),'REGION':([0,2,5,6,],[4,4,4,4,]),'$end':([1,4,12,13,14,15,16,17,18,19,20,],[0,-10,-1,-2,-3,-7,-4,-5,-6,-8,-9,]),'|':([1,4,7,12,13,14,15,16,17,18,19,20,],[5,-10,5,5,5,-3,-7,-4,-5,-6,-8,-9,]),'&':([1,4,7,12,13,14,15,16,17,18,19,20,],[6,-10,6,6,6,-3,-7,-4,-5,-6,-8,-9,]),'BINARY_OPERATOR':([3,],[8,]),'IN':([3,],[9,]),'LIKE':([3,],[10,]),'NOTLIKE':([3,],[11,]),')':([4,7,12,13,14,15,16,17,18,19,20,],[-10,14,-1,-2,-3,-7,-4,-5,-6,-8,-9,]),'STRING':([8,10,11,],[16,19,20,]),'NUMBER':([8,],[17,]),'LIST':([9,],[18,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -38,13 +38,14 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> criteria","S'",1,None,None,None),
-  ('criteria -> criteria | criteria','criteria',3,'p_criteria_OR','utils.py',374),
-  ('criteria -> criteria & criteria','criteria',3,'p_criteria_AND','utils.py',378),
-  ('criteria -> ( criteria )','criteria',3,'p_criteria_parenthesis','utils.py',382),
-  ('criteria -> COLUMN BINARY_OPERATOR STRING','criteria',3,'p_criteria_string','utils.py',386),
-  ('criteria -> COLUMN BINARY_OPERATOR NUMBER','criteria',3,'p_criteria_string','utils.py',387),
-  ('criteria -> COLUMN LIKE STRING','criteria',3,'p_criteria_like','utils.py',392),
-  ('criteria -> COLUMN NOTLIKE STRING','criteria',3,'p_criteria_notlike','utils.py',396),
-  ('criteria -> COLUMN IN LIST','criteria',3,'p_criteria_in','utils.py',400),
-  ('criteria -> REGION','criteria',1,'p_criteria_region','utils.py',404),
+  ('criteria -> criteria | criteria','criteria',3,'p_criteria_OR','utils.py',298),
+  ('criteria -> criteria & criteria','criteria',3,'p_criteria_AND','utils.py',302),
+  ('criteria -> ( criteria )','criteria',3,'p_criteria_parenthesis','utils.py',306),
+  ('criteria -> COLUMN BINARY_OPERATOR STRING','criteria',3,'p_criteria_string','utils.py',310),
+  ('criteria -> COLUMN BINARY_OPERATOR NUMBER','criteria',3,'p_criteria_string','utils.py',311),
+  ('criteria -> COLUMN IN LIST','criteria',3,'p_criteria_string','utils.py',312),
+  ('criteria -> COLUMN BINARY_OPERATOR COLUMN','criteria',3,'p_criteria_string_no_ticks','utils.py',317),
+  ('criteria -> COLUMN LIKE STRING','criteria',3,'p_criteria_like','utils.py',323),
+  ('criteria -> COLUMN NOTLIKE STRING','criteria',3,'p_criteria_notlike','utils.py',327),
+  ('criteria -> REGION','criteria',1,'p_criteria_region','utils.py',331),
 ]

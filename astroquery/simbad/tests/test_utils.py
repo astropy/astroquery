@@ -2,7 +2,7 @@
 import pytest
 
 from astroquery.simbad.utils import (CriteriaTranslator, _parse_coordinate_and_convert_to_icrs,
-                                     _region_to_contains, list_wildcards, _wildcard_to_regexp)
+                                     _region_to_contains, _wildcard_to_regexp)
 
 from astropy.coordinates.builtin_frames.icrs import ICRS
 from astropy.coordinates import SkyCoord
@@ -16,12 +16,6 @@ from astropy.coordinates import SkyCoord
 def test_parse_coordinates_and_convert_to_icrs(coord_string, frame, epoch, equinox):
     coord = _parse_coordinate_and_convert_to_icrs(coord_string, frame=frame, equinox=equinox, epoch=epoch)
     assert isinstance(coord.frame, ICRS)
-
-
-def test_list_wildcards(capsys):
-    list_wildcards()
-    wildcards = capsys.readouterr()
-    assert "*: Any string of characters (including an empty one)" in wildcards.out
 
 
 def test_wildcard_to_regexp():
@@ -90,14 +84,21 @@ def test_tokenizer():
 @pytest.mark.parametrize("test, result", [
     ("region(GAL,180 0,2d) & otype = 'G' & (nbref >= 10|bibyear >= 2000)",
      ("CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 86.40498828654475, 28.93617776179148, 2.0)) = 1"
-      " AND otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)")),
-    ("otype != 'Galaxy..'", "otype != 'Galaxy..'"),
+      " AND otypes.otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)")),
     ("author ∼ 'egret*'", "regexp(author, '^egret.*$') = 1"),
     ("cat in ('hd','hip','ppm')", "cat IN ('hd','hip','ppm')"),
-    ("author !~ 'test'", "regexp(author, '^test$') = 0")
+    ("author !~ 'test'", "regexp(author, '^test$') = 0"),
+    ("sptype < F4", "sp_type < 'F4'"),
+    ("umag < 1", "allfluxes.u_ < 1"),
+    ("Vmag = 10", "allfluxes.V = 10"),
+    ("otypes != 'Galaxy'", "otypes.otype != 'Galaxy..'"),
+    ("maintype=SNR", "basic.otype = 'SNR'"),
+    ("maintypes=SNR", "basic.otype = 'SNR..'")
 ])  # these are the examples from http://simbad.cds.unistra.fr/guide/sim-fsam.htx
+# plus added examples
 def test_transpiler(test, result):
-    # to regenerate transpiler after a change in utils.py, delete `criteria_parsetab.py` and run this test file again.
+    # to regenerate transpiler after a change in utils.py, delete `criteria_parsetab.py`
+    # and run this test file again.
     translated = CriteriaTranslator.parse(test)
     assert translated == result
 

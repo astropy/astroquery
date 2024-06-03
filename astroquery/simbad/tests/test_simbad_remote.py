@@ -3,11 +3,11 @@ import pytest
 
 from astropy.coordinates import SkyCoord
 import astropy.units as u
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.table import Table
 
 from astroquery.simbad import Simbad
 from astroquery.simbad.core import _cached_query_tap
-from astroquery.exceptions import BlankResponseWarning
 
 from pyvo.dal.exceptions import DALOverflowWarning
 
@@ -40,7 +40,7 @@ class TestSimbad:
 
     def test_query_bibobj(self):
         self.simbad.ROW_LIMIT = 5
-        self.simbad.add_output_columns("otype")
+        self.simbad.add_votable_fields("otype")
         bibcode = '2005A&A...430..165F'
         result = self.simbad.query_bibobj(bibcode, criteria="otype='*..'")
         assert all((bibcode == code) for code in result["bibcode"].data.data)
@@ -82,7 +82,7 @@ class TestSimbad:
     def test_simbad_flux_qual(self):
         '''Regression test for issue 680'''
         simbad_instance = Simbad()
-        simbad_instance.add_output_columns("flux")
+        simbad_instance.add_votable_fields("flux")
         response = simbad_instance.query_object('algol', criteria="filter='V'")
         # this is bugged, it should be "flux.qual", see https://github.com/gmantele/vollt/issues/154
         # when the issue upstream in vollt (the TAP software used in SIMBAD) is fixed we can rewrite this test
@@ -94,6 +94,14 @@ class TestSimbad:
         self.simbad.ROW_LIMIT = 5
         result = self.simbad.query_object("NGC [0-9]*", wildcard=True)
         assert all(matched_id.startswith("NGC") for matched_id in result["matched_id"].data.data)
+
+    def test_query_criteria(self):
+        simbad_instance = Simbad()
+        simbad_instance.add_votable_fields("otype")
+        with pytest.warns(AstropyDeprecationWarning, match="'query_criteria' is deprecated*"):
+            result = simbad_instance.query_criteria("region(Galactic Center, 10s)", maintype="X")
+            assert all(result["otype"].data.data == "X")
+            assert len(result) >= 16  # there could be more measurements, there are 16 sources in 2024
 
     def test_query_tap(self):
         # a robust query about something that should not change in Simbad
@@ -148,7 +156,7 @@ class TestSimbad:
         # empty before the test
         simbad_instance.columns_in_output = []
         # add a bundle
-        simbad_instance.add_output_columns("dim")
+        simbad_instance.add_votable_fields("dim")
         # check the length
         assert len(simbad_instance.columns_in_output) == 8
         assert Simbad.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
@@ -157,7 +165,7 @@ class TestSimbad:
         simbad_instance = Simbad()
         # empty before the test
         simbad_instance.columns_in_output = []
-        simbad_instance.add_output_columns("otypes")
+        simbad_instance.add_votable_fields("otypes")
         assert Simbad.Column("otypes", "otype", '"otypes.otype"') in simbad_instance.columns_in_output
         # tables also require a join
         assert Simbad.Join("otypes",
@@ -165,9 +173,9 @@ class TestSimbad:
                            Simbad.Column("otypes", "oidref")) == simbad_instance.joins[0]
         # tables that have been renamed should warn
         with pytest.warns(DeprecationWarning, match="'iue' has been renamed 'mesiue'.*"):
-            simbad_instance.add_output_columns("IUE")
+            simbad_instance.add_votable_fields("IUE")
         # empty before the test
         simbad_instance.columns_in_output = []
         # mixed columns bundles and tables
-        simbad_instance.add_output_columns("flux", "velocity", "update_date")
+        simbad_instance.add_votable_fields("flux", "velocity", "update_date")
         assert len(simbad_instance.columns_in_output) == 19

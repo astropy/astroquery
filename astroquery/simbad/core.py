@@ -6,32 +6,28 @@ from dataclasses import dataclass, field
 from difflib import get_close_matches
 from functools import lru_cache
 import gc
-import json
+import re
 from typing import Any
-from pathlib import Path
 import warnings
 
 import astropy.coordinates as coord
 from astropy.table import Table, Column, vstack
 import astropy.units as u
-from astropy.utils import isiterable
-from astropy.utils.data import get_pkg_data_filename
+from astropy.utils import isiterable, deprecated
 from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.query import BaseVOQuery
-from astroquery.utils import commons, async_to_sync
+from astroquery.utils import commons
 from astroquery.exceptions import LargeQueryWarning
 from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
-                                     _wildcard_to_regexp)
+                                     _wildcard_to_regexp, CriteriaTranslator,
+                                     query_criteria_fields)
 
 from pyvo.dal import TAPService
 from . import conf
 
 
 __all__ = ['Simbad', 'SimbadClass']
-
-with open(get_pkg_data_filename(str(Path("data") / "query_criteria_fields.json"))) as f:
-    query_criteria_fields = json.load(f)
 
 
 def _adql_parameter(entry: str):
@@ -79,7 +75,6 @@ def _cached_query_tap(tap, query: str, *, maxrec=10000):
     return tap.search(query, maxrec=maxrec).to_table()
 
 
-@async_to_sync
 class SimbadClass(BaseVOQuery):
     """The class for querying the SIMBAD web service.
 
@@ -170,7 +165,16 @@ class SimbadClass(BaseVOQuery):
 
     @property
     def columns_in_output(self):
-        """A list of Simbad.Column."""
+        """A list of Simbad.Column.
+
+        They will be included in the output of the following methods:
+        - `~astroquery.simbad.SimbadClass.query_object`,
+        - `~astroquery.simbad.SimbadClass.query_objects`,
+        - `~astroquery.simbad.SimbadClass.query_region`,
+        - `~astroquery.simbad.SimbadClass.query_catalog`,
+        - `~astroquery.simbad.SimbadClass.query_bibobj`,
+        - `~astroquery.simbad.SimbadClass.query_criteria`.
+        """
         if self._columns_in_output is None:
             self._columns_in_output = [Simbad.Column("basic", item)
                                        for item in conf.default_columns]
@@ -180,11 +184,33 @@ class SimbadClass(BaseVOQuery):
     def columns_in_output(self, list_columns):
         self._columns_in_output = list_columns
 
+    @staticmethod
+    def list_wildcards():
+        """
+        Displays the available wildcards that may be used in SIMBAD queries and
+        their usage.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.list_wildcards()
+        *: Any string of characters (including an empty one)
+        ?: Any character (exactly one character)
+        [abc]: Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
+        [^0-9]: Any (one) character not in the list.
+        """
+        WILDCARDS = {'*': 'Any string of characters (including an empty one)',
+                     '?': 'Any character (exactly one character)',
+                     '[abc]': ('Exactly one character taken in the list. '
+                               'Can also be defined by a range of characters: [A-Z]'),
+                     '[^0-9]': 'Any (one) character not in the list.'}
+        print("\n".join(f"{k}: {v}" for k, v in WILDCARDS.items()))
+
     # ---------------------------------
     # Methods to define SIMBAD's output
     # ---------------------------------
 
-    def list_output_options(self):
+    def list_votable_fields(self):
         """List all options to add columns to SIMBAD's output.
 
         They are of three types:
@@ -198,7 +224,7 @@ class SimbadClass(BaseVOQuery):
         Examples
         --------
         >>> from astroquery.simbad import Simbad
-        >>> options = Simbad.list_output_options() # doctest: +REMOTE_DATA
+        >>> options = Simbad.list_votable_fields() # doctest: +REMOTE_DATA
         >>> # to print only the available bundles of columns
         >>> options[options["type"] == "bundle of basic columns"][["name", "description"]] # doctest: +REMOTE_DATA
         <Table length=8>
@@ -245,7 +271,7 @@ class SimbadClass(BaseVOQuery):
         Parameters
         ----------
         bundle_name : str
-            The possible values can be listed with `~astroquery.simbad.SimbadClass.list_output_options`
+            The possible values can be listed with `~astroquery.simbad.SimbadClass.list_votable_fields`
 
         Returns
         -------
@@ -306,18 +332,20 @@ class SimbadClass(BaseVOQuery):
         self.joins += [Simbad.Join(table, Simbad.Column("basic", link["target_column"]),
                                    Simbad.Column(table, link["from_column"]))]
 
-    def add_output_columns(self, *args):
+    def add_votable_fields(self, *args):
         """Add columns to the output of a SIMBAD query.
 
         The list of possible arguments and their description for this method
-        can be printed with `~astroquery.simbad.SimbadClass.list_output_options`.
+        can be printed with `~astroquery.simbad.SimbadClass.list_votable_fields`.
 
         The methods affected by this property are:
 
-         - `~astroquery.simbad.SimbadClass.query_object`
-         - `~astroquery.simbad.SimbadClass.query_objects`
-         - `~astroquery.simbad.SimbadClass.query_region`
-         - `~astroquery.simbad.SimbadClass.query_bibobj`
+        - `~astroquery.simbad.SimbadClass.query_object`,
+        - `~astroquery.simbad.SimbadClass.query_objects`,
+        - `~astroquery.simbad.SimbadClass.query_region`,
+        - `~astroquery.simbad.SimbadClass.query_catalog`,
+        - `~astroquery.simbad.SimbadClass.query_bibobj`,
+        - `~astroquery.simbad.SimbadClass.query_criteria`.
 
 
         Parameters
@@ -329,15 +357,32 @@ class SimbadClass(BaseVOQuery):
         --------
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
-        >>> simbad.add_output_columns('sp_type', 'sp_qual', 'sp_bibcode') # doctest: +REMOTE_DATA
+        >>> simbad.add_votable_fields('sp_type', 'sp_qual', 'sp_bibcode') # doctest: +REMOTE_DATA
         >>> simbad.columns_in_output[0] # doctest: +REMOTE_DATA
         SimbadClass.Column(table='basic', name='main_id', alias=None)
         """
+
+        # the legacy way of adding fluxes is the only case-dependant option
+        args = list(args)
+        for arg in args:
+            if re.match(r"^flux.*\(.+\)$", arg):
+                warnings.warn("The notation 'flux(X)' is deprecated since 0.4.8. "
+                              "See section on filters in "
+                              "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html "
+                              "to see how it can be replaced.", DeprecationWarning, stacklevel=2)
+                flux_filter = re.findall(r"\((\w+)\)", arg)[0]
+                if len(flux_filter) == 1 and flux_filter.islower():
+                    flux_filter = flux_filter + "_"
+                self.joins.append(self.Join("allfluxes", self.Column("basic", "oid"),
+                                            self.Column("allfluxes", "oidref")))
+                self.columns_in_output.append(self.Column("allfluxes", flux_filter))
+                args.remove(arg)
+
         # casefold args
         args = set(map(str.casefold, args))
 
         # output options
-        output_options = self.list_output_options()
+        output_options = self.list_votable_fields()
         output_options["name"] = list(map(str.casefold, list(output_options["name"])))
         basic_columns = output_options[output_options["type"] == "column of basic"]["name"]
         all_tables = output_options[output_options["type"] == "table"]["name"]
@@ -387,16 +432,54 @@ class SimbadClass(BaseVOQuery):
                                      "into a separate VizieR catalog. It is possible to query "
                                      "it with the `astroquery.vizier` module.")
             else:
-                # it could be also be one of the fields with arguments
+                # raise a ValueError on fields with arguments
                 _catch_deprecated_fields_with_arguments(votable_field)
                 # or a typo
                 close_match = get_close_matches(votable_field, set(output_options["name"]))
                 error_message = (f"'{votable_field}' is not one of the accepted options "
-                                 "which can be listed with 'list_output_options'.")
+                                 "which can be listed with 'list_votable_fields'.")
                 if close_match != []:
                     close_matches = "' or '".join(close_match)
                     error_message += f" Did you mean '{close_matches}'?"
                 raise ValueError(error_message)
+
+    def get_votable_fields(self):
+        """Display votable fields."""
+        return [f"{column.table}.{column.name}" for column in self.columns_in_output]
+
+    def reset_votable_fields(self):
+        """Reset the output of the query_*** methods to default.
+
+        They will be included in the output of the following methods:
+        - `~astroquery.simbad.SimbadClass.query_object`,
+        - `~astroquery.simbad.SimbadClass.query_objects`,
+        - `~astroquery.simbad.SimbadClass.query_region`,
+        - `~astroquery.simbad.SimbadClass.query_catalog`,
+        - `~astroquery.simbad.SimbadClass.query_bibobj`,
+        - `~astroquery.simbad.SimbadClass.query_criteria`.
+        """
+        self.columns_in_output = [Simbad.Column("basic", item)
+                                  for item in conf.default_columns]
+        self.joins = []
+        self.criteria = []
+
+    def get_field_description(self, field_name):
+        """Displays a description of the VOTable field.
+
+        This can be replaced by the output of `~astroquery.simbad.SimbadClass.list_votable_fields`.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> options = Simbad.list_votable_fields() # doctest: +REMOTE_DATA
+        >>> description_dimensions = options[options["name"] == "dimensions"]["description"] # doctest: +REMOTE_DATA
+        >>> description_dimensions.data.data[0] # doctest: +REMOTE_DATA
+        'all fields related to object dimensions'
+
+        """
+        options = self.list_votable_fields()
+        description = options[options["name"] == field_name]["description"]
+        return description.data.data[0]
 
     # -------------
     # Query methods
@@ -424,8 +507,10 @@ class SimbadClass(BaseVOQuery):
             syntax in a single string. See example.
         get_adql : bool, defaults to False
             Returns the ADQL string instead of querying SIMBAD.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
+        verbose : Deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
 
         Returns
         -------
@@ -439,7 +524,7 @@ class SimbadClass(BaseVOQuery):
 
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
-        >>> simbad.add_output_columns("dim") # doctest: +REMOTE_DATA
+        >>> simbad.add_votable_fields("dim") # doctest: +REMOTE_DATA
         >>> result = simbad.query_object("m101") # doctest: +REMOTE_DATA
         >>> result["main_id", "ra", "dec", "galdim_majaxis", "galdim_minaxis", "galdim_bibcode"] # doctest: +REMOTE_DATA
         <Table length=1>
@@ -509,8 +594,10 @@ class SimbadClass(BaseVOQuery):
             syntax in a single string. See example.
         get_adql : bool, defaults to False
             Returns the ADQL string instead of querying SIMBAD.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
+        verbose : Deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
 
         Returns
         -------
@@ -580,12 +667,16 @@ class SimbadClass(BaseVOQuery):
             syntax in a single string.
         get_adql : bool, defaults to False
             Returns the ADQL string instead of querying SIMBAD.
-        equinox : deprecated since 0.4.8
+        equinox : Deprecated since 0.4.8
             Use `~astropy.coordinates` objects instead
-        epoch : deprecated since 0.4.8
+        epoch : Deprecated since 0.4.8
             Use `~astropy.coordinates` objects instead
-        get_query_payload : deprecated since 0.4.8
-        cache : deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
+        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
+            end of the python session. It can also be emptied manually with
+            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -601,7 +692,7 @@ class SimbadClass(BaseVOQuery):
         >>> from astropy.coordinates import SkyCoord
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
-        >>> simbad.add_output_columns("otype") # doctest: +REMOTE_DATA
+        >>> simbad.add_votable_fields("otype") # doctest: +REMOTE_DATA
         >>> coordinates = SkyCoord([SkyCoord(186.6, 12.7, unit=("deg", "deg")),
         ...                         SkyCoord(170.75, 23.9, unit=("deg", "deg"))])
         >>> result = simbad.query_region(coordinates, radius="2d5m",
@@ -687,9 +778,13 @@ class SimbadClass(BaseVOQuery):
             syntax in a single string. See example.
         get_adql : bool, defaults to False
             Returns the ADQL string instead of querying SIMBAD.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
-        cache : deprecated since 0.4.8
+        verbose : Deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
+        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
+            end of the python session. It can also be emptied manually with
+            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -745,11 +840,10 @@ class SimbadClass(BaseVOQuery):
         ----------
         bibcode : str
             the bibcode of the article
-        get_query_payload : bool, optional
-            When set to `True` the method returns the HTTP request parameters.
-            Defaults to `False`.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
+        verbose : Deprecated since 0.4.8
 
         Returns
         -------
@@ -799,11 +893,13 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string. See example.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
-        cache : The cache is now bound to the python session. It can be emptied with
-            `~astroquery.simbad.SimbadClass.empty_cache()` but cannot be deactivated
-            from here. Deprecated since 0.4.8
+        verbose : Deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
+        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
+            end of the python session. It can also be emptied manually with
+            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -873,9 +969,13 @@ class SimbadClass(BaseVOQuery):
             the column ``ident.id``.
         get_adql : bool, optional
             Returns the ADQL string instead of querying SIMBAD, by default False.
-        verbose : deprecated since 0.4.8
-        get_query_payload : deprecated since 0.4.8
-        cache : deprecated since 0.4.8
+        verbose : Deprecated since 0.4.8
+        get_query_payload : Deprecated since 0.4.8. The query payload is not available
+            anymore, but the ADQL string can be returned instead with the ``get_adql``
+            argument.
+        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
+            end of the python session. It can also be emptied manually with
+            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -922,6 +1022,80 @@ class SimbadClass(BaseVOQuery):
         if get_adql:
             return query
         return self.query_tap(query)
+
+    @deprecated(since="v0.4.8",
+                message=("'query_criteria' is deprecated. It uses the former sim-script "
+                         "(SIMBAD specific) syntax "
+                         "(see https://simbad.cds.unistra.fr/simbad/sim-fsam). "
+                         "Possible replacements are the 'criteria' argument in the other "
+                         "query methods or custom 'query_tap' queries. "
+                         "These two replacements use the standard ADQL syntax."))
+    def query_criteria(self, *args, get_adql=False, **kwargs):
+        """Query SIMBAD based on any criteria [deprecated].
+
+        This method is deprecated as it uses the former SIMBAD-specific sim-script syntax.
+        There are two possible replacements that have been added with astroquery v0.4.8
+        and that use the standard ADQL syntax. See the examples section.
+
+        Parameters
+        ----------
+        args:
+            String arguments passed directly to SIMBAD's script
+            (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
+        kwargs:
+            Keyword / value pairs passed to SIMBAD's script engine
+            (e.g., {'otype'='SNR'} will be rendered as otype=SNR)
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
+        Examples
+        --------
+
+        Can be replaced by the ``criteria`` argument that was added in the
+        other query_*** methods
+
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad(ROW_LIMIT=5).query_region('M1', '2d', criteria="otype='G..'") # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        <Table length=5>
+          main_id            ra        ... coo_wavelength     coo_bibcode
+                            deg        ...
+           object         float64      ...      str1             object
+        ------------ ----------------- ... -------------- -------------------
+        LEDA  136099 85.48166666666667 ...                1996A&AS..117....1S
+        LEDA  136047 83.66958333333332 ...                1996A&AS..117....1S
+        LEDA  136057 84.64499999999998 ...                1996A&AS..117....1S
+        LEDA 1630996 83.99208333333333 ...              O 2003A&A...412...45P
+          2MFGC 4574 84.37534166666669 ...              I 2006AJ....131.1163S
+
+        Or by custom-written ADQL queries
+
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.query_tap("SELECT TOP 5 main_id, sp_type"
+        ...                  " FROM basic WHERE sp_type < 'F3'") # doctest: +REMOTE_DATA
+        <Table length=5>
+          main_id   sp_type
+           object    object
+        ----------- -------
+         HD  24033B     (A)
+         HD  70218B     (A)
+         HD 128284B   (A/F)
+        CD-34  5319   (A/F)
+          HD  80593   (A0)V
+        """
+        top, columns, joins, instance_criteria = self._get_query_parameters()
+        list_kwargs = [f"{key}='{argument}'" for key, argument in kwargs.items()]
+        added_criteria = f"({CriteriaTranslator.parse(' & '.join(list(list(args) + list_kwargs)))})"
+        instance_criteria.append(added_criteria)
+        if "otypes." in added_criteria:
+            joins.append(self.Join("otypes", self.Column("basic", "oid"),
+                                   self.Column("otypes", "oidref")))
+        if "allfluxes." in added_criteria:
+            joins.append(self.Join("allfluxes", self.Column("basic", "oid"),
+                                   self.Column("allfluxes", "oidref")))
+        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
 
     def list_tables(self, *, get_adql=False):
         """List the names and descriptions of the tables in SIMBAD.
@@ -1209,6 +1383,8 @@ class SimbadClass(BaseVOQuery):
         if joins == []:
             join = ""
         else:
+            unique_joins = []
+            [unique_joins.append(join) for join in joins if join not in unique_joins]
             join = " " + " ".join([(f'{join.join_type} {join.table} ON {join.column_left.table}."'
                                     f'{join.column_left.name}" = {join.column_right.table}."'
                                     f'{join.column_right.name}"') for join in joins])
