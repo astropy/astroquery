@@ -4,31 +4,12 @@
 Simbad module evolutions
 ########################
 
-*********************************
-Votable fields and Output options
-*********************************
-
-Votable fields are deprecated in favor of output options. Most of the former votable
-fields can now be added to the output of Simbad queries with
-`~astroquery.simbad.SimbadClass.add_votable_fields`. The full list of options is available
-with the `~astroquery.simbad.SimbadClass.list_votable_fields` method.
-
-Some columns and tables have a new name under the TAP interface. The old name will be
-recognized by `~astroquery.simbad.SimbadClass.add_votable_fields`, but only the new name will
-appear in the output.
-
-A few ``votable_fields`` had options in parenthesis. This is no longer supported and can
-be replaced by the ``criteria`` argument in ``query_***`` methods or by a custom ADQL
-query called with `~astroquery.simbad.SimbadClass.query_tap`. The documentation and
-former issues on astroquery's repository contain examples, but don't hesitate to open
-a new issue if there is some missing information.
-
 ****************************************
 Translating query_criteria into criteria
 ****************************************
 
-The method ``query_criteria`` does not exist anymore in SIMBAD, but is replaced by a
-``criteria`` argument in the following methods:
+The method ``query_criteria`` is now deprecated in the SIMBAD module. It is replaced by
+a ``criteria`` argument in the following methods:
 
 - `~astroquery.simbad.SimbadClass.query_object`
 - `~astroquery.simbad.SimbadClass.query_objects`
@@ -137,10 +118,10 @@ Object types
 
 The example above highlights the subtlety of assigning a type for every object. The SIMBAD database
 evolves with the literature and the ``otype`` value reflects the most precise type that was
-identified through a literature review.
-But all the former ``otype`` assignations are also stored in the ``otypes`` column. These can be either less
-precise or false. See in the previous example M27 that is now classified as ``PN`` (Planetary Nebula) and was in the
-past thought to be a ``G`` (Galaxy).
+identified through a literature review at the moment at which the query is done.
+All the former ``otype`` assignations are also stored in the ``otypes`` column. These can be either less
+precise or false. See in the previous example M27 that is now classified as ``PN`` (Planetary Nebula)
+and was in the past thought to be a ``G`` (Galaxy).
 
 The definitions of object types can be found either in SIMBAD's
 `documentation on object types <http://simbad.cds.unistra.fr/guide/otypes.htx>`_
@@ -159,7 +140,7 @@ or with TAP queries. For example, to see the definition of ``PN``, one can do:
 
 Where ``otypedef`` is the table of SIMBAD containing the definitions of object types.
 
-The ``label`` can also be used in a query.
+The ``label`` can also be used in a query if you want your code to be easier to read.
 
 .. doctest-remote-data::
 
@@ -175,12 +156,12 @@ The ``label`` can also be used in a query.
      NGC  6543     PN
      NGC  7027     PN
 
-And the ``path`` column is a representation of the hierarchy of objects. Here ``PN``
-(Planetary Nebula) derives from ``Ev*`` (Evolved Star) which itself derives from ``*``
-(Star). This is the classification of objects in place in SIMBAD since 2020. If you
-don't find an object type you used to look for in SIMBAD, you might be interested in this
-`table of correspondence <http://simbad.cds.unistra.fr/guide/otypes.labels.txt>`_ between
-old and new labels for object types.
+The ``path`` column in ``otypedef`` is a representation of the hierarchy of objects.
+Here ``PN`` (Planetary Nebula) derives from ``Ev*`` (Evolved Star) which itself derives
+from ``*`` (Star). This is the classification of objects in place in SIMBAD since 2020.
+If you don't find an object type you used to look for in SIMBAD, you might be interested
+in this `table of correspondence <http://simbad.cds.unistra.fr/guide/otypes.labels.txt>`_ 
+between old and new labels for object types.
 
 An interesting feature brought by the hierarchy of objects is the ``..`` notation. For example,
 ``Ev*..`` means any object type that derives from evolved star.
@@ -200,7 +181,8 @@ An interesting feature brought by the hierarchy of objects is the ``..`` notatio
                  [SC83] G4    Ce*
               SSTGC 444055    LP*
 
-This return objects which types are indeed among the 17 types deriving from ``Ev*`` (Evolved Star).
+This return objects which types are indeed among the 17 types deriving from ``Ev*``
+(Evolved Star). For example, ``pA*`` is a post-AGB Star.
 
 *******
 Filters

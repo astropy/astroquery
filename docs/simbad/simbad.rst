@@ -22,7 +22,8 @@ There is always a way to send the information in a bigger query rather than in a
 smaller ones. Frequent use cases are that you can pass a vector of coordinates to
 `~astroquery.simbad.SimbadClass.query_region` or a list of names to
 `~astroquery.simbad.SimbadClass.query_objects`, and SIMBAD will treat this submission as
-a single query.
+a single query. If this does not fit your use case, then you'll need to either use
+`Wildcards`_ or a custom :ref:`query TAP <query-tap>`.
 
 Simbad Evolutions
 -----------------
@@ -43,7 +44,7 @@ methods are described in the next sections.
 
 A more versatile option is to query SIMBAD directly with your own ADQL queries via
 Table Access Protocol (TAP) with the `~astroquery.simbad.SimbadClass.query_tap` method.
-This is described in :ref:`query TAP <query-tap>`.
+This is described in this section: :ref:`query TAP <query-tap>`.
 
 Query modes
 ===========
@@ -54,8 +55,8 @@ Objects queries
 Query by an Identifier
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This is useful if you want to query a known identifier (name). For instance to query
-the messier object M1:
+This is useful if you want to query an object by a known identifier (name). For instance
+to query the messier object M1:
 
 .. doctest-remote-data::
 
@@ -94,12 +95,12 @@ This allows, for instance, to query messier objects from 1 through 9:
         M   5 229.63841666666673 ... 2010AJ....140.1830G      M   5
 
 
-The messier objects from 1 to 9 are found. Their ``main_id`` is not necessarily
-the one corresponding to the wildcard expression. The column ``matched_id`` contains
-the identifier that was matched. 
+The messier objects from 1 to 9 are found. Their main identifier ``main_id`` is not
+necessarily the one corresponding to the wildcard expression.
+The column ``matched_id`` contains the identifier that was matched. 
 
 Note that in this example, the wildcard parameter could have been replaced by a way
-faster query done with `~astroquery.simbad.SimbadClass.query_objects`. 
+faster query done with `~astroquery.simbad.SimbadClass.query_objects`.
 
 Wildcards
 """""""""
@@ -109,7 +110,8 @@ Wildcards are supported in these methods:
  - `~astroquery.simbad.SimbadClass.query_objects`
  - `~astroquery.simbad.SimbadClass.query_bibcode`
 
-To see the available wildcards and their meaning:
+They allow to provide a pattern that the query will match. To see the available
+wildcards and their meaning:
 
 .. code-block:: python
 
@@ -187,7 +189,7 @@ identifier, a string representing coordinates, or a `~astropy.coordinates.SkyCoo
 
 When no radius is specified, the radius defaults to 2 arcmin. When the radius is
 explicitly specified it can be either a string accepted by
-`~astropy.coordinates.Angle` (ex: ``radius='0d6m0s'``)or directly a
+`~astropy.coordinates.Angle` (ex: ``radius='0d6m0s'``) or directly a
 `~astropy.units.Quantity` object.
 
 If the center is defined by coordinates, then the best solution is to use a
@@ -406,23 +408,19 @@ modifying the setting in the Astroquery configuration file.
 
 .. Note::
 
-    This works with every ``query_***`` method, but 
-    `~astroquery.simbad.SimbadClass.query_tap` is an exception as the number
-    of returned rows is fixed in the ADQL string with the ``TOP`` instruction.
+    This works with every ``query_***`` method, except 
+    `~astroquery.simbad.SimbadClass.query_tap` as the number of returned rows is fixed
+    in the ADQL string with the ``TOP`` instruction.
 
 Choosing the columns in the output tables
 -----------------------------------------
-
-.. Warning::
-
-    Before astroquery v0.4.8, this was done with ``votable_fields``. This is not
-    the case anymore. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
 
 Some query methods outputs can be customized. This is the case for:
 
 - `~astroquery.simbad.SimbadClass.query_object`
 - `~astroquery.simbad.SimbadClass.query_objects`
 - `~astroquery.simbad.SimbadClass.query_region`
+- `~astroquery.simbad.SimbadClass.query_catalog`
 - `~astroquery.simbad.SimbadClass.query_bibobj`
 
 For these methods, the default columns in the output are:
@@ -438,15 +436,18 @@ For these methods, the default columns in the output are:
 
 .. Note::
 
-    The columns that will appear in the output are in the
-    `~astroquery.simbad.SimbadClass.columns_in_output` attribute
+    The columns that will appear in the output can be printed with the
+    `~astroquery.simbad.SimbadClass.get_votable_fields` method
 
     .. code-block:: python
 
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
-        >>> simbad.columns_in_output[0]
-        SimbadClass.Column(table='basic', name='main_id', alias=None)
+        >>> simbad.get_votable_fields()
+        ['basic.main_id', 'basic.ra', 'basic.dec', 'basic.coo_err_maj', 'basic.coo_err_min', 'basic.coo_err_angle', 'basic.coo_wavelength', 'basic.coo_bibcode']
+
+    Here we see the lists of columns that are selected per default. They are all from
+    the table of basic information (``basic``).
 
 This can be permanently changed in astroquery's configuration files. To do this within 
 a session or for a single query, use `~astroquery.simbad.SimbadClass.add_votable_fields`:
@@ -490,13 +491,25 @@ with:
                  sp               all fields related with the spectral type
            velocity    all fields related with radial velocity and redshift
 
+You can also access a single field description with 
+`~astroquery.simbad.SimbadClass.get_field_description`
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.get_field_description("rvz_type")
+    'Radial velocity / redshift type'
+
+And the columns in the output can be reset to their default value with
+`~astroquery.simbad.SimbadClass.reset_votable_fields`.
+
 Additional criteria
 -------------------
 
 .. Warning::
 
     Before astroquery v0.4.8, criteria could only be used with the method ``query_criteria``.
-    This method does not exist anymore and is replaced by the criteria argument in every
+    This method is now deprecated and is replaced by the criteria argument in every
     other methods. See :ref:`SIMBAD evolutions <simbad-evolutions>`.
 
 Most query methods take a ``criteria`` argument. They are listed here:
@@ -509,8 +522,8 @@ Most query methods take a ``criteria`` argument. They are listed here:
 - `~astroquery.simbad.SimbadClass.query_bibcode`
 - `~astroquery.simbad.SimbadClass.query_objectids`
 
-The criteria argument expect a string that fits in the ``WHERE`` clause of an ADQL query.
-Some examples can be found in the
+The criteria argument expect a string written in the syntax of the ``WHERE`` clause of
+an ADQL query. Some examples can be found in the
 `Simbad ADQL cheat sheet <http://simbad.cds.unistra.fr/simbad/tap/help/adqlHelp.html>`__.
 
 To help writing criteria, a good tip is to inspect the columns that the query would

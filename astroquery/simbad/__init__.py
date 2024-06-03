@@ -26,7 +26,7 @@ class Conf(_config.ConfigNamespace):
         'Time limit for connecting to Simbad server.')
 
     row_limit = _config.ConfigItem(
-        # O defaults to the maximum limit
+        # defaults to the maximum limit
         -1,
         'Maximum number of rows that will be fetched from the result.')
 
