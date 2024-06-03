@@ -42,6 +42,47 @@ vizier
 - Change the type of raised error when the catalog is not found in ``Vizier.get_catalog_metadata``
   from ``IndexError`` to ``EmptyResponseError`` [#2980]
 
+simbad
+^^^^^^
+
+- The ``ROW_LIMIT`` value to have the maximum number of rows is now -1 instead of 0. This
+  allows to retrieve an empty table with the output's meta-data [#2954]
+
+- ``ROW_LIMIT`` can now be set at instantiation (ex: ``simbad = Simbad(ROW_LIMIT=10))``) [#2954]
+
+- ``list_votable_fields`` now return an astropy Table with added fields information instead
+  of a list of strings [#2954]
+
+- ``list_votable_fields`` is now queried directly from SIMBAD instead of reading a file
+  in astroquery. This prevents it from being outdated [#2954]
+
+- ``get_votable_fields`` now prints the table name and column name instead of just the
+  column name [#2954]
+
+- all query methods now accept ``get_adql`` boolean argument that returns the ADQL string
+  instead of sending the request to SIMBAD. The ``verbose`` and ``get_query_payload``
+  are removed from all methods [#2954]
+
+- all query methods except ``query_tap`` and ``query_criteria`` now accept a ``criteria``
+  argument to restrict the results with custom criteria [#2954]
+
+- ``query_objects`` outputs now have an additional column ``typed_id`` that contains 
+  the requested object's name as typed within astroquery. The ``votable_field`` option
+  ``typed_id`` is removed [#2954]
+
+- ``query_region`` does not accept ``equinox`` and ``epoch`` anymore, as this functionality
+  is handled by the astropy coordinates SkyCoord object [#2954]
+
+- ``query_bibcode`` has a new option ``abstract`` that allows to also retrieve the
+  article's abstract [#2954]
+
+- ``query_bibcode`` output is now in an astropy table with distinct columns instead of a single
+  one in which all the information was a string [#2954]
+
+- ``query_criteria`` is now deprecated and should be replaced by either custom TAP queries
+  of the ``criteria`` argument added in the other query methods. A helper method was added
+  ``astroquery.simbad.utils.CriteriaTranslator`` to translate automatically between the sim-script
+  syntax and the TAP/ADQL syntax [#2954]
 
 skyview
 ^^^^^^^
