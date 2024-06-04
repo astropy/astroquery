@@ -6,6 +6,7 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
+from pathlib import Path
 import warnings
 import time
 import os
@@ -536,8 +537,12 @@ class ObservationsClass(MastQueryWithLogin):
         filename = os.path.basename(uri)
         if not local_path:  # local file path is not defined
             local_path = filename
-        elif os.path.isdir(local_path):  # local file path is directory
-            local_path = os.path.join(local_path, filename)  # append filename
+        else:
+            path = Path(local_path)
+            if not path.suffix:  # local_path is a directory
+                local_path = path / filename  # append filename
+                if not path.exists():  # create directory if it doesn't exist
+                    path.mkdir(parents=True, exist_ok=True)
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}
