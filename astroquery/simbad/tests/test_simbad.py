@@ -397,15 +397,15 @@ def test_query_objects():
     # no wildcard and additional criteria
     adql = simbad.core.Simbad.query_objects(("m1", "m2"), criteria="otype = 'Galaxy..'", get_adql=True)
     expected = ('FROM basic JOIN ident ON basic."oid" = ident."oidref" RIGHT JOIN TAP_UPLOAD.script_infos'
-                ' ON ident."id" = TAP_UPLOAD.script_infos."typed_id" WHERE (id IN (\'m1\', \'m2\') OR '
-                'typed_id IS NOT NULL) AND (otype = \'Galaxy..\')')
+                ' ON ident."id" = TAP_UPLOAD.script_infos."user_specified_id" WHERE (id IN (\'m1\', \'m2\') OR '
+                'user_specified_id IS NOT NULL) AND (otype = \'Galaxy..\')')
     assert adql.endswith(expected)
     # with wildcard
     adql = simbad.core.Simbad.query_objects(("M *", "NGC *"), wildcard=True, get_adql=True)
     expected = (r'SELECT .* TAP_UPLOAD\.script_infos\.\* FROM basic JOIN ident '
                 r'ON basic\."oid" = ident\."oidref" RIGHT JOIN TAP_UPLOAD\.script_infos ON'
-                r' ident\."id" = TAP_UPLOAD\.script_infos\."typed_id" WHERE \(\(regexp\(id, \'\^M \+\.\*\$\'\)'
-                r' = 1 OR regexp\(id, \'\^NGC \+\.\*\$\'\) = 1\) OR typed_id IS NOT NULL\)')
+                r' ident\."id" = TAP_UPLOAD\.script_infos\."user_specified_id" WHERE \(\(regexp\(id, \'\^M \+\.\*\$\'\)'
+                r' = 1 OR regexp\(id, \'\^NGC \+\.\*\$\'\) = 1\) OR user_specified_id IS NOT NULL\)')
     assert re.match(expected, adql) is not None
 
 

@@ -580,7 +580,7 @@ class SimbadClass(BaseVOQuery):
         Object names may be specified with wildcards.
         If one of the ``object_names`` is not found in SIMBAD, the corresponding line is
         returned empty in the output (see ``Giga Cluster`` in the example).
-        The column ``typed_id`` is the input object name.
+        In the output, the column ``user_specified_id`` is the input object name.
 
         Parameters
         ----------
@@ -609,9 +609,9 @@ class SimbadClass(BaseVOQuery):
         >>> from astroquery.simbad import Simbad
         >>> clusters = Simbad.query_objects(["Boss Great Wall", "Great Attractor",
         ...                                  "Giga Cluster", "Coma Supercluster"]) # doctest: +REMOTE_DATA
-        >>> clusters[["main_id", "ra", "dec", "typed_id"]] # doctest: +REMOTE_DATA
+        >>> clusters[["main_id", "ra", "dec", "user_specified_id"]] # doctest: +REMOTE_DATA
         <Table length=4>
-               main_id            ra     dec        typed_id
+               main_id            ra     dec   user_specified_id
                                  deg     deg
                 object         float64 float64       object
         ---------------------- ------- ------- -----------------
@@ -622,7 +622,7 @@ class SimbadClass(BaseVOQuery):
         """
         top, columns, joins, instance_criteria = self._get_query_parameters()
 
-        upload = Table({"typed_id": object_names,
+        upload = Table({"user_specified_id": object_names,
                         "object_number_id": list(range(1, len(object_names) + 1))})
 
         upload_name = "TAP_UPLOAD.script_infos"
@@ -631,13 +631,13 @@ class SimbadClass(BaseVOQuery):
 
         joins += [Simbad.Join("ident", Simbad.Column("basic", "oid"), Simbad.Column("ident", "oidref")),
                   Simbad.Join(upload_name, Simbad.Column("ident", "id"),
-                  Simbad.Column(upload_name, "typed_id"), "RIGHT JOIN")]
+                  Simbad.Column(upload_name, "user_specified_id"), "RIGHT JOIN")]
 
         if wildcard:
             list_criteria = [f"regexp(id, '{_wildcard_to_regexp(object_name)}') = 1" for object_name in object_names]
-            instance_criteria += [f'(({" OR ".join(list_criteria)}) OR typed_id IS NOT NULL)']
+            instance_criteria += [f'(({" OR ".join(list_criteria)}) OR user_specified_id IS NOT NULL)']
         else:
-            instance_criteria.append(f"(id IN ({str(object_names)[1:-1]}) OR typed_id IS NOT NULL)")
+            instance_criteria.append(f"(id IN ({str(object_names)[1:-1]}) OR user_specified_id IS NOT NULL)")
 
         if criteria:
             instance_criteria.append(f"({criteria})")
@@ -1074,7 +1074,7 @@ class SimbadClass(BaseVOQuery):
 
         >>> from astroquery.simbad import Simbad
         >>> Simbad.query_tap("SELECT TOP 5 main_id, sp_type"
-        ...                  " FROM basic WHERE sp_type < 'F3'") # doctest: +REMOTE_DATA
+        ...                  " FROM basic WHERE sp_type < 'F3'") # doctest: +REMOTE_DATA +IGNORE_OUTPUT
         <Table length=5>
           main_id   sp_type
            object    object

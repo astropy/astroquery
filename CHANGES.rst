@@ -66,7 +66,7 @@ simbad
 - all query methods except ``query_tap`` and ``query_criteria`` now accept a ``criteria``
   argument to restrict the results with custom criteria [#2954]
 
-- ``query_objects`` outputs now have an additional column ``typed_id`` that contains 
+- ``query_objects`` outputs now have an additional column ``user_specified_id`` that contains 
   the requested object's name as typed within astroquery. The ``votable_field`` option
   ``typed_id`` is removed [#2954]
 
