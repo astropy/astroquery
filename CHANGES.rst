@@ -59,9 +59,11 @@ simbad
 - ``get_votable_fields`` now prints the table name and column name instead of just the
   column name [#2954]
 
-- all query methods now accept ``get_adql`` boolean argument that returns the ADQL string
-  instead of sending the request to SIMBAD. The ``verbose`` and ``get_query_payload``
-  are removed from all methods [#2954]
+- The ``verbose`` and ``cache`` arguments are removed from all methods as they don't work
+  with the new query interface [#2954]
+
+- ``get_adql`` is replaced by ``get_query_payload`` in ``list_columns`` and ``list_table``.
+  The payload output contains the ADQL under the ``QUERY`` key [#2954]
 
 - all query methods except ``query_tap`` and ``query_criteria`` now accept a ``criteria``
   argument to restrict the results with custom criteria [#2954]

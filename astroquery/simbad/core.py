@@ -23,7 +23,7 @@ from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
                                      _wildcard_to_regexp, CriteriaTranslator,
                                      query_criteria_fields)
 
-from pyvo.dal import TAPService
+from pyvo.dal import TAPService, TAPQuery
 from . import conf
 
 
@@ -485,11 +485,10 @@ class SimbadClass(BaseVOQuery):
     # Query methods
     # -------------
 
-    @deprecated_renamed_argument(["verbose", "get_query_payload"], new_name=[None, "get_adql"],
-                                 since=['0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose"], new_name=[None],
+                                 since=['0.4.8'], relax=True)
     def query_object(self, object_name, *, wildcard=False,
-                     criteria=None, get_adql=False,
-                     verbose=False, get_query_payload=False):
+                     criteria=None, get_query_payload=False, verbose=False):
         """Query SIMBAD for the given object.
 
         Object names may also be specified with wildcards. See examples below.
@@ -505,12 +504,11 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string. See example.
-        get_adql : bool, defaults to False
-            Returns the ADQL string instead of querying SIMBAD.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         verbose : Deprecated since 0.4.8
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
 
         Returns
         -------
@@ -566,15 +564,13 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        if get_query_payload:
-            get_adql = True
+        return self._construct_query(top, columns, joins,
+                                     instance_criteria, get_query_payload)
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
-
-    @deprecated_renamed_argument(["verbose", "get_query_payload"], new_name=[None, "get_adql"],
-                                 since=['0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose"], new_name=[None],
+                                 since=['0.4.8'], relax=True)
     def query_objects(self, object_names, *, wildcard=False, criteria=None,
-                      get_adql=False, verbose=False, get_query_payload=False):
+                      get_query_payload=False, verbose=False):
         """Query SIMBAD for the specified list of objects.
 
         Object names may be specified with wildcards.
@@ -592,12 +588,11 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string. See example.
-        get_adql : bool, defaults to False
-            Returns the ADQL string instead of querying SIMBAD.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         verbose : Deprecated since 0.4.8
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
 
         Returns
         -------
@@ -642,18 +637,15 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        if get_query_payload:
-            get_adql = True
+        return self._construct_query(top, columns, joins, instance_criteria,
+                                     get_query_payload, script_infos=upload)
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql, script_infos=upload)
-
-    @deprecated_renamed_argument(["get_query_payload", "equinox", "epoch", "cache"],
-                                 new_name=["get_adql", None, None, None],
-                                 since=['0.4.8', '0.4.8', '0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["equinox", "epoch", "cache"],
+                                 new_name=[None, None, None],
+                                 since=['0.4.8', '0.4.8', '0.4.8'], relax=True)
     def query_region(self, coordinates, radius=2*u.arcmin, *,
-                     criteria=None, get_adql=False,
-                     equinox=None, epoch=None, cache=None,
-                     get_query_payload=None):
+                     criteria=None, get_query_payload=False,
+                     equinox=None, epoch=None, cache=None):
         """Query SIMBAD in a cone around the specified coordinates.
 
         Parameters
@@ -665,15 +657,14 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string.
-        get_adql : bool, defaults to False
-            Returns the ADQL string instead of querying SIMBAD.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         equinox : Deprecated since 0.4.8
             Use `~astropy.coordinates` objects instead
         epoch : Deprecated since 0.4.8
             Use `~astropy.coordinates` objects instead
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -757,16 +748,13 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        if get_query_payload:
-            get_adql = True
+        return self._construct_query(top, columns, joins, instance_criteria,
+                                     get_query_payload)
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
-
-    @deprecated_renamed_argument(["verbose", "cache", "get_query_payload"],
-                                 new_name=[None, None, "get_adql"],
-                                 since=['0.4.8', '0.4.8', '0.4.8'], relax=True)
-    def query_catalog(self, catalog, *, criteria=None, get_adql=False,
-                      verbose=False, cache=True, get_query_payload=False):
+    @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
+                                 since=['0.4.8', '0.4.8'], relax=True)
+    def query_catalog(self, catalog, *, criteria=None, get_query_payload=False,
+                      verbose=False, cache=True):
         """Query a whole catalog.
 
         Parameters
@@ -776,12 +764,11 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string. See example.
-        get_adql : bool, defaults to False
-            Returns the ADQL string instead of querying SIMBAD.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         verbose : Deprecated since 0.4.8
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -824,25 +811,23 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        if get_query_payload:
-            get_adql = True
+        return self._construct_query(top, columns, joins, instance_criteria, get_query_payload)
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
-
-    @deprecated_renamed_argument(["verbose", "get_query_payload"], new_name=[None, "get_adql"],
-                                 since=['0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose"], new_name=[None],
+                                 since=['0.4.8'], relax=True)
     def query_bibobj(self, bibcode, *, criteria=None,
-                     get_adql=False,
-                     verbose=False, get_query_payload=False):
+                     get_query_payload=False,
+                     verbose=False):
         """Query all the objects mentioned in an article.
 
         Parameters
         ----------
         bibcode : str
             the bibcode of the article
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         verbose : Deprecated since 0.4.8
 
         Returns
@@ -864,18 +849,13 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        if get_query_payload:
-            get_adql = True
+        return self._construct_query(top, columns, joins, instance_criteria, get_query_payload)
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
-
-    @deprecated_renamed_argument(["verbose", "get_query_payload", "cache"],
-                                 new_name=[None, "get_adql", None],
-                                 since=['0.4.8', '0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
+                                 since=['0.4.8', '0.4.8'], relax=True)
     def query_bibcode(self, bibcode, *, wildcard=False,
-                      abstract=False, get_adql=False, criteria=None,
-                      verbose=None,
-                      cache=None, get_query_payload=None):
+                      abstract=False, get_query_payload=False, criteria=None,
+                      verbose=None, cache=None, ):
         """Query the references corresponding to a given bibcode.
 
         Wildcards may be used to specify bibcodes.
@@ -893,10 +873,11 @@ class SimbadClass(BaseVOQuery):
         criteria : str
             Criteria to be applied to the query. These should be written in the ADQL
             syntax in a single string. See example.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         verbose : Deprecated since 0.4.8
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -942,19 +923,12 @@ class SimbadClass(BaseVOQuery):
 
         query += " ORDER BY bibcode"
 
-        if get_query_payload:
-            get_adql = True
+        return self.query_tap(query, get_query_payload=get_query_payload)
 
-        if get_adql:
-            return query
-        return self.query_tap(query)
-
-    @deprecated_renamed_argument(["verbose", "get_query_payload", "cache"],
-                                 new_name=[None, "get_adql", None],
-                                 since=['0.4.8', '0.4.8', '0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
+                                 since=['0.4.8', '0.4.8'], relax=True)
     def query_objectids(self, object_name, *, verbose=None, cache=None,
-                        get_query_payload=None, criteria=None,
-                        get_adql=False):
+                        get_query_payload=False, criteria=None):
         """Query SIMBAD with an object name.
 
         This returns a table of all names associated with that object.
@@ -967,12 +941,11 @@ class SimbadClass(BaseVOQuery):
             an additional criteria to constrain the result. As the output of this
             method has only one column, these criteria can only be imposed on
             the column ``ident.id``.
-        get_adql : bool, optional
-            Returns the ADQL string instead of querying SIMBAD, by default False.
         verbose : Deprecated since 0.4.8
-        get_query_payload : Deprecated since 0.4.8. The query payload is not available
-            anymore, but the ADQL string can be returned instead with the ``get_adql``
-            argument.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -1015,13 +988,7 @@ class SimbadClass(BaseVOQuery):
                  f"WHERE id_typed.id = '{_adql_parameter(object_name)}'")
         if criteria is not None:
             query += f" AND {criteria}"
-
-        if get_query_payload:
-            get_adql = True
-
-        if get_adql:
-            return query
-        return self.query_tap(query)
+        return self.query_tap(query, get_query_payload=get_query_payload)
 
     @deprecated(since="v0.4.8",
                 message=("'query_criteria' is deprecated. It uses the former sim-script "
@@ -1030,7 +997,7 @@ class SimbadClass(BaseVOQuery):
                          "Possible replacements are the 'criteria' argument in the other "
                          "query methods or custom 'query_tap' queries. "
                          "These two replacements use the standard ADQL syntax."))
-    def query_criteria(self, *args, get_adql=False, **kwargs):
+    def query_criteria(self, *args, get_query_payload=False, **kwargs):
         """Query SIMBAD based on any criteria [deprecated].
 
         This method is deprecated as it uses the former SIMBAD-specific sim-script syntax.
@@ -1042,6 +1009,10 @@ class SimbadClass(BaseVOQuery):
         args:
             String arguments passed directly to SIMBAD's script
             (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         kwargs:
             Keyword / value pairs passed to SIMBAD's script engine
             (e.g., {'otype'='SNR'} will be rendered as otype=SNR)
@@ -1095,15 +1066,23 @@ class SimbadClass(BaseVOQuery):
         if "allfluxes." in added_criteria:
             joins.append(self.Join("allfluxes", self.Column("basic", "oid"),
                                    self.Column("allfluxes", "oidref")))
-        return self._construct_query(top, columns, joins, instance_criteria, get_adql)
+        return self._construct_query(top, columns, joins, instance_criteria,
+                                     get_query_payload=get_query_payload)
 
-    def list_tables(self, *, get_adql=False):
+    @deprecated_renamed_argument("get_adql", new_name="get_query_payload",
+                                 since='0.4.8', relax=True)
+    def list_tables(self, *, get_query_payload=False):
         """List the names and descriptions of the tables in SIMBAD.
 
         Parameters
         ----------
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         get_adql : bool, optional
-            Return the ADQL string instead of querying SIMBAD.
+            Deprecated since '0.4.8'. This is replaced by get_query_payload that contain
+            more information than just the ADQL string
 
         Returns
         -------
@@ -1112,11 +1091,11 @@ class SimbadClass(BaseVOQuery):
         query = ("SELECT table_name, description"
                  " FROM TAP_SCHEMA.tables"
                  " WHERE schema_name = 'public'")
-        if get_adql:
-            return query
-        return self.query_tap(query)
+        return self.query_tap(query, get_query_payload=get_query_payload)
 
-    def list_columns(self, *tables: str, keyword=None, get_adql=False):
+    @deprecated_renamed_argument("get_adql", new_name="get_query_payload",
+                                 since='0.4.8', relax=True)
+    def list_columns(self, *tables: str, keyword=None, get_query_payload=False):
         """Get the list of SIMBAD columns.
 
         Add tables names to restrict to some tables. Call the function without
@@ -1131,8 +1110,13 @@ class SimbadClass(BaseVOQuery):
             This is not case-sensitive.
         keyword : str, optional
             A keyword to look for in column names, table names, or descriptions.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
         get_adql : bool, optional
-            Returns the ADQL string instead of querying SIMBAD.
+            Deprecated since '0.4.8'. This is replaced by get_query_payload that contain
+            more information than just the ADQL string
 
         Returns
         -------
@@ -1191,11 +1175,9 @@ class SimbadClass(BaseVOQuery):
                       f" OR (LOWERCASE(description) {condition})"
                       f" OR (LOWERCASE(table_name) {condition}))")
         query += " ORDER BY table_name, principal DESC, column_name"
-        if get_adql:
-            return query
-        return self.query_tap(query)
+        return self.query_tap(query, get_query_payload=get_query_payload)
 
-    def list_linked_tables(self, table: str, *, get_adql=False):
+    def list_linked_tables(self, table: str, *, get_query_payload=False):
         """Expose the tables that can be non-obviously linked with the given table.
 
         This list contains only the links where the column names are not the same in the
@@ -1207,8 +1189,10 @@ class SimbadClass(BaseVOQuery):
         ----------
         table : str
             One of SIMBAD's tables name
-        get_adql : bool, optional
-            Returns the ADQL string instead of querying SIMBAD.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
 
         Returns
         -------
@@ -1230,11 +1214,9 @@ class SimbadClass(BaseVOQuery):
                  " FROM TAP_SCHEMA.key_columns JOIN TAP_SCHEMA.keys USING (key_id)"
                  f" WHERE (from_table = '{_adql_parameter(table)}')"
                  f" OR (target_table = '{_adql_parameter(table)}')")
-        if get_adql:
-            return query
-        return self.query_tap(query)
+        return self.query_tap(query, get_query_payload=get_query_payload)
 
-    def query_tap(self, query: str, *, maxrec=10000, **uploads):
+    def query_tap(self, query: str, *, maxrec=10000, get_query_payload=False, **uploads):
         """Query SIMBAD TAP service.
 
         Parameters
@@ -1249,6 +1231,10 @@ class SimbadClass(BaseVOQuery):
             Any number of local tables to be used in the *query*. In the *query*, these tables
             are referred as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
             is the keyword name you chose. The maximum number of lines for the uploaded tables is 200000.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
 
         Returns
         -------
@@ -1323,8 +1309,12 @@ class SimbadClass(BaseVOQuery):
             raise ValueError("Query string contains an odd number of single quotes."
                              " Escape the unpaired single quote by doubling it.\n"
                              "ex: 'Barnard's galaxy' -> 'Barnard''s galaxy'.")
+        if get_query_payload:
+            return dict(TAPQuery(self.SIMBAD_URL, query, maxrec=maxrec, uploads=uploads))
+        # without uploads we call the version with cache
         if uploads == {}:
             return _cached_query_tap(self.tap, query, maxrec=maxrec)
+        # with uploads it has to be without cache
         return self.tap.run_async(query, maxrec=maxrec, uploads=uploads).to_table()
 
     @staticmethod
@@ -1341,7 +1331,7 @@ class SimbadClass(BaseVOQuery):
         """Get the current building blocks of an ADQL query."""
         return tuple(map(copy.deepcopy, (self.ROW_LIMIT, self.columns_in_output, self.joins, self.criteria)))
 
-    def _construct_query(self, top, columns, joins, criteria, get_adql=False, **uploads):
+    def _construct_query(self, top, columns, joins, criteria, get_query_payload=False, **uploads):
         """Generate and ADQL string from the given query parameters.
 
         This assumes that the query is for data around the basic table. It is thus only
@@ -1359,8 +1349,10 @@ class SimbadClass(BaseVOQuery):
         criteria : List[str]
             A list of strings. These criteria will be joined
             with an AND clause.
-        get_adql : bool, optional
-            Returns the ADQL string instead of querying SIMBAD, by default False.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
 
         Returns
         -------
@@ -1397,9 +1389,7 @@ class SimbadClass(BaseVOQuery):
 
         query = f"SELECT{top}{columns} FROM basic{join}{criteria}"
 
-        if get_adql:
-            return query
-        return self.query_tap(query, **uploads)
+        return self.query_tap(query, get_query_payload=get_query_payload, **uploads)
 
 
 Simbad = SimbadClass()

@@ -289,17 +289,18 @@ def test_list_wildcards(capsys):
 def test_query_bibcode_class():
     simbad_instance = simbad.Simbad()
     # wildcard
-    adql = simbad_instance.query_bibcode("????LASP.*", wildcard=True, get_adql=True)
+    adql = simbad_instance.query_bibcode("????LASP.*", wildcard=True, get_query_payload=True)["QUERY"]
     assert "WHERE regexp(lowercase(bibcode), '^....lasp\\\\..*$') = 1" in adql
     # with row limit and abstract
     simbad_instance.ROW_LIMIT = 5
-    adql = simbad_instance.query_bibcode("1968ZA.....68..366D", abstract=True, get_adql=True)
+    adql = simbad_instance.query_bibcode("1968ZA.....68..366D", abstract=True, get_query_payload=True)["QUERY"]
     assert adql == ('SELECT TOP 5 "bibcode", "doi", "journal", "nbobject", "page", "last_page",'
                     ' "title", "volume", "year", "abstract" FROM ref WHERE bibcode ='
                     ' \'1968ZA.....68..366D\' ORDER BY bibcode')
     # with a criteria
     adql = simbad_instance.query_bibcode("200*", wildcard=True,
-                                         criteria="abstract LIKE '%exoplanet%'", get_adql=True)
+                                         criteria="abstract LIKE '%exoplanet%'",
+                                         get_query_payload=True)["QUERY"]
     assert adql == ('SELECT TOP 5 "bibcode", "doi", "journal", "nbobject", "page", "last_page", '
                     '"title", "volume", "year" FROM ref '
                     'WHERE regexp(lowercase(bibcode), \'^200.*$\') = 1 '
@@ -308,20 +309,18 @@ def test_query_bibcode_class():
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_objectids():
-    with pytest.raises(AstropyDeprecationWarning, match='"get_query_payload"*'):
-        adql = simbad.core.Simbad.query_objectids('Polaris',
-                                                  criteria="ident.id LIKE 'HD%'",
-                                                  get_query_payload=True)
-        expected = ("SELECT ident.id FROM ident AS id_typed JOIN ident USING(oidref)"
-                    "WHERE id_typed.id = 'Polaris' AND ident.id LIKE 'HD%'")
-        assert adql == expected
+    adql = simbad.core.Simbad.query_objectids('Polaris', criteria="ident.id LIKE 'HD%'",
+                                              get_query_payload=True)["QUERY"]
+    expected = ("SELECT ident.id FROM ident AS id_typed JOIN ident USING(oidref)"
+                "WHERE id_typed.id = 'Polaris' AND ident.id LIKE 'HD%'")
+    assert adql == expected
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_bibobj():
     bibcode = '2005A&A.430.165F'
-    adql = simbad.core.Simbad.query_bibobj(bibcode, get_adql=True,
-                                           criteria="dec < 5")
+    adql = simbad.core.Simbad.query_bibobj(bibcode, get_query_payload=True,
+                                           criteria="dec < 5")["QUERY"]
     # test condition
     assert f"WHERE bibcode = '{bibcode}' AND (dec < 5)" in adql
     # test join
@@ -331,8 +330,8 @@ def test_query_bibobj():
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_catalog():
     simbad_instance = simbad.Simbad()
-    adql = simbad_instance.query_catalog('Gaia DR2', get_adql=True,
-                                         criteria="update_date < '2010-01-01'")
+    adql = simbad_instance.query_catalog('Gaia DR2', get_query_payload=True,
+                                         criteria="update_date < '2010-01-01'")["QUERY"]
     where_clause = "WHERE id LIKE 'Gaia DR2 %' AND (update_date < '2010-01-01')"
     assert adql.endswith(where_clause)
 
@@ -363,8 +362,10 @@ def test_query_catalog():
                           ])
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_region(coordinates, radius, where):
-    adql = simbad.core.Simbad.query_region(coordinates, radius=radius, get_adql=True)
-    adql_2 = simbad.core.Simbad().query_region(coordinates, radius=radius, get_adql=True)
+    adql = simbad.core.Simbad.query_region(coordinates, radius=radius,
+                                           get_query_payload=True)["QUERY"]
+    adql_2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
+                                               get_query_payload=True)["QUERY"]
     assert adql == adql_2
     assert re.search(where, adql) is not None
 
@@ -372,7 +373,8 @@ def test_query_region(coordinates, radius, where):
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_region_with_criteria():
     adql = simbad.core.Simbad.query_region(ICRS_COORDS, radius="0.1s",
-                                           criteria="galdim_majaxis>0.2", get_adql=True)
+                                           criteria="galdim_majaxis>0.2",
+                                           get_query_payload=True)["QUERY"]
     assert adql.endswith("AND (galdim_majaxis>0.2)")
 
 
@@ -389,19 +391,20 @@ def test_query_region_errors():
         simbad.SimbadClass().query_region(multicoords, radius=[1, 2, 3] * u.deg)
     centers = SkyCoord([0] * 10001, [0] * 10001, unit="deg", frame="icrs")
     with pytest.raises(LargeQueryWarning, match="For very large queries, you may receive a timeout error.*"):
-        simbad.core.Simbad.query_region(centers, radius="2m", get_adql=True)
+        simbad.core.Simbad.query_region(centers, radius="2m", get_query_payload=True)["QUERY"]
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_objects():
     # no wildcard and additional criteria
-    adql = simbad.core.Simbad.query_objects(("m1", "m2"), criteria="otype = 'Galaxy..'", get_adql=True)
+    adql = simbad.core.Simbad.query_objects(("m1", "m2"), criteria="otype = 'Galaxy..'",
+                                            get_query_payload=True)["QUERY"]
     expected = ('FROM basic JOIN ident ON basic."oid" = ident."oidref" RIGHT JOIN TAP_UPLOAD.script_infos'
                 ' ON ident."id" = TAP_UPLOAD.script_infos."user_specified_id" WHERE (id IN (\'m1\', \'m2\') OR '
                 'user_specified_id IS NOT NULL) AND (otype = \'Galaxy..\')')
     assert adql.endswith(expected)
     # with wildcard
-    adql = simbad.core.Simbad.query_objects(("M *", "NGC *"), wildcard=True, get_adql=True)
+    adql = simbad.core.Simbad.query_objects(("M *", "NGC *"), wildcard=True, get_query_payload=True)["QUERY"]
     expected = (r'SELECT .* TAP_UPLOAD\.script_infos\.\* FROM basic JOIN ident '
                 r'ON basic\."oid" = ident\."oidref" RIGHT JOIN TAP_UPLOAD\.script_infos ON'
                 r' ident\."id" = TAP_UPLOAD\.script_infos\."user_specified_id" WHERE \(\(regexp\(id, \'\^M \+\.\*\$\'\)'
@@ -412,15 +415,16 @@ def test_query_objects():
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_object():
     # no wildcard
-    adql = simbad.core.Simbad.query_object("m1", wildcard=False, get_adql=True)
+    adql = simbad.core.Simbad.query_object("m1", wildcard=False, get_query_payload=True)["QUERY"]
     expected = r'SELECT .* FROM basic JOIN ident ON basic\."oid" = ident\."oidref" WHERE id = \'m1\''
     assert re.match(expected, adql) is not None
     # with wildcard
-    adql = simbad.core.Simbad.query_object("m [0-9]", wildcard=True, get_adql=True)
+    adql = simbad.core.Simbad.query_object("m [0-9]", wildcard=True, get_query_payload=True)["QUERY"]
     end = "WHERE  regexp(id, '^m +[0-9]$') = 1"
     assert adql.endswith(end)
     # with criteria
-    adql = simbad.core.Simbad.query_object("NGC*", wildcard=True, criteria="otype = 'G..'", get_adql=True)
+    adql = simbad.core.Simbad.query_object("NGC*", wildcard=True, criteria="otype = 'G..'",
+                                           get_query_payload=True)["QUERY"]
     end = "AND (otype = 'G..')"
     assert adql.endswith(end)
 
@@ -434,7 +438,7 @@ def test_query_criteria():
     with pytest.warns(AstropyDeprecationWarning, match="'query_criteria' is deprecated*"):
         # with a region and otype criteria
         adql = simbad.core.Simbad.query_criteria("region(box, ICRS, 49.89 -0.3, 0.5d 0.5d)",
-                                                 otype='HII', get_adql=True)
+                                                 otype='HII', get_query_payload=True)["QUERY"]
         expected = ("SELECT basic.\"main_id\", basic.\"ra\", basic.\"dec\", "
                     "basic.\"coo_err_maj\", basic.\"coo_err_min\", "
                     "basic.\"coo_err_angle\", basic.\"coo_wavelength\", "
@@ -444,7 +448,7 @@ def test_query_criteria():
                     "AND otypes.otype = 'HII')")
         assert adql == expected
         # with a flux criteria
-        adql = simbad.core.Simbad.query_criteria("Umag < 9", get_adql=True)
+        adql = simbad.core.Simbad.query_criteria("Umag < 9", get_query_payload=True)["QUERY"]
         expected = (
             'SELECT basic."main_id", basic."ra", basic."dec", basic."coo_err_maj", '
             'basic."coo_err_min", basic."coo_err_angle", basic."coo_wavelength", '
@@ -480,11 +484,13 @@ def test_query_tap_cache_call(monkeypatch):
 # ---------------------------------------------------
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
 def test_simbad_list_tables():
     tables_adql = "SELECT table_name, description FROM TAP_SCHEMA.tables WHERE schema_name = 'public'"
-    assert simbad.Simbad.list_tables(get_adql=True) == tables_adql
+    assert simbad.Simbad.list_tables(get_query_payload=True)["QUERY"] == tables_adql
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
 def test_simbad_list_columns():
     # with three table names
     columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd"
@@ -492,12 +498,13 @@ def test_simbad_list_columns():
                     "WHERE table_name NOT LIKE 'TAP_SCHEMA.%'"
                     " AND LOWERCASE(table_name) IN ('mespm', 'otypedef', 'journals')"
                     " ORDER BY table_name, principal DESC, column_name")
-    assert simbad.Simbad.list_columns("mesPM", "otypedef", "journals", get_adql=True) == columns_adql
+    assert simbad.Simbad.list_columns("mesPM", "otypedef",
+                                      "journals", get_query_payload=True)["QUERY"] == columns_adql
     # with only one
     columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
                     "FROM TAP_SCHEMA.columns WHERE table_name NOT LIKE 'TAP_SCHEMA.%' "
                     "AND LOWERCASE(table_name) = 'basic' ORDER BY table_name, principal DESC, column_name")
-    assert simbad.Simbad.list_columns("basic", get_adql=True) == columns_adql
+    assert simbad.Simbad.list_columns("basic", get_query_payload=True)["QUERY"] == columns_adql
     # with only a keyword
     list_columns_adql = ("SELECT table_name, column_name, datatype, description, unit, ucd "
                          "FROM TAP_SCHEMA.columns WHERE table_name NOT LIKE 'TAP_SCHEMA.%' "
@@ -505,14 +512,15 @@ def test_simbad_list_columns():
                          "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(description) "
                          "LIKE LOWERCASE('%stellar%')) OR (LOWERCASE(table_name) "
                          "LIKE LOWERCASE('%stellar%'))) ORDER BY table_name, principal DESC, column_name")
-    assert simbad.Simbad.list_columns(keyword="stellar", get_adql=True) == list_columns_adql
+    assert simbad.Simbad.list_columns(keyword="stellar", get_query_payload=True)["QUERY"] == list_columns_adql
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
 def test_list_linked_tables():
     list_linked_tables_adql = ("SELECT from_table, from_column, target_table, target_column "
                                "FROM TAP_SCHEMA.key_columns JOIN TAP_SCHEMA.keys USING (key_id) "
                                "WHERE (from_table = 'basic') OR (target_table = 'basic')")
-    assert simbad.Simbad.list_linked_tables("basic", get_adql=True) == list_linked_tables_adql
+    assert simbad.Simbad.list_linked_tables("basic", get_query_payload=True)["QUERY"] == list_linked_tables_adql
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -523,14 +531,14 @@ def test_construct_query():
     assert simbad.Simbad._construct_query(-1,
                                           [simbad.Simbad.Column("basic", "main_id", "my_id")],
                                           [],
-                                          [], get_adql=True) == expected
+                                          [], get_query_payload=True)["QUERY"] == expected
     # with top
     # and duplicated columns are dropped
     expected = "SELECT TOP 1 basic.* FROM basic"
     assert simbad.Simbad._construct_query(1,
                                           [column, column],
                                           [],
-                                          [], get_adql=True) == expected
+                                          [], get_query_payload=True)["QUERY"] == expected
     # with a join
     expected = 'SELECT basic.*, ids."ids" FROM basic JOIN ids ON basic."oid" = ids."oidref"'
     assert simbad.Simbad._construct_query(-1,
@@ -538,27 +546,26 @@ def test_construct_query():
                                           [simbad.Simbad.Join("ids",
                                                               simbad.Simbad.Column("basic", "oid"),
                                                               simbad.Simbad.Column("ids", "oidref"))],
-                                          [], get_adql=True) == expected
+                                          [], get_query_payload=True)["QUERY"] == expected
     # with a condition
     expected = "SELECT basic.* FROM basic WHERE ra < 6 AND ra > 5"
     assert simbad.Simbad._construct_query(-1,
                                           [column],
                                           [],
-                                          ["ra < 6", "ra > 5"], get_adql=True) == expected
+                                          ["ra < 6", "ra > 5"], get_query_payload=True)["QUERY"] == expected
 
 
-@pytest.mark.filterwarnings("ignore:\"get_query_payload\" and \"get_adql\" keywords were set*")
 @pytest.mark.usefixtures("_mock_simbad_class")
 @pytest.mark.parametrize(
     ("query_method", "args", "deprecated_kwargs"),
     [
-        (simbad.Simbad.query_objectids, ["M1"], {"verbose", "get_query_payload", "cache"}),
-        (simbad.Simbad.query_bibcode, ["1992AJ....103..983B"], {"verbose", "get_query_payload", "cache"}),
-        (simbad.Simbad.query_bibobj, ["1992AJ....103..983B"], {"verbose", "get_query_payload"}),
-        (simbad.Simbad.query_catalog, ["M"], {"verbose", "get_query_payload", "cache"}),
-        (simbad.Simbad.query_region, [ICRS_COORDS, "2d"], {"get_query_payload", "equinox", "epoch", "cache"}),
-        (simbad.Simbad.query_objects, [["M1", "M2"]], {"verbose", "get_query_payload"}),
-        (simbad.Simbad.query_object, ["M1"], {"verbose", "get_query_payload"}),
+        (simbad.Simbad.query_objectids, ["M1"], {"verbose", "cache"}),
+        (simbad.Simbad.query_bibcode, ["1992AJ....103..983B"], {"verbose", "cache"}),
+        (simbad.Simbad.query_bibobj, ["1992AJ....103..983B"], {"verbose"}),
+        (simbad.Simbad.query_catalog, ["M"], {"verbose", "cache"}),
+        (simbad.Simbad.query_region, [ICRS_COORDS, "2d"], {"equinox", "epoch", "cache"}),
+        (simbad.Simbad.query_objects, [["M1", "M2"]], {"verbose"}),
+        (simbad.Simbad.query_object, ["M1"], {"verbose"}),
     ]
 )
 def test_deprecated_arguments(query_method, args, deprecated_kwargs):
@@ -566,4 +573,4 @@ def test_deprecated_arguments(query_method, args, deprecated_kwargs):
         with pytest.warns(AstropyDeprecationWarning,
                           match=f'"{argument}" was deprecated in version 0.4.8 and will be '
                           'removed in a future version.*'):
-            query_method(*args, get_adql=True, **{argument: True})
+            query_method(*args, get_query_payload=True, **{argument: True})["QUERY"]
