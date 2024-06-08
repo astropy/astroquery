@@ -1061,12 +1061,20 @@ class MPCClass(BaseQuery):
             # find column headings
             if SKY:
                 # slurp to newline after "h m s"
-                i = text_table.index('\n', text_table.index('h m s')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('h m s')) + 1
+                except ValueError as e:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
             else:
                 # slurp to newline after "JD_TT"
-                i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                except ValueError as e:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 
