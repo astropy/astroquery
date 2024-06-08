@@ -1033,7 +1033,7 @@ class MPCClass(BaseQuery):
                     s = np.nan
                 else:
                     s = float(s)
-
+        
                 rows.append((line[:3], lon, c, s, line[30:]))
 
             tab = Table(rows=rows,
@@ -1088,17 +1088,19 @@ class MPCClass(BaseQuery):
                 elif 's=s' in result.request.body:  # sky Motion
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
-                col_starts += (73, 81)
-                col_ends += (80, 89)
+                # Correct start and end for Motion columns if the results have 3 digit precision.
+                col_starts += (73, 82)
+                col_ends += (81, 91)
 
                 if 'Moon' in columns:
                     # table includes Alt, Az, Sun and Moon geometry
                     names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
                               'Moon distance', 'Moon altitude')
+                    # Modified column start and end as motion column can have 3 digit precision.
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 9, 14, 20, 27, 33)))
+                                        (1, 8, 13, 19, 26, 32)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (8, 13, 19, 26, 32, 37)))
+                                      (7, 12, 18, 25, 31, 36)))
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.')
