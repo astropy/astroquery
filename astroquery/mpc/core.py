@@ -1033,7 +1033,7 @@ class MPCClass(BaseQuery):
                     s = np.nan
                 else:
                     s = float(s)
-        
+
                 rows.append((line[:3], lon, c, s, line[30:]))
 
             tab = Table(rows=rows,
