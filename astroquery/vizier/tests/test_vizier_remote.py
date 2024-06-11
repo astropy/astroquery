@@ -94,7 +94,7 @@ class TestVizierRemote:
         v = vizier.core.Vizier(
             columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
             column_filters={"Vmag": ">10"}, keywords=["optical", "radio"])
-
+        v.ROW_LIMIT = 1
         v.query_object('M 31')
 
     def test_regressiontest_invalidtable(self):
@@ -127,22 +127,17 @@ class TestVizierRemote:
 
     def test_findcatalog_maxcatalog(self):
         V = vizier.core.Vizier()
-        cats = V.find_catalogs('eclipsing binary', max_catalogs=5000)
-        assert len(cats) >= 468
-
-        # with pytest.raises(ValueError) as exc:
-        #    V.find_catalogs('eclipsing binary')
-        # assert str(exc.value)==("Maximum number of catalogs exceeded."
-        #                        "  Try setting max_catalogs "
-        #                        "to a large number and try again")
+        cats = V.find_catalogs('eclipsing binary planets', max_catalogs=5000)
+        assert len(cats) >= 39  # as of 2024
 
     def test_findcatalog_ucd(self):
+        # this fails for VizieR 7.33.3, should work in next releases
         V = vizier.core.Vizier()
-        ucdresult = V(ucd='time.age*').find_catalogs('eclipsing binary', max_catalogs=5000)
-        result = V.find_catalogs('eclipsing binary', max_catalogs=5000)
+        ucdresult = V(ucd='phys.albedo').find_catalogs('mars', max_catalogs=5000)
+        result = V.find_catalogs('mars', max_catalogs=5000)
 
-        assert len(ucdresult) >= 12  # count as of 1/15/2018
-        assert len(result) >= 628
+        assert len(ucdresult) >= 1
+        assert len(result) >= 11
         # important part: we're testing that UCD is parsed and some catalogs are ruled out
         assert len(ucdresult) < len(result)
 
