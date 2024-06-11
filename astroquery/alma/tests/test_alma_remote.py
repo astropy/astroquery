@@ -14,7 +14,7 @@ import pytest
 from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.exceptions import CorruptDataWarning
-from .. import Alma
+from astroquery.alma import Alma, get_enhanced_table
 
 # ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
@@ -62,14 +62,27 @@ class TestAlma:
         for row in results:
             assert row['data_rights'] == 'Proprietary'
 
+    @pytest.mark.filterwarnings(
+        "ignore::astropy.utils.exceptions.AstropyUserWarning")
+    def test_s_region(self, alma):
+        pytest.importorskip('regions')
+        import regions  # to silence checkstyle
+        alma.help_tap()
+        result = alma.query_tap("select top 3 s_region from ivoa.obscore")
+        enhanced_result = get_enhanced_table(result)
+        for row in enhanced_result:
+            assert isinstance(row['s_region'], (regions.CircleSkyRegion,
+                                                regions.PolygonSkyRegion,
+                                                regions.CompoundSkyRegion))
+
+    @pytest.mark.filterwarnings(
+        "ignore::astropy.utils.exceptions.AstropyUserWarning")
     def test_SgrAstar(self, tmp_path, alma):
         alma.cache_location = tmp_path
 
-        result_s = alma.query_object('Sgr A*', legacy_columns=True)
+        result_s = alma.query_object('Sgr A*', legacy_columns=True, enhanced_results=True)
 
         assert '2013.1.00857.S' in result_s['Project code']
-        # "The Brick", g0.253, is in this one
-        # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
 
     def test_freq(self, alma):
         payload = {'frequency': '85..86'}
