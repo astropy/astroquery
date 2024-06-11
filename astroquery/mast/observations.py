@@ -6,6 +6,7 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
+from pathlib import Path
 import warnings
 import time
 import os
@@ -508,7 +509,7 @@ class ObservationsClass(MastQueryWithLogin):
         uri : str
             The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
         local_path : str
-            Directory in which the files will be downloaded.  Defaults to current working directory.
+            Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         base_url: str
             A base url to use when downloading.  Default is the MAST Portal API
         cache : bool
@@ -532,10 +533,16 @@ class ObservationsClass(MastQueryWithLogin):
         base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = base_url + "?uri=" + uri
 
-        # create a local file path if none is input.  Use current directory as default.
-        if not local_path:
-            filename = os.path.basename(uri)
-            local_path = os.path.join(os.path.abspath('.'), filename)
+        # parse a local file path from local_path parameter.  Use current directory as default.
+        filename = os.path.basename(uri)
+        if not local_path:  # local file path is not defined
+            local_path = filename
+        else:
+            path = Path(local_path)
+            if not path.suffix:  # local_path is a directory
+                local_path = path / filename  # append filename
+                if not path.exists():  # create directory if it doesn't exist
+                    path.mkdir(parents=True, exist_ok=True)
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}

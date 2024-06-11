@@ -498,7 +498,8 @@ def test_observations_download_products(patch_post, tmpdir):
 
     # passing row product
     products = mast.Observations.get_product_list('2003738726')
-    result1 = mast.Observations.download_products(products[0])
+    result1 = mast.Observations.download_products(products[0],
+                                                  download_dir=str(tmpdir))
     assert isinstance(result1, Table)
 
 

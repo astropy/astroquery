@@ -394,11 +394,26 @@ class TestMast:
 
         # pull the URI of a single product
         uri = products['dataURI'][0]
-        local_path = Path(tmp_path, Path(uri).name)
+        filename = Path(uri).name
 
-        # download it
-        result = mast.Observations.download_file(uri, local_path=local_path)
+        # download with unspecified local_path parameter
+        # should download to current working directory
+        result = mast.Observations.download_file(uri)
         assert result == ('COMPLETE', None, None)
+        assert os.path.exists(Path(os.getcwd(), filename))
+        Path.unlink(filename)  # clean up file
+
+        # download with directory as local_path parameter
+        local_path = Path(tmp_path, filename)
+        result = mast.Observations.download_file(uri, local_path=tmp_path)
+        assert result == ('COMPLETE', None, None)
+        assert os.path.exists(local_path)
+
+        # download with filename as local_path parameter
+        local_path_file = Path(tmp_path, "test.fits")
+        result = mast.Observations.download_file(uri, local_path=local_path_file)
+        assert result == ('COMPLETE', None, None)
+        assert os.path.exists(local_path_file)
 
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
