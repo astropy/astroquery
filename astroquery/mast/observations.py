@@ -674,7 +674,7 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def download_products(self, products, *, download_dir=None, flat=False,
-                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, verbose=True, 
+                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, verbose=True,
                           **filters):
         """
         Download data products.

@@ -496,7 +496,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         if verbose:
             with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
-                                    file=progress_stream) as pb:
+                                      file=progress_stream) as pb:
                 with open(local_filepath, open_mode) as f:
                     for block in response.iter_content(blocksize):
                         f.write(block)
@@ -507,7 +507,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                             pb.update(bytes_read)
         else:
             with open(local_filepath, open_mode) as f:
-                    f.write(response.content)
+                f.write(response.content)
 
         response.close()
         return response
