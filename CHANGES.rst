@@ -41,6 +41,11 @@ skyview
 - Overlay arguments ``lut``, ``grid``, and ``gridlabel`` are removed, as they
   only apply to output types not returned by Astroquery [#2979]
 
+vsa
+^^^
+
+- Updating base URL to fix 404 responses. [#3033]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
