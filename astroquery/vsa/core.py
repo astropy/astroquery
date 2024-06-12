@@ -65,7 +65,7 @@ class VsaClass(BaseWFAUClass):
                                        community=community,
                                        password=password)
 
-        self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
+        self.BASE_URL = "http://vsa.roe.ac.uk:8080/vdfs/"
         self.LOGIN_URL = self.BASE_URL + "DBLogin"
         self.IMAGE_URL = self.BASE_URL + "GetImage"
         self.ARCHIVE_URL = self.BASE_URL + "ImageList"
