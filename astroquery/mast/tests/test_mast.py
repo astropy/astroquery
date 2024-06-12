@@ -496,6 +496,13 @@ def test_observations_download_products(patch_post, tmpdir):
                                                  mrp_only=False)
     assert isinstance(result, Table)
 
+    # without console output
+    result = mast.Observations.download_products('2003738726',
+                                                 download_dir=str(tmpdir),
+                                                 productType=["SCIENCE"],
+                                                 verbose=False)
+    assert isinstance(result, Table)
+
     # passing row product
     products = mast.Observations.get_product_list('2003738726')
     result1 = mast.Observations.download_products(products[0],
