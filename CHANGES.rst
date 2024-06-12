@@ -12,6 +12,7 @@ alma
 ^^^^
 
 - Added method to return quantities instead of values and regions footprint in alma [#2855]
+
 - Added support for frequency_resolution in KHz [#3035]
 
 mpc
@@ -88,7 +89,11 @@ mast
 ^^^^
 
 - Fix bug in which the ``local_path`` parameter for the ``mast.observations.download_file`` method does not accept a directory. [#3016]
+
 - Optimize remote test suite to improve performance and reduce execution time. [#3036]
+
+- Add ``verbose`` parameter to modulate output in ``mast.observations.download_products`` method. [#3031]
+
 
 
 0.4.7 (2024-03-08)
