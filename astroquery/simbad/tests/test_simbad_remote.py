@@ -11,6 +11,8 @@ from astroquery.simbad.core import _cached_query_tap
 
 from pyvo.dal.exceptions import DALOverflowWarning
 
+# this is for the very slow tests
+SKIP_SLOW = True
 
 # M42 coordinates
 ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
@@ -45,6 +47,7 @@ class TestSimbad:
         result = self.simbad.query_bibobj(bibcode, criteria="otype='*..'")
         assert all((bibcode == code) for code in result["bibcode"].data.data)
         assert all(('*' in otype) for otype in result["otype"].data.data)
+        self.simbad.reset_votable_fields()
 
     def test_query_catalog(self):
         self.simbad.ROW_LIMIT = -1
@@ -73,11 +76,20 @@ class TestSimbad:
     def test_query_multi_object(self):
         result = self.simbad.query_objects(['M32', 'M81'])
         assert len(result) == 2
-
+        # check that adding fields preserves the left join
+        self.simbad.add_votable_fields("mesdistance", "otype")
         result = self.simbad.query_objects(['M32', 'M81', 'gHer'])
         # 'gHer' is not a valid Simbad identifier - it should be 'g Her' to
-        # get the star. This appears as an empty line.
-        assert len(result) == 3
+        # get the star. This appears as an empty line corresponding to
+        # 'object_number_id' = 3
+        assert max(result["object_number_id"]) == 3
+        self.simbad.reset_votable_fields()
+
+    @pytest.mark.skipif("SKIP_SLOW")  # ~300 seconds (has to regexp all the database twice!)
+    def test_query_multi_object_wildcard(self):
+        # with wildcards
+        result = self.simbad.query_objects(['*Crab*', '*Bubble*'], wildcard=True)
+        assert len(result) >= 23
 
     def test_simbad_flux_qual(self):
         '''Regression test for issue 680'''

@@ -564,8 +564,8 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        return self._construct_query(top, columns, joins,
-                                     instance_criteria, get_query_payload)
+        return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument(["verbose"], new_name=[None],
                                  since=['0.4.8'], relax=True)
@@ -617,28 +617,38 @@ class SimbadClass(BaseVOQuery):
         """
         top, columns, joins, instance_criteria = self._get_query_parameters()
 
-        upload = Table({"user_specified_id": object_names,
-                        "object_number_id": list(range(1, len(object_names) + 1))})
-
-        upload_name = "TAP_UPLOAD.script_infos"
-
-        columns.append(Simbad.Column(upload_name, "*"))
-
-        joins += [Simbad.Join("ident", Simbad.Column("basic", "oid"), Simbad.Column("ident", "oidref")),
-                  Simbad.Join(upload_name, Simbad.Column("ident", "id"),
-                  Simbad.Column(upload_name, "user_specified_id"), "RIGHT JOIN")]
-
-        if wildcard:
-            list_criteria = [f"regexp(id, '{_wildcard_to_regexp(object_name)}') = 1" for object_name in object_names]
-            instance_criteria += [f'(({" OR ".join(list_criteria)}) OR user_specified_id IS NOT NULL)']
-        else:
-            instance_criteria.append(f"(id IN ({str(object_names)[1:-1]}) OR user_specified_id IS NOT NULL)")
-
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        return self._construct_query(top, columns, joins, instance_criteria,
-                                     get_query_payload, script_infos=upload)
+        if wildcard:
+            columns.append(Simbad.Column("ident", "id", "matched_id"))
+            joins += [Simbad.Join("ident", Simbad.Column("basic", "oid"),
+                                  Simbad.Column("ident", "oidref"))]
+            list_criteria = [f"regexp(id, '{_wildcard_to_regexp(object_name)}') = 1" for object_name in object_names]
+            instance_criteria += [f'({" OR ".join(list_criteria)})']
+
+            return self._query(top, columns, joins, instance_criteria,
+                               get_query_payload=get_query_payload)
+
+        # There is a faster way to do the query if there is no wildcard: the first table
+        # can be the uploaded one and we use a LEFT JOIN for the other ones.
+        upload = Table({"user_specified_id": object_names,
+                        "object_number_id": list(range(1, len(object_names) + 1))})
+        upload_name = "TAP_UPLOAD.script_infos"
+        columns.append(Simbad.Column(upload_name, "*"))
+
+        left_joins = [Simbad.Join("ident", Simbad.Column(upload_name, "user_specified_id"),
+                                  Simbad.Column("ident", "id"), "LEFT JOIN"),
+                      Simbad.Join("basic", Simbad.Column("basic", "oid"),
+                                  Simbad.Column("ident", "oidref"), "LEFT JOIN")]
+        for join in joins:
+            left_joins.append(Simbad.Join(join.table,
+                                          join.column_left,
+                                          join.column_right, "LEFT JOIN"))
+        return self._query(top, columns, left_joins, instance_criteria,
+                           from_table=upload_name,
+                           get_query_payload=get_query_payload,
+                           script_infos=upload)
 
     @deprecated_renamed_argument(["equinox", "epoch", "cache"],
                                  new_name=[None, None, None],
@@ -748,8 +758,8 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        return self._construct_query(top, columns, joins, instance_criteria,
-                                     get_query_payload)
+        return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
@@ -811,7 +821,8 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_query_payload)
+        return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument(["verbose"], new_name=[None],
                                  since=['0.4.8'], relax=True)
@@ -849,7 +860,8 @@ class SimbadClass(BaseVOQuery):
         if criteria:
             instance_criteria.append(f"({criteria})")
 
-        return self._construct_query(top, columns, joins, instance_criteria, get_query_payload)
+        return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
@@ -1066,8 +1078,8 @@ class SimbadClass(BaseVOQuery):
         if "allfluxes." in added_criteria:
             joins.append(self.Join("allfluxes", self.Column("basic", "oid"),
                                    self.Column("allfluxes", "oidref")))
-        return self._construct_query(top, columns, joins, instance_criteria,
-                                     get_query_payload=get_query_payload)
+        return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument("get_adql", new_name="get_query_payload",
                                  since='0.4.8', relax=True)
@@ -1331,12 +1343,9 @@ class SimbadClass(BaseVOQuery):
         """Get the current building blocks of an ADQL query."""
         return tuple(map(copy.deepcopy, (self.ROW_LIMIT, self.columns_in_output, self.joins, self.criteria)))
 
-    def _construct_query(self, top, columns, joins, criteria, get_query_payload=False, **uploads):
-        """Generate and ADQL string from the given query parameters.
-
-        This assumes that the query is for data around the basic table. It is thus only
-        useful for the queries that return astronomical objects (every query except query_bibcode
-        and query_ids).
+    def _query(self, top, columns, joins, criteria, from_table="basic",
+               get_query_payload=False, **uploads):
+        """Generate an ADQL string from the given query parameters and executes the query.
 
         Parameters
         ----------
@@ -1349,10 +1358,16 @@ class SimbadClass(BaseVOQuery):
         criteria : List[str]
             A list of strings. These criteria will be joined
             with an AND clause.
+        from_table : str, optional
+            The table after 'FROM' in the ADQL string. Defaults to "basic".
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
+        uploads : `~astropy.table.Table`
+            Any number of local tables to be used in the *query*. In the *query*, these tables
+            are referred as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
+            is the keyword name you chose. The maximum number of lines for the uploaded tables is 200000.
 
         Returns
         -------
@@ -1387,7 +1402,7 @@ class SimbadClass(BaseVOQuery):
         else:
             criteria = ""
 
-        query = f"SELECT{top}{columns} FROM basic{join}{criteria}"
+        query = f"SELECT{top}{columns} FROM {from_table}{join}{criteria}"
 
         return self.query_tap(query, get_query_payload=get_query_payload, **uploads)
 

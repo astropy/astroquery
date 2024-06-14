@@ -399,17 +399,15 @@ def test_query_objects():
     # no wildcard and additional criteria
     adql = simbad.core.Simbad.query_objects(("m1", "m2"), criteria="otype = 'Galaxy..'",
                                             get_query_payload=True)["QUERY"]
-    expected = ('FROM basic JOIN ident ON basic."oid" = ident."oidref" RIGHT JOIN TAP_UPLOAD.script_infos'
-                ' ON ident."id" = TAP_UPLOAD.script_infos."user_specified_id" WHERE (id IN (\'m1\', \'m2\') OR '
-                'user_specified_id IS NOT NULL) AND (otype = \'Galaxy..\')')
+    expected = ('FROM TAP_UPLOAD.script_infos LEFT JOIN ident ON TAP_UPLOAD.script_infos.'
+                '"user_specified_id" = ident."id" LEFT JOIN basic ON basic."oid" = ident."oidref"'
+                ' WHERE (otype = \'Galaxy..\')')
     assert adql.endswith(expected)
     # with wildcard
     adql = simbad.core.Simbad.query_objects(("M *", "NGC *"), wildcard=True, get_query_payload=True)["QUERY"]
-    expected = (r'SELECT .* TAP_UPLOAD\.script_infos\.\* FROM basic JOIN ident '
-                r'ON basic\."oid" = ident\."oidref" RIGHT JOIN TAP_UPLOAD\.script_infos ON'
-                r' ident\."id" = TAP_UPLOAD\.script_infos\."user_specified_id" WHERE \(\(regexp\(id, \'\^M \+\.\*\$\'\)'
-                r' = 1 OR regexp\(id, \'\^NGC \+\.\*\$\'\) = 1\) OR user_specified_id IS NOT NULL\)')
-    assert re.match(expected, adql) is not None
+    expected = ('FROM basic JOIN ident ON basic."oid" = ident."oidref" WHERE '
+                '(regexp(id, \'^M +.*$\') = 1 OR regexp(id, \'^NGC +.*$\') = 1)')
+    assert adql.endswith(expected)
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -524,35 +522,28 @@ def test_list_linked_tables():
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
-def test_construct_query():
+def test_query():
     column = simbad.Simbad.Column("basic", "*")
     # bare minimum with an alias
     expected = 'SELECT basic."main_id" AS my_id FROM basic'
-    assert simbad.Simbad._construct_query(-1,
-                                          [simbad.Simbad.Column("basic", "main_id", "my_id")],
-                                          [],
-                                          [], get_query_payload=True)["QUERY"] == expected
+    assert simbad.Simbad._query(-1, [simbad.Simbad.Column("basic", "main_id", "my_id")], [],
+                                [], get_query_payload=True)["QUERY"] == expected
     # with top
     # and duplicated columns are dropped
     expected = "SELECT TOP 1 basic.* FROM basic"
-    assert simbad.Simbad._construct_query(1,
-                                          [column, column],
-                                          [],
-                                          [], get_query_payload=True)["QUERY"] == expected
+    assert simbad.Simbad._query(1, [column, column], [], [],
+                                get_query_payload=True)["QUERY"] == expected
     # with a join
     expected = 'SELECT basic.*, ids."ids" FROM basic JOIN ids ON basic."oid" = ids."oidref"'
-    assert simbad.Simbad._construct_query(-1,
-                                          [column, simbad.Simbad.Column("ids", "ids")],
-                                          [simbad.Simbad.Join("ids",
-                                                              simbad.Simbad.Column("basic", "oid"),
-                                                              simbad.Simbad.Column("ids", "oidref"))],
-                                          [], get_query_payload=True)["QUERY"] == expected
+    assert simbad.Simbad._query(-1, [column, simbad.Simbad.Column("ids", "ids")],
+                                [simbad.Simbad.Join("ids", simbad.Simbad.Column("basic", "oid"),
+                                                    simbad.Simbad.Column("ids", "oidref"))],
+                                [], get_query_payload=True)["QUERY"] == expected
     # with a condition
     expected = "SELECT basic.* FROM basic WHERE ra < 6 AND ra > 5"
-    assert simbad.Simbad._construct_query(-1,
-                                          [column],
-                                          [],
-                                          ["ra < 6", "ra > 5"], get_query_payload=True)["QUERY"] == expected
+    assert simbad.Simbad._query(-1, [column], [],
+                                ["ra < 6", "ra > 5"],
+                                get_query_payload=True)["QUERY"] == expected
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
