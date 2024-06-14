@@ -500,7 +500,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[np.where(filter_mask)]
 
-    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False, verbose=True):
         """
         Downloads a single file based on the data URI
 
@@ -518,6 +518,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -554,7 +556,7 @@ class ObservationsClass(MastQueryWithLogin):
         try:
             if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
                 try:
-                    self._cloud_connection.download_file(data_product, local_path, cache)
+                    self._cloud_connection.download_file(data_product, local_path, cache, verbose)
                 except Exception as ex:
                     log.exception("Error pulling from S3 bucket: {}".format(ex))
                     if cloud_only:
@@ -564,10 +566,12 @@ class ObservationsClass(MastQueryWithLogin):
                     else:
                         log.warning("Falling back to mast download...")
                         self._download_file(data_url, local_path,
-                                            cache=cache, head_safe=True, continuation=False)
+                                            cache=cache, head_safe=True, continuation=False,
+                                            verbose=verbose)
             else:
                 self._download_file(data_url, local_path,
-                                    cache=cache, head_safe=True, continuation=False)
+                                    cache=cache, head_safe=True, continuation=False,
+                                    verbose=verbose)
 
             # check if file exists also this is where would perform md5,
             # and also check the filesize if the database reliably reported file sizes
@@ -583,7 +587,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
@@ -602,6 +606,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -622,7 +628,7 @@ class ObservationsClass(MastQueryWithLogin):
 
             # download the files
             status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
-                                                  cache=cache, cloud_only=cloud_only)
+                                                  cache=cache, cloud_only=cloud_only, verbose=verbose)
 
             manifest_array.append([local_path, status, msg, url])
 
@@ -630,7 +636,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def _download_curl_script(self, products, out_dir):
+    def _download_curl_script(self, products, out_dir, verbose=True):
         """
         Takes an `~astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
 
@@ -640,6 +646,8 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products to be included in the curl script.
         out_dir : str
             Directory in which the curl script will be saved.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -651,7 +659,7 @@ class ObservationsClass(MastQueryWithLogin):
         local_path = os.path.join(out_dir, download_file)
 
         self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
-                            local_path, data=url_list, method="POST")
+                            local_path, data=url_list, method="POST", verbose=verbose)
 
         status = "COMPLETE"
         msg = None
@@ -666,7 +674,8 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def download_products(self, products, *, download_dir=None, flat=False,
-                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
+                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, verbose=True,
+                          **filters):
         """
         Download data products.
         If cloud access is enabled, files will be downloaded from the cloud if possible.
@@ -698,6 +707,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
         **filters :
             Filters to be applied.  Valid filters are all products fields returned by
             ``get_metadata("products")`` and 'extension' which is the desired file extension.
@@ -758,7 +769,8 @@ class ObservationsClass(MastQueryWithLogin):
             manifest = self._download_files(products,
                                             base_dir=base_dir, flat=flat,
                                             cache=cache,
-                                            cloud_only=cloud_only)
+                                            cloud_only=cloud_only,
+                                            verbose=verbose)
 
         return manifest
 
