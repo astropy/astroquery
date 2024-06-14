@@ -218,6 +218,7 @@ def get_enhanced_table(result):
         print(
             "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma."
             "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+        raise
 
     def _parse_stcs_string(input):
         csys = 'icrs'
