@@ -199,17 +199,6 @@ def test_gen_datetime_sql():
         common_select + "(58849.0<=t_min AND t_min<=58880.0)"
 
 
-def test_gen_spec_res_sql():
-    common_select = 'select * from ivoa.obscore WHERE '
-    assert _gen_sql({'spectral_resolution': 70}) == common_select + "em_resolution=20985472.06"
-    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + "em_resolution>=20985472.06"
-    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + "em_resolution<=20985472.06"
-    assert _gen_sql({'spectral_resolution': '(70 .. 80)'}) == common_select + \
-        "(23983396.64<=em_resolution AND em_resolution<=20985472.06)"
-    assert _gen_sql({'spectral_resolution': '(70|80)'}) == common_select + \
-        "(em_resolution=20985472.06 OR em_resolution=23983396.64)"
-
-
 def test_gen_public_sql():
     common_select = 'select * from ivoa.obscore'
     assert _gen_sql({'public_data': None}) == common_select
@@ -355,6 +344,19 @@ def test_query():
         "t_exptime=25 AND science_observation='F'",
         language='ADQL', maxrec=None
     )
+
+    tap_mock.reset()
+    result = alma.query_region('1 2', radius=1*u.deg,
+                               payload={'em_resolution': 6.929551916151968e-05,
+                                        'spectral_resolution': 2000000}
+                               )
+    assert len(result) == 0
+    tap_mock.search.assert_called_with(
+        "select * from ivoa.obscore WHERE em_resolution=6.929551916151968e-05 "
+        "AND spectral_resolution=2000000 "
+        "AND (INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), "
+        "s_region) = 1) AND science_observation='T' AND data_rights='Public'",
+        language='ADQL', maxrec=None)
 
 
 @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")

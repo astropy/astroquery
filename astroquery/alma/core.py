@@ -29,7 +29,7 @@ from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
                      _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,
-                     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT)
+                     _gen_science_sql, ALMA_DATE_FORMAT)
 from . import conf, auth_urls
 from astroquery.exceptions import CorruptDataWarning
 
@@ -51,7 +51,8 @@ _OBSCORE_TO_ALMARESULT = {
     'gal_latitude': 'Galactic latitude',
     'band_list': 'Band',
     's_region': 'Footprint',
-    'em_resolution': 'Frequency resolution',
+    'em_resolution': 'Frequency resolution (m)',
+    'spectral_resolution': 'Frequency resolution (Hz)',
     'antenna_arrays': 'Array',
     'is_mosaic': 'Mosaic',
     't_exptime': 'Integration',
@@ -111,7 +112,9 @@ ALMA_FORM_KEYS = {
         'Frequency (GHz)': ['frequency', 'frequency', _gen_numeric_sql],
         'Bandwidth (Hz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
         'Spectral resolution (KHz)': ['spectral_resolution',
-                                      'em_resolution', _gen_spec_res_sql],
+                                      'spectral_resolution', _gen_numeric_sql],
+        'Spectral resolution (m)': ['em_resolution',
+                                    'em_resolution', _gen_numeric_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_sql]
     },
     'Time': {
@@ -182,11 +185,7 @@ def _gen_sql(payload):
                         # use the value and the second entry in attrib which
                         # is the new name of the column
                         val = payload[constraint]
-                        if constraint == 'em_resolution':
-                            # em_resolution does not require any transformation
-                            attrib_where = _gen_numeric_sql(constraint, val)
-                        else:
-                            attrib_where = attrib[2](attrib[1], val)
+                        attrib_where = attrib[2](attrib[1], val)
                         if attrib_where:
                             if where:
                                 where += ' AND '

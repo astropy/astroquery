@@ -167,38 +167,6 @@ def _gen_datetime_sql(field, value):
         return result
 
 
-def _gen_spec_res_sql(field, value):
-    # This needs special treatment because spectral_resolution in AQ is in
-    # KHz while corresponding em_resolution is in m
-    result = ''
-    for interval in _val_parse(value):
-        if result:
-            result += ' OR '
-        if isinstance(interval, tuple):
-            min_val, max_val = interval
-            if max_val is None:
-                result += "{}<={}".format(
-                    field,
-                    min_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-            elif min_val is None:
-                result += "{}>={}".format(
-                    field,
-                    max_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-            else:
-                result += "({1}<={0} AND {0}<={2})".format(
-                    field,
-                    max_val*u.kHz.to(u.m, equivalencies=u.spectral()),
-                    min_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-        else:
-            result += "{}={}".format(
-                field, interval*u.kHz.to(u.m, equivalencies=u.spectral()))
-    if ' OR ' in result:
-        # use brackets for multiple ORs
-        return '(' + result + ')'
-    else:
-        return result
-
-
 def _gen_pub_sql(field, value):
     if value is True:
         return "{}='Public'".format(field)

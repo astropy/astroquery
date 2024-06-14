@@ -12,6 +12,7 @@ alma
 ^^^^
 
 - Added method to return quantities instead of values and regions footprint in alma [#2855]
+- Added support for frequency_resolution in KHz [#3035]
 
 mpc
 ^^^
