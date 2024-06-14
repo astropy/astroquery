@@ -137,7 +137,7 @@ value:
          IRAC-4   7.68              0.122   0.005            0.151 0.006
          WISE-1   3.32              0.189   0.008            0.234  0.01
          WISE-2   4.57              0.146   0.006             0.18 0.008
-    Length = 25 rows
+
 
 Get other query details
 -----------------------
@@ -176,7 +176,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> IrsaDust.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 
