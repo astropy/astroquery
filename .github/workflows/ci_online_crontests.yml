@@ -1,4 +1,4 @@
-name: CI-crontests
+name: CI-online-crontests
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
     tags:
     - '*'
   schedule:
-    # run every Friday at 22:00 UTC
-    - cron: '0 22 * * 5'
+    # run every Friday at 23:00 UTC
+    - cron: '0 23 * * 5'
   workflow_dispatch:
 
 permissions:
@@ -22,17 +22,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: py3.12 pre-release all deps
+          - name: py3.12 all dev deps online
             os: ubuntu-latest
             python: '3.12'
-            toxenv: py312-test-alldeps-predeps
+            toxenv: py312-test-alldeps-devdeps-online
             toxargs: -v
-            toxposargs: -v
+            toxposargs: -v --durations=50
 
-          - name: Documentation build with linkcheck
-            os: ubuntu-latest
-            python: '3.10'
-            toxenv: linkcheck
+          - name: Windows py3.9 all deps online
+            os: windows-latest
+            python: '3.9'
+            toxenv: py39-test-alldeps-online
+            toxargs: -v
+            toxposargs: -v --durations=50
 
     steps:
     - name: Checkout code
