@@ -17,7 +17,7 @@ def reload_votable_fields_json():
     # Find the first <table> tag that follows it
     table = foundtext.findNext('table')
     outd = {}
-    for row in table.findAll('tr'):
+    for row in table.find_all('tr'):
         cols = row.findChildren('td')
         if len(cols) > 1:
             smallest_child = cols[0].find_all()[-1]

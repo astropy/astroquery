@@ -271,7 +271,7 @@ class IbeClass(BaseQuery):
                                      cache=cache)
 
             root = BeautifulSoup(response.text, 'html5lib')
-            links = root.findAll('a')
+            links = root.find_all('a')
 
             missions = [os.path.basename(a.attrs['href'].rstrip('/')) for a in links]
             self._missions = missions
@@ -309,7 +309,7 @@ class IbeClass(BaseQuery):
                                  cache=cache)
 
         root = BeautifulSoup(response.text, 'html5lib')
-        links = root.findAll('a')
+        links = root.find_all('a')
         datasets = [a.text for a in links
                     if a.attrs['href'].count('/') >= 4  # shown as '..'; ignore
                     ]
@@ -364,7 +364,7 @@ class IbeClass(BaseQuery):
                                  cache=cache)
 
         root = BeautifulSoup(response.text, 'html5lib')
-        return [tr.find('td').string for tr in root.findAll('tr')[1:]]
+        return [tr.find('td').string for tr in root.find_all('tr')[1:]]
 
     # Unfortunately, the URL construction for each data set is different, and
     # they're not obviously accessible via API

@@ -283,10 +283,10 @@ class SkyViewClass(BaseQuery):
             response = self._request('GET', self.URL, cache=False)
             response.raise_for_status()
             page = BeautifulSoup(response.content, "html.parser")
-            surveys = page.findAll('select', {'name': 'survey'})
+            surveys = page.find_all('select', {'name': 'survey'})
 
             self._survey_dict = {
-                sel['id']: [x.text for x in sel.findAll('option')]
+                sel['id']: [x.text for x in sel.find_all('option')]
                 for sel in surveys
                 if 'overlay' not in sel['id']
             }

@@ -156,7 +156,7 @@ class CDMSClass(BaseQuery):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         ok = False
-        urls = [x.attrs['src'] for x in soup.findAll('frame',)]
+        urls = [x.attrs['src'] for x in soup.find_all('frame',)]
         for url in urls:
             if 'tab' in url and 'head' not in url:
                 ok = True

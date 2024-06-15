@@ -665,7 +665,7 @@ class BaseWFAUClass(QueryWithLogin):
 
         root = BeautifulSoup(response.content, features='html5lib')
         databases = [xrf.attrs['value'] for xrf in
-                     root.find('select').findAll('option')]
+                     root.find('select').find_all('option')]
         return databases
 
     def list_databases(self):

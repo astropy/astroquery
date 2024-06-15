@@ -348,10 +348,10 @@ class EsoClass(QueryWithLogin):
             collections_table = root.find('table', id='collections_table')
             other_collections = root.find('select', id='collection_name_option')
             # it is possible to have empty collections or other collections...
-            collection_elts = (collections_table.findAll('input', type='checkbox')
+            collection_elts = (collections_table.find_all('input', type='checkbox')
                                if collections_table is not None
                                else [])
-            other_elts = (other_collections.findAll('option')
+            other_elts = (other_collections.find_all('option')
                           if other_collections is not None
                           else [])
             for element in (collection_elts + other_elts):
@@ -969,7 +969,7 @@ class EsoClass(QueryWithLogin):
 
         # hovertext from different labels are used to give more info on forms
         helptext_dict = {abbr['title'].split(":")[0].strip(): ":".join(abbr['title'].split(":")[1:])
-                         for abbr in form.findAll('abbr')
+                         for abbr in form.find_all('abbr')
                          if 'title' in abbr.attrs and ":" in abbr['title']}
 
         for fieldset in form.select('fieldset'):
