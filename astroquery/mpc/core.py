@@ -1052,7 +1052,6 @@ class MPCClass(BaseQuery):
                 raise InvalidQueryError(content)
             table_end = content.find('</pre>')
             text_table = content[table_start + 5:table_end]
-
             SKY = 'raty=a' in result.request.body
             HELIOCENTRIC = 'raty=s' in result.request.body
             GEOCENTRIC = 'raty=G' in result.request.body
@@ -1112,10 +1111,11 @@ class MPCClass(BaseQuery):
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.')
+                    # Modified column start and end as motion column can have 3 digit precision.
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 11)))
+                                         (1, 10)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (10, 16)))
+                                       (9, 15)))
                     units += ('arcsec', 'deg')
                 if ">Map</a>" in first_row and self._unc_links:
                     names += ('Unc. map', 'Unc. offsets')
@@ -1181,7 +1181,7 @@ class MPCClass(BaseQuery):
             else:
                 # convert from MPES string to Time
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
-
+            print(tab)
             return tab
 
         elif self.query_type == 'observations':
