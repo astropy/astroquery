@@ -165,6 +165,7 @@ class TestAlma:
         with pytest.raises(AttributeError):
             alma.is_proprietary('uid://NON/EXI/STING')
 
+    @pytest.mark.bigdata
     def test_retrieve_data(self, tmp_path, alma):
         """
         Regression test for issue 2490 (the retrieval step will simply fail if
