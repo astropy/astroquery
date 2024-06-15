@@ -1162,9 +1162,9 @@ class AlmaClass(QueryWithLogin):
             # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
             html_table = root.find('table', class_='grid listing')
-            data = list(zip(*[(x.findAll('td')[0].text,
-                               x.findAll('td')[1].text)
-                              for x in html_table.findAll('tr')]))
+            data = list(zip(*[(x.find_all('td')[0].text,
+                               x.find_all('td')[1].text)
+                              for x in html_table.find_all('tr')]))
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)

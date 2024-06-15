@@ -53,7 +53,7 @@ def get_json_species_ids(*, outfile='splat-species.json', base_url=conf.base_url
     result = requests.get(f'{base_url}/b.php')
     page = bs4.BeautifulSoup(result.content, 'html5lib')
     # The ID needs to be checked periodically if Splatalogue is updated
-    sid = page.findAll('select', attrs={'id': 'speciesselectbox'})[0]
+    sid = page.find_all('select', attrs={'id': 'speciesselectbox'})[0]
 
     species_types = set()
     for kid in sid.children:
