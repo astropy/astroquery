@@ -171,7 +171,21 @@ def _region_to_contains(region_string):
 
 def _parse_coordinate_and_convert_to_icrs(string_coordinate, *,
                                           frame="icrs", epoch=None, equinox=None):
-    """Convert a string into a SkyCoord object in the ICRS frame."""
+    """Convert from sim-script string to SkyCoord.
+
+    Parameters
+    ----------
+    string_coordinate : str
+        Should be in the sim-script syntax defined here
+        http://simbad.cds.unistra.fr/guide/sim-fsam.htx
+    frame : str
+    epoch : str
+    equinox : str
+
+    Returns
+    -------
+    `~astropy.coordinates.SkyCoord`
+    """
     if re.search(r"\d+ *[\+\- ]\d+", string_coordinate):
         if equinox:
             equinox = f"J{equinox}"

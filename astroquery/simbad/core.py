@@ -168,12 +168,14 @@ class SimbadClass(BaseVOQuery):
         """A list of Simbad.Column.
 
         They will be included in the output of the following methods:
-        - `~astroquery.simbad.SimbadClass.query_object`,
-        - `~astroquery.simbad.SimbadClass.query_objects`,
-        - `~astroquery.simbad.SimbadClass.query_region`,
-        - `~astroquery.simbad.SimbadClass.query_catalog`,
-        - `~astroquery.simbad.SimbadClass.query_bibobj`,
-        - `~astroquery.simbad.SimbadClass.query_criteria`.
+
+        - `query_object`,
+        - `query_objects`,
+        - `query_region`,
+        - `query_catalog`,
+        - `query_bibobj`,
+        - `query_criteria`.
+
         """
         if self._columns_in_output is None:
             self._columns_in_output = [Simbad.Column("basic", item)
@@ -228,17 +230,17 @@ class SimbadClass(BaseVOQuery):
         >>> # to print only the available bundles of columns
         >>> options[options["type"] == "bundle of basic columns"][["name", "description"]] # doctest: +REMOTE_DATA
         <Table length=8>
-             name     ...
-            object    ...
-        ------------- ...
-          coordinates ...
-                  dim ...
-           dimensions ...
-            morphtype ...
-             parallax ...
-        propermotions ...
-                   sp ...
-             velocity ...
+            name                         description
+            object                           object
+        ------------- ----------------------------------------------------
+          coordinates                  all fields related with coordinates
+                  dim          major and minor axis, angle and inclination
+           dimensions              all fields related to object dimensions
+            morphtype         all fields related to the morphological type
+             parallax                     all fields related to parallaxes
+        propermotions           all fields related with the proper motions
+                   sp            all fields related with the spectral type
+             velocity all fields related with radial velocity and redshift
         """
         # get the tables with a simple link to basic
         query_tables = """SELECT DISTINCT table_name AS name, tables.description
@@ -338,14 +340,14 @@ class SimbadClass(BaseVOQuery):
         The list of possible arguments and their description for this method
         can be printed with `~astroquery.simbad.SimbadClass.list_votable_fields`.
 
-        The methods affected by this property are:
+        The methods affected by this:
 
-        - `~astroquery.simbad.SimbadClass.query_object`,
-        - `~astroquery.simbad.SimbadClass.query_objects`,
-        - `~astroquery.simbad.SimbadClass.query_region`,
-        - `~astroquery.simbad.SimbadClass.query_catalog`,
-        - `~astroquery.simbad.SimbadClass.query_bibobj`,
-        - `~astroquery.simbad.SimbadClass.query_criteria`.
+        - `query_object`,
+        - `query_objects`,
+        - `query_region`,
+        - `query_catalog`,
+        - `query_bibobj`,
+        - `query_criteria`.
 
 
         Parameters
@@ -451,12 +453,14 @@ class SimbadClass(BaseVOQuery):
         """Reset the output of the query_*** methods to default.
 
         They will be included in the output of the following methods:
-        - `~astroquery.simbad.SimbadClass.query_object`,
-        - `~astroquery.simbad.SimbadClass.query_objects`,
-        - `~astroquery.simbad.SimbadClass.query_region`,
-        - `~astroquery.simbad.SimbadClass.query_catalog`,
-        - `~astroquery.simbad.SimbadClass.query_bibobj`,
-        - `~astroquery.simbad.SimbadClass.query_criteria`.
+
+        - `query_object`,
+        - `query_objects`,
+        - `query_region`,
+        - `query_catalog`,
+        - `query_bibobj`,
+        - `query_criteria`.
+
         """
         self.columns_in_output = [Simbad.Column("basic", item)
                                   for item in conf.default_columns]
@@ -508,7 +512,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        verbose : Deprecated since 0.4.8
 
         Returns
         -------
@@ -567,10 +570,10 @@ class SimbadClass(BaseVOQuery):
         return self._query(top, columns, joins, instance_criteria,
                            get_query_payload=get_query_payload)
 
-    @deprecated_renamed_argument(["verbose"], new_name=[None],
-                                 since=['0.4.8'], relax=True)
+    @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
+                                 since=['0.4.8', '0.4.8'], relax=True)
     def query_objects(self, object_names, *, wildcard=False, criteria=None,
-                      get_query_payload=False, verbose=False):
+                      get_query_payload=False, verbose=False, cache=False):
         """Query SIMBAD for the specified list of objects.
 
         Object names may be specified with wildcards.
@@ -592,7 +595,9 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        verbose : Deprecated since 0.4.8
+        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
+            end of the python session. It can also be emptied manually with
+            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -651,8 +656,9 @@ class SimbadClass(BaseVOQuery):
                            script_infos=upload)
 
     @deprecated_renamed_argument(["equinox", "epoch", "cache"],
-                                 new_name=[None, None, None],
-                                 since=['0.4.8', '0.4.8', '0.4.8'], relax=True)
+                                 new_name=[None]*3,
+                                 alternative=["astropy.coordinates.SkyCoord"]*3,
+                                 since=['0.4.8']*3, relax=True)
     def query_region(self, coordinates, radius=2*u.arcmin, *,
                      criteria=None, get_query_payload=False,
                      equinox=None, epoch=None, cache=None):
@@ -671,10 +677,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        equinox : Deprecated since 0.4.8
-            Use `~astropy.coordinates` objects instead
-        epoch : Deprecated since 0.4.8
-            Use `~astropy.coordinates` objects instead
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -778,7 +780,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        verbose : Deprecated since 0.4.8
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -839,7 +840,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        verbose : Deprecated since 0.4.8
 
         Returns
         -------
@@ -889,7 +889,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        verbose : Deprecated since 0.4.8
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
             `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
@@ -953,7 +952,6 @@ class SimbadClass(BaseVOQuery):
             an additional criteria to constrain the result. As the output of this
             method has only one column, these criteria can only be imposed on
             the column ``ident.id``.
-        verbose : Deprecated since 0.4.8
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.

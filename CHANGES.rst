@@ -45,7 +45,7 @@ vizier
 simbad
 ^^^^^^
 
-- The ``ROW_LIMIT`` value to have the maximum number of rows is now -1 instead of 0. This
+- The ``ROW_LIMIT`` value to have the maximum number of rows is now -1. ``ROW_LIMIT = 0`` now
   allows to retrieve an empty table with the output's meta-data [#2954]
 
 - ``ROW_LIMIT`` can now be set at instantiation (ex: ``simbad = Simbad(ROW_LIMIT=10))``) [#2954]
