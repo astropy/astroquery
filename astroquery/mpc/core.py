@@ -1094,7 +1094,6 @@ class MPCClass(BaseQuery):
                 elif 's=s' in result.request.body:  # sky Motion
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
-                # Correct start and end for Motion columns if the results have 3 digit precision.
                 col_starts += (73, 82)
                 col_ends += (81, 91)
 
@@ -1102,7 +1101,6 @@ class MPCClass(BaseQuery):
                     # table includes Alt, Az, Sun and Moon geometry
                     names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
                               'Moon distance', 'Moon altitude')
-                    # Modified column start and end as motion column can have 3 digit precision.
                     col_starts += tuple((col_ends[-1] + offset for offset in
                                         (1, 8, 13, 19, 26, 32)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
@@ -1110,7 +1108,6 @@ class MPCClass(BaseQuery):
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.')
-                    # Modified column start and end as motion column can have 3 digit precision.
                     col_starts += tuple((col_ends[-1] + offset for offset in
                                          (1, 10)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
