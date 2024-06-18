@@ -25,6 +25,12 @@ linelists.cdms
 
 - Fix result parsing incompatibility with astropy 6.1 on Windows systems. [#3008]
 
+ogle
+^^^^
+
+- Change URL to https and thus making the module functional again. [#3048]
+
+
 splatalogue
 ^^^^^^^^^^^
 
