@@ -244,7 +244,7 @@ will return a `~astropy.table.Table`:
 
    >>> from astroquery.ipac.irsa import Irsa
    >>> Irsa.list_collections()
-   <Table length=113>
+   <Table length=114>
          collection
            object
    ---------------------

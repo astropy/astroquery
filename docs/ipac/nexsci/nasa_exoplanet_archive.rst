@@ -94,19 +94,44 @@ A list of accessible tables can be found in the ``TAP_TABLES`` attribute:
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.TAP_TABLES
     ['spectra',
+    'TD',
+    'pscomppars',
     'superwasptimeseries',
     'kelttimeseries',
     'DI_STARS_EXEP',
+    'stellarhosts',
     'transitspec',
     'emissionspec',
     'ps',
-    'pscomppars',
     'keplernames',
     'k2names',
+    'toi',
+    'CUMULATIVE',
+    'Q1_Q6_KOI',
+    'Q1_Q8_KOI',
+    'Q1_Q12_KOI',
+    'Q1_Q16_KOI',
+    'Q1_Q17_DR24_KOI',
+    'Q1_Q17_DR25_KOI',
+    'Q1_Q17_DR25_SUP_KOI',
+    'Q1_Q12_TCE',
+    'Q1_Q16_TCE',
+    'Q1_Q17_DR24_TCE',
+    'Q1_Q17_DR25_TCE',
+    'stellarhosts',
     'ukirttimeseries',
     'ml',
     'object_aliases',
-    'k2pandc']
+    'k2pandc',
+    'K2TARGETS',
+    'KEPLERTIMESERIES',
+    'KEPLERSTELLAR',
+    'Q1_Q12_KS',
+    'Q1_Q16_KS',
+    'Q1_Q17_DR24_KS',
+    'Q1_Q17_DR25_KS',
+    'Q1_Q17_DR25_SUP_KS']
+
 
 
 Example queries

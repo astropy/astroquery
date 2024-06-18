@@ -149,7 +149,6 @@ These queries can be used to retrieve all objects that appear in the specified
      34                 UGC 12149  340.28163 ...               8            0
      35                  MRK 0522  345.07954 ...               4            0
      36                  NGC 7674  351.98635 ...               8            0
-    Length = 36 rows
 
 
 Image and Spectra Queries
@@ -272,13 +271,13 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
 
 .. code-block:: python
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> Ned.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
-    
+
 Reference/API
 =============
 
