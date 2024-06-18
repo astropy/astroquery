@@ -16,8 +16,7 @@ from erfa import ErfaWarning
 from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
-from ..exceptions import InvalidQueryError, EmptyResponseError
-
+from ..exceptions import InvalidQueryError, EmptyResponseError, NoResultsWarning
 
 __all__ = ['MPCClass']
 
@@ -1064,7 +1063,7 @@ class MPCClass(BaseQuery):
                 try:
                     i = text_table.index('\n', text_table.index('h m s')) + 1
                 except ValueError as e:
-                    raise EmptyResponseError(content)
+                    raise NoResultsWarning(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
             else:
@@ -1073,7 +1072,7 @@ class MPCClass(BaseQuery):
                 try:
                     i = text_table.index('\n', text_table.index('JD_TT')) + 1
                 except ValueError as e:
-                    raise EmptyResponseError(content)
+                    raise NoResultsWarning(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 
@@ -1181,7 +1180,6 @@ class MPCClass(BaseQuery):
             else:
                 # convert from MPES string to Time
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
-            print(tab)
             return tab
 
         elif self.query_type == 'observations':

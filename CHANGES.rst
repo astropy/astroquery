@@ -12,6 +12,8 @@ mpc
 ^^^
 
 - Parse star catalog information when querying observations database [#2957]
+- Parse ephemeris with sky motion with three digit precision [#3019]
+- Raise NoResultWarining when empty ephemeris reponse is returned [#3019]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
