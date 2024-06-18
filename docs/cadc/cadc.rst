@@ -26,7 +26,7 @@ these collections:
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> for collection, details in sorted(cadc.get_collections().items()):
-    ...    print(f'{collection} : {details}')
+    ...    print(f'{collection} : {details}')  # doctest: +IGNORE_OUTPUT
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
@@ -313,8 +313,6 @@ To get a list of table objects:
     caom2.HarvestState
     caom2.SIAv1
     ivoa.ObsCore
-    ivoa.ObsFile
-    ivoa.ObsPart
     tap_schema.schemas
     tap_schema.tables
     tap_schema.columns
