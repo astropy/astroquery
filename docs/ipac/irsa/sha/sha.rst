@@ -1,5 +1,7 @@
 :orphan:
 
+.. doctest-skip-all
+
 .. _astroquery.ipac.irsa.sha:
 
 
