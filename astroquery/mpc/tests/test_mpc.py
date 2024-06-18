@@ -189,12 +189,12 @@ def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
     assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
 
-def test_get_ephemeris_by_name_fail(patch_post):
+def test_get_ephemeris_by_name_empty(patch_post):
     with pytest.raises(NoResultsWarning):
         mpc.core.MPC.get_ephemeris('340P', location='G37')
 
 
-def test_get_ephemeris_by_name_empty(patch_post):
+def test_get_ephemeris_by_name_fail(patch_post):
     with pytest.raises(InvalidQueryError):
         mpc.core.MPC.get_ephemeris('test fail')
 
