@@ -122,9 +122,9 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['tap_config.coord_sys', 'tap_config.properties', 'tap_schema.columns',
+  ['public.dual', 'tap_config.coord_sys', 'tap_config.properties', 'tap_schema.columns',
    'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas',
-   'tap_schema.tables', 'xsa.dual', 'xsa.v_all_observations', 'xsa.v_epic_source',
+   'tap_schema.tables', 'xsa.v_all_observations', 'xsa.v_epic_source',
    'xsa.v_epic_source_cat', 'xsa.v_epic_xmm_stack_cat', 'xsa.v_exposure',
    'xsa.v_instrument_mode', 'xsa.v_om_source', 'xsa.v_om_source_cat',
    'xsa.v_proposal', 'xsa.v_proposal_observation_info', 'xsa.v_publication',
@@ -205,7 +205,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.esa.xmm_newton import XMMNewton
     >>> XMMNewton.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

@@ -105,7 +105,7 @@ degrees around an specific point in RA/Dec coordinates. The results are sorted b
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=130)
-           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_upper libname_gspphot
+           dist             solution_id             designation          ... ebpminrp_gspphot_upper libname_gspphot
                                                                    ...                mag
   --------------------- ------------------- ---------------------------- ... ---------------------- ---------------
   0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --
@@ -126,7 +126,7 @@ Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To cha
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_width=140)
-           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
+           dist             solution_id             designation          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
                                                                    ...        mag                    mag
   --------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------
   0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --
@@ -146,7 +146,7 @@ To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=140)
-           dist             solution_id             DESIGNATION          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
+           dist             solution_id             designation          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
                                                                    ...        mag                    mag
   --------------------- ------------------- ---------------------------- ... ---------------------- ---------------------- ---------------
   0.0026043272506261527 1636148068921376768 Gaia DR3 6636090334814214528 ...                     --                     --
@@ -176,7 +176,7 @@ radius argument.
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = j.get_results()
   >>> r.pprint()
-      solution_id             DESIGNATION          ...          dist
+      solution_id             designation          ...          dist
                                                  ...
   ------------------- ---------------------------- ... ---------------------
   1636148068921376768 Gaia DR3 6636090334814214528 ... 0.0026043272506261527
@@ -207,15 +207,15 @@ To load only table names metadata (TAP+ capability):
   INFO: Done. [astroquery.utils.tap.core]
   >>> for table in tables:
   ...   print(table.get_qualified_name())
-  external.external.apassdr9
-  external.external.catwise2020
-  external.external.gaiadr2_astrophysical_parameters
-  external.external.gaiadr2_geometric_distance
-  external.external.gaiaedr3_distance
+  external.apassdr9
+  external.catwise2020
+  external.gaiadr2_astrophysical_parameters
+  external.gaiadr2_geometric_distance
+  external.gaiaedr3_distance
              ...
-  tap_schema.tap_schema.keys
-  tap_schema.tap_schema.schemas
-  tap_schema.tap_schema.tables
+  tap_schema.keys
+  tap_schema.schemas
+  tap_schema.tables
 
 To load all tables metadata (TAP compatible):
 
@@ -227,11 +227,12 @@ To load all tables metadata (TAP compatible):
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
   >>> print(tables[0])
-  TAP Table name: external.external.apassdr9
+  TAP Table name: external.apassdr9
   Description: The AAVSO Photometric All-Sky Survey - Data Release 9
       This publication makes use of data products from the AAVSO
       Photometric All Sky Survey (APASS). Funded by the Robert Martin Ayers
       Sciences Fund and the National Science Foundation. Original catalogue released by Henden et al. 2015 AAS Meeting #225, id.336.16. Data retrieved using the VizieR catalogue access tool, CDS, Strasbourg, France. The original description of the VizieR service was published in A&AS 143, 23. VizieR catalogue II/336.
+  Size (bytes): 22474547200
   Num. columns: 25
 
 
@@ -242,8 +243,9 @@ To load only a table (TAP+ capability):
   >>> from astroquery.gaia import Gaia
   >>> gaiadr3_table = Gaia.load_table('gaiadr3.gaia_source')
   >>> print(gaiadr3_table)
-  TAP Table name: gaiadr3.gaiadr3.gaia_source
+  TAP Table name: gaiadr3.gaia_source
   Description: This table has an entry for every Gaia observed source as published with this data release. It contains the basic source parameters, in their final state as processed by the Gaia Data Processing and Analysis Consortium from the raw data coming from the spacecraft. The table is complemented with others containing information specific to certain kinds of objects (e.g.~Solar--system objects, non--single stars, variables etc.) and value--added processing (e.g.~astrophysical parameters etc.). Further array data types (spectra, epoch measurements) are presented separately via Datalink resources.
+  Size (bytes): 3646930329600
   Num. columns: 152
 
 
@@ -411,7 +413,7 @@ Query without saving results in a file:
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = job.get_results()
   >>> print(r)
-       DESIGNATION               ra                 dec
+       designation               ra                 dec
                                 deg                 deg
   ---------------------- ------------------ --------------------
      Gaia DR3 4295806720  44.99615537864534 0.005615226341865997
@@ -524,15 +526,15 @@ To obtain a list of the tables shared to a user type the following::
   INFO: Done. [astroquery.utils.tap.core]
   >>> for table in (tables):
   ...   print(table.get_qualified_name())
-  external.external.apassdr9
-  external.external.gaiadr2_astrophysical_parameters
-  external.external.gaiadr2_geometric_distance
-  external.external.gaiaedr3_distance
+  external.apassdr9
+  external.gaiadr2_astrophysical_parameters
+  external.gaiadr2_geometric_distance
+  external.gaiaedr3_distance
     ...     ...       ...
-  tap_schema.tap_schema.key_columns
-  tap_schema.tap_schema.keys
-  tap_schema.tap_schema.schemas
-  tap_schema.tap_schema.tables
+  tap_schema.key_columns
+  tap_schema.keys
+  tap_schema.schemas
+  tap_schema.tables
 
 2.3. Uploading table to user space
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -13,7 +13,6 @@ import pytest
 from astropy import units as u
 from astropy.coordinates import ICRS, SkyCoord
 from astropy.io.votable.exceptions import W25
-from astropy.io.votable.tree import Table as VOTable
 from astropy.table import Table
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils import data
@@ -23,6 +22,14 @@ from .. import conf, conesearch, vos_catalog
 from ..core import _validate_coord, ConeSearch
 from ..exceptions import VOSError, ConeSearchError
 from ...exceptions import NoResultsWarning
+
+
+try:
+    # Workaround astropy deprecation, remove try/except once >=6.0 is required
+    from astropy.io.votable.tree import TableElement as VOTable
+except ImportError:
+    from astropy.io.votable.tree import Table as VOTable
+
 
 __doctest_skip__ = ['*']
 
@@ -117,10 +124,11 @@ class TestConeSearch:
     def test_timeout_classic(self):
         """Test timed out query."""
         with pytest.warns(W25, match='timed out'):
-            with conf.set_temp('timeout', 1e-6):
-                result = conesearch.conesearch(
-                    SCS_CENTER, SCS_RADIUS, cache=False,
-                    verbose=self.verbose, catalog_db=self.url)
+            with pytest.warns(NoResultsWarning):
+                with conf.set_temp('timeout', 1e-6):
+                    result = conesearch.conesearch(
+                        SCS_CENTER, SCS_RADIUS, cache=False,
+                        verbose=self.verbose, catalog_db=self.url)
         assert result is None
 
     def test_searches_classic(self):
