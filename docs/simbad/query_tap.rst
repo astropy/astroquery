@@ -200,16 +200,17 @@ that is the measurement table for rotations. Their common column is ``oidref``.
     ...     WHERE id = 'Sirius';
     ...     """
     >>> Simbad.query_tap(query)
-    <Table length=6>
+    <Table length=7>
     Rotation Measurements Bibcodes
                 object
     ------------------------------
-            2016A&A...589A..83G
-            2002A&A...393..897R
-            1995ApJS...99..135A
-            1970CoKwa.189....0U
-            1970CoAsi.239....1B
-            2011A&A...531A.143D
+               2023ApJS..266...11B
+               2016A&A...589A..83G
+               2002A&A...393..897R
+               1995ApJS...99..135A
+               1970CoKwa.189....0U
+               1970CoAsi.239....1B
+               2011A&A...531A.143D
 
 This returns six papers in which the SIMBAD team found rotation data for Sirius.
 
