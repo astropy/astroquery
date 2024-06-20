@@ -1,5 +1,0 @@
-[
-  "The parameter filtername must correspond to an existing filter. Filters include: B,V,R,I,J,K.  They are checked by SIMBAD but not astroquery.simbad", 
-  "Fields beginning with rvz display the data as it is in the database. Fields beginning with rv force the display as a radial velocity. Fields beginning with z force the display as a redshift", 
-  "For each measurement catalog, the VOTable contains all fields of the first measurement. When applicable, the first measurement is the mean one. "
-]
