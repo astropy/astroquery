@@ -134,11 +134,11 @@ def test_simbad_hardlimit(monkeypatch):
     assert simbad_instance.hardlimit == 2
 
 
-def test_init_columns_in_output():
+def test_initcolumns_in_output():
     simbad_instance = simbad.Simbad()
     default_columns = simbad_instance.columns_in_output
     # main_id from basic should be there
-    assert simbad.SimbadClass.Column("basic", "main_id") in default_columns
+    assert simbad.core._Column("basic", "main_id") in default_columns
     # there are 8 default columns
     assert len(default_columns) == 8
 
@@ -186,17 +186,17 @@ def test_reset_votable_fields():
     simbad_instance = simbad.Simbad()
     # add one
     simbad_instance.add_votable_fields("otype")
-    assert simbad.Simbad.Column("basic", "otype") in simbad_instance.columns_in_output
+    assert simbad.core._Column("basic", "otype") in simbad_instance.columns_in_output
     # reset
     simbad_instance.reset_votable_fields()
-    assert not simbad.Simbad.Column("basic", "otype") in simbad_instance.columns_in_output
+    assert not simbad.core._Column("basic", "otype") in simbad_instance.columns_in_output
 
 
 @pytest.mark.usefixtures("_mock_basic_columns")
 @pytest.mark.parametrize(("bundle_name", "column"),
-                         [("coordinates", simbad.SimbadClass.Column("basic", "ra")),
-                          ("coordinates", simbad.SimbadClass.Column("basic", "coo_bibcode")),
-                          ("dim", simbad.SimbadClass.Column("basic", "galdim_wavelength"))])
+                         [("coordinates", simbad.core._Column("basic", "ra")),
+                          ("coordinates", simbad.core._Column("basic", "coo_bibcode")),
+                          ("dim", simbad.core._Column("basic", "galdim_wavelength"))])
 def test_get_bundle_columns(bundle_name, column):
     assert column in simbad.SimbadClass()._get_bundle_columns(bundle_name)
 
@@ -206,7 +206,7 @@ def test_add_table_to_output(monkeypatch):
     # if table = basic, no need to add a join
     simbad_instance = simbad.Simbad()
     simbad_instance._add_table_to_output("basic")
-    assert simbad.SimbadClass.Column("basic", "*") in simbad_instance.columns_in_output
+    assert simbad.core._Column("basic", "*") in simbad_instance.columns_in_output
     # cannot add h_link (two ways to join it, it's not a simple link)
     with pytest.raises(ValueError, match="'h_link' has no explicit link to 'basic'.*"):
         simbad_instance._add_table_to_output("h_link")
@@ -214,14 +214,14 @@ def test_add_table_to_output(monkeypatch):
     monkeypatch.setattr(simbad.SimbadClass, "list_columns", lambda self, _: Table([["oidref", "bibcode"]],
                                                                                   names=["column_name"]))
     simbad_instance._add_table_to_output("mesDiameter")
-    assert simbad.SimbadClass.Join("mesdiameter",
-                                   simbad.SimbadClass.Column("basic", "oid"),
-                                   simbad.SimbadClass.Column("mesdiameter", "oidref")
-                                   ) in simbad_instance.joins
-    assert simbad.SimbadClass.Column("mesdiameter", "bibcode", '"mesdiameter.bibcode"'
-                                     ) in simbad_instance.columns_in_output
-    assert simbad.SimbadClass.Column("mesdiameter", "oidref", '"mesdiameter.oidref"'
-                                     ) not in simbad_instance.columns_in_output
+    assert simbad.core._Join("mesdiameter",
+                             simbad.core._Column("basic", "oid"),
+                             simbad.core._Column("mesdiameter", "oidref")
+                             ) in simbad_instance.joins
+    assert simbad.core._Column("mesdiameter", "bibcode", '"mesdiameter.bibcode"'
+                               ) in simbad_instance.columns_in_output
+    assert simbad.core._Column("mesdiameter", "oidref", '"mesdiameter.oidref"'
+                               ) not in simbad_instance.columns_in_output
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -231,26 +231,26 @@ def test_add_votable_fields():
     simbad_instance = simbad.Simbad()
     # add columns from basic (one value)
     simbad_instance.add_votable_fields("pmra")
-    assert simbad.SimbadClass.Column("basic", "pmra") in simbad_instance.columns_in_output
+    assert simbad.core._Column("basic", "pmra") in simbad_instance.columns_in_output
     # add two columns from basic
     simbad_instance.add_votable_fields("pmdec", "pm_bibcodE")  # also test case insensitive
-    expected = [simbad.SimbadClass.Column("basic", "pmdec"),
-                simbad.SimbadClass.Column("basic", "pm_bibcode")]
+    expected = [simbad.core._Column("basic", "pmdec"),
+                simbad.core._Column("basic", "pm_bibcode")]
     assert all(column in simbad_instance.columns_in_output for column in expected)
     # add a table
     simbad_instance.columns_in_output = []
     simbad_instance.add_votable_fields("basic")
-    assert [simbad.SimbadClass.Column("basic", "*")] == simbad_instance.columns_in_output
+    assert [simbad.core._Column("basic", "*")] == simbad_instance.columns_in_output
     # add a bundle
     simbad_instance.add_votable_fields("dimensions")
-    assert simbad.SimbadClass.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
+    assert simbad.core._Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
     # a column which name has changed should raise a warning but still
     # be added under its new name
     simbad_instance.columns_in_output = []
     with pytest.warns(DeprecationWarning, match=r"'id\(1\)' has been renamed 'main_id'. You'll see it "
                       "appearing with its new name in the output table"):
         simbad_instance.add_votable_fields("id(1)")
-    assert simbad.SimbadClass.Column("basic", "main_id") in simbad_instance.columns_in_output
+    assert simbad.core._Column("basic", "main_id") in simbad_instance.columns_in_output
     # a table which name has changed should raise a warning too
     with pytest.warns(DeprecationWarning, match="'distance' has been renamed 'mesdistance'*"):
         simbad_instance.add_votable_fields("distance")
@@ -523,10 +523,10 @@ def test_list_linked_tables():
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query():
-    column = simbad.Simbad.Column("basic", "*")
+    column = simbad.core._Column("basic", "*")
     # bare minimum with an alias
     expected = 'SELECT basic."main_id" AS my_id FROM basic'
-    assert simbad.Simbad._query(-1, [simbad.Simbad.Column("basic", "main_id", "my_id")], [],
+    assert simbad.Simbad._query(-1, [simbad.core._Column("basic", "main_id", "my_id")], [],
                                 [], get_query_payload=True)["QUERY"] == expected
     # with top
     # and duplicated columns are dropped
@@ -535,9 +535,9 @@ def test_query():
                                 get_query_payload=True)["QUERY"] == expected
     # with a join
     expected = 'SELECT basic.*, ids."ids" FROM basic JOIN ids ON basic."oid" = ids."oidref"'
-    assert simbad.Simbad._query(-1, [column, simbad.Simbad.Column("ids", "ids")],
-                                [simbad.Simbad.Join("ids", simbad.Simbad.Column("basic", "oid"),
-                                                    simbad.Simbad.Column("ids", "oidref"))],
+    assert simbad.Simbad._query(-1, [column, simbad.core._Column("ids", "ids")],
+                                [simbad.core._Join("ids", simbad.core._Column("basic", "oid"),
+                                                   simbad.core._Column("ids", "oidref"))],
                                 [], get_query_payload=True)["QUERY"] == expected
     # with a condition
     expected = "SELECT basic.* FROM basic WHERE ra < 6 AND ra > 5"

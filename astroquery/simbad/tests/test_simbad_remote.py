@@ -7,7 +7,7 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.table import Table
 
 from astroquery.simbad import Simbad
-from astroquery.simbad.core import _cached_query_tap
+from astroquery.simbad.core import _cached_query_tap, _Column, _Join
 
 from pyvo.dal.exceptions import DALOverflowWarning
 
@@ -171,18 +171,18 @@ class TestSimbad:
         simbad_instance.add_votable_fields("dim")
         # check the length
         assert len(simbad_instance.columns_in_output) == 8
-        assert Simbad.Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
+        assert _Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
 
     def test_add_table_to_output(self):
         simbad_instance = Simbad()
         # empty before the test
         simbad_instance.columns_in_output = []
         simbad_instance.add_votable_fields("otypes")
-        assert Simbad.Column("otypes", "otype", '"otypes.otype"') in simbad_instance.columns_in_output
+        assert _Column("otypes", "otype", '"otypes.otype"') in simbad_instance.columns_in_output
         # tables also require a join
-        assert Simbad.Join("otypes",
-                           Simbad.Column("basic", "oid"),
-                           Simbad.Column("otypes", "oidref")) == simbad_instance.joins[0]
+        assert _Join("otypes",
+                     _Column("basic", "oid"),
+                     _Column("otypes", "oidref")) == simbad_instance.joins[0]
         # tables that have been renamed should warn
         with pytest.warns(DeprecationWarning, match="'iue' has been renamed 'mesiue'.*"):
             simbad_instance.add_votable_fields("IUE")
