@@ -233,7 +233,12 @@ class GaiaClass(TapPlus):
         output_file_specified = False
 
         if not dump_to_file:
-            output_file = self.build_general_output_filename()
+            now = datetime.now(timezone.utc)
+            now_formatted = now.strftime("%Y%m%d_%H%M%S")
+            temp_dirname = "temp_" + now_formatted
+            downloadname_formated = "download_" + now_formatted
+            output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
+
         else:
             output_file = 'datalink_output.zip'
             output_file_specified = True
@@ -322,13 +327,6 @@ class GaiaClass(TapPlus):
                 log.debug("Product = " + item)
 
         return files
-
-    def build_general_output_filename(self):
-        now = datetime.now(timezone.utc)
-        now_formatted = now.strftime("%Y%m%d_%H%M%S")
-        temp_dirname = "temp_" + now_formatted
-        downloadname_formated = "download_" + now_formatted
-        return os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
 
     @staticmethod
     def __get_data_files(output_file, path):
