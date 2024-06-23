@@ -16,7 +16,7 @@ from erfa import ErfaWarning
 from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
-from ..exceptions import InvalidQueryError, EmptyResponseError, NoResultsWarning
+from ..exceptions import InvalidQueryError, EmptyResponseError
 
 __all__ = ['MPCClass']
 
@@ -1063,7 +1063,7 @@ class MPCClass(BaseQuery):
                 try:
                     i = text_table.index('\n', text_table.index('h m s')) + 1
                 except ValueError as e:
-                    raise NoResultsWarning(content)
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
             else:
@@ -1072,7 +1072,7 @@ class MPCClass(BaseQuery):
                 try:
                     i = text_table.index('\n', text_table.index('JD_TT')) + 1
                 except ValueError as e:
-                    raise NoResultsWarning(content)
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 

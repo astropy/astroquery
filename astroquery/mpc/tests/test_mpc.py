@@ -190,7 +190,7 @@ def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
 
 
 def test_get_ephemeris_by_name_empty(patch_post):
-    with pytest.raises(NoResultsWarning):
+    with pytest.raises(EmptyResponseError):
         mpc.core.MPC.get_ephemeris('340P', location='G37')
 
 
