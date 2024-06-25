@@ -64,7 +64,7 @@ import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from astropy.time import Time
 
-from ...exceptions import EmptyResponseError, InvalidQueryError, NoResultsWarning
+from ...exceptions import EmptyResponseError, InvalidQueryError
 from ... import mpc
 from astroquery.utils.mocks import MockResponse
 from requests import Request

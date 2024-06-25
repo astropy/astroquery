@@ -1062,7 +1062,7 @@ class MPCClass(BaseQuery):
                 # raise EmptyResponseError if no ephemeris lines are found in the query response
                 try:
                     i = text_table.index('\n', text_table.index('h m s')) + 1
-                except ValueError as e:
+                except ValueError:
                     raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
@@ -1071,7 +1071,7 @@ class MPCClass(BaseQuery):
                 # raise EmptyResponseError if no ephemeris lines are found in the query response
                 try:
                     i = text_table.index('\n', text_table.index('JD_TT')) + 1
-                except ValueError as e:
+                except ValueError:
                     raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
