@@ -466,30 +466,30 @@ with:
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_votable_fields()[["name", "description"]]
-    <Table length=98>
-          name                            description                      
-         object                              object                        
-    --------------- -------------------------------------------------------
-        mesDiameter                        Collection of stellar diameters.
-              mesPM                           Collection of proper motions.
-             mesISO         Infrared Space Observatory (ISO) observing log.
-             mesSpT                           Collection of spectral types.
-          allfluxes        all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
-              ident                   Identifiers of an astronomical object
-               flux Magnitude/Flux information about an astronomical object
-             mesPLX                 Collection of trigonometric parallaxes.
-           otypedef          all names and definitions for the object types
-                ...                                                     ...
-           vlsr_min          Minimum for the mean value of the LSR velocity
-    vlsr_wavelength     Wavelength class for the origin of the LSR velocity
-        coordinates                     all fields related with coordinates
-                dim             major and minor axis, angle and inclination
-         dimensions                 all fields related to object dimensions
-          morphtype            all fields related to the morphological type
-           parallax                        all fields related to parallaxes
-      propermotions              all fields related with the proper motions
-                 sp               all fields related with the spectral type
-           velocity    all fields related with radial velocity and redshift
+    <Table length=115>
+        name                          description                      
+       object                            object                        
+    ----------- -------------------------------------------------------
+    mesDiameter                        Collection of stellar diameters.
+          mesPM                           Collection of proper motions.
+         mesISO         Infrared Space Observatory (ISO) observing log.
+         mesSpT                           Collection of spectral types.
+      allfluxes        all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
+          ident                   Identifiers of an astronomical object
+           flux Magnitude/Flux information about an astronomical object
+         mesPLX                 Collection of trigonometric parallaxes.
+       otypedef          all names and definitions for the object types
+            ...                                                     ...
+              K                                             Magnitude K
+              u                                        Magnitude SDSS u
+              g                                        Magnitude SDSS g
+              r                                        Magnitude SDSS r
+              i                                        Magnitude SDSS i
+              z                                        Magnitude SDSS z
+              G                                        Magnitude Gaia G
+          F150W                                       JWST NIRCam F150W
+          F200W                                       JWST NIRCam F200W
+          F444W                                       JWST NIRCan F444W
 
 You can also access a single field description with 
 `~astroquery.simbad.SimbadClass.get_field_description`
@@ -502,6 +502,11 @@ You can also access a single field description with
 
 And the columns in the output can be reset to their default value with
 `~astroquery.simbad.SimbadClass.reset_votable_fields`.
+
+.. Note::
+
+    A detailed description on the ways to add fluxes is available in the
+    :ref:`optical filters` section.
 
 Additional criteria
 -------------------

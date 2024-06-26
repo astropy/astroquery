@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Produced with astropy.io.votable version 6.0.0
+<!-- Produced with astropy.io.votable version 6.1.0
      http://www.astropy.org/ -->
 <VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
  <RESOURCE type="results">
-  <TABLE ID="result_S1711533763224" name="result_S1711533763224">
-   <FIELD ID="name" arraysize="*" datatype="char" name="name">
+  <TABLE ID="result_S1719407661907" name="result_S1719407661907">
+   <FIELD ID="name" arraysize="*" datatype="char" name="name" ucd="instr.filter">
     <DESCRIPTION>
-     column name
+     flux filter name
     </DESCRIPTION>
    </FIELD>
-   <FIELD ID="description" arraysize="*" datatype="char" name="description">
+   <FIELD ID="description" arraysize="*" datatype="unicodeChar" name="description" ucd="meta.note;instr.filter">
     <DESCRIPTION>
-     brief description of column
+     flux filter description
     </DESCRIPTION>
    </FIELD>
    <FIELD ID="type" arraysize="*" datatype="unicodeChar" name="type"/>
@@ -506,6 +506,91 @@
       <TD>velocity</TD>
       <TD>all fields related with radial velocity and redshift</TD>
       <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>U</TD>
+      <TD>Magnitude U</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>B</TD>
+      <TD>Magnitude B</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>V</TD>
+      <TD>Magnitude V</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>R</TD>
+      <TD>Magnitude R</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>I</TD>
+      <TD>Magnitude I</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>J</TD>
+      <TD>Magnitude J</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>H</TD>
+      <TD>Magnitude H</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>K</TD>
+      <TD>Magnitude K</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>u</TD>
+      <TD>Magnitude SDSS u</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>g</TD>
+      <TD>Magnitude SDSS g</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>r</TD>
+      <TD>Magnitude SDSS r</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>i</TD>
+      <TD>Magnitude SDSS i</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>z</TD>
+      <TD>Magnitude SDSS z</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>G</TD>
+      <TD>Magnitude Gaia G</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F150W</TD>
+      <TD>JWST NIRCam F150W</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F200W</TD>
+      <TD>JWST NIRCam F200W</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F444W</TD>
+      <TD>JWST NIRCan F444W</TD>
+      <TD>filter name</TD>
      </TR>
     </TABLEDATA>
    </DATA>

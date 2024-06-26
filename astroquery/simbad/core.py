@@ -217,13 +217,14 @@ class SimbadClass(BaseVOQuery):
     def list_votable_fields(self):
         """List all options to add columns to SIMBAD's output.
 
-        They are of three types:
+        They are of four types:
 
         - "column of basic": a column of the basic table. There fields can also be explored with
           `~astroquery.simbad.SimbadClass.list_columns`.
         - "table": a table other than basic that has a declared direct join
         - "bundle of basic columns": a pre-selected bundle of columns of basic. Ex: "parallax" will add all
           columns relevant to parallax
+        - "filter name": an optical filter name
 
         Examples
         --------
@@ -266,8 +267,11 @@ class SimbadClass(BaseVOQuery):
                          "description": [value["description"] for _, value in bundle_entries.items()],
                          "type": ["bundle of basic columns"] * len(bundle_entries)},
                         dtype=["object", "object", "object"])
-        # vstack the three types of options
-        return vstack([tables, basic_columns, bundles], metadata_conflicts="silent")
+        # get the filter names
+        filters = self.query_tap("SELECT filtername AS name, description FROM filter")
+        filters["type"] = Column(["filter name"] * len(filters), dtype="object")
+        # vstack the four types of options
+        return vstack([tables, basic_columns, bundles, filters], metadata_conflicts="silent")
 
     def _get_bundle_columns(self, bundle_name):
         """Get the list of columns in the preselected bundles.
@@ -324,11 +328,17 @@ class SimbadClass(BaseVOQuery):
                              "query to be written and called with 'SimbadClass.query_tap'.")
 
         columns = list(self.list_columns(table)["column_name"])
-        columns = [column.casefold() for column in columns if column not in {"oidref", "oidbibref"}]
 
-        # the alias is mandatory to be able to distinguish between duplicates like
-        # mesDistance.bibcode and mesDiameter.bibcode.
-        alias = [f'"{table}.{column}"' if not column.startswith(table) else None for column in columns]
+        # allfluxes is the only case-dependent table
+        if table == "allfluxes":
+            columns = [column for column in columns if column not in {"oidref", "oidbibref"}]
+            alias = [column.replace("_", "") if "_" in column else None
+                     for column in columns]
+        else:
+            columns = [column.casefold() for column in columns if column not in {"oidref", "oidbibref"}]
+            # the alias is mandatory to be able to distinguish between duplicates like
+            # mesDistance.bibcode and mesDiameter.bibcode.
+            alias = [f"{table}.{column}" if not column.startswith(table) else None for column in columns]
 
         # modify the attributes here
         self.columns_in_output += [_Column(table, column, alias)
@@ -366,27 +376,43 @@ class SimbadClass(BaseVOQuery):
         ['basic.main_id', 'basic.ra', 'basic.dec', 'basic.coo_err_maj', 'basic.coo_err_min', ...
         """
 
-        # the legacy way of adding fluxes is the only case-dependant option
+        # the legacy way of adding fluxes
         args = list(args)
+        fluxes_to_add = []
         for arg in args:
+            if arg.startswith("flux_"):
+                raise ValueError("The votable fields 'flux_***(filtername)' are removed and replaced "
+                                 "by 'flux' that will add all information for every filters. "
+                                 "See section on filters in "
+                                 "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html"
+                                 " to see the new ways to interact with SIMBAD's fluxes.")
             if re.match(r"^flux.*\(.+\)$", arg):
-                warnings.warn("The notation 'flux(X)' is deprecated since 0.4.8. "
+                warnings.warn("The notation 'flux(U)' is deprecated since 0.4.8 in favor of 'U'. "
                               "See section on filters in "
                               "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html "
-                              "to see how it can be replaced.", DeprecationWarning, stacklevel=2)
-                flux_filter = re.findall(r"\((\w+)\)", arg)[0]
-                if len(flux_filter) == 1 and flux_filter.islower():
-                    flux_filter = flux_filter + "_"
-                self.joins.append(_Join("allfluxes", _Column("basic", "oid"),
-                                        _Column("allfluxes", "oidref")))
-                self.columns_in_output.append(_Column("allfluxes", flux_filter))
+                              "to see the new ways to interact with SIMBAD's fluxes.", DeprecationWarning, stacklevel=2)
+                fluxes_to_add.append(re.findall(r"\((\w+)\)", arg)[0])
                 args.remove(arg)
-
-        # casefold args
-        args = set(map(str.casefold, args))
 
         # output options
         output_options = self.list_votable_fields()
+        # fluxes are case-dependant
+        fluxes = output_options[output_options["type"] == "filter name"]["name"]
+        # add fluxes
+        fluxes_to_add += [flux for flux in args if flux in fluxes]
+        if fluxes_to_add:
+            self.joins.append(_Join("allfluxes", _Column("basic", "oid"),
+                              _Column("allfluxes", "oidref")))
+            for flux in fluxes_to_add:
+                if len(flux) == 1 and flux.islower():
+                    # the name in the allfluxes view has a trailing underscore. This is not
+                    # the case in the list of filter names, so we homogenize with an alias
+                    self.columns_in_output.append(_Column("allfluxes", flux + "_", flux))
+                else:
+                    self.columns_in_output.append(_Column("allfluxes", flux))
+
+        # casefold args because we allow case difference for every other argument (legacy behavior)
+        args = set(map(str.casefold, args))
         output_options["name"] = list(map(str.casefold, list(output_options["name"])))
         basic_columns = output_options[output_options["type"] == "column of basic"]["name"]
         all_tables = output_options[output_options["type"] == "table"]["name"]
@@ -1374,7 +1400,7 @@ class SimbadClass(BaseVOQuery):
         top = f" TOP {top}" if top != -1 else ""
 
         # columns
-        input_columns = [f'{column.table}."{column.name}" AS {column.alias}' if column.alias is not None
+        input_columns = [f'{column.table}."{column.name}" AS "{column.alias}"' if column.alias is not None
                          else f'{column.table}."{column.name}"' for column in columns]
         # remove possible duplicates
         unique_columns = []
@@ -1391,7 +1417,7 @@ class SimbadClass(BaseVOQuery):
             [unique_joins.append(join) for join in joins if join not in unique_joins]
             join = " " + " ".join([(f'{join.join_type} {join.table} ON {join.column_left.table}."'
                                     f'{join.column_left.name}" = {join.column_right.table}."'
-                                    f'{join.column_right.name}"') for join in joins])
+                                    f'{join.column_right.name}"') for join in unique_joins])
 
         # criteria
         if criteria != []:
