@@ -129,7 +129,7 @@ class TestSimbad:
                   "      c       3")
         assert expect == str(result)
         # Test query_tap raised errors
-        with pytest.raises(DALOverflowWarning, match="Partial result set *"):
+        with pytest.warns(DALOverflowWarning, match="Partial result set *"):
             truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
             assert len(truncated_result) == 2
         with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
