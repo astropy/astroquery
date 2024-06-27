@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import requests
 import pytest
-
+import astropy.units as u
 from astroquery.exceptions import InvalidQueryError
 from astroquery import mpc
 
@@ -77,6 +77,21 @@ class TestMPC:
         # test that query succeeded
         response = mpc.MPC.get_ephemeris(target)
         assert len(response) > 0
+
+    def test_get_ephemeris_Moon_phase(self):
+        result = mpc.core.MPC.get_ephemeris('2P', location='G37')
+        assert result['Moon phase'][0] >= 0
+
+    def test_get_ephemeris_Uncertainty(self):
+        # this test requires an object with uncertainties != N/A
+        result = mpc.core.MPC.get_ephemeris('2024 AA', start='2024-06-15')
+        assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
+
+    def test_get_ephemeris_Moon_phase_and_Uncertainty(self):
+        # this test requires an object with uncertainties != N/A
+        result = mpc.core.MPC.get_ephemeris('2024 AA', location='G37', start='2024-06-15')
+        assert result['Moon phase'][0] >= 0
+        assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
     def test_get_ephemeris_target_fail(self):
         # test that query failed

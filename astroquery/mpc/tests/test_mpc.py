@@ -64,7 +64,7 @@ import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from astropy.time import Time
 
-from ...exceptions import InvalidQueryError
+from ...exceptions import EmptyResponseError, InvalidQueryError
 from ... import mpc
 from astroquery.utils.mocks import MockResponse
 from requests import Request
@@ -178,15 +178,20 @@ def test_get_ephemeris_Moon_phase(patch_post):
 
 def test_get_ephemeris_Uncertainty(patch_post):
     # this test requires an object with uncertainties != N/A
-    result = mpc.core.MPC.get_ephemeris('1994 XG')
+    result = mpc.core.MPC.get_ephemeris('2024 AA')
     assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
 
 def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
     # this test requires an object with uncertainties != N/A
-    result = mpc.core.MPC.get_ephemeris('1994 XG', location='G37')
+    result = mpc.core.MPC.get_ephemeris('2024 AA', location='G37')
     assert result['Moon phase'][0] >= 0
     assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
+
+
+def test_get_ephemeris_by_name_empty(patch_post):
+    with pytest.raises(EmptyResponseError):
+        mpc.core.MPC.get_ephemeris('340P', location='G37')
 
 
 def test_get_ephemeris_by_name_fail(patch_post):

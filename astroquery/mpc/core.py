@@ -18,7 +18,6 @@ from . import conf
 from ..utils import async_to_sync, class_or_instance
 from ..exceptions import InvalidQueryError, EmptyResponseError
 
-
 __all__ = ['MPCClass']
 
 
@@ -1052,7 +1051,6 @@ class MPCClass(BaseQuery):
                 raise InvalidQueryError(content)
             table_end = content.find('</pre>')
             text_table = content[table_start + 5:table_end]
-
             SKY = 'raty=a' in result.request.body
             HELIOCENTRIC = 'raty=s' in result.request.body
             GEOCENTRIC = 'raty=G' in result.request.body
@@ -1061,12 +1059,20 @@ class MPCClass(BaseQuery):
             # find column headings
             if SKY:
                 # slurp to newline after "h m s"
-                i = text_table.index('\n', text_table.index('h m s')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('h m s')) + 1
+                except ValueError:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
             else:
                 # slurp to newline after "JD_TT"
-                i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                except ValueError:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 
@@ -1088,24 +1094,24 @@ class MPCClass(BaseQuery):
                 elif 's=s' in result.request.body:  # sky Motion
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
-                col_starts += (73, 81)
-                col_ends += (80, 89)
+                col_starts += (73, 82)
+                col_ends += (81, 91)
 
                 if 'Moon' in columns:
                     # table includes Alt, Az, Sun and Moon geometry
                     names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
                               'Moon distance', 'Moon altitude')
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 9, 14, 20, 27, 33)))
+                                        (1, 8, 13, 19, 26, 32)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (8, 13, 19, 26, 32, 37)))
+                                      (7, 12, 18, 25, 31, 36)))
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.')
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 11)))
+                                         (1, 10)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (10, 16)))
+                                       (9, 15)))
                     units += ('arcsec', 'deg')
                 if ">Map</a>" in first_row and self._unc_links:
                     names += ('Unc. map', 'Unc. offsets')
@@ -1171,7 +1177,6 @@ class MPCClass(BaseQuery):
             else:
                 # convert from MPES string to Time
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
-
             return tab
 
         elif self.query_type == 'observations':
