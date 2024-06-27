@@ -148,7 +148,7 @@ def test_mocked_simbad():
     simbad_instance = simbad.Simbad()
     # this mocks the list_votable_fields
     options = simbad_instance.list_votable_fields()
-    assert len(options) > 90
+    assert len(options) >= 115
     # this mocks the hardlimit
     assert simbad_instance.hardlimit == 2000000
 
@@ -157,16 +157,13 @@ def test_mocked_simbad():
 # ----------------------------
 
 
-@pytest.mark.usefixtures("_mock_basic_columns")
-def test_votable_fields_utils(monkeypatch):
-    monkeypatch.setattr(simbad.SimbadClass, "query_tap",
-                        lambda self, _: Table([["biblio"], ["biblio description"]],
-                                              names=["name", "description"],
-                                              dtype=["object", "object"]))
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_votable_fields_utils():
     options = simbad.SimbadClass().list_votable_fields()
     assert set(options.group_by("type").groups.keys["type"]) == {"table",
                                                                  "column of basic",
-                                                                 "bundle of basic columns"}
+                                                                 "bundle of basic columns",
+                                                                 "filter name"}
 
     description = simbad.SimbadClass().get_field_description("velocity")
     assert description == 'all fields related with radial velocity and redshift'
@@ -201,6 +198,7 @@ def test_get_bundle_columns(bundle_name, column):
     assert column in simbad.SimbadClass()._get_bundle_columns(bundle_name)
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
 @pytest.mark.usefixtures("_mock_linked_to_basic")
 def test_add_table_to_output(monkeypatch):
     # if table = basic, no need to add a join
@@ -218,10 +216,16 @@ def test_add_table_to_output(monkeypatch):
                              simbad.core._Column("basic", "oid"),
                              simbad.core._Column("mesdiameter", "oidref")
                              ) in simbad_instance.joins
-    assert simbad.core._Column("mesdiameter", "bibcode", '"mesdiameter.bibcode"'
+    assert simbad.core._Column("mesdiameter", "bibcode", "mesdiameter.bibcode"
                                ) in simbad_instance.columns_in_output
-    assert simbad.core._Column("mesdiameter", "oidref", '"mesdiameter.oidref"'
+    assert simbad.core._Column("mesdiameter", "oidref", "mesdiameter.oidref"
                                ) not in simbad_instance.columns_in_output
+    # add allfluxes to test the special case
+    monkeypatch.setattr(simbad.SimbadClass, "list_columns", lambda self, _: Table([["U", "u_"]],
+                                                                                  names=["column_name"]))
+    simbad_instance._add_table_to_output("allfluxes")
+    assert simbad.core._Column("allfluxes", "U") in simbad_instance.columns_in_output
+    assert simbad.core._Column("allfluxes", "u_", "u") in simbad_instance.columns_in_output
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -244,6 +248,9 @@ def test_add_votable_fields():
     # add a bundle
     simbad_instance.add_votable_fields("dimensions")
     assert simbad.core._Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
+    # add filter name
+    simbad_instance.add_votable_fields("u")
+    assert "allfluxes.u_" in simbad_instance.get_votable_fields()
     # a column which name has changed should raise a warning but still
     # be added under its new name
     simbad_instance.columns_in_output = []
@@ -256,7 +263,9 @@ def test_add_votable_fields():
         simbad_instance.add_votable_fields("distance")
     # errors are raised for the deprecated fields with options
     simbad_instance = simbad.SimbadClass()
-    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(X\)\' is deprecated since 0.4.8. *"):
+    with pytest.raises(ValueError, match=r"The votable fields \'flux_\*\*\*\(filtername\)\' are removed *"):
+        simbad_instance.add_votable_fields("flux_error(u)")
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(U\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(u)")
         assert "u_" in str(simbad_instance.columns_in_output)
     with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported*"):
@@ -525,7 +534,7 @@ def test_list_linked_tables():
 def test_query():
     column = simbad.core._Column("basic", "*")
     # bare minimum with an alias
-    expected = 'SELECT basic."main_id" AS my_id FROM basic'
+    expected = 'SELECT basic."main_id" AS "my_id" FROM basic'
     assert simbad.Simbad._query(-1, [simbad.core._Column("basic", "main_id", "my_id")], [],
                                 [], get_query_payload=True)["QUERY"] == expected
     # with top

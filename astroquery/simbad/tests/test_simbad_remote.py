@@ -129,7 +129,7 @@ class TestSimbad:
                   "      c       3")
         assert expect == str(result)
         # Test query_tap raised errors
-        with pytest.raises(DALOverflowWarning, match="Partial result set *"):
+        with pytest.warns(DALOverflowWarning, match="Partial result set *"):
             truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
             assert len(truncated_result) == 2
         with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
@@ -173,12 +173,12 @@ class TestSimbad:
         assert len(simbad_instance.columns_in_output) == 8
         assert _Column("basic", "galdim_majaxis") in simbad_instance.columns_in_output
 
-    def test_add_table_to_output(self):
+    def test_add_votable_fields(self):
         simbad_instance = Simbad()
         # empty before the test
         simbad_instance.columns_in_output = []
         simbad_instance.add_votable_fields("otypes")
-        assert _Column("otypes", "otype", '"otypes.otype"') in simbad_instance.columns_in_output
+        assert _Column("otypes", "otype", 'otypes.otype') in simbad_instance.columns_in_output
         # tables also require a join
         assert _Join("otypes",
                      _Column("basic", "oid"),
@@ -191,3 +191,10 @@ class TestSimbad:
         # mixed columns bundles and tables
         simbad_instance.add_votable_fields("flux", "velocity", "update_date")
         assert len(simbad_instance.columns_in_output) == 19
+
+        # add fluxes by their filter names
+        simbad_instance = Simbad()
+        simbad_instance.add_votable_fields("U", "V")
+        simbad_instance.add_votable_fields("u")
+        result = simbad_instance.query_object("HD 147933")
+        assert all(filtername in result.colnames for filtername in {"u", "U", "V"})

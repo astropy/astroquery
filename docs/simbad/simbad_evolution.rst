@@ -184,62 +184,95 @@ An interesting feature brought by the hierarchy of objects is the ``..`` notatio
 This return objects which types are indeed among the 17 types deriving from ``Ev*``
 (Evolved Star). For example, ``pA*`` is a post-AGB Star.
 
-*******
-Filters
-*******
+.. _optical filters:
 
-.. Note::
+***************
+Optical Filters
+***************
 
-    This section explains the deprecated ``ubv``, ``flux(u)``, and ``fluxdata(u)`` notations.
+Historically, there were only three optical filters in SIMBAD, ``U``, ``B``, and ``V``.
+This is why one could add these columns to SIMBAD's output with ``ubv``. This is not
+the case anymore.
 
-Historically, there were only three filters in SIMBAD, ``U``, ``B``, and ``V``. This is why
-one could add these columns to SIMBAD's output with ``ubv``. This is not
-the case anymore, and a suggested workflow now looks like this:
-
-1. Get the list of filters currently in Simbad
-==============================================
+There are two different ways to add fluxes to the result of a SIMBAD query. If you only need
+a quick access to the value of the flux without extra information, you can add the votable
+field corresponding to a specific optical filter. The list of filter names can be printed with 
 
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.query_tap("SELECT * FROM filter")
+    >>> options = Simbad.list_votable_fields()
+    >>> options[options["type"] == "filter name"]
     <Table length=17>
-       description    filtername  unit
-          object        object   object
-    ----------------- ---------- ------
-          Magnitude U          U    mag
-          Magnitude B          B    mag
-          Magnitude V          V    mag
-          Magnitude R          R    mag
-          Magnitude I          I    mag
-          Magnitude J          J    mag
-          Magnitude H          H    mag
-          Magnitude K          K    mag
-     Magnitude SDSS u          u    mag
-     Magnitude SDSS g          g    mag
-     Magnitude SDSS r          r    mag
-     Magnitude SDSS i          i    mag
-     Magnitude SDSS z          z    mag
-     Magnitude Gaia G          G    mag
-    JWST NIRCam F150W      F150W    mag
-    JWST NIRCam F200W      F200W    mag
-    JWST NIRCan F444W      F444W    mag
+     name     description        type   
+    object       object         object  
+    ------ ----------------- -----------
+         U       Magnitude U filter name
+         B       Magnitude B filter name
+         V       Magnitude V filter name
+         R       Magnitude R filter name
+         I       Magnitude I filter name
+         J       Magnitude J filter name
+         H       Magnitude H filter name
+         K       Magnitude K filter name
+         u  Magnitude SDSS u filter name
+         g  Magnitude SDSS g filter name
+         r  Magnitude SDSS r filter name
+         i  Magnitude SDSS i filter name
+         z  Magnitude SDSS z filter name
+         G  Magnitude Gaia G filter name
+     F150W JWST NIRCam F150W filter name
+     F200W JWST NIRCam F200W filter name
+     F444W JWST NIRCan F444W filter name
 
-There are currently 17 filters, but more are added as new data is ingested.
-The important information is in the column ``filtername``.
+There are currently 17 filters in SIMBAD, but more are added as new data is ingested.
 
-2. Apply a criteria in your query
-=================================
+.. Note::
 
-You can now use this filter name in a criteria string. For example, to get
-fluxes for a specific object, one can use `~astroquery.simbad.SimbadClass.query_object`
-as a first base (it selects a single object by its name), add different fields to
-the output with `~astroquery.simbad.SimbadClass.add_votable_fields` (here ``flux`` adds all
-columns about fluxes) and then select only the interesting filters with a ``criteria``
-argument:
+    This is the only case-sensitive votable field, due to the fact that the filters ``U``
+    and ``u`` (for example) are distinct.
+
+A query for fluxes would then look like:
+
+.. doctest-remote-data::
+    
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad()
+    >>> simbad.add_votable_fields("U", "V", "B")
+    >>> simbad.query_object("NGC 5678")[["main_id", "U", "V", "B"]]
+    <Table length=1>
+     main_id     U       V            B         
+      object  float64 float64      float64      
+    --------- ------- ------- ------------------
+    NGC  5678      --      -- 12.100000381469727
+
+However, this quick access does not allow to retrieve the flux error or the bibcode of the
+article from which the information is extracted. To do so, prefer the ``flux`` votable field:
 
 .. this will fail when upstream bug https://github.com/gmantele/vollt/issues/154 is fixed.
 .. "filter" should be replaced by "flux.filter" and "bibcode" by "flux.bibcode".
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad()
+    >>> simbad.add_votable_fields("flux")
+    >>> result = simbad.query_object("BD-16  5701")
+    >>> result[["main_id", "flux", "flux_err", "filter", "bibcode"]]
+    <Table length=6>
+      main_id      flux   flux_err filter       bibcode      
+       object    float32  float32  object        object      
+    ----------- --------- -------- ------ -------------------
+    BD-16  5701 10.322191 0.002762      G 2020yCat.1350....0G
+    BD-16  5701      10.6     0.06      V 2000A&A...355L..27H
+    BD-16  5701     9.205    0.023      J 2003yCat.2246....0C
+    BD-16  5701     8.879    0.042      H 2003yCat.2246....0C
+    BD-16  5701     8.777     0.02      K 2003yCat.2246....0C
+    BD-16  5701     11.15     0.07      B 2000A&A...355L..27H
+
+This gives more details than the quick view. Each line corresponds to a unique filter.
+The ``bibcode`` column corresponds to the article in which the flux information was found.
+We could also add a criteria to restrict the filters in the output:
 
 .. doctest-remote-data::
 
@@ -255,8 +288,6 @@ argument:
     BD-16  5701     11.15     0.07      B 2000A&A...355L..27H
     BD-16  5701 10.322191 0.002762      G 2020yCat.1350....0G
 
-Here, we looked for flux measurements for ``BD-16 5701`` with three filters. There was no
-match for ``U``, but the information is there for ``B`` and ``G``. The ``bibcode``
-column is the source of the flux information.
+There was no match for ``U``, but the information is there for ``B`` and ``G``.
 
 .. replace ``bibcode`` by ``flux.bibcode`` here when https://github.com/gmantele/vollt/issues/154 is fixed.
