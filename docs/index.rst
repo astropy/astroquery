@@ -161,9 +161,9 @@ All query tools allow coordinate-based queries:
     --------------------- ----------------- ... -------------- -------------------
     COUP J053515.3-052225 83.81426666666665 ...              O 1999AJ....117.1375S
                       ...               ... ...            ...                 ...
-           [OW94] 135-356 83.80624999999998 ...              O 2007AJ....133.2192H
+            * tet01 Ori H 83.81580416666667 ...              I 2003yCat.2246....0C
               [H97b] 9009    83.79990004111 ...              O 2020yCat.1350....0G
-    Length = 3271 rows
+    Length = 3270 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 

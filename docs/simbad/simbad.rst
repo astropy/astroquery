@@ -64,10 +64,10 @@ to query the messier object M1:
     >>> result_table = Simbad.query_object("m1")
     >>> print(result_table)
     main_id    ra     dec   ... coo_wavelength     coo_bibcode     matched_id
-              deg     deg   ...                                              
+              deg     deg   ...
     ------- ------- ------- ... -------------- ------------------- ----------
       M   1 83.6287 22.0147 ...              R 1995AuJPh..48..143S      M   1
-    
+
 `Wildcards`_ are supported. Note that this makes the query case-sensitive.
 This allows, for instance, to query messier objects from 1 through 9:
 
@@ -82,7 +82,7 @@ This allows, for instance, to query messier objects from 1 through 9:
     >>> result_table = Simbad.query_object("M [1-9]", wildcard=True) # doctest: +SKIP
     >>> print(result_table) # doctest: +SKIP
      main_id          ra         ...     coo_bibcode     matched_id
-                     deg         ...                               
+                     deg         ...
     --------- ------------------ ... ------------------- ----------
         M   1            83.6287 ... 1995AuJPh..48..143S      M   1
         M   2 323.36258333333336 ... 2010AJ....140.1830G      M   2
@@ -97,7 +97,7 @@ This allows, for instance, to query messier objects from 1 through 9:
 
 The messier objects from 1 to 9 are found. Their main identifier ``main_id`` is not
 necessarily the one corresponding to the wildcard expression.
-The column ``matched_id`` contains the identifier that was matched. 
+The column ``matched_id`` contains the identifier that was matched.
 
 Note that in this example, the wildcard parameter could have been replaced by a way
 faster query done with `~astroquery.simbad.SimbadClass.query_objects`.
@@ -128,7 +128,7 @@ Query to get all names (identifiers) of an object
 These queries can be used to retrieve all of the names (identifiers)
 associated with an object.
 
-.. 
+..
     This could change (each time someone invents a new name for Polaris).
 
 .. doctest-remote-data::
@@ -137,8 +137,8 @@ associated with an object.
     >>> result_table = Simbad.query_objectids("Polaris")
     >>> result_table
     <Table length=46>
-               id          
-             object        
+               id
+             object
     -----------------------
                   HIP 11767
               TIC 303256075
@@ -162,7 +162,7 @@ Query a region
 Query in a cone with a specified radius. The center can be a string with an
 identifier, a string representing coordinates, or a `~astropy.coordinates.SkyCoord`.
 
-.. 
+..
     This output will also change often.
 
 .. doctest-remote-data::
@@ -173,19 +173,19 @@ identifier, a string representing coordinates, or a `~astropy.coordinates.SkyCoo
     >>> simbad.ROW_LIMIT = 10
     >>> result_table = simbad.query_region("m81", radius="0.5d")
     >>> print(result_table)   # doctest: +IGNORE_OUTPUT
-                 main_id                       ra                dec        ... coo_err_angle coo_wavelength     coo_bibcode    
-                                              deg                deg        ...      deg                                        
+                 main_id                       ra                dec        ... coo_err_angle coo_wavelength     coo_bibcode
+                                              deg                deg        ...      deg
     ---------------------------------- ------------------ ----------------- ... ------------- -------------- -------------------
-                          [PR95] 40298 149.14159166666667 69.19170000000001 ...            --                                   
-                           [GTK91b] 19 149.03841666666668 69.21222222222222 ...            --                                   
-                           [GTK91b] 15 149.26095833333332 69.22230555555556 ...            --                                   
-                               PSK 212 148.86083333333332 69.15333333333334 ...            --                                   
-                               PSK 210  148.8595833333333 69.20111111111112 ...            --                                   
-                           [BBC91] N06 148.84166666666664 69.14222222222223 ...            --                                   
+                          [PR95] 40298 149.14159166666667 69.19170000000001 ...            --
+                           [GTK91b] 19 149.03841666666668 69.21222222222222 ...            --
+                           [GTK91b] 15 149.26095833333332 69.22230555555556 ...            --
+                               PSK 212 148.86083333333332 69.15333333333334 ...            --
+                               PSK 210  148.8595833333333 69.20111111111112 ...            --
+                           [BBC91] N06 148.84166666666664 69.14222222222223 ...            --
     [GKP2011] M81C J095534.66+691213.7 148.89441666666667 69.20380555555556 ...            --              O 2011ApJ...743..176G
                           [PR95] 51153 148.89568749999998  69.1995888888889 ...            --              O 2012ApJ...747...15K
-                               PSK 300 148.96499999999997 69.16638888888889 ...            --                                   
-                               PSK 234  148.9008333333333 69.19944444444445 ...            --                                   
+                               PSK 300 148.96499999999997 69.16638888888889 ...            --
+                               PSK 234  148.9008333333333 69.19944444444445 ...            --
 
 When no radius is specified, the radius defaults to 2 arcmin. When the radius is
 explicitly specified it can be either a string accepted by
@@ -203,12 +203,12 @@ If the center is defined by coordinates, then the best solution is to use a
     >>> Simbad.query_region(SkyCoord(31.0087, 14.0627, unit=(u.deg, u.deg),
     ...                     frame='galactic'), radius=2 * u.arcsec)
     <Table length=2>
-          main_id               ra        ... coo_wavelength     coo_bibcode    
-                               deg        ...                                   
-           object            float64      ...      str1             object      
+          main_id               ra        ... coo_wavelength     coo_bibcode
+                               deg        ...
+           object            float64      ...      str1             object
     ------------------- ----------------- ... -------------- -------------------
                GJ 699 b 269.4520769586187 ...              O 2020yCat.1350....0G
-    NAME Barnard's star 269.4520769586187 ...              O 2020yCat.1350....0G         
+    NAME Barnard's star 269.4520769586187 ...              O 2020yCat.1350....0G
 
 .. Note::
 
@@ -225,9 +225,9 @@ If the center is defined by coordinates, then the best solution is to use a
     ...                     unit=(u.deg, u.deg), frame='fk5'),
     ...                     radius=[0.1 * u.deg, 2* u.arcmin])   # doctest: +IGNORE_OUTPUT
     <Table length=6>
-            main_id                  ra         ...     coo_bibcode    
-                                    deg         ...                    
-             object               float64       ...        object      
+            main_id                  ra         ...     coo_bibcode
+                                    deg         ...
+             object               float64       ...        object
     ------------------------ ------------------ ... -------------------
     SDSS J004014.26+095527.0 10.059442999999998 ... 2020ApJS..250....8L
                 LEDA 1387229 10.988333333333335 ... 2003A&A...412...45P
@@ -252,8 +252,8 @@ the ESO catalog:
     >>> simbad.query_catalog('ESO')
     <Table length=6>
      main_id          ra         ...     coo_bibcode     catalog_id
-                     deg         ...                               
-      object       float64       ...        object         object  
+                     deg         ...
+      object       float64       ...        object         object
     --------- ------------------ ... ------------------- ----------
     NGC  2573     25.40834109527 ... 2020yCat.1350....0G  ESO   1-1
     ESO   1-2           76.15327 ... 2020MNRAS.494.1784A  ESO   1-2
@@ -277,8 +277,8 @@ For example to get the 10 biggest catalogs in SIMBAD, it looks like this:
     >>> from astroquery.simbad import Simbad
     >>> Simbad.query_tap('SELECT TOP 10 cat_name, description FROM cat ORDER BY "size" DESC')  # doctest: +IGNORE_OUTPUT
     <Table length=10>
-    cat_name                           description                           
-    object                               object                             
+    cat_name                           description
+    object                               object
     -------- ----------------------------------------------------------------
         Gaia                                                             Gaia
        2MASS                               2 Micron Sky Survey, Point Sources
@@ -373,8 +373,8 @@ article specified by a bibcode:
     >>> Simbad.query_bibobj('2006AJ....131.1163S')
     <Table length=8>
             main_id                 ra         ...       bibcode       obj_freq
-                                   deg         ...                             
-             object              float64       ...        object        int16  
+                                   deg         ...
+             object              float64       ...        object        int16
     ----------------------- ------------------ ... ------------------- --------
           NAME Lockman Hole             161.25 ... 2006AJ....131.1163S       --
             Cl Melotte   22  56.60099999999999 ... 2006AJ....131.1163S       --
@@ -394,7 +394,7 @@ Changing the row limit
 ----------------------
 
 To fetch all the rows in the result, the row limit must be set to -1. This is the default
-behavior. However if you're only interested in a certain number of objects, or if 
+behavior. However if you're only interested in a certain number of objects, or if
 the result would be too large, you can change this behavior.
 If you want to do this only for the current python session then:
 
@@ -408,7 +408,7 @@ modifying the setting in the Astroquery configuration file.
 
 .. Note::
 
-    This works with every ``query_***`` method, except 
+    This works with every ``query_***`` method, except
     `~astroquery.simbad.SimbadClass.query_tap` as the number of returned rows is fixed
     in the ADQL string with the ``TOP`` instruction.
 
@@ -449,7 +449,7 @@ For these methods, the default columns in the output are:
     Here we see the lists of columns that are selected per default. They are all from
     the table of basic information (``basic``).
 
-This can be permanently changed in astroquery's configuration files. To do this within 
+This can be permanently changed in astroquery's configuration files. To do this within
 a session or for a single query, use `~astroquery.simbad.SimbadClass.add_votable_fields`:
 
 .. doctest-remote-data::
@@ -467,31 +467,30 @@ with:
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_votable_fields()[["name", "description"]]
     <Table length=115>
-        name                          description                      
-       object                            object                        
-    ----------- -------------------------------------------------------
-    mesDiameter                        Collection of stellar diameters.
-          mesPM                           Collection of proper motions.
-         mesISO         Infrared Space Observatory (ISO) observing log.
-         mesSpT                           Collection of spectral types.
-      allfluxes        all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
-          ident                   Identifiers of an astronomical object
-           flux Magnitude/Flux information about an astronomical object
-         mesPLX                 Collection of trigonometric parallaxes.
-       otypedef          all names and definitions for the object types
-            ...                                                     ...
-              K                                             Magnitude K
-              u                                        Magnitude SDSS u
-              g                                        Magnitude SDSS g
-              r                                        Magnitude SDSS r
-              i                                        Magnitude SDSS i
-              z                                        Magnitude SDSS z
-              G                                        Magnitude Gaia G
-          F150W                                       JWST NIRCam F150W
-          F200W                                       JWST NIRCam F200W
-          F444W                                       JWST NIRCan F444W
+         name                                     description
+        object                                       object
+    ------------- ----------------------------------------------------------------------------
+      mesDiameter                                             Collection of stellar diameters.
+            mesPM                                                Collection of proper motions.
+           mesISO                              Infrared Space Observatory (ISO) observing log.
+           mesSpT                                                Collection of spectral types.
+        allfluxes                             all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
+            ident                                        Identifiers of an astronomical object
+             flux                      Magnitude/Flux information about an astronomical object
+           mesPLX                                      Collection of trigonometric parallaxes.
+         otypedef                               all names and definitions for the object types
+              ...                                                                          ...
+                u                                                             Magnitude SDSS u
+                g                                                             Magnitude SDSS g
+                r                                                             Magnitude SDSS r
+                i                                                             Magnitude SDSS i
+                z                                                             Magnitude SDSS z
+                G                                                             Magnitude Gaia G
+            F150W                                                            JWST NIRCam F150W
+            F200W                                                            JWST NIRCam F200W
+            F444W                                                            JWST NIRCan F444W
 
-You can also access a single field description with 
+You can also access a single field description with
 `~astroquery.simbad.SimbadClass.get_field_description`
 
 .. doctest-remote-data::
@@ -545,7 +544,7 @@ This allows to inspect the columns the method would return:
     >>> peek = simbad.query_object("BD+30  2512") # a query on an object
     >>> peek.info
     <Table length=0>
-            name         dtype    unit                                description                              
+            name         dtype    unit                                description
     ------------------- ------- -------- ----------------------------------------------------------------------
                 main_id  object                                                   Main identifier for an object
                      ra float64      deg                                                        Right ascension
@@ -585,9 +584,9 @@ constraint on the first character of the ``mespm.bibcode`` column
     >>> pm_measurements = simbad.query_object("BD+30  2512", criteria=criteria)
     >>> pm_measurements[["main_id", "mespm.pmra", "mespm.pmde", "mespm.bibcode"]]
     <Table length=6>
-      main_id   mespm.pmra mespm.pmde    mespm.bibcode   
-                 mas / yr   mas / yr                     
-       object    float32    float32          object      
+      main_id   mespm.pmra mespm.pmde    mespm.bibcode
+                 mas / yr   mas / yr
+       object    float32    float32          object
     ----------- ---------- ---------- -------------------
     BD+30  2512   -631.662   -308.469 2020yCat.1350....0G
     BD+30  2512     -631.6     -289.5 2016ApJS..224...36K
@@ -615,7 +614,7 @@ your cache:
     >>> from astroquery.simbad import Simbad
     >>> Simbad.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 Citation
@@ -624,7 +623,7 @@ Citation
 If SIMBAD was useful for your research, you can
 `read its acknowledgement page <https://cds.unistra.fr/help/acknowledgement/>`__.
 
-    
+
 Reference/API
 =============
 
