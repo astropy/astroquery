@@ -15,6 +15,11 @@ alma
 
 - Added support for frequency_resolution in KHz [#3035]
 
+gama
+^^^^
+
+- Change URL to https and thus making the module functional again. [#3056]
+
 mpc
 ^^^
 
