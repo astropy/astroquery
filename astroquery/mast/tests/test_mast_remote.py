@@ -12,7 +12,7 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 import astropy.units as u
 
-from astroquery.mast import Observations, utils, Mast, Catalogs, Hapcut, Tesscut, Zcut
+from astroquery.mast import Observations, utils, Mast, Catalogs, Hapcut, Tesscut, Zcut, MastMissions
 
 from ..utils import ResolverError
 from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
@@ -50,6 +50,91 @@ class TestMast:
 
         ticobj_loc = utils.resolve_object("TIC 141914082")
         assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
+
+    ###########################
+    # MissionSearchClass Test #
+    ###########################
+
+    def test_missions_get_column_list(self):
+        columns = MastMissions().get_column_list()
+        assert len(columns) > 1
+        assert isinstance(columns, Table)
+        assert list(columns.columns.keys()) == ['name', 'data_type', 'description']
+
+    def test_missions_query_region_async(self):
+        coords = SkyCoord(83.6287, 22.0147, unit="deg")
+        response = MastMissions.query_region_async(coords, radius=1)
+        assert isinstance(response, Response)
+        assert response.status_code == 200
+
+    def test_missions_query_region(self):
+        select_cols = ['sci_targname', 'sci_instrume']
+        result = MastMissions.query_region("245.89675 -26.52575",
+                                           radius=0.1,
+                                           sci_instrume="WFC3, ACS",
+                                           select_cols=select_cols
+                                           )
+        assert isinstance(result, Table)
+        assert len(result) > 0
+        assert (result['ang_sep'].data.data.astype('float') < 0.1).all()
+        ins_strip = np.char.strip(result['sci_instrume'].data)
+        assert ((ins_strip == 'WFC3') | (ins_strip == 'ACS')).all()
+        assert all(c in list(result.columns.keys()) for c in select_cols)
+
+    def test_missions_query_object_async(self):
+        response = MastMissions.query_object_async("M4", radius=0.1)
+        assert isinstance(response, Response)
+        assert response.status_code == 200
+
+    def test_missions_query_object(self):
+        result = MastMissions.query_object("NGC6121",
+                                           radius=6*u.arcsec,
+                                           sci_pi_last_name='*LE*',
+                                           sci_spec_1234='!F395N'
+                                           )
+        assert isinstance(result, Table)
+        assert len(result) > 0
+        assert "NGC6121" in result["sci_targname"]
+        assert (result['ang_sep'].data.data.astype('float') < 0.1).all()
+        assert (result['sci_pi_last_name'] == 'LEE').all()
+        assert 'F395N' not in result['sci_spec_1234']
+
+    def test_missions_query_criteria_async(self):
+        response = MastMissions.query_criteria_async(sci_pep_id=12557,
+                                                     sci_obs_type='SPECTRUM',
+                                                     sci_aec='S')
+        assert isinstance(response, Response)
+        assert response.status_code == 200
+
+    def test_missions_query_criteria(self):
+        # Non-positional search
+        with pytest.warns(MaxResultsWarning):
+            result = MastMissions.query_criteria(sci_pep_id=12557,
+                                                 sci_obs_type='SPECTRUM',
+                                                 sci_aec='S',
+                                                 limit=3,
+                                                 select_cols=['sci_pep_id', 'sci_obs_type', 'sci_aec'])
+        assert isinstance(result, Table)
+        assert len(result) == 3
+        assert (result['sci_pep_id'] == 12557).all()
+        assert (result['sci_obs_type'] == 'SPECTRUM').all()
+        assert (result['sci_aec'] == 'S').all()
+
+        # Positional criteria search
+        result = MastMissions.query_criteria(objectname='NGC6121',
+                                             radius=0.1,
+                                             sci_start_time='<2012',
+                                             sci_actual_duration='0..200'
+                                             )
+        assert len(result) == 3
+        assert (result['ang_sep'].data.data.astype('float') < 0.1).all()
+        assert (result['sci_start_time'] < '2012').all()
+        assert ((result['sci_actual_duration'] >= 0) & (result['sci_actual_duration'] <= 200)).all()
+
+        # Raise error if a non-positional criterion is not supplied
+        with pytest.raises(InvalidQueryError):
+            MastMissions.query_criteria(coordinates="245.89675 -26.52575",
+                                        radius=1)
 
     ###################
     # MastClass tests #
