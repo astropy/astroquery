@@ -4,7 +4,7 @@ from astropy.table import Table
 from ... import gama
 
 SQL_QUERY = "SELECT * FROM SpecAll LIMIT 5"
-GAMA_URL = "http://www.gama-survey.org/"
+GAMA_URL = "https://www.gama-survey.org/"
 
 
 @pytest.mark.remote_data
