@@ -112,8 +112,8 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
-                  'radius': radius.arcmin,
-                  'radius_units': 'arcminutes',
+                  'radius': radius.arcsec,
+                  'radius_units': 'arcseconds',
                   'limit': limit,
                   'offset': offset}
 
@@ -180,8 +180,8 @@ class MastMissionsClass(MastQueryWithLogin):
         params = {"limit": self.limit, "offset": offset, 'select_cols': select_cols}
         if coordinates:
             params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
-            params["radius"] = radius.arcmin
-            params["radius_units"] = 'arcminutes'
+            params["radius"] = radius.arcsec
+            params["radius_units"] = 'arcseconds'
 
         if not self._service_api_connection.check_catalogs_criteria_params(criteria):
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
