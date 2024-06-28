@@ -44,6 +44,11 @@ vizier
 - Change the type of raised error when the catalog is not found in ``Vizier.get_catalog_metadata``
   from ``IndexError`` to ``EmptyResponseError`` [#2980]
 
+sdss
+^^^^
+
+- Support new SDSS-V DR18 access URLs. [#3017]
+
 simbad
 ^^^^^^
 

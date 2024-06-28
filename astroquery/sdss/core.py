@@ -2,6 +2,7 @@
 """
 Access Sloan Digital Sky Survey database online.
 """
+import re
 import warnings
 import numpy as np
 import sys
@@ -11,12 +12,12 @@ from astropy.coordinates import Angle
 from astropy.table import Table, Column
 from astropy.utils.exceptions import AstropyWarning
 
-from ..query import BaseQuery
-from . import conf
-from ..utils import commons, async_to_sync, prepend_docstr_nosections
-from ..exceptions import RemoteServiceError, NoResultsWarning
-from .field_names import (photoobj_defs, specobj_defs,
-                          crossid_defs, get_field_info)
+from astroquery.query import BaseQuery
+from astroquery.sdss import conf
+from astroquery.utils import commons, async_to_sync, prepend_docstr_nosections
+from astroquery.exceptions import RemoteServiceError, NoResultsWarning
+from astroquery.sdss.field_names import (photoobj_defs, specobj_defs,
+                                         crossid_defs, get_field_info)
 
 __all__ = ['SDSS', 'SDSSClass']
 __doctest_skip__ = ['SDSSClass.*']
@@ -28,6 +29,7 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
+    PARSE_BOSS_RUN2D = re.compile(r'v(?P<major>[0-9]+)_(?P<minor>[0-9]+)_(?P<bugfix>[0-9]+)')
     MAX_CROSSID_RADIUS = 3.0 * u.arcmin
     QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
     QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
@@ -39,8 +41,9 @@ class SDSSClass(BaseQuery):
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
-    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/sdss/spectro/redux/'
-                          '{run2d}/spectra/{plate:0>4d}/'
+    # Note: {plate:0>4d} does allow 5-digit plates, while still zero-padding 3-digit plates.
+    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/{redux_path}/'
+                          '{run2d}/{spectra_path}/{plate:0>4d}/'
                           'spec-{plate:0>4d}-{mjd}-{fiber:04d}.fits')
 
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
@@ -737,12 +740,39 @@ class SDSSClass(BaseQuery):
                 run2d = str(row['run2d'])
             else:
                 run2d = row['run2d']
+            format_args = dict()
+            format_args['base'] = conf.sas_baseurl
+            format_args['dr'] = data_release
+            format_args['redux_path'] = 'sdss/spectro/redux'
+            format_args['run2d'] = run2d
+            format_args['spectra_path'] = 'spectra'
+            format_args['mjd'] = row['mjd']
+            try:
+                format_args['plate'] = row['plate']
+                format_args['fiber'] = row['fiberID']
+            except KeyError:
+                format_args['fieldid'] = row['fieldID']
+                format_args['catalogid'] = row['catalogID']
             if data_release > 15 and run2d not in ('26', '103', '104'):
-                linkstr = linkstr.replace('/spectra/', '/spectra/full/')
-            link = linkstr.format(
-                base=conf.sas_baseurl, dr=data_release,
-                run2d=run2d, plate=row['plate'],
-                fiber=row['fiberID'], mjd=row['mjd'])
+                #
+                # Still want this applied to data_release > 17.
+                #
+                format_args['spectra_path'] = 'spectra/full'
+            if data_release > 17:
+                #
+                # This change will fix everything except run2d==v6_0_4 in DR18,
+                # which is handled by the if major > 5 block below.
+                #
+                format_args['redux_path'] = 'spectro/sdss/redux'
+                match_run2d = self.PARSE_BOSS_RUN2D.match(run2d)
+                if match_run2d is not None:
+                    major = int(match_run2d.group('major'))
+                    if major > 5:
+                        linkstr = linkstr.replace('/{plate:0>4d}/', '/{fieldid:0>4d}p/{mjd:5d}/')
+                        linkstr = linkstr.replace('spec-{plate:0>4d}-{mjd}-{fiber:04d}.fits',
+                                                  'spec-{fieldid:0>4d}-{mjd:5d}-{catalogid:0>11d}.fits')
+
+            link = linkstr.format(**format_args)
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
                                                  remote_timeout=timeout,
@@ -903,6 +933,8 @@ class SDSSClass(BaseQuery):
                 instrument = 'boss'
                 if data_release > 12:
                     instrument = 'eboss'
+                if data_release > 17:
+                    instrument = 'prior-surveys/sdss4-dr17-eboss'
                 link = linkstr.format(base=conf.sas_baseurl, run=row['run'],
                                       dr=data_release, instrument=instrument,
                                       rerun=row['rerun'], camcol=row['camcol'],
@@ -1267,7 +1299,7 @@ class SDSSClass(BaseQuery):
         self._last_url = url
         return url
 
-    def _rectangle_sql(self, ra, dec, width, height=None, cosdec=False):
+    def _rectangle_sql(self, ra, dec, width, height=None):
         """
         Generate SQL for a rectangular query centered on ``ra``, ``dec``.
 
@@ -1284,10 +1316,6 @@ class SDSSClass(BaseQuery):
             Width of rectangle in degrees.
         height : float, optional
             Height of rectangle in degrees. If not specified, ``width`` is used.
-        cosdec : bool, optional
-            If ``True`` apply ``cos(dec)`` correction to the rectangle.
-            Otherwise, rectangles become increasingly triangle-like
-            near the poles.
 
         Returns
         -------
