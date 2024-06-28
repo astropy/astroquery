@@ -119,7 +119,7 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
             filename = data_path(DATA_FILES['z_survey'])
         else:
             filename = data_path(DATA_FILES['z_cutout_fit'])
-    elif use_json and data['radius'] == 5:
+    elif use_json and data['radius'] == 300:
         filename = data_path(DATA_FILES["mission_incorrect_results"])
     elif use_json:
         filename = data_path(DATA_FILES["mission_search_results"])
