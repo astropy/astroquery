@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+ehst
+^^^^
+
+- Include warning in get_datalabs_path method for ehst when the data volume is not mounted in DataLabs [#3059]
+
 mpc
 ^^^
 
