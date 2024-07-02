@@ -969,10 +969,10 @@ class JwstClass(BaseQuery):
             levels, please use get_related_observations functions first.
             Possible values: 'ALL', 3, 2, 1, -1
         product_type : str or list, optional, default None
-            List only products of the given type. If None, empty or an element
-            of the list is empty, all products are listed.
-            Possible values: 'thumbnail', 'preview', 'auxiliary',
-            'science', 'info', ['science', 'preview']...
+            If the string or at least one element of the list is empty, the value is replaced by None.
+            With None, all products will be downloaded.
+            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Posible list values: any combination of string values.
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -982,7 +982,7 @@ class JwstClass(BaseQuery):
             Returns the local path where the product(s) are saved.
         """
 
-        if (type(product_type) is list and '' in product_type) or not product_type:
+        if (isinstance(product_type, list) and '' in product_type) or not product_type:
             product_type = None
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
