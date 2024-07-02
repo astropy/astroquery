@@ -1056,7 +1056,7 @@ class ESAHubbleClass(BaseQuery):
             file_exists = os.path.exists(full_path)
 
         if not file_exists:
-            print(f"File '{filename}' is not accessible. Please ensure the '{instrument_name}' " \
+            print(f"File '{filename}' is not accessible. Please ensure the '{instrument_name}' "
                   "volume is mounted in your ESA Datalabs instance.")
         return full_path
 
