@@ -740,7 +740,7 @@ class TestTap:
         except OSError as err:
             print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
             raise err
-        
+
         file = data_path('single_product_retrieval.tar')
         output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
         shutil.copy(file, output_file_full_path)
