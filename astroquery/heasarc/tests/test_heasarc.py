@@ -143,17 +143,17 @@ def test_no_table():
         Heasarc.query_region("m31", spatial="cone", columns="*")
 
 
-def test_get_link():
+def test_get_datalink():
     with pytest.raises(ValueError, match="query_result is None"):
-        Heasarc.get_links()
+        Heasarc.get_datalinks()
 
     with pytest.raises(
         TypeError, match="query_result need to be an astropy.table.Table"
     ):
-        Heasarc.get_links([1, 2])
+        Heasarc.get_datalinks([1, 2])
 
     with pytest.raises(ValueError, match="No __row column found"):
-        Heasarc.get_links(Table({"id": [1, 2, 3.0]}), tablename="xray")
+        Heasarc.get_datalinks(Table({"id": [1, 2, 3.0]}), tablename="xray")
 
 
 def test_download_data__empty():
@@ -173,7 +173,7 @@ def test_download_data__missingcolumn(host):
     host_col = "access_url" if host == "heasarc" else host
     with pytest.raises(
         ValueError,
-        match=f"No {host_col} column found in the table. Call ~get_links first"
+        match=f"No {host_col} column found in the table. Call ~get_datalinks first"
     ):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 

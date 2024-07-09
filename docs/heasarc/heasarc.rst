@@ -172,7 +172,7 @@ with those results.
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3516')
     >>> tab = Heasac.query_region(pos, table='nicermastr')
-    >>> links = Heasac.get_links(tab[:2])
+    >>> links = Heasac.get_datalinks(tab[:2])
     >>> links.pprint(max_width=120)
       ID                                access_url                              ... content_length
                                                                                 ...      byte     

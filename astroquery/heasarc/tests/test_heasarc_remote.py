@@ -160,13 +160,13 @@ class TestHeasarc:
         remote_default = list(Heasarc._get_default_cols(table))
         assert remote_default == tdef
 
-    def test_get_links__wrongtable(self):
+    def test_get_datalinks__wrongtable(self):
         with pytest.raises(ValueError, match="Unknown table name:"):
-            Heasarc.get_links(Table({"__row": [1, 2, 3.0]}),
+            Heasarc.get_datalinks(Table({"__row": [1, 2, 3.0]}),
                               tablename="wrongtable")
 
-    def test_get_links__xmmmaster(self):
-        links = Heasarc.get_links(Table({"__row": [4154, 4155]}),
+    def test_get_datalinks__xmmmaster(self):
+        links = Heasarc.get_datalinks(Table({"__row": [4154, 4155]}),
                                   tablename="xmmmaster")
         assert len(links) == 2
         assert "access_url" in links.colnames

@@ -5,13 +5,6 @@ HEASARC
 
 The High Energy Astrophysics Science Archive Research Center (HEASARC)
 is the primary archive for NASA's (and other space agencies') missions.
-
-The initial version of this was coded in a sprint at the
-"Python in astronomy" workshop in April 2015 by Jean-Christophe Leyder,
-Abigail Stevens, Antonio Martin-Carrillo and Christoph Deil.
-
-Updates to use the XAMIN service was added by Abdu Zoghbi
-
 """
 from astropy import config as _config
 
