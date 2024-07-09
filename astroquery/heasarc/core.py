@@ -14,14 +14,14 @@ from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 import pyvo
 
 from astroquery import log
-from ..query import BaseQuery
+from ..query import BaseQuery, BaseVOQuery
 from ..utils import commons, async_to_sync, parse_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
 
 @async_to_sync
-class HeasarcClass(BaseQuery):
+class HeasarcClass(BaseVOQuery, BaseQuery):
     """Class for accessing HEASARC data using XAMIN.
 
     Example Usage:
@@ -60,7 +60,7 @@ class HeasarcClass(BaseQuery):
         This is a table that holds useful information such as
         the list of default columns per table, the reasonable default
         search radius per table that is appropriate for a mission etc.
-        Instead of making a server call for each of that type information,
+        Instead of making a server call for each table for that type information,
         we do a single one and then post-process the resulting table.
 
         These are not meant to be used directly by the user.
@@ -102,7 +102,7 @@ class HeasarcClass(BaseQuery):
         defaults = meta['par']
         return defaults
 
-    def get_default_radius(self, table_name):
+    def _get_default_radius(self, table_name):
         """Get a mission-appropriate default radius for a table
 
         Parameters
@@ -194,7 +194,7 @@ class HeasarcClass(BaseQuery):
         return self.tables(master=False)
 
     def columns(self, table_name, full=False):
-        """Return a dictionay of the columns available in table_name
+        """Return the columns available in table_name as a table
 
         Parameters
         ----------
@@ -327,7 +327,7 @@ class HeasarcClass(BaseQuery):
             `astropy.units` may also be used. If None, a default value
             appropriate for the selected table is used. To see the default
             radius for the table, see
-            ~astroquery.heasarc.Heasarc.get_default_radius.
+            ~astroquery.heasarc.Heasarc._get_default_radius.
         width : str, `~astropy.units.Quantity` object [Required for
             spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -397,7 +397,7 @@ class HeasarcClass(BaseQuery):
 
             if spatial.lower() == 'cone':
                 if radius is None:
-                    radius = self.get_default_radius(table)
+                    radius = self._get_default_radius(table)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
@@ -462,7 +462,7 @@ class HeasarcClass(BaseQuery):
         return self.query_region(pos, table=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-    def get_links(self, query_result=None, tablename=None):
+    def get_datalinks(self, query_result=None, tablename=None):
         """Get links to data products
         Use vo/datalinks to query the data products for some query_results.
 
@@ -567,7 +567,7 @@ class HeasarcClass(BaseQuery):
             self.s3_resource = boto3.resource('s3')
 
         else:
-            log.info('Enabling cloud data access with profile: {profile} ...')
+            log.info(f'Enabling cloud data access with profile: {profile} ...')
             session = boto3.session.Session(profile_name=profile)
             self.s3_resource = session.resource(service_name='s3')
 
@@ -581,7 +581,7 @@ class HeasarcClass(BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table`
-            The result from get_links
+            The result from get_datalinks
         host : str
             The data host. The options are: heasarc (defaul), sciserver, aws.
             If host == 'sciserver', data is copied from the local mounted
@@ -608,7 +608,7 @@ class HeasarcClass(BaseQuery):
         if host_column not in links.colnames:
             raise ValueError(
                 f'No {host_column} column found in the table. Call '
-                '~get_links first'
+                '~get_datalinks first'
             )
 
         if host == 'heasarc':
@@ -635,7 +635,7 @@ class HeasarcClass(BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table`
-            The result from get_links
+            The result from get_datalinks
         location : str
             local folder where the downloaded file will be saved.
             Default is current working directory
@@ -690,7 +690,7 @@ class HeasarcClass(BaseQuery):
         Users should be using ~self.download_data instead
 
         """
-        if not os.path.exists('/FTP/'):
+        if not (os.path.exists('/FTP/') and os.environ['HOME'].split('/')[-1] == 'idies'):
             raise FileNotFoundError(
                 'No data archive found. This should be run on Sciserver '
                 'with the data drive mounted.'
