@@ -544,6 +544,27 @@ class TestMast:
 
         assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
 
+    def test_get_cloud_uris_query(self):
+        pytest.importorskip("boto3")
+
+        # enable access to public AWS S3 bucket
+        Observations.enable_cloud_dataset()
+
+        # get uris with other functions
+        obs = Observations.query_criteria(target_name=234295610,
+                                          provenance_name="SPOC",
+                                          sequence_number=[1, 2])
+        prod = Observations.get_product_list(obs)
+        filt = Observations.filter_products(prod, calib_level=[2])
+        s3_uris = Observations.get_cloud_uris(filt)
+
+        # get uris with streamlined function
+        uris = Observations.get_cloud_uris_query(target_name=234295610,
+                                                 provenance_name="SPOC",
+                                                 sequence_number=[1, 2],
+                                                 filter_products={'calib_level': [2]})
+        assert s3_uris == uris
+
     ######################
     # CatalogClass tests #
     ######################

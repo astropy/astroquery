@@ -841,6 +841,59 @@ class ObservationsClass(MastQueryWithLogin):
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
+    def get_cloud_uris_query(self, *, pagesize=None, page=None, mrp_only=False, extension=None,
+                             filter_products={}, **criteria):
+        """
+        Given a set of criteria and optional filters, get a list of matching data products and return their
+        associated cloud data URIs.
+
+        Parameters
+        ----------
+        pagesize : int, optional
+            Default None. Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Default None. Can be used to override the default behavior of all results being returned to obtain
+            one specific page of results.
+        mrp_only : bool, optional
+            Default False. When set to True, only "Minimum Recommended Products" will be returned.
+        extension : string or array, optional
+            Default None. Option to filter by file extension.
+        filter_products : dict, optional
+            Filters to be applied.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name as a string is the key. The corresponding value is one
+            or more acceptable values for that parameter.
+            Filter behavior is AND between the filters and OR within a filter set.
+            For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        **criteria
+            Criteria to apply. At least one non-positional criteria must be supplied.
+            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            and all observation fields returned by the ``get_metadata("observations")``.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+
+        Returns
+        -------
+        response : list
+
+        """
+        # Get table of observations based on query criteria
+        obs = self.query_criteria(pagesize=pagesize, page=page, **criteria)
+
+        # Return list of associated data products
+        prod = self.get_product_list(obs)
+
+        # Filter product list
+        filt = self.filter_products(prod, mrp_only=mrp_only, extension=extension, **filter_products)
+
+        # Return list of cloud URIs
+        return self.get_cloud_uris(filt)
+
     def _remove_duplicate_products(self, data_products):
         """
         Removes duplicate data products that have the same dataURI.

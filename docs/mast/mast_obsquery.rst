@@ -427,6 +427,8 @@ MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud
 To directly access a list of cloud URIs for a given dataset, use the
 `~astroquery.mast.ObservationsClass.get_cloud_uris`
 function (Python will prompt you to enable cloud access if you haven't already).
+To return a list of cloud URIs based on query criteria and product filters, use the
+`~astroquery.mast.ObservationsClass.get_cloud_uris_query` function.
 
 When cloud access is enabled, the standard download function
 `~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they
@@ -434,7 +436,7 @@ are available. When set to `True`, the ``cloud_only`` parameter in
 `~astroquery.mast.ObservationsClass.download_products` skips all data products not available in the cloud.
 
 
-Getting a list of S3 URIs:
+To get a list of S3 URIs, use the following workflow:
 
 .. doctest-skip::
 
@@ -456,10 +458,32 @@ Getting a list of S3 URIs:
    ...                                         productSubGroupDescription='DRZ')
    >>> s3_uris = Observations.get_cloud_uris(filtered)
    >>> print(s3_uris)
-   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
    ...
    >>> Observations.disable_cloud_dataset()
 
+Alternatively, you can use the streamlined `~astroquery.mast.ObservationsClass.get_cloud_uris_query` function. This approach is recommended
+for code brevity. Query criteria are supplied as keyword arguments, and filters are supplied through the ``filter_products`` parameter.
+
+.. doctest-skip::
+
+   >>> import os
+   >>> from astroquery.mast import Observations
+   ...
+   >>> Observations.enable_cloud_dataset(provider='AWS')
+   INFO: Using the S3 STScI public dataset [astroquery.mast.core]
+   ...
+   >>> # Getting the cloud URIs
+   >>> s3_uris = Observations.get_cloud_uris_query(obs_collection='HST',
+                                                   filters='F606W',
+                                                   instrument_name='ACS/WFC',
+                                                   proposal_id=['12062'],
+                                                   dataRights='PUBLIC',
+                                                   filter_products={'productSubGroupDescription': 'DRZ'})
+   >>> print(s3_uris)
+   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+   ...
+   >>> Observations.disable_cloud_dataset()
 
 Downloading data products from S3:
 
