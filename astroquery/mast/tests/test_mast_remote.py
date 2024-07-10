@@ -74,10 +74,13 @@ class TestMast:
                   'dec': 54.5,
                   'radius': 0.001}
 
-        result = Mast.service_request(service, params)
+        result = Mast.service_request(service, params, pagesize=10, page=2)
 
         # Is result in the right format
         assert isinstance(result, Table)
+
+        # Is result limited to ten rows
+        assert len(result) == 10
 
         # Are the GALEX observations in the results table
         assert "GALEX" in result['obs_collection']
@@ -532,15 +535,18 @@ class TestMast:
                                        radius=0.01*u.deg, catalog="panstarrs",
                                        table="mean")
         row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
+        second_id = result[1]['objID']
         assert isinstance(result, Table)
         np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
 
         result = Catalogs.query_region("322.49324 12.16683",
                                        radius=0.01*u.deg, catalog="panstarrs",
                                        table="mean",
-                                       page_size=3)
+                                       pagesize=1,
+                                       page=2)
         assert isinstance(result, Table)
-        assert len(result) == 3
+        assert len(result) == 1
+        assert second_id == result[0]['objID']
 
         result = Catalogs.query_region("158.47924 -7.30962",
                                        radius=in_radius,
@@ -588,6 +594,16 @@ class TestMast:
                                        radius=.001,
                                        catalog="TIC")
         check_result(result, {'ID': '1305764225'})
+        second_id = result[1]['ID']
+
+        result = Catalogs.query_object("M10",
+                                       radius=.001,
+                                       catalog="TIC",
+                                       pagesize=1,
+                                       page=2)
+        assert isinstance(result, Table)
+        assert len(result) == 1
+        assert second_id == result[0]['ID']
 
         result = Catalogs.query_object("M10",
                                        radius=.001,
@@ -681,6 +697,16 @@ class TestMast:
                                          Bmag=[30, 50],
                                          objType="STAR")
         check_result(result, {'ID': '81609218'})
+        second_id = result[1]['ID']
+
+        result = Catalogs.query_criteria(catalog="Tic",
+                                         Bmag=[30, 50],
+                                         objType="STAR",
+                                         pagesize=1,
+                                         page=2)
+        assert isinstance(result, Table)
+        assert len(result) == 1
+        assert second_id == result[0]['ID']
 
         result = Catalogs.query_criteria(catalog="ctl",
                                          Tmag=[10.5, 11],

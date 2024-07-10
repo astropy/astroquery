@@ -225,6 +225,8 @@ class CatalogsClass(MastQueryWithLogin):
 
         Parameters
         ----------
+        catalog : str
+            The catalog to be queried.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
