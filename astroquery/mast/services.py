@@ -12,6 +12,7 @@ import warnings
 import numpy as np
 
 from astropy.table import Table, MaskedColumn
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -222,6 +223,7 @@ class ServiceAPI(BaseQuery):
         return result_table
 
     @class_or_instance
+    @deprecated_renamed_argument('page_size', 'pagesize', since='0.4.8')
     def service_request_async(self, service, params, pagesize=None, page=None, use_json=False, **kwargs):
         """
         Given a MAST fabric service and parameters, builds and executes a fabric microservice catalog query.
