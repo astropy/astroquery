@@ -427,8 +427,9 @@ MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud
 To directly access a list of cloud URIs for a given dataset, use the
 `~astroquery.mast.ObservationsClass.get_cloud_uris`
 function (Python will prompt you to enable cloud access if you haven't already).
-To return a list of cloud URIs based on query criteria and product filters, use the
-`~astroquery.mast.ObservationsClass.get_cloud_uris_query` function.
+With this function, users may specify a `~astropy.table.Table` of data products or 
+query criteria. Query criteria are supplied as keyword arguments, and product filters 
+may be supplied through the ``mrp_only``, ``extension``, and ``filter_products`` parameters.
 
 When cloud access is enabled, the standard download function
 `~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they
@@ -462,8 +463,9 @@ To get a list of S3 URIs, use the following workflow:
    ...
    >>> Observations.disable_cloud_dataset()
 
-Alternatively, you can use the streamlined `~astroquery.mast.ObservationsClass.get_cloud_uris_query` function. This approach is recommended
-for code brevity. Query criteria are supplied as keyword arguments, and filters are supplied through the ``filter_products`` parameter.
+Alternatively, this workflow can be streamlined by providing the query criteria directly to `~astroquery.mast.ObservationsClass.get_cloud_uris`.
+This approach is recommended for code brevity. Query criteria are supplied as keyword arguments, and filters are supplied through the 
+``filter_products`` parameter. If both ``data_products`` and query criteria are provided, ``data_products`` takes precedence.
 
 .. doctest-skip::
 
@@ -474,12 +476,12 @@ for code brevity. Query criteria are supplied as keyword arguments, and filters 
    INFO: Using the S3 STScI public dataset [astroquery.mast.core]
    ...
    >>> # Getting the cloud URIs
-   >>> s3_uris = Observations.get_cloud_uris_query(obs_collection='HST',
-                                                   filters='F606W',
-                                                   instrument_name='ACS/WFC',
-                                                   proposal_id=['12062'],
-                                                   dataRights='PUBLIC',
-                                                   filter_products={'productSubGroupDescription': 'DRZ'})
+   >>> s3_uris = Observations.get_cloud_uris(obs_collection='HST',
+                                             filters='F606W',
+                                             instrument_name='ACS/WFC',
+                                             proposal_id=['12062'],
+                                             dataRights='PUBLIC',
+                                             filter_products={'productSubGroupDescription': 'DRZ'})
    >>> print(s3_uris)
    ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
    ...

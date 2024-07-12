@@ -169,8 +169,7 @@ mast
 
 - Fix bug in ``Catalogs.query_criteria()`` to use ``page`` and ``pagesize`` parameters correctly. [#3065]
 
-- Add ``mast.Observations.get_cloud_uris_query`` method so that given a set of query criteria and optional filters,
-  the user receives a list of cloud data URIs for matching data products. [#3064]
+- Modify ``mast.Observations.get_cloud_uris`` to also accept query criteria and data product filters. [#3064]
 
 
 0.4.7 (2024-03-08)

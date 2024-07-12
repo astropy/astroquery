@@ -774,26 +774,56 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def get_cloud_uris(self, data_products, *, include_bucket=True, full_url=False):
+    def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
+                       mrp_only=False, extension=None, filter_products={}, **criteria):
         """
-        Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
+        Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
+        returns the associated cloud data URIs.
 
         Parameters
         ----------
         data_products : `~astropy.table.Table`
-            Table containing products to be converted into cloud data uris.
+            Table containing products to be converted into cloud data uris. If provided, this will supercede
+            page_size, page, or any arguments passed in as **criteria.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the
+            Default True. When False, returns the path of the file relative to the
             top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
             Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
+        pagesize : int, optional
+            Default None. Can be used to override the default pagesize when making a query.
+            E.g. when using a slow internet connection. Query criteria must also be provided.
+        page : int, optional
+            Default None. Can be used to override the default behavior of all results being returned for a query
+            to obtain one specific page of results. Query criteria must also be provided.
+        mrp_only : bool, optional
+            Default False. When set to True, only "Minimum Recommended Products" will be returned.
+        extension : string or array, optional
+            Default None. Option to filter by file extension.
+        filter_products : dict, optional
+            Filters to be applied to data products.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name as a string is the key. The corresponding value is one
+            or more acceptable values for that parameter.
+            Filter behavior is AND between the filters and OR within a filter set.
+            For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        **criteria
+            Criteria to apply. At least one non-positional criteria must be supplied.
+            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            and all observation fields returned by the ``get_metadata("observations")``.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
 
         Returns
         -------
         response : list
-            List of URIs generated from the data products, list way contain entries that are None
+            List of URIs generated from the data products. May contain entries that are None
             if data_products includes products not found in the cloud.
         """
 
@@ -801,6 +831,29 @@ class ObservationsClass(MastQueryWithLogin):
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
                 'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+
+        if data_products is None:
+            if not criteria:
+                raise InvalidQueryError(
+                    'Please provide either a `~astropy.table.Table` of data products or query criteria.'
+                )
+            else:
+                # Get table of observations based on query criteria
+                obs = self.query_criteria(pagesize=pagesize, page=page, **criteria)
+
+                if not len(obs):
+                    # Warning raised by ~astroquery.mast.ObservationsClass.query_criteria
+                    return
+
+                # Return list of associated data products
+                data_products = self.get_product_list(obs)
+
+        # Filter product list
+        data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension, **filter_products)
+
+        if not len(data_products):
+            warnings.warn("No matching products to fetch associated cloud URIs.", NoResultsWarning)
+            return
 
         # Remove duplicate products
         data_products = self._remove_duplicate_products(data_products)
@@ -840,59 +893,6 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
-
-    def get_cloud_uris_query(self, *, pagesize=None, page=None, mrp_only=False, extension=None,
-                             filter_products={}, **criteria):
-        """
-        Given a set of criteria and optional filters, get a list of matching data products and return their
-        associated cloud data URIs.
-
-        Parameters
-        ----------
-        pagesize : int, optional
-            Default None. Can be used to override the default pagesize.
-            E.g. when using a slow internet connection.
-        page : int, optional
-            Default None. Can be used to override the default behavior of all results being returned to obtain
-            one specific page of results.
-        mrp_only : bool, optional
-            Default False. When set to True, only "Minimum Recommended Products" will be returned.
-        extension : string or array, optional
-            Default None. Option to filter by file extension.
-        filter_products : dict, optional
-            Filters to be applied.  Valid filters are all products fields listed
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
-            The column name as a string is the key. The corresponding value is one
-            or more acceptable values for that parameter.
-            Filter behavior is AND between the filters and OR within a filter set.
-            For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
-        **criteria
-            Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields returned by the ``get_metadata("observations")``.
-            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
-            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
-            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
-            only one wildcarded value can be processed per criterion.
-            RA and Dec must be given in decimal degrees, and datetimes in MJD.
-            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
-
-        Returns
-        -------
-        response : list
-
-        """
-        # Get table of observations based on query criteria
-        obs = self.query_criteria(pagesize=pagesize, page=page, **criteria)
-
-        # Return list of associated data products
-        prod = self.get_product_list(obs)
-
-        # Filter product list
-        filt = self.filter_products(prod, mrp_only=mrp_only, extension=extension, **filter_products)
-
-        # Return list of cloud URIs
-        return self.get_cloud_uris(filt)
 
     def _remove_duplicate_products(self, data_products):
         """

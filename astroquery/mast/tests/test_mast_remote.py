@@ -544,6 +544,11 @@ class TestMast:
 
         assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
 
+        # check for warning if no data products match filters
+        with pytest.warns(NoResultsWarning):
+            Observations.get_cloud_uris(products,
+                                        extension='png')
+
     def test_get_cloud_uris_query(self):
         pytest.importorskip("boto3")
 
@@ -559,11 +564,19 @@ class TestMast:
         s3_uris = Observations.get_cloud_uris(filt)
 
         # get uris with streamlined function
-        uris = Observations.get_cloud_uris_query(target_name=234295610,
-                                                 provenance_name="SPOC",
-                                                 sequence_number=[1, 2],
-                                                 filter_products={'calib_level': [2]})
+        uris = Observations.get_cloud_uris(target_name=234295610,
+                                           provenance_name="SPOC",
+                                           sequence_number=[1, 2],
+                                           filter_products={'calib_level': [2]})
         assert s3_uris == uris
+
+        # check that InvalidQueryError is thrown if neither data_products or **criteria are defined
+        with pytest.raises(InvalidQueryError):
+            Observations.get_cloud_uris(filter_products={'calib_level': [2]})
+
+        # check for warning if query returns no observations
+        with pytest.warns(NoResultsWarning):
+            Observations.get_cloud_uris(target_name=234295611)
 
     ######################
     # CatalogClass tests #
