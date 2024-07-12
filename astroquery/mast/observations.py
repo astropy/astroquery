@@ -784,7 +784,7 @@ class ObservationsClass(MastQueryWithLogin):
         ----------
         data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris. If provided, this will supercede
-            page_size, page, or any arguments passed in as **criteria.
+            page_size, page, or any keyword arguments passed in as criteria.
         include_bucket : bool
             Default True. When False, returns the path of the file relative to the
             top level cloud storage location.

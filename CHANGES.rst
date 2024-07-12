@@ -171,6 +171,9 @@ mast
 
 - Modify ``mast.Observations.get_cloud_uris`` to also accept query criteria and data product filters. [#3064]
 
+- Increased the speed of ``mast.Observations.get_cloud_uris`` by obtaining multiple
+  URIs from MAST at once. [#3064]
+
 
 0.4.7 (2024-03-08)
 ==================
