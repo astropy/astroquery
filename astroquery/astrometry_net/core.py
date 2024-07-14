@@ -2,10 +2,12 @@
 
 
 import json
+import warnings
 
 from astropy.io import fits
 from astropy.stats import sigma_clipped_stats
 from astropy.coordinates import SkyCoord
+from astropy.utils.decorators import AstropyDeprecationWarning, deprecated_renamed_argument
 
 try:
     from astropy.nddata import CCDData
@@ -331,6 +333,7 @@ class AstrometryNetClass(BaseQuery):
                                        verbose=verbose,
                                        return_submission_id=return_submission_id)
 
+    @deprecated_renamed_argument(("force_image_upload", "ra_dec_units"), (None, None), since="0.4.8")
     def solve_from_image(self, image_file_path, *, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
@@ -412,6 +415,14 @@ class AstrometryNetClass(BaseQuery):
                                          cache=False,
                                          files={'file': f})
         else:
+            warning_msg = (
+                "Removing photutils functionality to obtain extracted positions list from "
+                "AstrometryNetClass.solve_from_source_list. Users will need to "
+                "submit pre-extracted catalog positions or a fits file for https://nova.astrometry.net/ "
+                "to extract with their algorithm."
+            )
+
+            warnings.warn(warning_msg, category=AstropyDeprecationWarning)
             # Detect sources and delegate to solve_from_source_list
             if _HAVE_CCDDATA:
                 # CCDData requires a unit, so provide one. It has absolutely
