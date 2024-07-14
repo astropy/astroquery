@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+astrometry_net
+^^^^^^^^^^^^^^
+
+- Remove photutils from Astroquery astrometry.net [#3067]
+
 alma
 ^^^^
 
