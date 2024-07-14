@@ -162,6 +162,8 @@ mast
 
 - Add ``verbose`` parameter to modulate output in ``mast.observations.download_products`` method. [#3031]
 
+- Fix bug in ``Catalogs.query_criteria()`` to use ``page`` and ``pagesize`` parameters correctly. [#3065]
+
 
 
 0.4.7 (2024-03-08)
