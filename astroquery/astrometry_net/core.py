@@ -415,10 +415,10 @@ class AstrometryNetClass(BaseQuery):
                                          cache=False,
                                          files={'file': f})
         else:
-            warning_msg = "Removing photutils functionality to obtain extracted positions list from " \
-                          "AstrometryNetClass.solve_from_source_list. Users will need to " \
-                          "submit pre-extracted catalog positions or a fits file for https://nova.astrometry.net/ " \
-                          "to extract with their algorithm."
+            warning_msg = ("Removing photutils functionality to obtain extracted positions list from "
+                          "AstrometryNetClass.solve_from_source_list. Users will need to "
+                          "submit pre-extracted catalog positions or a fits file for https://nova.astrometry.net/ "
+                          "to extract with their algorithm.")
             warnings.warn(warning_msg, category=AstropyDeprecationWarning)
             # Detect sources and delegate to solve_from_source_list
             if _HAVE_CCDDATA:
