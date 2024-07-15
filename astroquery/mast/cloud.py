@@ -112,7 +112,7 @@ class CloudAccess:  # pragma:no-cover
         uri_list = self.get_cloud_uri_list(data_product, include_bucket=include_bucket, full_url=full_url)
 
         # Making sure we got at least 1 URI from the query above.
-        if uri_list[0] is None:
+        if not uri_list or uri_list[0] is None:
             warnings.warn("Unable to locate file {}.".format(data_product), NoResultsWarning)
         else:
             # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI

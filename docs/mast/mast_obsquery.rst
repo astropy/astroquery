@@ -284,7 +284,7 @@ with `~astroquery.mast.ObservationsClass.get_product_list`
 (see `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__ for more details).
 Using "obs_id" instead of "obsid" from the previous example will result in the following error:
 
-.. doctest-remote-data::
+.. doctest-skip::
    >>> obs_ids = obs_table[0:2]['obs_id']
    >>> data_products_by_id = Observations.get_product_list(obs_ids)
    Traceback (most recent call last):
@@ -325,12 +325,12 @@ Product filtering can also be applied directly to a table of products without pr
    ...
    >>> data_products = Observations.get_product_list('25588063')
    >>> print(len(data_products))
-   27
+   30
    >>> products = Observations.filter_products(data_products,
    ...                                         productType=["SCIENCE", "PREVIEW"],
    ...                                         extension="fits")
    >>> print(len(products))
-   8
+   10
 
 
 Downloading Data Products

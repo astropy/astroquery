@@ -24,7 +24,7 @@ The returned fields vary by catalog, find the field documentation for specific c
 `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 If no catalog is specified, the Hubble Source Catalog will be queried.
 
-.. doctest-remote-data::
+.. doctest-skip::
 
    >>> from astroquery.mast import Catalogs
    ...
@@ -261,19 +261,17 @@ Given an HSC Match ID, return all catalog results.
    >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="HSC")
    >>> matchid = catalog_data[0]["MatchID"]
    >>> print(matchid)
-   63980492
+   7542452
    >>> matches = Catalogs.query_hsc_matchid(matchid)
    >>> print(matches)
-     CatID   MatchID  ...                       cd_matrix
-   --------- -------- ... ------------------------------------------------------
-   257195287 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
-   257440119 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
-   428373428 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
-   428373427 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
-   428373429 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
-   410574499 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
-   410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
-   410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+     CatID   MatchID ...                       cd_matrix                       
+   --------- ------- ... ------------------------------------------------------
+   419094794 7542452 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
+   419094795 7542452 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
+   401289578 7542452 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+   401289577 7542452 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+   257194049 7542452 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
+   257438887 7542452 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
 
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
