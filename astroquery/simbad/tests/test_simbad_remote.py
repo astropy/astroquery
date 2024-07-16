@@ -6,6 +6,7 @@ import astropy.units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.table import Table
 
+from astroquery.exceptions import NoResultsWarning
 from astroquery.simbad import Simbad
 from astroquery.simbad.core import _cached_query_tap, _Column, _Join
 
@@ -140,6 +141,11 @@ class TestSimbad:
         assert _cached_query_tap.cache_info().currsize != 0
         Simbad.clear_cache()
         assert _cached_query_tap.cache_info().currsize == 0
+
+    def test_empty_response_warns(self):
+        with pytest.warns(NoResultsWarning, match="The request executed correctly, but *"):
+            # a catalog that does not exists should return an empty response
+            Simbad.query_catalog("unknown_catalog")
 
     # ----------------------------------
 
