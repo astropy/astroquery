@@ -284,9 +284,9 @@ with `~astroquery.mast.ObservationsClass.get_product_list`
 (see `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__ for more details).
 Using "obs_id" instead of "obsid" from the previous example will result in the following error:
 
-.. doctest-skip::
+.. doctest-remote-data::
    >>> obs_ids = obs_table[0:2]['obs_id']
-   >>> data_products_by_id = Observations.get_product_list(obs_ids)
+   >>> data_products_by_id = Observations.get_product_list(obs_ids)  # doctest: +IGNORE_OUTPUT
    Traceback (most recent call last):
    ...
    RemoteServiceError: Error converting data type varchar to bigint.
@@ -467,24 +467,23 @@ Alternatively, this workflow can be streamlined by providing the query criteria 
 This approach is recommended for code brevity. Query criteria are supplied as keyword arguments, and filters are supplied through the 
 ``filter_products`` parameter. If both ``data_products`` and query criteria are provided, ``data_products`` takes precedence.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> import os
    >>> from astroquery.mast import Observations
    ...
    >>> Observations.enable_cloud_dataset(provider='AWS')
-   INFO: Using the S3 STScI public dataset [astroquery.mast.core]
-   ...
+   INFO: Using the S3 STScI public dataset [astroquery.mast.cloud]
    >>> # Getting the cloud URIs
    >>> s3_uris = Observations.get_cloud_uris(obs_collection='HST',
-                                             filters='F606W',
-                                             instrument_name='ACS/WFC',
-                                             proposal_id=['12062'],
-                                             dataRights='PUBLIC',
-                                             filter_products={'productSubGroupDescription': 'DRZ'})
+   ...                                       filters='F606W',
+   ...                                       instrument_name='ACS/WFC',
+   ...                                       proposal_id=['12062'],
+   ...                                       dataRights='PUBLIC',
+   ...                                       filter_products={'productSubGroupDescription': 'DRZ'})
+   INFO: 2 of 4 products were duplicates. Only downloading 2 unique product(s). [astroquery.mast.observations]
    >>> print(s3_uris)
    ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
-   ...
    >>> Observations.disable_cloud_dataset()
 
 Downloading data products from S3:

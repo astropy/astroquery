@@ -24,12 +24,13 @@ The returned fields vary by catalog, find the field documentation for specific c
 `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 If no catalog is specified, the Hubble Source Catalog will be queried.
 
-.. doctest-skip::
+ 
+.. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_object("158.47924 -7.30962", catalog="Galex")
-   >>> print(catalog_data[:10])
+   >>> print(catalog_data[:10])  # doctest: +IGNORE_OUTPUT
     distance_arcmin          objID        survey ... fuv_flux_aper_7 fuv_artifact
    ------------------ ------------------- ------ ... --------------- ------------
    0.3493802506329695 6382034098673685038    AIS ...     0.047751952            0
