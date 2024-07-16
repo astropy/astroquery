@@ -733,6 +733,37 @@ class TestTap:
         finally:
             shutil.rmtree(output_file_full_path_dir)
 
+        # Test product_type paramater with a list
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            raise err
+
+        file = data_path('single_product_retrieval.tar')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+        parameters['output_file'] = output_file_full_path
+
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files.append(extracted_file_1)
+        product_type_as_list = ['science', 'info']
+        try:
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              cal_level='ALL',
+                              product_type=product_type_as_list,
+                              output_file=output_file_full_path))
+            parameters['params_dict']['product_type'] = 'science,info'
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
+        finally:
+            shutil.rmtree(output_file_full_path_dir)
+            del parameters['params_dict']['product_type']
+
         # Test single file
         output_file_full_path_dir = os.getcwd() + os.sep +\
             "temp_test_jwsttap_get_obs_products_2"

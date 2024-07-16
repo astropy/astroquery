@@ -30,6 +30,11 @@ gama
 
 - Change URL to https and thus making the module functional again. [#3056]
 
+esa.jwst
+^^^^^^^^
+
+- get_obs_products method supports product_type parameter as string or list [#2995]
+
 mpc
 ^^^
 
