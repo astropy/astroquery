@@ -18,7 +18,7 @@ from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.query import BaseVOQuery
 from astroquery.utils import commons
-from astroquery.exceptions import LargeQueryWarning
+from astroquery.exceptions import LargeQueryWarning, NoResultsWarning
 from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
                                      _wildcard_to_regexp, CriteriaTranslator,
                                      query_criteria_fields)
@@ -1397,7 +1397,7 @@ class SimbadClass(BaseVOQuery):
         `~astropy.table.Table`
             The result of the query to SIMBAD.
         """
-        top = f" TOP {top}" if top != -1 else ""
+        top_part = f" TOP {top}" if top != -1 else ""
 
         # columns
         input_columns = [f'{column.table}."{column.name}" AS "{column.alias}"' if column.alias is not None
@@ -1425,9 +1425,16 @@ class SimbadClass(BaseVOQuery):
         else:
             criteria = ""
 
-        query = f"SELECT{top}{columns} FROM {from_table}{join}{criteria}"
+        query = f"SELECT{top_part}{columns} FROM {from_table}{join}{criteria}"
 
-        return self.query_tap(query, get_query_payload=get_query_payload, **uploads)
+        response = self.query_tap(query, get_query_payload=get_query_payload,
+                                  maxrec=self.hardlimit,
+                                  **uploads)
+
+        if len(response) == 0 and top != 0:
+            warnings.warn("The request executed correctly, but there was no data corresponding"
+                          " to these criteria in SIMBAD", NoResultsWarning)
+        return response
 
 
 Simbad = SimbadClass()
