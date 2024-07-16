@@ -526,12 +526,13 @@ class TestMast:
         assert len(uri) > 0, f'Product for dataURI {test_data_uri} was not found in the cloud.'
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
-    def test_get_cloud_uris(self):
+    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411"])
+    def test_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
-        test_obs_id = '25568122'
 
         # get a product list
-        products = Observations.get_product_list(test_obs_id)[24:]
+        index = 24 if test_obs_id == '25568122' else 0
+        products = Observations.get_product_list(test_obs_id)[index:]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
                                    'Unable to move forward with getting URIs from the cloud.')
@@ -543,6 +544,36 @@ class TestMast:
         uris = Observations.get_cloud_uris(products)
 
         assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
+
+        # check for warning if no data products match filters
+        with pytest.warns(NoResultsWarning):
+            Observations.get_cloud_uris(products,
+                                        extension='png')
+
+    def test_get_cloud_uris_query(self):
+        pytest.importorskip("boto3")
+
+        # enable access to public AWS S3 bucket
+        Observations.enable_cloud_dataset()
+
+        # get uris with other functions
+        obs = Observations.query_criteria(target_name=234295610)
+        prod = Observations.get_product_list(obs)
+        filt = Observations.filter_products(prod, calib_level=[2])
+        s3_uris = Observations.get_cloud_uris(filt)
+
+        # get uris with streamlined function
+        uris = Observations.get_cloud_uris(target_name=234295610,
+                                           filter_products={'calib_level': [2]})
+        assert s3_uris == uris
+
+        # check that InvalidQueryError is thrown if neither data_products or **criteria are defined
+        with pytest.raises(InvalidQueryError):
+            Observations.get_cloud_uris(filter_products={'calib_level': [2]})
+
+        # check for warning if query returns no observations
+        with pytest.warns(NoResultsWarning):
+            Observations.get_cloud_uris(target_name=234295611)
 
     ######################
     # CatalogClass tests #

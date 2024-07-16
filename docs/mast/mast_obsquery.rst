@@ -286,7 +286,7 @@ Using "obs_id" instead of "obsid" from the previous example will result in the f
 
 .. doctest-remote-data::
    >>> obs_ids = obs_table[0:2]['obs_id']
-   >>> data_products_by_id = Observations.get_product_list(obs_ids)
+   >>> data_products_by_id = Observations.get_product_list(obs_ids)  # doctest: +IGNORE_OUTPUT
    Traceback (most recent call last):
    ...
    RemoteServiceError: Error converting data type varchar to bigint.
@@ -325,12 +325,12 @@ Product filtering can also be applied directly to a table of products without pr
    ...
    >>> data_products = Observations.get_product_list('25588063')
    >>> print(len(data_products))
-   27
+   30
    >>> products = Observations.filter_products(data_products,
    ...                                         productType=["SCIENCE", "PREVIEW"],
    ...                                         extension="fits")
    >>> print(len(products))
-   8
+   10
 
 
 Downloading Data Products
@@ -427,6 +427,9 @@ MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud
 To directly access a list of cloud URIs for a given dataset, use the
 `~astroquery.mast.ObservationsClass.get_cloud_uris`
 function (Python will prompt you to enable cloud access if you haven't already).
+With this function, users may specify a `~astropy.table.Table` of data products or 
+query criteria. Query criteria are supplied as keyword arguments, and product filters 
+may be supplied through the ``mrp_only``, ``extension``, and ``filter_products`` parameters.
 
 When cloud access is enabled, the standard download function
 `~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they
@@ -434,7 +437,7 @@ are available. When set to `True`, the ``cloud_only`` parameter in
 `~astroquery.mast.ObservationsClass.download_products` skips all data products not available in the cloud.
 
 
-Getting a list of S3 URIs:
+To get a list of S3 URIs, use the following workflow:
 
 .. doctest-skip::
 
@@ -456,10 +459,32 @@ Getting a list of S3 URIs:
    ...                                         productSubGroupDescription='DRZ')
    >>> s3_uris = Observations.get_cloud_uris(filtered)
    >>> print(s3_uris)
-   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
    ...
    >>> Observations.disable_cloud_dataset()
 
+Alternatively, this workflow can be streamlined by providing the query criteria directly to `~astroquery.mast.ObservationsClass.get_cloud_uris`.
+This approach is recommended for code brevity. Query criteria are supplied as keyword arguments, and filters are supplied through the 
+``filter_products`` parameter. If both ``data_products`` and query criteria are provided, ``data_products`` takes precedence.
+
+.. doctest-remote-data::
+
+   >>> import os
+   >>> from astroquery.mast import Observations
+   ...
+   >>> Observations.enable_cloud_dataset(provider='AWS')
+   INFO: Using the S3 STScI public dataset [astroquery.mast.cloud]
+   >>> # Getting the cloud URIs
+   >>> s3_uris = Observations.get_cloud_uris(obs_collection='HST',
+   ...                                       filters='F606W',
+   ...                                       instrument_name='ACS/WFC',
+   ...                                       proposal_id=['12062'],
+   ...                                       dataRights='PUBLIC',
+   ...                                       filter_products={'productSubGroupDescription': 'DRZ'})
+   INFO: 2 of 4 products were duplicates. Only downloading 2 unique product(s). [astroquery.mast.observations]
+   >>> print(s3_uris)
+   ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+   >>> Observations.disable_cloud_dataset()
 
 Downloading data products from S3:
 
