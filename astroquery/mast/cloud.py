@@ -160,6 +160,8 @@ class CloudAccess:  # pragma:no-cover
                     elif full_url:
                         path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
                         uri_list.append(path)
+                    else:
+                        uri_list.append(path)
                 except self.botocore.exceptions.ClientError as e:
                     if e.response['Error']['Code'] != "404":
                         raise
@@ -192,7 +194,7 @@ class CloudAccess:  # pragma:no-cover
             warnings.simplefilter("ignore")
             bucket_path = self.get_cloud_uri(data_product, False)
         if not bucket_path:
-            raise Exception("Unable to locate file {}.".format(data_product['productFilename']))
+            raise Exception("Unable to locate file {}.".format(data_product['dataURI']))
 
         # Ask the webserver (in this case S3) what the expected content length is and use that.
         info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path)
