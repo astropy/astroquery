@@ -505,6 +505,20 @@ class TestMast:
         result = Observations.download_file(uri, local_path=local_path_file)
         check_result(result, local_path_file)
 
+    @pytest.mark.parametrize("in_uri", [
+        'mast:HLA/url/cgi-bin/getdata.cgi?download=1&filename=hst_05206_01_wfpc2_f375n_wf_daophot_trm.cat',
+        'mast:HST/product/u24r0102t_c3m.fits'
+    ])
+    def test_observations_download_file_cloud(self, tmp_path, in_uri):
+        pytest.importorskip("boto3")
+
+        Observations.enable_cloud_dataset()
+
+        filename = Path(in_uri).name
+        result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
+        assert result == ('COMPLETE', None, None)
+        assert Path(tmp_path, filename).exists()
+
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
          "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
