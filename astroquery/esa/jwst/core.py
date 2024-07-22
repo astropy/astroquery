@@ -1035,6 +1035,40 @@ class JwstClass(BaseQuery):
 
         return files
 
+    def download_files_from_program(self, proposal_id, *, product_type=None, verbose=False):
+        """Get JWST products given its proposal ID.
+
+        Parameters
+        ----------
+        proposal_id : int, mandatory
+            Program or Proposal ID associated to the observations.
+        product_type : str or list, optional, default None
+            If the string or at least one element of the list is empty,
+            the value is replaced by None.
+            With None, all products will be downloaded.
+            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Posible list values: any combination of string values.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        allobs : list
+            Returns the observationsid included into the proposal_id.
+        """
+
+        query = (f"SELECT observationid "
+                 f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
+                 f"WHERE proposal_id='{str(proposal_id)}'")
+        if verbose:
+            print(query)
+        job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
+        allobs = set(JwstClass.get_decoded_string(job.get_results()['observationid']))
+        for oid in allobs:
+            log.info(f"Downloading products for Observation ID: {oid}")
+            self.get_obs_products(observation_id=oid, product_type=product_type)
+        return list(allobs)
+
     def __check_file_number(self, output_dir, output_file_name,
                             output_file_full_path, files):
         num_files_in_dir = len(os.listdir(output_dir))

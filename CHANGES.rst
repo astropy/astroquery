@@ -35,6 +35,8 @@ esa.jwst
 
 - get_obs_products method supports product_type parameter as string or list [#2995]
 
+- Add download_files_from_program method to get all products by program id [#3073]
+
 mpc
 ^^^
 
