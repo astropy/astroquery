@@ -688,7 +688,7 @@ class TestTap:
         dummyTapHandler = DummyTapHandler()
         jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         with pytest.raises(TypeError) as err:
-          jwst.download_files_from_program()
+            jwst.download_files_from_program()
         assert "missing 1 required positional argument: 'proposal_id'" in err.value.args[0]
 
     def test_get_obs_products(self):

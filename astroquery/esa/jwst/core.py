@@ -1044,7 +1044,7 @@ class JwstClass(BaseQuery):
             Program or Proposal ID associated to the observations.
         product_type : str or list, optional, default None
             If the string or at least one element of the list is empty,
-              the value is replaced by None.
+            the value is replaced by None.
             With None, all products will be downloaded.
             Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
             Posible list values: any combination of string values.
