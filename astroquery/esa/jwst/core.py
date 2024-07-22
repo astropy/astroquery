@@ -1035,7 +1035,7 @@ class JwstClass(BaseQuery):
                                  files=files)
 
         return files
-    
+
     def get_pro_products(self, *, proposal_id=None, product_type=None, verbose=False):
         """Get JWST products given its proposal ID.
 
