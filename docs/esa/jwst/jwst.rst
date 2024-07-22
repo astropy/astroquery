@@ -331,7 +331,7 @@ To query the data products associated with a certain Proposal ID and filtered by
 .. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> observation_list = Jwst.get_pro_products(proposal_id='6651', product_type='preview')
+  >>> observation_list = Jwst.download_files_from_program(proposal_id='6651', product_type='preview')
   >>> print(observation_list) # doctest: +IGNORE_OUTPUT
   [np.str_('jw06651001001_05201_00001_nis'), np.str_('jw06651002001_05201_00001_nis')]
 

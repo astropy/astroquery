@@ -684,13 +684,12 @@ class TestTap:
             jwst.get_product_list(observation_id=observation_id, product_type='test')
         assert "product_type must be one of" in err.value.args[0]
 
-    def test_get_pro_products(self):
+    def test_download_files_from_program(self):
         dummyTapHandler = DummyTapHandler()
         jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
-
-        with pytest.raises(ValueError) as err:
-            jwst.get_pro_products()
-        assert "Missing required argument: 'proposal_id'" in err.value.args[0]
+        with pytest.raises(TypeError) as err:
+          jwst.download_files_from_program()
+        assert "missing 1 required positional argument: 'proposal_id'" in err.value.args[0]
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()

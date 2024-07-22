@@ -66,7 +66,6 @@ class JwstClass(BaseQuery):
     TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
-    REQUESTED_PROPOSAL_ID = "Missing required argument: 'proposal_id'"
 
     def __init__(self, *, tap_plus_handler=None, data_handler=None, show_messages=True):
         if tap_plus_handler is None:
@@ -1036,13 +1035,13 @@ class JwstClass(BaseQuery):
 
         return files
 
-    def get_pro_products(self, *, proposal_id=None, product_type=None, verbose=False):
+    def download_files_from_program(self, proposal_id, *, product_type=None, verbose=False):
         """Get JWST products given its proposal ID.
 
         Parameters
         ----------
-        proposal_id : str, mandatory
-            proposal ID of the product.
+        proposal_id : int, mandatory
+            Program or Proposal ID associated to the observations.
         product_type : str or list, optional, default None
             If the string or at least one element of the list is empty,
               the value is replaced by None.
@@ -1058,8 +1057,6 @@ class JwstClass(BaseQuery):
             Returns the observationsid included into the proposal_id.
         """
 
-        if proposal_id is None:
-            raise ValueError(self.REQUESTED_PROPOSAL_ID)
         query = (f"SELECT observationid "
                  f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
                  f"WHERE proposal_id='{str(proposal_id)}'")
