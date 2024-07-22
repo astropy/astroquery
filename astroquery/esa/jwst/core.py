@@ -66,6 +66,7 @@ class JwstClass(BaseQuery):
     TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
+    REQUESTED_PROPOSAL_ID = "Missing required argument: 'proposal_id'"
 
     def __init__(self, *, tap_plus_handler=None, data_handler=None, show_messages=True):
         if tap_plus_handler is None:
@@ -1034,6 +1035,42 @@ class JwstClass(BaseQuery):
                                  files=files)
 
         return files
+    
+    def get_pro_products(self, *, proposal_id=None, product_type=None, verbose=False):
+        """Get JWST products given its proposal ID.
+
+        Parameters
+        ----------
+        proposal_id : str, mandatory
+            proposal ID of the product.
+        product_type : str or list, optional, default None
+            If the string or at least one element of the list is empty,
+              the value is replaced by None.
+            With None, all products will be downloaded.
+            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Posible list values: any combination of string values.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        allobs : list
+            Returns the observationsid included into the proposal_id.
+        """
+
+        if proposal_id is None:
+            raise ValueError(self.REQUESTED_PROPOSAL_ID)
+        query = (f"SELECT observationid "
+                 f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
+                 f"WHERE proposal_id='{str(proposal_id)}'")
+        if verbose:
+            print(query)
+        job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
+        allobs = set(JwstClass.get_decoded_string(job.get_results()['observationid']))
+        for oid in allobs:
+            log.info(f"Downloading products for Observation ID: {oid}")
+            self.get_obs_products(observation_id=oid, product_type=product_type)
+        return list(allobs)
 
     def __check_file_number(self, output_dir, output_file_name,
                             output_file_full_path, files):

@@ -44,6 +44,8 @@ class Conf(_config.ConfigNamespace):
     JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_coordinates_cval2",
                                                     "Name of Dec parameter "
                                                     "in table")
+    
+    JWST_ARCHIVE_TABLE = _config.ConfigItem("jwst.archive", "JWST archive table")
 
 
 conf = Conf()
