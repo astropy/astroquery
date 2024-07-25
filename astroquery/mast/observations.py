@@ -740,11 +740,11 @@ class ObservationsClass(MastQueryWithLogin):
 
             products = vstack(product_lists)
 
-        # Remove duplicate products
-        products = self._remove_duplicate_products(products)
-
         # apply filters
         products = self.filter_products(products, mrp_only=mrp_only, **filters)
+
+        # remove duplicate products
+        products = self._remove_duplicate_products(products)
 
         if not len(products):
             warnings.warn("No products to download.", NoResultsWarning)
