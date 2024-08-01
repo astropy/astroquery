@@ -28,6 +28,7 @@ class Conf(_config.ConfigNamespace):
         60,
         'Time limit for connecting to the IRSA server.')
     sia_url = _config.ConfigItem('https://irsa.ipac.caltech.edu/SIA', 'IRSA SIA URL')
+    ssa_url = _config.ConfigItem('https://irsa.ipac.caltech.edu/SSA', 'IRSA SSA URL')
     tap_url = _config.ConfigItem('https://irsa.ipac.caltech.edu/TAP', 'IRSA TAP URL')
 
 
