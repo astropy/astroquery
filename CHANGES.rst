@@ -13,6 +13,8 @@ astrometry_net
 
 - Remove photutils from Astroquery astrometry.net [#3067]
 
+- Reduce the number of API calls when polling for job status [#3078]
+
 alma
 ^^^^
 
