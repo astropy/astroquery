@@ -246,11 +246,12 @@ class AstrometryNetClass(BaseQuery):
         status = ''
         while not has_completed:
             time.sleep(1)
-            sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
-            sub_stat = self._request('GET', sub_stat_url, cache=False)
-            jobs = sub_stat.json()['jobs']
-            if jobs:
-                job_id = jobs[0]
+            if job_id is None:
+                sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
+                sub_stat = self._request('GET', sub_stat_url, cache=False)
+                jobs = sub_stat.json()['jobs']
+                if jobs:
+                    job_id = jobs[0]
             if job_id:
                 job_stat_url = url_helpers.join(self.API_URL, 'jobs',
                                                 str(job_id), 'info')
