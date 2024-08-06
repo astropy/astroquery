@@ -10,6 +10,7 @@ from pathlib import Path
 import warnings
 import time
 import os
+from urllib.parse import quote
 
 import numpy as np
 
@@ -534,6 +535,7 @@ class ObservationsClass(MastQueryWithLogin):
         # create the full data URL
         base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = base_url + "?uri=" + uri
+        escaped_url = base_url + "?uri=" + quote(uri, safe=":/")
 
         # parse a local file path from local_path parameter.  Use current directory as default.
         filename = os.path.basename(uri)
@@ -565,11 +567,11 @@ class ObservationsClass(MastQueryWithLogin):
                         status = "SKIPPED"
                     else:
                         log.warning("Falling back to mast download...")
-                        self._download_file(data_url, local_path,
+                        self._download_file(escaped_url, local_path,
                                             cache=cache, head_safe=True, continuation=False,
                                             verbose=verbose)
             else:
-                self._download_file(data_url, local_path,
+                self._download_file(escaped_url, local_path,
                                     cache=cache, head_safe=True, continuation=False,
                                     verbose=verbose)
 
