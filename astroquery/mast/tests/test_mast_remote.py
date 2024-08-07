@@ -508,7 +508,7 @@ class TestMast:
         assert Path(tmp_path, filename).exists()
 
         # check that downloaded file is a valid FITS file
-        f = fits.open(filename)
+        f = fits.open(Path(tmp_path, filename))
         f.close()
 
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
