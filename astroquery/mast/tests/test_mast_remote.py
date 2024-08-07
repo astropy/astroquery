@@ -498,6 +498,19 @@ class TestMast:
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
 
+    def test_observations_download_file_escaped(self, tmp_path):
+        # test that `download_file` correctly escapes a URI
+        in_uri = 'mast:HLA/url/cgi-bin/fitscut.cgi?' \
+                 'red=hst_04819_65_wfpc2_f814w_pc&blue=hst_04819_65_wfpc2_f555w_pc&size=ALL&format=fits'
+        filename = Path(in_uri).name
+        result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+        assert result == ('COMPLETE', None, None)
+        assert Path(tmp_path, filename).exists()
+
+        # check that downloaded file is a valid FITS file
+        f = fits.open(filename)
+        f.close()
+
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
          "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
