@@ -150,10 +150,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_mast_service_request(self):
-
-        # clear columns config
-        Mast._column_configs = dict()
-
         service = 'Mast.Caom.Cone'
         params = {'ra': 184.3,
                   'dec': 54.5,
@@ -174,9 +170,6 @@ class TestMast:
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
     def test_mast_query(self):
-        # clear columns config
-        Mast._column_configs = dict()
-
         result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.2)
 
         # Is result in the right format
@@ -225,9 +218,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_query_region(self):
-        # clear columns config
-        Observations._column_configs = dict()
-
         result = Observations.query_region("322.49324 12.16683", radius="0.005 deg")
         assert isinstance(result, Table)
         assert len(result) > 500
@@ -243,9 +233,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_query_object(self):
-        # clear columns config
-        Observations._column_configs = dict()
-
         result = Observations.query_object("M8", radius=".04 deg")
         assert isinstance(result, Table)
         assert len(result) > 150
@@ -264,10 +251,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
-
-        # clear columns config
-        Observations._column_configs = dict()
-
         # without position
         result = Observations.query_criteria(instrument_name="*WFPC2*",
                                              proposal_id=8169,
@@ -333,10 +316,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self):
-
-        # clear columns config
-        Observations._column_configs = dict()
-
         observations = Observations.query_object("M8", radius=".04 deg")
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
@@ -519,6 +498,19 @@ class TestMast:
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
 
+    def test_observations_download_file_escaped(self, tmp_path):
+        # test that `download_file` correctly escapes a URI
+        in_uri = 'mast:HLA/url/cgi-bin/fitscut.cgi?' \
+                 'red=hst_04819_65_wfpc2_f814w_pc&blue=hst_04819_65_wfpc2_f555w_pc&size=ALL&format=fits'
+        filename = Path(in_uri).name
+        result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+        assert result == ('COMPLETE', None, None)
+        assert Path(tmp_path, filename).exists()
+
+        # check that downloaded file is a valid FITS file
+        f = fits.open(Path(tmp_path, filename))
+        f.close()
+
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
          "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
@@ -618,10 +610,7 @@ class TestMast:
             for k, v in exp_values.items():
                 assert result[row][k] == v
 
-        # clear columns config
-        Catalogs._column_configs = dict()
         in_radius = 0.1 * u.deg
-
         result = Catalogs.query_region("158.47924 -7.30962",
                                        radius=in_radius,
                                        catalog="Gaia")
@@ -716,9 +705,6 @@ class TestMast:
             assert isinstance(result, Table)
             for k, v in exp_values.items():
                 assert v in result[k]
-
-        # clear columns config
-        Catalogs._column_configs = dict()
 
         result = Catalogs.query_object("M10",
                                        radius=.001,
@@ -819,9 +805,6 @@ class TestMast:
             for k, v in exp_vals.items():
                 assert v in result[k]
 
-        # clear columns config
-        Catalogs._column_configs = dict()
-
         # without position
         result = Catalogs.query_criteria(catalog="Tic",
                                          Bmag=[30, 50],
@@ -897,10 +880,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_catalogs_query_hsc_matchid(self):
-
-        # clear columns config
-        Catalogs._column_configs = dict()
-
         catalogData = Catalogs.query_object("M10",
                                             radius=.001,
                                             catalog="HSC",
@@ -921,10 +900,6 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_catalogs_get_hsc_spectra(self):
-
-        # clear columns config
-        Catalogs._column_configs = dict()
-
         result = Catalogs.get_hsc_spectra()
         assert isinstance(result, Table)
         assert result[np.where(result['MatchID'] == '19657846')]
