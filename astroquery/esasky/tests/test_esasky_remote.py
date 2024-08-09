@@ -132,7 +132,7 @@ class TestESASky:
         result = ESASky.get_images(position=position, missions=mission, download_dir=tmp_path)
         assert tmp_path.stat().st_size
         for hdu_list in result[mission.upper()]:
-                hdu_list.close()
+            hdu_list.close()
 
     @pytest.mark.bigdata
     def test_esasky_get_images_hst(self, tmp_path):
