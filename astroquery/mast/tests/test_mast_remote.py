@@ -369,6 +369,20 @@ class TestMast:
         assert len(obs_collection) == 1
         assert obs_collection[0] == 'IUE'
 
+    def test_observations_get_product_list_tess_tica(self, caplog):
+        # Get observations and products with both TESS and TICA FFIs
+        obs = Observations.query_criteria(target_name=['TESS FFI', 'TICA FFI', '429031146'])
+        prods = Observations.get_product_list(obs)
+
+        # Check that WARNING messages about FFIs were logged
+        with caplog.at_level("WARNING", logger="astroquery"):
+            assert "TESS FFI products" in caplog.text
+            assert "TICA FFI products" in caplog.text
+
+        # Should only return products corresponding to target 429031146
+        assert len(prods) > 0
+        assert (np.char.find(prods['obs_id'], '429031146') != -1).all()
+
     def test_observations_filter_products(self):
         observations = Observations.query_object("M8", radius=".04 deg")
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')

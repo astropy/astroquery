@@ -407,6 +407,49 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request(service, params)[0][0].astype(int)
 
+    def _filter_ffi_observations(self, observations):
+        """
+        Given a `~astropy.table.Row` or `~astropy.table.Table` of observations, filter out full-frame images (FFIs)
+        from TESS and TICA. If any observations are filtered, warn the user.
+
+        Parameters
+        ----------
+        observations : `~astropy.table.Row` or `~astropy.table.Table`
+            Row/Table of MAST query results (e.g. output from `query_object`)
+
+        Returns
+        -------
+        filtered_obs_table : filtered observations Table
+        """
+        obs_table = Table(observations)
+        tess_ffis = obs_table[obs_table['target_name'] == 'TESS FFI']['obs_id']
+        tica_ffis = obs_table[obs_table['target_name'] == 'TICA FFI']['obs_id']
+
+        if tess_ffis.size:
+            # Warn user if TESS FFIs exist
+            log.warning("Because of their large size, Astroquery should not be used to "
+                        "download TESS FFI products.\n"
+                        "If you are looking for TESS image data for a specific target, "
+                        "please use TESScut at https://mast.stsci.edu/tesscut/.\n"
+                        "If you need a TESS image for an entire field, please see our "
+                        "dedicated page for downloading larger quantities of TESS data at \n"
+                        "https://archive.stsci.edu/tess/. Data products will not be fetched "
+                        "for the following observations IDs: \n"
+                        + "\n".join(tess_ffis))
+
+        if tica_ffis.size:
+            # Warn user if TICA FFIs exist
+            log.warning("Because of their large size, Astroquery should not be used to "
+                        "download TICA FFI products.\n"
+                        "Please see our dedicated page for downloading larger quantities of "
+                        "TICA data: https://archive.stsci.edu/hlsp/tica.\n"
+                        "Data products will not be fetched for the following observation IDs: \n"
+                        + "\n".join(tica_ffis))
+
+        # Filter out FFIs with a mask
+        mask = (obs_table['target_name'] != 'TESS FFI') & (obs_table['target_name'] != 'TICA FFI')
+        return obs_table[mask]
+
     @class_or_instance
     def get_product_list_async(self, observations):
         """
@@ -423,15 +466,16 @@ class ObservationsClass(MastQueryWithLogin):
 
         Returns
         -------
-            response : list of `~requests.Response`
+        response : list of `~requests.Response`
         """
 
         # getting the obsid list
-        if isinstance(observations, Row):
-            observations = observations["obsid"]
         if np.isscalar(observations):
             observations = np.array([observations])
-        if isinstance(observations, Table):
+        if isinstance(observations, Table) or isinstance(observations, Row):
+            # Filter out TESS FFIs and TICA FFIs
+            # Can only perform filtering on Row or Table because of access to `target_name` field
+            observations = self._filter_ffi_observations(observations)
             observations = observations['obsid']
         if isinstance(observations, list):
             observations = np.array(observations)
