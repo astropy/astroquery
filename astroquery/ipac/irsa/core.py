@@ -12,10 +12,8 @@ from astropy.coordinates import SkyCoord, Angle
 from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
 
-from pyvo.dal import TAPService
-
-from pyvo.dal.sia2 import SIA2Service, SIA2_PARAMETERS_DESC
-
+from pyvo.dal import TAPService, SIA2Service, SSAService
+from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC
 from astroquery import log
 from astroquery.query import BaseVOQuery
 from astroquery.utils.commons import parse_coordinates
@@ -31,8 +29,10 @@ class IrsaClass(BaseVOQuery):
     def __init__(self):
         super().__init__()
         self.sia_url = conf.sia_url
+        self.ssa_url = conf.ssa_url
         self.tap_url = conf.tap_url
         self._sia = None
+        self._ssa = None
         self._tap = None
 
     @property
@@ -40,6 +40,12 @@ class IrsaClass(BaseVOQuery):
         if not self._sia:
             self._sia = SIA2Service(baseurl=self.sia_url, session=self._session)
         return self._sia
+
+    @property
+    def ssa(self):
+        if not self._ssa:
+            self._ssa = SSAService(baseurl=self.sia_url, session=self._session)
+        return self._ssa
 
     @property
     def tap(self):
@@ -115,6 +121,44 @@ class IrsaClass(BaseVOQuery):
             **kwargs)
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
+
+    def query_ssa(self, *, pos=None, diameter=None, band=None, time=None, format=None, **kwargs):
+        """
+        Use standard SSA attributes to query the IRSA SSA service.
+
+        Parameters
+        ----------
+        pos : `~astropy.coordinates.SkyCoord` class or sequence of two floats
+            the position of the center of the circular search region.
+            assuming icrs decimal degrees if unit is not specified.
+        diameter : `~astropy.units.Quantity` class or scalar float
+            the diameter of the circular region around pos in which to search.
+            assuming icrs decimal degrees if unit is not specified.
+        band : `~astropy.units.Quantity` class or sequence of two floats
+            the bandwidth range the observations belong to.
+            assuming meters if unit is not specified.
+        time : `~astropy.time.Time` class or sequence of two strings
+            the datetime range the observations were made in.
+            assuming iso 8601 if format is not specified.
+        format : str
+           the image format(s) of interest.  "all" indicates
+           all available formats; "graphic" indicates
+           graphical images (e.g. jpeg, png, gif; not FITS);
+           "metadata" indicates that no images should be
+           returned--only an empty table with complete metadata.
+        **kwargs :
+           additional case insensitive parameters can be given via arbitrary
+           case insensitive keyword arguments. Where there is overlap
+           with the parameters set by the other arguments to
+           this function, these keywords will override.
+
+        Returns
+        -------
+        Results in `pyvo.dal.SSAResults` format.
+        result.table in Astropy table format
+        """
+        return self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
+                               format=format, **kwargs)
 
     def list_collections(self):
         """
