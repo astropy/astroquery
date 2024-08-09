@@ -115,14 +115,23 @@ class TestESASky:
 
     @pytest.mark.bigdata
     @pytest.mark.parametrize("mission", ['XMM', 'Chandra', 'XMM-OM-OPTICAL',
-                                         'ISO-IR', 'Herschel', 'JWST-MID-IR',
-                                         'JWST-NEAR-IR', 'Spitzer'])
+                                         'ISO-IR', 'Herschel', 'Spitzer'])
     def test_esasky_get_images(self, tmp_path, mission):
         result = ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
         assert tmp_path.stat().st_size
 
         if mission != "Herschel" and result:
             for hdu_list in result[mission.upper()]:
+                hdu_list.close()
+
+    @pytest.mark.bigdata
+    @pytest.mark.parametrize('mission, position',
+                             zip(['JWST-MID-IR', 'JWST-NEAR-IR'],
+                                 ['340.50123388127435 -69.17904779241904'], ['225.6864099965157 -3.0315781490149467']))
+    def test_esasky_get_images_jwst(self, tmp_path, mission, position):
+        result = ESASky.get_images(position=position, missions=mission, download_dir=tmp_path)
+        assert tmp_path.stat().st_size
+        for hdu_list in result[mission.upper()]:
                 hdu_list.close()
 
     @pytest.mark.bigdata
