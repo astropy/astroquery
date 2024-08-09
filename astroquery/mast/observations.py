@@ -434,8 +434,7 @@ class ObservationsClass(MastQueryWithLogin):
                         "If you need a TESS image for an entire field, please see our "
                         "dedicated page for downloading larger quantities of TESS data at \n"
                         "https://archive.stsci.edu/tess/. Data products will not be fetched "
-                        "for the following observations IDs: \n"
-                        + "\n".join(tess_ffis))
+                        "for the following observations IDs: \n" + "\n".join(tess_ffis))
 
         if tica_ffis.size:
             # Warn user if TICA FFIs exist
@@ -443,8 +442,8 @@ class ObservationsClass(MastQueryWithLogin):
                         "download TICA FFI products.\n"
                         "Please see our dedicated page for downloading larger quantities of "
                         "TICA data: https://archive.stsci.edu/hlsp/tica.\n"
-                        "Data products will not be fetched for the following observation IDs: \n"
-                        + "\n".join(tica_ffis))
+                        "Data products will not be fetched for the following "
+                        "observation IDs: \n" + "\n".join(tica_ffis))
 
         # Filter out FFIs with a mask
         mask = (obs_table['target_name'] != 'TESS FFI') & (obs_table['target_name'] != 'TICA FFI')
