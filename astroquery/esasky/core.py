@@ -2,7 +2,7 @@
 
 import json
 import os
-import tarfile
+import tarfile as esatar
 import sys
 import re
 import warnings
@@ -25,6 +25,12 @@ from ..utils import async_to_sync
 from . import conf
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
+
+
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
+if hasattr(esatar, "fully_trusted_filter"):
+    esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
 @async_to_sync
@@ -1526,7 +1532,7 @@ class ESASkyClass(BaseQuery):
                             if file_name == "":
                                 file_name = self._extract_file_name_from_url(product_url)
                             if file_name.lower().endswith(self.__TAR_STRING):
-                                with tarfile.open(fileobj=BytesIO(response.content)) as tar:
+                                with esatar.open(fileobj=BytesIO(response.content)) as tar:
                                     for member in tar.getmembers():
                                         tar.extract(member, directory_path)
                                         maps.append(self._open_fits(Path(directory_path, member.name), verbose=verbose))
@@ -1574,7 +1580,7 @@ class ESASkyClass(BaseQuery):
                                  stream=True, headers=self._get_header())
         response.raise_for_status()
 
-        with tarfile.open(fileobj=BytesIO(response.content)) as tar:
+        with esatar.open(fileobj=BytesIO(response.content)) as tar:
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if 'hspire' in member_name or 'hpacs' in member_name:
@@ -1592,7 +1598,7 @@ class ESASkyClass(BaseQuery):
 
         response.raise_for_status()
 
-        with tarfile.open(fileobj=BytesIO(response.content)) as tar:
+        with esatar.open(fileobj=BytesIO(response.content)) as tar:
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name
