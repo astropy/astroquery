@@ -140,6 +140,9 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of PyVO <1.5 are no longer supported. [#3002]
 
+- Fix an incoming incompatibility with Python 3.15 (`locale.getdefaultlocale`
+  is deprecated in Python 3.12) [#3070]
+
 utils.tap
 ^^^^^^^^^
 

@@ -838,16 +838,20 @@ def run_cmd(cmd):
                 '`{0}` command:\n{1}'.format(' '.join(cmd), str(e)))
 
 
-    # Can fail of the default locale is not configured properly.  See
-    # https://github.com/astropy/astropy/issues/2749.  For the purposes under
-    # consideration 'latin1' is an acceptable fallback.
-    try:
-        stdio_encoding = locale.getdefaultlocale()[1] or 'latin1'
-    except ValueError:
-        # Due to an OSX oddity locale.getdefaultlocale() can also crash
-        # depending on the user's locale/language settings.  See:
-        # https://bugs.python.org/issue18378
-        stdio_encoding = 'latin1'
+    if sys.version_info >= (3, 11):
+        stdio_encoding = locale.getencoding()
+    else:
+        # Can fail of the default locale is not configured properly.  See
+        # https://github.com/astropy/astropy/issues/2749.  For the purposes under
+        # consideration 'latin1' is an acceptable fallback.
+        try:
+            stdio_encoding = locale.getdefaultlocale()[1] or 'latin1'
+        except ValueError:
+            # Due to an OSX oddity locale.getdefaultlocale() can also crash
+            # depending on the user's locale/language settings.  See:
+            # https://bugs.python.org/issue18378
+            stdio_encoding = 'latin1'
+
 
     # Unlikely to fail at this point but even then let's be flexible
     if not isinstance(stdout, str):
