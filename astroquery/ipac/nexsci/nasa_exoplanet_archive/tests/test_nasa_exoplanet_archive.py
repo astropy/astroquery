@@ -5,7 +5,6 @@ import sys
 from urllib.parse import urlencode
 
 import astropy.units as u
-import pkg_resources
 import pytest
 import requests
 
@@ -17,8 +16,7 @@ try:
 except ImportError:
     pytest.skip("Install mock for the nasa_exoplanet_archive tests.", allow_module_level=True)
 
-MAIN_DATA = pkg_resources.resource_filename("astroquery.ipac.nexsci.nasa_exoplanet_archive", "data")
-TEST_DATA = pkg_resources.resource_filename(__name__, "data")
+TEST_DATA = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
 
 # API accessible tables will gradually transition to TAP service
