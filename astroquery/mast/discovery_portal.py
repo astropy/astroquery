@@ -407,8 +407,8 @@ class PortalAPI(BaseQuery):
             # Get the column type and separator
             col_info = caom_col_config.get(colname)
             if not col_info:
-                closest_match = difflib.get_close_matches(colname, caom_col_config.keys(), n=1)[0]
-                error_msg = f"Filter '{colname}' does not exist. Did you mean '{closest_match}'?" if closest_match \
+                closest_match = difflib.get_close_matches(colname, caom_col_config.keys(), n=1)
+                error_msg = f"Filter '{colname}' does not exist. Did you mean '{closest_match[0]}'?" if closest_match \
                     else f"Filter '{colname}' does not exist."
                 raise InvalidQueryError(error_msg)
 

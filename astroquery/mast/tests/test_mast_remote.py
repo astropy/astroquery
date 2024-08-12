@@ -278,7 +278,7 @@ class TestMast:
         # attempt to make a criteria query with invalid keyword
         with pytest.raises(InvalidQueryError) as err_no_alt:
             Observations.query_criteria_count(not_a_keyword='TESS')
-        assert 'Filter not_a_keyword does not exist.' in str(err_no_alt.value)
+        assert "Filter 'not_a_keyword' does not exist." in str(err_no_alt.value)
 
         # keyword is close enough for difflib to offer alternative
         with pytest.raises(InvalidQueryError) as err_with_alt:
@@ -896,7 +896,7 @@ class TestMast:
         # attempt to make a criteria query with invalid keyword
         with pytest.raises(InvalidQueryError) as err_no_alt:
             Catalogs.query_criteria(catalog='tic', not_a_keyword='TESS')
-        assert 'Filter not_a_keyword does not exist.' in str(err_no_alt.value)
+        assert "Filter 'not_a_keyword' does not exist." in str(err_no_alt.value)
 
         # keyword is close enough for difflib to offer alternative
         with pytest.raises(InvalidQueryError) as err_with_alt:
