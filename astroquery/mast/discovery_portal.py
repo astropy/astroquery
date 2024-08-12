@@ -6,6 +6,7 @@ Discovery Portal API
 This module contains various methods for querying the MAST Discovery Portal API.
 """
 
+import difflib
 import warnings
 import uuid
 import json
@@ -20,7 +21,7 @@ from astropy.table import Table, vstack, MaskedColumn
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import InputWarning, NoResultsWarning, RemoteServiceError
+from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning, RemoteServiceError
 
 from . import conf, utils
 
@@ -406,8 +407,10 @@ class PortalAPI(BaseQuery):
             # Get the column type and separator
             col_info = caom_col_config.get(colname)
             if not col_info:
-                warnings.warn("Filter {} does not exist. This filter will be skipped.".format(colname), InputWarning)
-                continue
+                closest_match = difflib.get_close_matches(colname, caom_col_config.keys(), n=1)[0]
+                error_msg = f"Filter '{colname}' does not exist. Did you mean '{closest_match}'?" if closest_match \
+                    else f"Filter '{colname}' does not exist."
+                raise InvalidQueryError(error_msg)
 
             colType = "discrete"
             if (col_info.get("vot.datatype", col_info.get("type")) in ("double", "float", "numeric")) \

@@ -274,6 +274,17 @@ class TestMast:
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
 
+    def test_observations_query_criteria_invalid_keyword(self):
+        # attempt to make a criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            Observations.query_criteria_count(not_a_keyword='TESS')
+        assert 'Filter not_a_keyword does not exist.' in str(err_no_alt.value)
+
+        # keyword is close enough for difflib to offer alternative
+        with pytest.raises(InvalidQueryError) as err_with_alt:
+            Observations.query_criteria_count(oops_collection='TESS')
+        assert 'obs_collection' in str(err_with_alt.value)
+
     # count functions
     def test_observations_query_region_count(self):
         maxRes = Observations.query_criteria_count()
@@ -880,6 +891,17 @@ class TestMast:
                                          sort_by=[("asc", "distance")])
         assert isinstance(result, Table)
         assert result['distance'][0] <= result['distance'][1]
+
+    def test_catalogs_query_criteria_invalid_keyword(self):
+        # attempt to make a criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            Catalogs.query_criteria(catalog='tic', not_a_keyword='TESS')
+        assert 'Filter not_a_keyword does not exist.' in str(err_no_alt.value)
+
+        # keyword is close enough for difflib to offer alternative
+        with pytest.raises(InvalidQueryError) as err_with_alt:
+            Catalogs.query_criteria(catalog='ctl', objectType="STAR")
+        assert 'objType' in str(err_with_alt.value)
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = Catalogs.query_object("M10",
