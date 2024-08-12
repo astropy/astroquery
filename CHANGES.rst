@@ -183,6 +183,9 @@ mast
 - Increased the speed of ``mast.Observations.get_cloud_uris`` by obtaining multiple
   URIs from MAST at once. [#3064]
 
+- Present users with an error rather than a warning when nonexistent query criteria are used in ``mast.Observations.query_criteria``
+  and ``mast.Catalogs.query_criteria``. [#3084]
+
 
 0.4.7 (2024-03-08)
 ==================
