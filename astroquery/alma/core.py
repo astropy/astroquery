@@ -8,8 +8,8 @@ import tarfile
 import string
 import requests
 import warnings
+import importlib.resources as importlib_resources
 
-from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
 from urllib.parse import urljoin
@@ -1183,10 +1183,9 @@ class AlmaClass(QueryWithLogin):
         Stoehr.
         """
         if not hasattr(self, '_cycle0_table'):
-            filename = resource_filename(
-                'astroquery.alma', 'data/cycle0_delivery_asdm_mapping.txt')
-
-            self._cycle0_table = Table.read(filename, format='ascii.no_header')
+            ref = importlib_resources.files('astroquery.alma') / 'data' / 'cycle0_delivery_asdm_mapping.txt'
+            with importlib_resources.as_file(ref) as path:
+                self._cycle0_table = Table.read(path, format='ascii.no_header')
             self._cycle0_table.rename_column('col1', 'ID')
             self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table

@@ -140,6 +140,8 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of PyVO <1.5 are no longer supported. [#3002]
 
+- Dropped ``setuptools`` as a runtime dependency. [#3071]
+
 utils.tap
 ^^^^^^^^^
 
