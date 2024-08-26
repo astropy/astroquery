@@ -189,7 +189,7 @@ mast
   and ``mast.Catalogs.query_criteria``. [#3084]
 
 - Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and 
-  ``mast.Catalogs.query_criteria``. [#3085]
+  ``mast.Catalogs.query_criteria``. [#3087]
 
 
 0.4.7 (2024-03-08)
