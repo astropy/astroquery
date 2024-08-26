@@ -404,8 +404,8 @@ class PortalAPI(BaseQuery):
             if np.isscalar(value,):
                 value = [value]
 
-            # Get the column type and separator
-            col_info = caom_col_config.get(colname)
+            # Get the column type and separator with case-insensitive lookup
+            col_info = next((v for k, v in caom_col_config.items() if k.lower() == colname.lower()), None)
             if not col_info:
                 closest_match = difflib.get_close_matches(colname, caom_col_config.keys(), n=1)
                 error_msg = f"Filter '{colname}' does not exist. Did you mean '{closest_match[0]}'?" if closest_match \

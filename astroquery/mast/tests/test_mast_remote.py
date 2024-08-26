@@ -274,6 +274,13 @@ class TestMast:
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
 
+        # with case-insensitive keyword arguments
+        result = Observations.query_criteria(Instrument_Name="*WFPC2*",
+                                             proposal_ID=8169,
+                                             T_min=[51361, 51362])
+        assert isinstance(result, Table)
+        assert len(result) == 13
+
     def test_observations_query_criteria_invalid_keyword(self):
         # attempt to make a criteria query with invalid keyword
         with pytest.raises(InvalidQueryError) as err_no_alt:
@@ -891,6 +898,18 @@ class TestMast:
                                          sort_by=[("asc", "distance")])
         assert isinstance(result, Table)
         assert result['distance'][0] <= result['distance'][1]
+
+        # with case-insensitive keyword arguments
+        result = Catalogs.query_criteria(catalog="Tic",
+                                         bMAG=[30, 50],
+                                         objtype="STAR")
+        check_result(result, {'ID': '81609218'})
+
+        result = Catalogs.query_criteria(catalog="DiskDetective",
+                                         STATE=["inactive", "disabled"],
+                                         oVaL=[8, 10],
+                                         Multi=[3, 7])
+        check_result(result, {'designation': 'J003920.04-300132.4'})
 
     def test_catalogs_query_criteria_invalid_keyword(self):
         # attempt to make a criteria query with invalid keyword
