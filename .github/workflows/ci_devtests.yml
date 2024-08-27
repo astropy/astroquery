@@ -36,6 +36,12 @@ jobs:
             toxenv: py312-test-alldeps-devdeps-cov
             toxargs: -v
 
+          - name: Python 3.13
+            os: ubuntu-latest
+            python: '3.13-dev'
+            toxenv: py313-test
+            toxargs: -v
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
