@@ -274,6 +274,13 @@ class TestMast:
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
 
+        # with case-insensitive keyword arguments
+        result = Observations.query_criteria(Instrument_Name="*WFPC2*",
+                                             proposal_ID=8169,
+                                             T_min=[51361, 51362])
+        assert isinstance(result, Table)
+        assert len(result) == 13
+
     def test_observations_query_criteria_invalid_keyword(self):
         # attempt to make a criteria query with invalid keyword
         with pytest.raises(InvalidQueryError) as err_no_alt:
@@ -679,18 +686,8 @@ class TestMast:
                                        radius=0.01*u.deg, catalog="panstarrs",
                                        table="mean")
         row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
-        second_id = result[1]['objID']
         assert isinstance(result, Table)
         np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
-
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=0.01*u.deg, catalog="panstarrs",
-                                       table="mean",
-                                       pagesize=1,
-                                       page=2)
-        assert isinstance(result, Table)
-        assert len(result) == 1
-        assert second_id == result[0]['objID']
 
         result = Catalogs.query_region("158.47924 -7.30962",
                                        radius=in_radius,
@@ -704,8 +701,18 @@ class TestMast:
                                        radius=in_radius,
                                        catalog="tic")
         row = np.where(result['ID'] == '841736289')
+        second_id = result[1]['ID']
         check_result(result, row, {'gaiaqflag': 1})
         np.testing.assert_allclose(result[row]['RA_orig'], 158.475246786483)
+
+        result = Catalogs.query_region("158.47924 -7.30962",
+                                       radius=in_radius,
+                                       catalog="tic",
+                                       pagesize=1,
+                                       page=2)
+        assert isinstance(result, Table)
+        assert len(result) == 1
+        assert second_id == result[0]['ID']
 
         result = Catalogs.query_region("158.47924 -7.30962",
                                        radius=in_radius,
@@ -891,6 +898,18 @@ class TestMast:
                                          sort_by=[("asc", "distance")])
         assert isinstance(result, Table)
         assert result['distance'][0] <= result['distance'][1]
+
+        # with case-insensitive keyword arguments
+        result = Catalogs.query_criteria(catalog="Tic",
+                                         bMAG=[30, 50],
+                                         objtype="STAR")
+        check_result(result, {'ID': '81609218'})
+
+        result = Catalogs.query_criteria(catalog="DiskDetective",
+                                         STATE=["inactive", "disabled"],
+                                         oVaL=[8, 10],
+                                         Multi=[3, 7])
+        check_result(result, {'designation': 'J003920.04-300132.4'})
 
     def test_catalogs_query_criteria_invalid_keyword(self):
         # attempt to make a criteria query with invalid keyword
