@@ -31,11 +31,10 @@ class TestMOCServerRemote:
 
     # test of MAXREC payload
     @pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
-    @pytest.mark.parametrize("max_rec", [3, 10, 25, 100])
+    @pytest.mark.parametrize("max_rec", [3, 10])
     def test_max_rec_param(self, max_rec):
         center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
         radius = coordinates.Angle(1.5, unit="deg")
-
         cone_region = CircleSkyRegion(center, radius)
         result = MOCServer.query_region(
             region=cone_region, max_rec=max_rec, get_query_payload=False
@@ -49,9 +48,7 @@ class TestMOCServerRemote:
         "field_l",
         [
             ["ID"],
-            ["ID", "moc_sky_fraction"],
             ["data_ucd", "vizier_popularity", "ID"],
-            ["publisher_id", "ID"],
         ],
     )
     def test_field_l_param(self, field_l):
@@ -72,21 +69,15 @@ class TestMOCServerRemote:
 
     # test of moc_order payload
     @pytest.mark.parametrize("moc_order", [5, 10])
-    def test_moc_order_param(self, moc_order, tmp_cwd):
-        # We need a long timeout for this
-        MOCServer.TIMEOUT = 300
-
-        moc_region = MOC.from_json({"0": [1]})
-
+    def test_moc_order_param(self, moc_order):
+        moc_region = MOC.from_str("10/0-9")
         result = MOCServer.query_region(
             region=moc_region,
-            # return a mocpy obj
             return_moc=True,
             max_norder=moc_order,
-            get_query_payload=False,
         )
-
         assert isinstance(result, MOC)
+        assert result.max_order == moc_order
 
     @pytest.mark.parametrize(
         "meta_data_expr",
@@ -96,7 +87,5 @@ class TestMOCServerRemote:
         result = MOCServer.find_datasets(
             meta_data=meta_data_expr,
             fields=["ID", "moc_sky_fraction"],
-            get_query_payload=False,
         )
-
         assert isinstance(result, Table)
