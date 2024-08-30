@@ -8,10 +8,11 @@ from ..utils import async_to_sync
 from . import conf
 
 import os
+from ast import literal_eval
+from copy import copy
+
 from astropy import units as u
 from astropy.table import Table
-from astropy.table import MaskedColumn
-from copy import copy
 
 try:
     from mocpy import MOC
@@ -34,15 +35,15 @@ class MOCServerClass(BaseQuery):
     Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_
 
     The `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ allows the user to retrieve all the data sets (with
-    their meta-datas) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
+    their meta-data) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
     `regions.PolygonSkyRegion` or a `mocpy.MOC` object.
 
     This package implements two methods:
 
     * :meth:`~astroquery.mocserver.MOCServerClass.query_region` retrieving data-sets
-      (their associated MOCs and meta-datas) having sources in a given region.
+      (their associated MOCs and meta-data) having sources in a given region.
     * :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` retrieving data-sets
-      (their associated MOCs and meta-datas) based on the values of their meta-datas.
+      (their associated MOCs and meta-data) based on the values of their meta-data.
 
     """
     URL = conf.server
@@ -86,18 +87,18 @@ class MOCServerClass(BaseQuery):
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         fields : [str], optional
-            Has sense only if ``return_moc`` is set to False. Specifies which meta datas to retrieve. The returned
+            Has sense only if ``return_moc`` is set to False. Specifies which meta data to retrieve. The returned
             `astropy.table.Table` table will only contain the column names given in ``fields``.
 
             Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
             data moving from the MOCServer to the client.
 
-            Some meta-datas as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
+            Some meta-data as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
             MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
             to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
             column from the returned astropy table.
         meta_data : str, optional
-            Algebraic expression on meta-datas for filtering the data-sets at the server side.
+            Algebraic expression on meta-data for filtering the data-sets at the server side.
             Examples of meta data expressions:
 
             * Retrieve all the Hubble surveys: "ID=*HST*"
@@ -132,7 +133,7 @@ class MOCServerClass(BaseQuery):
         Parameters
         ----------
         meta_data : str
-            Algebraic expression on meta-datas for filtering the data-sets at the server side.
+            Algebraic expression on meta-data for filtering the data-sets at the server side.
             Examples of meta data expressions:
 
             * Retrieve all the Hubble surveys: "ID=*HST*"
@@ -142,16 +143,16 @@ class MOCServerClass(BaseQuery):
             More example of expressions can be found following this `link
             <http://alasky.unistra.fr/MocServer/example>`_ (especially see the urls).
         fields : [str], optional
-            Has sense only if ``return_moc`` is set to False. Specifies which meta datas to retrieve. The returned
+            Has sense only if ``return_moc`` is set to False. Specifies which meta data to retrieve. The returned
             `astropy.table.Table` table will only contain the column names given in ``fields``.
 
             Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
             data moving from the MOCServer to the client.
 
-            Some meta-datas such as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
+            Some meta-data such as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
             MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
             to have an unique type. This case is not common: it is mainly linked to a typing error in the text files
-            describing the meta-datas of the data-sets. When we encounter this for a specific meta-data, we link the
+            describing the meta-data of the data-sets. When we encounter this for a specific meta-data, we link the
             generic type ``object`` to the column. Therefore, keep in mind that ``object`` typed columns can contain
             values of different types (e.g. lists and singletons or string and floats).
         max_rec : int, optional
@@ -329,87 +330,30 @@ class MOCServerClass(BaseQuery):
         result = response.json()
 
         if not self.return_moc:
-            """
-            The user will get `astropy.table.Table` object whose columns refer to the returned data-set meta-datas.
-            """
-            # cast the data-sets meta-datas values to their correct Python type.
-            typed_result = []
-            for d in result:
-                typed_d = {k: self._cast_to_float(v) for k, v in d.items()}
-                typed_result.append(typed_d)
-
-            # looping over all the record's keys to find all the existing keys
-            column_names_l = []
-            for d in typed_result:
-                column_names_l.extend(d.keys())
-
-            # remove all the doubles
-            column_names_l = list(set(column_names_l))
-            # init a dict mapping all the meta-data's name to an empty list
-            table_d = {key: [] for key in column_names_l}
-            type_d = {key: None for key in column_names_l}
-
-            masked_array_d = {key: [] for key in column_names_l}
-            # fill the dict with the value of each returned data-set one by one.
-            for d in typed_result:
-                row_table_d = {key: None for key in column_names_l}
-                row_table_d.update(d)
-
-                for k, mask_l in masked_array_d.items():
-                    entry_masked = False if k in d.keys() else True
-                    mask_l.append(entry_masked)
-
-                for k, v in row_table_d.items():
-                    if v:
-                        type_d[k] = type(v)
-
-                    table_d[k].append(v)
-
-            # define all the columns using astropy.table.MaskedColumn objects
-            columns_l = []
-            for k, v in table_d.items():
-                try:
-                    if k != '#':
-                        columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k], dtype=type_d[k]))
-                except ValueError:
-                    # some metadata can be of multiple types when looking on all the datasets.
-                    # this can be due to internal typing errors of the metadatas.
-                    columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k], dtype=object))
-
-            # return an `astropy.table.Table` object created from columns_l
-            return Table(columns_l)
-
-        """
-        The user will get `mocpy.MOC` object.
-        """
-        # remove
-        empty_order_removed_d = {}
-        for order, ipix_l in result.items():
-            if len(ipix_l) > 0:
-                empty_order_removed_d.update({order: ipix_l})
+            # return a table with the meta-data, we cast the string values for convenience
+            result = [{key: _cast_to_float(value) for key, value in row.items()} for row in result]
+            return Table(rows=result)
 
         # return a `mocpy.MOC` object. See https://github.com/cds-astro/mocpy and the MOCPy's doc
-        return MOC.from_json(empty_order_removed_d)
+        return MOC.from_json(result)
+    
+def _cast_to_float(value):
+    """
+    Cast ``value`` to a float if possible.
 
-    @staticmethod
-    def _cast_to_float(value):
-        """
-        Cast ``value`` to a float if possible.
+    Parameters
+    ----------
+    value : str
+        string to cast
 
-        Parameters
-        ----------
-        value : str
-            string to cast
-
-        Returns
-        -------
-        value : float or str
-            A float if it can be casted so otherwise the initial string.
-        """
-        try:
-            return float(value)
-        except (ValueError, TypeError):
-            return value
-
+    Returns
+    -------
+    value : float or str
+        A float if it can be casted so otherwise the initial string.
+    """
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return value
 
 MOCServer = MOCServerClass()
