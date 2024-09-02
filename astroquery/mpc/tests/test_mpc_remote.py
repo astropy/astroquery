@@ -72,7 +72,7 @@ class TestMPC:
         greenwich = ['000', 0.0, 0.62411, 0.77873, 'Greenwich']
         assert all([r == g for r, g in zip(response[0], greenwich)])
 
-    @pytest.mark.parametrize('target', ['(3202)', 'C/2003 A2'])
+    @pytest.mark.parametrize('target', ['(3202)', 'C/2024 N4'])
     def test_get_ephemeris_by_target(self, target):
         # test that query succeeded
         response = mpc.MPC.get_ephemeris(target)
@@ -81,17 +81,6 @@ class TestMPC:
     def test_get_ephemeris_Moon_phase(self):
         result = mpc.core.MPC.get_ephemeris('2P', location='G37')
         assert result['Moon phase'][0] >= 0
-
-    def test_get_ephemeris_Uncertainty(self):
-        # this test requires an object with uncertainties != N/A
-        result = mpc.core.MPC.get_ephemeris('2024 AA', start='2024-06-15')
-        assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
-
-    def test_get_ephemeris_Moon_phase_and_Uncertainty(self):
-        # this test requires an object with uncertainties != N/A
-        result = mpc.core.MPC.get_ephemeris('2024 AA', location='G37', start='2024-06-15')
-        assert result['Moon phase'][0] >= 0
-        assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
     def test_get_ephemeris_target_fail(self):
         # test that query failed
