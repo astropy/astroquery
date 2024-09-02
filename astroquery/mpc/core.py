@@ -596,7 +596,7 @@ class MPCClass(BaseQuery):
             return request_args
 
         self.query_type = 'ephemeris'
-        response = self._request('POST', self.MPES_URL, data=request_args)
+        response = self._request('POST', self.MPES_URL, data=request_args, cache=cache)
 
         return response
 
