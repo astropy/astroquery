@@ -344,8 +344,7 @@ class MPCClass(BaseQuery):
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
                             perturbed=True, unc_links=False,
-                            get_query_payload=False,
-                            get_raw_response=False, cache=False):
+                            get_query_payload=False, cache=False):
         r"""
         Object ephemerides from the Minor Planet Ephemeris Service.
 
@@ -436,10 +435,6 @@ class MPCClass(BaseQuery):
             Return the HTTP request parameters as a dictionary
             (default: ``False``).
 
-        get_raw_response : bool, optional
-            Return raw data without parsing into a table (default:
-            ``False``).
-
         cache : bool
             Defaults to False. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
@@ -486,7 +481,7 @@ class MPCClass(BaseQuery):
         | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
         +------------+-----------------------------------+
 
-        For comets, P/ and C/ are interchangable.  The designation
+        For comets, P/ and C/ are interchangeable.  The designation
         may also be in a packed format:
 
         +------------+-----------------------------------+
@@ -606,16 +601,13 @@ class MPCClass(BaseQuery):
         return response
 
     @class_or_instance
-    def get_observatory_codes_async(self, *, get_raw_response=False, cache=True):
+    def get_observatory_codes_async(self, *, cache=True):
         """
         Table of observatory codes from the IAU Minor Planet Center.
 
 
         Parameters
         ----------
-        get_raw_response : bool, optional
-            Return raw data without parsing into a table (default:
-            `False`).
 
         cache : bool
             Defaults to True. If set overrides global caching behavior.
