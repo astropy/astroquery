@@ -156,7 +156,7 @@ def test_args_to_object_payload():
     ('asteroid',
         'https://minorplanetcenter.net/web_service/search_orbits')])
 def test_get_mpc_object_endpoint(type, url):
-    query_url = mpc.core.MPC.get_mpc_object_endpoint(target_type=type)
+    query_url = mpc.core.MPC._get_mpc_object_endpoint(target_type=type)
     assert query_url == url
 
 

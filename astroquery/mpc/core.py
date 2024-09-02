@@ -186,7 +186,7 @@ class MPCClass(BaseQuery):
 
         """
 
-        self.get_mpc_object_endpoint(target_type)
+        self._get_mpc_object_endpoint(target_type)
 
         kwargs['limit'] = 1
         return self.query_objects_async(target_type, get_query_payload=get_query_payload, **kwargs)
@@ -315,7 +315,7 @@ class MPCClass(BaseQuery):
             Limit the number of results to the given value
 
         """
-        mpc_endpoint = self.get_mpc_object_endpoint(target_type)
+        mpc_endpoint = self._get_mpc_object_endpoint(target_type)
 
         if (target_type == 'comet'):
             kwargs['order_by_desc'] = "epoch"
@@ -329,7 +329,7 @@ class MPCClass(BaseQuery):
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
         return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
-    def get_mpc_object_endpoint(self, target_type):
+    def _get_mpc_object_endpoint(self, target_type):
         mpc_endpoint = self.MPC_URL
         if target_type == 'asteroid':
             mpc_endpoint = mpc_endpoint + '/search_orbits'
