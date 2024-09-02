@@ -415,10 +415,8 @@ def test_get_observations(patch_get):
     assert result['DEC'].unit == u.deg
     assert result['epoch'].unit == u.d
 
-    result = mpc.core.MPC.get_observations('12893',
-                                           get_raw_response=True)
-
-    assert result[0]['designation'] == "1998 QS55"
+    result = mpc.core.MPC.get_observations_async('12893')
+    assert result.json()[0]['designation'] == "1998 QS55"
 
     result = mpc.core.MPC.get_observations('12893',
                                            get_mpcformat=True)

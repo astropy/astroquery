@@ -17,6 +17,7 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
 from ..exceptions import InvalidQueryError, EmptyResponseError
+from astropy.utils.decorators import deprecated_renamed_argument
 
 __all__ = ['MPCClass']
 
@@ -763,6 +764,8 @@ class MPCClass(BaseQuery):
         return request_args
 
     @class_or_instance
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.9",
+                                 alternative="async methods")
     def get_observations_async(self, targetid, *,
                                id_type=None,
                                get_mpcformat=False,
@@ -773,6 +776,11 @@ class MPCClass(BaseQuery):
         Obtain all reported observations for an asteroid or a comet
         from the `Minor Planet Center observations database
         <https://minorplanetcenter.net/db_search>`_.
+
+        .. deprecated:: 0.4.9
+           The ``get_raw_response`` keyword argument is deprecated.  The
+           `~MPCClass.get_observationsephemerides_async` method will return a raw response.
+
 
         Parameters
         ----------
