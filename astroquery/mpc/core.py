@@ -779,7 +779,7 @@ class MPCClass(BaseQuery):
 
         .. deprecated:: 0.4.9
            The ``get_raw_response`` keyword argument is deprecated.  The
-           `~MPCClass.get_observationsephemerides_async` method will return a raw response.
+           `~MPCClass.get_observations_async` method will return a raw response.
 
 
         Parameters
