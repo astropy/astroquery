@@ -765,7 +765,6 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_observations_async(self, targetid, *,
                                id_type=None,
-                               comettype=None,
                                get_mpcformat=False,
                                get_raw_response=False,
                                get_query_payload=False,
