@@ -44,7 +44,9 @@ mpc
 
 - Parse star catalog information when querying observations database [#2957]
 - Parse ephemeris with sky motion with three digit precision [#3026]
-- Raise EmptyResponseError when empty ephemeris reponse is returned [#3026]
+- Raise EmptyResponseError when empty ephemeris response is returned [#3026]
+- Deprecate ``get_raw_response`` parameter in query methods. The raw response
+  may be retrieved from the _async() methods. [#3089]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
