@@ -193,6 +193,11 @@ mast
 - Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and 
   ``mast.Catalogs.query_criteria``. [#3087]
 
+mpc
+^^^
+
+- Fix bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter to be ignored. [#3089]
+
 
 0.4.7 (2024-03-08)
 ==================
