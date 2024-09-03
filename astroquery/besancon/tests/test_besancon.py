@@ -3,7 +3,6 @@
 import os
 from contextlib import contextmanager
 import pytest
-from astropy.io.ascii.tests.common import assert_equal
 from ... import besancon
 from ...utils import commons
 from astroquery.utils.mocks import MockResponse
@@ -14,7 +13,7 @@ from astroquery.utils.mocks import MockResponse
 # assert os.path.exists('besancon_test.txt')
 #     B = asciitable.read('t/besancon_test.txt',
 #                         Reader=besancon.BesanconFixed, guess=False)
-#     assert_equal(len(B),12)
+#     assert len(B) == 12
 #
 # def test_basic():
 #     besancon_model = besancon.request_besancon(
@@ -44,8 +43,8 @@ def test_reader(filename, length, ncols, d1, mv1):
         data = f.read()
     B = besancon.core.parse_besancon_model_string(data)
     B.pprint()
-    assert_equal(len(B), length)
-    assert_equal(len(B.columns), ncols)
+    assert len(B) == length
+    assert len(B.columns) == ncols
     assert B['Dist'][0] == d1
     assert B['Mv'][0] == mv1
 
