@@ -351,15 +351,17 @@ Working with ephemeris tables
 
 Columns in the returned ephemeris tables carry the appropriate units.
 Convert the columns to Astropy quantities using the ``.quantity``
-attribute.  To find comet Hyakutake's peak proper motion in the sky in
+attribute.  To find comet Encke's peak proper motion in the sky around
+the time of its closest approach to Earth in November 2003:
 degrees per hour:
 
 
 .. doctest-remote-data::
 
-    >>> eph = MPC.get_ephemeris('C/1996 B2', start='1996-03-01', step='1h', number=30 * 24)
-    >>> print(eph['Proper motion'].quantity.to('deg/h').max())
-    0.17234444444444447 deg / h
+    >>> eph = MPC.get_ephemeris('2P', start='2003-10-15', step='1d', number=60)
+    >>> print(eph['Proper motion'].quantity.to('deg/h').max())  # doctest: +FLOAT_CMP
+    0.1259361111111111 deg / h
+
 
 Sky coordinates are returned as quantities carrying units of degrees.
 If a sexagesimal representation is desired, they may be replaced with
