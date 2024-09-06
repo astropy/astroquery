@@ -28,8 +28,8 @@ parameters = {
   '2P_ephemeris_500-a-t': ('2P', {'proper_motion': 'total'}),
   '2P_ephemeris_500-a-c': ('2P', {'proper_motion': 'coordinate'}),
   '2P_ephemeris_500-a-s': ('2P', {'proper_motion': 'sky'}),
-  '1994XG_ephemeris_500-a-t': ('1994 XG', {}),
-  '1994XG_ephemeris_G37-a-t': ('1994 XG', {'location': 'G37'}),
+  '2024AA_ephemeris_500-a-t': ('2024 AA', {}),
+  '2024AA_ephemeris_G37-a-t': ('2024 AA', {'location': 'G37'}),
   'testfail_ephemeris_500-a-t': ('test fail', {}),
   '2008JG_ephemeris_500-a-t': ('2008 JG', {}),
 }
@@ -156,7 +156,7 @@ def test_args_to_object_payload():
     ('asteroid',
         'https://minorplanetcenter.net/web_service/search_orbits')])
 def test_get_mpc_object_endpoint(type, url):
-    query_url = mpc.core.MPC.get_mpc_object_endpoint(target_type=type)
+    query_url = mpc.core.MPC._get_mpc_object_endpoint(target_type=type)
     assert query_url == url
 
 
@@ -383,9 +383,10 @@ def test_get_ephemeris_perturbed(perturbed, val):
 
 @pytest.mark.parametrize('unc_links', (True, False))
 def test_get_ephemeris_unc_links(unc_links, patch_post):
-    tab = mpc.core.MPC.get_ephemeris('1994 XG', unc_links=unc_links)
-    assert ('Unc. map' in tab.colnames) == unc_links
-    assert ('Unc. offsets' in tab.colnames) == unc_links
+    result = mpc.core.MPC.get_ephemeris('2024 AA', unc_links=unc_links)
+    assert np.all(result['Uncertainty 3sig'].quantity > 0 * u.arcsec)
+    assert ('Unc. map' in result.colnames) == unc_links
+    assert ('Unc. offsets' in result.colnames) == unc_links
 
 
 def test_get_observatory_codes(patch_get):
@@ -415,10 +416,8 @@ def test_get_observations(patch_get):
     assert result['DEC'].unit == u.deg
     assert result['epoch'].unit == u.d
 
-    result = mpc.core.MPC.get_observations('12893',
-                                           get_raw_response=True)
-
-    assert result[0]['designation'] == "1998 QS55"
+    result = mpc.core.MPC.get_observations_async('12893')
+    assert result.json()[0]['designation'] == "1998 QS55"
 
     result = mpc.core.MPC.get_observations('12893',
                                            get_mpcformat=True)
