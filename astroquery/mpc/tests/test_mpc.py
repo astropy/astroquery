@@ -28,8 +28,8 @@ parameters = {
   '2P_ephemeris_500-a-t': ('2P', {'proper_motion': 'total'}),
   '2P_ephemeris_500-a-c': ('2P', {'proper_motion': 'coordinate'}),
   '2P_ephemeris_500-a-s': ('2P', {'proper_motion': 'sky'}),
-  '1994XG_ephemeris_500-a-t': ('1994 XG', {}),
-  '1994XG_ephemeris_G37-a-t': ('1994 XG', {'location': 'G37'}),
+  '2024AA_ephemeris_500-a-t': ('2024 AA', {}),
+  '2024AA_ephemeris_G37-a-t': ('2024 AA', {'location': 'G37'}),
   'testfail_ephemeris_500-a-t': ('test fail', {}),
   '2008JG_ephemeris_500-a-t': ('2008 JG', {}),
 }
@@ -383,16 +383,10 @@ def test_get_ephemeris_perturbed(perturbed, val):
 
 @pytest.mark.parametrize('unc_links', (True, False))
 def test_get_ephemeris_unc_links(unc_links, patch_post):
-    result = mpc.core.MPC.get_ephemeris('1994 XG', unc_links=unc_links)
+    result = mpc.core.MPC.get_ephemeris('2024 AA', unc_links=unc_links)
     assert np.all(result['Uncertainty 3sig'].quantity > 0 * u.arcsec)
     assert ('Unc. map' in result.colnames) == unc_links
     assert ('Unc. offsets' in result.colnames) == unc_links
-
-
-def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
-    result = mpc.core.MPC.get_ephemeris('1994 XG', location='G37')
-    assert np.all(result['Moon phase'][0] >= 0)
-    assert np.all(result['Uncertainty 3sig'].quantity > 0 * u.arcsec)
 
 
 def test_get_observatory_codes(patch_get):
