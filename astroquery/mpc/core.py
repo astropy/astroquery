@@ -764,7 +764,7 @@ class MPCClass(BaseQuery):
         return request_args
 
     @class_or_instance
-    @deprecated_renamed_argument("get_raw_response", None, since="0.4.9",
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.8",
                                  alternative="async methods")
     def get_observations_async(self, targetid, *,
                                id_type=None,
@@ -777,7 +777,7 @@ class MPCClass(BaseQuery):
         from the `Minor Planet Center observations database
         <https://minorplanetcenter.net/db_search>`_.
 
-        .. deprecated:: 0.4.9
+        .. deprecated:: 0.4.8
            The ``get_raw_response`` keyword argument is deprecated.  The
            `~MPCClass.get_observations_async` method will return a raw response.
 
