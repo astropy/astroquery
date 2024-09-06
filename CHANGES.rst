@@ -43,10 +43,23 @@ mpc
 ^^^
 
 - Parse star catalog information when querying observations database [#2957]
+
 - Parse ephemeris with sky motion with three digit precision [#3026]
+
 - Raise EmptyResponseError when empty ephemeris response is returned [#3026]
-- Deprecate ``get_raw_response`` parameter in query methods. The raw response
-  may be retrieved from the _async() methods. [#3089]
+
+- Deprecate ``get_raw_response`` parameter from ``MPC.get_observations``. The
+  raw response may be retrieved from the _async() method. [#3089]
+
+- Remove ``get_raw_response`` parameter from ``MPC.get_ephemeris`` and
+  ``MPC.get_observatory_codes`` without deprecation as the parameters were
+  ignored and had no effect. [#3089]
+
+- Fix bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter
+  to be ignored. [#3089]
+
+- Remove ``comettype`` parameter from ``MPC.get_observations`` without
+  deprecation: it was undocumented, ignored, and had no effect.  [#3089]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
@@ -196,7 +209,8 @@ mast
 mpc
 ^^^
 
-- Fix bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter to be ignored. [#3089]
+- Rename ``MPC.get_mpc_object_endpoint`` to ``MPC._get_mpc_object_endpoint`` to
+  indicate that it is a private method. [#3089]
 
 
 0.4.7 (2024-03-08)
