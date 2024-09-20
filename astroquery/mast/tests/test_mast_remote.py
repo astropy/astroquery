@@ -381,13 +381,21 @@ class TestMast:
         assert (np.char.find(prods['obs_id'], '429031146') != -1).all()
 
     def test_observations_get_unique_product_list(self, caplog):
-        obs = Observations.query_criteria(obs_collection='HST',
-                                          filters='F606W',
-                                          instrument_name='ACS/WFC',
-                                          proposal_id=['12062'],
-                                          dataRights='PUBLIC')
-        products = Observations.get_product_list(obs)
-        unique_products = Observations.get_unique_product_list(obs)
+        # Check that no rows are filtered out when all products are unique
+        obsids = ['24832668']
+        products = Observations.get_product_list(obsids)
+        unique_products = Observations.get_unique_product_list(obsids)
+
+        # Should have the same length
+        assert len(products) == len(unique_products)
+        # No INFO messages should be logged
+        with caplog.at_level('INFO', logger='astroquery'):
+            assert caplog.text == ''
+
+        # Check that rows are filtered out when products are not unique
+        obsids.append('26421364')
+        products = Observations.get_product_list(obsids)
+        unique_products = Observations.get_unique_product_list(obsids)
 
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
