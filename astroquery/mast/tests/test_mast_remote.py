@@ -416,14 +416,13 @@ class TestMast:
         assert isinstance(result, Table)
         assert len(result) == sum(products['productType'] == "SCIENCE")
 
-    def test_observations_download_products(self, tmpdir):
+    def test_observations_download_products(self, tmp_path):
         def check_filepath(path):
             assert os.path.isfile(path)
-            os.remove(path)
 
         test_obs_id = '25119363'
         result = Observations.download_products(test_obs_id,
-                                                download_dir=str(tmpdir),
+                                                download_dir=tmp_path,
                                                 productType=["SCIENCE"],
                                                 mrp_only=False)
         assert isinstance(result, Table)
@@ -433,7 +432,7 @@ class TestMast:
 
         # just get the curl script
         result = Observations.download_products(test_obs_id,
-                                                download_dir=str(tmpdir),
+                                                download_dir=tmp_path,
                                                 curl_flag=True,
                                                 productType=["SCIENCE"],
                                                 mrp_only=False)
@@ -442,7 +441,8 @@ class TestMast:
 
         # check for row input
         result1 = Observations.get_product_list(test_obs_id)
-        result2 = Observations.download_products(result1[0])
+        result2 = Observations.download_products(result1[0],
+                                                 download_dir=tmp_path)
         assert isinstance(result2, Table)
         check_filepath(result2['Local Path'][0])
         assert len(result2) == 1
