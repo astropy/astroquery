@@ -457,6 +457,8 @@ class ObservationsClass(MastQueryWithLogin):
         Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
         an error. See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
 
+        To return unique data products, use ``Observations.get_unique_product_list``.
+
         Parameters
         ----------
         observations : str or `~astropy.table.Row` or list/Table of same
@@ -959,8 +961,32 @@ class ObservationsClass(MastQueryWithLogin):
         number_unique = len(unique_products)
         if number_unique < number:
             log.info(f"{number - number_unique} of {number} products were duplicates. "
-                     f"Only downloading {number_unique} unique product(s).")
+                     f"Only returning {number_unique} unique product(s).")
 
+        return unique_products
+
+    def get_unique_product_list(self, observations):
+        """
+        Given a "Product Group Id" (column name obsid), returns a list of associated data products with
+        unique dataURIs. Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
+        an error. See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+
+        Parameters
+        ----------
+        observations : str or `~astropy.table.Row` or list/Table of same
+            Row/Table of MAST query results (e.g. output from `query_object`)
+            or single/list of MAST Product Group Id(s) (obsid).
+            See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+
+        Returns
+        -------
+        unique_products : `~astropy.table.Table`
+            Table containing products with unique dataURIs.
+        """
+        products = self.get_product_list(observations)
+        unique_products = self._remove_duplicate_products(products)
+        if len(unique_products) < len(products):
+            log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
 
 

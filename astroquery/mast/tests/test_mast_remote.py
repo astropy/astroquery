@@ -7,7 +7,7 @@ import pytest
 
 from requests.models import Response
 
-from astropy.table import Table
+from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 import astropy.units as u
@@ -379,6 +379,32 @@ class TestMast:
         # Should only return products corresponding to target 429031146
         assert len(prods) > 0
         assert (np.char.find(prods['obs_id'], '429031146') != -1).all()
+
+    def test_observations_get_unique_product_list(self, caplog):
+        # Check that no rows are filtered out when all products are unique
+        obsids = ['24832668']
+        products = Observations.get_product_list(obsids)
+        unique_products = Observations.get_unique_product_list(obsids)
+
+        # Should have the same length
+        assert len(products) == len(unique_products)
+        # No INFO messages should be logged
+        with caplog.at_level('INFO', logger='astroquery'):
+            assert caplog.text == ''
+
+        # Check that rows are filtered out when products are not unique
+        obsids.append('26421364')
+        products = Observations.get_product_list(obsids)
+        unique_products = Observations.get_unique_product_list(obsids)
+
+        # Unique product list should have fewer rows
+        assert len(products) > len(unique_products)
+        # Rows should be unique based on dataURI
+        assert (unique_products == unique(unique_products, keys='dataURI')).all()
+        # Check that INFO messages were logged
+        with caplog.at_level('INFO', logger='astroquery'):
+            assert 'products were duplicates' in caplog.text
+            assert 'To return all products' in caplog.text
 
     def test_observations_filter_products(self):
         observations = Observations.query_object("M8", radius=".04 deg")
