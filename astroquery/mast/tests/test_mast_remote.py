@@ -419,7 +419,6 @@ class TestMast:
     def test_observations_download_products(self, tmp_path):
         def check_filepath(path):
             assert os.path.isfile(path)
-            os.remove(path)
 
         test_obs_id = '25119363'
         result = Observations.download_products(test_obs_id,
