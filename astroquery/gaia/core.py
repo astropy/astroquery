@@ -197,8 +197,8 @@ class GaiaClass(TapPlus):
             'RVS_TRANSIT', 'EPOCH_ASTROMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD',
             'XP_EPOCH_SPECTRUM_SSO', 'XP_EPOCH_CROWDING', 'XP_MEAN_SPECTRUM', 'XP_EPOCH_SPECTRUM',
             'CROWDED_FIELD_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE' only the format 'fits' can be used,
-            and that its image in the principal header will not be available. Set 'output_file' to retrieve all data:
-            image + tables.
+            and that its image, in the principal header, will not be available in the returned dictionary. Set
+            'output_file' to retrieve all data: image + tables.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id
