@@ -69,16 +69,21 @@ def _gen_pos_sql(field, value):
                     dec_min = -90
                 if dec_max is None:
                     dec_max = 90
-                min_pt = coord.SkyCoord(ra_min, dec_min, unit=u.deg,
-                                        frame=frame)
-                max_pt = coord.SkyCoord(ra_max, dec_max, unit=u.deg,
-                                        frame=frame)
-                result += \
-                    "(INTERSECTS(RANGE_S2D({},{},{},{}), s_region) = 1)".\
-                    format(min_pt.icrs.ra.to(u.deg).value,
-                           max_pt.icrs.ra.to(u.deg).value,
-                           min_pt.icrs.dec.to(u.deg).value,
-                           max_pt.icrs.dec.to(u.deg).value)
+                ra_min = coord.Angle(ra_min, unit=u.degree).deg
+                ra_max = coord.Angle(ra_max, unit=u.degree).deg
+                dec_min = coord.Angle(dec_min, unit=u.degree).deg
+                dec_max = coord.Angle(dec_max, unit=u.degree).deg
+                if frame == 'galactic':
+                    # intersect with s_region is too complicated. ALMA indicated that
+                    # the use of gal_longitude and gal_latitude is good enough
+                    # approximation in this less common use case
+                    result += ('gal_longitude>={} AND gal_longitude<={} AND '
+                               'gal_latitude>={} AND gal_latitude<={}').format(
+                        ra_min, ra_max, dec_min, dec_max)
+                else:
+                    result += \
+                        "(INTERSECTS(RANGE_S2D({},{},{},{}), s_region) = 1)".\
+                        format(ra_min, ra_max, dec_min, dec_max)
             else:
                 raise ValueError('Cannot interpret ra({}), dec({}'.
                                  format(ra, dec))
