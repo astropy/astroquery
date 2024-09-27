@@ -13,6 +13,6 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: scientific-python/attach-next-milestone-action@a4889cfde7d2578c1bc7400480d93910d2dd34f6
+      - uses: scientific-python/attach-next-milestone-action@bc07be829f693829263e57d5e8489f4e57d3d420
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
