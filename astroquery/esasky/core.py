@@ -44,24 +44,13 @@ class ESASkyClass(BaseQuery):
     __FTZ_STRING = ".FTZ"
     __TAR_STRING = ".tar"
     __ALL_STRING = "all"
-    __CATALOGS_STRING = "catalogs"
-    __OBSERVATIONS_STRING = "observations"
-    __SPECTRA_STRING = "spectra"
-    __MISSION_STRING = "mission"
     __TAP_TABLE_STRING = "table_name"
-    __TAP_NAME_STRING = "tapName"
-    __TAP_RA_COLUMN_STRING = "tapRaColumn"
-    __TAP_DEC_COLUMN_STRING = "tapDecColumn"
-    __METADATA_STRING = "metadata"
     __PRODUCT_URL_STRING = "product_url"
     __EROSITA_PRODUCT_URL_STRING = "prod_url"
     __ACCESS_URL_STRING = "access_url"
-    __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
     __MIN_RADIUS_CATALOG_DEG = Angle(5 * u.arcsec).to_value(u.deg)
-
     __HERSCHEL_STRING = 'herschel'
-    __HST_STRING = 'hst'
 
     __HERSCHEL_FILTERS = {
         'psw': '250',
