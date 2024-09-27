@@ -183,7 +183,7 @@ class TestESASky:
         # - HST-IR, JWST-MID-IR and CHEOPS have no data
         # - LAMOST does not support download
         # - JWST-NEAR-IR returns a zip file with many fits files in it, unsupported
-        result = ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
+        result = ESASky.get_spectra(position="M1", missions=mission, radius='15 arcsec', download_dir=tmp_path)
         assert Path(tmp_path, mission.upper()).exists()
 
         if mission != "Herschel":
