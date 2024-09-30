@@ -194,7 +194,11 @@ class GaiaClass(TapPlus):
             'MCMC_GSPPHOT' or 'MCMC_MSC']
             For GAIA DR4, possible values will be ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RV_EPOCH_SINGLE', 'RV_EPOCH_DOUBLE', 'RVS_EPOCH' or
-            'RVS_TRANSIT']
+            'RVS_TRANSIT', 'EPOCH_ASTROMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD',
+            'XP_EPOCH_SPECTRUM_SSO', 'XP_EPOCH_CROWDING', 'XP_MEAN_SPECTRUM', 'XP_EPOCH_SPECTRUM',
+            'CROWDED_FIELD_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE' only the format 'fits' can be used,
+            and that its image, in the principal header, will not be available in the returned dictionary. Set
+            'output_file' to retrieve all data: image + tables.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id
