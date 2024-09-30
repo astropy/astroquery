@@ -179,6 +179,8 @@ gaia
 
 - Fix method search_async_jobs in the class TapPlus. [#2967]
 
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
+
 jplhorizons
 ^^^^^^^^^^^
 
