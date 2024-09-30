@@ -802,7 +802,8 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
         assert str(
             excinfo.value) == (
-            f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output file.")
+                   f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output "
+                   f"file.")
 
     else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
@@ -828,11 +829,18 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
                                                   format="votable", dump_to_file=True, overwrite_output_file=True,
                                                   verbose=False)
 
-    assert os.path.exists(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
 
     extracted_files = []
 
-    with zipfile.ZipFile('datalink_output.zip', "r") as zip_ref:
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
         extracted_files.extend(zip_ref.namelist())
 
     assert len(extracted_files) == 3
@@ -845,9 +853,9 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
     assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.xml'
     assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.xml'
 
-    os.remove(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    os.remove(os.path.join(os.getcwd(), datalink_output))
 
-    assert not os.path.exists(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    assert not os.path.exists(os.path.join(os.getcwd(), datalink_output))
 
 
 def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
@@ -859,11 +867,18 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
                                                        format="ecsv", dump_to_file=True, overwrite_output_file=True,
                                                        verbose=False)
 
-    assert os.path.exists('datalink_output.zip')
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
 
     extracted_files = []
 
-    with zipfile.ZipFile('datalink_output.zip', "r") as zip_ref:
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
         extracted_files.extend(zip_ref.namelist())
 
     assert len(extracted_files) == 3
@@ -876,9 +891,9 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
     assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
 
-    os.remove(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    os.remove(os.path.join(os.getcwd(), datalink_output))
 
-    assert not os.path.exists('datalink_output.zip')
+    assert not os.path.exists(datalink_output)
 
 
 def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
@@ -890,11 +905,18 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
                                                       format="csv", dump_to_file=True, overwrite_output_file=True,
                                                       verbose=False)
 
-    assert os.path.exists('datalink_output.zip')
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
 
     extracted_files = []
 
-    with zipfile.ZipFile('datalink_output.zip', "r") as zip_ref:
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
         extracted_files.extend(zip_ref.namelist())
 
     assert len(extracted_files) == 3
@@ -907,9 +929,9 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
     assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
     assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
 
-    os.remove(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    os.remove(os.path.join(os.getcwd(), datalink_output))
 
-    assert not os.path.exists('datalink_output.zip')
+    assert not os.path.exists(datalink_output)
 
 
 @pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
@@ -922,11 +944,18 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
                                                        format="fits", dump_to_file=True, overwrite_output_file=True,
                                                        verbose=False)
 
-    assert os.path.exists('datalink_output.zip')
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
 
     extracted_files = []
 
-    with zipfile.ZipFile('datalink_output.zip', "r") as zip_ref:
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
         extracted_files.extend(zip_ref.namelist())
 
     assert len(extracted_files) == 3
@@ -939,9 +968,9 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
     assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
 
-    os.remove(os.path.join(os.getcwd(), 'datalink_output.zip'))
+    os.remove(os.path.join(os.getcwd(), datalink_output))
 
-    assert not os.path.exists('datalink_output.zip')
+    assert not os.path.exists(datalink_output)
 
 
 def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
