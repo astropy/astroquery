@@ -1148,6 +1148,15 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
     path.write_bytes(zip_bytes)
 
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        direc = os.getcwd()
+        files = os.listdir(direc)
+        # Filtering only the files.
+        files = [f for f in files if
+                 os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+
+        assert len(files) == 1
+        datalink_output = files[0]
+
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
@@ -1156,7 +1165,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
             "USE_ZIP_ALWAYS": "true", }
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert output_file == os.getcwd() + '/' + datalink_output
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
