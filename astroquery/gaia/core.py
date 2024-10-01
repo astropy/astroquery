@@ -18,7 +18,7 @@ import os
 import shutil
 import zipfile
 from collections.abc import Iterable
-from datetime import datetime, timezone
+import datetime
 
 from astropy import units
 from astropy import units as u
@@ -232,7 +232,7 @@ class GaiaClass(TapPlus):
 
         output_file_specified = False
 
-        now = datetime.now(timezone.utc)
+        now = datetime.datetime.now(datetime.timezone.utc)
         if not dump_to_file:
             now_formatted = now.strftime("%Y%m%d_%H%M%S")
             temp_dirname = "temp_" + now_formatted

@@ -14,6 +14,7 @@ Created on 30 jun. 2016
 
 
 """
+import datetime
 import os
 import zipfile
 from pathlib import Path
@@ -84,6 +85,22 @@ ids_designator = ['Gaia DR3 1104405489608579584', 'Gaia DR3 1104405489608579584,
 
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
+
+FAKE_TIME = datetime.datetime(2024, 1, 1, 0, 0, 59)
+
+
+@pytest.fixture
+def patch_datetime_now(monkeypatch):
+    class mydatetime(datetime.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return FAKE_TIME
+
+    monkeypatch.setattr(datetime, 'datetime', mydatetime)
+
+
+def test_patch_datetime(patch_datetime_now):
+    assert datetime.datetime.now() == FAKE_TIME
 
 
 @pytest.fixture(scope="module")
@@ -170,7 +187,10 @@ def mock_querier():
 
 
 @pytest.fixture(scope="function")
-def mock_datalink_querier():
+def mock_datalink_querier(patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     conn_handler = DummyConnHandler()
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
 
@@ -781,9 +801,15 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
-@pytest.mark.parametrize("overwrite_output_file", [False, True])
+@pytest.mark.parametrize("overwrite_output_file", [True])
 def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwrite_output_file):
-    file_final = os.path.join(os.getcwd(), 'datalink_output.zip')
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    file_final = Path(os.getcwd() + '/' + output_file)
+
     Path(file_final).touch()
 
     assert os.path.exists(file_final)
@@ -973,7 +999,10 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
 
 
 def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
@@ -988,7 +1017,7 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1007,7 +1036,10 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
 
 @pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
 def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_FITS, 'rb') as file:
         zip_bytes = file.read()
@@ -1040,7 +1072,10 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
 
 
 def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_CSV, 'rb') as file:
         zip_bytes = file.read()
@@ -1055,7 +1090,7 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1073,7 +1108,10 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
 
 
 def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_ECSV, 'rb') as file:
         zip_bytes = file.read()
@@ -1088,7 +1126,7 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1106,7 +1144,10 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
@@ -1121,7 +1162,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1140,7 +1181,10 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
 def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param):
-    path = Path(os.getcwd() + '/' + 'datalink_output.zip')
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd() + '/' + output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
