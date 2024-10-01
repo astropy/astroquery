@@ -808,7 +808,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    file_final = Path(os.getcwd() + '/' + output_file)
+    file_final = Path(os.getcwd(), output_file)
 
     Path(file_final).touch()
 
@@ -858,7 +858,7 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
     files = os.listdir(direc)
     # Filtering only the files.
     files = [f for f in files if
-             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
     datalink_output = files[0]
@@ -896,7 +896,7 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     files = os.listdir(direc)
     # Filtering only the files.
     files = [f for f in files if
-             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
     datalink_output = files[0]
@@ -934,7 +934,7 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
     files = os.listdir(direc)
     # Filtering only the files.
     files = [f for f in files if
-             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
     datalink_output = files[0]
@@ -973,7 +973,7 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     files = os.listdir(direc)
     # Filtering only the files.
     files = [f for f in files if
-             os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
     datalink_output = files[0]
@@ -1002,7 +1002,7 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
@@ -1039,7 +1039,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_FITS, 'rb') as file:
         zip_bytes = file.read()
@@ -1054,7 +1054,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == os.getcwd() + '/' + 'datalink_output.zip'
+        assert output_file == Path(os.getcwd(), 'datalink_output.zip')
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1075,7 +1075,7 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_CSV, 'rb') as file:
         zip_bytes = file.read()
@@ -1111,7 +1111,7 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_ECSV, 'rb') as file:
         zip_bytes = file.read()
@@ -1147,7 +1147,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
@@ -1184,7 +1184,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
     now = datetime.datetime.now(datetime.timezone.utc)
     output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
 
-    path = Path(os.getcwd() + '/' + output_file)
+    path = Path(os.getcwd(), output_file)
 
     with open(DL_PRODUCTS_VOT, 'rb') as file:
         zip_bytes = file.read()
@@ -1196,7 +1196,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         files = os.listdir(direc)
         # Filtering only the files.
         files = [f for f in files if
-                 os.path.isfile(direc + '/' + f) and f.endswith(".zip") and f.startswith('datalink_output')]
+                 Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
         assert len(files) == 1
         datalink_output = files[0]
@@ -1209,7 +1209,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
             "USE_ZIP_ALWAYS": "true", }
-        assert output_file == os.getcwd() + '/' + datalink_output
+        assert output_file == str(Path(os.getcwd(), datalink_output))
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
