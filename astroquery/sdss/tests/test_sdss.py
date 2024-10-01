@@ -15,10 +15,11 @@ from astropy.table import Column, Table
 from astropy.utils.exceptions import AstropyWarning
 import pytest
 
-from ... import sdss
+from astroquery.sdss import conf
+from astroquery import sdss
+from astroquery.exceptions import TimeoutError
+from astroquery.utils import commons
 from astroquery.utils.mocks import MockResponse
-from ...exceptions import TimeoutError
-from ...utils import commons
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples
@@ -114,7 +115,7 @@ coords_list = [coords, coords]
 coords_column = Column(coords_list, name='coordinates')
 
 # List of all data releases.
-dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
 
 
 # We are not testing queries for DR11 because it is not easily available to
@@ -143,6 +144,47 @@ def url_tester_crossid(data_release):
     if data_release >= 12:
         baseurl = f'https://skyserver.sdss.org/dr{data_release}/en/tools/search/X_Results.aspx'
     assert sdss.SDSS._last_url == baseurl
+
+
+def url_tester_images(data_release, rerun, run, camcol, band, field):
+    instrument = 'boss'
+    if data_release > 12:
+        instrument = 'eboss'
+    if data_release > 17:
+        instrument = 'prior-surveys/sdss4-dr17-eboss'
+    url = sdss.SDSS.IMAGING_URL_SUFFIX.format(base=conf.sas_baseurl, run=run,
+                                              dr=data_release, instrument=instrument,
+                                              rerun=rerun, camcol=camcol,
+                                              field=field, band=band)
+    return url
+
+
+def url_tester_spectra(data_release, run2d, plate, mjd, fiber):
+    linkstr = sdss.SDSS.SPECTRA_URL_SUFFIX
+    eFEDS = False
+    redux_path = 'sdss/spectro/redux'
+    spectra_path = 'spectra'
+    if data_release > 15 and run2d not in ('26', '103', '104'):
+        spectra_path = 'spectra/full'
+    if data_release > 17:
+        redux_path = 'spectro/sdss/redux'
+        match_run2d = sdss.SDSS.PARSE_BOSS_RUN2D.match(run2d)
+        if match_run2d is not None:
+            major = int(match_run2d.group('major'))
+            if major > 5:
+                eFEDS = True
+                linkstr = linkstr.replace('/{plate:0>4d}/', '/{fieldid:0>4d}p/{mjd:5d}/')
+                linkstr = linkstr.replace('spec-{plate:0>4d}-{mjd}-{fiber:04d}.fits',
+                                          'spec-{fieldid:0>4d}-{mjd:5d}-{catalogid:0>11d}.fits')
+    if eFEDS:
+        url = linkstr.format(base=conf.sas_baseurl, dr=data_release,
+                             redux_path=redux_path, run2d=run2d, spectra_path=spectra_path,
+                             fieldid=plate, catalogid=fiber, mjd=mjd)
+    else:
+        url = linkstr.format(base=conf.sas_baseurl, dr=data_release,
+                             redux_path=redux_path, run2d=run2d, spectra_path=spectra_path,
+                             plate=plate, fiber=fiber, mjd=mjd)
+    return url
 
 
 def compare_xid_data(xid, data):
@@ -658,6 +700,56 @@ def test_get_images_coordinates_payload(patch_request, dr):
     assert query_payload['uquery'] == expect
     assert query_payload['format'] == 'csv'
     assert query_payload['photoScope'] == 'nearPrim'
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_images_async_url(patch_request, patch_get_readable_fileobj, dr):
+    matches = Table()
+    matches['run'] = [1, 12, 123, 1234]
+    matches['camcol'] = [1, 2, 4, 6]
+    matches['field'] = [10, 100, 1000, 10000]
+    matches['rerun'] = [301, 301, 301, 301]
+    download_urls = sdss.SDSS.get_images_async(matches=matches, band='ugriz',
+                                               data_release=dr)
+    for i, row in enumerate(matches):
+        for j, band in enumerate('ugriz'):
+            k = 5*i + j
+            assert download_urls[k]._target == url_tester_images(dr,
+                                                                 row['rerun'],
+                                                                 row['run'],
+                                                                 row['camcol'],
+                                                                 band,
+                                                                 row['field'])
+
+
+@pytest.mark.parametrize("dr", dr_list)
+def test_get_spectra_async_url(patch_request, patch_get_readable_fileobj, dr):
+    matches = Table()
+    matches['plate'] = [12, 123, 1234, 1234, 5432, 12345]
+    matches['fiberID'] = [10, 100, 621, 123, 456, 986]
+    matches['mjd'] = [54321, 54321, 54321, 65432, 76543, 87654]
+    matches['run2d'] = ['26', '26', '26', 'v5_12_2', 'v5_12_2', 'v5_12_2']
+    download_urls = sdss.SDSS.get_spectra_async(matches=matches,
+                                                data_release=dr)
+    for i, row in enumerate(matches):
+        assert matches[i]['plate'] == row['plate']
+        assert download_urls[i]._target == url_tester_spectra(dr, row['run2d'],
+                                                              row['plate'],
+                                                              row['mjd'],
+                                                              row['fiberID'])
+    if dr > 17:
+        matches = Table()
+        matches['fieldID'] = [15170, 15265]
+        matches['mjd'] = [59292, 59316]
+        matches['catalogID'] = [4570401475, 4592713531]
+        matches['run2d'] = ['v6_0_4', 'v6_0_4']
+        download_urls = sdss.SDSS.get_spectra_async(matches=matches,
+                                                    data_release=dr)
+        for i, row in enumerate(matches):
+            assert download_urls[i]._target == url_tester_spectra(dr, row['run2d'],
+                                                                  row['fieldID'],
+                                                                  row['mjd'],
+                                                                  row['catalogID'])
 
 
 @pytest.mark.parametrize("dr", dr_list)

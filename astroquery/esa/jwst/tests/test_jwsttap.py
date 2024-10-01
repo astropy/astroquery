@@ -11,7 +11,7 @@ European Space Agency (ESA)
 import os
 import shutil
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import sys
 import io
 
@@ -21,6 +21,7 @@ import pytest
 from astropy import units
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
+from astropy.io.votable import parse_single_table
 from astropy.table import Table
 from astropy.units import Quantity
 from astroquery.exceptions import TableParseError
@@ -28,7 +29,7 @@ from astroquery.exceptions import TableParseError
 from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
-from astroquery.simbad import Simbad
+from astroquery.simbad import SimbadClass
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -683,6 +684,13 @@ class TestTap:
             jwst.get_product_list(observation_id=observation_id, product_type='test')
         assert "product_type must be one of" in err.value.args[0]
 
+    def test_download_files_from_program(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        with pytest.raises(TypeError) as err:
+            jwst.download_files_from_program()
+        assert "missing 1 required positional argument: 'proposal_id'" in err.value.args[0]
+
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
         jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
@@ -731,6 +739,37 @@ class TestTap:
                                          files_returned=files_returned)
         finally:
             shutil.rmtree(output_file_full_path_dir)
+
+        # Test product_type paramater with a list
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            raise err
+
+        file = data_path('single_product_retrieval.tar')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+        parameters['output_file'] = output_file_full_path
+
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files.append(extracted_file_1)
+        product_type_as_list = ['science', 'info']
+        try:
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              cal_level='ALL',
+                              product_type=product_type_as_list,
+                              output_file=output_file_full_path))
+            parameters['params_dict']['product_type'] = 'science,info'
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
+        finally:
+            shutil.rmtree(output_file_full_path_dir)
+            del parameters['params_dict']['product_type']
 
         # Test single file
         output_file_full_path_dir = os.getcwd() + os.sep +\
@@ -914,53 +953,58 @@ class TestTap:
                 raise ValueError(f"Not found expected file: {f}")
 
     def test_query_target_error(self):
-        jwst = JwstClass(show_messages=False)
-        simbad = Simbad()
-        ned = Ned()
-        vizier = Vizier()
-        # Testing default parameters
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="M1", target_resolver="")
-        assert "This target resolver is not allowed" in err.value.args[0]
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target("TEST")
-        assert ('This target name cannot be determined with this '
-                'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="M1", target_resolver="ALL")
-        assert err.value.args[0] in ["This target name cannot be determined "
-                                     "with this resolver: ALL", "Missing "
-                                     "required argument: 'width'"]
+        # need to patch simbad query object here
+        with patch("astroquery.simbad.SimbadClass.query_object",
+                   side_effect=lambda object_name: parse_single_table(
+                       Path(__file__).parent / "data" / f"simbad_{object_name}.vot"
+                   ).to_table()):
+            jwst = JwstClass(show_messages=False)
+            simbad = SimbadClass()
+            ned = Ned()
+            vizier = Vizier()
+            # Testing default parameters
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="M1", target_resolver="")
+                assert "This target resolver is not allowed" in err.value.args[0]
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target("TEST")
+                assert ('This target name cannot be determined with this '
+                        'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="M1", target_resolver="ALL")
+                assert err.value.args[0] in ["This target name cannot be determined "
+                                             "with this resolver: ALL", "Missing "
+                                             "required argument: 'width'"]
 
-        # Testing no valid coordinates from resolvers
-        simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
-        simbad_table = Table.read(simbad_file)
-        simbad.query_object = MagicMock(return_value=simbad_table)
-        ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
-        ned_table = Table.read(ned_file)
-        ned.query_object = MagicMock(return_value=ned_table)
-        vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
-        vizier_table = Table.read(vizier_file)
-        vizier.query_object = MagicMock(return_value=vizier_table)
+            # Testing no valid coordinates from resolvers
+            simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            simbad_table = Table.read(simbad_file)
+            simbad.query_object = MagicMock(return_value=simbad_table)
+            ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            ned_table = Table.read(ned_file)
+            ned.query_object = MagicMock(return_value=ned_table)
+            vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
+            vizier_table = Table.read(vizier_file)
+            vizier.query_object = MagicMock(return_value=vizier_table)
 
-        # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="SIMBAD",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this '
-                'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="SIMBAD",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this '
+                        'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="NED",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this '
-                'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="NED",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this '
+                        'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
-        with pytest.raises((ValueError, TableParseError)) as err:
-            jwst.query_target(target_name="test", target_resolver="VIZIER",
-                              radius=units.Quantity(5, units.deg))
-        assert ('This target name cannot be determined with this resolver: '
-                'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+            with pytest.raises((ValueError, TableParseError)) as err:
+                jwst.query_target(target_name="TEST", target_resolver="VIZIER",
+                                  radius=units.Quantity(5, units.deg))
+                assert ('This target name cannot be determined with this resolver: '
+                        'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
     def test_remove_jobs(self):
         dummyTapHandler = DummyTapHandler()

@@ -45,6 +45,8 @@ class Conf(_config.ConfigNamespace):
                                                     "Name of Dec parameter "
                                                     "in table")
 
+    JWST_ARCHIVE_TABLE = _config.ConfigItem("jwst.archive", "JWST archive table")
+
 
 conf = Conf()
 

@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import requests
 import pytest
-
 from astroquery.exceptions import InvalidQueryError
 from astroquery import mpc
 
@@ -72,11 +71,15 @@ class TestMPC:
         greenwich = ['000', 0.0, 0.62411, 0.77873, 'Greenwich']
         assert all([r == g for r, g in zip(response[0], greenwich)])
 
-    @pytest.mark.parametrize('target', ['(3202)', 'C/2003 A2'])
+    @pytest.mark.parametrize('target', ['(3202)', 'C/2024 N4'])
     def test_get_ephemeris_by_target(self, target):
         # test that query succeeded
         response = mpc.MPC.get_ephemeris(target)
         assert len(response) > 0
+
+    def test_get_ephemeris_Moon_phase(self):
+        result = mpc.core.MPC.get_ephemeris('2P', location='G37')
+        assert result['Moon phase'][0] >= 0
 
     def test_get_ephemeris_target_fail(self):
         # test that query failed

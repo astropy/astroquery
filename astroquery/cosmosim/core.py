@@ -1109,7 +1109,7 @@ class CosmoSimClass(QueryWithLogin):
                     auth=(self.username, self.password))
                 soup = BeautifulSoup(results.content, "lxml")
                 urls = [i.get('xlink:href')
-                        for i in soup.findAll({'uws:result'})]
+                        for i in soup.find_all({'uws:result'})]
                 formatlist = [urls[i].split('/')[-1].upper()
                               for i in range(len(urls))]
 

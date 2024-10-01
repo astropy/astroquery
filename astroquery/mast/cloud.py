@@ -14,7 +14,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ..exceptions import NoResultsWarning, InvalidQueryError
+from ..exceptions import NoResultsWarning
 
 from . import utils
 
@@ -109,32 +109,14 @@ class CloudAccess:  # pragma:no-cover
             found in the cloud, None is returned.
         """
 
-        s3_client = self.boto3.client('s3', config=self.config)
+        uri_list = self.get_cloud_uri_list(data_product, include_bucket=include_bucket, full_url=full_url)
 
-        path = utils.mast_relative_path(data_product["dataURI"])
-        if path is None:
-            raise InvalidQueryError("Malformed data uri {}".format(data_product['dataURI']))
-
-        if 'galex' in path:
-            path = path.lstrip("/mast/")
-        elif '/ps1/' in path:
-            path = path.replace("/ps1/", "panstarrs/ps1/public/")
+        # Making sure we got at least 1 URI from the query above.
+        if not uri_list or uri_list[0] is None:
+            warnings.warn("Unable to locate file {}.".format(data_product), NoResultsWarning)
         else:
-            path = path.lstrip("/")
-
-        try:
-            s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
-            if include_bucket:
-                path = "s3://{}/{}".format(self.pubdata_bucket, path)
-            elif full_url:
-                path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
-            return path
-        except self.botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] != "404":
-                raise
-
-        warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
-        return None
+            # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
+            return uri_list[0]
 
     def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
         """
@@ -158,10 +140,37 @@ class CloudAccess:  # pragma:no-cover
             List of URIs generated from the data products, list way contain entries that are None
             if data_products includes products not found in the cloud.
         """
+        s3_client = self.boto3.client('s3', config=self.config)
 
-        return [self.get_cloud_uri(product, include_bucket, full_url) for product in data_products]
+        paths = utils.mast_relative_path(data_products["dataURI"])
+        if isinstance(paths, str):  # Handle the case where only one product was requested
+            paths = [paths]
 
-    def download_file(self, data_product, local_path, cache=True):
+        uri_list = []
+        for path in paths:
+            if path is None:
+                uri_list.append(None)
+            else:
+                try:
+                    # Use `head_object` to verify that the product is available on S3 (not all products are)
+                    s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
+                    if include_bucket:
+                        s3_path = "s3://{}/{}".format(self.pubdata_bucket, path)
+                        uri_list.append(s3_path)
+                    elif full_url:
+                        path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
+                        uri_list.append(path)
+                    else:
+                        uri_list.append(path)
+                except self.botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] != "404":
+                        raise
+                    warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
+                    uri_list.append(None)
+
+        return uri_list
+
+    def download_file(self, data_product, local_path, cache=True, verbose=True):
         """
         Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into
         the given directory.
@@ -174,6 +183,8 @@ class CloudAccess:  # pragma:no-cover
             The local filename to which toe downloaded file will be saved.
         cache : bool
             Default is True. If file is found on disc it will not be downloaded again.
+        verbose : bool, optional
+            Default is True. Whether to show download progress in the console.
         """
 
         s3 = self.boto3.resource('s3', config=self.config)
@@ -183,7 +194,7 @@ class CloudAccess:  # pragma:no-cover
             warnings.simplefilter("ignore")
             bucket_path = self.get_cloud_uri(data_product, False)
         if not bucket_path:
-            raise Exception("Unable to locate file {}.".format(data_product['productFilename']))
+            raise Exception("Unable to locate file {}.".format(data_product['dataURI']))
 
         # Ask the webserver (in this case S3) what the expected content length is and use that.
         info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path)
@@ -203,24 +214,27 @@ class CloudAccess:  # pragma:no-cover
                              .format(local_path, statinfo.st_size))
                     return
 
-        with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                self.pubdata_bucket, bucket_path, local_path))) as pb:
+        if verbose:
+            with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
+                    self.pubdata_bucket, bucket_path, local_path))) as pb:
 
-            # Bytes read tracks how much data has been received so far
-            # This variable will be updated in multiple threads below
-            global bytes_read
-            bytes_read = 0
-
-            progress_lock = threading.Lock()
-
-            def progress_callback(numbytes):
-                # Boto3 calls this from multiple threads pulling the data from S3
+                # Bytes read tracks how much data has been received so far
+                # This variable will be updated in multiple threads below
                 global bytes_read
+                bytes_read = 0
 
-                # This callback can be called in multiple threads
-                # Access to updating the console needs to be locked
-                with progress_lock:
-                    bytes_read += numbytes
-                    pb.update(bytes_read)
+                progress_lock = threading.Lock()
 
-            bkt.download_file(bucket_path, local_path, Callback=progress_callback)
+                def progress_callback(numbytes):
+                    # Boto3 calls this from multiple threads pulling the data from S3
+                    global bytes_read
+
+                    # This callback can be called in multiple threads
+                    # Access to updating the console needs to be locked
+                    with progress_lock:
+                        bytes_read += numbytes
+                        pb.update(bytes_read)
+
+                bkt.download_file(bucket_path, local_path, Callback=progress_callback)
+        else:
+            bkt.download_file(bucket_path, local_path)

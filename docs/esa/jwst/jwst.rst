@@ -275,14 +275,24 @@ To download a data product
   >>> output_file = Jwst.get_product(artifact_id='6ab73824-6587-4bca-84a8-eb48ac7251be')  # doctest: +SKIP
   >>> output_file = Jwst.get_product(file_name='jw01166091001_02102_00002_nrca3_cal.fits')  # doctest: +SKIP
 
+
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
-than get_product_list.
+than get_product_list, it also supports product_type parameter as string or list. product_type as string:
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.jwst import Jwst
   >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
-  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')  # doctest: +SKIP
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
+
+
+Here product_type as list:
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.jwst import Jwst
+  >>> observation_id = 'jw01122001001_0210r_00001_nrs2'
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type=['science', 'preview'])
 
 A temporary directory is created with the files and a list of the them is provided.
 
@@ -315,6 +325,18 @@ Using the observation ID as input parameter, this function will retrieve the obs
    'jw02739001001_02105_00002_nrcalong',
    'jw02739001001_02105_00002_nrcblong',
    'jw02739001001_02105_00003_nrcalong']
+
+To query the data products associated with a certain Proposal ID and filtered by product_type.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.jwst import Jwst
+  >>> observation_list = Jwst.download_files_from_program(proposal_id='6651', product_type='preview')  # doctest: +IGNORE_OUTPUT
+  INFO: Query finished. [astroquery.utils.tap.core]
+  INFO: Downloading products for Observation ID: jw06651001001_05201_00001_nis [astroquery.esa.jwst.core]
+  INFO: Downloading products for Observation ID: jw06651002001_05201_00001_nis [astroquery.esa.jwst.core]
+  >>> print(observation_list) # doctest: +IGNORE_OUTPUT
+  ['jw06651001001_05201_00001_nis', 'jw06651002001_05201_00001_nis']
 
 
 1.5 Getting public tables

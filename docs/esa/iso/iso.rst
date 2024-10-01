@@ -88,7 +88,7 @@ provided by this service, see section 'Getting Tables Details'.
   >>> from astroquery.esa.iso import ISO
   >>> import tarfile
   >>>
-  >>> ISO.download_data('80000203', retrieval_type="OBSERVATION",
+  >>> ISO.download_data("80000203", retrieval_type="OBSERVATION",
   ...   product_level="DEFAULT_DATA_SET",
   ...   filename="80000203", verbose=True)
   INFO: https://nida.esac.esa.int/nida-sl-tap/data?retrieval_type=OBSERVATION&DATA_RETRIEVAL_ORIGIN=astroquery&tdt=80000203&product_level=DEFAULT_DATA_SET [astroquery.esa.iso.core]
@@ -102,7 +102,7 @@ provided by this service, see section 'Getting Tables Details'.
   -rw-r--r-- idaops/0      14400 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//psph80000203.fits
   -rw-r--r-- idaops/0       5599 2005-12-23 11:02:55 ././ISO1659972236/EXTRAKON//ppch80000203.gif
   -rw-r--r-- idaops/0     266240 2005-12-23 11:02:54 ././ISO1659972236/EXTRAKON//C10180000203.tar
-  >>> tar.extractall()
+  >>> tar.extractall(filter="fully_trusted")
   >>> tar.close()
 
 'download_data' method invokes the data download of files from the ISO Data Archive, using the
@@ -247,11 +247,11 @@ All these tables can be queried using the TAP interface and allow geometrical qu
   >>> # First we obtain the coordinates of a certain object (M31) in degrees
   >>> result_table = Simbad.query_object("M31")
   >>> print(result_table)    # doctest: +IGNORE_OUTPUT
-  MAIN_ID      RA          DEC      ... COO_WAVELENGTH     COO_BIBCODE
-            "h:m:s"      "d:m:s"    ...
-  ------- ------------ ------------ ... -------------- -------------------
-    M  31 00 42 44.330 +41 16 07.50 ...              I 2006AJ....131.1163S
-  >>> c = SkyCoord(result_table['RA'], result_table['DEC'], unit=(u.hourangle, u.deg),
+  main_id         ra                dec         ...     coo_bibcode     matched_id
+                 deg                deg         ...                               
+  ------- ------------------ ------------------ ... ------------------- ----------
+    M  31 10.684708333333333 41.268750000000004 ... 2006AJ....131.1163S      M  31
+  >>> c = SkyCoord(result_table['ra'], result_table['dec'], unit=(u.deg, u.deg),
   ...              frame='icrs')
   >>> ra = str(c.ra.degree[0])
   >>> dec = str(c.dec.degree[0])
@@ -409,7 +409,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.esa.iso import ISO
     >>> ISO.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

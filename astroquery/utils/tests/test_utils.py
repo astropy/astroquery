@@ -45,7 +45,9 @@ def test_class_or_instance():
     assert SimpleQueryClass.query() == "class"
     U = SimpleQueryClass()
     assert U.query() == "instance"
-    assert SimpleQueryClass.query.__doc__ == " docstring "
+    # Indent changes in Python 3.13 thus cannot equate
+    # See https://github.com/python/cpython/issues/81283
+    assert "docstring" in SimpleQueryClass.query.__doc__
 
 
 @pytest.mark.parametrize(('coordinates'),

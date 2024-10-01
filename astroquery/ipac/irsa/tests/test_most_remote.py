@@ -82,11 +82,11 @@ def test_list_catalogs():
         'wise_neowiser_yr1', 'wise_neowiser_yr2', 'wise_neowiser_yr3',
         'wise_neowiser_yr4', 'wise_neowiser_yr5', 'wise_neowiser_yr6',
         'wise_neowiser_yr7', 'wise_neowiser_yr8', 'wise_neowiser_yr9', 'ztf',
-        'wise_merge_int', 'wise_neowiser_int', 'wise_neowiser_yr10'
+        'wise_merge_int', 'wise_neowiser_int', 'wise_neowiser_yr10', 'wise_neowiser_yr11'
     ]
 
     cats = Most.list_catalogs()
-    assert expected == cats
+    assert set(expected) == set(cats)
 
 
 @pytest.mark.remote_data

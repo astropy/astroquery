@@ -10,11 +10,14 @@ from astropy.utils.exceptions import AstropyUserWarning
 
 from urllib.error import URLError
 
-from ... import sdss
-from ...exceptions import TimeoutError
+# Timeout is the superclass of both ReadTimeout and ConnectTimeout
+from requests.exceptions import Timeout
+
+from astroquery import sdss
+from astroquery.exceptions import TimeoutError
 
 # DR11 is a quasi-internal data release that does not have SkyServer support.
-dr_list = (8, 9, 10, 12, 13, 14, 15, 16, 17)
+dr_list = (8, 9, 10, 12, 13, 14, 15, 16, 17, 18)
 dr_warn_list = (8, 9)
 
 
@@ -57,19 +60,38 @@ class TestSDSSRemote:
             xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, spectro=True, data_release=dr)
 
         assert isinstance(xid, Table)
-        sdss.SDSS.get_spectra(matches=xid, data_release=dr)
+        downloaded_files = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
+        assert len(downloaded_files) == len(xid)
 
     def test_sdss_spectrum_plate_mjd_fiber(self):
-        """These plates are only available in recent data releases.
+        """These plates are only available in relatively recent data releases.
         """
-        sdss.SDSS.get_spectra(plate=9403, mjd=58018, fiberID=485, data_release=16)
-        sdss.SDSS.get_spectra(plate=10909, mjd=58280, fiberID=485, data_release=16)
+        downloaded_files = sdss.SDSS.get_spectra(plate=9403, mjd=58018, fiberID=485, data_release=16)
+        assert len(downloaded_files) == 1
+        downloaded_files = sdss.SDSS.get_spectra(plate=10909, mjd=58280, fiberID=485, data_release=16)
+        assert len(downloaded_files) == 1
+
+    def test_sdss_spectrum_field_mjd_catalog(self):
+        """These eFEDS spectra are only available in data releases >= 18.
+
+        https://data.sdss.org/sas/dr18/spectro/sdss/redux/v6_0_4/spectra/full/15170p/59292/spec-15170-59292-04570401475.fits
+        https://data.sdss.org/sas/dr18/spectro/sdss/redux/v6_0_4/spectra/full/15265p/59316/spec-15265-59316-04592713531.fits
+        """
+        matches = Table()
+        matches['fieldID'] = [15170, 15265]
+        matches['mjd'] = [59292, 59316]
+        matches['catalogID'] = [4570401475, 4592713531]
+        matches['run2d'] = ['v6_0_4', 'v6_0_4']
+        downloaded_files = sdss.SDSS.get_spectra(matches=matches, data_release=18, cache=False)
+        assert len(downloaded_files) == 2
 
     def test_sdss_spectrum_mjd(self):
-        sdss.SDSS.get_spectra(plate=2345, fiberID=572)
+        downloaded_files = sdss.SDSS.get_spectra(plate=2345, fiberID=572)
+        assert len(downloaded_files) == 1
 
     def test_sdss_spectrum_coords(self):
-        sdss.SDSS.get_spectra(coordinates=self.coords)
+        downloaded_files = sdss.SDSS.get_spectra(coordinates=self.coords)
+        assert len(downloaded_files) == 1
 
     def test_sdss_sql(self):
         query = """
@@ -88,16 +110,20 @@ class TestSDSSRemote:
     def test_sdss_image(self):
         xid = sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec)
         assert isinstance(xid, Table)
-        sdss.SDSS.get_images(matches=xid)
+        downloaded_files = sdss.SDSS.get_images(matches=xid)
+        assert len(downloaded_files) == len(xid)
 
     def test_sdss_template(self):
-        sdss.SDSS.get_spectral_template('qso')
+        downloaded_files = sdss.SDSS.get_spectral_template('qso')
+        assert len(downloaded_files) == 1
 
     def test_sdss_image_run(self):
-        sdss.SDSS.get_images(run=1904, camcol=3, field=164)
+        downloaded_files = sdss.SDSS.get_images(run=1904, camcol=3, field=164)
+        assert len(downloaded_files) == 1
 
     def test_sdss_image_coord(self):
-        sdss.SDSS.get_images(coordinates=self.coords)
+        downloaded_files = sdss.SDSS.get_images(coordinates=self.coords)
+        assert len(downloaded_files) == 1
 
     def test_sdss_specobj(self):
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
@@ -157,17 +183,13 @@ class TestSDSSRemote:
                 else:
                     assert xid[i][c] == row[c]
 
-    @pytest.mark.xfail(reason=("Timeout isn't raised since switching to "
-                               "self._request, fix it before merging #586"))
     def test_query_timeout(self):
-        with pytest.raises(TimeoutError):
-            sdss.SDSS.query_region(self.coords, timeout=self.mintimeout)
+        with pytest.raises(Timeout):
+            sdss.SDSS.query_region(self.coords, width=2.0 * u.arcsec, cache=False, timeout=self.mintimeout)
 
-    @pytest.mark.xfail(reason=("Timeout isn't raised since switching to "
-                               "self._request, fix it before merging #586"))
     def test_spectra_timeout(self):
-        with pytest.raises(TimeoutError):
-            sdss.SDSS.get_spectra(coordinates=self.coords, timeout=self.mintimeout)
+        with pytest.raises(Timeout):
+            sdss.SDSS.get_spectra(coordinates=self.coords, cache=False, timeout=self.mintimeout)
 
     def test_query_non_default_field(self):
         # A regression test for #469

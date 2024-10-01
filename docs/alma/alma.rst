@@ -211,7 +211,7 @@ One can also query by keyword, spatial resolution, etc:
     ...                "AND science_observation='T'")  # doctest: +IGNORE_OUTPUT
 
 
-Use the ''help_tap'' method to learn about the ALMA 'ObsCore' keywords and
+Use the ``help_tap`` method to learn about the ALMA 'ObsCore' keywords and
 their types.
 
 .. doctest-remote-data::
@@ -292,6 +292,65 @@ their types.
       target_name          char(256*)                 name of intended target
       type                 char(16*)                  Type flags.
       velocity_resolution  double          m/s        Estimated velocity resolution from all the spectral windows, from frequency resolution.
+
+
+Query Results
+=============
+
+Results of queries are returned in tabular format. For convenience,
+the `~astroquery.alma.get_enhanced_table` function can be used to have the initial result
+in a more useful format, i.e., turn values into quantities, footprint into
+shape, etc. (Note: this require the `regions` Python package to be installed.
+
+
+.. doctest-remote-data::
+
+    >>> from astroquery.alma import Alma, get_enhanced_table
+    >>> alma = Alma()
+    >>> alma.archive_url = 'https://almascience.eso.org'  # optional to make doctest work
+    >>> res = alma.query_tap("select top 1 * from ivoa.ObsCore where obs_publisher_did='ADS/JAO.ALMA#2011.0.00087.S'")
+    >>> enhanced_res = get_enhanced_table(res)
+    >>> enhanced_res[0]['s_ra']
+        <MaskedQuantity 86.82119735 deg>
+    >>> enhanced_res[0]['s_region']
+        <PolygonSkyRegion(vertices=<SkyCoord (ICRS): (ra, dec) in deg
+        [(86.823884, -51.067761), (86.820804, -51.069956),
+         (86.818262, -51.069702), (86.81656 , -51.068489),
+         (86.816655, -51.066594), (86.820904, -51.063002),
+         (86.823701, -51.063002), (86.825834, -51.064343),
+         (86.825915, -51.065959)]>)>
+
+To further draw the footprint:
+
+.. doctest-skip::
+
+    >>> from astropy import wcs
+    >>> import matplotlib.pyplot as plt
+    >>> # Create a WCS; for plotting, all that matters is that it is centered on our target region
+    >>> ww = wcs.WCS(naxis=2)
+    >>> ww.wcs.crpix = [250.0, 250.0]
+    >>> ww.wcs.cdelt = [-7.500000005754e-05, 7.500000005754e-05]
+    >>> ww.wcs.ctype = ['RA---SIN', 'DEC--SIN']
+    >>> ww.wcs.crval = [enhanced_res[0]['s_ra'].value, enhanced_res[0]['s_dec'].value]
+    >>> pix_region = enhanced_res[0]['s_region'].to_pixel(ww)
+    >>> artist = pix_region.as_artist()
+    >>> axes = plt.subplot(projection=ww)
+    >>> axes.set_aspect('equal')
+    >>> axes.add_artist(artist)
+    >>> axes.axis(pix_region.bounding_box.extent)
+    >>> pix_region.plot()
+    >>> plt.show()
+
+
+.. image:: footprint.png
+   :align: center
+   :scale: 75%
+   :alt: observation footprint
+
+
+The above footprint could be transformed into a pixel region and have the mask
+extracted or combined with other regions. Refer to the Astropy affiliated
+''regions'' package for more details.
 
 
 Downloading Data

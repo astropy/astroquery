@@ -1027,17 +1027,38 @@ class ESAHubbleClass(BaseQuery):
         if job is None:
             return None
 
+        query2 = f"select observation_id from ehst.artifact where file_name = '{filename}'"
+        job2 = self.query_tap(query=query2)
+        if job2 is None:
+            return None
+
+        observation_id = job2["observation_id"][0]
+        query3 = f"select instrument_name from ehst.observation where observation_id = '{observation_id}'"
+        job3 = self.query_tap(query=query3)
+        if job3 is None:
+            return None
+
+        instrument_name = job3["instrument_name"][0]
+
         # Output example for path: /hstdata/hstdata_i/i/b4x/04, or hstdata_i/i/b4x/04 for path_parsed
         path = self._get_decoded_string(string=job["file_path"][0])
         path_parsed = path.split("hstdata/", 1)[1]
 
         # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
         if default_volume is None:
-            return "/data/user/hub_" + path_parsed + "/" + filename
+            full_path = "/data/user/hub_" + path_parsed + "/" + filename
+            file_exists = os.path.exists(full_path)
 
         # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
-        path_parsed = path_parsed.split("/", 1)[1]
-        return "/data/user/" + default_volume + "/" + path_parsed + "/" + filename
+        else:
+            path_parsed = path_parsed.split("/", 1)[1]
+            full_path = "/data/user/" + default_volume + "/" + path_parsed + "/" + filename
+            file_exists = os.path.exists(full_path)
+
+        if not file_exists:
+            warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
+                          "volume is mounted in your ESA Datalabs instance.")
+        return full_path
 
 
 ESAHubble = ESAHubbleClass()

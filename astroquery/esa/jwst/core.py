@@ -571,9 +571,12 @@ class JwstClass(BaseQuery):
         if target_resolver == "ALL" or target_resolver == "SIMBAD":
             try:
                 result_table = Simbad.query_object(target_name)
-                return SkyCoord((f'{result_table["RA"][0]} '
-                                 f'{result_table["DEC"][0]}'),
-                                unit=(units.hourangle,
+                # new simbad behavior does not return None but an empty table
+                if len(result_table) == 0:
+                    result_table = None
+                return SkyCoord((f'{result_table["ra"][0]} '
+                                 f'{result_table["dec"][0]}'),
+                                unit=(units.deg,
                                       units.deg), frame="icrs")
             except (KeyError, TypeError, ConnectionError):
                 log.info("SIMBAD could not resolve this target")
@@ -965,10 +968,11 @@ class JwstClass(BaseQuery):
             composite products based on level 2 products). To request upper
             levels, please use get_related_observations functions first.
             Possible values: 'ALL', 3, 2, 1, -1
-        product_type : str, optional, default None
-            List only products of the given type. If None, all products are \
-            listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
-            'science'.
+        product_type : str or list, optional, default None
+            If the string or at least one element of the list is empty, the value is replaced by None.
+            With None, all products will be downloaded.
+            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Posible list values: any combination of string values.
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -978,6 +982,8 @@ class JwstClass(BaseQuery):
             Returns the local path where the product(s) are saved.
         """
 
+        if (isinstance(product_type, list) and '' in product_type) or not product_type:
+            product_type = None
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
@@ -994,10 +1000,16 @@ class JwstClass(BaseQuery):
                                                 max_cal_level=max_cal_level,
                                                 is_url=True)
         params_dict['planeid'] = plane_ids
+
+        if type(product_type) is list:
+            tap_product_type = ",".join(str(elem) for elem in product_type)
+        else:
+            tap_product_type = product_type
+
         self.__set_additional_parameters(param_dict=params_dict,
                                          cal_level=cal_level,
                                          max_cal_level=max_cal_level,
-                                         product_type=product_type)
+                                         product_type=tap_product_type)
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file,
                                                             observation_id=observation_id)
         # Get file name only
@@ -1022,6 +1034,40 @@ class JwstClass(BaseQuery):
                                  files=files)
 
         return files
+
+    def download_files_from_program(self, proposal_id, *, product_type=None, verbose=False):
+        """Get JWST products given its proposal ID.
+
+        Parameters
+        ----------
+        proposal_id : int, mandatory
+            Program or Proposal ID associated to the observations.
+        product_type : str or list, optional, default None
+            If the string or at least one element of the list is empty,
+            the value is replaced by None.
+            With None, all products will be downloaded.
+            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Posible list values: any combination of string values.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        allobs : list
+            Returns the observationsid included into the proposal_id.
+        """
+
+        query = (f"SELECT observationid "
+                 f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
+                 f"WHERE proposal_id='{str(proposal_id)}'")
+        if verbose:
+            print(query)
+        job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
+        allobs = set(JwstClass.get_decoded_string(job.get_results()['observationid']))
+        for oid in allobs:
+            log.info(f"Downloading products for Observation ID: {oid}")
+            self.get_obs_products(observation_id=oid, product_type=product_type)
+        return list(allobs)
 
     def __check_file_number(self, output_dir, output_file_name,
                             output_file_full_path, files):

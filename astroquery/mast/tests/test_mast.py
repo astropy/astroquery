@@ -119,7 +119,7 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
             filename = data_path(DATA_FILES['z_survey'])
         else:
             filename = data_path(DATA_FILES['z_cutout_fit'])
-    elif use_json and data['radius'] == 5:
+    elif use_json and data['radius'] == 300:
         filename = data_path(DATA_FILES["mission_incorrect_results"])
     elif use_json:
         filename = data_path(DATA_FILES["mission_search_results"])
@@ -496,9 +496,17 @@ def test_observations_download_products(patch_post, tmpdir):
                                                  mrp_only=False)
     assert isinstance(result, Table)
 
+    # without console output
+    result = mast.Observations.download_products('2003738726',
+                                                 download_dir=str(tmpdir),
+                                                 productType=["SCIENCE"],
+                                                 verbose=False)
+    assert isinstance(result, Table)
+
     # passing row product
     products = mast.Observations.get_product_list('2003738726')
-    result1 = mast.Observations.download_products(products[0])
+    result1 = mast.Observations.download_products(products[0],
+                                                  download_dir=str(tmpdir))
     assert isinstance(result1, Table)
 
 

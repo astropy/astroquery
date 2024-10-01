@@ -143,7 +143,7 @@ def test_download(monkeypatch, tmp_path):
     assert downloaded_files[0] == filename
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="gunzip not available on Windows")
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="gunzip not available on Windows")
 def test_unzip(tmp_path):
     eso = Eso()
     filename = os.path.join(DATA_DIR, 'testfile.fits.Z')

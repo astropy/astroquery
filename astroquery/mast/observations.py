@@ -6,9 +6,11 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
+from pathlib import Path
 import warnings
 import time
 import os
+from urllib.parse import quote
 
 import numpy as np
 
@@ -406,12 +408,56 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request(service, params)[0][0].astype(int)
 
+    def _filter_ffi_observations(self, observations):
+        """
+        Given a `~astropy.table.Row` or `~astropy.table.Table` of observations, filter out full-frame images (FFIs)
+        from TESS and TICA. If any observations are filtered, warn the user.
+
+        Parameters
+        ----------
+        observations : `~astropy.table.Row` or `~astropy.table.Table`
+            Row/Table of MAST query results (e.g. output from `query_object`)
+
+        Returns
+        -------
+        filtered_obs_table : filtered observations Table
+        """
+        obs_table = Table(observations)
+        tess_ffis = obs_table[obs_table['target_name'] == 'TESS FFI']['obs_id']
+        tica_ffis = obs_table[obs_table['target_name'] == 'TICA FFI']['obs_id']
+
+        if tess_ffis.size:
+            # Warn user if TESS FFIs exist
+            log.warning("Because of their large size, Astroquery should not be used to "
+                        "download TESS FFI products.\n"
+                        "If you are looking for TESS image data for a specific target, "
+                        "please use TESScut at https://mast.stsci.edu/tesscut/.\n"
+                        "If you need a TESS image for an entire field, please see our "
+                        "dedicated page for downloading larger quantities of TESS data at \n"
+                        "https://archive.stsci.edu/tess/. Data products will not be fetched "
+                        "for the following observations IDs: \n" + "\n".join(tess_ffis))
+
+        if tica_ffis.size:
+            # Warn user if TICA FFIs exist
+            log.warning("Because of their large size, Astroquery should not be used to "
+                        "download TICA FFI products.\n"
+                        "Please see our dedicated page for downloading larger quantities of "
+                        "TICA data: https://archive.stsci.edu/hlsp/tica.\n"
+                        "Data products will not be fetched for the following "
+                        "observation IDs: \n" + "\n".join(tica_ffis))
+
+        # Filter out FFIs with a mask
+        mask = (obs_table['target_name'] != 'TESS FFI') & (obs_table['target_name'] != 'TICA FFI')
+        return obs_table[mask]
+
     @class_or_instance
     def get_product_list_async(self, observations):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
         Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
         an error. See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+
+        To return unique data products, use ``Observations.get_unique_product_list``.
 
         Parameters
         ----------
@@ -422,15 +468,16 @@ class ObservationsClass(MastQueryWithLogin):
 
         Returns
         -------
-            response : list of `~requests.Response`
+        response : list of `~requests.Response`
         """
 
         # getting the obsid list
-        if isinstance(observations, Row):
-            observations = observations["obsid"]
         if np.isscalar(observations):
             observations = np.array([observations])
-        if isinstance(observations, Table):
+        if isinstance(observations, Table) or isinstance(observations, Row):
+            # Filter out TESS FFIs and TICA FFIs
+            # Can only perform filtering on Row or Table because of access to `target_name` field
+            observations = self._filter_ffi_observations(observations)
             observations = observations['obsid']
         if isinstance(observations, list):
             observations = np.array(observations)
@@ -499,7 +546,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[np.where(filter_mask)]
 
-    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False, verbose=True):
         """
         Downloads a single file based on the data URI
 
@@ -508,7 +555,7 @@ class ObservationsClass(MastQueryWithLogin):
         uri : str
             The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
         local_path : str
-            Directory in which the files will be downloaded.  Defaults to current working directory.
+            Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         base_url: str
             A base url to use when downloading.  Default is the MAST Portal API
         cache : bool
@@ -517,6 +564,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -531,11 +580,18 @@ class ObservationsClass(MastQueryWithLogin):
         # create the full data URL
         base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = base_url + "?uri=" + uri
+        escaped_url = base_url + "?uri=" + quote(uri, safe=":/")
 
-        # create a local file path if none is input.  Use current directory as default.
-        if not local_path:
-            filename = os.path.basename(uri)
-            local_path = os.path.join(os.path.abspath('.'), filename)
+        # parse a local file path from local_path parameter.  Use current directory as default.
+        filename = os.path.basename(uri)
+        if not local_path:  # local file path is not defined
+            local_path = filename
+        else:
+            path = Path(local_path)
+            if not path.suffix:  # local_path is a directory
+                local_path = path / filename  # append filename
+                if not path.exists():  # create directory if it doesn't exist
+                    path.mkdir(parents=True, exist_ok=True)
 
         # recreate the data_product key for cloud connection check
         data_product = {'dataURI': uri}
@@ -547,7 +603,7 @@ class ObservationsClass(MastQueryWithLogin):
         try:
             if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
                 try:
-                    self._cloud_connection.download_file(data_product, local_path, cache)
+                    self._cloud_connection.download_file(data_product, local_path, cache, verbose)
                 except Exception as ex:
                     log.exception("Error pulling from S3 bucket: {}".format(ex))
                     if cloud_only:
@@ -556,11 +612,13 @@ class ObservationsClass(MastQueryWithLogin):
                         status = "SKIPPED"
                     else:
                         log.warning("Falling back to mast download...")
-                        self._download_file(data_url, local_path,
-                                            cache=cache, head_safe=True, continuation=False)
+                        self._download_file(escaped_url, local_path,
+                                            cache=cache, head_safe=True, continuation=False,
+                                            verbose=verbose)
             else:
-                self._download_file(data_url, local_path,
-                                    cache=cache, head_safe=True, continuation=False)
+                self._download_file(escaped_url, local_path,
+                                    cache=cache, head_safe=True, continuation=False,
+                                    verbose=verbose)
 
             # check if file exists also this is where would perform md5,
             # and also check the filesize if the database reliably reported file sizes
@@ -576,7 +634,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
@@ -595,6 +653,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -615,7 +675,7 @@ class ObservationsClass(MastQueryWithLogin):
 
             # download the files
             status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
-                                                  cache=cache, cloud_only=cloud_only)
+                                                  cache=cache, cloud_only=cloud_only, verbose=verbose)
 
             manifest_array.append([local_path, status, msg, url])
 
@@ -623,7 +683,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def _download_curl_script(self, products, out_dir):
+    def _download_curl_script(self, products, out_dir, verbose=True):
         """
         Takes an `~astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
 
@@ -633,6 +693,8 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products to be included in the curl script.
         out_dir : str
             Directory in which the curl script will be saved.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
 
         Returns
         -------
@@ -644,7 +706,7 @@ class ObservationsClass(MastQueryWithLogin):
         local_path = os.path.join(out_dir, download_file)
 
         self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
-                            local_path, data=url_list, method="POST")
+                            local_path, data=url_list, method="POST", verbose=verbose)
 
         status = "COMPLETE"
         msg = None
@@ -659,7 +721,8 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def download_products(self, products, *, download_dir=None, flat=False,
-                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
+                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, verbose=True,
+                          **filters):
         """
         Download data products.
         If cloud access is enabled, files will be downloaded from the cloud if possible.
@@ -691,6 +754,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
         **filters :
             Filters to be applied.  Valid filters are all products fields returned by
             ``get_metadata("products")`` and 'extension' which is the desired file extension.
@@ -722,11 +787,11 @@ class ObservationsClass(MastQueryWithLogin):
 
             products = vstack(product_lists)
 
-        # Remove duplicate products
-        products = self._remove_duplicate_products(products)
-
         # apply filters
         products = self.filter_products(products, mrp_only=mrp_only, **filters)
+
+        # remove duplicate products
+        products = self._remove_duplicate_products(products)
 
         if not len(products):
             warnings.warn("No products to download.", NoResultsWarning)
@@ -751,30 +816,61 @@ class ObservationsClass(MastQueryWithLogin):
             manifest = self._download_files(products,
                                             base_dir=base_dir, flat=flat,
                                             cache=cache,
-                                            cloud_only=cloud_only)
+                                            cloud_only=cloud_only,
+                                            verbose=verbose)
 
         return manifest
 
-    def get_cloud_uris(self, data_products, *, include_bucket=True, full_url=False):
+    def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
+                       mrp_only=False, extension=None, filter_products={}, **criteria):
         """
-        Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
+        Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
+        returns the associated cloud data URIs.
 
         Parameters
         ----------
         data_products : `~astropy.table.Table`
-            Table containing products to be converted into cloud data uris.
+            Table containing products to be converted into cloud data uris. If provided, this will supercede
+            page_size, page, or any keyword arguments passed in as criteria.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the
+            Default True. When False, returns the path of the file relative to the
             top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
             Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
+        pagesize : int, optional
+            Default None. Can be used to override the default pagesize when making a query.
+            E.g. when using a slow internet connection. Query criteria must also be provided.
+        page : int, optional
+            Default None. Can be used to override the default behavior of all results being returned for a query
+            to obtain one specific page of results. Query criteria must also be provided.
+        mrp_only : bool, optional
+            Default False. When set to True, only "Minimum Recommended Products" will be returned.
+        extension : string or array, optional
+            Default None. Option to filter by file extension.
+        filter_products : dict, optional
+            Filters to be applied to data products.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name as a string is the key. The corresponding value is one
+            or more acceptable values for that parameter.
+            Filter behavior is AND between the filters and OR within a filter set.
+            For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        **criteria
+            Criteria to apply. At least one non-positional criteria must be supplied.
+            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            and all observation fields returned by the ``get_metadata("observations")``.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
 
         Returns
         -------
         response : list
-            List of URIs generated from the data products, list way contain entries that are None
+            List of URIs generated from the data products. May contain entries that are None
             if data_products includes products not found in the cloud.
         """
 
@@ -782,6 +878,29 @@ class ObservationsClass(MastQueryWithLogin):
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
                 'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+
+        if data_products is None:
+            if not criteria:
+                raise InvalidQueryError(
+                    'Please provide either a `~astropy.table.Table` of data products or query criteria.'
+                )
+            else:
+                # Get table of observations based on query criteria
+                obs = self.query_criteria(pagesize=pagesize, page=page, **criteria)
+
+                if not len(obs):
+                    # Warning raised by ~astroquery.mast.ObservationsClass.query_criteria
+                    return
+
+                # Return list of associated data products
+                data_products = self.get_product_list(obs)
+
+        # Filter product list
+        data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension, **filter_products)
+
+        if not len(data_products):
+            warnings.warn("No matching products to fetch associated cloud URIs.", NoResultsWarning)
+            return
 
         # Remove duplicate products
         data_products = self._remove_duplicate_products(data_products)
@@ -842,8 +961,32 @@ class ObservationsClass(MastQueryWithLogin):
         number_unique = len(unique_products)
         if number_unique < number:
             log.info(f"{number - number_unique} of {number} products were duplicates. "
-                     f"Only downloading {number_unique} unique product(s).")
+                     f"Only returning {number_unique} unique product(s).")
 
+        return unique_products
+
+    def get_unique_product_list(self, observations):
+        """
+        Given a "Product Group Id" (column name obsid), returns a list of associated data products with
+        unique dataURIs. Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
+        an error. See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+
+        Parameters
+        ----------
+        observations : str or `~astropy.table.Row` or list/Table of same
+            Row/Table of MAST query results (e.g. output from `query_object`)
+            or single/list of MAST Product Group Id(s) (obsid).
+            See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+
+        Returns
+        -------
+        unique_products : `~astropy.table.Table`
+            Table containing products with unique dataURIs.
+        """
+        products = self.get_product_list(observations)
+        unique_products = self._remove_duplicate_products(products)
+        if len(unique_products) < len(products):
+            log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
 
 

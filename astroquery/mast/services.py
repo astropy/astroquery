@@ -12,6 +12,7 @@ import warnings
 import numpy as np
 
 from astropy.table import Table, MaskedColumn
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -222,7 +223,8 @@ class ServiceAPI(BaseQuery):
         return result_table
 
     @class_or_instance
-    def service_request_async(self, service, params, page_size=None, page=None, use_json=False, **kwargs):
+    @deprecated_renamed_argument('page_size', 'pagesize', since='0.4.8')
+    def service_request_async(self, service, params, pagesize=None, page=None, use_json=False, **kwargs):
         """
         Given a MAST fabric service and parameters, builds and executes a fabric microservice catalog query.
         See documentation `here <https://catalogs.mast.stsci.edu/docs/index.html>`__
@@ -234,7 +236,7 @@ class ServiceAPI(BaseQuery):
            The MAST catalogs service to query. Should be present in self.SERVICES
         params : dict
            JSON object containing service parameters.
-        page_size : int, optional
+        pagesize : int, optional
            Default None.
            Can be used to override the default pagesize (set in configs) for this query only.
            E.g. when using a slow internet connection.
@@ -273,13 +275,13 @@ class ServiceAPI(BaseQuery):
         catalogs_request = []
         if not page:
             page = params.pop('page', None)
-        if not page_size:
-            page_size = params.pop('page_size', None)
+        if not pagesize:
+            pagesize = params.pop('pagesize', None)
 
         if page is not None:
             catalogs_request.append(('page', page))
-        if page_size is not None:
-            catalogs_request.append(('pagesize', page_size))
+        if pagesize is not None:
+            catalogs_request.append(('pagesize', pagesize))
 
         if not use_json:
             # Decompose filters, sort
@@ -331,7 +333,7 @@ class ServiceAPI(BaseQuery):
             if prop == 'format':
                 # Ignore format changes
                 continue
-            elif prop == 'page_size':
+            elif prop == 'pagesize':
                 catalog_params.extend(('pagesize', value))
             elif prop == 'sort_by':
                 # Loop through each value if list

@@ -8,15 +8,69 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+astrometry_net
+^^^^^^^^^^^^^^
+
+- Remove photutils from Astroquery astrometry.net [#3067]
+
+- Reduce the number of API calls when polling for job status [#3079]
+
+alma
+^^^^
+
+- Added method to return quantities instead of values and regions footprint in alma [#2855]
+
+- Added support for frequency_resolution in KHz [#3035]
+
+ehst
+^^^^
+
+- Include warning in get_datalabs_path method for ehst when the data volume is not mounted in DataLabs [#3059]
+
+gama
+^^^^
+
+- Change URL to https and thus making the module functional again. [#3056]
+
+esa.jwst
+^^^^^^^^
+
+- get_obs_products method supports product_type parameter as string or list [#2995]
+
+- Add download_files_from_program method to get all products by program id [#3073]
+
 mpc
 ^^^
 
 - Parse star catalog information when querying observations database [#2957]
 
+- Parse ephemeris with sky motion with three digit precision [#3026]
+
+- Raise EmptyResponseError when empty ephemeris response is returned [#3026]
+
+- Deprecate ``get_raw_response`` parameter from ``MPC.get_observations``. The
+  raw response may be retrieved from the _async() method. [#3089]
+
+- Remove ``get_raw_response`` parameter from ``MPC.get_ephemeris`` and
+  ``MPC.get_observatory_codes`` without deprecation as the parameters were
+  ignored and had no effect. [#3089]
+
+- Fix bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter
+  to be ignored. [#3089]
+
+- Remove ``comettype`` parameter from ``MPC.get_observations`` without
+  deprecation: it was undocumented, ignored, and had no effect.  [#3089]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
 - Fix result parsing incompatibility with astropy 6.1 on Windows systems. [#3008]
+
+ogle
+^^^^
+
+- Change URL to https and thus making the module functional again. [#3048]
+
 
 splatalogue
 ^^^^^^^^^^^
@@ -29,12 +83,67 @@ vizier
 - Change the type of raised error when the catalog is not found in ``Vizier.get_catalog_metadata``
   from ``IndexError`` to ``EmptyResponseError`` [#2980]
 
+sdss
+^^^^
+
+- Support new SDSS-V DR18 access URLs. [#3017]
+
+simbad
+^^^^^^
+
+- The ``ROW_LIMIT`` value to have the maximum number of rows is now -1.
+  Use ``ROW_LIMIT = 0`` to retrieve the output's meta-data. [#2954]
+
+- ``ROW_LIMIT`` can now be set at instantiation
+  (e.g.: ``simbad = Simbad(ROW_LIMIT=10))``). [#2954]
+
+- ``list_votable_fields`` now return an astropy Table with added fields
+  information instead of a list of strings. [#2954]
+
+- ``list_votable_fields`` is now queried directly from SIMBAD instead of reading
+  a file in astroquery. This prevents it from being outdated. [#2954]
+
+- ``get_votable_fields`` now prints the table name and column name instead of
+  just the column name. [#2954]
+
+- The ``verbose`` and ``cache`` kwargs have been deprecated from all methods
+  as they have no effect with with the new query interface. [#2954]
+
+- ``get_adql`` is deprecated and replaced by ``get_query_payload`` in
+  ``list_columns`` and ``list_table``.
+  The payload output contains the ADQL under the ``QUERY`` key. [#2954]
+
+- all query methods except ``query_tap`` and ``query_criteria`` now accept a
+  ``criteria`` argument to restrict the results with custom criteria. [#2954]
+
+- ``query_objects`` outputs now have an additional column ``user_specified_id``
+  containing the objects' name as specified by the user.
+  The ``votable_field`` option ``typed_id`` is removed. [#2954]
+
+- The ``equinox`` and ``epoch`` kwargs are deprecated in ``query_region``,
+  use astropy.coordinates.SkyCoord directly instead. [#2954]
+
+- ``query_bibcode`` has a new option ``abstract`` that allows to also
+  retrieve the article's abstract. [#2954]
+
+- ``query_bibcode`` output is now in an astropy Table with distinct columns
+  instead of a single one in which all the information was a string. [#2954]
+
+- ``query_criteria`` is now deprecated and should be replaced by either custom
+  TAP queries or by the ``criteria`` argument added in the other query methods.
+  A helper method was added ``astroquery.simbad.utils.CriteriaTranslator`` to
+  translate between the sim-script syntax and the TAP/ADQL syntax. [#2954]
 
 skyview
 ^^^^^^^
 
 - Overlay arguments ``lut``, ``grid``, and ``gridlabel`` are removed, as they
   only apply to output types not returned by Astroquery [#2979]
+
+vsa
+^^^
+
+- Updating base URL to fix 404 responses. [#3033]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -45,6 +154,8 @@ Infrastructure, Utility and Other Changes and Additions
 - Versions of Python <3.9 are no longer supported. [#2966]
 
 - Versions of PyVO <1.5 are no longer supported. [#3002]
+
+- Dropped ``setuptools`` as a runtime dependency. [#3071]
 
 utils.tap
 ^^^^^^^^^
@@ -72,10 +183,44 @@ gaia
   saved, is replaced by boolean parameter dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
   all the DataLink files is made. So the users cannot specified the output file anymore  [#3014]
 
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
+
+
 jplhorizons
 ^^^^^^^^^^^
 
 - Add missing column definitions, especially for ``refraction=True`` and ``extra_precision=True``. [#2986]
+
+mast
+^^^^
+
+- Fix bug in which the ``local_path`` parameter for the ``mast.observations.download_file`` method does not accept a directory. [#3016]
+
+- Optimize remote test suite to improve performance and reduce execution time. [#3036]
+
+- Add ``verbose`` parameter to modulate output in ``mast.observations.download_products`` method. [#3031]
+
+- Fix bug in ``Catalogs.query_criteria()`` to use ``page`` and ``pagesize`` parameters correctly. [#3065]
+
+- Modify ``mast.Observations.get_cloud_uris`` to also accept query criteria and data product filters. [#3064]
+
+- Increased the speed of ``mast.Observations.get_cloud_uris`` by obtaining multiple
+  URIs from MAST at once. [#3064]
+
+- Present users with an error rather than a warning when nonexistent query criteria are used in ``mast.Observations.query_criteria``
+  and ``mast.Catalogs.query_criteria``. [#3084]
+
+- Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and 
+  ``mast.Catalogs.query_criteria``. [#3087]
+
+- Added function ``mast.Observations.get_unique_product_list`` to return the unique data products associated with
+  given observations. [#3096]
+
+mpc
+^^^
+
+- Rename ``MPC.get_mpc_object_endpoint`` to ``MPC._get_mpc_object_endpoint`` to
+  indicate that it is a private method. [#3089]
 
 
 0.4.7 (2024-03-08)

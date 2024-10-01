@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 6.1.0
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <TABLE ID="result_S1719407661907" name="result_S1719407661907">
+   <FIELD ID="name" arraysize="*" datatype="char" name="name" ucd="instr.filter">
+    <DESCRIPTION>
+     flux filter name
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="description" arraysize="*" datatype="unicodeChar" name="description" ucd="meta.note;instr.filter">
+    <DESCRIPTION>
+     flux filter description
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="type" arraysize="*" datatype="unicodeChar" name="type"/>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>mesDiameter</TD>
+      <TD>Collection of stellar diameters.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesPM</TD>
+      <TD>Collection of proper motions.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesISO</TD>
+      <TD>Infrared Space Observatory (ISO) observing log.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesSpT</TD>
+      <TD>Collection of spectral types.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>allfluxes</TD>
+      <TD>all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>ident</TD>
+      <TD>Identifiers of an astronomical object</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>flux</TD>
+      <TD>Magnitude/Flux information about an astronomical object</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesPLX</TD>
+      <TD>Collection of trigonometric parallaxes.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>otypedef</TD>
+      <TD>all names and definitions for the object types</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesDistance</TD>
+      <TD>Collection of distances (pc, kpc or Mpc) by several means.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>otypes</TD>
+      <TD>List of all object types associated with an object</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesVar</TD>
+      <TD>Collection of stellar variability types and periods.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesXmm</TD>
+      <TD>XMM observing log.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesVelocities</TD>
+      <TD>Collection of HRV, Vlsr, cz and redshifts.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>has_ref</TD>
+      <TD>Associations between astronomical objects and their bibliographic references</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesRot</TD>
+      <TD>Stellar Rotational Velocities.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>biblio</TD>
+      <TD>Bibliography</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>ids</TD>
+      <TD>all names concatenated with pipe</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesHerschel</TD>
+      <TD>The Herschel observing Log</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesIUE</TD>
+      <TD>International Ultraviolet Explorer observing log.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>mesFe_h</TD>
+      <TD>Collection of metallicity, as well as Teff, logg for stars.</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>alltypes</TD>
+      <TD>all object types concatenated with pipe</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>basic</TD>
+      <TD>General data about an astronomical object</TD>
+      <TD>table</TD>
+     </TR>
+     <TR>
+      <TD>dec</TD>
+      <TD>Declination</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>main_id</TD>
+      <TD>Main identifier for an object</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>otype_txt</TD>
+      <TD>Object type</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>ra</TD>
+      <TD>Right ascension</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_bibcode</TD>
+      <TD>Coordinate reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_err_angle</TD>
+      <TD>Coordinate error angle</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_err_maj</TD>
+      <TD>Coordinate error major axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_err_maj_prec</TD>
+      <TD>Coordinate error major axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_err_min</TD>
+      <TD>Coordinate error minor axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_err_min_prec</TD>
+      <TD>Coordinate error minor axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_qual</TD>
+      <TD>Coordinate quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coo_wavelength</TD>
+      <TD>Wavelength class for the origin of the coordinates (R,I,V,U,X,G)</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>dec_prec</TD>
+      <TD>Declination precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_angle</TD>
+      <TD>Galaxy ellipse angle</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_bibcode</TD>
+      <TD>Galaxy dimension reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_majaxis</TD>
+      <TD>Angular size major axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_majaxis_prec</TD>
+      <TD>Angular size major axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_minaxis</TD>
+      <TD>Angular size minor axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_minaxis_prec</TD>
+      <TD>Angular size minor axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_qual</TD>
+      <TD>Galaxy dimension quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>galdim_wavelength</TD>
+      <TD>Wavelength class for the origin of the Galaxy dimension</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>hpx</TD>
+      <TD>Healpix number at ORDER=10</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>morph_bibcode</TD>
+      <TD>morphological type reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>morph_qual</TD>
+      <TD>Morphological type quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>morph_type</TD>
+      <TD>Morphological type</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>nbref</TD>
+      <TD>number of references</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>oid</TD>
+      <TD>Object internal identifier</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>otype</TD>
+      <TD>Object type</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_bibcode</TD>
+      <TD>Parallax reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_err</TD>
+      <TD>Parallax error</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_err_prec</TD>
+      <TD>Parallax error precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_prec</TD>
+      <TD>Parallax precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_qual</TD>
+      <TD>Parallax quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>plx_value</TD>
+      <TD>Parallax</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_bibcode</TD>
+      <TD>Proper motion reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_err_angle</TD>
+      <TD>Proper motion error angle</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_err_maj</TD>
+      <TD>Proper motion error major axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_err_maj_prec</TD>
+      <TD>Proper motion error major axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_err_min</TD>
+      <TD>Proper motion error minor axis</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_err_min_prec</TD>
+      <TD>Proper motion error minor axis precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pm_qual</TD>
+      <TD>Proper motion quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pmdec</TD>
+      <TD>Proper motion in DEC</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pmdec_prec</TD>
+      <TD>Proper motion in DEC precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pmra</TD>
+      <TD>Proper motion in RA</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>pmra_prec</TD>
+      <TD>Proper motion in RA precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>ra_prec</TD>
+      <TD>Right ascension precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_bibcode</TD>
+      <TD>Radial velocity / redshift reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_err</TD>
+      <TD>Radial velocity / redshift error</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_err_prec</TD>
+      <TD>Radial velocity / redshift error precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_nature</TD>
+      <TD>velocity / redshift nature</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_qual</TD>
+      <TD>Radial velocity / redshift quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_radvel</TD>
+      <TD>Radial Velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_radvel_prec</TD>
+      <TD>Radial velocity precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_redshift</TD>
+      <TD>redshift</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_redshift_prec</TD>
+      <TD>redshift precision</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_type</TD>
+      <TD>Radial velocity / redshift type</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>rvz_wavelength</TD>
+      <TD>Wavelength class for the origin of the radial velocity/reshift</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>sp_bibcode</TD>
+      <TD>spectral type reference</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>sp_qual</TD>
+      <TD>Spectral type quality</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>sp_type</TD>
+      <TD>MK spectral type</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>update_date</TD>
+      <TD>Date of last modification</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr</TD>
+      <TD>velocity in Local Standard of Rest reference frame</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr_bibcode</TD>
+      <TD>Reference for the origin of the LSR velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr_err</TD>
+      <TD>Error incertainty of the VLSR velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr_max</TD>
+      <TD>Maximum for the mean value of the LSR velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr_min</TD>
+      <TD>Minimum for the mean value of the LSR velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>vlsr_wavelength</TD>
+      <TD>Wavelength class for the origin of the LSR velocity</TD>
+      <TD>column of basic</TD>
+     </TR>
+     <TR>
+      <TD>coordinates</TD>
+      <TD>all fields related with coordinates</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>dim</TD>
+      <TD>major and minor axis, angle and inclination</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>dimensions</TD>
+      <TD>all fields related to object dimensions</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>morphtype</TD>
+      <TD>all fields related to the morphological type</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>parallax</TD>
+      <TD>all fields related to parallaxes</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>propermotions</TD>
+      <TD>all fields related with the proper motions</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>sp</TD>
+      <TD>all fields related with the spectral type</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>velocity</TD>
+      <TD>all fields related with radial velocity and redshift</TD>
+      <TD>bundle of basic columns</TD>
+     </TR>
+     <TR>
+      <TD>U</TD>
+      <TD>Magnitude U</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>B</TD>
+      <TD>Magnitude B</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>V</TD>
+      <TD>Magnitude V</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>R</TD>
+      <TD>Magnitude R</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>I</TD>
+      <TD>Magnitude I</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>J</TD>
+      <TD>Magnitude J</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>H</TD>
+      <TD>Magnitude H</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>K</TD>
+      <TD>Magnitude K</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>u</TD>
+      <TD>Magnitude SDSS u</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>g</TD>
+      <TD>Magnitude SDSS g</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>r</TD>
+      <TD>Magnitude SDSS r</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>i</TD>
+      <TD>Magnitude SDSS i</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>z</TD>
+      <TD>Magnitude SDSS z</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>G</TD>
+      <TD>Magnitude Gaia G</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F150W</TD>
+      <TD>JWST NIRCam F150W</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F200W</TD>
+      <TD>JWST NIRCam F200W</TD>
+      <TD>filter name</TD>
+     </TR>
+     <TR>
+      <TD>F444W</TD>
+      <TD>JWST NIRCan F444W</TD>
+      <TD>filter name</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>

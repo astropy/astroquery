@@ -274,10 +274,10 @@ asteroid (433) Eros for a given date relative to the Sun:
    ...                epochs=2458133.33546)
    >>> el = obj.elements()
    >>> print(el)
-       targetname      datetime_jd  ...        Q                 P
-          ---               d       ...        AU                d
-   ------------------ ------------- ... ---------------- -----------------
-   433 Eros (A898 PA) 2458133.33546 ... 1.78244269692907 642.9387351308188
+       targetname      datetime_jd  ...        Q                P
+          ---               d       ...        AU               d
+   ------------------ ------------- ... ---------------- ----------------
+   433 Eros (A898 PA) 2458133.33546 ... 1.78244269692907 642.938735130819
 
 
 The following fields are queried:
@@ -461,7 +461,7 @@ in quadrature:
    >>> print(np.sqrt(eph['RA_rate']**2 + eph['DEC_rate']**2))
         dRA*cosD
    ------------------
-    86.18728612153883
+    86.18728068796985
    26.337249029653798
    21.520859656742434
    17.679843758686584
@@ -645,7 +645,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.jplhorizons import Horizons
     >>> Horizons.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

@@ -203,6 +203,10 @@ class BaseVOQuery:
 
         self.name = self.__class__.__name__.split("Class")[0]
 
+    def __call__(self, *args, **kwargs):
+        """ init a fresh copy of self """
+        return self.__class__(*args, **kwargs)
+
 
 class BaseQuery(metaclass=LoginABCMeta):
     """
@@ -386,7 +390,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
                        continuation=True, cache=False, method="GET",
-                       head_safe=False, **kwargs):
+                       head_safe=False, verbose=True, **kwargs):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
@@ -405,6 +409,8 @@ class BaseQuery(metaclass=LoginABCMeta):
             Cache downloaded file. Defaults to False.
         method : "GET" or "POST"
         head_safe : bool
+        verbose : bool
+            Whether to show download progress. Defaults to True.
         """
 
         if head_safe:
@@ -492,16 +498,21 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             progress_stream = io.StringIO()
 
-        with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
-                                  file=progress_stream) as pb:
+        if verbose:
+            with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
+                                      file=progress_stream) as pb:
+                with open(local_filepath, open_mode) as f:
+                    for block in response.iter_content(blocksize):
+                        f.write(block)
+                        bytes_read += len(block)
+                        if length is not None:
+                            pb.update(bytes_read if bytes_read <= length else length)
+                        else:
+                            pb.update(bytes_read)
+        else:
             with open(local_filepath, open_mode) as f:
-                for block in response.iter_content(blocksize):
-                    f.write(block)
-                    bytes_read += len(block)
-                    if length is not None:
-                        pb.update(bytes_read if bytes_read <= length else length)
-                    else:
-                        pb.update(bytes_read)
+                f.write(response.content)
+
         response.close()
         return response
 

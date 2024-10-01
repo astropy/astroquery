@@ -181,22 +181,23 @@ class GaiaClass(TapPlus):
             data release from which data should be taken. E.g. 'Gaia DR3'
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
-            it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
+            it can be 'INDIVIDUAL' or 'RAW':
             'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped
             in a single bundle, even if only one source/file is considered
-            'COMBINED' means products are provided in a single file concatenating the data of all sourceIds together.
-            How this is organised depends on the chosen format
             'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
-            particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single
-            file is provided for the data of all sourceIds together, but in this case there will be always be one
-            row per sourceId
+            particular that parameters stored as arrays will remain as such. A single file is provided for the data of
+            all sourceIds together, but in this case there will be always be one row per sourceId
         retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For GAIA DR3, possible values are ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT' or 'MCMC_MSC']
             For GAIA DR4, possible values will be ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
             'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RV_EPOCH_SINGLE', 'RV_EPOCH_DOUBLE', 'RVS_EPOCH' or
-            'RVS_TRANSIT']
+            'RVS_TRANSIT', 'EPOCH_ASTROMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD',
+            'XP_EPOCH_SPECTRUM_SSO', 'XP_EPOCH_CROWDING', 'XP_MEAN_SPECTRUM', 'XP_EPOCH_SPECTRUM',
+            'CROWDED_FIELD_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE' only the format 'fits' can be used,
+            and that its image, in the principal header, will not be available in the returned dictionary. Set
+            'output_file' to retrieve all data: image + tables.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id

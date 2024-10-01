@@ -1,0 +1,51 @@
+name: CI-online-crontests
+
+on:
+  push:
+    # Run this job on release tags, but not on pushes to the main branch
+    tags:
+    - '*'
+  schedule:
+    # run every Friday at 23:00 UTC
+    - cron: '0 23 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    if: github.repository == 'astropy/astroquery'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: py3.12 all dev deps online
+            os: ubuntu-latest
+            python: '3.12'
+            toxenv: py312-test-alldeps-devdeps-online
+            toxargs: -v
+            toxposargs: -v --durations=50
+
+          - name: Windows py3.9 all deps online
+            os: windows-latest
+            python: '3.9'
+            toxenv: py39-test-alldeps-online
+            toxargs: -v
+            toxposargs: -v --durations=50
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3  # v5.2.0
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install Python dependencies
+      run: python -m pip install --upgrade tox
+    - name: Run tests
+      run: tox ${{ matrix.toxargs }} -e ${{ matrix.toxenv }} -- ${{ matrix.toxposargs }}

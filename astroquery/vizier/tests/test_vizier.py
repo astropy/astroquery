@@ -55,7 +55,7 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
         filename = data_path(VO_DATA[datad['-source']])
     elif '-words' in datad:
         # a find_catalog request/only metadata
-        filename = data_path(VO_DATA['find_' + datad['-words']])
+        filename = data_path(VO_DATA['find_' + datad['-words'].split("&")[0]])
 
     with open(filename, 'rb') as infile:
         content = infile.read()

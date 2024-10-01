@@ -141,10 +141,10 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
-    MAIN_ID     RA        DEC    ...    COO_BIBCODE      SCRIPT_NUMBER_ID
-             "h:m:s"    "d:m:s"  ...
-    ------- ---------- --------- ... ------------------- ----------------
-      M   1 05 34 30.9 +22 00 53 ... 1995AuJPh..48..143S                1
+    main_id    ra     dec   coo_err_maj ... coo_err_angle coo_wavelength     coo_bibcode     matched_id
+              deg     deg       mas     ...      deg                                                   
+    ------- ------- ------- ----------- ... ------------- -------------- ------------------- ----------
+      M   1 83.6287 22.0147     18500.0 ...             0              R 1995AuJPh..48..143S      M   1
 
 All query tools allow coordinate-based queries:
 
@@ -152,19 +152,18 @@ All query tools allow coordinate-based queries:
 
     >>> from astropy import coordinates
     >>> import astropy.units as u
-    >>> # works only for ICRS coordinates:
     >>> c = coordinates.SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True, max_width=80, max_lines=5)
-            MAIN_ID               RA      ...     COO_BIBCODE     SCRIPT_NUMBER_ID
-                               "h:m:s"    ...
-    ----------------------- ------------- ... ------------------- ----------------
-            NAME Ori Region   05 35 17.30 ...                                    1
-                        ...           ... ...                 ...              ...
-    2MASS J05353573-0525256 05 35 35.7755 ... 2020yCat.1350....0G                1
-               V* V2114 Ori 05 35 01.6720 ... 2020yCat.1350....0G                1
-    Length = 3272 rows
+           main_id                ra        ... coo_wavelength     coo_bibcode    
+                                 deg        ...                                   
+    --------------------- ----------------- ... -------------- -------------------
+    COUP J053515.3-052225 83.81426666666665 ...              O 1999AJ....117.1375S
+                      ...               ... ...            ...                 ...
+            * tet01 Ori H 83.81580416666667 ...              I 2003yCat.2246....0C
+              [H97b] 9009    83.79990004111 ...              O 2020yCat.1350....0G
+    Length = 3270 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 
@@ -191,34 +190,34 @@ By default Astroquery employs query caching with a timeout of 1 week.
 The user can clear their cache at any time, as well as suspend cache usage,
 and change the cache location. Caching persists between Astroquery sessions.
 If you know the service you are using has released new data recently, or if you believe you are
-not recieving the newest data, try clearing the cache.
+not receiving the newest data, try clearing the cache.
 
 Service specific settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Astroquery cache location is specific to individual services,
-so each service's cache should be managed invidually.
+so each service's cache should be managed individually.
 The cache location can be viewed with the following command
-(using :ref:`Simbad <astroquery_simbad>` as an example):
+(using :ref:`VizieR <astroquery.vizier>` as an example):
 
 .. code-block:: python
 
-    >>> from astroquery.simbad import Simbad
-    >>> print(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
-    /Users/username/.astropy/cache/astroquery/Simbad
+    >>> from astroquery.vizier import Vizier
+    >>> print(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
+    /Users/username/.astropy/cache/astroquery/Vizier
 
 Each service's cache is cleared with the ``clear_cache`` function within that service.
 
 .. code-block:: python
 
     >>> import os
-    >>> from astroquery.simbad import Simbad
+    >>> from astroquery.vizier import Vizier
     ...
-    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    >>> os.listdir(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
     ['8abafe54f49661237bdbc2707179df53b6ee0d74ca6b7679c0e4fac0.pickle',
     '0e4766a7673ddfa4adaee2cfa27a924ed906badbfae8cc4a4a04256c.pickle']
-    >>> Simbad.clear_cache()
-    >>> os.listdir(Simbad.cache_location)   # doctest: +IGNORE_OUTPUT
+    >>> Vizier.clear_cache()
+    >>> os.listdir(Vizier.cache_location)   # doctest: +IGNORE_OUTPUT
     []
 
 Astroquery-wide settings
@@ -232,7 +231,7 @@ temporarily or permanently changing configuration values can be found
 
 .. code-block:: python
 
-  >>> from astroquery import cache_conf 
+  >>> from astroquery import cache_conf
   ...
   >>> # Is the cache active?
   >>> print(cache_conf.cache_active)
@@ -240,7 +239,6 @@ temporarily or permanently changing configuration values can be found
   >>> # Cache timout in seconds
   >>> print(cache_conf.cache_timeout)
   604800
-
 
 
 Available Services

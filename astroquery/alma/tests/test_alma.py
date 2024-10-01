@@ -7,12 +7,15 @@ from unittest.mock import patch, Mock
 
 from astropy import units as u
 from astropy import coordinates as coord
+from astropy import wcs
 from astropy.table import Table
+from astropy.io import votable
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
+import pyvo
 
 from astroquery.alma import Alma
-from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT
+from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, get_enhanced_table
 from astroquery.alma.tapsql import _val_parse
 
 
@@ -196,17 +199,6 @@ def test_gen_datetime_sql():
         common_select + "(58849.0<=t_min AND t_min<=58880.0)"
 
 
-def test_gen_spec_res_sql():
-    common_select = 'select * from ivoa.obscore WHERE '
-    assert _gen_sql({'spectral_resolution': 70}) == common_select + "em_resolution=20985472.06"
-    assert _gen_sql({'spectral_resolution': '<70'}) == common_select + "em_resolution>=20985472.06"
-    assert _gen_sql({'spectral_resolution': '>70'}) == common_select + "em_resolution<=20985472.06"
-    assert _gen_sql({'spectral_resolution': '(70 .. 80)'}) == common_select + \
-        "(23983396.64<=em_resolution AND em_resolution<=20985472.06)"
-    assert _gen_sql({'spectral_resolution': '(70|80)'}) == common_select + \
-        "(em_resolution=20985472.06 OR em_resolution=23983396.64)"
-
-
 def test_gen_public_sql():
     common_select = 'select * from ivoa.obscore'
     assert _gen_sql({'public_data': None}) == common_select
@@ -352,6 +344,115 @@ def test_query():
         "t_exptime=25 AND science_observation='F'",
         language='ADQL', maxrec=None
     )
+
+    tap_mock.reset()
+    result = alma.query_region('1 2', radius=1*u.deg,
+                               payload={'em_resolution': 6.929551916151968e-05,
+                                        'spectral_resolution': 2000000}
+                               )
+    assert len(result) == 0
+    tap_mock.search.assert_called_with(
+        "select * from ivoa.obscore WHERE em_resolution=6.929551916151968e-05 "
+        "AND spectral_resolution=2000000 "
+        "AND (INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), "
+        "s_region) = 1) AND science_observation='T' AND data_rights='Public'",
+        language='ADQL', maxrec=None)
+
+
+@pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
+def test_enhanced_table():
+    pytest.importorskip('regions')
+    import regions  # to silence checkstyle
+    data = votable.parse(os.path.join(DATA_DIR, 'alma-shapes.xml'))
+    result = pyvo.dal.DALResults(data)
+    assert len(result) == 5
+    enhanced_result = get_enhanced_table(result)
+    assert len(enhanced_result) == 5
+    # generic ALMA WCS
+    ww = wcs.WCS(naxis=2)
+    ww.wcs.crpix = [250.0, 250.0]
+    ww.wcs.cdelt = [-7.500000005754e-05, 7.500000005754e-05]
+    ww.wcs.ctype = ['RA---SIN', 'DEC--SIN']
+    for row in enhanced_result:
+        # check other quantities
+        assert row['s_ra'].unit == u.deg
+        assert row['s_dec'].unit == u.deg
+        assert row['frequency'].unit == u.GHz
+        ww.wcs.crval = [row['s_ra'].value, row['s_dec'].value]
+        sky_center = SkyCoord(row['s_ra'].value, row['s_dec'].value, unit=u.deg)
+        pix_center = regions.PixCoord.from_sky(sky_center, ww)
+        s_region = row['s_region']
+        pix_region = s_region.to_pixel(ww)
+        if isinstance(s_region, regions.CircleSkyRegion):
+            # circle: https://almascience.org/aq/?mous=uid:%2F%2FA001%2FX1284%2FX146e
+            assert s_region.center.name == 'icrs'
+            assert s_region.center.ra.value == 337.250736
+            assert s_region.center.ra.unit == u.deg
+            assert s_region.center.dec.value == -69.175076
+            assert s_region.center.dec.unit == u.deg
+            assert s_region.radius.unit == u.deg
+            assert s_region.radius.value == 0.008223
+            x_min = pix_region.center.x - pix_region.radius
+            x_max = pix_region.center.x + pix_region.radius
+            y_min = pix_region.center.y - pix_region.radius
+            y_max = pix_region.center.y + pix_region.radius
+            assert pix_region.contains(pix_center)
+        elif isinstance(s_region, regions.PolygonSkyRegion):
+            # simple polygon: https://almascience.org/aq/?mous=uid:%2F%2FA001%2FX1296%2FX193
+            assert s_region.vertices.name == 'icrs'
+            x_min = pix_region.vertices.x.min()
+            x_max = pix_region.vertices.x.max()
+            y_min = pix_region.vertices.y.min()
+            y_max = pix_region.vertices.y.max()
+            assert pix_region.contains(pix_center)
+        elif isinstance(s_region, regions.CompoundSkyRegion):
+            x_min = pix_region.bounding_box.ixmin
+            x_max = pix_region.bounding_box.ixmax
+            y_min = pix_region.bounding_box.iymin
+            y_max = pix_region.bounding_box.iymax
+            if row['obs_publisher_did'] == 'ADS/JAO.ALMA#2013.1.01014.S':
+                # Union type of footprint: https://almascience.org/aq/?mous=uid:%2F%2FA001%2FX145%2FX3d6
+                # image center is outside
+                assert not pix_region.contains(pix_center)
+                # arbitrary list of points inside each of the 4 polygons
+                inside_pts = ['17:46:43.655 -28:41:43.956',
+                              '17:45:06.173 -29:04:01.549',
+                              '17:44:53.675 -29:09:19.382',
+                              '17:44:38.584 -29:15:31.836']
+                for inside in [SkyCoord(coords, unit=(u.hourangle, u.deg)) for coords in inside_pts]:
+                    pix_inside = regions.PixCoord.from_sky(inside, ww)
+                    assert pix_region.contains(pix_inside)
+            elif row['obs_publisher_did'] == 'ADS/JAO.ALMA#2016.1.00298.S':
+                # pick random points inside and outside
+                inside = SkyCoord('1:38:44 10:18:55', unit=(u.hourangle, u.deg))
+                hole = SkyCoord('1:38:44 10:19:31.5', unit=(u.hourangle, u.deg))
+                pix_inside = regions.PixCoord.from_sky(inside, ww)
+                pix_outside = regions.PixCoord.from_sky(hole, ww)
+                assert pix_region.contains(pix_inside)
+                # assert not pix_region.contains(pix_outside)
+            else:
+                # polygon with "hole": https://almascience.org/aq/?mous=uid:%2F%2FA001%2FX158f%2FX745
+                assert pix_region.contains(pix_center)
+                # this is an arbitrary point in the footprint "hole"
+                outside_point = SkyCoord('03:32:38.689 -27:47:32.750',
+                                         unit=(u.hourangle, u.deg))
+                pix_outside = regions.PixCoord.from_sky(outside_point, ww)
+                assert not pix_region.contains(pix_outside)
+        else:
+            assert False, "Unsupported shape"
+        assert x_min <= x_max
+        assert y_min <= y_max
+
+        #  example of how to plot the footprints
+        #  artist = pix_region.as_artist()
+        #  import matplotlib.pyplot as plt
+        #  axes = plt.subplot(projection=ww)
+        #  axes.set_aspect('equal')
+        #  axes.add_artist(artist)
+        #  axes.set_xlim([x_min, x_max])
+        #  axes.set_ylim([y_min, y_max])
+        #  pix_region.plot()
+        #  plt.show()
 
 
 def test_sia():

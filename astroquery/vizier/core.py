@@ -205,44 +205,44 @@ class VizierClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.vizier import Vizier
-        >>> catalog_list = Vizier.find_catalogs('Kang W51') # doctest: +REMOTE_DATA +IGNORE_WARNINGS
-        >>> catalog_list # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-        OrderedDict([('J/ApJ/684/1143', </>), ('J/ApJ/736/87', </>) ... ])
-        >>> print({k:v.description for k,v in catalog_list.items()}) # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-        {'J/ApJ/684/1143': 'BHB candidates in the Milky Way (Xue+, 2008)',
-         'J/ApJ/736/87': 'Abundances in G-type stars with exoplanets (Kang+, 2011)',
-         'J/ApJ/738/79': "SDSS-DR8 BHB stars in the Milky Way's halo (Xue+, 2011)",
-         'J/ApJ/760/12': 'LIGO/Virgo gravitational-wave (GW) bursts with GRBs (Abadie+, 2012)',
-         ...}
+        >>> catalog_list = Vizier.find_catalogs('Mars') # doctest: +REMOTE_DATA +IGNORE_WARNINGS
+        >>> for k, v in catalog_list.items(): # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        ...     print(k, ":", v.description)
+        J/A+A/572/A104 : Astrometric obs. of Phobos and Deimos in 1971 (Robert+, 2014)
+        J/A+A/488/361 : Mars Express astrometric observations of Phobos (Willner+, 2008)
+        J/A+A/603/A55 : WISE/NEOWISE Mars-crossing asteroids (Ali-Lagoa+, 2017)
+        J/A+A/545/A144 : Astrometric observations of Deimos (Pasewaldt+, 2012)
+        ...
         """
 
+        # Note to devs: The ASU convention (http://vizier.u-strasbg.fr/doc/asu.html) has
+        # parameters without values. This is a bit different from POST requests that have
+        # key/values pairs. This is why we send a string formatted for ASU instead of a
+        # dictionary in the POST request here.
+
         if isinstance(keywords, list):
-            keywords = " ".join(keywords)
+            keywords = "+".join(keywords)
+        keywords = keywords.replace(" ", "+")
 
-        data_payload = {'-words': keywords, '-meta.all': 1}
-
-        data_payload['-ucd'] = self.ucd
+        data_payload = {'-words': keywords, "-meta": None}
 
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT)
 
-        if 'STOP, Max. number of RESOURCE reached' in response.text:
-            raise ValueError("Maximum number of catalogs exceeded.  Try "
-                             "setting max_catalogs to a large number and"
-                             " try again")
+        if include_obsolete:
+            data_payload["-obsolete"] = None
+
+        if self.ucd != "":
+            data_payload["ucd"] = self.ucd
+
+        params = "&".join([k if v is None else f"{k}={v}" for k, v in data_payload.items()])
+
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 data=params, timeout=self.TIMEOUT)
+
         result = self._parse_result(response, verbose=verbose,
                                     get_catalog_names=True)
-
-        # Filter out the obsolete catalogs, unless requested
-        if include_obsolete is False:
-            for key in list(result):
-                for info in result[key].infos:
-                    if (info.name == 'status') and (info.value == 'obsolete'):
-                        del result[key]
-
         return result
 
     def get_catalogs_async(self, catalog, *, verbose=False, return_type='votable',

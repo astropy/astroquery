@@ -17,7 +17,7 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
 from ..exceptions import InvalidQueryError, EmptyResponseError
-
+from astropy.utils.decorators import deprecated_renamed_argument
 
 __all__ = ['MPCClass']
 
@@ -187,7 +187,7 @@ class MPCClass(BaseQuery):
 
         """
 
-        self.get_mpc_object_endpoint(target_type)
+        self._get_mpc_object_endpoint(target_type)
 
         kwargs['limit'] = 1
         return self.query_objects_async(target_type, get_query_payload=get_query_payload, **kwargs)
@@ -316,7 +316,7 @@ class MPCClass(BaseQuery):
             Limit the number of results to the given value
 
         """
-        mpc_endpoint = self.get_mpc_object_endpoint(target_type)
+        mpc_endpoint = self._get_mpc_object_endpoint(target_type)
 
         if (target_type == 'comet'):
             kwargs['order_by_desc'] = "epoch"
@@ -330,7 +330,7 @@ class MPCClass(BaseQuery):
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
         return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
-    def get_mpc_object_endpoint(self, target_type):
+    def _get_mpc_object_endpoint(self, target_type):
         mpc_endpoint = self.MPC_URL
         if target_type == 'asteroid':
             mpc_endpoint = mpc_endpoint + '/search_orbits'
@@ -345,8 +345,7 @@ class MPCClass(BaseQuery):
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
                             perturbed=True, unc_links=False,
-                            get_query_payload=False,
-                            get_raw_response=False, cache=False):
+                            get_query_payload=False, cache=False):
         r"""
         Object ephemerides from the Minor Planet Ephemeris Service.
 
@@ -437,10 +436,6 @@ class MPCClass(BaseQuery):
             Return the HTTP request parameters as a dictionary
             (default: ``False``).
 
-        get_raw_response : bool, optional
-            Return raw data without parsing into a table (default:
-            ``False``).
-
         cache : bool
             Defaults to False. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
@@ -487,7 +482,7 @@ class MPCClass(BaseQuery):
         | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
         +------------+-----------------------------------+
 
-        For comets, P/ and C/ are interchangable.  The designation
+        For comets, P/ and C/ are interchangeable.  The designation
         may also be in a packed format:
 
         +------------+-----------------------------------+
@@ -602,21 +597,18 @@ class MPCClass(BaseQuery):
             return request_args
 
         self.query_type = 'ephemeris'
-        response = self._request('POST', self.MPES_URL, data=request_args)
+        response = self._request('POST', self.MPES_URL, data=request_args, cache=cache)
 
         return response
 
     @class_or_instance
-    def get_observatory_codes_async(self, *, get_raw_response=False, cache=True):
+    def get_observatory_codes_async(self, *, cache=True):
         """
         Table of observatory codes from the IAU Minor Planet Center.
 
 
         Parameters
         ----------
-        get_raw_response : bool, optional
-            Return raw data without parsing into a table (default:
-            `False`).
 
         cache : bool
             Defaults to True. If set overrides global caching behavior.
@@ -772,9 +764,10 @@ class MPCClass(BaseQuery):
         return request_args
 
     @class_or_instance
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.8",
+                                 alternative="async methods")
     def get_observations_async(self, targetid, *,
                                id_type=None,
-                               comettype=None,
                                get_mpcformat=False,
                                get_raw_response=False,
                                get_query_payload=False,
@@ -783,6 +776,11 @@ class MPCClass(BaseQuery):
         Obtain all reported observations for an asteroid or a comet
         from the `Minor Planet Center observations database
         <https://minorplanetcenter.net/db_search>`_.
+
+        .. deprecated:: 0.4.8
+           The ``get_raw_response`` keyword argument is deprecated.  The
+           `~MPCClass.get_observations_async` method will return a raw response.
+
 
         Parameters
         ----------
@@ -1052,7 +1050,6 @@ class MPCClass(BaseQuery):
                 raise InvalidQueryError(content)
             table_end = content.find('</pre>')
             text_table = content[table_start + 5:table_end]
-
             SKY = 'raty=a' in result.request.body
             HELIOCENTRIC = 'raty=s' in result.request.body
             GEOCENTRIC = 'raty=G' in result.request.body
@@ -1061,12 +1058,20 @@ class MPCClass(BaseQuery):
             # find column headings
             if SKY:
                 # slurp to newline after "h m s"
-                i = text_table.index('\n', text_table.index('h m s')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('h m s')) + 1
+                except ValueError:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
             else:
                 # slurp to newline after "JD_TT"
-                i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                # raise EmptyResponseError if no ephemeris lines are found in the query response
+                try:
+                    i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                except ValueError:
+                    raise EmptyResponseError(content)
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 
@@ -1088,24 +1093,24 @@ class MPCClass(BaseQuery):
                 elif 's=s' in result.request.body:  # sky Motion
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
-                col_starts += (73, 81)
-                col_ends += (80, 89)
+                col_starts += (73, 82)
+                col_ends += (81, 91)
 
                 if 'Moon' in columns:
                     # table includes Alt, Az, Sun and Moon geometry
                     names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
                               'Moon distance', 'Moon altitude')
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 9, 14, 20, 27, 33)))
+                                        (1, 8, 13, 19, 26, 32)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (8, 13, 19, 26, 32, 37)))
+                                      (7, 12, 18, 25, 31, 36)))
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.')
                     col_starts += tuple((col_ends[-1] + offset for offset in
-                                         (2, 11)))
+                                         (1, 10)))
                     col_ends += tuple((col_ends[-1] + offset for offset in
-                                       (10, 16)))
+                                       (9, 15)))
                     units += ('arcsec', 'deg')
                 if ">Map</a>" in first_row and self._unc_links:
                     names += ('Unc. map', 'Unc. offsets')
@@ -1171,7 +1176,6 @@ class MPCClass(BaseQuery):
             else:
                 # convert from MPES string to Time
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
-
             return tab
 
         elif self.query_type == 'observations':
