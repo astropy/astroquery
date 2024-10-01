@@ -275,6 +275,8 @@ gaia
   epoch photometry service to return all data associated to a given source.
   [#2376]
 
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
+
 - Default Gaia catalog updated to DR3. [#2596]
 
 heasarc
