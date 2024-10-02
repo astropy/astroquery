@@ -13,12 +13,12 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 18 Ene. 2022 by mhsarmiento
 """
+import datetime
 import json
 import os
 import shutil
 import zipfile
 from collections.abc import Iterable
-import datetime
 
 from astropy import units
 from astropy import units as u
@@ -219,8 +219,9 @@ class GaiaClass(TapPlus):
         format : str, optional, default 'votable'
             loading format. Other available formats are 'csv', 'ecsv','votable_plain', 'json' and 'fits'
         dump_to_file: boolean, optional, default False.
-            If it is true, a compressed directory named "datalink_output.zip" with all the DataLink files is made in the
-             current working directory
+            If it is true, a compressed directory named "datalink_output_<time_stamp>.zip" with all the DataLink
+            files is made in the current working directory. The <time_stamp> format should follow the ISO 8601 standard:
+             "yyyymmddThhmmss".
         overwrite_output_file : boolean, optional, default False
             To overwrite the output file ("datalink_output.zip") if it already exists.
         verbose : bool, optional, default 'False'
