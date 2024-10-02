@@ -21,6 +21,7 @@ import astropy.coordinates as coord
 
 from astropy.table import Table, Row, unique, vstack
 from astroquery import log
+from astroquery.mast.cloud import CloudAccess
 
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
@@ -170,6 +171,30 @@ class ObservationsClass(MastQueryWithLogin):
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
         return position, mashup_filters
+
+    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
+        """
+        Enable downloading public files from S3 instead of MAST.
+        Requires the boto3 library to function.
+
+        Parameters
+        ----------
+        provider : str
+            Which cloud data provider to use.  We may in the future support multiple providers,
+            though at the moment this argument is ignored.
+        profile : str
+            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
+        verbose : bool
+            Default True.
+            Logger to display extra info and warning.
+        """
+        self._cloud_connection = CloudAccess(provider, profile, verbose)
+
+    def disable_cloud_dataset(self):
+        """
+        Disables downloading public files from S3 instead of MAST
+        """
+        self._cloud_connection = None
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):

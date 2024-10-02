@@ -499,11 +499,8 @@ class TestMast:
         # enable access to public AWS S3 bucket
         Observations.enable_cloud_dataset(provider='AWS')
 
-        # Check for cloud URIs.  Accept a NoResultsWarning if AWS S3
-        # doesn't have the file.  It doesn't matter as we're only checking
-        # that the duplicate products have been culled to a single one.
-        with pytest.warns(NoResultsWarning):
-            uris = Observations.get_cloud_uris(products)
+        # Check that only one URI is returned
+        uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
     def test_observations_download_file(self, tmp_path):
