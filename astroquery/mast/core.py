@@ -11,7 +11,6 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 from ..query import QueryWithLogin
 from . import utils
 from .auth import MastAuth
-from .cloud import CloudAccess
 from .discovery_portal import PortalAPI
 from .services import ServiceAPI
 
@@ -89,20 +88,16 @@ class MastQueryWithLogin(QueryWithLogin):
         """
         .. deprecated:: 0.4.8
            This function is non-operational and has been deprecated.
-
-        :raises AstropyDeprecationWarning: This function is deprecated and should not be used.
         """
-        warnings.warn('This function is non-operational and will be removed in a future release.', 
+        warnings.warn('This function is non-operational and will be removed in a future release.',
                       AstropyDeprecationWarning)
 
     def disable_cloud_dataset(self):
         """
         .. deprecated:: 0.4.8
            This function is non-operational and has been deprecated.
-
-        :raises AstropyDeprecationWarning: This function is deprecated and should not be used.
         """
-        warnings.warn('This function is non-operational and will be removed in a future release.', 
+        warnings.warn('This function is non-operational and will be removed in a future release.',
                       AstropyDeprecationWarning)
 
     def resolve_object(self, objectname):
