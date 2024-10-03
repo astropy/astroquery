@@ -1,4 +1,4 @@
-`Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_
+`Documentation`_ | `View on Github`_ |  `Download Development ZIP`_
 
 .. image:: https://img.shields.io/pypi/v/astroquery.svg
     :target: https://pypi.org/project/astroquery/#history
@@ -9,7 +9,7 @@
     :alt: Documentation Status
 
 .. image:: https://github.com/astropy/astroquery/workflows/CI/badge.svg
-    :target: https://github.com/astropy/astroquery/actions?query=workflow%3ACI
+    :target: https://github.com/astropy/astroquery/actions?query=workflow%37ACI
     :alt: Github Actions CI Status
 
 .. image:: https://codecov.io/gh/astropy/astroquery/branch/main/graph/badge.svg
@@ -35,26 +35,16 @@ website <https://simbad.cds.unistra.fr/simbad/>`_, use the ``simbad`` sub-packag
     >>> from astroquery.simbad import Simbad
     >>> theta1c = Simbad.query_object('tet01 Ori C')
     >>> theta1c.pprint()
-       main_id          ra           dec      ... coo_wavelength     coo_bibcode       matched_id 
-                       deg           deg      ...                                                 
+       main_id          ra           dec      ... coo_wavelength     coo_bibcode       matched_id
+                       deg           deg      ...
     ------------- ------------- ------------- ... -------------- ------------------- -------------
     * tet01 Ori C 83.8186095697 -5.3897005033 ...              O 2020yCat.1350....0G * tet01 Ori C
 
 Installation and Requirements
 -----------------------------
 
-Astroquery works with Python 3.7 or later.
-As an `astropy`_ affiliate, astroquery requires `astropy`_ version 4.2.1 or later.
-
-astroquery uses the `requests <https://requests.readthedocs.io/en/latest/>`_
-module to communicate with the internet.  `BeautifulSoup
-<https://www.crummy.com/software/BeautifulSoup/>`_ and `html5lib'
-<https://html5lib.readthedocs.io/en/latest/>`_ are needed for HTML parsing for
-some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_ module is
-also required for accessing services that require a login.  These can all be
-installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
-<https://www.anaconda.com/>`_.  Running the tests requires `curl
-<https://curl.haxx.se/>`_ to be installed.
+Astroquery works with Python 3.9 or later.
+As an `astropy`_ affiliate, astroquery requires `astropy`_ version 5.0 or later.
 
 The latest version of astroquery can be pip installed (note the ``--pre`` for
 picking up released developer versions, and ``-U`` for upgrade):
@@ -124,18 +114,11 @@ looked up at the following `Zenodo page <https://doi.org/10.5281/zenodo.591669>`
 Additional Links
 ----------------
 
-`Download Development ZIP`_  |  `Download Development TAR`_
-
 Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/main
-.. _Download Development TAR: https://github.com/astropy/astroquery/tarball/main
-.. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
-.. _Download Stable TAR: https://github.com/astropy/astroquery/tarball/stable
 .. _View on Github: https://github.com/astropy/astroquery/
 .. _Documentation: https://astroquery.readthedocs.io
-.. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: https://www.adamgginsburg.com
-.. _Blog: http://astropy.org/astroquery-blog
 .. _API: https://astroquery.readthedocs.io/en/latest/api.html

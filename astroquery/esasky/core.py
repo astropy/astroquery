@@ -54,6 +54,7 @@ class ESASkyClass(BaseQuery):
     __TAP_DEC_COLUMN_STRING = "tapDecColumn"
     __METADATA_STRING = "metadata"
     __PRODUCT_URL_STRING = "product_url"
+    __EROSITA_PRODUCT_URL_STRING = "prod_url"
     __ACCESS_URL_STRING = "access_url"
     __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
@@ -1464,6 +1465,8 @@ class ESASkyClass(BaseQuery):
             url_key = self.__PRODUCT_URL_STRING
         if url_key == "" and self.__ACCESS_URL_STRING in maps_table.keys():
             url_key = self.__ACCESS_URL_STRING
+        if url_key == "" and mission == 'EROSITA':
+            url_key = self.__EROSITA_PRODUCT_URL_STRING
         if url_key == "" or mission == "ALMA":
             log.info(mission + " does not yet support downloading of fits files")
             return maps
@@ -1520,13 +1523,20 @@ class ESASkyClass(BaseQuery):
 
                         response.raise_for_status()
 
-                        if ('Content-Type' in response.headers
-                                and response.headers['Content-Type'] == 'application/zip'):
+                        if response.headers.get('Content-Type') == 'application/zip':
                             with ZipFile(file=BytesIO(response.content)) as zip:
                                 for info in zip.infolist():
                                     if self._ends_with_fits_like_extentsion(info.filename):
                                         maps.append(self._open_fits(
                                             zip.extract(info.filename, path=mission_directory), verbose=verbose))
+                        elif response.headers.get('Content-Type') == 'application/x-gzip':
+                            with esatar.open(name='dummy', mode='r', fileobj=BytesIO(response.content)) as tar:
+                                for file in tar.getmembers():
+                                    if self._ends_with_fits_like_extentsion(file.name):
+                                        file.name = os.path.basename(file.name)
+                                        tar.extract(file, path=mission_directory)
+                                        maps.append(self._open_fits(
+                                            Path(mission_directory, file.name), verbose=verbose))
                         else:
                             file_name = self._extract_file_name_from_response_header(response.headers)
                             if file_name == "":

@@ -35,15 +35,21 @@ class Conf(_config.ConfigNamespace):
                                       'RV_EPOCH_SINGLE',
                                       'RV_EPOCH_DOUBLE',
                                       'RVS_EPOCH',
-                                      'RVS_TRANSIT']
+                                      'RVS_TRANSIT',
+                                      'EPOCH_ASTROMETRY_CROWDED_FIELD',
+                                      'EPOCH_IMAGE',
+                                      'EPOCH_PHOTOMETRY_CCD',
+                                      'XP_EPOCH_SPECTRUM_SSO',
+                                      'XP_EPOCH_CROWDING',
+                                      'XP_MEAN_SPECTRUM',
+                                      'XP_EPOCH_SPECTRUM',
+                                      'CROWDED_FIELD_IMAGE']
 
     VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
 
 
 conf = Conf()
 
-
 from .core import Gaia, GaiaClass
-
 
 __all__ = ['Gaia', 'GaiaClass', 'Conf', 'conf']

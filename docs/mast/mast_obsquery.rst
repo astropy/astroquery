@@ -291,6 +291,31 @@ Using "obs_id" instead of "obsid" from the previous example will result in the f
    ...
    RemoteServiceError: Error converting data type varchar to bigint.
 
+To return only unique data products for an observation, use `~astroquery.mast.ObservationsClass.get_unique_product_list`.
+
+.. doctest-remote-data::
+   >>> obs = Observations.query_criteria(obs_collection='HST',
+   ...                                   filters='F606W',
+   ...                                   instrument_name='ACS/WFC',
+   ...                                   proposal_id=['12062'],
+   ...                                   dataRights='PUBLIC')
+   >>> unique_products = Observations.get_unique_product_list(obs)
+   INFO: 180 of 370 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.observations]
+   INFO: To return all products, use `Observations.get_product_list` [astroquery.mast.observations]
+   >>> print(unique_products[:10]['dataURI'])
+                                 dataURI                              
+   -------------------------------------------------------------------
+           mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.fits
+            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.jpg
+     mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_point-cat.ecsv
+   mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_segment-cat.ecsv
+            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_trl.txt
+         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.fits
+          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.jpg
+         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_flc.fits
+        mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_hlet.fits
+          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_trl.txt
+
 Filtering
 ---------
 
@@ -481,7 +506,7 @@ This approach is recommended for code brevity. Query criteria are supplied as ke
    ...                                       proposal_id=['12062'],
    ...                                       dataRights='PUBLIC',
    ...                                       filter_products={'productSubGroupDescription': 'DRZ'})
-   INFO: 2 of 4 products were duplicates. Only downloading 2 unique product(s). [astroquery.mast.observations]
+   INFO: 2 of 4 products were duplicates. Only returning 2 unique product(s). [astroquery.mast.observations]
    >>> print(s3_uris)
    ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
    >>> Observations.disable_cloud_dataset()

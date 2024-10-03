@@ -125,6 +125,15 @@ class TestESASky:
                 hdu_list.close()
 
     @pytest.mark.bigdata
+    def test_esasky_get_images_for_erosita(self, tmp_path):
+        mission = 'eROSITA'
+        result = ESASky.get_images(position="67.84 -61.44", missions=mission, download_dir=tmp_path)
+        assert tmp_path.stat().st_size
+
+        for hdu_list in result[mission.upper()]:
+            hdu_list.close()
+
+    @pytest.mark.bigdata
     @pytest.mark.parametrize('mission, position',
                              zip(['JWST-MID-IR', 'JWST-NEAR-IR'],
                                  ['340.50123388127435 -69.17904779241904', '225.6864099965157 -3.0315781490149467']))
@@ -183,7 +192,7 @@ class TestESASky:
         # - HST-IR, JWST-MID-IR and CHEOPS have no data
         # - LAMOST does not support download
         # - JWST-NEAR-IR returns a zip file with many fits files in it, unsupported
-        result = ESASky.get_spectra(position="M1", missions=mission, download_dir=tmp_path)
+        result = ESASky.get_spectra(position="M1", missions=mission, radius='15 arcsec', download_dir=tmp_path)
         assert Path(tmp_path, mission.upper()).exists()
 
         if mission != "Herschel":

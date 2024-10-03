@@ -179,6 +179,8 @@ gaia
 
 - Fix method search_async_jobs in the class TapPlus. [#2967]
 
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
+
 jplhorizons
 ^^^^^^^^^^^
 
@@ -203,7 +205,7 @@ mast
 - Present users with an error rather than a warning when nonexistent query criteria are used in ``mast.Observations.query_criteria``
   and ``mast.Catalogs.query_criteria``. [#3084]
 
-- Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and 
+- Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and
   ``mast.Catalogs.query_criteria``. [#3087]
 
 - Added function ``mast.Observations.get_unique_product_list`` to return the unique data products associated with
@@ -802,6 +804,8 @@ esa.esasky
 ^^^^^^^^^^
 
 - Added Solar System Object functionality. [#2106]
+
+- Added support for eROSITA downloads. [#3111]
 
 ipac
 ^^^^
