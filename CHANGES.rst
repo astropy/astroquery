@@ -206,6 +206,12 @@ mast
 - Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and 
   ``mast.Catalogs.query_criteria``. [#3087]
 
+- Added function ``mast.Observations.get_unique_product_list`` to return the unique data products associated with
+  given observations. [#3096]
+
+- Deprecate ``enable_cloud_dataset`` and ``disable_cloud_dataset`` in classes where they
+  are non-operational. [#3113]
+
 mpc
 ^^^
 
