@@ -104,3 +104,13 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
+
+
+def test_two_local_tables():
+    table1 = Table({'a': [1], 'b': [1], 'c': [1]})
+    table2 = Table({'a': [1], 'b': [1], 'c': [1]})
+    payload = XMatch().query(cat1=table1, cat2=table2,
+                             colRA1="a", colDec1="b", colRA2="a", colDec2="b",
+                             max_distance=1 * arcsec,
+                             get_query_payload=True)
+    assert 'cat1' in payload[1]["files"] and 'cat2' in payload[1]["files"]

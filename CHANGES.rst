@@ -217,6 +217,12 @@ mpc
 - Rename ``MPC.get_mpc_object_endpoint`` to ``MPC._get_mpc_object_endpoint`` to
   indicate that it is a private method. [#3089]
 
+xmatch
+^^^^^^
+
+- Fix xmatch query for two local tables. The second table was written over the first one,
+  resulting in a confusing "missing cat1" error. [#3116]
+
 
 0.4.7 (2024-03-08)
 ==================
