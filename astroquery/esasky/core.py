@@ -1358,34 +1358,34 @@ class ESASkyClass(BaseQuery):
 
     def _sanitize_input_mission(self, missions):
         if isinstance(missions, list):
-            return missions
+            return [m.upper() for m in missions]
         if isinstance(missions, str):
             if missions.lower() == self.__ALL_STRING:
                 return self.list_maps()
             else:
-                return [missions]
+                return [missions.upper()]
         raise ValueError("Mission must be either a string or a list of "
                          "missions")
 
     def _sanitize_input_spectra(self, spectra):
         if isinstance(spectra, list):
-            return spectra
+            return [s.upper() for s in spectra]
         if isinstance(spectra, str):
             if spectra.lower() == self.__ALL_STRING:
                 return self.list_spectra()
             else:
-                return [spectra]
+                return [spectra.upper()]
         raise ValueError("Spectra must be either a string or a list of "
                          "Spectra")
 
     def _sanitize_input_catalogs(self, catalogs):
         if isinstance(catalogs, list):
-            return catalogs
+            return [c.upper() for c in catalogs]
         if isinstance(catalogs, str):
             if catalogs.lower() == self.__ALL_STRING:
                 return self.list_catalogs()
             else:
-                return [catalogs]
+                return [catalogs.upper()]
         raise ValueError("Catalog must be either a string or a list of "
                          "catalogs")
 
@@ -1798,7 +1798,7 @@ class ESASkyClass(BaseQuery):
         for name in names:
             table = self._query(name=name, descriptors=descriptors, verbose=verbose, **kwargs)
             if len(table) > 0:
-                query_result[name.upper()] = table
+                query_result[name] = table
 
     def _get_observation_info(self):
         return self._get_descriptors(category='observations')
@@ -1818,7 +1818,7 @@ class ESASkyClass(BaseQuery):
         join tap_schema.columns dec on d.table_name = dec.table_name
         where d.category = '{}' and ra.ucd = 'pos.eq.ra;meta.main' and dec.ucd = 'pos.eq.dec;meta.main'
         """.format(category)
-        return {d['mission']: {a: d[a] for a in d.keys()} for d in self.query(query)}
+        return {d['mission'].upper(): {a: d[a] for a in d.keys()} for d in self.query(query)}
 
     def _table_for_mission(self, mission, descriptors):
         tables = {d['mission'].lower(): d['table_name'] for d in descriptors.values()}
