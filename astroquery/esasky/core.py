@@ -197,25 +197,25 @@ class ESASkyClass(BaseQuery):
         """
         Get a list of the mission names of the available observations in ESASky
         """
-        return self._get_observation_info().keys()
+        return list(self._get_observation_info().keys())
 
     def list_catalogs(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
-        return self._get_catalogs_info().keys()
+        return list(self._get_catalogs_info().keys())
 
     def list_spectra(self):
         """
         Get a list of the mission names of the available spectra in ESASky
         """
-        return self._get_spectra_info().keys()
+        return list(self._get_spectra_info().keys())
 
     def list_sso(self):
         """
         Get a list of the mission names of the available observations with SSO crossmatch in ESASky
         """
-        return self._get_sso_info().keys()
+        return list(self._get_sso_info().keys())
 
     def query_object_maps(self, position, missions=__ALL_STRING, get_query_payload=False, cache=True,
                           row_limit=DEFAULT_ROW_LIMIT, verbose=False):
