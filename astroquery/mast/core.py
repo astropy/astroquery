@@ -5,10 +5,12 @@ MAST Core
 
 This the base class for MAST queries.
 """
+import warnings
+
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from ..query import QueryWithLogin
 from . import utils
 from .auth import MastAuth
-from .cloud import CloudAccess
 from .discovery_portal import PortalAPI
 from .services import ServiceAPI
 
@@ -84,28 +86,19 @@ class MastQueryWithLogin(QueryWithLogin):
 
     def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
         """
-        Enable downloading public files from S3 instead of MAST.
-        Requires the boto3 library to function.
-
-        Parameters
-        ----------
-        provider : str
-            Which cloud data provider to use.  We may in the future support multiple providers,
-            though at the moment this argument is ignored.
-        profile : str
-            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
-        verbose : bool
-            Default True.
-            Logger to display extra info and warning.
+        .. deprecated:: 0.4.8
+           This function is non-operational and has been deprecated.
         """
-
-        self._cloud_connection = CloudAccess(provider, profile, verbose)
+        warnings.warn('This function is non-operational and will be removed in a future release.',
+                      AstropyDeprecationWarning)
 
     def disable_cloud_dataset(self):
         """
-        Disables downloading public files from S3 instead of MAST
+        .. deprecated:: 0.4.8
+           This function is non-operational and has been deprecated.
         """
-        self._cloud_connection = None
+        warnings.warn('This function is non-operational and will be removed in a future release.',
+                      AstropyDeprecationWarning)
 
     def resolve_object(self, objectname):
         """
