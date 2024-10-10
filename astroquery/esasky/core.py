@@ -44,24 +44,13 @@ class ESASkyClass(BaseQuery):
     __FTZ_STRING = ".FTZ"
     __TAR_STRING = ".tar"
     __ALL_STRING = "all"
-    __CATALOGS_STRING = "catalogs"
-    __OBSERVATIONS_STRING = "observations"
-    __SPECTRA_STRING = "spectra"
-    __MISSION_STRING = "mission"
-    __TAP_TABLE_STRING = "tapTable"
-    __TAP_NAME_STRING = "tapName"
-    __TAP_RA_COLUMN_STRING = "tapRaColumn"
-    __TAP_DEC_COLUMN_STRING = "tapDecColumn"
-    __METADATA_STRING = "metadata"
+    __TAP_TABLE_STRING = "table_name"
     __PRODUCT_URL_STRING = "product_url"
     __EROSITA_PRODUCT_URL_STRING = "prod_url"
     __ACCESS_URL_STRING = "access_url"
-    __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
     __MIN_RADIUS_CATALOG_DEG = Angle(5 * u.arcsec).to_value(u.deg)
-
     __HERSCHEL_STRING = 'herschel'
-    __HST_STRING = 'hst'
 
     __HERSCHEL_FILTERS = {
         'psw': '250',
@@ -208,29 +197,25 @@ class ESASkyClass(BaseQuery):
         """
         Get a list of the mission names of the available observations in ESASky
         """
-        return self._json_object_field_to_list(
-            self._get_observation_json(), self.__MISSION_STRING)
+        return list(self._get_observation_info().keys())
 
     def list_catalogs(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
-        return self._json_object_field_to_list(
-            self._get_catalogs_json(), self.__MISSION_STRING)
+        return list(self._get_catalogs_info().keys())
 
     def list_spectra(self):
         """
         Get a list of the mission names of the available spectra in ESASky
         """
-        return self._json_object_field_to_list(
-            self._get_spectra_json(), self.__MISSION_STRING)
+        return list(self._get_spectra_info().keys())
 
     def list_sso(self):
         """
         Get a list of the mission names of the available observations with SSO crossmatch in ESASky
         """
-        return self._json_object_field_to_list(
-            self._get_sso_json(), self.__MISSION_STRING)
+        return list(self._get_sso_info().keys())
 
     def query_object_maps(self, position, missions=__ALL_STRING, get_query_payload=False, cache=True,
                           row_limit=DEFAULT_ROW_LIMIT, verbose=False):
@@ -537,7 +522,7 @@ class ESASkyClass(BaseQuery):
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         sso = sso[0]
-        sso_json = self._get_sso_json()
+        sso_info = self._get_sso_info()
 
         query_result = {}
 
@@ -547,9 +532,8 @@ class ESASkyClass(BaseQuery):
         if sanitized_row_limit > 0:
             top = "TOP {row_limit} ".format(row_limit=sanitized_row_limit)
         for name in sanitized_missions:
-            data_table = self._find_mission_tap_table_name(sso_json, name)
-            mission_json = self._find_mission_parameters_in_json(data_table, sso_json)
-            x_match_table = mission_json['ssoXMatchTapTable']
+            data_table = sso_info[name]['table_name']
+            x_match_table = self._x_match_table(data_table)
             query = 'SELECT {top}* FROM {data_table} AS a JOIN {x_match_table} AS b ' \
                     'ON a.observation_oid = b.observation_oid JOIN sso.ssoid AS c ' \
                     'ON b.sso_oid = c.sso_oid WHERE c.{sso_db_identifier} = \'{sso_name}\' ' \
@@ -630,7 +614,7 @@ class ESASkyClass(BaseQuery):
         if sso_name is None and table_list is None:
             raise ValueError("An input is required for either sso_name or table.")
 
-        sanitized_missions = [m.lower() for m in self._sanitize_input_sso_mission(missions)]
+        sanitized_missions = self._sanitize_input_sso_mission(missions)
         sso_name = self._sanitize_input_sso_name(sso_name)
         sso_type = self._sanitize_input_sso_type(sso_type)
         if table_list is None:
@@ -641,12 +625,14 @@ class ESASkyClass(BaseQuery):
 
         maps = dict()
 
-        json = self._get_sso_json()
+        descriptors = self._get_sso_info()
+
         for query_mission in map_query_result.keys():
-            if query_mission.lower() in sanitized_missions:
+            if query_mission in sanitized_missions:
+                table = self._table_for_mission(query_mission, descriptors)
                 maps[query_mission] = (
                     self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache,
-                                               json, verbose=verbose))
+                                               table, verbose=verbose))
 
         if len(map_query_result) > 0 and all([maps[mission].count(None) == len(maps[mission])
                                               for mission in maps]):
@@ -716,8 +702,9 @@ class ESASkyClass(BaseQuery):
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(position)
 
-        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
-                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+        self._store_query_result(query_result=query_result, names=sanitized_missions,
+                                 descriptors=self._get_observation_info(), coordinates=coordinates,
+                                 radius=sanitized_radius, row_limit=sanitized_row_limit,
                                  get_query_payload=get_query_payload, cache=cache, verbose=verbose)
         if get_query_payload:
             return query_result
@@ -783,8 +770,9 @@ class ESASkyClass(BaseQuery):
 
         query_result = {}
 
-        self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
-                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+        self._store_query_result(query_result=query_result, names=sanitized_catalogs,
+                                 descriptors=self._get_catalogs_info(), coordinates=coordinates,
+                                 radius=sanitized_radius, row_limit=sanitized_row_limit,
                                  get_query_payload=get_query_payload, cache=cache, verbose=verbose)
 
         if get_query_payload:
@@ -851,8 +839,9 @@ class ESASkyClass(BaseQuery):
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(position)
 
-        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
-                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+        self._store_query_result(query_result=query_result, names=sanitized_missions,
+                                 descriptors=self._get_spectra_info(), coordinates=coordinates,
+                                 radius=sanitized_radius, row_limit=sanitized_row_limit,
                                  get_query_payload=get_query_payload, cache=cache, verbose=verbose)
 
         if get_query_payload:
@@ -907,8 +896,9 @@ class ESASkyClass(BaseQuery):
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         query_result = {}
-        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
-                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+        self._store_query_result(query_result=query_result, names=sanitized_missions,
+                                 descriptors=self._get_observation_info(), row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache,
                                  ids=sanitized_observation_ids, verbose=verbose)
 
         if get_query_payload:
@@ -963,8 +953,9 @@ class ESASkyClass(BaseQuery):
         sanitized_source_ids = self._sanitize_input_ids(source_ids)
 
         query_result = {}
-        self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
-                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+        self._store_query_result(query_result=query_result, names=sanitized_catalogs,
+                                 descriptors=self._get_catalogs_info(), row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache,
                                  ids=sanitized_source_ids, verbose=verbose)
 
         if get_query_payload:
@@ -1019,8 +1010,9 @@ class ESASkyClass(BaseQuery):
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         query_result = {}
-        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
-                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+        self._store_query_result(query_result=query_result, names=sanitized_missions,
+                                 descriptors=self._get_spectra_info(), row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache,
                                  ids=sanitized_observation_ids, verbose=verbose)
 
         if get_query_payload:
@@ -1081,14 +1073,15 @@ class ESASkyClass(BaseQuery):
         sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
 
         maps = dict()
-        json = self._get_observation_json()
+        descriptors = self._get_observation_info()
 
         for query_mission in sanitized_query_table_list.keys():
 
             if query_mission.lower() in sanitized_missions:
+                table = self._table_for_mission(query_mission, descriptors)
                 maps[query_mission] = (
                     self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
-                                               cache, json, verbose=verbose))
+                                               cache, table, verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
@@ -1182,10 +1175,11 @@ class ESASkyClass(BaseQuery):
                                                    verbose=verbose)
         maps = dict()
 
-        json = self._get_observation_json()
+        descriptors = self._get_observation_info()
         for query_mission in map_query_result.keys():
+            table = self._table_for_mission(query_mission, descriptors)
             maps[query_mission] = (
-                self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache, json,
+                self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_dir, cache, table,
                                            verbose=verbose))
 
         if all([maps[mission].count(None) == len(maps[mission])
@@ -1272,11 +1266,12 @@ class ESASkyClass(BaseQuery):
             spectra_query_result = self.query_ids_spectra(missions=sanitized_missions,
                                                           observation_ids=sanitized_observation_ids,
                                                           get_query_payload=False, cache=cache, verbose=verbose)
-        json = self._get_spectra_json()
+        descriptors = self._get_spectra_info()
         for query_mission in spectra_query_result.keys():
+            table = self._table_for_mission(query_mission, descriptors)
             spectra[query_mission] = (
                 self._get_maps_for_mission(spectra_query_result[query_mission], query_mission, download_dir, cache,
-                                           json, is_spectra=True, verbose=verbose))
+                                           table, is_spectra=True, verbose=verbose))
 
         if len(spectra_query_result) > 0:
             log.info("Spectra available at {}".format(os.path.abspath(download_dir)))
@@ -1338,14 +1333,15 @@ class ESASkyClass(BaseQuery):
         sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
 
         spectra = dict()
-        json = self._get_spectra_json()
+        descriptors = self._get_spectra_info()
 
         for query_mission in sanitized_query_table_list.keys():
 
             if query_mission.lower() in sanitized_missions:
+                table = self._table_for_mission(query_mission, descriptors)
                 spectra[query_mission] = (
                     self._get_maps_for_mission(sanitized_query_table_list[query_mission], query_mission, download_dir,
-                                               cache, json, is_spectra=True, verbose=verbose))
+                                               cache, table, is_spectra=True, verbose=verbose))
 
         if len(sanitized_query_table_list) > 0:
             log.info("Spectra available at {}.".format(os.path.abspath(download_dir)))
@@ -1362,34 +1358,34 @@ class ESASkyClass(BaseQuery):
 
     def _sanitize_input_mission(self, missions):
         if isinstance(missions, list):
-            return missions
+            return [m.upper() for m in missions]
         if isinstance(missions, str):
             if missions.lower() == self.__ALL_STRING:
                 return self.list_maps()
             else:
-                return [missions]
+                return [missions.upper()]
         raise ValueError("Mission must be either a string or a list of "
                          "missions")
 
     def _sanitize_input_spectra(self, spectra):
         if isinstance(spectra, list):
-            return spectra
+            return [s.upper() for s in spectra]
         if isinstance(spectra, str):
             if spectra.lower() == self.__ALL_STRING:
                 return self.list_spectra()
             else:
-                return [spectra]
+                return [spectra.upper()]
         raise ValueError("Spectra must be either a string or a list of "
                          "Spectra")
 
     def _sanitize_input_catalogs(self, catalogs):
         if isinstance(catalogs, list):
-            return catalogs
+            return [c.upper() for c in catalogs]
         if isinstance(catalogs, str):
             if catalogs.lower() == self.__ALL_STRING:
                 return self.list_catalogs()
             else:
-                return [catalogs]
+                return [catalogs.upper()]
         raise ValueError("Catalog must be either a string or a list of "
                          "catalogs")
 
@@ -1455,7 +1451,7 @@ class ESASkyClass(BaseQuery):
             return "sso_id"
         return "sso_name"
 
-    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False, verbose=False):
+    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, table, is_spectra=False, verbose=False):
         if is_spectra and mission.lower() == self.__HERSCHEL_STRING:
             maps = dict()
         else:
@@ -1486,8 +1482,8 @@ class ESASkyClass(BaseQuery):
                     if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 else:
-                    observation_id = \
-                        maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
+                    identifier = self._get_unique_identifier(table)
+                    observation_id = maps_table[identifier][index]
                     if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 log.debug("Downloading Observation ID: {} from {}".format(observation_id, product_url))
@@ -1697,16 +1693,15 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
 
-    def _query(self, name, json, verbose=False, **kwargs):
-        table_tap_name = self._find_mission_tap_table_name(json, name)
+    def _query(self, name, descriptors, verbose=False, **kwargs):
         if 'ids' in kwargs:
             query = self._build_id_query(ids=kwargs.get('ids'),
                                          row_limit=kwargs.get('row_limit'),
-                                         json=self._find_mission_parameters_in_json(table_tap_name, json))
+                                         descriptor=descriptors[name])
         else:
             query = self._build_region_query(coordinates=kwargs.get('coordinates'), radius=kwargs.get('radius'),
                                              row_limit=kwargs.get('row_limit'),
-                                             json=self._find_mission_parameters_in_json(table_tap_name, json))
+                                             descriptor=descriptors[name])
 
         if 'get_query_payload' in kwargs and kwargs.get('get_query_payload'):
             return self._create_request_payload(query)
@@ -1721,7 +1716,7 @@ class ESASkyClass(BaseQuery):
 
         return self.query(query, output_format="votable", verbose=verbose)
 
-    def _build_region_query(self, coordinates, radius, row_limit, json):
+    def _build_region_query(self, coordinates, radius, row_limit, descriptor):
         ra = coordinates.transform_to('icrs').ra.deg
         dec = coordinates.transform_to('icrs').dec.deg
         radius_deg = Angle(radius).to_value(u.deg)
@@ -1734,12 +1729,12 @@ class ESASkyClass(BaseQuery):
 
         select_query = "".join([select_query, "* "])
 
-        tap_ra_column = json[self.__TAP_RA_COLUMN_STRING]
-        tap_dec_column = json[self.__TAP_DEC_COLUMN_STRING]
+        tap_ra_column = descriptor['ra']
+        tap_dec_column = descriptor['dec']
 
-        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
+        from_query = " FROM {}".format(descriptor['table_name'])
         if radius_deg == 0:
-            if json[self.__USE_INTERSECT_STRING]:
+            if descriptor['intersect_polygon_query']:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
                                format(ra, dec, self.__MIN_RADIUS_CATALOG_DEG))
             else:
@@ -1749,19 +1744,18 @@ class ESASkyClass(BaseQuery):
                                       dec,
                                       self.__MIN_RADIUS_CATALOG_DEG))
         else:
-            if json[self.__USE_INTERSECT_STRING]:
+            if descriptor['intersect_polygon_query']:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
                                format(ra, dec, radius_deg))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
                                format(tap_ra_column, tap_dec_column, ra, dec, radius_deg))
-
         query = "".join([select_query, from_query,
                          where_query])
 
         return query
 
-    def _build_id_query(self, ids, row_limit, json):
+    def _build_id_query(self, ids, row_limit, descriptor):
         select_query = "SELECT "
         if row_limit > 0:
             select_query = "".join([select_query, "TOP {} ".format(row_limit)])
@@ -1770,16 +1764,17 @@ class ESASkyClass(BaseQuery):
 
         select_query = "".join([select_query, "* "])
 
-        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
-        id_column = json["uniqueIdentifierField"]
-        if "observations" in json["tapTable"] or "spectra" in json["tapTable"]:
+        table_name = descriptor[self.__TAP_TABLE_STRING]
+        from_query = " FROM {}".format(table_name)
+        id_column = self._get_unique_identifier(table_name)
+        if "observations" in table_name or "spectra" in table_name:
             if id_column in ("observation_oid", "plane_id"):
                 id_column = "observation_id"
             if id_column == "designation":
                 id_column = "obsid"
 
         data_type = None
-        for column in self.get_columns(table_name=json['tapTable'], only_names=False):
+        for column in self.get_columns(table_name=descriptor['table_name'], only_names=False):
             if column.name == id_column:
                 data_type = column.data_type
 
@@ -1787,8 +1782,8 @@ class ESASkyClass(BaseQuery):
         if data_type in self._NUMBER_DATA_TYPES:
             valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
             if not valid_ids:
-                raise ValueError(f"Could not construct query for mission {json['mission']}. Database column type is "
-                                 "a number, while none of the input id's could be interpreted as numbers.")
+                raise ValueError(f"Could not construct query for mission {descriptor['mission']}. Database column "
+                                 "type is a number, while none of the input id's could be interpreted as numbers.")
                 return ""
 
         observation_ids_query_list = ", ".join(repr(id) for id in valid_ids)
@@ -1799,61 +1794,52 @@ class ESASkyClass(BaseQuery):
 
         return query
 
-    def _store_query_result(self, query_result, names, json, verbose=False, **kwargs):
+    def _store_query_result(self, query_result, names, descriptors, verbose=False, **kwargs):
         for name in names:
-            table = self._query(name=name, json=json, verbose=verbose, **kwargs)
+            table = self._query(name=name, descriptors=descriptors, verbose=verbose, **kwargs)
             if len(table) > 0:
-                query_result[name.upper()] = table
+                query_result[name] = table
 
-    def _find_mission_parameters_in_json(self, mission_tap_name, json):
-        for mission in json:
-            if mission[self.__TAP_TABLE_STRING] == mission_tap_name:
-                return mission
-        raise ValueError("Input tap name {} not available.".format(mission_tap_name))
+    def _get_observation_info(self):
+        return self._get_descriptors(category='observations')
 
-    def _find_mission_tap_table_name(self, json, mission_name):
-        for index in range(len(json)):
-            if json[index][self.__MISSION_STRING].lower() == mission_name.lower():
-                return json[index][self.__TAP_TABLE_STRING]
+    def _get_catalogs_info(self):
+        return self._get_descriptors(category='catalogues')
 
-        raise ValueError("Input {} not available.".format(mission_name))
+    def _get_spectra_info(self):
+        return self._get_descriptors(category='spectra')
 
-    def _get_observation_json(self):
-        return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING)
+    def _get_sso_info(self):
+        return self._get_descriptors(category='sso')
 
-    def _get_catalogs_json(self):
-        return self._fetch_and_parse_json(self.__CATALOGS_STRING)
+    def _get_descriptors(self, category):
+        query = """select d.*, ra.column_name as ra, dec.column_name as dec from descriptors d
+        join tap_schema.columns ra on d.table_name = ra.table_name
+        join tap_schema.columns dec on d.table_name = dec.table_name
+        where d.category = '{}' and ra.ucd = 'pos.eq.ra;meta.main' and dec.ucd = 'pos.eq.dec;meta.main'
+        """.format(category)
+        return {d['mission'].upper(): {a: d[a] for a in d.keys()} for d in self.query(query)}
 
-    def _get_spectra_json(self):
-        return self._fetch_and_parse_json(self.__SPECTRA_STRING)
+    def _table_for_mission(self, mission, descriptors):
+        tables = {d['mission'].lower(): d['table_name'] for d in descriptors.values()}
+        return tables[mission.lower()]
 
-    def _get_sso_json(self):
-        return self._fetch_and_parse_json("sso")
+    def _get_unique_identifier(self, table_name):
+        rows = self.query("select * from tap_schema.columns where table_name='{}'".format(table_name))
+        for row in rows:
+            if 'meta.id' in row.get('ucd') and 'meta.main' in row.get('ucd'):
+                return row.get('column_name')
+        for row in rows:
+            if row.get('utype').lower() == 'DataID.observationID'.lower():
+                return row.get('column_name')
+        for row in rows:
+            if row.get('utype').lower() == 'obscore:DataID.Creatordid'.lower():
+                return row.get('column_name')
 
-    def _fetch_and_parse_json(self, object_name):
-        url = self.URLbase + "/" + object_name
-        response = self._request(
-            'GET',
-            url,
-            cache=False,
-            headers=self._get_header())
-
-        response.raise_for_status()
-
-        string_response = response.content.decode('utf-8')
-        json_response = json.loads(string_response)
-        return json_response["descriptors"]
-
-    def _json_object_field_to_list(self, json, field_name):
-        response_list = []
-        for index in range(len(json)):
-            response_list.append(json[index][field_name])
-        return response_list
-
-    def _get_json_data_for_mission(self, json, mission):
-        for index in range(len(json)):
-            if json[index][self.__MISSION_STRING].lower() == mission.lower():
-                return json[index]
+    def _x_match_table(self, data_table):
+        query = """SELECT xmatch_table from tap_descriptors.sso_extras
+        where descriptor_table_name='{}'""".format(data_table)
+        return self.query(query)[0]['xmatch_table']
 
     def _create_request_payload(self, query):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
