@@ -111,7 +111,7 @@ def test_gen_pos_sql():
         "-90.0,4.338888888888889), s_region) = 1)"
     assert _gen_sql({'ra_dec': '!(10..20) >60'}) == common_select + \
         "((INTERSECTS(RANGE_S2D(0.0,10.0,60.0,90.0), s_region) = 1) OR " \
-        "(INTERSECTS(RANGE_S2D(20.0,0.0,60.0,90.0), s_region) = 1))"
+        "(INTERSECTS(RANGE_S2D(20.0,360.0,60.0,90.0), s_region) = 1))"
     assert _gen_sql({'ra_dec': '0..20|40..60 <-50|>50'}) == common_select + \
         "((INTERSECTS(RANGE_S2D(0.0,20.0,-90.0,-50.0), s_region) = 1) OR " \
         "(INTERSECTS(RANGE_S2D(0.0,20.0,50.0,90.0), s_region) = 1) OR " \
@@ -123,18 +123,23 @@ def test_gen_pos_sql():
     assert _gen_sql({'galactic': '1 2, 3'}) == common_select + "(INTERSECTS(" \
         "CIRCLE('ICRS',{},{},3.0), s_region) = 1)".format(
         center.icrs.ra.to(u.deg).value, center.icrs.dec.to(u.deg).value)
-    min_point = coord.SkyCoord('12:13:14.0', '-00:01:02.1', unit=u.deg,
-                               frame='galactic')
-    max_point = coord.SkyCoord('12:14:14.0', '-00:00:02.1', unit=(u.deg, u.deg),
-                               frame='galactic')
+    gal_longitude = ('12:13:14.0', '12:14:14.0')
+    gal_latitude = ('-00:01:02.1', '-00:00:02.1')
+    min_pt = coord.SkyCoord(gal_longitude[0], gal_latitude[0], unit=u.deg)
+    long_min, lat_min = min_pt.ra.value, min_pt.dec.value
+    max_pt = coord.SkyCoord(gal_longitude[1], gal_latitude[1], unit=u.deg)
+    long_max, lat_max = max_pt.ra.value, max_pt.dec.value
     assert _gen_sql(
-        {'galactic': '12:13:14.0..12:14:14.0 -00:01:02.1..-00:00:02.1'}) == \
+        {'galactic': '{}..{} {}..{}'.format(
+            gal_longitude[0], gal_longitude[1], gal_latitude[0], gal_latitude[1])}) == \
         common_select +\
-        "(INTERSECTS(RANGE_S2D({},{},{},{}), s_region) = 1)".format(
-            min_point.icrs.ra.to(u.deg).value,
-            max_point.icrs.ra.to(u.deg).value,
-            min_point.icrs.dec.to(u.deg).value,
-            max_point.icrs.dec.to(u.deg).value)
+        'gal_longitude>={} AND gal_longitude<={} AND gal_latitude>={} AND gal_latitude<={}'.format(
+            long_min, long_max, lat_min, lat_max)
+
+    # test extremities
+    assert _gen_sql({'galactic': '0..360 -90..90'}) == \
+        common_select + ('gal_longitude>=0.0 AND gal_longitude<=360.0 AND '
+                         'gal_latitude>=-90.0 AND gal_latitude<=90.0')
 
     # combination of frames
     center = coord.SkyCoord(1, 2, unit=u.deg, frame='galactic')
