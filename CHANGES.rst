@@ -22,6 +22,8 @@ alma
 
 - Added support for frequency_resolution in KHz [#3035]
 
+- Changed the way galactic ranges are used in queries [#3105]
+
 ehst
 ^^^^
 
