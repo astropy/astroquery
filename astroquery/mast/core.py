@@ -5,9 +5,7 @@ MAST Core
 
 This the base class for MAST queries.
 """
-import warnings
-
-from astropy.utils.exceptions import AstropyDeprecationWarning
+from astropy.utils import deprecated
 from ..query import QueryWithLogin
 from . import utils
 from .auth import MastAuth
@@ -84,21 +82,33 @@ class MastQueryWithLogin(QueryWithLogin):
         self._auth_obj.logout()
         self._authenticated = False
 
+    @deprecated(since='v0.4.8',
+                message=('This function is non-operational and will be removed in a future release.'))
     def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
         """
-        .. deprecated:: 0.4.8
-           This function is non-operational and has been deprecated.
-        """
-        warnings.warn('This function is non-operational and will be removed in a future release.',
-                      AstropyDeprecationWarning)
+        Enable downloading public files from S3 instead of MAST.
+        Requires the boto3 library to function.
 
+        Parameters
+        ----------
+        provider : str
+            Which cloud data provider to use.  We may in the future support multiple providers,
+            though at the moment this argument is ignored.
+        profile : str
+            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
+        verbose : bool
+            Default True.
+            Logger to display extra info and warning.
+        """
+        pass
+
+    @deprecated(since='v0.4.8',
+                message=('This function is non-operational and will be removed in a future release.'))
     def disable_cloud_dataset(self):
         """
-        .. deprecated:: 0.4.8
-           This function is non-operational and has been deprecated.
+        Disables downloading public files from S3 instead of MAST.
         """
-        warnings.warn('This function is non-operational and will be removed in a future release.',
-                      AstropyDeprecationWarning)
+        pass
 
     def resolve_object(self, objectname):
         """

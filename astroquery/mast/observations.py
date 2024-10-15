@@ -192,7 +192,7 @@ class ObservationsClass(MastQueryWithLogin):
 
     def disable_cloud_dataset(self):
         """
-        Disables downloading public files from S3 instead of MAST
+        Disables downloading public files from S3 instead of MAST.
         """
         self._cloud_connection = None
 
