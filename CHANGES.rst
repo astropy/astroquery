@@ -181,7 +181,12 @@ gaia
 
 - Fix method search_async_jobs in the class TapPlus. [#2967]
 
+- Change the signature of the function load_data: the parameter output_file that defined the file where the results were
+  saved, is replaced by boolean parameter dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
+  all the DataLink files is made. So the users cannot specified the output file anymore  [#3014]
+
 - New retrieval types for datalink (Gaia DR4 release). [#3110]
+
 
 jplhorizons
 ^^^^^^^^^^^
@@ -422,6 +427,8 @@ gaia
 - Method ``load_data`` now has the parameter ``valid_data`` to control the
   epoch photometry service to return all data associated to a given source.
   [#2376]
+
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
 
 - Default Gaia catalog updated to DR3. [#2596]
 

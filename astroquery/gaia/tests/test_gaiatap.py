@@ -14,7 +14,9 @@ Created on 30 jun. 2016
 
 
 """
+import datetime
 import os
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -24,6 +26,7 @@ import pytest
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.utils.data import get_pkg_data_filename
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -44,6 +47,22 @@ JOB_DATA_QUERIER_ASYNC_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'l
 
 JOB_DATA_QUERIER_ECSV_FILE_NAME = get_pkg_data_filename(os.path.join("data", '1712337806100O-result.ecsv'),
                                                         package=package)
+
+DL_PRODUCTS_VOT = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_vot.zip'),
+    package=package)
+
+DL_PRODUCTS_ECSV = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_ecsv.zip'),
+    package=package)
+
+DL_PRODUCTS_CSV = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_csv.zip'),
+    package=package)
+
+DL_PRODUCTS_FITS = get_pkg_data_filename(
+    os.path.join("data", 'gaia_dr3_source_id_5937083312263887616_dl_products_fits.zip'),
+    package=package)
 
 JOB_DATA = Path(JOB_DATA_FILE_NAME).read_text()
 JOB_DATA_NEW = Path(JOB_DATA_FILE_NAME_NEW).read_text()
@@ -67,6 +86,22 @@ ids_designator = ['Gaia DR3 1104405489608579584', 'Gaia DR3 1104405489608579584,
 
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
+
+FAKE_TIME = datetime.datetime(2024, 1, 1, 0, 0, 59)
+
+
+@pytest.fixture
+def patch_datetime_now(monkeypatch):
+    class mydatetime(datetime.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return FAKE_TIME
+
+    monkeypatch.setattr(datetime, 'datetime', mydatetime)
+
+
+def test_patch_datetime(patch_datetime_now):
+    assert datetime.datetime.now() == FAKE_TIME
 
 
 @pytest.fixture(scope="module")
@@ -148,6 +183,77 @@ def mock_querier():
     launch_response.set_data(method="POST", body=JOB_DATA)
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="function")
+def mock_datalink_querier(patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=DL_PRODUCTS_VOT)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    conn_handler.set_response(
+        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=votable&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
+        launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_datalink_querier_ecsv():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=DL_PRODUCTS_ECSV)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    conn_handler.set_response(
+        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=ecsv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
+        launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_datalink_querier_csv():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=DL_PRODUCTS_CSV)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    conn_handler.set_response(
+        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=csv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
+        launch_response)
+
+    return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def mock_datalink_querier_fits():
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=DL_PRODUCTS_FITS)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+    conn_handler.set_response(
+        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=fits&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
+        launch_response)
 
     return GaiaClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
 
@@ -696,7 +802,214 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
-def test_load_data(monkeypatch, tmp_path):
+@pytest.mark.parametrize("overwrite_output_file", [True])
+def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwrite_output_file):
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    file_final = Path(os.getcwd(), output_file)
+
+    Path(file_final).touch()
+
+    assert os.path.exists(file_final)
+
+    if not overwrite_output_file:
+
+        with pytest.raises(ValueError) as excinfo:
+            mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                            data_structure='INDIVIDUAL',
+                                            retrieval_type="ALL",
+                                            linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                            avoid_datatype_check=False,
+                                            format="votable", dump_to_file=True,
+                                            overwrite_output_file=overwrite_output_file,
+                                            verbose=False)
+
+        assert str(
+            excinfo.value) == (
+                f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output file.")
+
+    else:
+        mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                        data_structure='INDIVIDUAL',
+                                        retrieval_type="ALL",
+                                        linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                        avoid_datatype_check=False,
+                                        format="votable", dump_to_file=True,
+                                        overwrite_output_file=overwrite_output_file,
+                                        verbose=False)
+
+    os.remove(file_final)
+
+    assert not os.path.exists(file_final)
+
+
+def test_datalink_querier_load_data_vot(mock_datalink_querier):
+    result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                  data_structure='INDIVIDUAL',
+                                                  retrieval_type="ALL",
+                                                  linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                  avoid_datatype_check=False,
+                                                  format="votable", dump_to_file=True, overwrite_output_file=True,
+                                                  verbose=False)
+
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
+
+    extracted_files = []
+
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
+        extracted_files.extend(zip_ref.namelist())
+
+    assert len(extracted_files) == 3
+
+    assert len(result_dict) == 3
+
+    files = list(result_dict.keys())
+    files.sort()
+    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.xml'
+    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.xml'
+    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.xml'
+
+    os.remove(os.path.join(os.getcwd(), datalink_output))
+
+    assert not os.path.exists(os.path.join(os.getcwd(), datalink_output))
+
+
+def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
+    result_dict = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                       data_structure='INDIVIDUAL',
+                                                       retrieval_type="ALL",
+                                                       linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                       avoid_datatype_check=False,
+                                                       format="ecsv", dump_to_file=True, overwrite_output_file=True,
+                                                       verbose=False)
+
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
+
+    extracted_files = []
+
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
+        extracted_files.extend(zip_ref.namelist())
+
+    assert len(extracted_files) == 3
+
+    assert len(result_dict) == 3
+
+    files = list(result_dict.keys())
+    files.sort()
+    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.ecsv'
+    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
+    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
+
+    os.remove(os.path.join(os.getcwd(), datalink_output))
+
+    assert not os.path.exists(datalink_output)
+
+
+def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
+    result_dict = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                      data_structure='INDIVIDUAL',
+                                                      retrieval_type="ALL",
+                                                      linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                      avoid_datatype_check=False,
+                                                      format="csv", dump_to_file=True, overwrite_output_file=True,
+                                                      verbose=False)
+
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
+
+    extracted_files = []
+
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
+        extracted_files.extend(zip_ref.namelist())
+
+    assert len(extracted_files) == 3
+
+    assert len(result_dict) == 3
+
+    files = list(result_dict.keys())
+    files.sort()
+    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.csv'
+    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
+    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
+
+    os.remove(os.path.join(os.getcwd(), datalink_output))
+
+    assert not os.path.exists(datalink_output)
+
+
+@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
+def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
+    result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                       data_structure='INDIVIDUAL',
+                                                       retrieval_type="ALL",
+                                                       linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                       avoid_datatype_check=False,
+                                                       format="fits", dump_to_file=True, overwrite_output_file=True,
+                                                       verbose=False)
+
+    direc = os.getcwd()
+    files = os.listdir(direc)
+    # Filtering only the files.
+    files = [f for f in files if
+             Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
+
+    assert len(files) == 1
+    datalink_output = files[0]
+
+    extracted_files = []
+
+    with zipfile.ZipFile(datalink_output, "r") as zip_ref:
+        extracted_files.extend(zip_ref.namelist())
+
+    assert len(extracted_files) == 3
+
+    assert len(result_dict) == 3
+
+    files = list(result_dict.keys())
+    files.sort()
+    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.fits'
+    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
+    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
+
+    os.remove(os.path.join(os.getcwd(), datalink_output))
+
+    assert not os.path.exists(datalink_output)
+
+
+def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -705,20 +1018,111 @@ def test_load_data(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+        assert str(path) == output_file
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    # Keep the tests, just remove the argument once the deprecation is removed
+    with pytest.warns(AstropyDeprecationWarning,
+                      match='"output_file" was deprecated in version 0.4.8'):
+        GAIA_QUERIER.load_data(
+            valid_data=True,
+            ids="1,2,3,4",
+            format='votable',
+            retrieval_type="epoch_photometry",
+            verbose=True,
+            dump_to_file=True,
+            overwrite_output_file=True,
+            output_file=tmp_path / "output_file")
+
+    path.unlink()
+
+
+@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
+def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_FITS, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
+            "VALID_DATA": "true",
+            "ID": "1,2,3,4",
+            "FORMAT": "fits",
+            "RETRIEVAL_TYPE": "epoch_photometry",
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "USE_ZIP_ALWAYS": "true"}
+        assert output_file == Path(os.getcwd(), 'datalink_output.zip')
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
     GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
         valid_data=True,
+        ids="1,2,3,4",
+        format='fits',
+        retrieval_type="epoch_photometry",
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True,
+        overwrite_output_file=True)
+
+    path.unlink()
 
 
-def test_load_data_ecsv(monkeypatch, tmp_path):
+def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_CSV, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
+    def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        assert params_dict == {
+            "VALID_DATA": "true",
+            "ID": "1,2,3,4",
+            "FORMAT": "csv",
+            "RETRIEVAL_TYPE": "epoch_photometry",
+            "DATA_STRUCTURE": "INDIVIDUAL",
+            "USE_ZIP_ALWAYS": "true"}
+        assert str(path) == output_file
+        assert verbose is True
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
+
+    GAIA_QUERIER.load_data(
+        valid_data=True,
+        ids="1,2,3,4",
+        format='csv',
+        retrieval_type="epoch_photometry",
+        verbose=True,
+        dump_to_file=True,
+        overwrite_output_file=True)
+
+    path.unlink()
+
+
+def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_ECSV, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -727,21 +1131,34 @@ def test_load_data_ecsv(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file.zip")
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
     GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
         valid_data=True,
-        verbose=True,
+        ids="1,2,3,4",
         format='ecsv',
-        output_file=str(tmp_path / "output_file"))
+        retrieval_type="epoch_photometry",
+        verbose=True,
+        dump_to_file=True,
+        overwrite_output_file=True)
+
+    path.unlink()
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
         assert params_dict == {
             "VALID_DATA": "true",
@@ -750,7 +1167,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -761,12 +1178,34 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
         linking_parameter="SOURCE_ID",
         valid_data=True,
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True,
+        overwrite_output_file=True)
+
+    path.unlink()
 
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
 def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+
+    path = Path(os.getcwd(), output_file)
+
+    with open(DL_PRODUCTS_VOT, 'rb') as file:
+        zip_bytes = file.read()
+
+    path.write_bytes(zip_bytes)
+
     def load_data_monkeypatched(self, params_dict, output_file, verbose):
+        direc = os.getcwd()
+        files = os.listdir(direc)
+        # Filtering only the files.
+        files = [f for f in files if
+                 Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
+
+        assert len(files) == 1
+        datalink_output = files[0]
+
         assert params_dict == {
             "VALID_DATA": "true",
             "ID": "1,2,3,4",
@@ -774,8 +1213,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "LINKING_PARAMETER": linking_param,
-            "USE_ZIP_ALWAYS": "true"}
-        assert output_file == str(tmp_path / "output_file")
+            "USE_ZIP_ALWAYS": "true", }
+        assert output_file == str(Path(os.getcwd(), datalink_output))
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -786,7 +1225,10 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
         linking_parameter=linking_param,
         valid_data=True,
         verbose=True,
-        output_file=tmp_path / "output_file")
+        dump_to_file=True,
+        overwrite_output_file=True)
+
+    path.unlink()
 
 
 def test_get_datalinks(monkeypatch):
