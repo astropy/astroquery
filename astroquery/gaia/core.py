@@ -27,6 +27,7 @@ from astropy.io import fits
 from astropy.io import votable
 from astropy.table import Table
 from astropy.units import Quantity
+from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError
 
 from astroquery import log
@@ -167,9 +168,11 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging out data server")
 
+    @deprecated_renamed_argument("output_file", None, since="0.4.8")
     def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
-                  format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False):
+                  format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False,
+                  output_file=None):
         """Loads the specified table
         TAP+ only
 

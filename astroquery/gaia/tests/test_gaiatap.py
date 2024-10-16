@@ -26,6 +26,7 @@ import pytest
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.utils.data import get_pkg_data_filename
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -1022,14 +1023,18 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='votable',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    # Keep the tests, just remove the argument once the deprecation is removed
+    with pytest.warns(AstropyDeprecationWarning,
+                      match='"output_file" was deprecated in version 0.4.8'):
+        GAIA_QUERIER.load_data(
+            valid_data=True,
+            ids="1,2,3,4",
+            format='votable',
+            retrieval_type="epoch_photometry",
+            verbose=True,
+            dump_to_file=True,
+            overwrite_output_file=True,
+            output_file=tmp_path / "output_file")
 
     path.unlink()
 
