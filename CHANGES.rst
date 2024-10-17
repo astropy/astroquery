@@ -218,6 +218,9 @@ mast
 - Added function ``mast.Observations.get_unique_product_list`` to return the unique data products associated with
   given observations. [#3096]
 
+- Deprecated ``enable_cloud_dataset`` and ``disable_cloud_dataset`` in classes where they
+  are non-operational. They will be removed in a future release. [#3113]
+
 mpc
 ^^^
 
