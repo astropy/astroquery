@@ -65,7 +65,7 @@ we use `~astropy.units`:
 
 If no radius value is given, a default that is appropriate
 for each table is used. You can see the value of the default
-radius values by calling `~~astroquery.heasarc.HeasarcClass.get_default_radius`,
+radius values by calling `~~astroquery.heasarc.HeasarcClass._get_default_radius`,
 passing the name of the table.
 
 The list of returned columns can also be given as a comma-separated string to
