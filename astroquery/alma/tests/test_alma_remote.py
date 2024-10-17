@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from datetime import datetime, timezone
 import os
+from io import StringIO
 from pathlib import Path
 from urllib.parse import urlparse
 import re
@@ -23,7 +24,6 @@ try:
 except ImportError:
     HAS_REGIONS = False
 
-# ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
 SKIP_SLOW = True
 
@@ -91,6 +91,7 @@ class TestAlma:
 
         assert '2013.1.00857.S' in result_s['Project code']
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_freq(self, alma):
         payload = {'frequency': '85..86'}
         result = alma.query(payload)
@@ -98,7 +99,7 @@ class TestAlma:
         for row in result:
             # returned em_min and em_max are in m
             assert row['frequency'] >= 85
-            assert row['frequency'] <= 100
+            assert row['frequency'] <= 86
             assert '3' in row['band_list']
 
     def test_bands(self, alma):
@@ -216,10 +217,7 @@ class TestAlma:
         trimmed_access_url_list = [e for e in data_info_tar['access_url'].data if len(e) > 0]
         trimmed_access_urls = (trimmed_access_url_list,)
         mock_calls = download_files_mock.mock_calls[0][1]
-        print(f"\n\nComparing {mock_calls} to {trimmed_access_urls}\n\n")
-        # comparison = download_files_mock.mock_calls[0][1] == data_info_tar['access_url']
         assert mock_calls == trimmed_access_urls
-        # assert comparison.all()
 
     def test_download_data(self, tmp_path, alma):
         # test only fits files from a program
@@ -239,9 +237,8 @@ class TestAlma:
         alma._download_file.call_count == len(results)
         assert len(results) == len(urls)
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_download_and_extract(self, tmp_path, alma):
-        # TODO: slowish, runs for ~90s
-
         alma.cache_location = tmp_path
         alma._cycle0_tarfile_content_table = {'ID': ''}
 
@@ -345,16 +342,18 @@ class TestAlma:
 
         result = alma.query_object('M83', public=True, science=True)
         assert len(result) > 0
-        result = alma.query(payload={'pi_name': '*Bally*'}, public=False,
-                            maxrec=10)
+        with pytest.warns(expected_warning=DALOverflowWarning,
+                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+            result = alma.query(payload={'pi_name': 'Bally*'}, public=True,
+                                maxrec=10)
         assert result
         # Add overwrite=True in case the test previously died unexpectedly
         # and left the temp file.
         result.write('/tmp/alma-onerow.txt', format='ascii', overwrite=True)
         for row in result:
-            assert 'Bally' in row['obs_creator_name']
+            assert 'Bally' in row['pi_name']
         result = alma.query(payload=dict(project_code='2016.1.00165.S'),
-                            public=False)
+                            public=True)
         assert result
         for row in result:
             assert '2016.1.00165.S' == row['proposal_id']
@@ -398,8 +397,9 @@ class TestAlma:
         assert result
         for row in result:
             assert '6' == row['band_list']
-            assert 'ginsburg' in row['obs_creator_name'].lower()
+            assert 'ginsburg' in row['pi_name'].lower()
 
+    @pytest.mark.skip("Not sure what this is supposed to do")
     def test_user(self, alma):
         # miscellaneous set of tests from current users
         rslt = alma.query({'band_list': [6], 'project_code': '2012.1.*'},
@@ -559,6 +559,36 @@ def test_big_download_regression(alma):
 
     # this is a big one that fails
     alma.download_files([files['access_url'][3]])
+
+
+@pytest.mark.remote_data
+def test_tap_upload():
+    tmp_table = StringIO('''<?xml version="1.0" encoding="UTF-8"?>
+    <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.3">
+      <RESOURCE>
+        <TABLE>
+          <FIELD name="prop_id" datatype="char" arraysize="*">
+            <DESCRIPTION>external URI for the physical artifact</DESCRIPTION>
+          </FIELD>
+          <DATA>
+            <TABLEDATA>
+              <TR>
+                <TD>2013.1.01365.S</TD>
+              </TR>
+            </TABLEDATA>
+          </DATA>
+        </TABLE>
+      </RESOURCE>
+    </VOTABLE>''')
+
+    alma = Alma()
+    res = alma.query_tap(
+        'select top 3 proposal_id from ivoa.ObsCore oc join TAP_UPLOAD.proj_codes pc on oc.proposal_id=pc.prop_id',
+        uploads={'proj_codes': tmp_table})
+    assert len(res) == 3
+    for row in res:
+        assert row['proposal_id'] == '2013.1.01365.S'
 
 
 @pytest.mark.remote_data

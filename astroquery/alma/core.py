@@ -138,7 +138,7 @@ ALMA_FORM_KEYS = {
     'Project': {
         'Project code': ['project_code', 'proposal_id', _gen_str_sql],
         'Project title': ['project_title', 'obs_title', _gen_str_sql],
-        'PI name': ['pi_name', 'obs_creator_name', _gen_str_sql],
+        'PI name': ['pi_name', 'pi_name', _gen_str_sql],
         'Proposal authors': ['proposal_authors', 'proposal_authors', _gen_str_sql],
         'Project abstract': ['project_abstract', 'proposal_abstract', _gen_str_sql],
         'Publication count': ['publication_count', 'NA', _gen_str_sql],
@@ -678,19 +678,33 @@ class AlmaClass(QueryWithLogin):
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
-    def query_tap(self, query, maxrec=None):
+    def query_tap(self, query, *, maxrec=None, uploads=None):
         """
         Send query to the ALMA TAP. Results in pyvo.dal.TapResult format.
         result.table in Astropy table format
 
         Parameters
         ----------
+        query : str
+            ADQL query to execute
         maxrec : int
             maximum number of records to return
+        uploads : dict
+            a mapping from temporary table names to objects containing a votable. These
+            temporary tables can be referred to in queries. The keys in the dictionary are
+            the names of temporary tables which need to be prefixed with the TAP_UPLOAD
+            schema in the actual query. The values are either astropy.table.Table instances
+            or file names or file like handles such as io.StringIO to table definition in
+            IVOA VOTable format.
+
+    Examples
+    --------
+    >>> uploads = {'tmptable': '/tmp/tmptable_def.xml'}
+    >>> rslt = query_tap(self, query, maxrec=None, uploads=uploads)
 
         """
         log.debug('TAP query: {}'.format(query))
-        return self.tap.search(query, language='ADQL', maxrec=maxrec)
+        return self.tap.search(query, language='ADQL', maxrec=maxrec, uploads=uploads)
 
     def help_tap(self):
         print('Table to query is "voa.ObsCore".')

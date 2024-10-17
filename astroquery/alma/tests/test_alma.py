@@ -269,7 +269,7 @@ def test_query():
         "select * from ivoa.obscore WHERE "
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), s_region) = 1) "
         "AND science_observation='T' AND data_rights='Public'",
-        language='ADQL', maxrec=None)
+        language='ADQL', maxrec=None, uploads=None)
 
     # one row result
     tap_mock = Mock()
@@ -291,7 +291,7 @@ def test_query():
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,0.16666666666666666), s_region) = 1) "
         "AND band_list LIKE '%3%' AND science_observation='T' AND "
         "data_rights='Proprietary'",
-        language='ADQL', maxrec=None)
+        language='ADQL', maxrec=None, uploads=None)
 
     # repeat for legacy columns
     mock_result = Mock()
@@ -313,7 +313,7 @@ def test_query():
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,0.16666666666666666), s_region) = 1) "
         "AND band_list LIKE '%3%' AND science_observation='T' AND "
         "data_rights='Proprietary'",
-        language='ADQL', maxrec=None)
+        language='ADQL', maxrec=None, uploads=None)
     row_legacy = result_legacy[0]
     row = result[0]
     for item in _OBSCORE_TO_ALMARESULT.items():
@@ -347,7 +347,7 @@ def test_query():
         "(band_list LIKE '%1%' OR band_list LIKE '%3%') AND "
         "t_min=55197.0 AND pol_states='/XX/YY/' AND s_fov=0.012313 AND "
         "t_exptime=25 AND science_observation='F'",
-        language='ADQL', maxrec=None
+        language='ADQL', maxrec=None, uploads=None
     )
 
     tap_mock.reset()
@@ -361,7 +361,7 @@ def test_query():
         "AND spectral_resolution=2000000 "
         "AND (INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), "
         "s_region) = 1) AND science_observation='T' AND data_rights='Public'",
-        language='ADQL', maxrec=None)
+        language='ADQL', maxrec=None, uploads=None)
 
 
 @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
@@ -499,9 +499,14 @@ def test_tap():
     alma._tap = tap_mock
     result = alma.query_tap('select * from ivoa.ObsCore')
     assert len(result.table) == 0
-
     tap_mock.search.assert_called_once_with('select * from ivoa.ObsCore',
-                                            language='ADQL', maxrec=None)
+                                            language='ADQL', maxrec=None, uploads=None)
+
+    tap_mock.search.reset_mock()
+    result = alma.query_tap('select * from ivoa.ObsCore', maxrec=10, uploads={'tmptable': 'votable_file.xml'})
+    assert len(result.table) == 0
+    tap_mock.search.assert_called_once_with(
+        'select * from ivoa.ObsCore', language='ADQL', maxrec=10, uploads={'tmptable': 'votable_file.xml'})
 
 
 @pytest.mark.parametrize('data_archive_url',
