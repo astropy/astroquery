@@ -60,16 +60,16 @@ DEFAULT_COLS = [
 @pytest.mark.remote_data
 class TestHeasarc:
 
-    def test_tap():
+    def test_tap(self):
         """Test Tap service"""
         assert Heasarc._tap is None
         tap = Heasarc.tap
         assert Heasarc._tap == tap
 
-    def test_meta():
+    def test_meta(self):
         """Test Meta service"""
         assert Heasarc._meta_info is None
-        Heasarc._meta()
+        Heasarc._meta
         assert Heasarc._meta_info is not None
 
     @pytest.mark.parametrize("coordinates", OBJ_LIST)

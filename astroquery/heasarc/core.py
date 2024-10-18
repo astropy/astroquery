@@ -154,10 +154,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         `~astropy.table.Table` with columns: name, description
 
         """
-        if not isinstance(keywords, list):
-            keywords = [keywords]
-        if not all([isinstance(wrd, str) for wrd in keywords]):
-            raise ValueError('non-str found in keywords elements')
+        if keywords is not None:
+            if not isinstance(keywords, list):
+                keywords = [keywords]
+            if not all([isinstance(wrd, str) for wrd in keywords]):
+                raise ValueError('non-str found in keywords elements')
 
         # use 'mast' to include both 'master' and 'mastr'
         names, desc = [], []
