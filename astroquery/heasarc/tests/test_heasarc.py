@@ -142,6 +142,13 @@ def test_no_table():
     with pytest.raises(InvalidQueryError):
         Heasarc.query_region("m31", spatial="cone", columns="*")
 
+def test_list_tables_keywords_non_str(self):
+        with pytest.raises(ValueError, match="non-str found in keywords elements"):
+            Heasarc.tables(keywords=12)
+    
+    def test_list_tables_keywords_list_non_str(self):
+        with pytest.raises(ValueError, match="non-str found in keywords elements"):
+            Heasarc.tables(keywords=['x-ray', 12])
 
 def test_get_datalink():
     with pytest.raises(ValueError, match="query_result is None"):
