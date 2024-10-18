@@ -258,7 +258,7 @@ class GaiaClass(TapPlus):
 
         log.debug(f"Directory where the data will be saved: {path}")
 
-        if path != '':
+        if path:
             if not os.path.isdir(path):
                 try:
                     os.mkdir(path)
