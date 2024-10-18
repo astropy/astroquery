@@ -143,12 +143,12 @@ def test_no_table():
         Heasarc.query_region("m31", spatial="cone", columns="*")
 
 
-def test_list_tables_keywords_non_str(self):
+def test_list_tables_keywords_non_str():
     with pytest.raises(ValueError, match="non-str found in keywords elements"):
         Heasarc.tables(keywords=12)
 
 
-def test_list_tables_keywords_list_non_str(self):
+def test_list_tables_keywords_list_non_str():
     with pytest.raises(ValueError, match="non-str found in keywords elements"):
         Heasarc.tables(keywords=['x-ray', 12])
 
