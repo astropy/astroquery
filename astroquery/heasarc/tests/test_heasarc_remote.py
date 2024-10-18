@@ -65,11 +65,11 @@ class TestHeasarc:
         assert Heasarc._tap is None
         tap = Heasarc.tap
         assert Heasarc._tap == tap
-    
+
     def test_meta():
         """Test Meta service"""
         assert Heasarc._meta_info is None
-        meta = Heasarc._meta()
+        Heasarc._meta()
         assert Heasarc._meta_info is not None
 
     @pytest.mark.parametrize("coordinates", OBJ_LIST)
@@ -130,7 +130,6 @@ class TestHeasarc:
         # significant drop. (at the time of writing there are 1020 tables
         # in the list).
         assert len(tables) > 1000
-        
 
     def test_list_tables__master(self):
         tables = list(Heasarc.tables(master=True)["name"])
