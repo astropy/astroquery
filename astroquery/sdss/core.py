@@ -774,6 +774,7 @@ class SDSSClass(BaseQuery):
 
             link = linkstr.format(**format_args)
             results.append(commons.FileContainer(link,
+                                                 cache=cache,
                                                  encoding='binary',
                                                  remote_timeout=timeout,
                                                  show_progress=show_progress))
