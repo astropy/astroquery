@@ -44,7 +44,7 @@ and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`:
     NGC_3783 60902005 174.7571 -37.7385
 
 To query a region around some position, specifying the search radius,
-we use `~astropy.units`:
+we use `~astropy.units.deg`:
 
 .. doctest-remote-data::
 

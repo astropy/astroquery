@@ -15,17 +15,15 @@ import pyvo
 
 from astroquery import log
 from ..query import BaseQuery, BaseVOQuery
-from ..utils import commons, async_to_sync, parse_coordinates
+from ..utils import commons, parse_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
+__all__ = ['Heasarc', 'HeasarcClass']
 
-@async_to_sync
 class HeasarcClass(BaseVOQuery, BaseQuery):
-    """Class for accessing HEASARC data using XAMIN.
+    """Class for accessing HEASARC data with VO protocol using the Xamin backend.
 
-    Example Usage:
-    ...
 
     """
 
