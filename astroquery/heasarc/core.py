@@ -15,17 +15,16 @@ import pyvo
 
 from astroquery import log
 from ..query import BaseQuery, BaseVOQuery
-from ..utils import commons, async_to_sync, parse_coordinates
+from ..utils import commons, parse_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
+__all__ = ['Heasarc', 'HeasarcClass']
 
-@async_to_sync
+
 class HeasarcClass(BaseVOQuery, BaseQuery):
-    """Class for accessing HEASARC data using XAMIN.
+    """Class for accessing HEASARC data with VO protocol using the Xamin backend.
 
-    Example Usage:
-    ...
 
     """
 
@@ -55,12 +54,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
     @property
     def _meta(self):
-        """Queries and holds meta-information about the tables.
+        """Queries and holds meta-information about the catalogs.
 
         This is a table that holds useful information such as
-        the list of default columns per table, the reasonable default
+        the list of default columns per catalog, the reasonable default
         search radius per table that is appropriate for a mission etc.
-        Instead of making a server call for each table for that type information,
+        Instead of making a server call for each catalog for that type information,
         we do a single one and then post-process the resulting table.
 
         These are not meant to be used directly by the user.
@@ -81,13 +80,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             self._meta_info = self._meta_info[self._meta_info['value'] > 0]
         return self._meta_info
 
-    def _get_default_cols(self, table_name):
-        """Get a list of default columns for a table
+    def _get_default_columns(self, catalog_name):
+        """Get a list of default columns for a catalog
 
         Parameters
         ----------
-        table_name: str
-            The name of table as a str
+        catalog_name : str
+            The name of catalog as a str
 
         Return
         ------
@@ -95,28 +94,28 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         """
         meta = self._meta[
-            (self._meta['table'] == table_name)
+            (self._meta['table'] == catalog_name)
             & (self._meta['par'] != '')
         ]
         meta.sort('value')
         defaults = meta['par']
         return defaults
 
-    def _get_default_radius(self, table_name):
-        """Get a mission-appropriate default radius for a table
+    def get_default_radius(self, catalog_name):
+        """Get a mission-appropriate default radius for a catalog
 
         Parameters
         ----------
-        table_name: str
-            The name of table as a str
+        catalog_name : str
+            The name of catalog as a str
 
         Returns
         -------
-        The radius as ~astropy.units
+        The radius as ~astropy.units.Quantity
 
         """
         meta = self._meta[
-            (self._meta['table'] == table_name)
+            (self._meta['table'] == catalog_name)
             & (self._meta['par'] == '')
         ]
         radius = np.double(meta['value'][0]) * u.arcmin
@@ -127,7 +126,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        session: ~requests.Session
+        session : ~requests.Session
             The requests.Session to use
 
         """
@@ -136,17 +135,17 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         self._session = session
 
-    def tables(self, *, master=False, keywords=None):
-        """Return a dictionay of all available table in the
-        form {name: description}
+    def list_catalogs(self, *, master=False, keywords=None):
+        """Return a table of all available catalogs with two columns
+        (name, description)
 
         Parameters
         ----------
-        master: bool
-            Select only master tables. Default is False
-        keywords: str or list
+        master : bool
+            Select only master catalogs. Default is False
+        keywords : str or list
             a str or a list of str of keywords used as search
-            terms for tables. Words with a str separated by a space
+            terms for catalogs. Words with a str separated by a space
             are AND'ed, while words in a list are OR'ed
 
         Returns
@@ -180,28 +179,27 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return Table({'name': names, 'description': desc})
 
     @deprecated(
-        since='TBD',
-        message=('Heasarc.query_mission_list is deprecated. '
-                 'Use ~Heasarc.tables instead'),
+        since='0.4.8',
+        alternative='list_catalogs',
     )
     def query_mission_list(self, *, cache=True, get_query_payload=False):
-        """Returns a list of all available mission tables with descriptions.
+        """Returns a list of all available mission catalogs with descriptions.
 
         This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use ~Heasarc.tables instead.
+        the Browse interface. Please use ~Heasarc.list_catalogs instead.
 
         """
-        return self.tables(master=False)
+        return self.list_catalogs(master=False)
 
-    def columns(self, table_name, full=False):
-        """Return the columns available in table_name as a table
+    def list_columns(self, catalog_name, full=False):
+        """Return the columns available in catalog_name as a table
 
         Parameters
         ----------
-        table_name: str
-            The name of table as a str
-        full: bool
+        catalog_name : str
+            The name of catalog as a str
+        full : bool
             If True, return all columns, otherwise, return the standard list
             of columns
 
@@ -212,16 +210,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         """
         tables = self.tap.tables
-        if table_name not in tables.keys():
-            msg = (f'{table_name} is not available as a public table. '
-                   'Try passing keywords to ~Heasarc.tables() to find '
-                   'the table name')
+        if catalog_name not in tables.keys():
+            msg = (f'{catalog_name} is not available as a public catalog. '
+                   'Try passing keywords to ~Heasarc.list_catalogs() to find '
+                   'the catalog name')
             raise ValueError(msg)
 
-        default_cols = self._get_default_cols(table_name)
+        default_cols = self._get_default_columns(catalog_name)
 
         names, desc, unit = [], [], []
-        for col in tables[table_name].columns:
+        for col in tables[catalog_name].columns:
             if full or col.name in default_cols:
                 names.append(col.name)
                 desc.append(col.description)
@@ -231,9 +229,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return cols
 
     @deprecated(
-        since='TBD',
-        message=('Heasarc.query_mission_cols is deprecated. '
-                 'Use ~Heasarc.columns instead'),
+        since='0.4.8',
+        alternative='list_columns',
     )
     def query_mission_cols(self, mission, *, cache=True,
                            get_query_payload=False, **kwargs):
@@ -241,16 +238,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         NOTE: This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use ~Heasarc.columns instead.
+        the Browse interface. Please use ~Heasarc.list_columns instead.
 
         Parameters
         ----------
         mission : str
-            Mission table (short name) to search from
+            Mission catalog (short name) to search from
         fields : str, optional
             Return format for columns from the server available options:
-            * Standard      : Return default table columns
-            * All (default) : Return all table columns
+            * Standard      : Return default catalog columns
+            * All (default) : Return all catalog columns
             * <custom>      : User defined csv list of columns to be returned
         cache : bool, optional
             Defaults to True. If set overrides global caching behavior.
@@ -260,7 +257,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         fields = kwargs.get('fields', 'All')
         full = fields != 'Standard'
-        cols = self.columns(mission, full=full)
+        cols = self.list_columns(mission, full=full)
         cols = [col.upper() for col in cols['name'] if '__' not in col]
         return cols
 
@@ -294,14 +291,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
          'displaymode', 'action', 'sortvar', 'cache'),
-        ('table', 'columns', 'maxrec', None, None, None,
+        ('catalog', 'columns', 'maxrec', None, None, None,
          None, None, None, None),
-        since=('TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD',
-               'TBD', 'TBD', 'TBD', 'TBD'),
+        since=['0.4.8']*10,
         arg_in_kwargs=(False, True, True, True, True, True,
                        True, True, True, False)
     )
-    def query_region(self, position=None, table=None, radius=None, *,
+    def query_region(self, position=None, catalog=None, radius=None, *,
                      spatial='cone', width=None, polygon=None,
                      get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
@@ -315,9 +311,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Gives the position of the center of the cone or box if performing
             a cone or box search. Required if spatial is ``'cone'`` or
             ``'box'``. Ignored if spatial is ``'polygon'`` or ``'all-sky'``.
-        table : str
-            The table to query. To list the available tables, use
-            :meth:`~astroquery.heasarc.HeasarcClass.tables`.
+        catalog : str
+            The catalog to query. To list the available catalogs, use
+            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
         spatial : str
             Type of spatial query: ``'cone'``, ``'box'``, ``'polygon'``, and
             ``'all-sky'``. Defaults to ``'cone'``.
@@ -326,9 +322,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. If None, a default value
-            appropriate for the selected table is used. To see the default
-            radius for the table, see
-            ~astroquery.heasarc.Heasarc._get_default_radius.
+            appropriate for the selected catalog is used. To see the default
+            radius for the catalog, see
+            ~astroquery.heasarc.Heasarc.get_default_radius.
         width : str, `~astropy.units.Quantity` object [Required for
             spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -347,7 +343,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Use * for all the columns. The default is to return a subset
             of the columns that are generally the most useful.
         verbose : bool, optional
-            If False, supress vo warnings.
+            If False, suppress vo warnings.
         maxrec : int, optional
             Maximum number of records
 
@@ -360,12 +356,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        if table is None:
-            raise InvalidQueryError("table name is required! Use 'xray' "
-                                    "to search the master X-ray table")
+        if catalog is None:
+            raise InvalidQueryError("catalog name is required! Use 'xray' "
+                                    "to search the master X-ray catalog")
 
         if columns is None:
-            columns = ', '.join(self._get_default_cols(table))
+            columns = ', '.join(self._get_default_columns(catalog))
             if '__row' not in columns:
                 columns += ',__row'
 
@@ -398,7 +394,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
             if spatial.lower() == 'cone':
                 if radius is None:
-                    radius = self._get_default_radius(table)
+                    radius = self.get_default_radius(catalog)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
@@ -416,7 +412,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 raise ValueError("Unrecognized spatial query type. Must be one"
                                  " of 'cone', 'box', 'polygon', or 'all-sky'.")
 
-        adql = f'SELECT {columns} FROM {table}{where}'
+        adql = f'SELECT {columns} FROM {catalog}{where}'
 
         if get_query_payload:
             return adql
@@ -424,7 +420,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         # save the response in case we want to use it later
         self._query_result = response
-        self._tablename = table
+        self._catalog_name = catalog
 
         table = response.to_table()
         if 'search_offset_' in table.colnames:
@@ -436,8 +432,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return table
 
     @deprecated(
-        since='TBD',
-        message='query_object is being deprecated. Use query_region instead'
+        since='0.4.8',
+        alternative='query_region'
     )
     def query_object(self, object_name, mission, *,
                      cache=True, get_query_payload=False,
@@ -450,7 +446,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Object to query around. To set search radius use the 'radius'
             parameter.
         mission : str
-            Mission table to search from
+            Mission catalog to search from
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
@@ -460,21 +456,21 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         """
         pos = coordinates.SkyCoord.from_name(object_name)
-        return self.query_region(pos, table=mission, spatial='cone',
+        return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-    def get_datalinks(self, query_result=None, tablename=None):
+    def get_datalinks(self, query_result=None, catalog_name=None):
         """Get links to data products
         Use vo/datalinks to query the data products for some query_results.
 
         Parameters
         ----------
         query_result : `astropy.table.Table`, optional
-            A table that contain the search resutls. Typically as
+            A table that contain the search results. Typically as
             returned by query_region. If None, use the table from the
             most recent query_region call.
-        tablename : str
-            The table name for the which the query_result belongs to.
+        catalog_name : str
+            The catalog name for the which the query_result belongs to.
             If None, use the one from the most recent query_region call.
 
         Returns
@@ -500,16 +496,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                              'query_result needs to be the output of '
                              'query_region or a subset.')
 
-        if tablename is None:
-            tablename = self._tablename
+        if catalog_name is None:
+            catalog_name = self._catalog_name
         if not (
-            isinstance(tablename, str)
-            and tablename in self.tap.tables.keys()
+            isinstance(catalog_name, str)
+            and catalog_name in self.tap.tables.keys()
         ):
-            raise ValueError(f'Unknown table name: {tablename}')
+            raise ValueError(f'Unknown catalog name: {catalog_name}')
 
         # datalink url
-        dlink_url = f'{self.VO_URL}/datalink/{tablename}'
+        dlink_url = f'{self.VO_URL}/datalink/{catalog_name}'
 
         query = pyvo.dal.adhoc.DatalinkQuery(
             baseurl=dlink_url,
@@ -558,7 +554,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             )
 
         if profile is None:
-            log.info('Enabling annonymous cloud data access ...')
+            log.info('Enabling anonymous cloud data access ...')
             config = botocore.client.Config(
                 signature_version=botocore.UNSIGNED)
             self.s3_resource = boto3.resource('s3', config=config)
@@ -584,7 +580,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         links : `astropy.table.Table`
             The result from get_datalinks
         host : str
-            The data host. The options are: heasarc (defaul), sciserver, aws.
+            The data host. The options are: heasarc (default), sciserver, aws.
             If host == 'sciserver', data is copied from the local mounted
             data drive.
             If host == 'aws', data is downloaded from Amazon S3 Open
@@ -595,7 +591,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Note that ff you are downloading large datasets (more 10 10GB),
         from the main heasarc server, it is recommended that you split
-        it up, so that if the downloaded is intrrupted, you do not need
+        it up, so that if the downloaded is interrupted, you do not need
         to start again.
         """
 
@@ -681,7 +677,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             os.remove(local_filepath)
         else:
             raise ValueError(
-                'An error ocurred when downloading the data. Retry again.'
+                'An error occurred when downloading the data. Retry again.'
             )
 
     def _copy_sciserver(self, links, location='.'):

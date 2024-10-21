@@ -79,7 +79,7 @@ class TestHeasarc:
         """
         result = Heasarc.query_region(
             coordinates,
-            table="suzamaster",
+            catalog="suzamaster",
             spatial="cone",
             columns="*",
             radius=1 * u.arcmin,
@@ -94,7 +94,7 @@ class TestHeasarc:
         Test selection of only a few columns, and using a bigger radius
         """
         result = Heasarc.query_region(
-            "NGC 4151", table="suzamaster", columns="ra,dec,obsid",
+            "NGC 4151", catalog="suzamaster", columns="ra,dec,obsid",
             radius=10 * u.arcmin
         )
         assert len(result) == 4
@@ -104,7 +104,7 @@ class TestHeasarc:
     def test_query_region_box(self):
         result = Heasarc.query_region(
             "182d38m08.64s 39d24m21.06s",
-            table="suzamaster",
+            catalog="suzamaster",
             columns="*",
             spatial="box",
             width=2 * u.arcmin,
@@ -116,7 +116,7 @@ class TestHeasarc:
         polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
         with pytest.warns(Warning) as warnings:
             result = Heasarc.query_region(
-                table="suzamaster", spatial="polygon", polygon=polygon
+                catalog="suzamaster", spatial="polygon", polygon=polygon
             )
         assert warnings[0].category == UserWarning
         assert ("Polygon endpoints are being interpreted" in
@@ -124,32 +124,32 @@ class TestHeasarc:
         assert warnings[1].category == NoResultsWarning
         assert isinstance(result, Table)
 
-    def test_list_tables(self):
-        tables = Heasarc.tables()
-        # Number of available tables may change over time, test only for
-        # significant drop. (at the time of writing there are 1020 tables
+    def test_list_catalogs(self):
+        catalogs = Heasarc.list_catalogs()
+        # Number of available catalogs may change over time, test only for
+        # significant drop. (at the time of writing there are 1020 catalogs
         # in the list).
-        assert len(tables) > 1000
+        assert len(catalogs) > 1000
 
-    def test_list_tables__master(self):
-        tables = list(Heasarc.tables(master=True)["name"])
-        assert "numaster" in tables
-        assert "nicermastr" in tables
-        assert "xmmmaster" in tables
-        assert "swiftmastr" in tables
+    def test_list_catalogs__master(self):
+        catalogs = list(Heasarc.list_catalogs(master=True)["name"])
+        assert "numaster" in catalogs
+        assert "nicermastr" in catalogs
+        assert "xmmmaster" in catalogs
+        assert "swiftmastr" in catalogs
 
-    def test_list_tables__keywords(self):
-        tables = list(Heasarc.tables(keywords="nustar", master=True)["name"])
-        assert len(tables) == 1 and "numaster" in tables
+    def test_list_catalogs__keywords(self):
+        catalogs = list(Heasarc.list_catalogs(keywords="nustar", master=True)["name"])
+        assert len(catalogs) == 1 and "numaster" in catalogs
 
-        tables = list(Heasarc.tables(keywords="xmm", master=True)["name"])
-        assert len(tables) == 1 and "xmmmaster" in tables
+        catalogs = list(Heasarc.list_catalogs(keywords="xmm", master=True)["name"])
+        assert len(catalogs) == 1 and "xmmmaster" in catalogs
 
-        tables = list(Heasarc.tables(keywords=["swift", "rosat"],
-                                     master=True)["name"])
-        assert "swiftmastr" in tables
-        assert "rosmaster" in tables
-        assert "rassmaster" in tables
+        catalogs = list(Heasarc.list_catalogs(keywords=["swift", "rosat"],
+                        master=True)["name"])
+        assert "swiftmastr" in catalogs
+        assert "rosmaster" in catalogs
+        assert "rassmaster" in catalogs
 
     @pytest.mark.skipif(
         Version(pyvo.__version__) < Version('1.4'),
@@ -168,20 +168,20 @@ class TestHeasarc:
         assert result.to_table().colnames == ["ra", "dec"]
 
     @pytest.mark.parametrize("tdefault", DEFAULT_COLS)
-    def test__get_default_cols(self, tdefault):
-        table, tdef = tdefault
-        remote_default = list(Heasarc._get_default_cols(table))
+    def test__get_default_columns(self, tdefault):
+        catalog, tdef = tdefault
+        remote_default = list(Heasarc._get_default_columns(catalog))
         assert remote_default == tdef
 
-    def test_get_datalinks__wrongtable(self):
-        with pytest.raises(ValueError, match="Unknown table name:"):
+    def test_get_datalinks__wrongcatalog(self):
+        with pytest.raises(ValueError, match="Unknown catalog name:"):
             Heasarc.get_datalinks(
-                Table({"__row": [1, 2, 3.0]}), tablename="wrongtable"
+                Table({"__row": [1, 2, 3.0]}), catalog_name="wrongcatalog"
             )
 
     def test_get_datalinks__xmmmaster(self):
         links = Heasarc.get_datalinks(
-            Table({"__row": [4154, 4155]}), tablename="xmmmaster"
+            Table({"__row": [4154, 4155]}), catalog_name="xmmmaster"
         )
         assert len(links) == 2
         assert "access_url" in links.colnames
@@ -240,7 +240,7 @@ class TestHeasarc:
         assert os.path.exists("stdprod/FHef_1791a7b9-1791a92f.gz")
         shutil.rmtree("stdprod")
 
-    def test_query_mission_cols(self):
+    def test_query_mission_columns(self):
         with pytest.warns(AstropyDeprecationWarning):
             Heasarc.query_mission_cols(mission="xmmmaster")
 
@@ -287,7 +287,7 @@ class TestHeasarcBrowse:
         heasarc = Heasarc
 
         with pytest.warns(AstropyDeprecationWarning):
-            table = heasarc.query_object(
+            catalog = heasarc.query_object(
                 object_name,
                 mission=mission,
                 radius="1 degree",
@@ -296,7 +296,7 @@ class TestHeasarcBrowse:
                 good_isgri=">1000",
                 cache=False,
             )
-            assert len(table) > 0
+            assert len(catalog) > 0
 
     def test_basic_example(self):
         mission = "rosmaster"
@@ -304,9 +304,9 @@ class TestHeasarcBrowse:
 
         heasarc = Heasarc
         with pytest.warns(AstropyDeprecationWarning):
-            table = heasarc.query_object(object_name, mission=mission)
+            catalog = heasarc.query_object(object_name, mission=mission)
 
-            assert len(table) == 63
+            assert len(catalog) == 63
 
     def test_mission_list(self):
         heasarc = Heasarc
@@ -318,7 +318,7 @@ class TestHeasarcBrowse:
             # (currently 956)
             assert len(missions) > 900
 
-    def test_mission_cols(self):
+    def test_mission_columns(self):
         heasarc = Heasarc
         mission = "rosmaster"
         with pytest.warns(AstropyDeprecationWarning):
@@ -338,11 +338,11 @@ class TestHeasarcBrowse:
         skycoord_3C_273 = SkyCoord("12h29m06.70s +02d03m08.7s", frame="icrs")
 
         with pytest.warns(AstropyDeprecationWarning):
-            table = heasarc.query_region(
+            catalog = heasarc.query_region(
                 skycoord_3C_273, mission=mission, radius="1 degree"
             )
 
-            assert len(table) == 63
+            assert len(catalog) == 63
 
     def test_query_region_nohits(self):
         """
@@ -354,11 +354,11 @@ class TestHeasarcBrowse:
             # This was an example coordinate that returned nothing
             # Since Fermi is still active, it is possible that sometime in the
             # future an event will occur here.
-            table = heasarc.query_region(
+            catalog = heasarc.query_region(
                 SkyCoord(0.28136 * u.deg, -0.09789 * u.deg, frame="fk5"),
                 mission="hitomaster",
                 radius=0.1 * u.deg,
             )
         assert warnings[0].category == AstropyDeprecationWarning
         assert warnings[1].category == NoResultsWarning
-        assert len(table) == 0
+        assert len(catalog) == 0

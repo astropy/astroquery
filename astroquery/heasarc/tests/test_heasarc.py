@@ -3,6 +3,7 @@
 import os
 import shutil
 import pytest
+from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import astropy.units as u
@@ -30,13 +31,62 @@ OBJ_LIST = [
 SIZE_LIST = [2 * u.arcmin, "0d2m0s"]
 
 
+# used in the tap fixture
+class MockTap:
+    class vColumn:
+        def __init__(self, name, desc, unit=None):
+            self.name = name
+            self.description = desc
+            self.unit = unit
+
+    class vTable:
+        def __init__(self, desc, cols=[]):
+            self.description = desc
+            self.columns = cols
+
+    cols = []
+    for icol in [1, 2, 3]:
+        cols.append(vColumn(f'col-{icol}', f'desc-{icol}'))
+
+    tables = {
+        'name-1': vTable('description-1 xmm', cols),
+        'name-2': vTable('description-2 chandra', cols),
+        'TAPname': None
+    }
+
+
+@pytest.fixture
+def mock_tap():
+    with patch('astroquery.heasarc.core.HeasarcClass.tap', new_callable=PropertyMock) as tap:
+        tap.return_value = MockTap()
+        yield tap
+
+
+@pytest.fixture
+def mock_default_cols():
+    with patch('astroquery.heasarc.core.HeasarcClass._get_default_columns') as get_cols:
+        get_cols.return_value = ['col-3', 'col-2']
+        yield get_cols
+
+
+@pytest.fixture
+def mock_meta():
+    with patch('astroquery.heasarc.core.HeasarcClass._meta', new_callable=PropertyMock) as meta:
+        meta.return_value = Table(dict(
+            table=['tab1', 'tab2', 'tab1', 'tab1'],
+            par=['p1', 'p2', 'p3', ''],
+            value=[1.2, 1.6, 2.0, 3.0]
+        ))
+        yield meta
+
+
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("radius", SIZE_LIST)
 def test_query_region_cone(coordinates, radius):
     # use columns='*' to avoid remote call to obtain the default columns
     query = Heasarc.query_region(
         coordinates,
-        table="suzamaster",
+        catalog="suzamaster",
         spatial="cone",
         radius=radius,
         columns="*",
@@ -60,7 +110,7 @@ def test_query_region_cone(coordinates, radius):
 def test_query_region_box(coordinates, width):
     query = Heasarc.query_region(
         coordinates,
-        table="suzamaster",
+        catalog="suzamaster",
         spatial="box",
         width=2 * u.arcmin,
         columns="*",
@@ -91,7 +141,7 @@ poly2 = [
 def test_query_region_polygon(polygon):
     # position is not used for polygon
     query1 = Heasarc.query_region(
-        table="suzamaster",
+        catalog="suzamaster",
         spatial="polygon",
         polygon=polygon,
         columns="*",
@@ -99,7 +149,7 @@ def test_query_region_polygon(polygon):
     )
     query2 = Heasarc.query_region(
         "ngc4151",
-        table="suzamaster",
+        catalog="suzamaster",
         spatial="polygon",
         polygon=polygon,
         columns="*",
@@ -116,12 +166,12 @@ def test_query_region_polygon(polygon):
 
 def test_query_allsky():
     query1 = Heasarc.query_region(
-        table="suzamaster", spatial="all-sky", columns="*",
+        catalog="suzamaster", spatial="all-sky", columns="*",
         get_query_payload=True
     )
     query2 = Heasarc.query_region(
         "m31",
-        table="suzamaster",
+        catalog="suzamaster",
         spatial="all-sky",
         columns="*",
         get_query_payload=True,
@@ -134,23 +184,76 @@ def test_query_allsky():
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         Heasarc.query_region(
-            OBJ_LIST[0], table="invalid_spatial", columns="*", spatial=spatial
+            OBJ_LIST[0], catalog="invalid_spatial", columns="*", spatial=spatial
         )
 
 
-def test_no_table():
+def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         Heasarc.query_region("m31", spatial="cone", columns="*")
 
 
-def test_list_tables_keywords_non_str():
-    with pytest.raises(ValueError, match="non-str found in keywords elements"):
-        Heasarc.tables(keywords=12)
+def test_tap_def():
+    assert Heasarc._tap is None
+    Heasarc.tap
+    assert Heasarc._tap is not None
 
 
-def test_list_tables_keywords_list_non_str():
+def test_meta_def():
+    class MockResult:
+        def to_table(self):
+            return Table({'value': ['1.5', '1.2', '-0.3']})
+    assert Heasarc._meta_info is None
+    with patch('astroquery.heasarc.core.HeasarcClass.query_tap') as mock_query_tap:
+        mock_query_tap.return_value = MockResult()
+        meta = Heasarc._meta
+        assert meta['value'][0] == 1.5
+
+
+def test__get_default_columns(mock_meta):
+    cols = Heasarc._get_default_columns('tab1')
+    assert list(cols) == ['p1', 'p3']
+
+
+def test__get_default_radius(mock_meta):
+    radius = Heasarc.get_default_radius('tab1')
+    assert radius.value == 3.0
+
+
+def test_set_session():
+    with pytest.raises(ValueError):
+        Heasarc.set_session('not session object')
+
+
+def test__list_catalogs(mock_tap):
+    catalogs = Heasarc.list_catalogs()
+    assert list(catalogs['name']) == [
+        lab for lab in MockTap().tables.keys() if 'TAP' not in lab
+    ]
+    assert list(catalogs['description']) == [
+        desc.description for lab, desc in MockTap().tables.items() if 'TAP' not in lab
+    ]
+
+
+def test_list_catalogs_keywords_non_str():
     with pytest.raises(ValueError, match="non-str found in keywords elements"):
-        Heasarc.tables(keywords=['x-ray', 12])
+        Heasarc.list_catalogs(keywords=12)
+
+
+def test_list_catalogs_keywords_list_non_str():
+    with pytest.raises(ValueError, match="non-str found in keywords elements"):
+        Heasarc.list_catalogs(keywords=['x-ray', 12])
+
+
+def test__list_columns__missing_table(mock_tap):
+    with pytest.raises(ValueError, match="not available as a public catalog"):
+        Heasarc.list_columns(catalog_name='missing-table')
+
+
+def test__list_columns(mock_tap, mock_default_cols):
+    cols = Heasarc.list_columns(catalog_name='name-1')
+    assert list(cols['name']) == ['col-2', 'col-3']
+    assert list(cols['description']) == ['desc-2', 'desc-3']
 
 
 def test_get_datalink():
@@ -163,7 +266,7 @@ def test_get_datalink():
         Heasarc.get_datalinks([1, 2])
 
     with pytest.raises(ValueError, match="No __row column found"):
-        Heasarc.get_datalinks(Table({"id": [1, 2, 3.0]}), tablename="xray")
+        Heasarc.get_datalinks(Table({"id": [1, 2, 3.0]}), catalog_name="xray")
 
 
 def test_download_data__empty():
