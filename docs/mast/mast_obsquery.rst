@@ -385,7 +385,9 @@ curl script that can be used to download the files at a later time.
    >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
    >>> data_products = Observations.get_product_list(single_obs)
    ...
-   >>> table = Observations.download_products(data_products, productType="SCIENCE", curl_flag=True)   # doctest: +IGNORE_OUTPUT
+   >>> table = Observations.download_products(data_products, 
+   ...                                        productType="SCIENCE", 
+   ...                                        curl_flag=True)   # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
 
 
@@ -463,7 +465,8 @@ To get a list of S3 URIs, use the following workflow:
    >>> import os
    >>> from astroquery.mast import Observations
    ...
-   >>> # Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:
+   >>> # Simply call the `enable_cloud_dataset` method from `Observations`. 
+   >>> # The default provider is `AWS`, but we will write it in manually for this example:
    >>> Observations.enable_cloud_dataset(provider='AWS')
    INFO: Using the S3 STScI public dataset [astroquery.mast.core]
    ...

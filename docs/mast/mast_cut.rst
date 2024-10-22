@@ -125,7 +125,10 @@ parameter will result in an error when set to 'TICA'.
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", product='tica', moving_target=True, size=5, sector=6)
+   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", 
+   ...                               product='tica', 
+   ...                               moving_target=True, 
+   ...                               sector=6)
    Traceback (most recent call last):
    ...
    astroquery.exceptions.InvalidQueryError: Only SPOC is available for moving targets queries.
@@ -145,7 +148,9 @@ pixel file will be produced for each one.
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 5]*u.arcmin, sector=9) # doctest: +IGNORE_OUTPUT
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
+   ...                                     size=[5, 5]*u.arcmin,
+   ...                                     sector=9) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=9 to ./tesscut_20210716150026.zip ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
                         Local Path
@@ -163,7 +168,10 @@ and because the TICA products are not available for sectors 1-26, we request cut
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, product='tica', size=[5, 7]*u.arcmin, sector=27) # doctest: +IGNORE_OUTPUT
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
+   ...                                     product='tica', 
+   ...                                     size=[5, 7]*u.arcmin, 
+   ...                                     sector=27) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&product=TICA&sector=27 to ./tesscut_20230214150644.zip ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
                         Local Path
