@@ -53,7 +53,9 @@ the user that they might be getting a subset of the true result set.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)  # doctest: +SHOW_WARNINGS
+   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", 
+   ...                                      catalog="HSC", 
+   ...                                      magtype=2)  # doctest: +SHOW_WARNINGS
    InputWarning: Coordinate string is being interpreted as an ICRS coordinate provided in degrees.
    MaxResultsWarning: Maximum catalog results returned, may not include all sources within radius.
    >>> print(catalog_data[:10])
@@ -259,7 +261,10 @@ Given an HSC Match ID, return all catalog results.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="HSC")
+   >>> catalog_data = Catalogs.query_object("M10", 
+   ...                                      radius=.001,
+   ...                                      catalog="HSC", 
+   ...                                      magtype=1)
    >>> matchid = catalog_data[0]["MatchID"]
    >>> print(matchid)
    7542452
