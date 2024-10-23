@@ -53,7 +53,9 @@ the user that they might be getting a subset of the true result set.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)  # doctest: +SHOW_WARNINGS
+   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", 
+   ...                                      catalog="HSC", 
+   ...                                      magtype=2)  # doctest: +SHOW_WARNINGS
    InputWarning: Coordinate string is being interpreted as an ICRS coordinate provided in degrees.
    MaxResultsWarning: Maximum catalog results returned, may not include all sources within radius.
    >>> print(catalog_data[:10])
@@ -115,8 +117,11 @@ The table to query is a required parameter.
 
 .. doctest-remote-data::
 
-   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
-   ...                                       catalog="Panstarrs", data_release="dr1", table="mean")
+   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", 
+   ...                                      radius=0.1,
+   ...                                      catalog="Panstarrs", 
+   ...                                      data_release="dr1", 
+   ...                                      table="mean")
    >>> print("Number of results:",len(catalog_data))
    Number of results: 7007
    >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
@@ -166,7 +171,9 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
-   ...                                        objectname='M101', radius=1, Tmag=[10.75,11])
+   ...                                        objectname='M101', 
+   ...                                        radius=1, 
+   ...                                        Tmag=[10.75,11])
    >>> print(catalog_data)
        ID    version  HIP     TYC      ... raddflag wdflag   objID
    --------- -------- --- ------------ ... -------- ------ ---------
@@ -185,7 +192,9 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_criteria(catalog="DiskDetective",
-   ...                                        objectname="M10",radius=2,state="complete")
+   ...                                        objectname="M10",
+   ...                                        radius=2,
+   ...                                        state="complete")
    >>> print(catalog_data)      # doctest: +IGNORE_OUTPUT
        designation     ...                    ZooniverseURL
    ------------------- ... ----------------------------------------------------
@@ -230,11 +239,15 @@ tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and va
 
 .. doctest-remote-data::
 
-   >>> catalog_data = Catalogs.query_criteria(coordinates="5.97754 32.53617", radius=0.01,
-   ...                                        catalog="PANSTARRS", table="mean", data_release="dr2",
+   >>> catalog_data = Catalogs.query_criteria(coordinates="5.97754 32.53617", 
+   ...                                        radius=0.01,
+   ...                                        catalog="PANSTARRS", 
+   ...                                        table="mean", 
+   ...                                        data_release="dr2",
    ...                                        nStackDetections=[("gte", 2)],
    ...                                        columns=["objName", "objID", "nStackDetections", "distance"],
-   ...                                        sort_by=[("desc", "distance")], pagesize=15)
+   ...                                        sort_by=[("desc", "distance")], 
+   ...                                        pagesize=15)
    >>> print(catalog_data[:10])   # doctest: +IGNORE_OUTPUT
           objName              objID        nStackDetections        distance
    --------------------- ------------------ ---------------- ---------------------
@@ -259,7 +272,10 @@ Given an HSC Match ID, return all catalog results.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="HSC")
+   >>> catalog_data = Catalogs.query_object("M10", 
+   ...                                      radius=.001,
+   ...                                      catalog="HSC", 
+   ...                                      magtype=1)
    >>> matchid = catalog_data[0]["MatchID"]
    >>> print(matchid)
    7542452

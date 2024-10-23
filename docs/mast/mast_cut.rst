@@ -53,13 +53,13 @@ not explicitly called for TICA.
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord)
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, sector=33)
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-     0  PRIMARY       1 PrimaryHDU      56   ()
-     1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
-     2  APERTURE      1 ImageHDU        81   (5, 5)   int32
+   0  PRIMARY       1 PrimaryHDU      57   ()      
+   1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
+   2  APERTURE      1 ImageHDU        82   (5, 5)   int32  
 
 
 For users with time-sensitive targets who would like cutouts from the latest observations,
@@ -72,7 +72,9 @@ this example shows a request for TICA cutouts:
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, product='tica')
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, 
+   ...                               product='tica',
+   ...                               sector=28)
    >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
    'TICA'
 
@@ -83,7 +85,7 @@ than a set of coordinates.
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963")
+   >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963", sector=37)
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -106,7 +108,9 @@ simply with either the objectname or coordinates.
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, size=5, sector=6)
+   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora",
+   ...                               moving_target=True,
+   ...                               sector=6)
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -121,7 +125,10 @@ parameter will result in an error when set to 'TICA'.
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", product='tica', moving_target=True, size=5, sector=6)
+   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", 
+   ...                               product='tica', 
+   ...                               moving_target=True, 
+   ...                               sector=6)
    Traceback (most recent call last):
    ...
    astroquery.exceptions.InvalidQueryError: Only SPOC is available for moving targets queries.
@@ -141,12 +148,14 @@ pixel file will be produced for each one.
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin, sector=9) # doctest: +IGNORE_OUTPUT
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
+   ...                                     size=[5, 5]*u.arcmin,
+   ...                                     sector=9) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=9 to ./tesscut_20210716150026.zip ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
                         Local Path
    ----------------------------------------------------------
-   ./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits
+   ./tess-s0009-4-1_107.186960_-70.509190_15x15_astrocut.fits
 
 The query from the example above defaults to downloading cutouts from SPOC. The following example is a query for
 the same target from above, but with the product argument passed as TICA to explicitly request for TICA cutouts,
@@ -159,7 +168,10 @@ and because the TICA products are not available for sectors 1-26, we request cut
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, product='tica', size=[5, 7]*u.arcmin, sector=27) # doctest: +IGNORE_OUTPUT
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
+   ...                                     product='tica', 
+   ...                                     size=[5, 7]*u.arcmin, 
+   ...                                     sector=27) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&product=TICA&sector=27 to ./tesscut_20230214150644.zip ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
                         Local Path
@@ -234,17 +246,6 @@ The following example requests SPOC cutouts for a moving target.
 Note that the moving targets functionality is not currently available for TICA,
 so the query will always default to SPOC.
 
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Tesscut
-   ...
-   >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
-   >>> print(sector_table)
-     sectorName   sector camera ccd
-   -------------- ------ ------ ---
-   tess-s0029-1-4     29      1   4
-   tess-s0043-3-3     43      3   3
-   tess-s0044-2-4     44      2   4
 
 Zcut
 ====
@@ -270,7 +271,7 @@ If the given coordinate appears in more than one Zcut survey, a FITS file will b
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-   >>> hdulist = Zcut.get_cutouts(coordinates=cutout_coord, size=5)
+   >>> hdulist = Zcut.get_cutouts(coordinates=cutout_coord, survey='3dhst_goods-n')
    >>> hdulist[0].info()    # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -292,7 +293,10 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")    # doctest: +IGNORE_OUTPUT
+   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, 
+   ...                                  size=[5, 10], 
+   ...                                  units="px", 
+   ...                                  survey="3dhst_goods-n")  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20210125155545.zip ... [Done]
    Inflating...
    ...
@@ -300,23 +304,26 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
                                  Local Path
    -------------------------------------------------------------------------
    ./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits
-
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Zcut
-   >>> from astropy.coordinates import SkyCoord
-   ...
-   >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px", form="jpg")    # doctest: +IGNORE_OUTPUT
+   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, 
+   ...                                  size=[5, 10], 
+   ...                                  units="px", 
+   ...                                  survey="3dhst_goods-n",
+   ...                                  cutout_format="jpg")  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
    ...
-   >>> print(manifest)        # doctest: +IGNORE_OUTPUT
-                                                   Local Path
-   ---------------------------------------------------------------------------------------------------------
-    ./hlsp_candels_hst_acs_gn-tot-30mas_f606w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
-    ./hlsp_candels_hst_acs_gn-tot-30mas_f814w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
-   ./hlsp_candels_hst_acs_gn-tot-30mas_f850lp_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
+   >>> print(manifest)
+                                                Local Path                                             
+   -----------------------------------------------------------------------------------------------------
+      ./hlsp_3dhst_spitzer_irac_goods-n_irac1_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+   ./hlsp_3dhst_spitzer_irac_goods-n-s2_irac3_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+   ./hlsp_3dhst_spitzer_irac_goods-n-s1_irac4_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+      ./hlsp_3dhst_spitzer_irac_goods-n_irac2_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+         ./hlsp_3dhst_mayall_mosaic_goods-n_u_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_rc_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+     ./hlsp_3dhst_subaru_suprimecam_goods-n_v_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_ic_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_zp_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
+     ./hlsp_3dhst_subaru_suprimecam_goods-n_b_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
 
 
 Survey information
@@ -387,5 +394,6 @@ If the given coordinate appears in more than one product, a cutout will be produ
                                  Local Path
    ---------------------------------------------------------------------------------
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w_coarse.fits
+   ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_ir_f160w.fits
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f606w.fits
    ./hst_cutout_skycell-p2007x09y05-ra351d3478-decn28d4978_wfc3_uvis_f814w.fits
