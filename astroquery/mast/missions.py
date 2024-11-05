@@ -6,7 +6,7 @@ MAST Missions
 This module contains methods for searching MAST missions.
 """
 
-import requests
+import difflib
 import warnings
 
 from astropy.table import Table
@@ -40,6 +40,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.service = service
         self.mission = mission
         self.limit = 5000
+        self.columns = dict()  # Info about columns for each mission
 
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")
@@ -68,6 +69,37 @@ class MastMissionsClass(MastQueryWithLogin):
                           MaxResultsWarning)
 
         return results
+
+    def _validate_criteria(self, **criteria):
+        """
+        Check that criteria keyword arguments are valid column names for the mission.
+        Raises InvalidQueryError if a criteria argument is invalid.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments representing criteria filters to apply.
+
+        Raises
+        -------
+        InvalidQueryError
+            If a keyword does not match any valid column names, an error is raised that suggests the closest
+            matching column name, if available.
+        """
+        # Ensure that self.columns in populated
+        self.get_column_list()
+
+        # Check each criteria argument for validity
+        valid_cols = self.columns[self.mission]['name']
+        for kwd in criteria.keys():
+            if kwd not in valid_cols and kwd not in self._search_option_fields:
+                closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
+                error_msg = (
+                    f"Filter '{kwd}' does not exist. Did you mean '{closest_match[0]}'?"
+                    if closest_match
+                    else f"Filter '{kwd}' does not exist."
+                )
+                raise InvalidQueryError(error_msg)
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0, **kwargs):
@@ -103,6 +135,9 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         self.limit = limit
+
+        # Check that criteria arguments are valid
+        self._validate_criteria(**kwargs)
 
         # Put coordinates and radius into consistent format
         coordinates = commons.parse_coordinates(coordinates)
@@ -169,6 +204,9 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         self.limit = limit
+
+        # Check that criteria arguments are valid
+        self._validate_criteria(**criteria)
 
         if objectname or coordinates:
             coordinates = utils.parse_input_location(coordinates, objectname)
@@ -237,25 +275,29 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Returns
         -------
-        response : `~astropy.table.Table` that contains columns names, types  and their descriptions
+        response : `~astropy.table.Table` that contains columns names, types, and descriptions
         """
 
-        url = f"{conf.server}/search/util/api/v0.1/column_list?mission={self.mission}"
+        if not self.columns.get(self.mission):
+            try:
+                # Send server request to get column list for current mission
+                params = {'mission': self.mission}
+                resp = utils._simple_request(f'{conf.server}/search/util/api/v0.1/column_list', params)
 
-        try:
-            results = requests.get(url)
-            results = results.json()
-            rows = []
-            for result in results:
-                result.pop('field_name')
-                result.pop('queryable')
-                result.pop('indexed')
-                result.pop('default_output')
-                rows.append((result['column_name'], result['qual_type'], result['description']))
-            data_table = Table(rows=rows, names=('name', 'data_type', 'description'))
-            return data_table
-        except Exception:
-            raise Exception(f"Error occurred while trying to get column list for mission {self.mission}")
+                # Parse JSON and extract necessary info
+                results = resp.json()
+                rows = [
+                    (result['column_name'], result['qual_type'], result['description'])
+                    for result in results
+                ]
+
+                # Create Table with parsed data
+                col_table = Table(rows=rows, names=('name', 'data_type', 'description'))
+                self.columns[self.mission] = col_table
+            except Exception:
+                raise Exception(f'Error occurred while trying to get column list for mission {self.mission}')
+
+        return self.columns[self.mission]
 
 
 MastMissions = MastMissionsClass()

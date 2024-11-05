@@ -70,7 +70,7 @@ def parse_type(dbtype):
     }.get(dbtype, (dbtype, dbtype, dbtype))
 
 
-def _simple_request(url, params):
+def _simple_request(url, params=None):
     """
     Light wrapper on requests.session().get basically to make monkey patched testing easier/more effective.
     """

@@ -1,0 +1,572 @@
+[
+    {
+        "field_name": "Search Position",
+        "description": "Search Position (RA and Dec)    ",
+        "column_name": "search_pos",
+        "queryable": "no",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Dataset",
+        "description": "Data set name, the first character indicates instrument; L=COS; I=WFC3; J=ACS; N=NICMOS; O=STIS; U=WFPC2; W=WFPC; X=FOC; Y=FOS; Z=GHRS; F=FGS; V=HSP; nine-character name    (e.g. J8BA7JCAQ, O4140Q020)    ",
+        "column_name": "sci_data_set_name",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "yes",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Target Name",
+        "description": "Target name designated by the observer for the HST proposal; Uppercase; No blank characters; Spaces sometimes filled with - ;    (e.g. A901-FIELD-25, NGC4486-POS1, 0537-441INCA221-36, ALPHA-CEN)    ",
+        "column_name": "sci_targname",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "HAP",
+        "description": "Reports if there are any Hubble Advanced Products (HAP), enter 0 for no, 1 for yes    ",
+        "column_name": "sci_hapnum",
+        "queryable": "yes",
+        "qual_type": "boolean",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "long"
+    },
+    {
+        "field_name": "HASP",
+        "description": "Reports if there are any Hubble Advanced Spectral Products (HASP), enter 0 for no, 1 for yes    ",
+        "column_name": "sci_haspnum",
+        "queryable": "yes",
+        "qual_type": "boolean",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Instrument",
+        "description": "Instrument used    (e.g. ACS, COS, FGS, FOC, FOS, HRS, HSP, NICMOS, STIS, WFC3, WFPC, WFPC2)    ",
+        "column_name": "sci_instrume",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Apertures",
+        "description": "Aperture configuration;    WFPC2 (e.g. PC1, WF3, WFALL); ACS (e.g. WFC, HRC, SBC); STIS (e.g. 25MAMA, F25QTZ)    ",
+        "column_name": "sci_aper_1234",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Filters/Gratings",
+        "description": "The filter(s) or grating(s) used    (e.g. G160L, G270M, G230LB, F300W)    ",
+        "column_name": "sci_spec_1234",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Exp Time",
+        "description": "Exposure time in seconds    ",
+        "column_name": "sci_actual_duration",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Start Time",
+        "description": "Observation start time; The earliest in-flight data is available from Apr 24 1990    ",
+        "column_name": "sci_start_time",
+        "queryable": "yes",
+        "qual_type": "datetime",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Proposal ID",
+        "description": "ID number (integer) assigned to the proposal    (e.g. 1012, 12045)    ",
+        "column_name": "sci_pep_id",
+        "queryable": "yes",
+        "qual_type": "integer",
+        "default_output": "yes",
+        "indexed": "yes",
+        "datatype": "long"
+    },
+    {
+        "field_name": "PI Last Name",
+        "description": "Principal Investigator (PI) last name; uppercase    (e.g. FORD, LEMMON)    ",
+        "column_name": "sci_pi_last_name",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "RA (J2000)",
+        "description": "Right Ascension (J2000), from 0 to 360, in degrees    ",
+        "column_name": "sci_ra",
+        "queryable": "yes",
+        "qual_type": "ra",
+        "default_output": "yes",
+        "indexed": "yes",
+        "datatype": "double"
+    },
+    {
+        "field_name": "Dec (J2000)",
+        "description": "Declination (J2000), from -90 to +90, in degrees    ",
+        "column_name": "sci_dec",
+        "queryable": "yes",
+        "qual_type": "dec",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "double"
+    },
+    {
+        "field_name": "Archive Class",
+        "description": "Archive ingest classification, where the only choices are CAL='calibrated science' and AST='astrometric' (FGS only)    ",
+        "column_name": "sci_archive_class",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Prog ID",
+        "description": "Internal program ID, which is not the same as proposal ID;    Three-character name    (e.g. 8G6, 9FA, 8M8, 4QA)    ",
+        "column_name": "sci_program_id",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "yes",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Obset ID",
+        "description": "Observation set ID, indicating the fourth and fifth letters of a dataset name. In most cases, this is usually the observation visit number;    Two-character name    (e.g. 10, 42, G1, GA, H6)    ",
+        "column_name": "sci_obset_id",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "yes",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Obsnum",
+        "description": "Observation number, used in the Science Operations Ground System (SOGS) header;    (e.g. 01, 02, RO, 011, AK, 070)    ",
+        "column_name": "sci_obsnum",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "yes",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Asn ID",
+        "description": "The association ID for the dataset (result of combining individual exposures), identical to the data set name;  If used to build an association, this field indicates the combined data sets (e.g. null, O4QA01010, J8ZO02010)    ",
+        "column_name": "sci_asn_id",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Target Descrip",
+        "description": "Target description specified by the observer from a key field used in the Astronomer's Proposal Tool (APT); Uppercase (e.g. GALAXY;SEYFERT;STARBURST, ISM;HI CLOUD, STAR;PULSAR, PLANET;EXOSPHERE OF MARS)    ",
+        "column_name": "sci_target_descrip",
+        "queryable": "yes",
+        "qual_type": "substring",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Broad Category",
+        "description": "One or more target classifications assigned by the observer from HST broad target categories; Uppercase (e.g. CLUSTER OF GALAXIES;GALAXY, EXT-CLUSTER;ISM, STAR;EXT-CLUSTER, SOLAR SYSTEM, CALIBRATION)    ",
+        "column_name": "sci_broad_category",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Ref",
+        "description": "The number of known literature references associated with the proposal ID or data set name    ",
+        "column_name": "sci_refnum",
+        "queryable": "yes",
+        "qual_type": "integer",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "long"
+    },
+    {
+        "field_name": "Ra V1 (J2000)",
+        "description": "Right Ascension (J2000) at V1 position, from 0 to 360, in degrees, where the +V1 is pointing from the primary mirror along the optical axis toward the secondary mirror    ",
+        "column_name": "sci_ra_v1",
+        "queryable": "yes",
+        "qual_type": "ra",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "double"
+    },
+    {
+        "field_name": "Dec V1 (J2000)",
+        "description": "Declination (J2000) at V1 position, from -90 to +90, in degrees, where the +V1 is pointing from the primary mirror along the optical axis toward the secondary mirror    ",
+        "column_name": "sci_dec_v1",
+        "queryable": "yes",
+        "qual_type": "dec",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "double"
+    },
+    {
+        "field_name": "Exp Flag",
+        "description": "Exposure interruption indicator    (e.g. NORMAL, INCOMPLETE, UNCERTAIN, INTERRUPTED, EXTENDED, PREDICTED, INDETERMINATE, UNKNOWN, EXCESSIVE DOW, DETOFF)    ",
+        "column_name": "sci_expflag",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Instrument Config",
+        "description": "Instrument configuration    (e.g. ACS/HRC, COS/FUV, STIS/CCD, STIS/FUV-MAMA, WFC3/IR, WFC3/UVIS, WFPC2)    ",
+        "column_name": "sci_instrument_config",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Operating Mode",
+        "description": "Operating (data taking) mode    (e.g. ACQ, RAMP, SCAN, SPEC, ACCUM, IMAGE, RAPID, UNKNOWN)    ",
+        "column_name": "sci_operating_mode",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Spectral Res",
+        "description": "Spectral resolving power (R=\u03bb/\u0394\u03bb); Typical range is up to 114000 and depends on the instrument used    ",
+        "column_name": "sci_spectral_res",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Spectrum End",
+        "description": "Maximum wavelength for spectrum, in Angstroms    ",
+        "column_name": "sci_spectrum_end",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Spectrum Start",
+        "description": "Minimum wavelength for spectrum, in Angstroms    ",
+        "column_name": "sci_spectrum_start",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Bandwidth",
+        "description": "Bandwidth of the data or root mean squares (RMS) bandwidth of the photmode (NICMOS) or filter plus detector (ACS)    (e.g. WFC3 (2000-17000 A), COS/FUV (1150 - 2050 A))    ",
+        "column_name": "sci_bandwidth",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Central Wavelength",
+        "description": "Central wavelength, in Angstroms, of the bandpass for filters or gratings used; It depends on the instrument    ",
+        "column_name": "sci_central_wavelength",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Dispersion",
+        "description": "Dispersion of grating; Typical range is up to 70.28 Angstroms/pixel and depends on the instrument used    ",
+        "column_name": "sci_dispersion",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Pixel Res",
+        "description": "Pixel resolution (arcsec/pixel)    ",
+        "column_name": "sci_pixel_res",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "FGS Lock",
+        "description": "Fine Guidance Sensors (FGS) lock status    (e.g. FINE, GYROS, COARSE, FINE/GYRO, UNKNOWN)    ",
+        "column_name": "sci_fgslock",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "MT Flag",
+        "description": "Moving Target Flag (T=True means a Moving Target, or F=False)    ",
+        "column_name": "sci_mtflag",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Release Date",
+        "description": "Date of public release; The earliest date is available from May 9, 1990    ",
+        "column_name": "sci_release_date",
+        "queryable": "yes",
+        "qual_type": "datetime",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Stop Time",
+        "description": "Observation stop time; The earliest in-flight data is available from Apr 24 1990    ",
+        "column_name": "sci_stop_time",
+        "queryable": "yes",
+        "qual_type": "datetime",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "V3 Pos Angle",
+        "description": "The V3 position angle, from 0 to 360, in degrees; It is measured from North to East toward the projection of the V3 axis on the sky; V3 is an axis of the HST coordinate system aligning with the High Gain Antenna    ",
+        "column_name": "sci_v3_pos_angle",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Ecliptic Latitude",
+        "description": "Ecliptic Latitude (J2000), from -90 to +90, in degrees    ",
+        "column_name": "sci_ecliptic_latitude",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Ecliptic Longitude",
+        "description": "Ecliptic Longitude (J2000), from 0 to 360, in degrees    ",
+        "column_name": "sci_ecliptic_longitude",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Galactic Latitude",
+        "description": "Galactic Latitude (J2000), from -90 to +90, in degrees    ",
+        "column_name": "sci_galactic_latitude",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Galactic Longitude",
+        "description": "Galactic Longitude (J2000), from 0 to 360, in degrees    ",
+        "column_name": "sci_galactic_longitude",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Sun Alt",
+        "description": "Altitude of the Sun above the Earth's limb from -66 to 114, in degrees    ",
+        "column_name": "sci_sun_alt",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "PA Aper",
+        "description": "Position angle of aperture, from -180 to +360, in degrees, which is the angle measured from North to East toward the aperture's y-axis    ",
+        "column_name": "sci_pa_aper",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "COSTAR",
+        "description": "This indicates if the Corrective Optics Space Telescope Axial Replacement (COSTAR) was deployed; (T=True means deployed, or F=False)    ",
+        "column_name": "sci_costar_deploy",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "AEC",
+        "description": "Archived Exposures Catalog (AEC); Purpose of observation (C=Calibration, S=Science)    ",
+        "column_name": "sci_aec",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "FOV Config",
+        "description": "Field of view (FOV) configuration (LAUNCH, SM-1, SM-2, SM-3, SM-4)    ",
+        "column_name": "sci_fov_config",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Generation Date",
+        "description": "The date when associated data products were generated by the processing pipeline; The earliest data is available from Feb 12 1992    ",
+        "column_name": "sci_generation_date",
+        "queryable": "yes",
+        "qual_type": "datetime",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Archive Date",
+        "description": "The date when archiving was completed; The earliest data is available from Dec 23, 1993    ",
+        "column_name": "sci_archive_date",
+        "queryable": "yes",
+        "qual_type": "datetime",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Preview Name",
+        "description": "Preview name, generally the same as the data set name    (e.g. J9FAHGH5Q)    ",
+        "column_name": "sci_preview_name",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Obs Type",
+        "description": "Observation category; ASTROMETERY (FGS only), IMAGE, PHOTOMETRY (HSP only), SPECTRUM    ",
+        "column_name": "sci_obs_type",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Scan Type",
+        "description": "Observation scan mode; one of two types of spatial scan (C=observation taken in continuous scan mode, or D=observation taken in scan mode with a dwell)    ",
+        "column_name": "scp_scan_type",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "High-Level Science Products",
+        "description": "Number of known High Level Science Products    ",
+        "column_name": "sci_hlsp",
+        "queryable": "yes",
+        "qual_type": "integer",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "long"
+    },
+    {
+        "field_name": "Ang Sep (')",
+        "description": "Angular Separation    ",
+        "column_name": "ang_sep",
+        "queryable": "yes",
+        "qual_type": "float",
+        "default_output": "yes",
+        "indexed": "no",
+        "datatype": "float"
+    },
+    {
+        "field_name": "Status",
+        "description": "Data access status (PUBLIC or PROPRIETARY=exclusive data)    ",
+        "column_name": "sci_status",
+        "queryable": "yes",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    },
+    {
+        "field_name": "Search Key",
+        "description": "Search Key (Concat of sci_data_set_name and search_pos)    ",
+        "column_name": "search_key",
+        "queryable": "no",
+        "qual_type": "string",
+        "default_output": "no",
+        "indexed": "no",
+        "datatype": "char"
+    }
+]

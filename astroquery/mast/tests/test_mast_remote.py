@@ -136,6 +136,24 @@ class TestMast:
             MastMissions.query_criteria(coordinates="245.89675 -26.52575",
                                         radius=1)
 
+    def test_missions_query_criteria_invalid_keyword(self):
+        # Attempt to make a criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            MastMissions.query_criteria(select_cols=['sci_targname'],
+                                        not_a_keyword='test')
+        assert "Filter 'not_a_keyword' does not exist." in str(err_no_alt.value)
+
+        # Attempt to make a region query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            MastMissions.query_region(coordinates="245.89675 -26.52575",
+                                      invalid_keyword='test')
+        assert "Filter 'invalid_keyword' does not exist." in str(err_no_alt.value)
+
+        # Keyword is close enough for difflib to offer alternative
+        with pytest.raises(InvalidQueryError) as err_with_alt:
+            MastMissions.query_criteria(search_position='30 30')
+        assert 'search_pos' in str(err_with_alt.value)
+
     ###################
     # MastClass tests #
     ###################
