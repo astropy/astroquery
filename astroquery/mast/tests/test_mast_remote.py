@@ -605,7 +605,7 @@ class TestMast:
         assert len(uri) > 0, f'Product for dataURI {test_data_uri} was not found in the cloud.'
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
-    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411"])
+    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
     def test_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
 
