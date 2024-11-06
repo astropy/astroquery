@@ -6,11 +6,13 @@ MAST Collections
 This module contains various methods for querying MAST collections such as catalogs.
 """
 
+import difflib
+from json import JSONDecodeError
 import warnings
 import os
 import time
 
-from requests import HTTPError
+from requests import HTTPError, RequestException
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -21,7 +23,7 @@ from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InvalidQueryError, MaxResultsWarning, InputWarning
 
-from . import utils
+from . import utils, conf
 from .core import MastQueryWithLogin
 
 
@@ -42,11 +44,13 @@ class CatalogsClass(MastQueryWithLogin):
 
         services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
                                   "args": {"data_release": "dr2", "table": "mean"}}}
+        self._catalogs_mast_search_options = ['columns', 'sort_by', 'table', 'data_release']
 
         self._service_api_connection.set_service_params(services, "catalogs", True)
 
         self.catalog_limit = None
         self._current_connection = None
+        self._service_columns = dict()  # Info about columns for Catalogs.MAST services
 
     def _parse_result(self, response, *, verbose=False):
 
@@ -58,9 +62,102 @@ class CatalogsClass(MastQueryWithLogin):
 
         return results_table
 
+    def _get_service_col_config(self, catalog, release='dr2', table='mean'):
+        """
+        For a given Catalogs.MAST catalog, return a list of all searchable columns and their descriptions.
+        As of now, this function is exclusive to the Pan-STARRS catalog.
+
+        Parameters
+        ----------
+        catalog : str
+            The catalog to be queried.
+        release : str, optional
+            Catalog data release to query from.
+        table : str, optional
+            Catalog table to query from.
+
+        Returns
+        -------
+        response : `~astropy.table.Table` that contains columns names, types, and descriptions
+        """
+        # Only supported for PanSTARRS currently
+        if catalog != 'panstarrs':
+            return
+
+        service_key = (catalog, release, table)
+        if service_key not in self._service_columns:
+            try:
+                # Send server request to get column list for given parameters
+                request_url = f'{conf.catalogs_server}/api/v0.1/{catalog}/{release}/{table}/metadata.json'
+                resp = utils._simple_request(request_url)
+
+                # Parse JSON and extract necessary info
+                results = resp.json()
+                rows = [
+                    (result['column_name'], result['db_type'], result['description'])
+                    for result in results
+                ]
+
+                # Create Table with parsed data
+                col_table = Table(rows=rows, names=('name', 'data_type', 'description'))
+                self._service_columns[service_key] = col_table
+
+            except JSONDecodeError as ex:
+                raise JSONDecodeError(f'Failed to decode JSON response while attempting to get column list'
+                                      f' for {catalog} catalog {table}, {release}: {ex}')
+            except RequestException as ex:
+                raise ConnectionError(f'Failed to connect to the server while attempting to get column list'
+                                      f' for {catalog} catalog {table}, {release}: {ex}')
+            except KeyError as ex:
+                raise KeyError(f'Expected key not found in response data while attempting to get column list'
+                               f' for {catalog} catalog {table}, {release}: {ex}')
+            except Exception as ex:
+                raise RuntimeError(f'An unexpected error occurred while attempting to get column list'
+                                   f' for {catalog} catalog {table}, {release}: {ex}')
+
+        return self._service_columns[service_key]
+
+    def _validate_service_criteria(self, catalog, **criteria):
+        """
+        Check that criteria keyword arguments are valid column names for the service.
+        Raises InvalidQueryError if a criteria argument is invalid.
+
+        Parameters
+        ----------
+        catalog : str
+            The catalog to be queried.
+        **criteria
+            Keyword arguments representing criteria filters to apply.
+
+        Raises
+        -------
+        InvalidQueryError
+            If a keyword does not match any valid column names, an error is raised that suggests the closest
+            matching column name, if available.
+        """
+        # Ensure that self._service_columns is populated
+        release = criteria.get('data_release', 'dr2')
+        table = criteria.get('table', 'mean')
+        col_config = self._get_service_col_config(catalog, release, table)
+
+        if col_config:
+            # Check each criteria argument for validity
+            valid_cols = list(col_config['name']) + self._catalogs_mast_search_options
+            for kwd in criteria.keys():
+                col = next((name for name in valid_cols if name.lower() == kwd.lower()), None)
+                if not col:
+                    closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
+                    error_msg = (
+                        f"Filter '{kwd}' does not exist for {catalog} catalog {table}, {release}. "
+                        f"Did you mean '{closest_match[0]}'?"
+                        if closest_match
+                        else f"Filter '{kwd}' does not exist for {catalog} catalog {table}, {release}."
+                    )
+                    raise InvalidQueryError(error_msg)
+
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=0.2*u.deg, catalog="Hsc",
-                           version=None, pagesize=None, page=None, **kwargs):
+                           version=None, pagesize=None, page=None, **criteria):
         """
         Given a sky position and radius, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -88,10 +185,18 @@ class CatalogsClass(MastQueryWithLogin):
             Default None.
             Can be used to override the default behavior of all results being returned to obtain a
             specific page of results.
-        **kwargs
+        **criteria
             Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
-            for specific catalogs. For example one can specify the magtype for an HSC search.
+            for specific catalogs. For example, one can specify the magtype for an HSC search.
+            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument
+            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of
+            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,
+            consisting of a list of column names. Results may also be sorted through the query with the parameter
+            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
+            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
+            Detailed information of Catalogs.MAST criteria usage can
+            be found `here <https://catalogs.mast.stsci.edu/docs/index.html>`__.
 
         Returns
         -------
@@ -113,8 +218,19 @@ class CatalogsClass(MastQueryWithLogin):
         if catalog.lower() in self._service_api_connection.SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
+
+            # validate user criteria
+            self._validate_service_criteria(catalog.lower(), **criteria)
+
+            # adding additional user specified parameters
+            for prop, value in criteria.items():
+                params[prop] = value
+
         else:
             self._current_connection = self._portal_api_connection
+
+            # valid criteria keywords
+            valid_criteria = []
 
             # Sorting out the non-standard portal service names
             if catalog.lower() == "hsc":
@@ -125,19 +241,20 @@ class CatalogsClass(MastQueryWithLogin):
                         warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
                     service = "Mast.Hsc.Db.v3"
 
-                self.catalog_limit = kwargs.get('nr', 50000)
-
                 # Hsc specific parameters (can be overridden by user)
-                params['nr'] = 50000
-                params['ni'] = 1
-                params['magtype'] = 1
+                self.catalog_limit = criteria.pop('nr', 50000)
+                valid_criteria = ['nr', 'ni', 'magtype']
+                params['nr'] = self.catalog_limit
+                params['ni'] = criteria.pop('ni', 1)
+                params['magtype'] = criteria.pop('magtype', 1)
 
             elif catalog.lower() == "galex":
                 service = "Mast.Galex.Catalog"
-                self.catalog_limit = kwargs.get('maxrecords', 50000)
+                self.catalog_limit = criteria.get('maxrecords', 50000)
 
                 # galex specific parameters (can be overridden by user)
-                params['maxrecords'] = 50000
+                valid_criteria = ['maxrecords']
+                params['maxrecords'] = criteria.pop('maxrecords', 50000)
 
             elif catalog.lower() == "gaia":
                 if version == 1:
@@ -158,9 +275,16 @@ class CatalogsClass(MastQueryWithLogin):
                 service = "Mast.Catalogs." + catalog + ".Cone"
                 self.catalog_limit = None
 
-        # adding additional user specified parameters
-        for prop, value in kwargs.items():
-            params[prop] = value
+            # additional user-specified parameters are not valid
+            if criteria:
+                key = next(iter(criteria))
+                closest_match = difflib.get_close_matches(key, valid_criteria, n=1)
+                error_msg = (
+                    f"Filter '{key}' does not exist for catalog {catalog}. Did you mean '{closest_match[0]}'?"
+                    if closest_match
+                    else f"Filter '{key}' does not exist for catalog {catalog}."
+                )
+                raise InvalidQueryError(error_msg)
 
         # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
         use_json = catalog.lower() == 'panstarrs'
@@ -170,7 +294,7 @@ class CatalogsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, version=None, **kwargs):
+                           pagesize=None, page=None, version=None, **criteria):
         """
         Given an object name, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -197,10 +321,18 @@ class CatalogsClass(MastQueryWithLogin):
             to obtain a specific page of results.
         version : int, optional
             Version number for catalogs that have versions. Default is highest version.
-        **kwargs
+        **criteria
             Catalog-specific keyword args.
             These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.
-            for specific catalogs. For example one can specify the magtype for an HSC search.
+            for specific catalogs. For example, one can specify the magtype for an HSC search.
+            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument
+            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of
+            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,
+            consisting of a list of column names. Results may also be sorted through the query with the parameter
+            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
+            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
+            Detailed information of Catalogs.MAST criteria usage can
+            be found `here <https://catalogs.mast.stsci.edu/docs/index.html>`__.
 
         Returns
         -------
@@ -215,7 +347,7 @@ class CatalogsClass(MastQueryWithLogin):
                                        version=version,
                                        pagesize=pagesize,
                                        page=page,
-                                       **kwargs)
+                                       **criteria)
 
     @class_or_instance
     def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
@@ -281,6 +413,9 @@ class CatalogsClass(MastQueryWithLogin):
             self._current_connection = self._service_api_connection
             service = catalog
 
+            # validate user criteria
+            self._validate_service_criteria(catalog.lower(), **criteria)
+
             if not self._current_connection.check_catalogs_criteria_params(criteria):
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
@@ -295,25 +430,24 @@ class CatalogsClass(MastQueryWithLogin):
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "ctl":
                 service = "Mast.Catalogs.Filtered.Ctl"
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "diskdetective":
                 service = "Mast.Catalogs.Filtered.DiskDetective"
                 if coordinates or objectname:
                     service += ".Position"
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Dd.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Dd.Cone"
             else:
                 raise InvalidQueryError("Criteria query not available for {}".format(catalog))
+
+            filters = self._current_connection.build_filter_set(column_config_name, service, **criteria)
 
             if not filters:
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")

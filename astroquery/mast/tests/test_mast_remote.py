@@ -136,6 +136,24 @@ class TestMast:
             MastMissions.query_criteria(coordinates="245.89675 -26.52575",
                                         radius=1)
 
+    def test_missions_query_criteria_invalid_keyword(self):
+        # Attempt to make a criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            MastMissions.query_criteria(select_cols=['sci_targname'],
+                                        not_a_keyword='test')
+        assert "Filter 'not_a_keyword' does not exist." in str(err_no_alt.value)
+
+        # Attempt to make a region query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_no_alt:
+            MastMissions.query_region(coordinates="245.89675 -26.52575",
+                                      invalid_keyword='test')
+        assert "Filter 'invalid_keyword' does not exist." in str(err_no_alt.value)
+
+        # Keyword is close enough for difflib to offer alternative
+        with pytest.raises(InvalidQueryError) as err_with_alt:
+            MastMissions.query_criteria(search_position='30 30')
+        assert 'search_pos' in str(err_with_alt.value)
+
     ###################
     # MastClass tests #
     ###################
@@ -587,7 +605,7 @@ class TestMast:
         assert len(uri) > 0, f'Product for dataURI {test_data_uri} was not found in the cloud.'
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
-    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411"])
+    @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
     def test_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
 
@@ -944,6 +962,25 @@ class TestMast:
         with pytest.raises(InvalidQueryError) as err_with_alt:
             Catalogs.query_criteria(catalog='ctl', objectType="STAR")
         assert 'objType' in str(err_with_alt.value)
+
+        # region query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_region:
+            Catalogs.query_region('322.49324 12.16683',
+                                  radius=0.001*u.deg,
+                                  catalog='HSC',
+                                  invalid=2)
+        assert "Filter 'invalid' does not exist for catalog HSC." in str(err_region.value)
+
+        # panstarrs criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_ps_criteria:
+            Catalogs.query_criteria(coordinates="158.47924 -7.30962",
+                                    catalog="PANSTARRS",
+                                    table="mean",
+                                    data_release="dr2",
+                                    columns=["objName", "distance"],
+                                    sort_by=[("asc", "distance")],
+                                    obj_name='invalid')
+        assert 'objName' in str(err_ps_criteria.value)
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = Catalogs.query_object("M10",

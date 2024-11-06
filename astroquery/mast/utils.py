@@ -70,7 +70,7 @@ def parse_type(dbtype):
     }.get(dbtype, (dbtype, dbtype, dbtype))
 
 
-def _simple_request(url, params):
+def _simple_request(url, params=None):
     """
     Light wrapper on requests.session().get basically to make monkey patched testing easier/more effective.
     """
@@ -194,6 +194,8 @@ def mast_relative_path(mast_uri):
                 path = path.lstrip("/mast/")
             elif '/ps1/' in path:
                 path = path.replace("/ps1/", "panstarrs/ps1/public/")
+            elif 'hlsp' in path:
+                path = path.replace("/hlsp_local/public/", "mast/")
             else:
                 path = path.lstrip("/")
             result.append(path)

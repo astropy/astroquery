@@ -22,6 +22,7 @@ from astroquery import mast
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
+              'mission_columns': 'mission_columns.json',
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
@@ -46,6 +47,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
               'panstarrs': 'panstarrs.json',
+              'panstarrs_columns': 'panstarrs_columns.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json',
               'z_cutout_fit': 'astrocut_189.49206_62.20615_100x100px_f.zip',
@@ -62,7 +64,7 @@ def data_path(filename):
 def patch_post(request):
     mp = request.getfixturevalue("monkeypatch")
 
-    mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
+    mp.setattr(mast.utils, '_simple_request', request_mockreturn)
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
     mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
@@ -128,8 +130,13 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
     return MockResponse(content)
 
 
-def resolver_mockreturn(*args, **kwargs):
-    filename = data_path(DATA_FILES["Mast.Name.Lookup"])
+def request_mockreturn(url, params={}):
+    if 'column_list' in url:
+        filename = data_path(DATA_FILES['mission_columns'])
+    elif 'Mast.Name.Lookup' in params:
+        filename = data_path(DATA_FILES["Mast.Name.Lookup"])
+    elif 'panstarrs' in url:
+        filename = data_path(DATA_FILES['panstarrs_columns'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -210,58 +217,28 @@ def test_missions_query_region(patch_post):
 
 
 def test_missions_query_criteria_async(patch_post):
-    pep_id = {'sci_pep_id': '12556'}
-    obs_type = {'sci_obs_type': "SPECTRUM"}
-    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
-    datasets = {'sci_data_set_name': ""}
-    pi_lname = {'sci_pi_last_name': ""}
-    spec_1234 = {'sci_spec_1234': ""}
-    release_date = {'sci_release_date': ""}
-    start_time = {'sci_start_time': ""}
-    obs_type = {'sci_obs_type': 'all'}
-    aec = {'sci_aec': 'S'}
-    responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
-                                                       radius=3,
-                                                       conditions=[pep_id,
-                                                                   obs_type,
-                                                                   instruments,
-                                                                   datasets,
-                                                                   pi_lname,
-                                                                   spec_1234,
-                                                                   release_date,
-                                                                   start_time,
-                                                                   obs_type,
-                                                                   aec])
+    responses = mast.MastMissions.query_criteria_async(
+        coordinates=regionCoords,
+        radius=3,
+        sci_pep_id=12556,
+        sci_obs_type='SPECTRUM',
+        sci_instrume='stis,acs,wfc3,cos,fos,foc,nicmos,ghrs',
+        sci_aec='S'
+    )
     assert isinstance(responses, MockResponse)
 
 
 def test_missions_query_criteria_async_with_missing_results(patch_post):
-    pep_id = {'sci_pep_id': '12556'}
-    obs_type = {'sci_obs_type': "SPECTRUM"}
-    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
-    datasets = {'sci_data_set_name': ""}
-    pi_lname = {'sci_pi_last_name': ""}
-    spec_1234 = {'sci_spec_1234': ""}
-    release_date = {'sci_release_date': ""}
-    start_time = {'sci_start_time': ""}
-    obs_type = {'sci_obs_type': 'all'}
-    aec = {'sci_aec': 'S'}
-    aperture = {'sci_aper_1234': 'WF3'}
-
     with pytest.raises(KeyError):
-        responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
-                                                           radius=5,
-                                                           conditions=[pep_id,
-                                                                       obs_type,
-                                                                       instruments,
-                                                                       datasets,
-                                                                       pi_lname,
-                                                                       spec_1234,
-                                                                       release_date,
-                                                                       start_time,
-                                                                       obs_type,
-                                                                       aec,
-                                                                       aperture])
+        responses = mast.MastMissions.query_criteria_async(
+            coordinates=regionCoords,
+            radius=5,
+            sci_pep_id=12556,
+            sci_obs_type='SPECTRUM',
+            sci_instrume='stis,acs,wfc3,cos,fos,foc,nicmos,ghrs',
+            sci_aec='S',
+            sci_aper_1234='WF3'
+        )
         _json_to_table(json.loads(responses), 'results')
 
 
@@ -324,7 +301,6 @@ def test_mast_query(patch_post):
 
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
-    print(m103_loc)
     assert round(m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value, 10) == 0
 
 
