@@ -77,7 +77,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        **kwargs
+        **criteria
             Keyword arguments representing criteria filters to apply.
 
         Raises
@@ -102,7 +102,7 @@ class MastMissionsClass(MastQueryWithLogin):
                 raise InvalidQueryError(error_msg)
 
     @class_or_instance
-    def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0, **kwargs):
+    def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0, **criteria):
         """
         Given a sky position and radius, returns a list of matching dataset IDs.
 
@@ -122,12 +122,11 @@ class MastMissionsClass(MastQueryWithLogin):
         offset : int
             Optional and default is 0
             the number of records you wish to skip before selecting records.
-        **kwargs
-            Other mission-specific keyword args.
-            Any invalid keys are ignored by the API.
-            All valid key names can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
+        **criteria
+            Other mission-specific criteria arguments.
+            All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
             function.
-            For example one can specify the output columns(select_cols) or use other filters(conditions)
+            For example, one can specify the output columns(select_cols) or use other filters(conditions).
 
         Returns
         -------
@@ -137,7 +136,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.limit = limit
 
         # Check that criteria arguments are valid
-        self._validate_criteria(**kwargs)
+        self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
         coordinates = commons.parse_coordinates(coordinates)
@@ -154,7 +153,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         params['conditions'] = []
         # adding additional user specified parameters
-        for prop, value in kwargs.items():
+        for prop, value in criteria.items():
             if prop not in self._search_option_fields:
                 params['conditions'].append({prop: value})
             else:
@@ -189,12 +188,11 @@ class MastMissionsClass(MastQueryWithLogin):
         select_cols: list
             names of columns that will be included in the astropy table
         **criteria
-            Criteria to apply. At least one non-positional criteria must be supplied.
+            Criteria to apply. At least one non-positional criterion must be supplied.
             Valid criteria are coordinates, objectname, radius (as in
             `~astroquery.mast.missions.MastMissionsClass.query_region` and
             `~astroquery.mast.missions.MastMissionsClass.query_object` functions),
             and all fields listed in the column documentation for the mission being queried.
-            Any invalid keys passed in criteria are ignored by the API.
             List of all valid fields that can be used to match results on criteria can be retrieved by calling
             `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
 
@@ -234,7 +232,7 @@ class MastMissionsClass(MastQueryWithLogin):
         return self._service_api_connection.service_request_async(self.service, params, use_json=True)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0, **kwargs):
+    def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0, **criteria):
         """
         Given an object name, returns a list of matching rows.
 
@@ -253,11 +251,11 @@ class MastMissionsClass(MastQueryWithLogin):
         offset : int
             Optional and default is 0.
             the number of records you wish to skip before selecting records.
-        **kwargs
-            Mission-specific keyword args.
-            Any invalid keys are ignored by the API.
-            All valid keys can be found by calling `~astroquery.mast.missions.MastMissionsClass.get_column_list`
+        **criteria
+            Other mission-specific criteria arguments.
+            All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
             function.
+            For example, one can specify the output columns(select_cols) or use other filters(conditions).
 
         Returns
         -------
@@ -266,7 +264,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset, **kwargs)
+        return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset, **criteria)
 
     @class_or_instance
     def get_column_list(self):
@@ -294,8 +292,8 @@ class MastMissionsClass(MastQueryWithLogin):
                 # Create Table with parsed data
                 col_table = Table(rows=rows, names=('name', 'data_type', 'description'))
                 self.columns[self.mission] = col_table
-            except Exception:
-                raise Exception(f'Error occurred while trying to get column list for mission {self.mission}')
+            except Exception as ex:
+                raise RuntimeError(f'Error occurred while trying to get column list for mission {self.mission}: {ex}')
 
         return self.columns[self.mission]
 

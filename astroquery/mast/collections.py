@@ -6,6 +6,7 @@ MAST Collections
 This module contains various methods for querying MAST collections such as catalogs.
 """
 
+import difflib
 import warnings
 import os
 import time
@@ -60,7 +61,7 @@ class CatalogsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=0.2*u.deg, catalog="Hsc",
-                           version=None, pagesize=None, page=None, **kwargs):
+                           version=None, pagesize=None, page=None, **criteria):
         """
         Given a sky position and radius, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -88,7 +89,7 @@ class CatalogsClass(MastQueryWithLogin):
             Default None.
             Can be used to override the default behavior of all results being returned to obtain a
             specific page of results.
-        **kwargs
+        **criteria
             Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
             for specific catalogs. For example one can specify the magtype for an HSC search.
@@ -109,10 +110,18 @@ class CatalogsClass(MastQueryWithLogin):
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
+        # valid criteria keywords
+        valid_criteria = []
+
         # Determine API connection and service name
         if catalog.lower() in self._service_api_connection.SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
+
+            # adding additional user specified parameters
+            for prop, value in criteria.items():
+                params[prop] = value
+
         else:
             self._current_connection = self._portal_api_connection
 
@@ -125,19 +134,20 @@ class CatalogsClass(MastQueryWithLogin):
                         warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
                     service = "Mast.Hsc.Db.v3"
 
-                self.catalog_limit = kwargs.get('nr', 50000)
-
                 # Hsc specific parameters (can be overridden by user)
-                params['nr'] = 50000
-                params['ni'] = 1
-                params['magtype'] = 1
+                self.catalog_limit = criteria.pop('nr', 50000)
+                valid_criteria = ['nr', 'ni', 'magtype']
+                params['nr'] = self.catalog_limit
+                params['ni'] = criteria.pop('ni', 1)
+                params['magtype'] = criteria.pop('magtype', 1)
 
             elif catalog.lower() == "galex":
                 service = "Mast.Galex.Catalog"
-                self.catalog_limit = kwargs.get('maxrecords', 50000)
+                self.catalog_limit = criteria.get('maxrecords', 50000)
 
                 # galex specific parameters (can be overridden by user)
-                params['maxrecords'] = 50000
+                valid_criteria = ['maxrecords']
+                params['maxrecords'] = criteria.pop('maxrecords', 50000)
 
             elif catalog.lower() == "gaia":
                 if version == 1:
@@ -158,9 +168,16 @@ class CatalogsClass(MastQueryWithLogin):
                 service = "Mast.Catalogs." + catalog + ".Cone"
                 self.catalog_limit = None
 
-        # adding additional user specified parameters
-        for prop, value in kwargs.items():
-            params[prop] = value
+            # additional user-specified parameters are not valid
+            if criteria:
+                key = next(iter(criteria))
+                closest_match = difflib.get_close_matches(key, valid_criteria, n=1)
+                error_msg = (
+                    f"Filter '{key}' does not exist for catalog {catalog}. Did you mean '{closest_match[0]}'?"
+                    if closest_match
+                    else f"Filter '{key}' does not exist for catalog {catalog}."
+                )
+                raise InvalidQueryError(error_msg)
 
         # Parameters will be passed as JSON objects only when accessing the PANSTARRS API
         use_json = catalog.lower() == 'panstarrs'
@@ -170,7 +187,7 @@ class CatalogsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, version=None, **kwargs):
+                           pagesize=None, page=None, version=None, **criteria):
         """
         Given an object name, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -197,7 +214,7 @@ class CatalogsClass(MastQueryWithLogin):
             to obtain a specific page of results.
         version : int, optional
             Version number for catalogs that have versions. Default is highest version.
-        **kwargs
+        **criteria
             Catalog-specific keyword args.
             These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.
             for specific catalogs. For example one can specify the magtype for an HSC search.
@@ -215,7 +232,7 @@ class CatalogsClass(MastQueryWithLogin):
                                        version=version,
                                        pagesize=pagesize,
                                        page=page,
-                                       **kwargs)
+                                       **criteria)
 
     @class_or_instance
     def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
@@ -295,25 +312,24 @@ class CatalogsClass(MastQueryWithLogin):
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "ctl":
                 service = "Mast.Catalogs.Filtered.Ctl"
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "diskdetective":
                 service = "Mast.Catalogs.Filtered.DiskDetective"
                 if coordinates or objectname:
                     service += ".Position"
-                filters = self._current_connection.build_filter_set("Mast.Catalogs.Dd.Cone",
-                                                                    service, **criteria)
+                column_config_name = "Mast.Catalogs.Dd.Cone"
             else:
                 raise InvalidQueryError("Criteria query not available for {}".format(catalog))
+
+            filters = self._current_connection.build_filter_set(column_config_name, service, **criteria)
 
             if not filters:
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
