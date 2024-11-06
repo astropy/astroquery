@@ -6,12 +6,11 @@ This directory contains sample data that is used to mock functions in `~astroque
 
 To generate `~astroquery.mast.tests.data.mission_columns.json`, use the following:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> import json
     >>> from astroquery.mast import utils
-
-    >>> params = {'mission': 'hst'}
-    >>> resp = utils._simple_request(f'https://mast.stsci.edu/search/util/api/v0.1/column_list', {'mission': 'hst'})
+    ...
+    >>> resp = utils._simple_request('https://mast.stsci.edu/search/util/api/v0.1/column_list', {'mission': 'hst'})
     >>> with open('mission_columns.json', 'w') as file:
-    >>>     json.dump(resp.json(), file, indent=4)
+    ...     json.dump(resp.json(), file, indent=4)

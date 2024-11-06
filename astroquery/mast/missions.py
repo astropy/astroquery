@@ -7,11 +7,13 @@ This module contains methods for searching MAST missions.
 """
 
 import difflib
+from json import JSONDecodeError
 import warnings
 
 from astropy.table import Table
 import astropy.units as u
 import astropy.coordinates as coord
+from requests import RequestException
 
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
@@ -292,8 +294,18 @@ class MastMissionsClass(MastQueryWithLogin):
                 # Create Table with parsed data
                 col_table = Table(rows=rows, names=('name', 'data_type', 'description'))
                 self.columns[self.mission] = col_table
+            except JSONDecodeError as ex:
+                raise JSONDecodeError(f'Failed to decode JSON response while attempting to get column list'
+                                      f' for mission {self.mission}: {ex}')
+            except RequestException as ex:
+                raise ConnectionError(f'Failed to connect to the server while attempting to get column list'
+                                      f' for mission {self.mission}: {ex}')
+            except KeyError as ex:
+                raise KeyError(f'Expected key not found in response data while attempting to get column list'
+                               f' for mission {self.mission}: {ex}')
             except Exception as ex:
-                raise RuntimeError(f'Error occurred while trying to get column list for mission {self.mission}: {ex}')
+                raise RuntimeError(f'An unexpected error occurred while attempting to get column list'
+                                   f' for mission {self.mission}: {ex}')
 
         return self.columns[self.mission]
 
