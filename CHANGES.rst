@@ -225,6 +225,9 @@ mast
 
 - Present users with an error when nonexistent query criteria are used in ``mast.MastMissions`` query functions. [#3126]
 
+- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and 
+  ``mast.Catalogs.query_object`` [#3126]
+
 mpc
 ^^^
 

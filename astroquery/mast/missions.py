@@ -88,13 +88,14 @@ class MastMissionsClass(MastQueryWithLogin):
             If a keyword does not match any valid column names, an error is raised that suggests the closest
             matching column name, if available.
         """
-        # Ensure that self.columns in populated
+        # Ensure that self.columns is populated
         self.get_column_list()
 
         # Check each criteria argument for validity
-        valid_cols = self.columns[self.mission]['name']
+        valid_cols = list(self.columns[self.mission]['name']) + self._search_option_fields
         for kwd in criteria.keys():
-            if kwd not in valid_cols and kwd not in self._search_option_fields:
+            col = next((name for name in valid_cols if name.lower() == kwd.lower()), None)
+            if not col:
                 closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
                 error_msg = (
                     f"Filter '{kwd}' does not exist. Did you mean '{closest_match[0]}'?"

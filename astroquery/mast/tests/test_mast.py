@@ -47,6 +47,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
               'panstarrs': 'panstarrs.json',
+              'panstarrs_columns': 'panstarrs_columns.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json',
               'z_cutout_fit': 'astrocut_189.49206_62.20615_100x100px_f.zip',
@@ -129,11 +130,13 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
     return MockResponse(content)
 
 
-def request_mockreturn(url, params=None):
+def request_mockreturn(url, params={}):
     if 'column_list' in url:
         filename = data_path(DATA_FILES['mission_columns'])
     elif 'Mast.Name.Lookup' in params:
         filename = data_path(DATA_FILES["Mast.Name.Lookup"])
+    elif 'panstarrs' in url:
+        filename = data_path(DATA_FILES['panstarrs_columns'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -298,7 +301,6 @@ def test_mast_query(patch_post):
 
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
-    print(m103_loc)
     assert round(m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value, 10) == 0
 
 

@@ -963,6 +963,25 @@ class TestMast:
             Catalogs.query_criteria(catalog='ctl', objectType="STAR")
         assert 'objType' in str(err_with_alt.value)
 
+        # region query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_region:
+            Catalogs.query_region('322.49324 12.16683',
+                                  radius=0.001*u.deg,
+                                  catalog='HSC',
+                                  invalid=2)
+        assert "Filter 'invalid' does not exist for catalog HSC." in str(err_region.value)
+
+        # panstarrs criteria query with invalid keyword
+        with pytest.raises(InvalidQueryError) as err_ps_criteria:
+            Catalogs.query_criteria(coordinates="158.47924 -7.30962",
+                                    catalog="PANSTARRS",
+                                    table="mean",
+                                    data_release="dr2",
+                                    columns=["objName", "distance"],
+                                    sort_by=[("asc", "distance")],
+                                    obj_name='invalid')
+        assert 'objName' in str(err_ps_criteria.value)
+
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = Catalogs.query_object("M10",
                                             radius=.001,
