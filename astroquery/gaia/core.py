@@ -239,13 +239,13 @@ class GaiaClass(TapPlus):
 
         now = datetime.datetime.now(datetime.timezone.utc)
         if not dump_to_file:
-            now_formatted = now.strftime("%Y%m%d_%H%M%S")
+            now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
             temp_dirname = "temp_" + now_formatted
             downloadname_formated = "download_" + now_formatted
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
 
         else:
-            output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+            output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
             output_file_specified = True
             output_file = os.path.abspath(output_file)
             log.info(f"DataLink products will be stored in the {output_file} file")

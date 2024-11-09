@@ -87,7 +87,7 @@ ids_designator = ['Gaia DR3 1104405489608579584', 'Gaia DR3 1104405489608579584,
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
-FAKE_TIME = datetime.datetime(2024, 1, 1, 0, 0, 59)
+FAKE_TIME = datetime.datetime(2024, 1, 1, 0, 0, 59, 1)
 
 
 @pytest.fixture
@@ -999,9 +999,12 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     assert not os.path.exists(datalink_output)
 
 
-def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory):
+def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1076,9 +1079,12 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
     path.unlink()
 
 
-def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
+def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1112,9 +1118,12 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory):
     path.unlink()
 
 
-def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
+def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1148,9 +1157,12 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory):
     path.unlink()
 
 
-def test_load_data_linking_parameter(monkeypatch, tmp_path):
+def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1185,9 +1197,12 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
-def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param):
+def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param, patch_datetime_now):
+
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
