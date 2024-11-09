@@ -185,6 +185,8 @@ gaia
 
 - New retrieval types for datalink (Gaia DR4 release). [#3110]
 
+- The output file name built by the method load_data, includes microsecond resolution. This is based on the previous PR [#3014]. [#3130]
+
 
 jplhorizons
 ^^^^^^^^^^^
