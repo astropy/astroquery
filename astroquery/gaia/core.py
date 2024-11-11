@@ -224,7 +224,7 @@ class GaiaClass(TapPlus):
         dump_to_file: boolean, optional, default False.
             If it is true, a compressed directory named "datalink_output_<time_stamp>.zip" with all the DataLink
             files is made in the current working directory. The <time_stamp> format follows the ISO 8601 standard:
-            "yyyymmddThhmmss".
+            "YYYYMMDD_HHMMSS.mmmmmm".
         overwrite_output_file : boolean, optional, default False
             To overwrite the output file ("datalink_output.zip") if it already exists.
         verbose : bool, optional, default 'False'
@@ -239,13 +239,13 @@ class GaiaClass(TapPlus):
 
         now = datetime.datetime.now(datetime.timezone.utc)
         if not dump_to_file:
-            now_formatted = now.strftime("%Y%m%d_%H%M%S")
+            now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
             temp_dirname = "temp_" + now_formatted
             downloadname_formated = "download_" + now_formatted
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
 
         else:
-            output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+            output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
             output_file_specified = True
             output_file = os.path.abspath(output_file)
             log.info(f"DataLink products will be stored in the {output_file} file")
@@ -258,7 +258,7 @@ class GaiaClass(TapPlus):
 
         log.debug(f"Directory where the data will be saved: {path}")
 
-        if path != '':
+        if path:
             if not os.path.isdir(path):
                 try:
                     os.mkdir(path)
