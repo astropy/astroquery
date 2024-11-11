@@ -224,7 +224,7 @@ class GaiaClass(TapPlus):
         dump_to_file: boolean, optional, default False.
             If it is true, a compressed directory named "datalink_output_<time_stamp>.zip" with all the DataLink
             files is made in the current working directory. The <time_stamp> format follows the ISO 8601 standard:
-            "yyyymmddThhmmss".
+            "YYYYMMDD_HHMMSS.mmmmmm".
         overwrite_output_file : boolean, optional, default False
             To overwrite the output file ("datalink_output.zip") if it already exists.
         verbose : bool, optional, default 'False'
