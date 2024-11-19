@@ -14,7 +14,9 @@ import platform
 from urllib import parse
 
 import astropy.coordinates as coord
+from astropy.table import unique
 
+from .. import log
 from ..version import version
 from ..exceptions import ResolverError, InvalidQueryError
 from ..utils import commons
@@ -211,3 +213,27 @@ def _split_list_into_chunks(input_list, chunk_size):
     """Helper function for `mast_relative_path`."""
     for idx in range(0, len(input_list), chunk_size):
         yield input_list[idx:idx + chunk_size]
+
+
+def remove_duplicate_products(data_products, uri_key):
+    """
+    Removes duplicate data products that have the same data URI.
+    Parameters
+    ----------
+    data_products : `~astropy.table.Table`
+        Table containing products to be checked for duplicates.
+    uri_key : str
+        Column name representing the URI of a product.
+    Returns
+    -------
+    unique_products : `~astropy.table.Table`
+        Table containing products with unique dataURIs.
+    """
+    number = len(data_products)
+    unique_products = unique(data_products, keys=uri_key)
+    number_unique = len(unique_products)
+    if number_unique < number:
+        log.info(f"{number - number_unique} of {number} products were duplicates. "
+                 f"Only returning {number_unique} unique product(s).")
+
+    return unique_products

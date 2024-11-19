@@ -19,7 +19,7 @@ from requests import HTTPError
 import astropy.units as u
 import astropy.coordinates as coord
 
-from astropy.table import Table, Row, unique, vstack
+from astropy.table import Table, Row, vstack
 from astroquery import log
 from astroquery.mast.cloud import CloudAccess
 
@@ -816,7 +816,7 @@ class ObservationsClass(MastQueryWithLogin):
         products = self.filter_products(products, mrp_only=mrp_only, **filters)
 
         # remove duplicate products
-        products = self._remove_duplicate_products(products)
+        products = utils.remove_duplicate_products(products, 'dataURI')
 
         if not len(products):
             warnings.warn("No products to download.", NoResultsWarning)
@@ -928,7 +928,7 @@ class ObservationsClass(MastQueryWithLogin):
             return
 
         # Remove duplicate products
-        data_products = self._remove_duplicate_products(data_products)
+        data_products = utils.remove_duplicate_products(data_products, 'dataURI')
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
@@ -966,30 +966,6 @@ class ObservationsClass(MastQueryWithLogin):
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
-    def _remove_duplicate_products(self, data_products):
-        """
-        Removes duplicate data products that have the same dataURI.
-
-        Parameters
-        ----------
-        data_products : `~astropy.table.Table`
-            Table containing products to be checked for duplicates.
-
-        Returns
-        -------
-        unique_products : `~astropy.table.Table`
-            Table containing products with unique dataURIs.
-
-        """
-        number = len(data_products)
-        unique_products = unique(data_products, keys="dataURI")
-        number_unique = len(unique_products)
-        if number_unique < number:
-            log.info(f"{number - number_unique} of {number} products were duplicates. "
-                     f"Only returning {number_unique} unique product(s).")
-
-        return unique_products
-
     def get_unique_product_list(self, observations):
         """
         Given a "Product Group Id" (column name obsid), returns a list of associated data products with
@@ -1009,7 +985,7 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products with unique dataURIs.
         """
         products = self.get_product_list(observations)
-        unique_products = self._remove_duplicate_products(products)
+        unique_products = utils.remove_duplicate_products(products, 'dataURI')
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
