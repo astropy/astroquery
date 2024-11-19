@@ -14,6 +14,7 @@ import numpy as np
 from astropy.table import Table, MaskedColumn
 from astropy.utils.decorators import deprecated_renamed_argument
 
+from .. import log
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
@@ -84,7 +85,12 @@ def _json_to_table(json_obj, data_key='data'):
             col_data = np.array([x[idx] for x in json_obj[data_key]], dtype=object)
         except KeyError:
             # it's not a data array, fall back to using column name as it is array of dictionaries
-            col_data = np.array([x[col_name] for x in json_obj[data_key]], dtype=object)
+            try:
+                col_data = np.array([x[col_name] for x in json_obj[data_key]], dtype=object)
+            except KeyError:
+                # Skip column names not found in data
+                log.debug('Column %s was not found in data. Skipping...', col_name)
+                continue
         if ignore_value is not None:
             col_data[np.where(np.equal(col_data, None))] = ignore_value
 
@@ -113,6 +119,7 @@ class ServiceAPI(BaseQuery):
     SERVICE_URL = conf.server
     REQUEST_URL = conf.server + "/api/v0.1/"
     MISSIONS_DOWNLOAD_URL = conf.server + "/search/"
+    MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
     SERVICES = {}
 
     def __init__(self, session=None):
