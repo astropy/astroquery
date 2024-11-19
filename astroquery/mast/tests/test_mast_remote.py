@@ -227,7 +227,7 @@ class TestMast:
 
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
-        # Rows should be unique based on dataURI
+        # Rows should be unique based on filename
         assert (unique_products == unique(unique_products, keys='filename')).all()
         # Check that INFO messages were logged
         with caplog.at_level('INFO', logger='astroquery'):
@@ -312,6 +312,32 @@ class TestMast:
         local_path_file = Path(tmp_path, 'test.fits')
         result = MastMissions.download_file(uri, local_path=local_path_file)
         check_result(result, local_path_file)
+
+    @pytest.mark.parametrize("mission, query_params", [
+        ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
+        ('classy', {'target': 'J0021+0052'}),
+        ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']})
+    ])
+    def test_missions_workflow(self, tmp_path, mission, query_params):
+        # Test workflow with other missions
+        m = MastMissions(mission=mission)
+
+        # Criteria query
+        datasets = m.query_criteria(**query_params)
+        assert isinstance(datasets, Table)
+        assert len(datasets)
+
+        # Get products
+        prods = m.get_product_list(datasets[0])
+        assert isinstance(prods, Table)
+        assert len(prods)
+
+        # Download products
+        result = m.download_products(prods[:3],
+                                     download_dir=tmp_path)
+        for row in result:
+            if row['Status'] == 'COMPLETE':
+                assert (row['Local Path']).is_file()
 
     ###################
     # MastClass tests #

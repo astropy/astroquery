@@ -42,12 +42,19 @@ class MastMissionsClass(MastQueryWithLogin):
     _search = 'search'
     _list_products = 'list_products'
 
+    # Workaround so that observation_id is returned in ULLYSES queries that do not specify columns
+    _default_ulysses_cols = ['target_name_ulysses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
+                             'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
+                             'instrument', 'grating', 'filter', 'observation_id']
+
     def __init__(self, *, mission='hst'):
         super().__init__()
 
         self.dataset_kwds = {  # column keywords corresponding to dataset ID
             'hst': 'sci_data_set_name',
-            'jwst': 'fileSetName'
+            'jwst': 'fileSetName',
+            'classy': 'Target',
+            'ullyses': 'observation_id'
         }
 
         # Service attributes
@@ -69,7 +76,7 @@ class MastMissionsClass(MastQueryWithLogin):
     @mission.setter
     def mission(self, value):
         # Need to update the service parameters if the mission is changed
-        self._mission = value
+        self._mission = value.lower()
         self._service_api_connection.set_service_params(self.service_dict, f'search/{self.mission}')
 
     def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
@@ -184,6 +191,8 @@ class MastMissionsClass(MastQueryWithLogin):
         # Dataset ID column should always be returned
         if select_cols:
             select_cols.append(self.dataset_kwds[self.mission])
+        elif self.mission == 'ullyses':
+            select_cols = self._default_ulysses_cols
 
         # basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
@@ -259,6 +268,8 @@ class MastMissionsClass(MastQueryWithLogin):
         # Dataset ID column should always be returned
         if select_cols:
             select_cols.append(self.dataset_kwds[self.mission])
+        elif self.mission == 'ullyses':
+            select_cols = self._default_ulysses_cols
 
         # build query
         params = {"limit": self.limit, "offset": offset, 'select_cols': select_cols}
@@ -452,10 +463,17 @@ class MastMissionsClass(MastQueryWithLogin):
             The full URL download path.
         """
 
-        # Construct the full data URL
-        base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
-        data_url = base_url + '?product_name=' + uri
-        escaped_url = base_url + '?product_name=' + quote(uri, safe=':')
+        # Construct the full data URL based on mission
+        if self.mission in ['hst', 'jwst']:
+            # HST and JWST have a dedicated endpoint for retrieving products
+            base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
+            keyword = 'product_name'
+        else:
+            # HLSPs use MAST download URL
+            base_url = self._service_api_connection.MAST_DOWNLOAD_URL
+            keyword = 'uri'
+        data_url = base_url + f'?{keyword}=' + uri
+        escaped_url = base_url + f'?{keyword}=' + quote(uri, safe='')
 
         # Determine local file path. Use current directory as default.
         filename = Path(uri).name
