@@ -72,8 +72,9 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
                                                                              float(pos_parts[2]), float(pos_parts[3]))
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('111-000-111-000') and method == 'GET':
-            key = "SUSPENDED_JOB" if self.job_pass_num==1 else 'RUN_JOB' if self.job_pass_num==2 else self.completed_job_key
-            self.job_pass_num+=1
+            key = "SUSPENDED_JOB" if self.job_pass_num == 1 else 'RUN_JOB' if self.job_pass_num == 2 \
+                else self.completed_job_key
+            self.job_pass_num += 1
         else:
             raise ValueError("Unexpected SODA async {} call to url {}".format(method, url))
     elif 'datalink' in str(url):
