@@ -729,6 +729,8 @@ ipac.nexsci.nasa_exoplanet_archive
 - Fixes to alias query, and regularize keyword removed from deprecated
   ``query_star`` method. [#2264]
 
+- ``pl_trandur`` unit updated from day(s) to hour(s) in TAP, and hour added to dictionary mapping unit strings to astropy units in core.py. [#3137]
+
 mast
 ^^^^
 
