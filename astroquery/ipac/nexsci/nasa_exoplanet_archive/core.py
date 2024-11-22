@@ -65,6 +65,7 @@ UNIT_MAPPER = {
     "degrees": u.deg,
     "dexincgs": u.dex(u.cm / u.s ** 2),
     "hours": u.hr,
+    "hour": u.hr,
     "hrs": u.hr,
     "kelvin": u.K,
     "logLsun": u.dex(u.L_sun),
