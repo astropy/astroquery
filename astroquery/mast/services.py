@@ -52,14 +52,18 @@ def _json_to_table(json_obj, data_key='data'):
     # for each item in info, type has to be converted from DB data types (SQL server in most cases)
     # from missions_mast search service such as varchar, integer, float, boolean etc
     # to corresponding numpy type
-    for idx, col, col_type, ignore_value in \
-            [(idx, x['name'], x[type_key].lower(), None) for idx, x in enumerate(json_obj['info'])]:
+    for idx, col in enumerate(json_obj['info']):
+
+        # get column name and type
+        col_name = col.get('column_name') or col.get('name')
+        col_type = col[type_key].lower()
+        ignore_value = None
 
         # making type adjustments
         if (col_type == "char" or col_type == "string" or 'varchar' in col_type or col_type == "null"
                 or col_type == 'datetime'):
             col_type = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
+            ignore_value = ""
         elif col_type == "boolean" or col_type == "binary":
             col_type = "bool"
         elif col_type == "unsignedbyte":
@@ -68,11 +72,11 @@ def _json_to_table(json_obj, data_key='data'):
                 or col_type == 'integer'):
             # int arrays do not admit Non/nan vals
             col_type = np.int64
-            ignore_value = -999 if (ignore_value is None) else ignore_value
+            ignore_value = -999
         elif col_type == "double" or col_type.lower() == "float" or col_type == "decimal":
             # int arrays do not admit Non/nan vals
             col_type = np.float64
-            ignore_value = -999 if (ignore_value is None) else ignore_value
+            ignore_value = -999
 
         # Make the column list (don't assign final type yet or there will be errors)
         try:
@@ -80,7 +84,7 @@ def _json_to_table(json_obj, data_key='data'):
             col_data = np.array([x[idx] for x in json_obj[data_key]], dtype=object)
         except KeyError:
             # it's not a data array, fall back to using column name as it is array of dictionaries
-            col_data = np.array([x[col] for x in json_obj[data_key]], dtype=object)
+            col_data = np.array([x[col_name] for x in json_obj[data_key]], dtype=object)
         if ignore_value is not None:
             col_data[np.where(np.equal(col_data, None))] = ignore_value
 
@@ -92,7 +96,7 @@ def _json_to_table(json_obj, data_key='data'):
             col_mask = np.equal(col_data, ignore_value)
 
         # add the column
-        data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col, mask=col_mask))
+        data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col_name, mask=col_mask))
 
     return data_table
 
