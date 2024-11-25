@@ -17,6 +17,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
 SKIP_SLOW = True
 
 SGRA_SURVEYS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
+                'ERIS-SPIFFIER',
                 'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
 
 
