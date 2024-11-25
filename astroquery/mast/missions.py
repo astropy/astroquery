@@ -47,8 +47,8 @@ class MastMissionsClass(MastQueryWithLogin):
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
-    def __init__(self, *, mission='hst'):
-        super().__init__()
+    def __init__(self, *, mission='hst', mast_token=None):
+        super().__init__(mast_token=mast_token)
 
         self.dataset_kwds = {  # column keywords corresponding to dataset ID
             'hst': 'sci_data_set_name',
@@ -497,8 +497,19 @@ class MastMissionsClass(MastQueryWithLogin):
                 url = data_url
 
         except HTTPError as err:
+            if err.response.status_code == 401:
+                no_auth_msg = f'You are not authorized to download from {data_url}.'
+                if self._authenticated:
+                    no_auth_msg += ('\nPlease check your authentication token. You can generate a new '
+                                    'token at https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
+                                    'suggested_scope=mast:exclusive_access')
+                else:
+                    no_auth_msg += ('\nPlease authenticate yourself using the `~astroquery.mast.MastMissions.login` '
+                                    'function or initialize `~astroquery.mast.MastMissions` with an authentication '
+                                    'token.')
+                log.warning(no_auth_msg)
             status = 'ERROR'
-            msg = 'HTTPError: {0}'.format(err)
+            msg = f'HTTPError: {err}'
             url = data_url
 
         return status, msg, url
