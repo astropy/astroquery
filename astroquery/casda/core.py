@@ -516,7 +516,7 @@ class CasdaClass(QueryWithLogin):
         count = 0
         job_details = self._get_job_details_xml(job_location)
         status = self._read_job_status(job_details, verbose)
-        while status == 'EXECUTING' or status == 'QUEUED' or status == 'PENDING':
+        while status == 'EXECUTING' or status == 'QUEUED' or status == 'PENDING' or status == 'SUSPENDED':
             count += 1
             if verbose and (status != prev_status or count > 10):
                 log.info("Job is %s, polling every %d seconds." % (status, poll_interval))

@@ -26,6 +26,11 @@ alma
 
 - Changed the way galactic ranges are used in queries [#3105]
 
+casda
+^^^^^
+
+- Support jobs which are in the SUSPENDED state (used when copying data) [#3134]
+
 ehst
 ^^^^
 

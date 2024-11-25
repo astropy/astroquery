@@ -29,7 +29,7 @@ except ImportError:
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
               'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml',
               'cutout_CIRCLE_333.9092_-45.8418_0.5000': 'cutout_333.9092_-45.8418_0.5000.xml',
-              'AVAILABILITY': 'availability.xml'}
+              'AVAILABILITY': 'availability.xml', 'SUSPENDED_JOB': 'suspended_job.xml'}
 
 USERNAME = 'user'
 PASSWORD = 'password'
@@ -58,7 +58,7 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
     if 'data/async' in str(url):
         # Responses for an asynchronous SODA job
         if str(url).endswith('data/async'):
-            self.first_job_pass = True
+            self.job_pass_num = 1
             self.completed_job_key = "COMPLETED_JOB"
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('/phase') and method == 'POST':
@@ -72,8 +72,9 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
                                                                              float(pos_parts[2]), float(pos_parts[3]))
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('111-000-111-000') and method == 'GET':
-            key = "RUN_JOB" if self.first_job_pass else self.completed_job_key
-            self.first_job_pass = False
+            key = "SUSPENDED_JOB" if self.job_pass_num == 1 else 'RUN_JOB' if self.job_pass_num == 2 \
+                else self.completed_job_key
+            self.job_pass_num += 1
         else:
             raise ValueError("Unexpected SODA async {} call to url {}".format(method, url))
     elif 'datalink' in str(url):
