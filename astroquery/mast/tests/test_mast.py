@@ -12,6 +12,7 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 
 import astropy.units as u
+from requests import HTTPError, Response
 
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
@@ -147,6 +148,11 @@ def request_mockreturn(url, params={}):
 
 
 def download_mockreturn(*args, **kwargs):
+    if 'unauthorized' in args[0]:
+        response = Response()
+        response.reason = 'Unauthorized'
+        response.status_code = 401
+        raise HTTPError(response=response)
     return ('COMPLETE', None, None)
 
 
@@ -375,6 +381,30 @@ def test_missions_download_products(patch_post, tmp_path):
         result = mast.MastMissions.download_products(test_dataset_id,
                                                      extension='jpg',
                                                      download_dir=tmp_path)
+
+
+def test_missions_download_no_auth(patch_post, caplog):
+    # Exclusive access products should not be downloaded if user is not authenticated
+    # User is not authenticated
+    uri = 'unauthorized.fits'
+    result = mast.MastMissions.download_file(uri)
+    assert result[0] == 'ERROR'
+    assert 'HTTPError' in result[1]
+    with caplog.at_level('WARNING', logger='astroquery'):
+        assert 'You are not authorized to download' in caplog.text
+        assert 'Please authenticate yourself' in caplog.text
+    caplog.clear()
+
+    # User is authenticated, but doesn't have proper permissions
+    test_token = "56a9cf3df4c04052atest43feb87f282"
+    mast.MastMissions.login(token=test_token)
+    result = mast.MastMissions.download_file(uri)
+    assert result[0] == 'ERROR'
+    assert 'HTTPError' in result[1]
+    with caplog.at_level('WARNING', logger='astroquery'):
+        assert 'You are not authorized to download' in caplog.text
+        assert 'Please check your authentication token' in caplog.text
+
 
 ###################
 # MastClass tests #
