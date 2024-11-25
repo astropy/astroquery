@@ -227,7 +227,7 @@ mast
 
 - Present users with an error when nonexistent query criteria are used in ``mast.MastMissions`` query functions. [#3126]
 
-- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and 
+- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and
   ``mast.Catalogs.query_object``. [#3126]
 
 - Handle HLSP data products in ``Observations.get_cloud_uris``. [#3126]
@@ -476,6 +476,8 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Stability improvements to ``query_aliases`` to address bug that made
   method retrieve no aliases for multiple star systems. [#2506]
+
+- Fix unit inconsistency in ``pl_trandur`` from day(s) to hour(s). [#3137]
 
 jplhorizons
 ^^^^^^^^^^^
