@@ -76,7 +76,7 @@ class EsoClass(QueryWithLogin):
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
-    USE_DEV_TAP = False
+    USE_DEV_TAP = True
 
     @staticmethod
     def tap_url():
@@ -341,6 +341,7 @@ class EsoClass(QueryWithLogin):
         return self._instrument_list
 
     # TODO remove hardcoded values
+    #TODO call it list_collections
     def list_surveys(self, *, cache=True):
         """ List all the available surveys (phase 3) in the ESO archive.
 
@@ -355,7 +356,7 @@ class EsoClass(QueryWithLogin):
             self._survey_list = []
             tap = pyvo.dal.TAPService(EsoClass.tap_url())
             query = """
-                    SELECT distinct obs_collection from ivoa.ObsCore
+                    SELECT distinct obs_collection from ivoa.ObsCore where obs_collection != 'ALMA'
                     """
 
             res = tap.search(query)
