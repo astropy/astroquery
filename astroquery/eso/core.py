@@ -383,12 +383,8 @@ class EsoClass(QueryWithLogin):
             self._survey_list = list(res["obs_collection"].data)
         return self._survey_list
 
-    @eso_deprecated(new_function="list_collections")
-    def list_surveys(self, *args, **kwargs):
-        return self.list_collections(*args, **kwargs)
 
-
-    def query_surveys(self, *, surveys='', cache=True,
+    def query_collections(self, *, surveys='', cache=True,
                       help=False, open_form=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
@@ -1049,6 +1045,16 @@ class EsoClass(QueryWithLogin):
 
         log.info("\n".join(result_string))
         return result_string
+
+
+    @eso_deprecated(new_function="list_collections")
+    def list_surveys(self, *args, **kwargs):
+        return self.list_collections(*args, **kwargs)
+
+
+    @eso_deprecated(new_function="query_collections")
+    def query_surveys(self, *args, **kwargs):
+        return self.query_collections(*args, **kwargs)
 
 
 Eso = EsoClass()
