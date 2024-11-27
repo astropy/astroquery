@@ -76,6 +76,14 @@ class EsoClass(QueryWithLogin):
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
+    USE_DEV_TAP = False
+
+    @staticmethod
+    def tap_url():
+        url  = "http://archive.eso.org/tap_obs"
+        if EsoClass.USE_DEV_TAP:
+            url = "http://dfidev5.hq.eso.org:8123/tap_obs"
+        return url
 
     def __init__(self):
         super().__init__()
@@ -320,9 +328,8 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._instrument_list is None:
-            url = "http://archive.eso.org/tap_obs"
             self._instrument_list = []
-            tap = pyvo.dal.TAPService(url)
+            tap = pyvo.dal.TAPService(EsoClass.tap_url())
             query = """
                     select table_name
                     from TAP_SCHEMA.tables
@@ -345,9 +352,8 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
         """
         if self._survey_list is None:
-            url = "http://archive.eso.org/tap_obs"
             self._survey_list = []
-            tap = pyvo.dal.TAPService(url)
+            tap = pyvo.dal.TAPService(EsoClass.tap_url())
             query = """
                     SELECT distinct obs_collection from ivoa.ObsCore
                     """
