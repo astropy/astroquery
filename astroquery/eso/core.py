@@ -31,12 +31,20 @@ import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
 
+def decorator_with_params(dec):
+    def layer(*args, **kwargs):
+        def repl(f):
+            return dec(f, *args, **kwargs)
+        return repl
+    return layer
 
-def eso_deprecated(func):
+
+@decorator_with_params
+def eso_deprecated(func, new_function):
     @functools.wraps(func)
     def func_with_warnings(*args, **kwargs):
         warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
+        warnings.warn(f"\n\nCall to deprecated function *{func.__name__}*. Please use *{new_function}* instead.",
                       category=DeprecationWarning,
                       stacklevel=2)
         warnings.simplefilter('default', DeprecationWarning)  # reset filter
@@ -375,7 +383,7 @@ class EsoClass(QueryWithLogin):
             self._survey_list = list(res["obs_collection"].data)
         return self._survey_list
 
-    @eso_deprecated
+    @eso_deprecated(new_function="list_collections")
     def list_surveys(self, *args, **kwargs):
         return self.list_collections(*args, **kwargs)
 
