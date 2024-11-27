@@ -2,6 +2,7 @@
 
 import base64
 import email
+import functools
 import json
 import os.path
 import re
@@ -29,6 +30,18 @@ from ..utils import schema
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
+
+
+def eso_deprecated(func):
+    @functools.wraps(func)
+    def func_with_warnings(*args, **kwargs):
+        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
+        warnings.warn("Call to deprecated function {}.".format(func.__name__),
+                      category=DeprecationWarning,
+                      stacklevel=2)
+        warnings.simplefilter('default', DeprecationWarning)  # reset filter
+        return func(*args, **kwargs)
+    return func_with_warnings
 
 
 def _check_response(content):
@@ -341,8 +354,7 @@ class EsoClass(QueryWithLogin):
         return self._instrument_list
 
     # TODO remove hardcoded values
-    #TODO call it list_collections
-    def list_surveys(self, *, cache=True):
+    def list_collections(self, *, cache=True):
         """ List all the available surveys (phase 3) in the ESO archive.
 
         Returns
@@ -362,6 +374,11 @@ class EsoClass(QueryWithLogin):
             res = tap.search(query)
             self._survey_list = list(res["obs_collection"].data)
         return self._survey_list
+
+    @eso_deprecated
+    def list_surveys(self, *args, **kwargs):
+        return self.list_collections(*args, **kwargs)
+
 
     def query_surveys(self, *, surveys='', cache=True,
                       help=False, open_form=False, **kwargs):
