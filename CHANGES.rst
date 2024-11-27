@@ -19,10 +19,39 @@ jplspec
 
 - minor improvement to lookuptable behavior [#3173,#2901]
 
+mocserver
+^^^^^^^^^
+
+- Switch to https instead of http for the default url (allows pyodide to use the
+  module) [#3139]
+
+- Add ``TimeMOC`` and ``STMOC`` as possible entries in ``MOCServer.query_region`` to
+  allow temporal and space-time searches [#3139]
+
+- ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather than only
+  Space-MOCs [#3139]
+
+- Fix query by MOC that would write a file ``moc.fits`` where the method was executed
+  in overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
+
+- Returned tables now have a default list of fields instead of the > 130 columns returned
+  previously. The full list of fields can be displayed with the new method
+  ``MOCServer.list_fields`` [#3139]
+
+- Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
+  to ``True``) [#3139]
+
+- Add ``spacesys`` parameter to the queries to allow to filter on the different bodies
+  or frames. The list of available space systems can be printed with the new method
+  ``MOCServer.list_spacesys`` [#3139]
+
+- Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
+  surveys [#3139]
+
 simbad
 ^^^^^^
 
-- Fixed adding a list of fluxes with the deprecated notation 
+- Fixed adding a list of fluxes with the deprecated notation
   ``Simbad.add_votable_fields("flux(U)", "flux(J)")`` [#3186]
 
 - Support more of the 0.4.7 votable fields. Raise more significant error messages

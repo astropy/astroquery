@@ -1,345 +1,688 @@
-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from ..query import BaseQuery
 from ..utils import commons
-from ..utils import async_to_sync
 
 from . import conf
 
-import os
-from ast import literal_eval
 from copy import copy
+from tempfile import NamedTemporaryFile
 
 from astropy import units as u
 from astropy.table import Table
 
 try:
-    from mocpy import MOC
+    from mocpy import MOC, TimeMOC, STMOC
 except ImportError:
-    print("Could not import mocpy, which is a requirement for the MOC server service."
-          "Please refer to https://cds-astro.github.io/mocpy/install.html for how to install it.")
+    print("'mocpy' is a mandatory dependency for MOCServer. You can install "
+          "it with 'pip install mocpy'.")
 
-try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
-except ImportError:
-    print("Could not import astropy-regions, which is a requirement for the CDS service."
-          "Please refer to https://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
-
-__all__ = ['MOCServerClass', 'MOCServer']
+__all__ = ["MOCServerClass", "MOCServer"]
 
 
-@async_to_sync
 class MOCServerClass(BaseQuery):
+    """Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
+
+    The `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ allows the user
+    to retrieve all the datasets (with their meta-data) having sources in a specific
+    space-time region. This region can be a `regions.CircleSkyRegion`, a
+    `regions.PolygonSkyRegion`, a `mocpy.MOC`, a `mocpy.TimeMOC`, or a `mocpy.STMOC`
+    object.
     """
-    Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_
 
-    The `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ allows the user to retrieve all the data sets (with
-    their meta-data) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
-    `regions.PolygonSkyRegion` or a `mocpy.MOC` object.
-
-    This package implements two methods:
-
-    * :meth:`~astroquery.mocserver.MOCServerClass.query_region` retrieving data-sets
-      (their associated MOCs and meta-data) having sources in a given region.
-    * :meth:`~astroquery.mocserver.MOCServerClass.find_datasets` retrieving data-sets
-      (their associated MOCs and meta-data) based on the values of their meta-data.
-
-    """
     URL = conf.server
     TIMEOUT = conf.timeout
+    DEFAULT_FIELDS = conf.default_fields
 
     def __init__(self):
         super().__init__()
-        self.path_moc_file = None
         self.return_moc = False
 
-    def query_region(self, *, region=None, get_query_payload=False, verbose=False, **kwargs):
-        """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
-
-        Can be a `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
-        having at least one source in the region.
+    def query_region(
+        self, region=None,
+        *,
+        meta_data=None,
+        intersect="overlaps",
+        return_moc=None,
+        max_norder=None,
+        fields=None,
+        max_rec=None,
+        casesensitive=False,
+        spacesys=None,
+        get_query_payload=False,
+        verbose=False,
+        cache=True,
+    ):
+        """Query the MOC Server.
 
         Parameters
         ----------
-        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC`
-            The region to query the MOCServer with.
-            Can be one of the following types:
-
-            * ``regions.CircleSkyRegion`` : defines an astropy cone region.
-            * ``regions.PolygonSkyRegion`` : defines an astropy polygon region.
-            * ``mocpy.moc.MOC`` : defines a MOC from the MOCPy library. See the `MOCPy's documentation
-              <https://cds-astro.github.io/mocpy/>`__ for how to instantiate a MOC object.
-
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
+            `mocpy.TimeMOC`, or `mocpy.STMOC`
+            The region to query the MOCServer with. Note that this can also be a
+            space-time region with the Time-MOCs and Space-Time-MOCs.
+            Defaults to None, which means that the search will be on the whole sky.
+        meta_data : str
+            Algebraic expression to select the datasets.
+            Examples of expressions can be found `on the mocserver's examples page
+            <http://alasky.unistra.fr/MocServer/example>`_.
+            Example: "ID=*HST*" will return datasets with HST in their ID column. The
+            star means any character.
+        casesensitive : Bool, optional
+            Whether the search should take the case into account. By default, False.
+        fields : [str], optional
+            Specifies which columns to retrieve. Defaults to a pre-defined subset of
+            fields. The complete list of fields can be obtained with `list_fields`.
+        spacesys: str, optional
+            This is the space system on which the coordinates are expressed. Can take
+            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            be printed with `list_spacesys`. Default is None, meaning that the results
+            will have mixed frames.
         intersect : str, optional
-            This parameter can take only three different values:
+            This parameter can take three different values:
 
-            - ``overlaps`` (default). Returned data-sets are those overlapping the MOC region.
-            - ``covers``. Returned data-sets are those covering the MOC region.
-            - ``encloses``. Returned data-sets are those enclosing the MOC region.
+            - ``overlaps`` (default) select datasets overlapping the region
+            - ``covers`` returned datasets are covering the region.
+            - ``encloses`` returned datasets are enclosing the region.
+
         max_rec : int, optional
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
-            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union
-            of the MOCs of all the matching data-sets. By default it is set to False and
-            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
+            Specifies whether the output should be a `mocpy.MOC`. The returned MOC is the
+            union of the MOCs of all the matching datasets. By default it is False and
+            this method returns a `astropy.table.Table` object.
         max_norder : int, optional
-            Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
-        fields : [str], optional
-            Has sense only if ``return_moc`` is set to False. Specifies which meta data to retrieve. The returned
-            `astropy.table.Table` table will only contain the column names given in ``fields``.
-
-            Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
-            data moving from the MOCServer to the client.
-
-            Some meta-data as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
-            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
-            to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
-            column from the returned astropy table.
-        meta_data : str, optional
-            Algebraic expression on meta-data for filtering the data-sets at the server side.
-            Examples of meta data expressions:
-
-            * Retrieve all the Hubble surveys: "ID=*HST*"
-            * Provides the records of HiPS distributed simultaneously by saada and alasky http server:
-              "(hips_service_url*=http://saada*)&&(hips_service_url*=http://alasky.*)"
-
-            More example of expressions can be found following this `link
-            <http://alasky.unistra.fr/MocServer/example>`_ (especially see the urls).
+            If ``return_moc`` is set to True, this fixes the maximum precision order
+            of the returned MOC. For one dimensional MOCs (Space-MOCs and Time-MOCs),
+            the order is given as an integer. For Space-Time MOCs, the order should be a
+            string with the space and time orders.
+            Example: 's3 t45'
         get_query_payload : bool, optional
-            If True, returns a dictionary of the query payload instead of the parsed response.
+            If True, returns a dictionary of the query payload instead of the response.
         verbose : bool, optional
+            Whether to show warnings. Defaults to False.
+        cache: bool, optional
+            Whether the response should be cached.
 
         Returns
         -------
-        response : `astropy.table.Table` or `mocpy.MOC`
-            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
-            a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
+        response : `astropy.table.Table`, `mocpy.MOC`, `mocpy.TimeMOC`, or `mocpy.STMOC`
+            By default, returns a table with the datasets matching the query.
+            If ``return_moc`` is set to True, it gives a MOC object corresponding to the
+            union of the MOCs from all the retrieved data-sets.
+
         """
-        response = self.query_region_async(get_query_payload=get_query_payload, region=region, **kwargs)
+        response = self.query_async(
+            meta_data=meta_data,
+            region=region,
+            intersect=intersect,
+            return_moc=return_moc,
+            max_norder=max_norder,
+            fields=fields,
+            max_rec=max_rec,
+            casesensitive=casesensitive,
+            spacesys=spacesys,
+            get_query_payload=get_query_payload,
+            cache=cache,
+        )
         if get_query_payload:
             return response
+        return _parse_result(response, verbose=verbose, return_moc=return_moc)
 
-        result = self._parse_result(response, verbose=verbose)
-
-        return result
-
-    def find_datasets(self, meta_data, *, get_query_payload=False, verbose=False, **kwargs):
-        """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ to retrieve the data-sets based on their
-        meta data values. This method does not need any region argument but it requires an expression on the meta datas.
+    def query_hips(
+        self,
+        *,
+        meta_data=None,
+        region=None,
+        intersect="overlaps",
+        return_moc=None,
+        max_norder=None,
+        fields=None,
+        max_rec=None,
+        casesensitive=False,
+        spacesys=None,
+        get_query_payload=False,
+        verbose=False,
+        cache=True,
+    ):
+        """Query the MOCServer for HiPS surveys.
 
         Parameters
         ----------
         meta_data : str
-            Algebraic expression on meta-data for filtering the data-sets at the server side.
-            Examples of meta data expressions:
-
-            * Retrieve all the Hubble surveys: "ID=*HST*"
-            * Provides the records of HiPS distributed simultaneously by saada and alasky http server:
-              "(hips_service_url*=http://saada*)&&(hips_service_url*=http://alasky.*)"
-
-            More example of expressions can be found following this `link
-            <http://alasky.unistra.fr/MocServer/example>`_ (especially see the urls).
+            Algebraic expression to select the datasets.
+            Examples of expressions can be found `on the mocserver's examples page
+            <http://alasky.unistra.fr/MocServer/example>`_.
+            Example: "ID=*HST*" will return datasets with HST in their ID column. The
+            star means any character.
+        casesensitive : Bool, optional
+            Wheter the search should take the case into account. By default, False.
         fields : [str], optional
-            Has sense only if ``return_moc`` is set to False. Specifies which meta data to retrieve. The returned
-            `astropy.table.Table` table will only contain the column names given in ``fields``.
+            Specifies which columns to retrieve. Defaults to a pre-defined subset of
+            fields. The complete list of fields can be obtained with `list_fields`.
+        spacesys: str, optional
+            This is the space system on which the coordinates are expressed. Can take
+            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            be printed with `list_spacesys`. Default is None, meaning that the results
+            will have mixed frames.
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
+            `mocpy.TimeMOC`, or `mocpy.STMOC`
+            The region to query the MOCServer with. Note that this can also be a
+            space-time region with the Time-MOCs and Space-Time-MOCs.
+        intersect : str, optional
+            This parameter can take three different values:
 
-            Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
-            data moving from the MOCServer to the client.
+            - ``overlaps`` (default) select datasets overlapping the region
+            - ``covers`` returned datasets are covering the region.
+            - ``encloses`` returned datasets are enclosing the region.
 
-            Some meta-data such as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
-            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
-            to have an unique type. This case is not common: it is mainly linked to a typing error in the text files
-            describing the meta-data of the data-sets. When we encounter this for a specific meta-data, we link the
-            generic type ``object`` to the column. Therefore, keep in mind that ``object`` typed columns can contain
-            values of different types (e.g. lists and singletons or string and floats).
         max_rec : int, optional
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
-            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
-            the matching data-sets. By default it is set to False and
-            :meth:`~astroquery.mocserver.MOCServerClass.query_region` returns an `astropy.table.Table` object.
+            Specifies whether the output should be a `mocpy.MOC`. The returned MOC is the
+            union of the MOCs of all the matching datasets. By default it is False and
+            this method returns a `astropy.table.Table` object.
         max_norder : int, optional
-            Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
+            If ``return_moc`` is set to True, this fixes the maximum precision order
+            of the returned MOC. For one dimensional MOCs (Space-MOCs and Time-MOCs),
+            the order is given as an integer. For Space-Time MOCs, the order should be a
+            string with the space and time orders.
+            Example: 's3 t45'
         get_query_payload : bool, optional
-            If True, returns a dictionary of the query payload instead of the parsed response.
+            If True, returns a dictionary of the query payload instead of the response.
         verbose : bool, optional
+            Whether to show warnings. Defaults to False.
+        cache: bool, optional
+            Whether the response should be cached.
 
         Returns
         -------
-        response : `astropy.table.Table` or `mocpy.MOC`
-            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
-            a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
+        response : `astropy.table.Table`, `mocpy.MOC`, `mocpy.TimeMOC`, or `mocpy.STMOC`
+            By default, returns a table with the datasets matching the query.
+            If ``return_moc`` is set to True, it gives a MOC object corresponding to the
+            union of the MOCs from all the retrieved data-sets.
+
         """
-        response = self.query_region_async(get_query_payload=get_query_payload, meta_data=meta_data, **kwargs)
-        if get_query_payload:
-            return response
+        if meta_data:
+            meta_data = f"({meta_data})&&hips_frame=*"
+        else:
+            meta_data = "hips_frame=*"
+        return self.query_region(
+            meta_data=meta_data,
+            region=region,
+            intersect=intersect,
+            return_moc=return_moc,
+            max_norder=max_norder,
+            fields=fields,
+            max_rec=max_rec,
+            casesensitive=casesensitive,
+            spacesys=spacesys,
+            get_query_payload=get_query_payload,
+            verbose=verbose,
+            cache=cache,
+        )
 
-        result = self._parse_result(response, verbose=verbose)
-
-        return result
-
-    def query_region_async(self, *, get_query_payload=False, **kwargs):
-        """
-        Serves the same purpose as :meth:`~astroquery.mocserver.MOCServerClass.query_region`
-        but only returns the HTTP response rather than the parsed result.
+    def find_datasets(
+        self, meta_data,
+        *,
+        region=None,
+        intersect="overlaps",
+        return_moc=None,
+        max_norder=None,
+        fields=None,
+        max_rec=None,
+        casesensitive=False,
+        spacesys=None,
+        get_query_payload=False,
+        verbose=False,
+        cache=True,
+    ):
+        """Query the MOC Server.
 
         Parameters
         ----------
-        get_query_payload : bool
-            If True, returns a dictionary of the query payload instead of the parsed response.
-        **kwargs
-             Arbitrary keyword arguments.
+        meta_data : str
+            Algebraic expression to select the datasets.
+            Examples of expressions can be found `on the mocserver's examples page
+            <http://alasky.unistra.fr/MocServer/example>`_.
+            Example: "ID=*HST*" will return datasets with HST in their ID column. The
+            star means any character.
+        casesensitive : Bool, optional
+            Whether the search should take the case into account. By default, False.
+        fields : [str], optional
+            Specifies which columns to retrieve. Defaults to a pre-defined subset of
+            fields. The complete list of fields can be obtained with `list_fields`.
+        spacesys: str, optional
+            This is the space system on which the coordinates are expressed. Can take
+            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            be printed with `list_spacesys`. Default is None, meaning that the results
+            will have mixed frames.
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
+            `mocpy.TimeMOC`, or `mocpy.STMOC`
+            The region to query the MOCServer with. Note that this can also be a
+            space-time region with the Time-MOCs and Space-Time-MOCs.
+        intersect : str, optional
+            This parameter can take three different values:
+
+            - ``overlaps`` (default) select datasets overlapping the region
+            - ``covers`` returned datasets are covering the region.
+            - ``encloses`` returned datasets are enclosing the region.
+
+        max_rec : int, optional
+            Maximum number of data-sets to return. By default, there is no upper limit.
+        return_moc : bool, optional
+            Specifies whether the output should be a `mocpy.MOC`. The returned MOC is the
+            union of the MOCs of all the matching datasets. By default it is False and
+            this method returns a `astropy.table.Table` object.
+        max_norder : int, optional
+            If ``return_moc`` is set to True, this fixes the maximum precision order
+            of the returned MOC. For one dimensional MOCs (Space-MOCs and Time-MOCs),
+            the order is given as an integer. For Space-Time MOCs, the order should be a
+            string with the space and time orders.
+            Example: 's3 t45'
+        get_query_payload : bool, optional
+            If True, returns a dictionary of the query payload instead of the response.
+        verbose : bool, optional
+            Whether to show warnings. Defaults to False.
+        cache: bool, optional
+            Whether the response should be cached.
+
+        Returns
+        -------
+        response : `astropy.table.Table`, `mocpy.MOC`, `mocpy.TimeMOC`, or `mocpy.STMOC`
+            By default, returns a table with the datasets matching the query.
+            If ``return_moc`` is set to True, it gives a MOC object corresponding to the
+            union of the MOCs from all the retrieved data-sets.
+
+        """
+        return self.query_region(
+            meta_data=meta_data,
+            region=region,
+            intersect=intersect,
+            return_moc=return_moc,
+            max_norder=max_norder,
+            fields=fields,
+            max_rec=max_rec,
+            casesensitive=casesensitive,
+            spacesys=spacesys,
+            get_query_payload=get_query_payload,
+            verbose=verbose,
+            cache=cache,
+        )
+
+    def query_async(
+        self,
+        *,
+        region=None,
+        meta_data=None,
+        return_moc=None,
+        max_norder=None,
+        fields=None,
+        max_rec=None,
+        intersect="overlaps",
+        spacesys=None,
+        casesensitive=False,
+        get_query_payload=False,
+        cache=True,
+    ):
+        """Return the HTTP response rather than the parsed result.
+
+        Parameters
+        ----------
+        meta_data : str
+            Algebraic expression to select the datasets.
+            Examples of expressions can be found `on the mocserver's examples page
+            <http://alasky.unistra.fr/MocServer/example>`_.
+            Example: "ID=*HST*" will return datasets with HST in their ID column. The
+            star means any character.
+        casesensitive : Bool, optional
+            Whether the search should take the case into account. By default, False.
+        fields : [str], optional
+            Specifies which columns to retrieve. Defaults to a pre-defined subset of
+            fields. The complete list of fields can be obtained with `list_fields`.
+        spacesys: str, optional
+            This is the space system on which the coordinates are expressed. Can take
+            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            be printed with `list_spacesys`. Default is None, meaning that the results
+            will have mixed frames.
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
+            `mocpy.TimeMOC`, or `mocpy.STMOC`
+            The region to query the MOCServer with. Note that this can also be a
+            space-time region with the Time-MOCs and Space-Time-MOCs.
+        intersect : str, optional
+            This parameter can take three different values:
+
+            - ``overlaps`` (default) select datasets overlapping the region
+            - ``covers`` returned datasets are covering the region.
+            - ``encloses`` returned datasets are enclosing the region.
+
+        max_rec : int, optional
+            Maximum number of data-sets to return. By default, there is no upper limit.
+        return_moc : bool, optional
+            Specifies whether the output should be a `mocpy.MOC`. The returned MOC is the
+            union of the MOCs of all the matching datasets. By default it is False and
+            this method returns a `astropy.table.Table` object.
+        max_norder : int, optional
+            If ``return_moc`` is set to True, this fixes the maximum precision order
+            of the returned MOC. For one dimensional MOCs (Space-MOCs and Time-MOCs),
+            the order is given as an integer. For Space-Time MOCs, the order should be a
+            string with the space and time orders.
+            Example: 's3 t45'
+        get_query_payload : bool, optional
+            If True, returns a dictionary of the query payload instead of the response.
+        verbose : bool, optional
+        cache: bool, optional
+            Whether the response should be cached.
 
         Returns
         -------
         response : `~requests.Response`:
-            The HTTP response from the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
+            The HTTP response from the
+            `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
+
         """
-        request_payload = self._args_to_payload(**kwargs)
-        if get_query_payload:
-            return request_payload
+        request_payload = _args_to_payload(
+            meta_data=meta_data,
+            return_moc=return_moc,
+            max_norder=max_norder,
+            fields=fields,
+            max_rec=max_rec,
+            region=region,
+            intersect=intersect,
+            spacesys=spacesys,
+            casesensitive=casesensitive,
+            default_fields=self.DEFAULT_FIELDS,
+        )
 
         params_d = {
-            'method': 'GET',
-            'url': self.URL,
-            'timeout': self.TIMEOUT,
-            'data': kwargs.get('data', None),
-            'cache': False,
-            'params': request_payload,
+            "method": "GET",
+            "url": self.URL,
+            "timeout": self.TIMEOUT,
+            "cache": cache,
+            "params": request_payload,
         }
 
-        if not self.path_moc_file:
-            response = self._request(**params_d)
-        else:
-            # The user ask for querying on a MOC region.
-            with open(self.path_moc_file, 'rb') as f:
-                params_d.update({'files': {'moc': f.read()}})
-                response = self._request(**params_d)
+        if region:
+            if get_query_payload:
+                return request_payload
+            if not isinstance(region, (MOC, TimeMOC, STMOC)):
+                return self._request(**params_d)
+            # MOCs have to be sent in a multipart request
+            with NamedTemporaryFile() as tmp_file:
+                region.save(tmp_file.name, overwrite=True, format="fits")
 
-        return response
+                params_d.update({"files": {"moc": tmp_file.read()}})
+                return self._request(**params_d)
 
-    def _args_to_payload(self, **kwargs):
-        """
-        Convert the keyword arguments to a payload.
+        if get_query_payload:
+            return request_payload
+        return self._request(**params_d)
 
-        Parameters
-        ----------
-        kwargs
-            Arbitrary keyword arguments. The same as those defined in the docstring of
-            :meth:`~astroquery.mocserver.MOCServerClass.query_object`.
+    def list_fields(self, keyword=None, cache=True):
+        """List MOC Server fields.
 
-        Returns
-        -------
-        request_payload : dict
-            The payload submitted to the MOC server.
-        """
-        request_payload = dict()
-        intersect = kwargs.get('intersect', 'overlaps')
-        if intersect == 'encloses':
-            intersect = 'enclosed'
-
-        request_payload.update({'intersect': intersect,
-                                'casesensitive': 'true',
-                                'fmt': 'json',
-                                'get': 'record',
-                                })
-
-        # Region Type
-        if 'region' in kwargs:
-            region = kwargs['region']
-            if isinstance(region, MOC):
-                self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
-                if os.path.isfile(self.path_moc_file):  # Silent overwrite
-                    os.remove(self.path_moc_file)
-                region.save(self.path_moc_file, format="fits")
-                # add the moc region payload to the request payload
-            elif isinstance(region, CircleSkyRegion):
-                # add the cone region payload to the request payload
-                request_payload.update({
-                    'DEC': str(region.center.dec.to(u.deg).value),
-                    'RA': str(region.center.ra.to(u.deg).value),
-                    'SR': str(region.radius.to(u.deg).value),
-                })
-            elif isinstance(region, PolygonSkyRegion):
-                # add the polygon region payload to the request payload
-                polygon_payload = "Polygon"
-                vertices = region.vertices
-                for i in range(len(vertices.ra)):
-                    polygon_payload += ' ' + str(vertices.ra[i].to(u.deg).value) + \
-                                       ' ' + str(vertices.dec[i].to(u.deg).value)
-                    request_payload.update({'stc': polygon_payload})
-            else:
-                if region is not None:
-                    raise ValueError('`region` belongs to none of the following types: `regions.CircleSkyRegion`,'
-                                     '`regions.PolygonSkyRegion` or `mocpy.MOC`')
-
-        if 'meta_data' in kwargs:
-            request_payload.update({'expr': kwargs['meta_data']})
-
-        if 'fields' in kwargs:
-            fields = kwargs['fields']
-            field_l = list(fields) if not isinstance(fields, list) else copy(fields)
-            # The CDS MOC service responds badly to record queries which do not ask
-            # for the ID field. To prevent that, we add it to the list of requested fields
-            field_l.append('ID')
-            field_l = list(set(field_l))
-            fields_str = str(field_l[0])
-            for field in field_l[1:]:
-                fields_str += ', '
-                fields_str += field
-
-            request_payload.update({"fields": fields_str})
-
-        if 'max_rec' in kwargs:
-            max_rec = kwargs['max_rec']
-            request_payload.update({'MAXREC': str(max_rec)})
-
-        self.return_moc = kwargs.get('return_moc', False)
-        if self.return_moc:
-            request_payload.update({'get': 'moc'})
-            if 'max_norder' in kwargs:
-                request_payload.update({'order': kwargs['max_norder']})
-            else:
-                request_payload.update({'order': 'max'})
-
-        return request_payload
-
-    def _parse_result(self, response, *, verbose=False):
-        """
-        Parsing of the response returned by the MOCServer.
+        In the MOC Server, the fields are free. This means that anyone publishing there
+        can set a new field. This results in a long set of possible fields, that are
+        more or less frequent in the database.
+        This method allows to retrieve all fields currently existing, with their
+        occurrences and an example.
 
         Parameters
         ----------
-        response : `~requests.Response`
-            The HTTP response returned by the MOCServer.
-        verbose : bool, optional
-            False by default.
+        keyword : str, optional
+            A keyword to filter the output for fields that have the keyword in their
+            name. This is not case-sensitive.
+            If you don't give a keyword, you will retrieve all existing fields.
+        cache: bool, optional
+            Whether the response should be cached.
 
         Returns
         -------
-        result : `astropy.table.Table` or `mocpy.MOC`
-            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
-            a MOC object corresponding to the union of the MOCs from all the matched data-sets.
+        `~astropy.table.Table`
+            A table containing the field names, heir occurrence (expressed in number
+            of records), and an example for each field.
+
+        Examples
+        --------
+        >>> from astroquery.mocserver import MOCServer
+        >>> MOCServer.list_fields("publisher")  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+        <Table length=3>
+          field_name   occurrence          example
+            str27        int64              str70
+        -------------- ---------- -------------------------
+          publisher_id      32987                 ivo://CDS
+         publisher_did       2871 ivo://nasa.heasarc/warps2
+        hips_publisher         14                       CDS
+
         """
-        if not verbose:
-            commons.suppress_vo_warnings()
+        fields_descriptions = dict(self.list_fields_async(cache=cache).json()[0])
+        occurrences = [
+            int(value.split("x")[0][1:]) for value in fields_descriptions.values()
+        ]
+        field_names = list(fields_descriptions.keys())
+        examples = [value.split("ex: ")[-1] for value in fields_descriptions.values()]
+        list_fields = Table(
+            [field_names, occurrences, examples],
+            names=["field_name", "occurrence", "example"],
+        )
+        list_fields.sort("occurrence", reverse=True)
+        if keyword:
+            return list_fields[
+                [
+                    keyword.casefold() in name.casefold()
+                    for name in list_fields["field_name"]
+                ]
+            ]
+        return list_fields
 
-        result = response.json()
+    def list_fields_async(self, cache=True):
+        """List MOC Server fields asynchronously.
 
-        if not self.return_moc:
-            # return a table with the meta-data, we cast the string values for convenience
-            result = [{key: _cast_to_float(value) for key, value in row.items()} for row in result]
-            return Table(rows=result)
+        In the MOC Server, the fields are free. This means that anyone publishing there
+        can set a new field. This results in a long set of possible fields, that are
+        more or less frequent in the database.
+        This method allows to retrieve all fields currently existing, with their
+        occurrences and an example.
 
-        # return a `mocpy.MOC` object. See https://github.com/cds-astro/mocpy and the MOCPy's doc
-        return MOC.from_json(result)
-    
-def _cast_to_float(value):
+        Parameters
+        ----------
+        keyword : str, optional
+            A keyword to filter the output for fields that have the keyword in their
+            name. This is not case-sensitive.
+            If you don't give a keyword, you will retrieve all existing fields.
+        cache: bool, optional
+            Whether the response should be cached.
+
+        Returns
+        -------
+        `~requests.models.Response`
+
+        """
+        return self._request(
+            method="GET",
+            url=self.URL,
+            timeout=self.TIMEOUT,
+            cache=cache,
+            params={"get": "example", "fmt": "json"},
+        )
+
+    def list_spacesys(self):
+        """Return the list of "spacesys" currently available in the MOC Server.
+
+        This list may be enriched later, as new datasets are added into the MOC Server.
+
+        Returns
+        -------
+        list
+            The list of spacesys currently available in the MOC Server
+
+        """
+        frames = list(set(self.query_region(meta_data="hips_frame=*",
+                                            fields=["ID", "hips_frame"],
+                                            spacesys=None)["hips_frame"]))
+        # `C` is a special case that corresponds to both equatorial and galactic frames
+        frames.append("C")
+        frames.sort()
+        return frames
+
+
+def _args_to_payload(
+    *,
+    meta_data=None,
+    return_moc=None,
+    max_norder=None,
+    fields=None,
+    max_rec=None,
+    region=None,
+    intersect="overlaps",
+    spacesys=None,
+    casesensitive=False,
+    default_fields=None,
+):
+    """Convert the parameters of `query_region` and `find_datasets` into a payload.
+
+    Returns
+    -------
+    dict
+        The payload that will be submitted to the MOC server.
+
     """
-    Cast ``value`` to a float if possible.
+    request_payload = {
+        "casesensitive": str(casesensitive).casefold(),
+        "fmt": "json",
+        "get": "record",
+        "fields": _get_fields(fields, default_fields),
+        "intersect": intersect.replace("encloses", "enclosed"),
+        "spacesys": spacesys,
+    }
+
+    if region and not isinstance(region, (MOC, STMOC, TimeMOC)):
+        try:
+            from regions import CircleSkyRegion, PolygonSkyRegion
+        except ImportError as err:
+            raise ImportError(
+                "The module 'regions' is mandatory to use "
+                "'query_region' without a MOC. Install it with "
+                "'pip install regions'"
+            ) from err
+        if isinstance(region, CircleSkyRegion):
+            # add the cone region payload to the request payload
+            request_payload.update(
+                {
+                    "DEC": str(region.center.dec.to(u.deg).value),
+                    "RA": str(region.center.ra.to(u.deg).value),
+                    "SR": str(region.radius.to(u.deg).value),
+                }
+            )
+        elif isinstance(region, PolygonSkyRegion):
+            # add the polygon region payload to the request payload
+            polygon_payload = "Polygon"
+            for point in region.vertices:
+                polygon_payload += (
+                    f" {point.ra.to(u.deg).value} {point.dec.to(u.deg).value}"
+                )
+            print(polygon_payload)
+            request_payload.update({"stc": polygon_payload})
+        # the MOCs have to be sent through the multipart and not through the payload
+        else:
+            # not of any accepted type
+            raise ValueError(
+                "'region' should be of type: 'regions.CircleSkyRegion',"
+                " 'regions.PolygonSkyRegion', 'mocpy.MOC', 'mocpy.TimeMOC'"
+                f" or 'mocpy.STMOC', but is of type '{type(region)}'."
+            )
+
+    if meta_data:
+        request_payload.update({"expr": meta_data})
+
+    if max_rec:
+        request_payload.update({"MAXREC": str(max_rec)})
+
+    if return_moc:
+        if return_moc is True:
+            # this is for legacy reasons return_moc used to be a boolean when the MOC
+            # server could only return space MOCs.
+            return_moc = "moc"
+        request_payload.update({"get": return_moc})
+        request_payload.update({"fmt": "ascii"})
+        if max_norder:
+            request_payload.update({"order": max_norder})
+        else:
+            request_payload.update({"order": "max"})
+    return request_payload
+
+
+def _get_fields(fields, default_fields):
+    """Get the list of fields to be queried.
+
+    Defaults to the list defined in conf if fields is None.
+
+    Parameters
+    ----------
+    fields : list[str] or str
+        The list of columns to be returned.
+    default_fields : list[str]
+        The default list of fields.
+
+    """
+    if fields:
+        if isinstance(fields, str):
+            fields = [fields]
+        if "ID" not in fields:
+            # ID has to be included for the server to work correctly
+            fields.append("ID")
+        fields = list(fields) if not isinstance(fields, list) else copy(fields)
+    else:
+        fields = default_fields
+    return ", ".join(fields)
+
+
+def _parse_result(response, *, verbose=False, return_moc):
+    """Parse the response returned by the MOCServer.
+
+    Parameters
+    ----------
+    response : `~requests.Response`
+        The HTTP response returned by the MOCServer.
+    verbose : bool, optional
+        False by default.
+    return_moc : str or Bool
+        Whether the result is a MOC or a Table.
+
+    Returns
+    -------
+    `astropy.table.Table`, `~mocpy.MOC`, `~mocpy.STMOC`, `~mocpy.TimeMOC`
+        This returns a table if ``return_moc`` is not specified. Otherwise,
+        a MOC of the requested kind.
+
+    """
+    if not verbose:
+        commons.suppress_vo_warnings()
+
+    if return_moc:
+        result = response.text
+        # return_moc==True is there to support the version when there was no choice in
+        # in the MOC in output and the MOC server would only be able to return SMOCs
+        if return_moc == "moc" or return_moc == "smoc" or return_moc is True:
+            return MOC.from_str(result)
+        if return_moc == "tmoc":
+            return TimeMOC.from_str(result)
+        if return_moc == "stmoc":
+            return STMOC.from_str(result)
+        raise ValueError(
+            "'return_moc' can only take the values 'moc', 'tmoc', 'smoc',"
+            f"or 'stmoc'. Got '{return_moc}'."
+        )
+    # return a table with the meta-data, we cast the string values for convenience
+    result = response.json()
+    result = [
+        {key: _cast_to_float(value) for key, value in row.items()} for row in result
+    ]
+    return Table(rows=result)
+
+
+def _cast_to_float(value):
+    """Cast ``value`` to a float if possible.
 
     Parameters
     ----------
@@ -348,12 +691,14 @@ def _cast_to_float(value):
 
     Returns
     -------
-    value : float or str
-        A float if it can be casted so otherwise the initial string.
+    float or str
+        A float if it can be converted to a float. Otherwise the initial string.
+
     """
     try:
         return float(value)
     except (ValueError, TypeError):
         return value
+
 
 MOCServer = MOCServerClass()
