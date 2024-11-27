@@ -26,6 +26,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
+import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -306,6 +307,7 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
+    # TODO remove hardcoded values
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
 
@@ -318,18 +320,20 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._instrument_list is None:
-            url = "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html"
-            instrument_list_response = self._request("GET", url, cache=cache)
-            root = BeautifulSoup(instrument_list_response.content, 'html5lib')
+            url = "http://archive.eso.org/tap_obs"
             self._instrument_list = []
-            for element in root.select("div[id=col3] a[href]"):
-                href = element.attrs["href"]
-                if u"http://archive.eso.org/wdb/wdb/eso" in href:
-                    instrument = href.split("/")[-2]
-                    if instrument not in self._instrument_list:
-                        self._instrument_list.append(instrument)
+            tap = pyvo.dal.TAPService(url)
+            query = """
+                    select table_name
+                    from TAP_SCHEMA.tables
+                    where schema_name='ist'
+                    order by table_name
+                    """
+            res = tap.search(query)["table_name"].data
+            self._instrument_list = list(map(lambda x: x.split(".")[1], res))
         return self._instrument_list
 
+    # TODO remove hardcoded values
     def list_surveys(self, *, cache=True):
         """ List all the available surveys (phase 3) in the ESO archive.
 
@@ -341,25 +345,15 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
         """
         if self._survey_list is None:
-            survey_list_response = self._request(
-                "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
-                cache=cache)
-            root = BeautifulSoup(survey_list_response.content, 'html5lib')
+            url = "http://archive.eso.org/tap_obs"
             self._survey_list = []
-            collections_table = root.find('table', id='collections_table')
-            other_collections = root.find('select', id='collection_name_option')
-            # it is possible to have empty collections or other collections...
-            collection_elts = (collections_table.find_all('input', type='checkbox')
-                               if collections_table is not None
-                               else [])
-            other_elts = (other_collections.find_all('option')
-                          if other_collections is not None
-                          else [])
-            for element in (collection_elts + other_elts):
-                if 'value' in element.attrs:
-                    survey = element.attrs['value']
-                    if survey and survey not in self._survey_list and 'Any' not in survey:
-                        self._survey_list.append(survey)
+            tap = pyvo.dal.TAPService(url)
+            query = """
+                    SELECT distinct obs_collection from ivoa.ObsCore
+                    """
+
+            res = tap.search(query)
+            self._survey_list = list(res["obs_collection"].data)
         return self._survey_list
 
     def query_surveys(self, *, surveys='', cache=True,
