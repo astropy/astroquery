@@ -109,7 +109,7 @@ class EsoClass(QueryWithLogin):
     def __init__(self):
         super().__init__()
         self._instrument_list = None
-        self._survey_list = None
+        self._collection_list = None
         self._auth_info: Optional[AuthInfo] = None
         print("Using main branch")
 
@@ -190,7 +190,7 @@ class EsoClass(QueryWithLogin):
                             value = form_elem.select(
                                 'option[value]')[0].get('value')
                     else:
-                        # survey form just uses text, not value
+                        #  form just uses text, not value
                         for option in form_elem.select('option'):
                             if option.get('selected') is not None:
                                 value = str(option.string)
@@ -363,39 +363,39 @@ class EsoClass(QueryWithLogin):
 
     # TODO remove hardcoded values
     def list_collections(self, *, cache=True):
-        """ List all the available surveys (phase 3) in the ESO archive.
+        """ List all the available collections (phase 3) in the ESO archive.
 
         Returns
         -------
-        survey_list : list of strings
+        collection_list : list of strings
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        if self._survey_list is None:
-            self._survey_list = []
+        if self._collection_list is None:
+            self._collection_list = []
             tap = pyvo.dal.TAPService(EsoClass.tap_url())
             query = """
                     SELECT distinct obs_collection from ivoa.ObsCore where obs_collection != 'ALMA'
                     """
 
             res = tap.search(query)
-            self._survey_list = list(res["obs_collection"].data)
-        return self._survey_list
+            self._collection_list = list(res["obs_collection"].data)
+        return self._collection_list
 
 
-    def query_collections(self, *, surveys='', cache=True,
+    def query_collections(self, *, collections='', cache=True,
                       help=False, open_form=False, **kwargs):
         """
-        Query survey Phase 3 data contained in the ESO archive.
+        Query collection Phase 3 data contained in the ESO archive.
 
         Parameters
         ----------
-        survey : string or list
-            Name of the survey(s) to query.  Should beone or more of the
-            names returned by `~astroquery.eso.EsoClass.list_surveys`.  If
+        collection : string or list
+            Name of the collection(s) to query.  Should beone or more of the
+            names returned by `~astroquery.eso.EsoClass.list_collections`.  If
             specified as a string, should be a comma-separated list of
-            survey names.
+            collection names.
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
@@ -404,7 +404,7 @@ class EsoClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table` or `None`
             A table representing the data available in the archive for the
-            specified survey, matching the constraints specified in ``kwargs``.
+            specified collection, matching the constraints specified in ``kwargs``.
             The number of rows returned is capped by the ROW_LIMIT
             configuration item. `None` is returned when the query has no
             results.
@@ -415,24 +415,24 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_surveys_help(url, cache=cache)
+            self._print_collections_help(url, cache=cache)
         else:
-            survey_form = self._request("GET", url, cache=cache)
+            collection_form = self._request("GET", url, cache=cache)
             query_dict = kwargs
             query_dict["wdbo"] = "csv/download"
-            if isinstance(surveys, str):
-                surveys = surveys.split(",")
-            query_dict['collection_name'] = surveys
+            if isinstance(collections, str):
+                collections = collections.split(",")
+            query_dict['collection_name'] = collections
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
             else:
                 query_dict["max_rows_returned"] = 10000
 
-            survey_response = self._activate_form(survey_form, form_index=0,
+            collection_response = self._activate_form(collection_form, form_index=0,
                                                   form_id='queryform',
                                                   inputs=query_dict, cache=cache)
 
-            content = survey_response.content
+            content = collection_response.content
             # First line is always garbage
             content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
@@ -973,12 +973,12 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    def _print_surveys_help(self, url, *, cache=True):
+    def _print_collections_help(self, url, *, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
         log.info("List of the parameters accepted by the "
-                 "surveys query.")
+                 "collections query.")
         log.info("The presence of a column in the result table can be "
                  "controlled if prefixed with a [ ] checkbox.")
         log.info("The default columns in the result table are shown as "
