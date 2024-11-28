@@ -19,7 +19,7 @@ instrument_list = [
 # TODO: make this a configuration item
 SKIP_SLOW = True
 
-SGRA_SURVEYS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
+SGRA_COLLECTIONS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
                 'ERIS-SPIFFIER',
                 'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
 
@@ -37,23 +37,23 @@ class TestEso:
         result_i = eso.query_instrument('midi', coord1=266.41681662,
                                         coord2=-29.00782497, cache=False)
 
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
-        # result_s = eso.query_surveys('VVV', target='Sgr A*')
+        collections = eso.list_collections(cache=False)
+        assert len(collections) > 0
+        # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_surveys(surveys='VVV', coord1=266.41681662,
+        result_s = eso.query_collections(collections='VVV', coord1=266.41681662,
                                      coord2=-29.00782497,
                                      box='01 00 00',
                                      cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
-        assert 'VVV' in surveys
+        assert 'VVV' in collections
         assert result_s is not None
         assert 'Object' in result_s.colnames
         assert 'b333' in result_s['Object']
 
-    def test_multisurvey(self, tmp_path):
+    def test_multicollection(self, tmp_path):
 
         eso = Eso()
         eso.cache_location = tmp_path
@@ -61,7 +61,7 @@ class TestEso:
         # first b333 was at 157
         # first pistol....?
 
-        result_s = eso.query_surveys(surveys=['VVV', 'XSHOOTER'],
+        result_s = eso.query_collections(collections=['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,
                                      coord2=-29.00782497,
                                      box='01 00 00',
@@ -75,12 +75,12 @@ class TestEso:
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
+        collections = eso.list_collections(cache=False)
+        assert len(collections) > 0
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_surveys(surveys=surveys[0], coord1=202.469575,
+            result_s = eso.query_collections(collections=collections[0], coord1=202.469575,
                                          coord2=47.195258, cache=False)
 
         assert result_s is None
@@ -161,28 +161,28 @@ class TestEso:
             else:
                 assert len(result) > 0
 
-    def test_each_survey_and_SgrAstar(self, tmp_path):
+    def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        surveys = eso.list_surveys(cache=False)
-        for survey in surveys:
-            if survey in SGRA_SURVEYS:
-                result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
+        collections = eso.list_collections(cache=False)
+        for collection in collections:
+            if collection in SGRA_COLLECTIONS:
+                result_s = eso.query_collections(collections=collection, coord1=266.41681662,
                                              coord2=-29.00782497,
                                              box='01 00 00',
                                              cache=False)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
+                    result_s = eso.query_collections(collections=collection, coord1=266.41681662,
                                                  coord2=-29.00782497,
                                                  box='01 00 00',
                                                  cache=False)
                     assert result_s is None
 
-                    generic_result = eso.query_surveys(surveys=survey)
+                    generic_result = eso.query_collections(collections=collection)
                     assert len(generic_result) > 0
 
     def test_mixed_case_instrument(self, tmp_path):
