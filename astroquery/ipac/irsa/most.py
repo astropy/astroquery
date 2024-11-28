@@ -189,6 +189,11 @@ class MostClass(BaseQuery):
         html = BeautifulSoup(response.content, "html5lib")
         download_tags = html.find_all("a", string=re.compile(".*Download.*"))
 
+        # If for some reason this wasn't a full response with downloadable tags,
+        # raise an explicit exception:
+        if not download_tags:
+            raise ValueError('Something has gone wrong, there are no results parsed. '
+                             f'For full response see: {response.text}')
         # this is "Download Results Table (above)"
         results_response = self._request("GET", download_tags[0]["href"])
         retdict["results"] = Table.read(results_response.text, format="ipac")
