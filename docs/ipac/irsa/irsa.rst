@@ -244,9 +244,9 @@ will return a `~astropy.table.Table`:
 
    >>> from astroquery.ipac.irsa import Irsa
    >>> Irsa.list_collections()
-   <Table length=114>
-         collection
-           object
+   <Table length=123>
+         collection     
+           object       
    ---------------------
         akari_allskymaps
                    blast
@@ -256,6 +256,7 @@ will return a `~astropy.table.Table`:
                      ...
              wise_allsky
             wise_allwise
+              wise_fdepa
              wise_prelim
    wise_prelim_2bandcryo
              wise_unwise
