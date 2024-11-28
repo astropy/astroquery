@@ -537,7 +537,7 @@ class MostClass(BaseQuery):
 
         # MOST will not raise an bad response if the query is bad because they
         # are not a REST API
-        if "MOST: *** error:" in response.text:
+        if "MOST: *** error:" in response.text or "most: error:" in response.text:
             raise InvalidQueryError(response.text)
 
         # presume that response is HTML to simplify conditions
