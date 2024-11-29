@@ -19,7 +19,7 @@ import astropy.utils.data
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
-from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from bs4 import BeautifulSoup
 
 from astroquery import log
@@ -30,27 +30,6 @@ from ..utils import schema
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
-
-
-def decorator_with_params(dec):
-    def layer(*args, **kwargs):
-        def repl(f):
-            return dec(f, *args, **kwargs)
-        return repl
-    return layer
-
-
-@decorator_with_params
-def eso_deprecated(func, new_function):
-    @functools.wraps(func)
-    def func_with_warnings(*args, **kwargs):
-        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn(f"\n\nCall to deprecated function *{func.__name__}*. Please use *{new_function}* instead.",
-                      category=DeprecationWarning,
-                      stacklevel=2)
-        warnings.simplefilter('default', DeprecationWarning)  # reset filter
-        return func(*args, **kwargs)
-    return func_with_warnings
 
 
 def _check_response(content):
@@ -1046,11 +1025,13 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    @eso_deprecated(new_function="list_collections")
+    @deprecated(since="v0.4.7", message=("The ESO list_surveys function is deprecated,"
+                                         "Use the list_collections  function instead."))
     def list_surveys(self, *args, **kwargs):
         return self.list_collections(*args, **kwargs)
 
-    @eso_deprecated(new_function="query_collections")
+    @deprecated(since="v0.4.7", message=("The ESO query_surveys function is deprecated,"
+                                         "Use the query_collections  function instead."))
     def query_surveys(self, *args, **kwargs):
         return self.query_collections(*args, **kwargs)
 
