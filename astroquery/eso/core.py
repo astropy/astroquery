@@ -31,6 +31,7 @@ import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
 
+
 def decorator_with_params(dec):
     def layer(*args, **kwargs):
         def repl(f):
@@ -101,7 +102,7 @@ class EsoClass(QueryWithLogin):
 
     @staticmethod
     def tap_url():
-        url  = "http://archive.eso.org/tap_obs"
+        url = "http://archive.eso.org/tap_obs"
         if EsoClass.USE_DEV_TAP:
             url = "http://dfidev5.hq.eso.org:8123/tap_obs"
         return url
@@ -383,9 +384,8 @@ class EsoClass(QueryWithLogin):
             self._collection_list = list(res["obs_collection"].data)
         return self._collection_list
 
-
     def query_collections(self, *, collections='', cache=True,
-                      help=False, open_form=False, **kwargs):
+                          help=False, open_form=False, **kwargs):
         """
         Query collection Phase 3 data contained in the ESO archive.
 
@@ -429,8 +429,8 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = 10000
 
             collection_response = self._activate_form(collection_form, form_index=0,
-                                                  form_id='queryform',
-                                                  inputs=query_dict, cache=cache)
+                                                      form_id='queryform',
+                                                      inputs=query_dict, cache=cache)
 
             content = collection_response.content
             # First line is always garbage
@@ -1046,11 +1046,9 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-
     @eso_deprecated(new_function="list_collections")
     def list_surveys(self, *args, **kwargs):
         return self.list_collections(*args, **kwargs)
-
 
     @eso_deprecated(new_function="query_collections")
     def query_surveys(self, *args, **kwargs):
