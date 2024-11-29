@@ -2,7 +2,6 @@
 
 import base64
 import email
-import functools
 import json
 import os.path
 import re
