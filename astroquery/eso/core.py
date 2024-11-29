@@ -1025,14 +1025,18 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    @deprecated(since="v0.4.7", message=("The ESO list_surveys function is deprecated,"
+    @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
                                          "Use the list_collections  function instead."))
     def list_surveys(self, *args, **kwargs):
+        if "surveys" in kwargs.keys():
+            kwargs["collections"] = kwargs["surveys"]
         return self.list_collections(*args, **kwargs)
 
-    @deprecated(since="v0.4.7", message=("The ESO query_surveys function is deprecated,"
+    @deprecated(since="v0.4.8", message=("The ESO query_surveys function is deprecated,"
                                          "Use the query_collections  function instead."))
     def query_surveys(self, *args, **kwargs):
+        if "surveys" in kwargs.keys():
+            kwargs["collections"] = kwargs["surveys"]
         return self.query_collections(*args, **kwargs)
 
 
