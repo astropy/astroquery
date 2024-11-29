@@ -6,7 +6,7 @@ import sys
 import pytest
 
 from astroquery.utils.mocks import MockResponse
-from ...eso import Eso
+from ...eso import Eso, EsoClass
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -182,3 +182,11 @@ def test_calselector_multipart(monkeypatch, tmp_path):
     assert isinstance(result, list)
     assert len(result) == 99
     assert datasets[0] not in result and datasets[1] not in result
+
+
+def test_tap_url():
+    url = EsoClass.tap_url()
+    if EsoClass.USE_DEV_TAP:
+        assert url == "http://dfidev5.hq.eso.org:8123/tap_obs"
+    else:
+        assert url == "http://archive.eso.org/tap_obs"
