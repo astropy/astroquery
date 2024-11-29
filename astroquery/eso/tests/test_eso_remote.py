@@ -6,8 +6,7 @@ import pytest
 from astroquery.eso import Eso
 from astroquery.exceptions import NoResultsWarning
 
-instrument_list = [
-                   u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
+instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
@@ -20,8 +19,9 @@ instrument_list = [
 SKIP_SLOW = True
 
 SGRA_COLLECTIONS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
-                'ERIS-SPIFFIER',
-                'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
+                    'ERIS-SPIFFIER',
+                    'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER'
+                    ]
 
 
 @pytest.mark.remote_data
@@ -42,9 +42,9 @@ class TestEso:
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         result_s = eso.query_collections(collections='VVV', coord1=266.41681662,
-                                     coord2=-29.00782497,
-                                     box='01 00 00',
-                                     cache=False)
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -62,10 +62,10 @@ class TestEso:
         # first pistol....?
 
         result_s = eso.query_collections(collections=['VVV', 'XSHOOTER'],
-                                     coord1=266.41681662,
-                                     coord2=-29.00782497,
-                                     box='01 00 00',
-                                     cache=False)
+                                         coord1=266.41681662,
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)
 
         assert result_s is not None
         assert 'Object' in result_s.colnames
@@ -81,7 +81,7 @@ class TestEso:
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
             result_s = eso.query_collections(collections=collections[0], coord1=202.469575,
-                                         coord2=47.195258, cache=False)
+                                             coord2=47.195258, cache=False)
 
         assert result_s is None
 
@@ -170,16 +170,16 @@ class TestEso:
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
                 result_s = eso.query_collections(collections=collection, coord1=266.41681662,
-                                             coord2=-29.00782497,
-                                             box='01 00 00',
-                                             cache=False)
+                                                 coord2=-29.00782497,
+                                                 box='01 00 00',
+                                                 cache=False)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
                     result_s = eso.query_collections(collections=collection, coord1=266.41681662,
-                                                 coord2=-29.00782497,
-                                                 box='01 00 00',
-                                                 cache=False)
+                                                     coord2=-29.00782497,
+                                                     box='01 00 00',
+                                                     cache=False)
                     assert result_s is None
 
                     generic_result = eso.query_collections(collections=collection)
