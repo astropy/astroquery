@@ -370,6 +370,11 @@ esasky
 
 - Added support for eROSITA downloads. [#3111]
 
+eso
+^^^
+
+- Deprecate functions ``list_surveys`` and ``query_surveys`` in favor of ``list_collections`` and ``query_collections``. [#3138]
+
 gaia
 ^^^^
 
