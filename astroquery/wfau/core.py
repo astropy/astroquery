@@ -6,12 +6,17 @@ import re
 import time
 from math import cos, radians
 import requests
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+except ImportError:
+    # workaround: older versions of bs4, which we still support, didn't have this warning
+    XMLParsedAsHTMLWarning = object
 from io import BytesIO, StringIO
 
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy.io import ascii
 
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
@@ -290,10 +295,55 @@ class BaseWFAUClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    def get_image_list(self, coordinates, *, waveband='all', frame_type='stack',
-                       image_width=1 * u.arcmin, image_height=None,
-                       radius=None, database=None,
-                       programme_id=None, get_query_payload=False):
+    def get_image_list(self, coordinates, *, radius=None, ignore_deprecated=True,
+                       get_query_payload=False, **kwargs):
+        """
+        See `get_image_table` for a full list of options.
+
+        This method will return _only_ the URLs requested as a list of URLs.
+
+        Parameters
+        ----------
+        ignore_deprecated : bool
+            If set (default: True), only images with the ``deprecated`` flag
+            set to zero will be included
+
+        Returns
+        -------
+        url_list : list of image urls
+
+        """
+        image_table = self.get_image_table(coordinates, radius=radius,
+                                           get_query_payload=get_query_payload,
+                                           **kwargs)
+        if get_query_payload:
+            # actully a payload, not a table
+            return image_table
+
+        if ignore_deprecated and radius is None:
+            image_urls = image_table[image_table['deprecated'] == 0]['Link']
+        elif radius is not None:
+            image_urls = image_table['Img']
+        else:
+            image_urls = image_table['Link']
+
+        # different links for radius queries and simple ones
+        if radius is not None:
+            image_urls = [link for link in image_urls if
+                          ('fits_download' in link and '_cat.fits'
+                           not in link and '_two.fit' not in link)]
+        else:
+            # Not sure this is necessary any more (as of #2809), but it seems
+            # harmless and I'm not removing it until I'm sure
+            image_urls = [link.replace("getImage", "getFImage")
+                          for link in image_urls]
+
+        return image_urls
+
+    def get_image_table(self, coordinates, *, waveband='all', frame_type='stack',
+                        image_width=1 * u.arcmin, image_height=None,
+                        radius=None, database=None,
+                        programme_id=None, get_query_payload=False):
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -337,7 +387,9 @@ class BaseWFAUClass(QueryWithLogin):
 
         Returns
         -------
-        url_list : list of image urls
+        table : Table
+            An astropy table containing the metadata table, including URLs, of
+            the requested files.
 
         """
 
@@ -398,22 +450,49 @@ class BaseWFAUClass(QueryWithLogin):
         if get_query_payload:
             return request_payload
 
-        response = self._wfau_send_request(query_url, request_payload)
-        response = self._check_page(response.url, "row")
+        initial_response = self._wfau_send_request(query_url, request_payload)
+        self._penultimate_response = initial_response
+        response = self._check_page(initial_response.url, "row")
+        self._last_response = response
 
-        image_urls = self.extract_urls(response.text)
-        # different links for radius queries and simple ones
+        return self.parse_imagequery_page(response.text, radius=radius)
+
+    def parse_imagequery_page(self, html_in, radius=None):
+        """
+        Parse the image metadata page
+        """
+        ahref = re.compile(r'href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
+
         if radius is not None:
-            image_urls = [link for link in image_urls if
-                          ('fits_download' in link and '_cat.fits'
-                           not in link and '_two.fit' not in link)]
+            html = "\n".join([
+                # for radius searches, "FITS" needs to be s/FITS/url/
+                row.replace(">FITS<", ">{}<".format(ahref.search(row).groups()[0])) if ">FITS<" in row else
+                row
+                for row in html_in.split("\n")])
+            with warnings.catch_warnings():
+                # this is really html; the xml parser doesn't work
+                warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
+                soup = BeautifulSoup(html, features='html5lib')
+            httb = soup.findAll('table')[2]
+            firstrow = httb.findAll('tr')[0]
+            for td in firstrow.findAll('td'):
+                td.name = 'th'
+            return ascii.read(str(httb), format='html')
+
         else:
-            image_urls = [link.replace("getImage", "getFImage")
-                          for link in image_urls]
+            html = "\n".join([
+                # for ascii.read: th -> header
+                row.replace("td", "th") if row.startswith("<table border") else
+                # "show" is the default, but we want the URLs
+                row.replace(">show<", ">{}<".format(ahref.search(row).groups()[0])) if ">show<" in row else
+                row
+                for row in html_in.split("\n")])
+            with warnings.catch_warnings():
+                # ascii.read uses bs4, result is html, not xml, despite xml tag
+                warnings.simplefilter(action="ignore", category=XMLParsedAsHTMLWarning)
+                return ascii.read(html, format='html')
 
-        return image_urls
-
-    def extract_urls(self, html_in):
+    def _extract_urls(self, html_in):
         """
         Helper function that uses regexps to extract the image urls from the
         given HTML.
@@ -601,7 +680,7 @@ class BaseWFAUClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table`
         """
-        table_links = self.extract_urls(response.text)
+        table_links = self._extract_urls(response.text)
         # keep only one link that is not a webstart
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
