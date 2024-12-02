@@ -315,7 +315,12 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    # TODO remove hardcoded values
+    def _query_tap_service(self, query_str, col_name):
+        tap = pyvo.dal.TAPService(EsoClass.tap_url())
+        query = query_str
+        res = tap.search(query)[col_name].data
+        return res
+
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
 
@@ -329,18 +334,17 @@ class EsoClass(QueryWithLogin):
         """
         if self._instrument_list is None:
             self._instrument_list = []
-            tap = pyvo.dal.TAPService(EsoClass.tap_url())
-            query = """
+            query_str = """
                     select table_name
                     from TAP_SCHEMA.tables
                     where schema_name='ist'
                     order by table_name
                     """
-            res = tap.search(query)["table_name"].data
+            col_name = "table_name"
+            res = self._query_tap_service(query_str, col_name)
             self._instrument_list = list(map(lambda x: x.split(".")[1], res))
         return self._instrument_list
 
-    # TODO remove hardcoded values
     def list_collections(self, *, cache=True):
         """ List all the available collections (phase 3) in the ESO archive.
 
@@ -353,15 +357,20 @@ class EsoClass(QueryWithLogin):
         """
         if self._collection_list is None:
             self._collection_list = []
-            tap = pyvo.dal.TAPService(EsoClass.tap_url())
-            query = """
+            query_str = """
                     SELECT distinct obs_collection from ivoa.ObsCore where obs_collection != 'ALMA'
                     """
+            col_name = "obs_collection"
+            res = self._query_tap_service(query_str, col_name)
 
-            res = tap.search(query)
-            self._collection_list = list(res["obs_collection"].data)
+            self._collection_list = list(res)
         return self._collection_list
 
+    # JM - Example queries:
+    # select * from ivoa.ObsCore where data_collection = 'AMBRE' and facility_name = 'something'
+    # select * from ivoa.ObsCore where data_collection = some_collection and key1 = val1 and key2=val2 and ...
+    # Extra stuff she mentioned:
+    # select * from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'
     def query_collections(self, *, collections='', cache=True,
                           help=False, open_form=False, **kwargs):
         """
