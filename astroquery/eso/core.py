@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 from typing import List, Optional, Tuple, Dict, Set
 
+import astropy.table
 import astropy.utils.data
 import keyring
 import requests.exceptions
@@ -26,6 +27,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
+from .utils import py2adql, _split_str_as_list_of_str
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -84,6 +86,13 @@ class EsoClass(QueryWithLogin):
         if EsoClass.USE_DEV_TAP:
             url = "http://dfidev5.hq.eso.org:8123/tap_obs"
         return url
+
+    @staticmethod
+    def tap_columns(table_name="ivoa.ObsCore"):
+        # TODO
+        # return a list with the available columns
+        query = f"select * from TAP_SCHEMA.columns where table_name = '{table_name}'"
+        return query
 
     def __init__(self):
         super().__init__()
@@ -172,7 +181,27 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
+    # TODO - delete or rewrite
+    def _print_collections_help(self):
+        """
+        Prints help
+        """
+        log.info("List of the parameters accepted by the "
+                 "collections query.")
+        log.info("The presence of a column in the result table can be "
+                 "controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as "
+                 "already ticked: [x].")
+
+        result_string = []
+
+        log.info("\n".join(result_string))
+        return result_string
+
     def _query_tap_service(self, query_str, col_name):
+        """
+        returns an astropy.table.Table  # JM TODO
+        """
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         query = query_str
         res = tap.search(query)[col_name].data
@@ -228,8 +257,9 @@ class EsoClass(QueryWithLogin):
     # select * from ivoa.ObsCore where data_collection = some_collection and key1 = val1 and key2=val2 and ...
     # Extra stuff she mentioned:
     # select * from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'
+    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_collections(self, *, collections='', cache=True,
-                          help=False, open_form=False, **kwargs):
+                          help=False, open_form=None, **kwargs):
         """
         Query collection Phase 3 data contained in the ESO archive.
 
@@ -254,38 +284,30 @@ class EsoClass(QueryWithLogin):
             results.
 
         """
+        if isinstance(collections, str):
+            collections = _split_str_as_list_of_str(collections)
+        table_to_return = None  # Return an astropy.table.Table or None
+        if help:
+            self._print_collections_help()
 
-        url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        if open_form:
-            webbrowser.open(url)
-        elif help:
-            self._print_collections_help(url, cache=cache)
-        else:
-            collection_form = self._request("GET", url, cache=cache)
-            query_dict = kwargs
-            query_dict["wdbo"] = "csv/download"
-            if isinstance(collections, str):
-                collections = collections.split(",")
-            query_dict['collection_name'] = collections
-            if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
-            else:
-                query_dict["max_rows_returned"] = 10000
+        tap = pyvo.dal.TAPService(EsoClass.tap_url())
+        collections = list(map(lambda x: f"'{x.strip()}'", collections))
+        where_collections_str = "obs_collection in (" + ", ".join(collections) + ")"
+        where_constraints_strlist = [f"{k} = {v}" for k, v in kwargs.items()]
+        where_constraints = [where_collections_str] + where_constraints_strlist
+        query = py2adql(table="ivoa.ObsCore", columns='*', where_constraints=where_constraints)
 
-            collection_response = self._activate_form(collection_form, form_index=0,
-                                                      form_id='queryform',
-                                                      inputs=query_dict, cache=cache)
+        #  select * from ivoa.ObsCore where obs_collection = 'AMBRE' OR obs_collection = 'ALCOHOLS'
+        try:
+            table_to_return = tap.search(query, maxrec=self.ROW_LIMIT).to_table()
+        except Exception as e:
+            raise e  # TODO catch properly the relevant exception
 
-            content = collection_response.content
-            # First line is always garbage
-            content = content.split(b'\n', 1)[1]
-            log.debug("Response content:\n{0}".format(content))
-            if _check_response(content):
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   comment="^#")
-                return table
-            else:
-                warnings.warn("Query returned no results", NoResultsWarning)
+        if len(table_to_return) < 1:
+            warnings.warn("Query returned no results", NoResultsWarning)
+            table_to_return = None
+
+        return table_to_return
 
     def query_main(self, *, column_filters={}, columns=[],
                    open_form=False, help=False, cache=True, **kwargs):
@@ -817,84 +839,12 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    def _print_collections_help(self, url, *, cache=True):
-        """
-        Download a form and print it in a quasi-human-readable way
-        """
-        log.info("List of the parameters accepted by the "
-                 "collections query.")
-        log.info("The presence of a column in the result table can be "
-                 "controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as "
-                 "already ticked: [x].")
-
-        result_string = []
-
-        resp = self._request("GET", url, cache=cache)
-        doc = BeautifulSoup(resp.content, 'html5lib')
-        form = doc.select("html body form")[0]
-
-        # hovertext from different labels are used to give more info on forms
-        helptext_dict = {abbr['title'].split(":")[0].strip(): ":".join(abbr['title'].split(":")[1:])
-                         for abbr in form.find_all('abbr')
-                         if 'title' in abbr.attrs and ":" in abbr['title']}
-
-        for fieldset in form.select('fieldset'):
-            legend = fieldset.select('legend')
-            if len(legend) > 1:
-                raise ValueError("Form parsing error: too many legends.")
-            elif len(legend) == 0:
-                continue
-            section_title = "\n\n" + "".join(legend[0].stripped_strings) + "\n"
-
-            result_string.append(section_title)
-
-            for section in fieldset.select('table'):
-
-                checkbox_name = ""
-                checkbox_value = ""
-                for tag in section.next_elements:
-                    if tag.name == u"table":
-                        break
-                    elif tag.name == u"input":
-                        if tag.get(u'type') == u"checkbox":
-                            checkbox_name = tag['name']
-                            checkbox_value = (u"[x]"
-                                              if ('checked' in tag.attrs)
-                                              else u"[ ]")
-                            name = ""
-                            value = ""
-                        else:
-                            name = tag['name']
-                            value = ""
-                    elif tag.name == u"select":
-                        options = []
-                        for option in tag.select("option"):
-                            options += ["{0} ({1})".format(option['value'] if 'value' in option else "",
-                                                           "".join(option.stripped_strings))]
-                        name = tag[u"name"]
-                        value = ", ".join(options)
-                    else:
-                        name = ""
-                        value = ""
-                    if u"tab_" + name == checkbox_name:
-                        checkbox = checkbox_value
-                    else:
-                        checkbox = "   "
-                    if name != u"":
-                        result_string.append("{0} {1}: {2}"
-                                             .format(checkbox, name, value))
-                        if name.strip() in helptext_dict:
-                            result_string.append(helptext_dict[name.strip()])
-
-        log.info("\n".join(result_string))
-        return result_string
-
     @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
                                          "Use the list_collections  function instead."))
     def list_surveys(self, *args, **kwargs):
         if "surveys" in kwargs.keys():
             kwargs["collections"] = kwargs["surveys"]
+            del(kwargs["surveys"])
         return self.list_collections(*args, **kwargs)
 
     @deprecated(since="v0.4.8", message=("The ESO query_surveys function is deprecated,"
@@ -902,6 +852,7 @@ class EsoClass(QueryWithLogin):
     def query_surveys(self, *args, **kwargs):
         if "surveys" in kwargs.keys():
             kwargs["collections"] = kwargs["surveys"]
+            del(kwargs["surveys"])
         return self.query_collections(*args, **kwargs)
 
 
