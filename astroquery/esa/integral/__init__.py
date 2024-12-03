@@ -1,19 +1,17 @@
 """
-
-@author: Javier Duran
-@contact: javier.duran@sciops.esa.int
+=========
+ISLA Init
+=========
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 07 July. 2020
 
 """
 
 from astropy import config as _config
 
-ISLA_TAP_URL = 'https://isladev.esac.esa.int/tap-dev/tap'
-ISLA_DATA_URL = 'https://isladev.esac.esa.int/tap-dev/data?'
+ISLA_TAP_URL = 'https://isla.esac.esa.int/tap/tap'
+ISLA_DATA_URL = 'https://isla.esac.esa.int/tap/data?'
 
 
 class Conf(_config.ConfigNamespace):
