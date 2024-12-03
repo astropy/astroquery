@@ -7,6 +7,7 @@ import pytest
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso, EsoClass
+from ...eso.utils import py2adql
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -190,3 +191,82 @@ def test_tap_url():
         assert url == "http://dfidev5.hq.eso.org:8123/tap_obs"
     else:
         assert url == "http://archive.eso.org/tap_obs"
+
+
+def test_py2adql():
+    #  Example query:
+    #
+    #  SELECT
+    #      target_name, dp_id, s_ra, s_dec, t_exptime, em_min, em_max,
+    #      dataproduct_type, instrument_name, obstech, abmaglim,
+    #      proposal_id, obs_collection
+    #  FROM
+    #      ivoa.ObsCore
+    #  WHERE
+    #      intersects(s_region, circle('ICRS', 109.668246, -24.558700, 0.001389))=1
+    #  AND
+    #      dataproduct_type in ('spectrum')
+    #  AND
+    #      em_min>4.0e-7
+    #  AND
+    #      em_max<1.2e-6
+    #  ORDER BY SNR DESC
+    #
+
+    # Simple tests
+    q = py2adql('ivoa.ObsCore')
+    eq = "select * from ivoa.ObsCore"
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    q = py2adql('ivoa.ObsCore', columns='*')
+    eq = "select * from ivoa.ObsCore"
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'])
+    eq = "select pippo, tizio, caio from pinko.Pallino"
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'])
+    eq = "select pippo, tizio, caio from pinko.Pallino"
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'],
+                where_constraints=['asdf > 1', 'asdf < 2', 'asdf = 3', 'asdf != 4'],
+                intersects=(1, 2, 3, 4), order_by='order_col')
+    eq = "select pippo, tizio, caio from pinko.Pallino " + \
+        "where asdf > 1 and asdf < 2 and asdf = 3 and asdf != 4 and " + \
+        "intersects(1, circle('ICRS', 2, 3, 4))=1 order by order_col desc"  # JM check here!!
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'],
+                where_constraints=["asdf = 'ASDF'", "bcd = 'BCD'"],
+                intersects=(1, 2, 3, 4), order_by='order_col')
+    eq = "select pippo, tizio, caio from pinko.Pallino " + \
+        "where asdf = 'ASDF' and bcd = 'BCD' and " + \
+        "intersects(1, circle('ICRS', 2, 3, 4))=1 order by order_col desc"  # JM check here!!
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
+    # All arguments
+    columns = 'target_name, dp_id, s_ra, s_dec, t_exptime, em_min, em_max, ' + \
+        'dataproduct_type, instrument_name, obstech, abmaglim, ' + \
+        'proposal_id, obs_collection'
+    table = 'ivoa.ObsCore'
+    and_c_list = ['em_min>4.0e-7', 'em_max<1.2e-6', 'asdasdads']
+    intersects_tuple = ("s_region", 109.668246, -24.5587, 0.001389)
+
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list, intersects=intersects_tuple,
+                order_by='snr', order_by_desc=True)
+    expected_query = 'select ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and ' + "intersects(s_region, circle('ICRS', 109.668246, -24.5587, 0.001389))=1 order by snr desc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
+
+    # All arguments
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list, intersects=intersects_tuple,
+                order_by='snr', order_by_desc=False)
+    expected_query = 'select ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and ' + "intersects(s_region, circle('ICRS', 109.668246, -24.5587, 0.001389))=1 order by snr asc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
