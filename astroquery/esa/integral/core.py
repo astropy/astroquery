@@ -118,19 +118,19 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        target_name: str
+        target_name: str, optional
             target name to be requested
-        coordinates: str or SkyCoord
+        coordinates: str or SkyCoord, optional
             coordinates of the center in the cone search
-        radius: float or quantity
+        radius: float or quantity, optional, default value 14 degrees
             radius in degrees (int, float) or quantity of the cone_search
-        start_time: str in UTC or datetime
+        start_time: str in UTC or datetime, optional
             start time of the observation
-        end_time: str in UTC or datetime
+        end_time: str in UTC or datetime, optional
             end time of the observation
-        start_revno: string
+        start_revno: string, optional
             start revolution number, as a four-digit string with leading zeros
-        end_revno: string
+        end_revno: string, optional
             end revolution number, as a four-digit string with leading zeros
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
@@ -194,9 +194,11 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         if verbose:
             return query
         else:
-            return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format)
+            return self.query_tap(query=query, async_job=async_job, output_file=output_file,
+                                  output_format=output_format)
 
-    def download_science_windows(self, *, science_windows=None, observation_id =None, revolution = None, proposal=None, output_file=None):
+    def download_science_windows(self, *, science_windows=None, observation_id=None, revolution=None, proposal=None,
+                                 output_file=None):
         """Method to download science windows associated to one of these parameters:
         science_windows, observation_id, revolution or proposal
 
@@ -212,31 +214,36 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Proposal ID associated to science windows
         output_file: str, optional
             File name and path for the downloaded file
+
+        Returns
+        -------
+        The path and filename of the file with science windows
         """
 
         params = self.__get_science_window_parameter(science_windows, observation_id, revolution, proposal)
         params['RETRIEVAL_TYPE'] = 'SCW'
         params['TAPCLIENT'] = 'ASTROQUERY'
 
-        download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params)
+        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+                             verbose=True)
 
     def get_timeline(self, ra, dec, *, radius=14, plot=False, plot_revno=False, plot_distance=False):
         """Retrieve the INTEGRAL timeline associated to coordinates and radius
 
         Parameters
         ----------
-        ra: float
+        ra: float, mandatory
             Right ascension
-        dec: float
+        dec: float, mandatory
             Declination
-        radius: float or quantity
+        radius: float or quantity, optional, default value 14 degrees
             radius in degrees (int, float) or quantity of the cone_search
-        plot: boolean
+        plot: boolean, optional, default value False
             show the timeline using matplotlib
-        plot_revno: boolean
+        plot_revno: boolean, optional, default value False
             If plot is True, show in the X-Axis the revolution number
             instead of the date
-        plot_distance: boolean
+        plot_distance: boolean, optional, default value False
             If plot is True, show in the distance plot concatenated to the timeline
 
         Returns
@@ -269,7 +276,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         timeline = Table({
             "scwExpo": data["scwExpo"],
             "scwRevs": data["scwRevs"],
-            "scwTimes": [datetime.fromtimestamp(scwTime/1000) for scwTime in data["scwTimes"]],
+            "scwTimes": [datetime.fromtimestamp(scwTime / 1000) for scwTime in data["scwTimes"]],
             "scwOffAxis": data["scwOffAxis"]
         })
 
@@ -277,12 +284,12 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             x = timeline['scwRevs'] if plot_revno else timeline['scwTimes']
             x_label = 'Revolutions' if plot_revno else 'Calendar Dates'
             if plot_distance:
-                plot_concatenated_results(x, timeline['scwExpo']/1000, timeline['scwOffAxis'],
+                plot_concatenated_results(x, timeline['scwExpo'] / 1000, timeline['scwOffAxis'],
                                           x_label, 'Effective Exposure (ks)', 'Distance (deg)',
                                           'Observations', x_label='Pointing (Ks)',
                                           y_label='Off-axis (deg)')
             else:
-                plot_result(x, timeline['scwExpo']/1000,
+                plot_result(x, timeline['scwExpo'] / 1000,
                             x_label, 'Effective Exposure (ks)',
                             'Observations')
 
@@ -318,7 +325,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         ----------
         target_name : str, mandatory
             target name to be requested, mandatory
-        instrument : str, mandatory
+        instrument : str, optional
             Possible values: jem-x, ibis
         band : str, optional
             Possible values: 03_20, 28_40
@@ -387,6 +394,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         output_file: str, optional
             File name and path for the downloaded file
 
+        Returns
+        -------
+        The path and filename of the file with long term timeseries
         """
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
@@ -395,8 +405,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'source': target_name,
                   "instrument_oid": self.instrument_band_map[value]['instrument_oid'],
                   'TAPCLIENT': 'ASTROQUERY'}
-        download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
-                      verbose=True)
+        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                             params=params, verbose=True)
 
     def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL short term timeseries associated to the target and instrument or band
@@ -454,7 +464,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                             'Time', 'Rate (cps)',
                             f"Light curve ({detectors[i]})", error_y=timeseries['rates_error'])
 
-        return {'source_id': source_id, 'total_items': total_items, 'detectors':detectors,
+        return {'source_id': source_id, 'total_items': total_items, 'detectors': detectors,
                 'timeseries_list': timeseries_list}
 
     def download_short_term_timeseries(self, target_name, epoch, *, instrument=None, band=None, output_file=None):
@@ -466,13 +476,16 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             target name to be requested, mandatory
         epoch : str, mandatory
             reference epoch for the short term timeseries
-        instrument : str
+        instrument : str, optional
             Possible values: jem-x, ibis
-        band : str
+        band : str, optional
             Possible values: 03_20, 28_40
-
         output_file: str, optional
             File name and path for the downloaded file
+
+        Returns
+        -------
+        The path and filename of the file with short term timeseries
 
         """
 
@@ -483,8 +496,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'band_oid': self.instrument_band_map[value]['band_oid'],
                   'epoch': epoch,
                   'TAPCLIENT': 'ASTROQUERY'}
-        download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
-                      verbose=True)
+        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+                             verbose=True)
 
     def get_spectra(self, target_name, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL spectra associated to the target and instrument or band
@@ -532,12 +545,11 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             spectra_element['date_stop'] = element['dateStop']
             spectra_element['detector'] = element['detector']
             # Retrieve all the timeseries for each detector
-            spectra_element['spectra'] = Table({
-                    "energy": element['energy'],
-                    "energy_error": element["energyError"],
-                    'rate': element["rate"],
-                    "rate_error": element["rateError"],
-                })
+            spectra_element['spectra'] = Table({"energy": element['energy'],
+                                                "energy_error": element["energyError"],
+                                                'rate': element["rate"],
+                                                "rate_error": element["rateError"],
+                                                })
 
             spectrum.append(spectra_element)
             if plot:
@@ -561,19 +573,25 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Possible values: jem-x, ibis
         band : str
             Possible values: 03_20, 28_40
-
         output_file: str, optional
             File name and path for the downloaded file
 
+        Returns
+        -------
+        A list of paths and filenames of the files with spectras
         """
 
         spectrum = self.get_spectra(target_name=target_name, epoch=epoch, instrument=instrument, band=band, plot=False)
+        downloaded_files = []
         for spectra in spectrum:
             params = {'RETRIEVAL_TYPE': 'spectras',
                       'spectra_oid': spectra['spectra_oid'],
                       'TAPCLIENT': 'ASTROQUERY'}
-            download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
-                          verbose=True)
+            downloaded_files.append(
+                download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                              params=params,
+                              verbose=True))
+        return downloaded_files
 
     def get_mosaic(self, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL mosaics associated to the instrument or band
@@ -582,9 +600,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         ----------
         epoch : str, mandatory
             reference epoch for the short term timeseries
-        instrument : str
+        instrument : str, optional
             Possible values: jem-x, ibis
-        band : str
+        band : str, optional
             Possible values: 03_20, 28_40
 
         plot: boolean, optional
@@ -624,8 +642,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                 'dec': np.array(element['dec'], dtype=float).flatten().flatten(),
                 'data': np.array(element['data'], dtype=float).flatten().flatten()
             })
-            # print('dtype')
-            # print(element['data'].dtype)
 
             mosaics.append(mosaic_element)
             if plot:
@@ -649,15 +665,22 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         output_file: str, optional
             File name and path for the downloaded file
 
+        Returns
+        -------
+        A list of paths and filenames of the files with mosaics
         """
 
         mosaics = self.get_mosaic(epoch=epoch, instrument=instrument, band=band, plot=False)
+        downloaded_files = []
         for mosaic in mosaics:
             params = {'RETRIEVAL_TYPE': 'mosaics',
                       'mosaic_oid': mosaic['mosaic_oid'],
                       'TAPCLIENT': 'ASTROQUERY'}
-            download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
-                          verbose=True)
+            downloaded_files.append(
+                download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                              params=params,
+                              verbose=True))
+        return downloaded_files
 
     def get_source_metadata(self, target_name):
         """Retrieve the metadata associated to an INTEGRAL target
@@ -677,8 +700,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
         return execute_servlet_request(url=conf.ISLA_SERVLET,
-                                tap=self.tap,
-                                query_params=query_params)
+                                       tap=self.tap,
+                                       query_params=query_params)
 
     def __get_instrument_band_map(self):
         """
@@ -689,11 +712,11 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         for row in instrument_band_table:
             instrument_band_map[row['instrument']] = {'band': row['band'],
-                                                 'instrument_oid':row['instrument_oid'],
-                                                 'band_oid': row['band_oid']}
+                                                      'instrument_oid': row['instrument_oid'],
+                                                      'band_oid': row['band_oid']}
             instrument_band_map[row['band']] = {'instrument': row['instrument'],
-                                     'instrument_oid':row['instrument_oid'],
-                                     'band_oid': row['band_oid']}
+                                                'instrument_oid': row['instrument_oid'],
+                                                'band_oid': row['band_oid']}
 
         return instrument_band_map
 
