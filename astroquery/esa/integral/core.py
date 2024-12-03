@@ -17,8 +17,7 @@ import getpass
 import pyvo
 from . import conf
 import time
-from ..utils.utils import download_table, ESAAuthSession, get_coord_input, get_degree_radius, execute_servlet_request, \
-    plot_result, plot_concatenated_results, plot_image, download_file
+import astroquery.esa.utils.utils as esautils
 from datetime import datetime
 
 __all__ = ['Integral', 'IntegralClass']
@@ -37,7 +36,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         if auth_session:
             self._auth_session = auth_session
         else:
-            self._auth_session = ESAAuthSession()
+            self._auth_session = esautils.ESAAuthSession()
 
         if tap_handler is None:
             self.tap = pyvo.dal.TAPService(
@@ -78,7 +77,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             result = self.tap.search(query).to_table()
 
         if output_file:
-            download_table(result, output_file, output_format)
+            esautils.download_table(result, output_file, output_format)
 
         return result
 
@@ -157,7 +156,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                             "parameter.")
 
         if radius:
-            radius = get_degree_radius(radius)
+            radius = esautils.get_degree_radius(radius)
 
         if target_name:
             coord = self.get_sources(target_name=target_name)
@@ -165,7 +164,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             dec = coord['dec'][0]
             conditions.append(conf.ISLA_COORDINATE_CONDITION.format(ra, dec, radius))
         elif coordinates:
-            coord = get_coord_input(value=coordinates, msg=coordinates)
+            coord = esautils.get_coord_input(value=coordinates, msg=coordinates)
             ra = coord.ra.degree
             dec = coord.dec.degree
             conditions.append(conf.ISLA_COORDINATE_CONDITION.format(ra, dec, radius))
@@ -224,7 +223,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         params['RETRIEVAL_TYPE'] = 'SCW'
         params['TAPCLIENT'] = 'ASTROQUERY'
 
-        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
                              verbose=True)
 
     def get_timeline(self, ra, dec, *, radius=14, plot=False, plot_revno=False, plot_distance=False):
@@ -256,7 +255,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         """
 
         if radius:
-            radius = get_degree_radius(radius)
+            radius = esautils.get_degree_radius(radius)
 
         query_params = {
             'REQUEST': 'timelines',
@@ -266,7 +265,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
 
-        request_result = execute_servlet_request(url=conf.ISLA_SERVLET,
+        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                  tap=self.tap,
                                                  query_params=query_params)
         total_items = request_result['totalItems']
@@ -284,12 +283,12 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             x = timeline['scwRevs'] if plot_revno else timeline['scwTimes']
             x_label = 'Revolutions' if plot_revno else 'Calendar Dates'
             if plot_distance:
-                plot_concatenated_results(x, timeline['scwExpo'] / 1000, timeline['scwOffAxis'],
+                esautils.plot_concatenated_results(x, timeline['scwExpo'] / 1000, timeline['scwOffAxis'],
                                           x_label, 'Effective Exposure (ks)', 'Distance (deg)',
                                           'Observations', x_label='Pointing (Ks)',
                                           y_label='Off-axis (deg)')
             else:
-                plot_result(x, timeline['scwExpo'] / 1000,
+                esautils.plot_result(x, timeline['scwExpo'] / 1000,
                             x_label, 'Effective Exposure (ks)',
                             'Observations')
 
@@ -352,7 +351,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
 
-        request_result = execute_servlet_request(url=conf.ISLA_SERVLET,
+        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                  tap=self.tap,
                                                  query_params=query_params)
         source_id = request_result['sourceId']
@@ -371,7 +370,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         if plot:
             for i, timeseries in enumerate(timeseries_list):
-                plot_result(timeseries['time'], timeseries['rates'],
+                esautils.plot_result(timeseries['time'], timeseries['rates'],
                             'Time', 'Rate (cps)',
                             f"Long Term Timeseries ({detectors[i]})", error_y=timeseries['ratesError'])
 
@@ -405,7 +404,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'source': target_name,
                   "instrument_oid": self.instrument_band_map[value]['instrument_oid'],
                   'TAPCLIENT': 'ASTROQUERY'}
-        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
                              params=params, verbose=True)
 
     def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None, *, plot=False):
@@ -443,7 +442,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
 
-        request_result = execute_servlet_request(url=conf.ISLA_SERVLET,
+        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                  tap=self.tap,
                                                  query_params=query_params)
         source_id = request_result['sourceId']
@@ -460,7 +459,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         if plot:
             for i, timeseries in enumerate(timeseries_list):
-                plot_result(timeseries['time'], timeseries['rates'],
+                esautils.plot_result(timeseries['time'], timeseries['rates'],
                             'Time', 'Rate (cps)',
                             f"Light curve ({detectors[i]})", error_y=timeseries['rates_error'])
 
@@ -496,7 +495,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'band_oid': self.instrument_band_map[value]['band_oid'],
                   'epoch': epoch,
                   'TAPCLIENT': 'ASTROQUERY'}
-        return download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
                              verbose=True)
 
     def get_spectra(self, target_name, epoch, instrument=None, band=None, *, plot=False):
@@ -531,7 +530,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
 
-        request_result = execute_servlet_request(url=conf.ISLA_SERVLET,
+        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                  tap=self.tap,
                                                  query_params=query_params)
         spectrum = []
@@ -553,7 +552,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
             spectrum.append(spectra_element)
             if plot:
-                plot_result(spectra_element['spectra']['energy'], spectra_element['spectra']['rate'],
+                esautils.plot_result(spectra_element['spectra']['energy'], spectra_element['spectra']['rate'],
                             'Energy (keV)', 'Counts s⁻¹ keV⁻¹',
                             f"Spectrum", error_x=spectra_element['spectra']['energy_error'],
                             error_y=spectra_element['spectra']['rate_error'], log_scale=True)
@@ -588,7 +587,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                       'spectra_oid': spectra['spectra_oid'],
                       'TAPCLIENT': 'ASTROQUERY'}
             downloaded_files.append(
-                download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
                               params=params,
                               verbose=True))
         return downloaded_files
@@ -623,7 +622,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "TAPCLIENT": 'ASTROQUERY'
         }
 
-        request_result = execute_servlet_request(url=conf.ISLA_SERVLET,
+        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                  tap=self.tap,
                                                  query_params=query_params)
         mosaics = []
@@ -645,8 +644,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
             mosaics.append(mosaic_element)
             if plot:
-                plot_image(mosaic_element['mosaic']['data'], 'Mosaic',
-                           mosaic_element['height'], mosaic_element['width'])
+                esautils.plot_image(z=mosaic_element['mosaic']['data'],
+                                    height=mosaic_element['height'], width=mosaic_element['width'],
+                                    plot_title='Mosaic')
 
         return mosaics
 
@@ -677,7 +677,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                       'mosaic_oid': mosaic['mosaic_oid'],
                       'TAPCLIENT': 'ASTROQUERY'}
             downloaded_files.append(
-                download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
                               params=params,
                               verbose=True))
         return downloaded_files
@@ -699,7 +699,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "SOURCE": target_name,
             "TAPCLIENT": 'ASTROQUERY'
         }
-        return execute_servlet_request(url=conf.ISLA_SERVLET,
+        return esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                        tap=self.tap,
                                        query_params=query_params)
 
@@ -747,7 +747,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     def __validate_revno(self, rev_no):
         """
         Verifies if the format for revolution number is correct
-         Parameters
+
+        Parameters
         ----------
         rev_no: str
             revolution number
@@ -760,7 +761,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     def __get_science_window_parameter(self, science_windows, observation_id, revolution, proposal):
         """
         Verifies if only one parameter is not null and return its value
-         Parameters
+
+        Parameters
         ----------
         science_windows : list of str, mandat
             Science Windows to download
