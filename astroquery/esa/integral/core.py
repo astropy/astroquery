@@ -15,10 +15,13 @@ from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
 import getpass
 import pyvo
+from pyvo.auth import AuthSession
+
 from . import conf
 import time
 import astroquery.esa.utils.utils as esautils
 from datetime import datetime
+from urllib.parse import urlparse
 
 __all__ = ['Integral', 'IntegralClass']
 
@@ -31,6 +34,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     TIMEOUT = conf.TIMEOUT
 
     def __init__(self, tap_handler=None, auth_session=None):
+        super().__init__()
 
         # Checks if auth session has been defined. If not, create a new session
         if auth_session:
@@ -46,6 +50,28 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             self._data = None
 
         self.instrument_band_map = self.__get_instrument_band_map()
+
+    def login(self, *, user=None, password=None):
+        """
+        Performs a login.
+        TAP+ only
+        User and password shall be used
+
+        Parameters
+        ----------
+        user : str, mandatory, default None
+            Username. If no value is provided, a prompt to type it will appear
+        password : str, mandatory, default None
+            User password. If no value is provided, a prompt to type it will appear
+        """
+        self.tap._session.login(login_url=conf.ISLA_LOGIN_SERVER, user=user, password=password)
+
+    def logout(self):
+        """
+        Performs a logout.
+        TAP+ only
+        """
+        self.tap._session.logout(logout_url=conf.ISLA_LOGOUT_SERVER)
 
     def query_tap(self, query, *, async_job=False, output_file=None, output_format=None):
         """Launches a synchronous or asynchronous job to query the ISLA tap
@@ -221,9 +247,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         params = self.__get_science_window_parameter(science_windows, observation_id, revolution, proposal)
         params['RETRIEVAL_TYPE'] = 'SCW'
-        params['TAPCLIENT'] = 'ASTROQUERY'
 
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file, params=params,
                              verbose=True)
 
     def get_timeline(self, ra, dec, *, radius=14, plot=False, plot_revno=False, plot_distance=False):
@@ -261,8 +286,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             'REQUEST': 'timelines',
             "ra": ra,
             "dec": dec,
-            "radius": radius,
-            "TAPCLIENT": 'ASTROQUERY'
+            "radius": radius
         }
 
         request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
@@ -347,8 +371,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         query_params = {
             'REQUEST': 'long_timeseries',
             "source": target_name,
-            "instrument_oid": self.instrument_band_map[value]['instrument_oid'],
-            "TAPCLIENT": 'ASTROQUERY'
+            "instrument_oid": self.instrument_band_map[value]['instrument_oid']
         }
 
         request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
@@ -402,9 +425,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         params = {'RETRIEVAL_TYPE': 'long_timeseries',
                   'source': target_name,
-                  "instrument_oid": self.instrument_band_map[value]['instrument_oid'],
-                  'TAPCLIENT': 'ASTROQUERY'}
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                  "instrument_oid": self.instrument_band_map[value]['instrument_oid']}
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
                              params=params, verbose=True)
 
     def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None, *, plot=False):
@@ -438,8 +460,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             'REQUEST': 'short_timeseries',
             "source": target_name,
             "band_oid": self.instrument_band_map[value]['band_oid'],
-            "epoch": epoch,
-            "TAPCLIENT": 'ASTROQUERY'
+            "epoch": epoch
         }
 
         request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
@@ -493,9 +514,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         params = {'RETRIEVAL_TYPE': 'short_timeseries',
                   'source': target_name,
                   'band_oid': self.instrument_band_map[value]['band_oid'],
-                  'epoch': epoch,
-                  'TAPCLIENT': 'ASTROQUERY'}
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file, params=params,
+                  'epoch': epoch}
+        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file, params=params,
                              verbose=True)
 
     def get_spectra(self, target_name, epoch, instrument=None, band=None, *, plot=False):
@@ -526,8 +546,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             'REQUEST': 'spectra',
             "source": target_name,
             "instrument_oid": self.instrument_band_map[value]['instrument_oid'],
-            "epoch": epoch,
-            "TAPCLIENT": 'ASTROQUERY'
+            "epoch": epoch
         }
 
         request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
@@ -584,10 +603,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         downloaded_files = []
         for spectra in spectrum:
             params = {'RETRIEVAL_TYPE': 'spectras',
-                      'spectra_oid': spectra['spectra_oid'],
-                      'TAPCLIENT': 'ASTROQUERY'}
+                      'spectra_oid': spectra['spectra_oid']}
             downloaded_files.append(
-                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
                               params=params,
                               verbose=True))
         return downloaded_files
@@ -618,8 +636,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         query_params = {
             'REQUEST': 'mosaics',
             "band_oid": self.instrument_band_map[value]['band_oid'],
-            "epoch": epoch,
-            "TAPCLIENT": 'ASTROQUERY'
+            "epoch": epoch
         }
 
         request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
@@ -674,10 +691,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         downloaded_files = []
         for mosaic in mosaics:
             params = {'RETRIEVAL_TYPE': 'mosaics',
-                      'mosaic_oid': mosaic['mosaic_oid'],
-                      'TAPCLIENT': 'ASTROQUERY'}
+                      'mosaic_oid': mosaic['mosaic_oid']}
             downloaded_files.append(
-                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self._auth_session, filename=output_file,
+                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
                               params=params,
                               verbose=True))
         return downloaded_files
@@ -696,8 +712,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         """
         query_params = {
             'REQUEST': 'sources',
-            "SOURCE": target_name,
-            "TAPCLIENT": 'ASTROQUERY'
+            "SOURCE": target_name
         }
         return esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                        tap=self.tap,

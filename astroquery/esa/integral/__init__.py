@@ -10,8 +10,9 @@ European Space Agency (ESA)
 
 from astropy import config as _config
 
-ISLA_TAP_URL = 'https://isla.esac.esa.int/tap/tap'
-ISLA_DATA_URL = 'https://isla.esac.esa.int/tap/data?'
+
+ISLA_DOMAIN = 'https://isla.esac.esa.int/tap/'
+ISLA_TAP_URL = ISLA_DOMAIN + 'tap'
 
 
 class Conf(_config.ConfigNamespace):
@@ -19,7 +20,9 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.integral`.
     """
     ISLA_TAP_SERVER = _config.ConfigItem(ISLA_TAP_URL, "ISLA TAP Server")
-    ISLA_DATA_SERVER = _config.ConfigItem(ISLA_DATA_URL, "ISLA Data Server")
+    ISLA_DATA_SERVER = _config.ConfigItem(ISLA_DOMAIN + 'data?', "ISLA Data Server")
+    ISLA_LOGIN_SERVER = _config.ConfigItem(ISLA_DOMAIN + 'login', "ISLA Login Server")
+    ISLA_LOGOUT_SERVER = _config.ConfigItem(ISLA_DOMAIN + 'logout', "ISLA Logout Server")
     ISLA_SERVLET = _config.ConfigItem(ISLA_TAP_URL + "/sync/?PHASE=RUN",
                                       "ISLA Servlet Request")
 

@@ -7,17 +7,20 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
-
+import getpass
 import os
+from urllib.parse import urlparse
 
 import numpy as np
 import requests
+from astropy import log
 
 from astropy.units import Quantity
 from pyvo.auth.authsession import AuthSession
 from astroquery.utils import commons
 
 import matplotlib.pyplot as plt
+from requests import Response
 
 
 # Subclass AuthSession to customize requests
@@ -26,7 +29,100 @@ class ESAAuthSession(AuthSession):
     Session to login/logout an ESA TAP using PyVO
     """
 
-    def request(self, method, url, *args, **kwargs):
+    def __init__(self: str):
+        """
+        Initialize the custom authentication session.
+
+        Parameters:
+            login_url (str): The login endpoint URL.
+        """
+        super().__init__()
+
+    def login(self, login_url, *, user=None, password=None):
+        """
+        Performs a login.
+        TAP+ only
+        User and password shall be used
+
+        Parameters
+        ----------
+        login_url: str, mandatory
+            URL to execute the login request
+        user : str, mandatory, default None
+            Username. If no value is provided, a prompt to type it will appear
+        password : str, mandatory, default None
+            User password. If no value is provided, a prompt to type it will appear
+        """
+
+        if user is None:
+            user = input("Username:")
+        if password is None:
+            password = getpass.getpass("Password:")
+
+        if user and password:
+            args = {
+                "username": str(user),
+                "password": str(password)}
+            header = {
+                "Content-type": "application/x-www-form-urlencoded",
+                "Accept": "text/plain"
+            }
+            response = self.post(url=login_url, data=args,
+                                              headers=header)
+            try:
+                response.raise_for_status()
+                log.info('User has been logged successfully.')
+            except Exception as e:
+                log.error('Logging error: {}'.format(e))
+                raise e
+
+    def logout(self, logout_url):
+        """
+        Performs a logout.
+        TAP+ only
+        User and password shall be used
+
+        Parameters
+        ----------
+        logout_url: str, mandatory
+            URL to execute the logout request
+        """
+        header = {
+            "Content-type": "application/x-www-form-urlencoded",
+            "Accept": "text/plain"
+        }
+        response = self.post(url=logout_url, headers=header)
+        try:
+            response.raise_for_status()
+            log.info('Logout executed successfully.')
+        except Exception as e:
+            log.error('Logout error: {}'.format(e))
+            raise e
+
+    def _send_login_request(self, username: str, password: str) -> Response:
+        """
+        Send a POST request to the login URL with username and password.
+
+        Parameters:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+
+        Returns:
+            Response: The response object from the login request.
+        """
+        import requests  # Use requests for handling HTTP interactions
+
+        # Login payload
+        payload = {"username": username, "password": password}
+
+        # Perform the POST request
+        response = requests.post(self.login_url, data=payload)
+
+        # Raise an error if the request failed
+        response.raise_for_status()
+        return response
+
+    def _request(self, method, url, *args, **kwargs):
         """
         Intercept the request method and add TAPCLIENT=ASTROQUERY
 
@@ -131,12 +227,23 @@ def execute_servlet_request(url, tap, *, query_params=None):
     -------
     The request with the modified url
     """
+
+    if not 'TAPCLIENT' in query_params:
+        query_params['TAPCLIENT'] = 'ASTROQUERY'
+
     # Use the TAPService session to perform a custom GET request
     response = tap._session.get(url=url, params=query_params)
     if response.status_code == 200:
         return response.json()
     else:
         response.raise_for_status()
+
+
+def execute_post_request(url, tap, *, query_params=None):
+    response = tap._session.post(url=url, params=query_params)
+    response.raise_for_status()
+
+    return response
 
 
 def plot_result(x, y, x_title, y_title, plot_title, *, error_x=None, error_y=None, log_scale=False):
@@ -292,6 +399,9 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
     -------
     The request with the modified url
     """
+
+    if not 'TAPCLIENT' in params:
+        params['TAPCLIENT'] = 'ASTROQUERY'
 
     with session.get(url, stream=True, params=params) as response:
         response.raise_for_status()
