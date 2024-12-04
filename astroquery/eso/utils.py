@@ -11,7 +11,6 @@ def _split_str_as_list_of_str(column_str: str):
 
 
 def py2adql(table: str, columns: Union[list, str] = [], where_constraints=[],
-            intersects: tuple[str, float, float, float] = (),
             order_by: str = '', order_by_desc=True):
     # Initialize / validate
     query_string = None
@@ -20,13 +19,6 @@ def py2adql(table: str, columns: Union[list, str] = [], where_constraints=[],
         columns = _split_str_as_list_of_str(columns)
     if columns == []:
         columns = ['*']
-
-    if len(intersects) > 0:
-        where_constraints += [
-            f"intersects({intersects[0]}, circle('ICRS', {intersects[1]}, {intersects[2]}, {intersects[3]}))=1"]
-    # INTERSECTS( arg1, arg2 ) is a function that return 1 if
-    # the two geographies arg1 and arg2 intersect in at least one point.
-    # http://archive.eso.org/tap_obs/examples
 
     # Build the query
     query_string = 'select ' + ', '.join(columns) + ' from ' + table
