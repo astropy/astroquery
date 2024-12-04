@@ -284,6 +284,7 @@ class EsoClass(QueryWithLogin):
             results.
 
         """
+        kwd = dict(kwargs)  # not to modify the original kwargs
         if isinstance(collections, str):
             collections = _split_str_as_list_of_str(collections)
         table_to_return = None  # Return an astropy.table.Table or None
@@ -293,11 +294,21 @@ class EsoClass(QueryWithLogin):
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         collections = list(map(lambda x: f"'{x.strip()}'", collections))
         where_collections_str = "obs_collection in (" + ", ".join(collections) + ")"
-        where_constraints_strlist = [f"{k} = {v}" for k, v in kwargs.items()]
+
+        coord_constraint = []
+        if ('coord1' in kwd.keys()) and ('coord2' in kwd.keys()):
+            c1, c2 = kwd['coord1'], kwd["coord2"]
+            del kwd['coord1'], kwd['coord2']
+            # TODO make size a parameter
+            c_size = 0.01
+            coord_constraint = \
+                [f"intersects(circle('ICRS', {c1}, {c2}, {c_size}), s_region)=1"]
+            # http://archive.eso.org/tap_obs/examples
+
+        where_constraints_strlist = [f"{k} = {v}" for k, v in kwd.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
         query = py2adql(table="ivoa.ObsCore", columns='*', where_constraints=where_constraints)
 
-        #  select * from ivoa.ObsCore where obs_collection = 'AMBRE' OR obs_collection = 'ALCOHOLS'
         try:
             table_to_return = tap.search(query, maxrec=self.ROW_LIMIT).to_table()
         except Exception as e:
@@ -844,7 +855,7 @@ class EsoClass(QueryWithLogin):
     def list_surveys(self, *args, **kwargs):
         if "surveys" in kwargs.keys():
             kwargs["collections"] = kwargs["surveys"]
-            del(kwargs["surveys"])
+            del (kwargs["surveys"])
         return self.list_collections(*args, **kwargs)
 
     @deprecated(since="v0.4.8", message=("The ESO query_surveys function is deprecated,"
@@ -852,7 +863,7 @@ class EsoClass(QueryWithLogin):
     def query_surveys(self, *args, **kwargs):
         if "surveys" in kwargs.keys():
             kwargs["collections"] = kwargs["surveys"]
-            del(kwargs["surveys"])
+            del (kwargs["surveys"])
         return self.query_collections(*args, **kwargs)
 
 
