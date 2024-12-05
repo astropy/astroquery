@@ -247,110 +247,11 @@ class EsoClass(QueryWithLogin):
             self._collection_list = list(res)
         return self._collection_list
 
-    # JM - Example queries
-    # select * from ivoa.ObsCore where data_collection = 'AMBRE' and facility_name = 'something'
-    # select * from ivoa.ObsCore where data_collection = some_collection and key1 = val1 and key2=val2 and ...
-    # Extra stuff she mentioned:
-    # select * from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
-    def query_collections(self, *, collections='', cache=True,
-                          help=False, open_form=None, **kwargs):
-        """
-        Query collection Phase 3 data contained in the ESO archive.
-
-        Parameters
-        ----------
-        collection : string or list
-            Name of the collection(s) to query.  Should beone or more of the
-            names returned by `~astroquery.eso.EsoClass.list_collections`.  If
-            specified as a string, should be a comma-separated list of
-            collection names.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table` or `None`
-            A table representing the data available in the archive for the
-            specified collection, matching the constraints specified in ``kwargs``.
-            The number of rows returned is capped by the ROW_LIMIT
-            configuration item. `None` is returned when the query has no
-            results.
-
-        """
-        kwd = dict(kwargs)  # not to modify the original kwargs
-        c_size = 0.1775  # so that even HARPS fits to pass the tests
-        if 'box' in kwd.keys():
-            # TODO make c_size a parameter
-            c_size = 0.1775  # so that even HARPS fits to pass the tests
-            del kwd['box']
-        if isinstance(collections, str):
-            collections = _split_str_as_list_of_str(collections)
-        table_to_return = None  # Return an astropy.table.Table or None
-        if help:
-            self._print_collections_help()
-
-        collections = list(map(lambda x: f"'{x.strip()}'", collections))
-        where_collections_str = "obs_collection in (" + ", ".join(collections) + ")"
-
-        coord_constraint = []
-        if ('coord1' in kwd.keys()) and ('coord2' in kwd.keys()):
-            c1, c2 = kwd['coord1'], kwd["coord2"]
-            del kwd['coord1'], kwd['coord2']
-            coord_constraint = \
-                [f"intersects(circle('ICRS', {c1}, {c2}, {c_size}), s_region)=1"]
-            # http://archive.eso.org/tap_obs/examples
-
-        where_constraints_strlist = [f"{k} = {v}" for k, v in kwd.items()] + coord_constraint
-        where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table="ivoa.ObsCore", columns='*', where_constraints=where_constraints)
-
-        table_to_return = self._query_tap_service(query_str=query)
-
-        if len(table_to_return) < 1:
-            warnings.warn("Query returned no results", NoResultsWarning)
-            table_to_return = None
-
-        return table_to_return
-
-    def query_main(self, *, column_filters={}, columns=[],
-                   open_form=False, help=False, cache=True, **kwargs):
-        """
-        Query raw data contained in the ESO archive.
-
-        Parameters
-        ----------
-        column_filters : dict
-            Constraints applied to the query.
-        columns : list of strings
-            Columns returned by the query.
-        open_form : bool
-            If `True`, opens in your default browser the query form
-            for the requested instrument.
-        help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns`` for the requested
-            ``instrument``.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table representing the data available in the archive for the
-            specified instrument, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
-
-        """
-        url = self.QUERY_INSTRUMENT_URL + "/eso_archive_main/form"
-        return self._query(url, column_filters=column_filters, columns=columns,
-                           open_form=open_form, help=help, cache=cache, **kwargs)
-
-    def query_instrument(self, instrument, *, column_filters={}, columns=[],
-                         open_form=False, help=False, cache=True, **kwargs):
+    def _query_instrument_or_collection(self, i_true_c_false: bool, instmnt_or_clctn_name, *, column_filters={},
+                                        columns=[], open_form=None, help=False, cache=True, **kwargs):
+        # TODO
+        # Refactor. This function has the same logic as query_collections
         """
         Query instrument-specific raw data contained in the ESO archive.
 
@@ -383,10 +284,71 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
+        if help:
+            h = self._query_tap_service(
+                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'")
+            log.info(f"Columns present in the table: {h}")
+            return
 
-        url = self.QUERY_INSTRUMENT_URL + '/{0}/form'.format(instrument.lower())
-        return self._query(url, column_filters=column_filters, columns=columns,
-                           open_form=open_form, help=help, cache=cache, **kwargs)
+        filters = {**dict(kwargs), **column_filters}
+        c_size = 0.1775  # so that even HARPS fits to pass the tests
+        if 'box' in filters.keys():
+            # TODO make c_size a parameter
+            c_size = 0.1775  # so that even HARPS fits to pass the tests
+            del filters['box']
+        if isinstance(instmnt_or_clctn_name, str):
+            instmnt_or_clctn_name = _split_str_as_list_of_str(instmnt_or_clctn_name)
+        table_to_return = None  # Return an astropy.table.Table or None
+        if help:
+            self._print_collections_help()
+
+        instmnt_or_clctn_name = list(map(lambda x: f"'{x.strip()}'", instmnt_or_clctn_name))
+        column_name = "instrument_name" if i_true_c_false else "obs_collection"
+        where_collections_str = f"{column_name} in (" + ", ".join(instmnt_or_clctn_name) + ")"
+
+        coord_constraint = []
+        if ('coord1' in filters.keys()) and ('coord2' in filters.keys()):
+            c1, c2 = filters['coord1'], filters["coord2"]
+            del filters['coord1'], filters['coord2']
+            coord_constraint = \
+                [f"intersects(circle('ICRS', {c1}, {c2}, {c_size}), s_region)=1"]
+            # http://archive.eso.org/tap_obs/examples
+
+        where_constraints_strlist = [f"{k} = {v}" for k, v in filters.items()] + coord_constraint
+        where_constraints = [where_collections_str] + where_constraints_strlist
+        query = py2adql(table="ivoa.ObsCore", columns=columns, where_constraints=where_constraints)
+
+        table_to_return = self._query_tap_service(query_str=query)
+
+        if len(table_to_return) < 1:
+            warnings.warn("Query returned no results", NoResultsWarning)
+            table_to_return = None
+
+        return table_to_return
+
+    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
+    def query_instrument(self, instrument, *, column_filters={}, columns=[],
+                         open_form=False, help=False, cache=True, **kwargs):
+        _ = self._query_instrument_or_collection(i_true_c_false=True,
+                                                 instmnt_or_clctn_name=instrument,
+                                                 column_filters=column_filters,
+                                                 columns=columns,
+                                                 help=help,
+                                                 cache=cache,
+                                                 **kwargs)
+        return _
+
+    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
+    def query_collections(self, collections, *, column_filters={}, columns=[],
+                          open_form=None, help=False, cache=True, **kwargs):
+        _ = self._query_instrument_or_collection(i_true_c_false=False,
+                                                 instmnt_or_clctn_name=collections,
+                                                 column_filters=column_filters,
+                                                 columns=columns,
+                                                 help=help,
+                                                 cache=cache,
+                                                 **kwargs)
+        return _
 
     def _query(self, url, *, column_filters={}, columns=[],
                open_form=False, help=False, cache=True, **kwargs):
@@ -426,12 +388,8 @@ class EsoClass(QueryWithLogin):
             # First line is always garbage
             content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
-            if _check_response(content):
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   comment='^#')
-                return table
-            else:
-                warnings.warn("Query returned no results", NoResultsWarning)
+            table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
+            return table
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -764,7 +722,7 @@ class EsoClass(QueryWithLogin):
                 cache=cache, method='application/x-www-form-urlencoded')
 
             content = apex_response.content
-            if _check_response(content):
+            if True:
                 # First line is always garbage
                 content = content.split(b'\n', 1)[1]
                 try:
@@ -779,7 +737,7 @@ class EsoClass(QueryWithLogin):
                                            comment="#")
                     else:
                         raise ex
-            else:
+            else:  # this function is going to be replaced soon
                 raise RemoteServiceError("Query returned no results")
 
             return table
