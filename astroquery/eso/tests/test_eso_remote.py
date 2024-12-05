@@ -177,6 +177,8 @@ class TestEso:
             else:
                 assert len(result) > 0
 
+    # TODO Ignore OverflowWarning -- how?
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
