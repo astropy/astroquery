@@ -33,19 +33,6 @@ import pyvo
 __doctest_skip__ = ['EsoClass.*']
 
 
-def _check_response(content):
-    """
-    Check the response from an ESO service query for various types of error
-
-    If all is OK, return True
-    """
-    if b"NETWORKPROBLEM" in content:
-        raise RemoteServiceError("The query resulted in a network "
-                                 "problem; the service may be offline.")
-    elif b"# No data returned !" not in content:
-        return True
-
-
 class CalSelectorError(Exception):
     """
     Raised on failure to parse CalSelector's response.
@@ -198,14 +185,23 @@ class EsoClass(QueryWithLogin):
         log.info("\n".join(result_string))
         return result_string
 
-    def _query_tap_service(self, query_str, col_name):
+    def _query_tap_service(self, query_str: str):
         """
-        returns an astropy.table.Table  # JM TODO
+        returns an astropy.table.Table from an adql query string
+        Example use:
+        eso._query_tap_service("Select * from ivoa.ObsCore")
         """
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
-        query = query_str
-        res = tap.search(query)[col_name].data
-        return res
+        table_to_return = None
+
+        try:
+            table_to_return = tap.search(query_str).to_table()
+        except pyvo.dal.exceptions.DALQueryError:
+            raise pyvo.dal.exceptions.DALQueryError(f"\n\nError executing the following query:\n\n{query_str}\n\n")
+        except Exception as e:
+            raise Exception(f"\n\nUnknown exception {e} while executing the following query: \n\n{query_str}\n\n")
+
+        return table_to_return
 
     def list_instruments(self, *, cache=True):
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -226,8 +222,7 @@ class EsoClass(QueryWithLogin):
                     where schema_name='ist'
                     order by table_name
                     """
-            col_name = "table_name"
-            res = self._query_tap_service(query_str, col_name)
+            res = self._query_tap_service(query_str)["table_name"].data
             self._instrument_list = list(map(lambda x: x.split(".")[1], res))
         return self._instrument_list
 
@@ -241,18 +236,18 @@ class EsoClass(QueryWithLogin):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
+        # TODO include ALMA
         if self._collection_list is None:
             self._collection_list = []
             query_str = """
                     SELECT distinct obs_collection from ivoa.ObsCore where obs_collection != 'ALMA'
                     """
-            col_name = "obs_collection"
-            res = self._query_tap_service(query_str, col_name)
+            res = self._query_tap_service(query_str)["obs_collection"].data
 
             self._collection_list = list(res)
         return self._collection_list
 
-    # JM - Example queries:
+    # JM - Example queries
     # select * from ivoa.ObsCore where data_collection = 'AMBRE' and facility_name = 'something'
     # select * from ivoa.ObsCore where data_collection = some_collection and key1 = val1 and key2=val2 and ...
     # Extra stuff she mentioned:
@@ -296,7 +291,6 @@ class EsoClass(QueryWithLogin):
         if help:
             self._print_collections_help()
 
-        tap = pyvo.dal.TAPService(EsoClass.tap_url())
         collections = list(map(lambda x: f"'{x.strip()}'", collections))
         where_collections_str = "obs_collection in (" + ", ".join(collections) + ")"
 
@@ -312,12 +306,7 @@ class EsoClass(QueryWithLogin):
         where_constraints = [where_collections_str] + where_constraints_strlist
         query = py2adql(table="ivoa.ObsCore", columns='*', where_constraints=where_constraints)
 
-        try:
-            table_to_return = tap.search(query, maxrec=self.ROW_LIMIT).to_table()
-        except pyvo.dal.exceptions.DALQueryError:
-            raise pyvo.dal.exceptions.DALQueryError(f"\n\nError executing the following query:\n\n{query}\n\n")
-        except Exception as e:
-            raise Exception(f"\n\nUnknown exception {e} while executing the following query: \n\n{query}\n\n")
+        table_to_return = self._query_tap_service(query_str=query)
 
         if len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
