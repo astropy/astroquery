@@ -168,22 +168,6 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    # TODO - delete or rewrite
-    def _print_collections_help(self):
-        """
-        Prints help
-        """
-        log.info("List of the parameters accepted by the "
-                 "collections query.")
-        log.info("The presence of a column in the result table can be "
-                 "controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as "
-                 "already ticked: [x].")
-
-        result_string = []
-
-        log.info("\n".join(result_string))
-        return result_string
 
     def _query_tap_service(self, query_str: str):
         """
@@ -247,13 +231,10 @@ class EsoClass(QueryWithLogin):
             self._collection_list = list(res)
         return self._collection_list
 
-    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def _query_instrument_or_collection(self, i_true_c_false: bool, instmnt_or_clctn_name, *, column_filters={},
-                                        columns=[], open_form=None, help=False, cache=True, **kwargs):
-        # TODO
-        # Refactor. This function has the same logic as query_collections
+                                        columns=[], help=False, cache=True, **kwargs):
         """
-        Query instrument-specific raw data contained in the ESO archive.
+        Query instrument- or collection-specific raw data contained in the ESO archive.
 
         Parameters
         ----------
@@ -282,8 +263,8 @@ class EsoClass(QueryWithLogin):
             specified instrument, matching the constraints specified in
             ``kwargs``. The number of rows returned is capped by the
             ROW_LIMIT configuration item.
-
         """
+
         if help:
             h = self._query_tap_service(
                 "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'")
@@ -299,8 +280,6 @@ class EsoClass(QueryWithLogin):
         if isinstance(instmnt_or_clctn_name, str):
             instmnt_or_clctn_name = _split_str_as_list_of_str(instmnt_or_clctn_name)
         table_to_return = None  # Return an astropy.table.Table or None
-        if help:
-            self._print_collections_help()
 
         instmnt_or_clctn_name = list(map(lambda x: f"'{x.strip()}'", instmnt_or_clctn_name))
         column_name = "instrument_name" if i_true_c_false else "obs_collection"
