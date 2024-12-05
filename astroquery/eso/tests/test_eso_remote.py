@@ -5,6 +5,7 @@ import pytest
 
 from astroquery.eso import Eso
 from astroquery.exceptions import NoResultsWarning
+from astropy.table import Table
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
@@ -35,6 +36,12 @@ SGRA_COLLECTIONS = ['195.B-0283',
 
 @pytest.mark.remote_data
 class TestEso:
+    def test_query_tap_service(self):
+        eso = Eso()
+        t = eso._query_tap_service("select * from ivoa.ObsCore")
+        assert type(t) is Table, f"Expected type {type(Table)}; Obtained {type(t)}"
+        assert len(t) > 0, "Table length is zero"
+
     def test_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
