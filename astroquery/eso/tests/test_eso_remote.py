@@ -18,9 +18,18 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
 # TODO: make this a configuration item
 SKIP_SLOW = True
 
-SGRA_COLLECTIONS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
+SGRA_COLLECTIONS = ['195.B-0283',
+                    'ATLASGAL',
                     'ERIS-SPIFFIER',
-                    'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER'
+                    'GIRAFFE',
+                    'HARPS',
+                    'HAWKI',
+                    'KMOS',
+                    'MW-BULGE-PSFPHOT',
+                    'VPHASplus',
+                    'VVV',
+                    'VVVX',
+                    'XSHOOTER'
                     ]
 
 
