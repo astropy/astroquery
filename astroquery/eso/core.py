@@ -57,6 +57,21 @@ class AuthInfo:
         return time.time() > self.expiration_time - 600
 
 
+class QueryOnField():
+    table_name = ""
+    column_name = ""
+
+
+class QueryOnInstrument():
+    table_name = "dbo.raw"
+    column_name = "instrument"
+
+
+class QueryOnCollection():
+    table_name = "ivoa.ObsCore"
+    column_name = "obs_collection"
+
+
 class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
@@ -66,9 +81,6 @@ class EsoClass(QueryWithLogin):
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
     USE_DEV_TAP = True
-    # TODO
-    # INSTRUMENTS_COLUMN_NAME =
-    # COLLECTIONS_COLUMN_NAME =
 
     @staticmethod
     def tap_url():
@@ -76,13 +88,6 @@ class EsoClass(QueryWithLogin):
         if EsoClass.USE_DEV_TAP:
             url = "http://dfidev5.hq.eso.org:8123/tap_obs"
         return url
-
-    @staticmethod
-    def tap_columns(table_name="ivoa.ObsCore"):
-        # TODO
-        # return a list with the available columns
-        query = f"select * from TAP_SCHEMA.columns where table_name = '{table_name}'"
-        return query
 
     def __init__(self):
         super().__init__()
@@ -225,15 +230,17 @@ class EsoClass(QueryWithLogin):
         # TODO include ALMA
         if self._collection_list is None:
             self._collection_list = []
-            query_str = """
-                    SELECT distinct obs_collection from ivoa.ObsCore where obs_collection != 'ALMA'
+            c = QueryOnCollection.column_name
+            t = QueryOnCollection.table_name
+            query_str = f"""
+                    SELECT distinct {c} from {t} where {c} != 'ALMA'
                     """
-            res = self._query_tap_service(query_str)["obs_collection"].data
+            res = self._query_tap_service(query_str)[c].data
 
             self._collection_list = list(res)
         return self._collection_list
 
-    def _query_instrument_or_collection(self, i_true_c_false: bool, instmnt_or_clctn_name, *, column_filters={},
+    def _query_instrument_or_collection(self, query_on: QueryOnField, instmnt_or_clctn_name, *, column_filters={},
                                         columns=[], help=False, cache=True, **kwargs):
         """
         Query instrument- or collection-specific data contained in the ESO archive.
@@ -268,18 +275,10 @@ class EsoClass(QueryWithLogin):
             ``kwargs``. The number of rows returned is capped by the
             ROW_LIMIT configuration item.
         """
-        # False for collections, True for Instruments
-        source_table_dict = {True: "dbo.raw",
-                             False: "ivoa.ObsCore"}
-        column_name_dict = {True: "instrument",
-                            False: "obs_collection"}
-        # TODO - these queries are the same, parameterize only what changes, use the py2adql func
-        help_query_dict = {True: "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'dbo.raw'",
-                           False: "select column_name, datatype from TAP_SCHEMA.columns"
-                           + "where table_name = 'ivoa.ObsCore'"}
-
+        help_query = f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
+        # TODO - move help printing to its own function
         if help:
-            h = self._query_tap_service(help_query_dict[i_true_c_false])
+            h = self._query_tap_service(help_query)
             log.info(f"Columns present in the table: {h}")
             return
 
@@ -294,7 +293,7 @@ class EsoClass(QueryWithLogin):
         table_to_return = None  # Return an astropy.table.Table or None
 
         instmnt_or_clctn_name = list(map(lambda x: f"'{x.strip()}'", instmnt_or_clctn_name))
-        where_collections_str = f"{column_name_dict[i_true_c_false]} in (" + ", ".join(instmnt_or_clctn_name) + ")"
+        where_collections_str = f"{query_on.column_name} in (" + ", ".join(instmnt_or_clctn_name) + ")"
 
         coord_constraint = []
         if ('coord1' in filters.keys()) and ('coord2' in filters.keys()):
@@ -306,7 +305,7 @@ class EsoClass(QueryWithLogin):
 
         where_constraints_strlist = [f"{k} = {v}" for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table=source_table_dict[i_true_c_false], columns=columns, where_constraints=where_constraints)
+        query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints)
 
         table_to_return = self._query_tap_service(query_str=query)
 
@@ -319,7 +318,7 @@ class EsoClass(QueryWithLogin):
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_instrument(self, instrument, *, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
-        _ = self._query_instrument_or_collection(i_true_c_false=True,
+        _ = self._query_instrument_or_collection(query_on=QueryOnInstrument(),
                                                  instmnt_or_clctn_name=instrument,
                                                  column_filters=column_filters,
                                                  columns=columns,
@@ -331,7 +330,7 @@ class EsoClass(QueryWithLogin):
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_collections(self, collections, *, column_filters={}, columns=[],
                           open_form=None, help=False, cache=True, **kwargs):
-        _ = self._query_instrument_or_collection(i_true_c_false=False,
+        _ = self._query_instrument_or_collection(query_on=QueryOnCollection(),
                                                  instmnt_or_clctn_name=collections,
                                                  column_filters=column_filters,
                                                  columns=columns,
@@ -352,7 +351,6 @@ class EsoClass(QueryWithLogin):
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
             query_dict.update(column_filters)
-            # TODO: replace this with individually parsed kwargs
             query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
 
