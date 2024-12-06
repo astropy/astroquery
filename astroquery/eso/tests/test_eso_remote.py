@@ -36,12 +36,14 @@ SGRA_COLLECTIONS = ['195.B-0283',
 
 @pytest.mark.remote_data
 class TestEso:
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_query_tap_service(self):
         eso = Eso()
         t = eso._query_tap_service("select * from ivoa.ObsCore")
         assert type(t) is Table, f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -66,9 +68,16 @@ class TestEso:
         assert result_i is not None
         assert 'VVV' in collections
         assert result_s is not None
-        assert 'Object' in result_s.colnames
-        assert 'b333' in result_s['Object']
 
+        # From obs.raw, we have "object" (when query_instruments)
+        # object: Target designation as given by the astronomer, though at times overwritten by the obeservatory, especially for CALIB observations. Compare with the similar field called "target".)
+
+        # From ivoa.ObsCore, we have "target_name" (when query_collections)
+        # target_name: The target name as assigned by the Principal Investigator; ref. Ref. OBJECT keyword in ESO SDP standard. For spectroscopic public surveys, the value shall be set to the survey source identifier...
+        assert 'target_name' in result_s.colnames
+        assert 'b333' in result_s['target_name']
+
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_multicollection(self, tmp_path):
 
         eso = Eso()
@@ -88,6 +97,7 @@ class TestEso:
         assert 'b333_414_58214' in result_s['Object']
         assert 'Pistol-Star' in result_s['Object']
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
@@ -101,6 +111,7 @@ class TestEso:
 
         assert result_s is None
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_SgrAstar_remotevslocal(self, tmp_path):
         eso = Eso()
         # Remote version
@@ -112,6 +123,7 @@ class TestEso:
                                        coord2=-29.00782497, cache=True)
         assert all(result1 == result2)
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
 
@@ -120,6 +132,7 @@ class TestEso:
         # we only care about the sets matching
         assert set(inst) == set(instrument_list)
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_retrieve_data(self):
         eso = Eso()
         file_id = 'AMBER.2006-03-14T07:40:19.830'
@@ -136,6 +149,7 @@ class TestEso:
         assert isinstance(result, str)
         assert file_id in result
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_retrieve_data_list(self):
         eso = Eso()
         datasets = ['MIDI.2014-07-25T02:03:11.561', 'AMBER.2006-03-14T07:40:19.830']
@@ -146,10 +160,12 @@ class TestEso:
     # TODO: remove filter when https://github.com/astropy/astroquery/issues/2539 is fixed
     @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
     @pytest.mark.parametrize('instrument', instrument_list)
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_help(self, instrument):
         eso = Eso()
         eso.query_instrument(instrument, help=True)
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_apex_retrieval(self):
         eso = Eso()
 
@@ -162,6 +178,7 @@ class TestEso:
 
         assert np.all(tbl == tblb)
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_each_instrument_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -203,6 +220,7 @@ class TestEso:
                     generic_result = eso.query_collections(collections=collection)
                     assert len(generic_result) > 0
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
