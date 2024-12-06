@@ -66,6 +66,9 @@ class EsoClass(QueryWithLogin):
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
     USE_DEV_TAP = True
+    # TODO
+    # INSTRUMENTS_COLUMN_NAME =
+    # COLLECTIONS_COLUMN_NAME =
 
     @staticmethod
     def tap_url():
@@ -168,7 +171,6 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-
     def _query_tap_service(self, query_str: str):
         """
         returns an astropy.table.Table from an adql query string
@@ -234,7 +236,9 @@ class EsoClass(QueryWithLogin):
     def _query_instrument_or_collection(self, i_true_c_false: bool, instmnt_or_clctn_name, *, column_filters={},
                                         columns=[], help=False, cache=True, **kwargs):
         """
-        Query instrument- or collection-specific raw data contained in the ESO archive.
+        Query instrument- or collection-specific data contained in the ESO archive.
+         - instrument-specific data is raw
+         - collection-specific data is processed
 
         Parameters
         ----------
@@ -264,10 +268,18 @@ class EsoClass(QueryWithLogin):
             ``kwargs``. The number of rows returned is capped by the
             ROW_LIMIT configuration item.
         """
+        # False for collections, True for Instruments
+        source_table_dict = {True: "dbo.raw",
+                             False: "ivoa.ObsCore"}
+        column_name_dict = {True: "instrument",
+                            False: "obs_collection"}
+        # TODO - these queries are the same, parameterize only what changes, use the py2adql func
+        help_query_dict = {True: "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'dbo.raw'",
+                           False: "select column_name, datatype from TAP_SCHEMA.columns"
+                           + "where table_name = 'ivoa.ObsCore'"}
 
         if help:
-            h = self._query_tap_service(
-                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'")
+            h = self._query_tap_service(help_query_dict[i_true_c_false])
             log.info(f"Columns present in the table: {h}")
             return
 
@@ -282,8 +294,7 @@ class EsoClass(QueryWithLogin):
         table_to_return = None  # Return an astropy.table.Table or None
 
         instmnt_or_clctn_name = list(map(lambda x: f"'{x.strip()}'", instmnt_or_clctn_name))
-        column_name = "instrument_name" if i_true_c_false else "obs_collection"
-        where_collections_str = f"{column_name} in (" + ", ".join(instmnt_or_clctn_name) + ")"
+        where_collections_str = f"{column_name_dict[i_true_c_false]} in (" + ", ".join(instmnt_or_clctn_name) + ")"
 
         coord_constraint = []
         if ('coord1' in filters.keys()) and ('coord2' in filters.keys()):
@@ -295,7 +306,7 @@ class EsoClass(QueryWithLogin):
 
         where_constraints_strlist = [f"{k} = {v}" for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table="ivoa.ObsCore", columns=columns, where_constraints=where_constraints)
+        query = py2adql(table=source_table_dict[i_true_c_false], columns=columns, where_constraints=where_constraints)
 
         table_to_return = self._query_tap_service(query_str=query)
 
