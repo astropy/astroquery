@@ -207,12 +207,7 @@ class EsoClass(QueryWithLogin):
         """
         if self._instrument_list is None:
             self._instrument_list = []
-            query_str = """
-                    select table_name
-                    from TAP_SCHEMA.tables
-                    where schema_name='ist'
-                    order by table_name
-                    """
+            query_str = "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name"
             res = self._query_tap_service(query_str)["table_name"].data
             self._instrument_list = list(map(lambda x: x.split(".")[1], res))
         return self._instrument_list
@@ -232,9 +227,7 @@ class EsoClass(QueryWithLogin):
             self._collection_list = []
             c = QueryOnCollection.column_name
             t = QueryOnCollection.table_name
-            query_str = f"""
-                    SELECT distinct {c} from {t} where {c} != 'ALMA'
-                    """
+            query_str = f"select distinct {c} from {t} where {c} != 'ALMA'"
             res = self._query_tap_service(query_str)[c].data
 
             self._collection_list = list(res)
@@ -275,9 +268,9 @@ class EsoClass(QueryWithLogin):
             ``kwargs``. The number of rows returned is capped by the
             ROW_LIMIT configuration item.
         """
-        help_query = f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
         # TODO - move help printing to its own function
         if help:
+            help_query = f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
             h = self._query_tap_service(help_query)
             log.info(f"Columns present in the table: {h}")
             return
@@ -338,46 +331,6 @@ class EsoClass(QueryWithLogin):
                                                  cache=cache,
                                                  **kwargs)
         return _
-
-    def _query(self, url, *, column_filters={}, columns=[],
-               open_form=False, help=False, cache=True, **kwargs):
-
-        table = None
-        if open_form:
-            webbrowser.open(url)
-        elif help:
-            self._print_query_help(url)
-        else:
-            instrument_form = self._request("GET", url, cache=cache)
-            query_dict = {}
-            query_dict.update(column_filters)
-            query_dict.update(kwargs)
-            query_dict["wdbo"] = "csv/download"
-
-            # Default to returning the DP.ID since it is needed for header
-            # acquisition
-            query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
-
-            for k in columns:
-                query_dict["tab_" + k] = True
-            if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
-            else:
-                query_dict["max_rows_returned"] = 10000
-            # used to be form 0, but now there's a new 'logout' form at the top
-            # (form_index = -1 and 0 both work now that form_id is included)
-            instrument_response = self._activate_form(instrument_form,
-                                                      form_index=-1,
-                                                      form_id='queryform',
-                                                      inputs=query_dict,
-                                                      cache=cache)
-
-            content = instrument_response.content
-            # First line is always garbage
-            content = content.split(b'\n', 1)[1]
-            log.debug("Response content:\n{0}".format(content))
-            table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
-            return table
 
     def get_headers(self, product_ids, *, cache=True):
         """
