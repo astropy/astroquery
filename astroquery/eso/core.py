@@ -270,7 +270,8 @@ class EsoClass(QueryWithLogin):
         """
         # TODO - move help printing to its own function
         if help:
-            help_query = f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
+            help_query = \
+                f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
             h = self._query_tap_service(help_query)
             log.info(f"Columns present in the table: {h}")
             return

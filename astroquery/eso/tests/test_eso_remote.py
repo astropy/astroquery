@@ -70,10 +70,14 @@ class TestEso:
         assert result_s is not None
 
         # From obs.raw, we have "object" (when query_instruments)
-        # object: Target designation as given by the astronomer, though at times overwritten by the obeservatory, especially for CALIB observations. Compare with the similar field called "target".)
+        # object: Target designation as given by the astronomer,
+        # though at times overwritten by the obeservatory,
+        # especially for CALIB observations. Compare with the similar field called "target".)
 
         # From ivoa.ObsCore, we have "target_name" (when query_collections)
-        # target_name: The target name as assigned by the Principal Investigator; ref. Ref. OBJECT keyword in ESO SDP standard. For spectroscopic public surveys, the value shall be set to the survey source identifier...
+        # target_name: The target name as assigned by the Principal Investigator;
+        # ref. Ref. OBJECT keyword in ESO SDP standard.
+        # For spectroscopic public surveys, the value shall be set to the survey source identifier...
         assert 'target_name' in result_s.colnames
         assert 'b333' in result_s['target_name']
 
