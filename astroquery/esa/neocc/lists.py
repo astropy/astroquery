@@ -235,6 +235,9 @@ def parse_clo(resp_str):
     neocc_lst['Date'] = Time(neocc_lst['Date'], scale="utc")
     neocc_lst["Diameter in m"] = neocc_lst["Diameter in m"].astype(float)
 
+    neocc_lst['Max Bright'] = [np.nan if val == '-' else val for val in neocc_lst['Max Bright']]
+    neocc_lst['Max Bright'] = neocc_lst['Max Bright'].astype(float)
+
     neocc_lst.meta = {'Object Name': 'name of the NEA',
                       'Date': 'close approach date in datetime format',
                       'Miss distance in km': 'miss distance in kilometers with precision of 1 km',
@@ -244,7 +247,8 @@ def parse_clo(resp_str):
                       '*=Yes': 'recording an asterisk if the value has been estimated from the absolute magnitude',
                       'H': 'Absolute Magnitude',
                       'Max Bright': 'Maximum brightness at close approach',
-                      'Rel. vel in km/s': 'relative velocity in km/s'}
+                      'Rel. vel in km/s': 'relative velocity in km/s',
+                      'CAI Index': 'Close Approach Index, indicating how rare the close approach is'}
 
     return neocc_lst
 
