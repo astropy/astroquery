@@ -20,11 +20,12 @@ Table Discover
 If you want to search for a set of tables, e.g. based on author name or other keywords,
 the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 
+.. order is not deterministic
 .. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier
-    >>> catalog_list = Vizier.find_catalogs('hot jupiter exoplanet transit')
-    >>> for k, v in catalog_list.items():
+    >>> catalog_list = Vizier().find_catalogs('hot jupiter exoplanet transit')
+    >>> for k, v in catalog_list.items(): # doctest: +IGNORE_OUTPUT
     ...     print(k, ":", v.description)
     J/A+A/635/A205 : Ultra-hot Jupiter WASP-121b transits (Bourrier+, 2020)
     J/ApJ/788/39 : Hot Jupiter exoplanets host stars EW and abundances (Teske+, 2014)
@@ -45,7 +46,7 @@ the complete contents of those catalogs:
 .. doctest-remote-data::
 
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -65,7 +66,7 @@ way:
 .. doctest-remote-data::
 
     >>> catalogs = Vizier.get_catalogs(catalog_list.values())
-    >>> print(catalogs)
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -81,7 +82,7 @@ way:
 .. doctest-remote-data::
 
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -101,7 +102,7 @@ complete catalog, you need to change that:
 
     >>> Vizier.ROW_LIMIT = -1
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 235 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 195 row(s) 
@@ -160,11 +161,11 @@ For instance to query Sirius across all catalogs:
 .. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier
-    >>> vizier = Vizier()
+    >>> vizier = Vizier(row_limit=10)
     >>> result = vizier.query_object("sirius")
     >>> print(result)
-    TableList with 416 tables:
-       '0:METAobj' with 5 column(s) and 7 row(s) 
+    TableList with ... tables:
+       '0:METAobj' with 5 column(s) and 7 row(s)
        '1:ReadMeObj' with 5 column(s) and 7 row(s) 
        '2:I/34/greenw2a' with 16 column(s) and 1 row(s) 
        ...
@@ -298,23 +299,24 @@ on the Vizier class.
     >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
 
-Note that whenever an unknown keyword is specified, a warning is emitted and
+Note that whenever an unknown keyword is specified (here ``xry``) a warning is emitted and
 that keyword is discarded from further consideration. The behavior for
 searching with these keywords is the same as defined for the web
 interface (`for details see here`_). Now we call the different query methods on
 this Vizier instance:
 
+.. output can be in any order here
 .. doctest-remote-data::
 
     >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
-    ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
+    ...            column_filters={"Vmag":">10"}, keywords=["optical"])
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
        '0:I/297/out' with 3 column(s) and 50 row(s) 
        '1:I/322A/out' with 3 column(s) and 10 row(s) 
        '2:I/340/ucac5' with 2 column(s) and 26 row(s)
-    >>> print(result['I/322A/out'])
+    >>> print(result['I/322A/out']) # doctest: +IGNORE_OUTPUT
        _RAJ2000      _DEJ2000    Vmag 
          deg           deg       mag  
     ------------- ------------- ------
