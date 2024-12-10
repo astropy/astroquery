@@ -162,7 +162,7 @@ For instance to query Sirius across all catalogs:
 
     >>> from astroquery.vizier import Vizier
     >>> vizier = Vizier(row_limit=10)
-    >>> result = vizier.query_object("sirius")
+    >>> result = vizier.query_object("sirius") # doctest: +IGNORE_WARNINGS
     >>> print(result)
     TableList with ... tables:
        '0:METAobj' with 5 column(s) and 7 row(s)
