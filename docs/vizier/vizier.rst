@@ -255,11 +255,10 @@ dimension.
     ...                         width="30m",
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)
-    TableList with 4 tables:
+    TableList with 3 tables:
        '0:I/297/out' with 19 column(s) and 50 row(s) 
-       '1:I/289/out' with 13 column(s) and 50 row(s) 
-       '2:I/322A/out' with 24 column(s) and 50 row(s) 
-       '3:I/340/ucac5' with 20 column(s) and 50 row(s)
+       '1:I/322A/out' with 24 column(s) and 50 row(s) 
+       '2:I/340/ucac5' with 20 column(s) and 50 row(s)
 
 
 One more thing to note in the above example is that the coordinates may be
@@ -311,11 +310,10 @@ this Vizier instance:
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     >>> print(result)
-    TableList with 4 tables:
+    TableList with 3 tables:
        '0:I/297/out' with 3 column(s) and 50 row(s) 
-       '1:I/289/out' with 2 column(s) and 18 row(s) 
-       '2:I/322A/out' with 3 column(s) and 10 row(s) 
-       '3:I/340/ucac5' with 2 column(s) and 26 row(s) 
+       '1:I/322A/out' with 3 column(s) and 10 row(s) 
+       '2:I/340/ucac5' with 2 column(s) and 26 row(s)
     >>> print(result['I/322A/out'])
        _RAJ2000      _DEJ2000    Vmag 
          deg           deg       mag  

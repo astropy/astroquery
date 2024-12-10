@@ -146,7 +146,7 @@ class TestVizierRemote:
         result = vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"], return_type='asu-tsv', cache=False)
 
         assert isinstance(result, list)
-        assert len(result) == 3
+        assert len(result) == 2
 
     def test_query_constraints(self):
         vizier = Vizier(row_limit=3)
