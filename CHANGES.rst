@@ -149,6 +149,11 @@ skyview
 - Overlay arguments ``lut``, ``grid``, and ``gridlabel`` are removed, as they
   only apply to output types not returned by Astroquery [#2979]
 
+vizier
+^^^^^^
+
+- Fixed search by UCD -- they were ignored. [#3147]
+
 vsa
 ^^^
 

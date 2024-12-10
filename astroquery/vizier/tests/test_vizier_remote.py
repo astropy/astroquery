@@ -131,7 +131,6 @@ class TestVizierRemote:
         assert len(cats) >= 39  # as of 2024
 
     def test_findcatalog_ucd(self):
-        # this fails for VizieR 7.33.3, should work in next releases
         vizier = Vizier()
         ucdresult = vizier(ucd='phys.albedo').find_catalogs('mars', max_catalogs=5000)
         result = vizier.find_catalogs('mars', max_catalogs=5000)
