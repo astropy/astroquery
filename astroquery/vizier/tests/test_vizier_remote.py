@@ -154,4 +154,4 @@ class TestVizierRemote:
         # row_limit is taken in account
         assert len(result) == 3
         # the criteria is respected
-        assert np.all(np.isclose(result["mB2"], 14.7, rtol=1e-09, atol=1e-09))
+        assert np.all(np.isclose(result["mB2"].data.data, 14.7, rtol=1e-09, atol=1e-09))
