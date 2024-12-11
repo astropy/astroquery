@@ -233,8 +233,8 @@ class EsoClass(QueryWithLogin):
             self._collection_list = list(res)
         return self._collection_list
 
-    def _query_instrument_or_collection(self, query_on: QueryOnField, instmnt_or_clctn_name, *, column_filters={},
-                                        columns=[], help=False, cache=True, **kwargs):
+    def _query_instrument_or_collection(self, query_on: QueryOnField, instmnt_or_clctn_name, *, column_filters=None,
+                                        columns=None, help=False, cache=True, **kwargs):
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
@@ -268,6 +268,9 @@ class EsoClass(QueryWithLogin):
             ``kwargs``. The number of rows returned is capped by the
             ROW_LIMIT configuration item.
         """
+        column_filters = column_filters or {}
+        columns = columns or []
+
         # TODO - move help printing to its own function
         if help:
             help_query = \
@@ -297,6 +300,8 @@ class EsoClass(QueryWithLogin):
                 [f"intersects(circle('ICRS', {c1}, {c2}, {c_size}), s_region)=1"]
             # http://archive.eso.org/tap_obs/examples
 
+        # TODO
+        # Check whether v is string or number, put in single quotes if string
         where_constraints_strlist = [f"{k} = {v}" for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
         query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints)
@@ -310,8 +315,10 @@ class EsoClass(QueryWithLogin):
         return table_to_return
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
-    def query_instrument(self, instrument, *, column_filters={}, columns=[],
+    def query_instrument(self, instrument, *, column_filters=None, columns=None,
                          open_form=False, help=False, cache=True, **kwargs):
+        column_filters = column_filters or {}
+        columns = columns or []
         _ = self._query_instrument_or_collection(query_on=QueryOnInstrument(),
                                                  instmnt_or_clctn_name=instrument,
                                                  column_filters=column_filters,
@@ -322,8 +329,10 @@ class EsoClass(QueryWithLogin):
         return _
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
-    def query_collections(self, collections, *, column_filters={}, columns=[],
+    def query_collections(self, collections, *, column_filters=None, columns=None,
                           open_form=None, help=False, cache=True, **kwargs):
+        column_filters = column_filters or {}
+        columns = columns or []
         _ = self._query_instrument_or_collection(query_on=QueryOnCollection(),
                                                  instmnt_or_clctn_name=collections,
                                                  column_filters=column_filters,
