@@ -13,6 +13,7 @@ import webbrowser
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from typing import List, Optional, Tuple, Dict, Set, Union
+from dataclasses import dataclass
 
 import astropy.table
 import astropy.utils.data
@@ -57,19 +58,20 @@ class AuthInfo:
         return time.time() > self.expiration_time - 600
 
 
-class QueryOnField():
-    table_name = ""
-    column_name = ""
+@dataclass
+class QueryOnField:
+    table_name: str
+    column_name: str
 
 
-class QueryOnInstrument():
-    table_name = "dbo.raw"
-    column_name = "instrument"
+QueryOnInstrument = QueryOnField(
+    table_name="dbo.raw",
+    column_name="instrument")
 
 
-class QueryOnCollection():
-    table_name = "ivoa.ObsCore"
-    column_name = "obs_collection"
+QueryOnCollection = QueryOnField(
+    table_name="ivoa.ObsCore",
+    column_name="obs_collection")
 
 
 class EsoClass(QueryWithLogin):
