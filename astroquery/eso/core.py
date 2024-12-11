@@ -93,8 +93,8 @@ class EsoClass(QueryWithLogin):
 
     def __init__(self):
         super().__init__()
-        self._instruments = None
-        self._collections = None
+        self._instruments: Optional[List[str]] = None
+        self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
         print("Using main branch")
 
