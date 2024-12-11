@@ -1,5 +1,5 @@
 #!/usr/bin/env/python
-from typing import Union
+from typing import Union, List
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -10,20 +10,20 @@ def _split_str_as_list_of_str(column_str: str):
     return column_list
 
 
-def py2adql(table: str, columns: Union[list, str] = [], where_constraints=[],
+def py2adql(table: str, columns: Union[List, str] = None, where_constraints: List = None,
             order_by: str = '', order_by_desc=True):
     # Initialize / validate
     query_string = None
-    where_constraints = where_constraints[:]  # do not modify the original list
+    wc = [] if where_constraints is None else where_constraints[:]  # do not modify the original list
     if isinstance(columns, str):
         columns = _split_str_as_list_of_str(columns)
-    if columns == []:
+    if columns is None or len(columns) < 1:
         columns = ['*']
 
     # Build the query
     query_string = 'select ' + ', '.join(columns) + ' from ' + table
-    if len(where_constraints) > 0:
-        where_string = ' where ' + ' and '.join(where_constraints)
+    if len(wc) > 0:
+        where_string = ' where ' + ' and '.join(wc)
         query_string += where_string
 
     if len(order_by) > 0:
