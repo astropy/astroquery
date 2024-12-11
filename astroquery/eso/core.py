@@ -12,7 +12,7 @@ import warnings
 import webbrowser
 import xml.etree.ElementTree as ET
 from io import BytesIO
-from typing import List, Optional, Tuple, Dict, Set
+from typing import List, Optional, Tuple, Dict, Set, Union
 
 import astropy.table
 import astropy.utils.data
@@ -233,8 +233,10 @@ class EsoClass(QueryWithLogin):
             self._collection_list = list(res)
         return self._collection_list
 
-    def _query_instrument_or_collection(self, query_on: QueryOnField, instmnt_or_clctn_name, *, column_filters=None,
-                                        columns=None, help=False, cache=True, **kwargs):
+    def _query_instrument_or_collection(self,
+                                        query_on: QueryOnField, primary_filter: Union[List[str], str], *,
+                                        column_filters: Dict = None,
+                                        columns: Union[List, str] = None, help=False, cache=True, **kwargs):
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
@@ -285,12 +287,12 @@ class EsoClass(QueryWithLogin):
             # TODO make c_size a parameter
             c_size = 0.1775  # so that even HARPS fits to pass the tests
             del filters['box']
-        if isinstance(instmnt_or_clctn_name, str):
-            instmnt_or_clctn_name = _split_str_as_list_of_str(instmnt_or_clctn_name)
+        if isinstance(primary_filter, str):
+            primary_filter = _split_str_as_list_of_str(primary_filter)
         table_to_return = None  # Return an astropy.table.Table or None
 
-        instmnt_or_clctn_name = list(map(lambda x: f"'{x.strip()}'", instmnt_or_clctn_name))
-        where_collections_str = f"{query_on.column_name} in (" + ", ".join(instmnt_or_clctn_name) + ")"
+        primary_filter = list(map(lambda x: f"'{x.strip()}'", primary_filter))
+        where_collections_str = f"{query_on.column_name} in (" + ", ".join(primary_filter) + ")"
 
         coord_constraint = []
         if ('coord1' in filters.keys()) and ('coord2' in filters.keys()):
@@ -315,12 +317,11 @@ class EsoClass(QueryWithLogin):
         return table_to_return
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
-    def query_instrument(self, instrument, *, column_filters=None, columns=None,
+    def query_instrument(self, instrument: Union[List, str] = None, *,
+                         column_filters: Dict = None, columns: Union[List, str] = None,
                          open_form=False, help=False, cache=True, **kwargs):
-        column_filters = column_filters or {}
-        columns = columns or []
         _ = self._query_instrument_or_collection(query_on=QueryOnInstrument(),
-                                                 instmnt_or_clctn_name=instrument,
+                                                 primary_filter=instrument,
                                                  column_filters=column_filters,
                                                  columns=columns,
                                                  help=help,
@@ -329,12 +330,13 @@ class EsoClass(QueryWithLogin):
         return _
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
-    def query_collections(self, collections, *, column_filters=None, columns=None,
-                          open_form=None, help=False, cache=True, **kwargs):
+    def query_collections(self, collections: Union[List, str] = None, *,
+                          column_filters: Dict = None, columns: Union[List, str] = None,
+                          open_form=False, help=False, cache=True, **kwargs):
         column_filters = column_filters or {}
         columns = columns or []
         _ = self._query_instrument_or_collection(query_on=QueryOnCollection(),
-                                                 instmnt_or_clctn_name=collections,
+                                                 primary_filter=collections,
                                                  column_filters=column_filters,
                                                  columns=columns,
                                                  help=help,
