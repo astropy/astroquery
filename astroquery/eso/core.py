@@ -324,7 +324,7 @@ class EsoClass(QueryWithLogin):
                          column_filters: Dict = None, columns: Union[List, str] = None,
                          open_form=False, help=False, cache=True,
                          **kwargs) -> astropy.table.Table:
-        _ = self._query_instrument_or_collection(query_on=QueryOnInstrument(),
+        _ = self._query_instrument_or_collection(query_on=QueryOnInstrument,
                                                  primary_filter=instrument,
                                                  column_filters=column_filters,
                                                  columns=columns,
@@ -340,7 +340,7 @@ class EsoClass(QueryWithLogin):
                           **kwargs) -> astropy.table.Table:
         column_filters = column_filters or {}
         columns = columns or []
-        _ = self._query_instrument_or_collection(query_on=QueryOnCollection(),
+        _ = self._query_instrument_or_collection(query_on=QueryOnCollection,
                                                  primary_filter=collections,
                                                  column_filters=column_filters,
                                                  columns=columns,
