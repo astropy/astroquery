@@ -194,7 +194,7 @@ class EsoClass(QueryWithLogin):
 
         return table_to_return
 
-    def list_instruments(self, *, cache=True):
+    def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
@@ -212,7 +212,7 @@ class EsoClass(QueryWithLogin):
             self._instruments = list(map(lambda x: x.split(".")[1], res))
         return self._instruments
 
-    def list_collections(self, *, cache=True):
+    def list_collections(self, *, cache=True) -> List[str]:
         """ List all the available collections (phase 3) in the ESO archive.
 
         Returns
@@ -236,7 +236,8 @@ class EsoClass(QueryWithLogin):
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField, primary_filter: Union[List[str], str], *,
                                         column_filters: Dict = None,
-                                        columns: Union[List, str] = None, help=False, cache=True, **kwargs):
+                                        columns: Union[List, str] = None, help=False, cache=True,
+                                        **kwargs) -> astropy.table.Table:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
@@ -319,7 +320,8 @@ class EsoClass(QueryWithLogin):
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_instrument(self, instrument: Union[List, str] = None, *,
                          column_filters: Dict = None, columns: Union[List, str] = None,
-                         open_form=False, help=False, cache=True, **kwargs):
+                         open_form=False, help=False, cache=True,
+                         **kwargs) -> astropy.table.Table:
         _ = self._query_instrument_or_collection(query_on=QueryOnInstrument(),
                                                  primary_filter=instrument,
                                                  column_filters=column_filters,
@@ -332,7 +334,8 @@ class EsoClass(QueryWithLogin):
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_collections(self, collections: Union[List, str] = None, *,
                           column_filters: Dict = None, columns: Union[List, str] = None,
-                          open_form=False, help=False, cache=True, **kwargs):
+                          open_form=False, help=False, cache=True,
+                          **kwargs) -> astropy.table.Table:
         column_filters = column_filters or {}
         columns = columns or []
         _ = self._query_instrument_or_collection(query_on=QueryOnCollection(),
