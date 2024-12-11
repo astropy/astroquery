@@ -83,7 +83,7 @@ class EsoClass(QueryWithLogin):
     USE_DEV_TAP = True
 
     @staticmethod
-    def tap_url():
+    def tap_url() -> str:
         url = "http://archive.eso.org/tap_obs"
         if EsoClass.USE_DEV_TAP:
             url = "http://dfidev5.hq.eso.org:8123/tap_obs"
@@ -91,8 +91,8 @@ class EsoClass(QueryWithLogin):
 
     def __init__(self):
         super().__init__()
-        self._instrument_list = None
-        self._collection_list = None
+        self._instruments = None
+        self._collections = None
         self._auth_info: Optional[AuthInfo] = None
         print("Using main branch")
 
@@ -176,7 +176,7 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def _query_tap_service(self, query_str: str):
+    def _query_tap_service(self, query_str: str) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
         Example use:
@@ -205,12 +205,12 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
 
         """
-        if self._instrument_list is None:
-            self._instrument_list = []
+        if self._instruments is None:
+            self._instruments = []
             query_str = "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name"
             res = self._query_tap_service(query_str)["table_name"].data
-            self._instrument_list = list(map(lambda x: x.split(".")[1], res))
-        return self._instrument_list
+            self._instruments = list(map(lambda x: x.split(".")[1], res))
+        return self._instruments
 
     def list_collections(self, *, cache=True):
         """ List all the available collections (phase 3) in the ESO archive.
@@ -223,15 +223,15 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
         """
         # TODO include ALMA
-        if self._collection_list is None:
-            self._collection_list = []
+        if self._collections is None:
+            self._collections = []
             c = QueryOnCollection.column_name
             t = QueryOnCollection.table_name
             query_str = f"select distinct {c} from {t} where {c} != 'ALMA'"
             res = self._query_tap_service(query_str)[c].data
 
-            self._collection_list = list(res)
-        return self._collection_list
+            self._collections = list(res)
+        return self._collections
 
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField, primary_filter: Union[List[str], str], *,
