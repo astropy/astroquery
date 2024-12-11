@@ -28,7 +28,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str
+from .utils import py2adql, _split_str_as_list_of_str, sanitize_val
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -307,9 +307,10 @@ class EsoClass(QueryWithLogin):
 
         # TODO
         # Check whether v is string or number, put in single quotes if string
-        where_constraints_strlist = [f"{k} = {v}" for k, v in filters.items()] + coord_constraint
+        where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints)
+        query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
+                        top=self.ROW_LIMIT)
 
         table_to_return = self._query_tap_service(query_str=query)
 
@@ -348,6 +349,57 @@ class EsoClass(QueryWithLogin):
                                                  cache=cache,
                                                  **kwargs)
         return _
+
+    def query_main(self, *, column_filters={}, columns=[],
+                   open_form=False, help=False, cache=True, **kwargs):
+        """
+        Query raw data contained in the ESO archive.
+
+        Parameters
+        ----------
+        column_filters : dict
+            Constraints applied to the query.
+        columns : list of strings
+            Columns returned by the query.
+        open_form : bool
+            If `True`, opens in your default browser the query form
+            for the requested instrument.
+        help : bool
+            If `True`, prints all the parameters accepted in
+            ``column_filters`` and ``columns`` for the requested
+            ``instrument``.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            A table representing the data available in the archive for the
+            specified instrument, matching the constraints specified in
+            ``kwargs``. The number of rows returned is capped by the
+            ROW_LIMIT configuration item.
+
+        """
+        column_filters = column_filters or {}
+        columns = columns or []
+        filters = {**dict(kwargs), **column_filters}
+
+        where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()]
+        where_constraints = where_constraints_strlist
+
+        query = py2adql(table=QueryOnInstrument.table_name,
+                        columns=columns,
+                        where_constraints=where_constraints,
+                        top=self.ROW_LIMIT)
+
+        table_to_return = self._query_tap_service(query_str=query)
+
+        if len(table_to_return) < 1:
+            warnings.warn("Query returned no results", NoResultsWarning)
+            table_to_return = None
+
+        return table_to_return
 
     def get_headers(self, product_ids, *, cache=True):
         """
