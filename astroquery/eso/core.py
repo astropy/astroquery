@@ -65,7 +65,7 @@ class QueryOnField:
 
 
 QueryOnInstrument = QueryOnField(
-    table_name="dbo.raw",
+    table_name="dbo.raw",  # This should be ist.<instrument_name>
     column_name="instrument")
 
 
@@ -186,7 +186,7 @@ class EsoClass(QueryWithLogin):
         """
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         table_to_return = None
-
+        # TODO add url to documentation in the exception
         try:
             table_to_return = tap.search(query_str).to_table()
         except pyvo.dal.exceptions.DALQueryError:
@@ -288,7 +288,7 @@ class EsoClass(QueryWithLogin):
         c_size = 0.1775  # so that even HARPS fits to pass the tests
         if 'box' in filters.keys():
             # TODO make c_size a parameter
-            c_size = 0.1775  # so that even HARPS fits to pass the tests
+            c_size = c_size
             del filters['box']
         if isinstance(primary_filter, str):
             primary_filter = _split_str_as_list_of_str(primary_filter)
@@ -388,7 +388,7 @@ class EsoClass(QueryWithLogin):
         where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()]
         where_constraints = where_constraints_strlist
 
-        query = py2adql(table=QueryOnInstrument.table_name,
+        query = py2adql(table="dbo.raw",
                         columns=columns,
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
