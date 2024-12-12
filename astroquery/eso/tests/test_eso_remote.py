@@ -196,7 +196,8 @@ class TestEso:
                 # Sometimes there are ResourceWarnings, we ignore those for this test
                 pass
             else:
-                assert len(result) > 0
+                assert result is not None, f"query_instrument({instrument}) returned None"
+                assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
     def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
@@ -220,7 +221,8 @@ class TestEso:
                     assert result_s is None
 
                     generic_result = eso.query_collections(collections=collection)
-                    assert len(generic_result) > 0
+                    assert generic_result is not None, f"query_collection({collection}) returned None"
+                    assert len(generic_result) > 0, f"query_collection({collection}) returned no records"
 
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
