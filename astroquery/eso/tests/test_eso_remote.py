@@ -244,3 +244,16 @@ class TestEso:
                                        coord2=-29.00782497, cache=False)
 
         assert np.all(result1 == result2)
+
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
+    def test_main_SgrAstar(self):
+        eso = Eso()
+        eso.ROW_LIMIT = 5
+
+        # the failure should occur here
+        result = eso.query_main(target='SGR A', object='SGR A')
+
+        # test that max_results = 5
+        assert len(result) == 5
+        assert 'SGR A' in result['object']
+        assert 'SGR A' in result['target']
