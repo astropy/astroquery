@@ -48,6 +48,12 @@ esa.jwst
 
 - Add download_files_from_program method to get all products by program id [#3073]
 
+ipac.irsa
+^^^^^^^^^
+
+- Add more robust handling of errors returned in Most.query_object() responses.
+  [#3140]
+
 mpc
 ^^^
 
