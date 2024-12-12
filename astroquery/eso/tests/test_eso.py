@@ -95,7 +95,6 @@ def test_amber_SgrAstar(monkeypatch):
 
 def test_main_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
-
     eso = Eso()
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
