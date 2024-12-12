@@ -20,11 +20,13 @@ Table Discover
 If you want to search for a set of tables, e.g. based on author name or other keywords,
 the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 
+.. order is not deterministic
 .. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier
-    >>> catalog_list = Vizier.find_catalogs('hot jupiter exoplanet transit')
-    >>> for k, v in catalog_list.items():
+    >>> vizier = Vizier() # this instantiates Vizier with its default parameters
+    >>> catalog_list = vizier.find_catalogs('hot jupiter exoplanet transit')
+    >>> for k, v in catalog_list.items(): # doctest: +IGNORE_OUTPUT
     ...     print(k, ":", v.description)
     J/A+A/635/A205 : Ultra-hot Jupiter WASP-121b transits (Bourrier+, 2020)
     J/ApJ/788/39 : Hot Jupiter exoplanets host stars EW and abundances (Teske+, 2014)
@@ -44,8 +46,8 @@ the complete contents of those catalogs:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -64,8 +66,8 @@ way:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.values())
-    >>> print(catalogs)
+    >>> catalogs = vizier.get_catalogs(catalog_list.values())
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -80,8 +82,8 @@ way:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
@@ -99,9 +101,9 @@ complete catalog, you need to change that:
 
 .. doctest-remote-data::
 
-    >>> Vizier.ROW_LIMIT = -1
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs)
+    >>> vizier.ROW_LIMIT = -1
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
+    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 235 row(s) 
        '1:J/A+A/635/A205/20140123' with 7 column(s) and 195 row(s) 
@@ -113,7 +115,7 @@ complete catalog, you need to change that:
        '7:J/AJ/157/217/transits' with 8 column(s) and 236 row(s) 
        '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
        '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
-    >>> Vizier.ROW_LIMIT = 50
+    >>> vizier.ROW_LIMIT = 50
 
 Get a catalog's associated metadata
 -----------------------------------
@@ -160,11 +162,11 @@ For instance to query Sirius across all catalogs:
 .. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier
-    >>> vizier = Vizier()
-    >>> result = vizier.query_object("sirius")
+    >>> vizier = Vizier(row_limit=10)
+    >>> result = vizier.query_object("sirius") # doctest: +IGNORE_WARNINGS
     >>> print(result)
-    TableList with 416 tables:
-       '0:METAobj' with 5 column(s) and 7 row(s) 
+    TableList with ... tables:
+       '0:METAobj' with 5 column(s) and 7 row(s)
        '1:ReadMeObj' with 5 column(s) and 7 row(s) 
        '2:I/34/greenw2a' with 16 column(s) and 1 row(s) 
        ...
@@ -210,7 +212,8 @@ quasar 3C 273:
 
     >>> from astroquery.vizier import Vizier
     >>> from astropy.coordinates import Angle
-    >>> result = Vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
 
 Note that the radius may also be specified as a string in the format
 expected by `~astropy.coordinates.Angle`. So the above query may also
@@ -218,14 +221,14 @@ be written as:
 
 .. doctest-remote-data::
 
-    >>> result = Vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
+    >>> result = vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
 
 Or using angular units and quantities from `astropy.units`:
 
 .. doctest-remote-data::
 
     >>> import astropy.units as u
-    >>> result = Vizier.query_region("3C 273", radius=0.1*u.deg, catalog='GSC')
+    >>> result = vizier.query_region("3C 273", radius=0.1*u.deg, catalog='GSC')
 
 To see the result:
 
@@ -249,17 +252,17 @@ dimension.
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> result = Vizier.query_region(coord.SkyCoord(ra=299.590, dec=35.201,
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region(coord.SkyCoord(ra=299.590, dec=35.201,
     ...                                             unit=(u.deg, u.deg),
     ...                                             frame='icrs'),
     ...                         width="30m",
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)
-    TableList with 4 tables:
+    TableList with 3 tables:
        '0:I/297/out' with 19 column(s) and 50 row(s) 
-       '1:I/289/out' with 13 column(s) and 50 row(s) 
-       '2:I/322A/out' with 24 column(s) and 50 row(s) 
-       '3:I/340/ucac5' with 20 column(s) and 50 row(s)
+       '1:I/322A/out' with 24 column(s) and 50 row(s) 
+       '2:I/340/ucac5' with 20 column(s) and 50 row(s)
 
 
 One more thing to note in the above example is that the coordinates may be
@@ -279,7 +282,8 @@ constraints on the columns of the returned tables by mean of the ``column_filter
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
-    >>> result = Vizier.query_region(SkyCoord.from_name('M81'),
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region(SkyCoord.from_name('M81'),
     ...                              radius=10*u.arcmin,
     ...                              catalog='I/345/gaia2',
     ...                              column_filters={'Gmag': '<19'})
@@ -296,27 +300,27 @@ on the Vizier class.
 
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
+    >>> vizier = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
 
-Note that whenever an unknown keyword is specified, a warning is emitted and
+Note that whenever an unknown keyword is specified (here ``xry``) a warning is emitted and
 that keyword is discarded from further consideration. The behavior for
 searching with these keywords is the same as defined for the web
 interface (`for details see here`_). Now we call the different query methods on
 this Vizier instance:
 
+.. output can be in any order here
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
-    ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
-    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+    >>> vizier = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
+    ...            column_filters={"Vmag":">10"}, keywords=["optical"])
+    >>> result = vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     >>> print(result)
-    TableList with 4 tables:
+    TableList with 3 tables:
        '0:I/297/out' with 3 column(s) and 50 row(s) 
-       '1:I/289/out' with 2 column(s) and 18 row(s) 
-       '2:I/322A/out' with 3 column(s) and 10 row(s) 
-       '3:I/340/ucac5' with 2 column(s) and 26 row(s) 
-    >>> print(result['I/322A/out'])
+       '1:I/322A/out' with 3 column(s) and 10 row(s) 
+       '2:I/340/ucac5' with 2 column(s) and 26 row(s)
+    >>> print(result['I/322A/out']) # doctest: +IGNORE_OUTPUT
        _RAJ2000      _DEJ2000    Vmag 
          deg           deg       mag  
     ------------- ------------- ------
@@ -340,15 +344,15 @@ the ``"+"`` in front of ``"_r"``.
 
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=["*", "+_r"], catalog="II/246")
-    >>> result = v.query_region("HD 226868", radius="20s")
+    >>> vizier = Vizier(columns=["*", "+_r"], catalog="II/246")
+    >>> result = vizier.query_region("HD 226868", radius="20s")
     >>> print(result[0])
       _r    RAJ2000    DEJ2000        _2MASS       Jmag  ... Bflg Cflg Xflg Aflg
               deg        deg                       mag   ...                    
     ------ ---------- ---------- ---------------- ------ ... ---- ---- ---- ----
      0.134 299.590280  35.201599 19582166+3512057  6.872 ...  111  000    0    0
     10.135 299.587491  35.203217 19582099+3512115 10.285 ...  111  c00    0    0
-    11.167 299.588599  35.198849 19582126+3511558 13.111 ...  002  00c    0    0
+    11.167 299.588599  35.198849 19582126+3511558 13.111 ...    2  00c    0    0
     12.288 299.586356  35.200542 19582072+3512019 14.553 ...  111  ccc    0    0
     17.691 299.586254  35.197994 19582070+3511527 16.413 ...  100  c00    0    0
 
@@ -394,9 +398,9 @@ index to the ``agn`` table (not the 0-based python convention).
      _q  RAJ2000    DEJ2000        _2MASS       Jmag  ... Rflg Bflg Cflg Xflg Aflg
            deg        deg                       mag   ...
     --- ---------- ---------- ---------------- ------ ... ---- ---- ---- ---- ----
-      1  10.686015  41.269630 00424464+4116106  9.399 ...  020  020  0c0    2    0
+      1  10.686015  41.269630 00424464+4116106  9.399 ...   20   20  0c0    2    0
       1  10.685657  41.269550 00424455+4116103 10.773 ...  200  200  c00    2    0
-      1  10.685837  41.270599 00424460+4116141  9.880 ...  020  020  0c0    2    0
+      1  10.685837  41.270599 00424460+4116141  9.880 ...   20   20  0c0    2    0
       1  10.683263  41.267456 00424398+4116028 12.136 ...  200  100  c00    2    0
       1  10.683465  41.269676 00424403+4116108 11.507 ...  200  100  c00    2    0
       3  27.238636   5.906066 01485727+0554218  8.961 ...  112  111  000    0    0
