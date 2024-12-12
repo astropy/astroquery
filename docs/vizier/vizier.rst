@@ -24,7 +24,8 @@ the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 .. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier
-    >>> catalog_list = Vizier().find_catalogs('hot jupiter exoplanet transit')
+    >>> vizier = Vizier() # this instantiates Vizier with its default parameters
+    >>> catalog_list = vizier.find_catalogs('hot jupiter exoplanet transit')
     >>> for k, v in catalog_list.items(): # doctest: +IGNORE_OUTPUT
     ...     print(k, ":", v.description)
     J/A+A/635/A205 : Ultra-hot Jupiter WASP-121b transits (Bourrier+, 2020)
@@ -45,7 +46,7 @@ the complete contents of those catalogs:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
@@ -65,7 +66,7 @@ way:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.values())
+    >>> catalogs = vizier.get_catalogs(catalog_list.values())
     >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
@@ -81,7 +82,7 @@ way:
 
 .. doctest-remote-data::
 
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
@@ -100,8 +101,8 @@ complete catalog, you need to change that:
 
 .. doctest-remote-data::
 
-    >>> Vizier.ROW_LIMIT = -1
-    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> vizier.ROW_LIMIT = -1
+    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
        '0:J/A+A/635/A205/20140119' with 7 column(s) and 235 row(s) 
@@ -114,7 +115,7 @@ complete catalog, you need to change that:
        '7:J/AJ/157/217/transits' with 8 column(s) and 236 row(s) 
        '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
        '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
-    >>> Vizier.ROW_LIMIT = 50
+    >>> vizier.ROW_LIMIT = 50
 
 Get a catalog's associated metadata
 -----------------------------------
@@ -211,7 +212,8 @@ quasar 3C 273:
 
     >>> from astroquery.vizier import Vizier
     >>> from astropy.coordinates import Angle
-    >>> result = Vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
 
 Note that the radius may also be specified as a string in the format
 expected by `~astropy.coordinates.Angle`. So the above query may also
@@ -219,14 +221,14 @@ be written as:
 
 .. doctest-remote-data::
 
-    >>> result = Vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
+    >>> result = vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
 
 Or using angular units and quantities from `astropy.units`:
 
 .. doctest-remote-data::
 
     >>> import astropy.units as u
-    >>> result = Vizier.query_region("3C 273", radius=0.1*u.deg, catalog='GSC')
+    >>> result = vizier.query_region("3C 273", radius=0.1*u.deg, catalog='GSC')
 
 To see the result:
 
@@ -250,7 +252,8 @@ dimension.
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> result = Vizier.query_region(coord.SkyCoord(ra=299.590, dec=35.201,
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region(coord.SkyCoord(ra=299.590, dec=35.201,
     ...                                             unit=(u.deg, u.deg),
     ...                                             frame='icrs'),
     ...                         width="30m",
@@ -279,7 +282,8 @@ constraints on the columns of the returned tables by mean of the ``column_filter
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
-    >>> result = Vizier.query_region(SkyCoord.from_name('M81'),
+    >>> vizier = Vizier()
+    >>> result = vizier.query_region(SkyCoord.from_name('M81'),
     ...                              radius=10*u.arcmin,
     ...                              catalog='I/345/gaia2',
     ...                              column_filters={'Gmag': '<19'})
@@ -296,7 +300,7 @@ on the Vizier class.
 
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
+    >>> vizier = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])  # doctest: +IGNORE_WARNINGS
 
 Note that whenever an unknown keyword is specified (here ``xry``) a warning is emitted and
@@ -308,9 +312,9 @@ this Vizier instance:
 .. output can be in any order here
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
+    >>> vizier = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical"])
-    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+    >>> result = vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
        '0:I/297/out' with 3 column(s) and 50 row(s) 
@@ -340,8 +344,8 @@ the ``"+"`` in front of ``"_r"``.
 
 .. doctest-remote-data::
 
-    >>> v = Vizier(columns=["*", "+_r"], catalog="II/246")
-    >>> result = v.query_region("HD 226868", radius="20s")
+    >>> vizier = Vizier(columns=["*", "+_r"], catalog="II/246")
+    >>> result = vizier.query_region("HD 226868", radius="20s")
     >>> print(result[0])
       _r    RAJ2000    DEJ2000        _2MASS       Jmag  ... Bflg Cflg Xflg Aflg
               deg        deg                       mag   ...                    
