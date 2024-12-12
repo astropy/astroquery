@@ -38,7 +38,7 @@ def py2adql(table: str, columns: Union[List, str] = None, where_constraints: Lis
         query_string += order_string
 
     if top is not None:
-        query_string = "select top " + str(top) + query_string
+        query_string = f"select top {top} " + query_string
     else:
         query_string = "select " + query_string
 
