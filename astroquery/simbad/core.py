@@ -90,6 +90,7 @@ class _Join:
     column_left: Any
     column_right: Any
     join_type: str = field(default="JOIN")
+    alias: str = field(default=None)
 
 
 class SimbadClass(BaseVOQuery):
@@ -670,10 +671,11 @@ class SimbadClass(BaseVOQuery):
         upload_name = "TAP_UPLOAD.script_infos"
         columns.append(_Column(upload_name, "*"))
 
+        # join on ident needs an alias in case the users want to add the votable field ident
         left_joins = [_Join("ident", _Column(upload_name, "user_specified_id"),
-                            _Column("ident", "id"), "LEFT JOIN"),
+                            _Column("ident", "id"), "LEFT JOIN", "ident_upload"),
                       _Join("basic", _Column("basic", "oid"),
-                            _Column("ident", "oidref"), "LEFT JOIN")]
+                            _Column("ident_upload", "oidref"), "LEFT JOIN")]
         for join in joins:
             left_joins.append(_Join(join.table, join.column_left,
                                     join.column_right, "LEFT JOIN"))
@@ -1415,7 +1417,12 @@ class SimbadClass(BaseVOQuery):
         else:
             unique_joins = []
             [unique_joins.append(join) for join in joins if join not in unique_joins]
-            join = " " + " ".join([(f'{join.join_type} {join.table} ON {join.column_left.table}."'
+            # the joined tables can have an alias. We handle the two cases here
+            join = " " + " ".join([(f'{join.join_type} {join.table} AS {join.alias} '
+                                    f'ON {join.column_left.table}."{join.column_left.name}" = '
+                                    f'{join.alias}."{join.column_right.name}"')
+                                   if join.alias is not None else
+                                   (f'{join.join_type} {join.table} ON {join.column_left.table}."'
                                     f'{join.column_left.name}" = {join.column_right.table}."'
                                     f'{join.column_right.name}"') for join in unique_joins])
 
