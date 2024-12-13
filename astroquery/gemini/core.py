@@ -1,20 +1,21 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Search functionality for the Gemini archive of observations.
+==================================================
+Gemini Observatory Archive (GOA) Astroquery Module
+==================================================
 
-For questions, contact ooberdorf@gemini.edu
+Query public and proprietary data from GOA.
 """
-
 import os
-
 from datetime import date
 
 from astroquery import log
+import astropy
 from astropy import units
 from astropy.table import Table, MaskedColumn
-
-from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
+from .urlhelper import URLHelper
 from ..query import QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
@@ -432,6 +433,97 @@ class ObservationsClass(QueryWithLogin):
         url = "https://archive.gemini.edu/file/%s" % filename
         local_filepath = os.path.join(download_dir, filename)
         self._download_file(url=url, local_filepath=local_filepath, timeout=timeout)
+
+    def _download_file_content(self, url, timeout=None, auth=None, method="GET", **kwargs):
+        """Download content from a URL and return it. Resembles
+        `_download_file` but returns the content instead of saving it to a
+        local file.
+
+        Parameters
+        ----------
+        url : str
+            The URL from where to download the file.
+        timeout : int, optional
+            Time in seconds to wait for the server response, by default
+            `None`.
+        auth : dict[str, Any], optional
+            Authentication details, by default `None`.
+        method : str, optional
+            The HTTP method to use, by default "GET".
+
+        Returns
+        -------
+        bytes
+            The downloaded content.
+        """
+
+        response = self._session.request(method, url, timeout=timeout, auth=auth, **kwargs)
+        response.raise_for_status()
+
+        if 'content-length' in response.headers:
+            length = int(response.headers['content-length'])
+            if length == 0:
+                log.warn(f'URL {url} has length=0')
+
+        blocksize = astropy.utils.data.conf.download_block_size
+        content = b""
+
+        for block in response.iter_content(blocksize):
+            content += block
+
+        response.close()
+
+        return content
+
+    def logout(self):
+        """Logout from the GOA service by deleting the specific session cookie
+        and updating the authentication state.
+        """
+        # Delete specific cookie.
+        cookie_name = "gemini_archive_session"
+        if cookie_name in self._session.cookies:
+            del self._session.cookies[cookie_name]
+
+        # Update authentication state.
+        self._authenticated = False
+
+    def get_file_content(self, filename, timeout=None, auth=None, method="GET", **kwargs):
+        """Wrapper around `_download_file_content`.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file to download content.
+        timeout : int, optional
+            Time in seconds to wait for the server response, by default
+            `None`.
+        auth : dict[str, Any], optional
+            Authentication details, by default `None`.
+        method : str, optional
+            The HTTP method to use, by default "GET".
+
+        Returns
+        -------
+        bytes
+            The downloaded content.
+        """
+        url = self.get_file_url(filename)
+        return self._download_file_content(url, timeout=timeout, auth=auth, method=method, **kwargs)
+
+    def get_file_url(self, filename):
+        """Generate the file URL based on the filename.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file.
+
+        Returns
+        -------
+        str
+            The URL where the file can be downloaded.
+        """
+        return f"https://archive.gemini.edu/file/{filename}"
 
 
 def _gemini_json_to_table(json):
