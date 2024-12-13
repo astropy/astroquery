@@ -131,7 +131,7 @@ class TestEso:
         eso.cache_location = tmp_path
         result2 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=True)
-        assert all(result1 == result2)
+        assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it

@@ -120,7 +120,6 @@ class EsoClass(QueryWithLogin):
 
     def from_cache(self, query_str, cache_timeout):
         request_file = self.request_file(query_str)
-        print(f"from cache: {request_file}")
         try:
             if cache_timeout is None:
                 expired = False
