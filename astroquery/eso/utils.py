@@ -1,5 +1,9 @@
 #!/usr/bin/env/python
 from typing import Union, List
+import pickle
+import copy
+from astroquery import log
+import hashlib
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -43,3 +47,18 @@ def py2adql(table: str, columns: Union[List, str] = None, where_constraints: Lis
         query_string = "select " + query_string
 
     return query_string.strip()
+
+
+def hash(query_str: str, url: str):
+    request_key = (query_str, url)
+    h = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
+    return h
+
+
+def to_cache(table, cache_file):
+    print(f"to_cache cache: {cache_file}")
+    log.debug("Caching data to {0}".format(cache_file))
+
+    table = copy.deepcopy(table)
+    with open(cache_file, "wb") as f:
+        pickle.dump(table, f, protocol=4)
