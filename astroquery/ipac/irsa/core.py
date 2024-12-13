@@ -116,16 +116,29 @@ class IrsaClass(BaseVOQuery):
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
-    def list_collections(self):
+    def list_collections(self, servicetype='sia'):
         """
         Return information of available IRSA SIAv2 collections to be used in ``query_sia`` queries.
+
+        Parameters
+        ----------
+        servicetype : str or None
+            Service type to list collections for.
+            Currently supported ones are: 'SIA'.
 
         Returns
         -------
         collections : A `~astropy.table.Table` object.
             A table listing all the possible collections for IRSA SIA queries.
         """
-        query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
+
+        servicetype = servicetype.upper()
+
+        if servicetype == 'SIA':
+            query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
+        else:
+            raise ValueError("servicetype should be 'sia'")
+
         collections = self.query_tap(query=query)
         return collections.to_table()
 
