@@ -70,7 +70,6 @@ def hash(query_str: str, url: str):
 
 
 def to_cache(table, cache_file):
-    print(f"to_cache cache: {cache_file}")
     log.debug("Caching data to {0}".format(cache_file))
 
     table = copy.deepcopy(table)
