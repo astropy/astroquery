@@ -31,7 +31,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, hash
+from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, hash, _check_response
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -395,12 +395,12 @@ class EsoClass(QueryWithLogin):
         column_filters = column_filters or {}
         columns = columns or []
         return self._query_instrument_or_collection(query_on=QueryOnCollection,
-                                                 primary_filter=collections,
-                                                 column_filters=column_filters,
-                                                 columns=columns,
-                                                 help=help,
-                                                 cache=cache,
-                                                 **kwargs)
+                                                    primary_filter=collections,
+                                                    column_filters=column_filters,
+                                                    columns=columns,
+                                                    help=help,
+                                                    cache=cache,
+                                                    **kwargs)
 
     def query_main(self, *, column_filters={}, columns=[],
                    open_form=False, help=False, cache=True, **kwargs):
@@ -446,7 +446,6 @@ class EsoClass(QueryWithLogin):
                         top=self.ROW_LIMIT)
 
         return self._query_tap_service(query_str=query)
-
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -746,6 +745,149 @@ class EsoClass(QueryWithLogin):
         log.info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
+    def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
+                       cache=True, method=None):
+        """
+        Parameters
+        ----------
+        method: None or str
+            Can be used to override the form-specified method
+        """
+        # Extract form from response
+        root = BeautifulSoup(response.content, 'html5lib')
+        if form_id is None:
+            form = root.find_all('form')[form_index]
+        else:
+            form = root.find_all('form', id=form_id)[form_index]
+        # Construct base url
+        form_action = form.get('action')
+        if "://" in form_action:
+            url = form_action
+        elif form_action.startswith('/'):
+            url = '/'.join(response.url.split('/', 3)[:3]) + form_action
+        else:
+            url = response.url.rsplit('/', 1)[0] + '/' + form_action
+        # Identify payload format
+        fmt = None
+        form_method = form.get('method').lower()
+        if form_method == 'get':
+            fmt = 'get'  # get(url, params=payload)
+        elif form_method == 'post':
+            if 'enctype' in form.attrs:
+                if form.attrs['enctype'] == 'multipart/form-data':
+                    fmt = 'multipart/form-data'  # post(url, files=payload)
+                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
+                    fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
+                else:
+                    raise Exception("enctype={0} is not supported!".format(form.attrs['enctype']))
+            else:
+                fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
+        # Extract payload from form
+        payload = []
+        for form_elem in form.find_all(['input', 'select', 'textarea']):
+            value = None
+            is_file = False
+            tag_name = form_elem.name
+            key = form_elem.get('name')
+            if tag_name == 'input':
+                is_file = (form_elem.get('type') == 'file')
+                value = form_elem.get('value')
+                if form_elem.get('type') in ['checkbox', 'radio']:
+                    if form_elem.has_attr('checked'):
+                        if not value:
+                            value = 'on'
+                    else:
+                        value = None
+            elif tag_name == 'select':
+                if form_elem.get('multiple') is not None:
+                    value = []
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value.append(option.get('value'))
+                    else:
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                # bs4 NavigableString types have bad,
+                                # undesirable properties that result
+                                # in recursion errors when caching
+                                value.append(str(option.string))
+                else:
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value = option.get('value')
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = form_elem.select(
+                                'option[value]')[0].get('value')
+                    else:
+                        # survey form just uses text, not value
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                value = str(option.string)
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = str(form_elem.select('option')[0].string)
+
+            if key in inputs:
+                if isinstance(inputs[key], list):
+                    # list input is accepted (for array uploads)
+                    value = inputs[key]
+                else:
+                    value = str(inputs[key])
+
+            if (key is not None):  # and (value is not None):
+                if fmt == 'multipart/form-data':
+                    if is_file:
+                        payload.append(
+                            (key, ('', '', 'application/octet-stream')))
+                    else:
+                        if type(value) is list:
+                            for v in value:
+                                entry = (key, ('', v))
+                                # Prevent redundant key, value pairs
+                                # (can happen if the form repeats them)
+                                if entry not in payload:
+                                    payload.append(entry)
+                        elif value is None:
+                            entry = (key, ('', ''))
+                            if entry not in payload:
+                                payload.append(entry)
+                        else:
+                            entry = (key, ('', value))
+                            if entry not in payload:
+                                payload.append(entry)
+                else:
+                    if type(value) is list:
+                        for v in value:
+                            entry = (key, v)
+                            if entry not in payload:
+                                payload.append(entry)
+                    else:
+                        entry = (key, value)
+                        if entry not in payload:
+                            payload.append(entry)
+
+        # for future debugging
+        self._payload = payload
+        log.debug("Form: payload={0}".format(payload))
+
+        if method is not None:
+            fmt = method
+
+        log.debug("Method/format = {0}".format(fmt))
+
+        # Send payload
+        if fmt == 'get':
+            response = self._request("GET", url, params=payload, cache=cache)
+        elif fmt == 'multipart/form-data':
+            response = self._request("POST", url, files=payload, cache=cache)
+        elif fmt == 'application/x-www-form-urlencoded':
+            response = self._request("POST", url, data=payload, cache=cache)
+
+        return response
+
     def query_apex_quicklooks(self, *, project_id=None, help=False,
                               open_form=False, cache=True, **kwargs):
         """
@@ -779,7 +921,7 @@ class EsoClass(QueryWithLogin):
                 cache=cache, method='application/x-www-form-urlencoded')
 
             content = apex_response.content
-            if True:
+            if _check_response(content):
                 # First line is always garbage
                 content = content.split(b'\n', 1)[1]
                 try:
@@ -794,7 +936,7 @@ class EsoClass(QueryWithLogin):
                                            comment="#")
                     else:
                         raise ex
-            else:  # this function is going to be replaced soon
+            else:
                 raise RemoteServiceError("Query returned no results")
 
             return table
