@@ -14,13 +14,24 @@ from urllib.parse import urlparse
 import numpy as np
 import requests
 from astropy import log
+from astropy.coordinates import SkyCoord
+from astropy import units
+from astropy.table import Table
 
 from astropy.units import Quantity
+from astroquery.exceptions import RemoteServiceError
+from astroquery.ipac.ned import Ned
+from astroquery.simbad import Simbad
+from astroquery.vizier import Vizier
 from pyvo.auth.authsession import AuthSession
 from astroquery.utils import commons
 
 import matplotlib.pyplot as plt
 from requests import Response
+import json
+
+
+TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
 
 
 # Subclass AuthSession to customize requests
@@ -67,8 +78,7 @@ class ESAAuthSession(AuthSession):
                 "Content-type": "application/x-www-form-urlencoded",
                 "Accept": "text/plain"
             }
-            response = self.post(url=login_url, data=args,
-                                              headers=header)
+            response = self.post(url=login_url, data=args, headers=header)
             try:
                 response.raise_for_status()
                 log.info('User has been logged successfully.')
@@ -140,9 +150,9 @@ class ESAAuthSession(AuthSession):
 
         # Add the custom query parameter to the URL
         if '?' in url:
-            url += "&TAPCLIENT=ASTROQUERY"
+            url += "&TAPCLIENT=ASTROQUERY&format=votable_plain"
         else:
-            url += "?TAPCLIENT=ASTROQUERY"
+            url += "?TAPCLIENT=ASTROQUERY&format=votable_plain"
         return super()._request(method, url, **kwargs)
 
 
@@ -415,12 +425,12 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
 
         # Open a local file in binary write mode
         if verbose:
-            print('Downloading: ' + filename)
+            log.info('Downloading: ' + filename)
         with open(filename, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
         if verbose:
-            print(f"File {filename} has been downloaded successfully")
+            log.info(f"File {filename} has been downloaded successfully")
         return filename
 
 
@@ -449,3 +459,42 @@ def check_rename_to_gz(filename):
         return os.path.basename(output)
     else:
         return os.path.basename(filename)
+
+
+def resolve_target(url, session, target_name, target_resolver):
+    """
+    Download a file in streaming mode using a existing session
+
+    Parameters
+    ----------
+    url: str, mandatory
+        URL to be downloaded
+    session: ESAAuthSession, mandatory
+        session to download the file, including the cookies from ESA login
+    target_name: str, mandatory
+        Name of the target
+    target_resolver: str, mandatory
+        Name of the resolver. Possible values: ALL, SIMBAD, NED, VIZIER
+
+    Returns
+    -------
+    The request with the modified url
+    """
+
+    if target_resolver not in TARGET_RESOLVERS:
+        raise ValueError("This target resolver is not allowed")
+
+    params = {'TAPCLIENT': 'ASTROQUERY'}
+    resolver_url = url.format(target_name, target_resolver)
+
+    with session.get(resolver_url, stream=True, params=params) as response:
+        response.raise_for_status()
+
+        try:
+            target_result = response.json()
+            if target_result['objects']:
+                ra = target_result['objects'][0]['raDegrees']
+                dec = target_result['objects'][0]['decDegrees']
+            return SkyCoord(ra=ra, dec=dec, unit="deg")
+        except (ValueError, KeyError):
+            raise ValueError("This target cannot be resolved")

@@ -31,8 +31,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     Class to init ESA Integral Module and communicate with isla
     """
 
-    TIMEOUT = conf.TIMEOUT
-
     def __init__(self, tap_handler=None, auth_session=None):
         super().__init__()
 
@@ -42,6 +40,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         else:
             self._auth_session = esautils.ESAAuthSession()
 
+        self._auth_session.timeout = conf.TIMEOUT
+
         if tap_handler is None:
             self.tap = pyvo.dal.TAPService(
                 conf.ISLA_TAP_SERVER, session=self._auth_session)
@@ -49,7 +49,88 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             self.tap = tap_handler
             self._data = None
 
-        self.instrument_band_map = self.__get_instrument_band_map()
+        self.instruments, self.bands, self.instrument_band_map = self.get_instrument_band_map()
+
+    def get_tables(self, *, only_names=False):
+        """
+        Gets all public tables within ISLA TAP
+
+        Parameters
+        ----------
+        only_names : bool, optional, default False
+            True to load table names only
+
+        Returns
+        -------
+        A list of table objects
+        """
+        table_set = self.tap.tables
+        if only_names:
+            return list(table_set.keys())
+        else:
+            return list(table_set.values())
+
+    def get_table(self, table):
+        """
+        Gets the specified table from ISLA TAP
+
+        Parameters
+        ----------
+        table : str, mandatory
+            full qualified table name (i.e. schema name + table name)
+
+        Returns
+        -------
+        A table object
+        """
+        tables = self.get_tables()
+        for t in tables:
+            if table == t.name:
+                return t
+
+    def get_job(self, jobid):
+        """
+        Returns the job corresponding to an ID. Note that the caller must be able to see
+        the job in the current security context.
+
+        Parameters
+        ----------
+        jobid : str, mandatory
+            ID of the job to view
+
+        Returns
+        -------
+        JobSummary corresponding to the job ID
+        """
+
+        return self.tap.get_job(job_id=jobid)
+
+    def get_job_list(self, *, phases=None, after=None, last=None,
+                     short_description=True):
+        """
+        Returns all the asynchronous jobs
+
+        Parameters
+        ----------
+        phases : list of str
+            Union of job phases to filter the results by.
+        after : datetime
+            Return only jobs created after this datetime
+        last : int
+            Return only the most recent number of jobs
+        short_description : flag - True or False
+            If True, the jobs in the list will contain only the information
+            corresponding to the TAP ShortJobDescription object (job ID, phase,
+            run ID, owner ID and creation ID) whereas if False, a separate GET
+            call to each job is performed for the complete job description
+
+        Returns
+        -------
+        A list of Job objects
+        """
+
+        return self.tap.get_job_list(phases=phases, after=after, last=last,
+                                     short_description=short_description)
 
     def login(self, *, user=None, password=None):
         """
@@ -128,13 +209,26 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         An astropy.table object containing the results
         """
 
+        # First attempt, resolve the name in the source catalogue
         query = conf.ISLA_TARGET_CONDITION.format(target_name)
         result = self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format)
 
         if len(result) > 0:
             return result
 
-        raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
+        # Seccond attempt, resolve using a Resolver Service and cone search to the source catalogue
+        try:
+            coordinates = esautils.resolve_target(conf.ISLA_TARGET_RESOLVER, self.tap._session, target_name, 'ALL')
+            query = conf.ISLA_CONE_TARGET_CONDITION.format(coordinates.ra.degree, coordinates.dec.degree, 0.0833)
+            result = self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format)
+
+            if len(result) > 0:
+                return result[0]
+
+        except ValueError:
+            raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
+
+
 
     def get_observations(self, *, target_name=None, coordinates=None, radius=14.0, start_time=None, end_time=None,
                          start_revno=None, end_revno=None, async_job=False, output_file=None, output_format=None,
@@ -247,9 +341,11 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         params = self.__get_science_window_parameter(science_windows, observation_id, revolution, proposal)
         params['RETRIEVAL_TYPE'] = 'SCW'
-
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file, params=params,
-                             verbose=True)
+        try:
+            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
+                                          filename=output_file, params=params, verbose=True)
+        except Exception as e:
+            log.error('No science windows have been found with these inputs. {}'.format(e))
 
     def get_timeline(self, ra, dec, *, radius=14, plot=False, plot_revno=False, plot_distance=False):
         """Retrieve the INTEGRAL timeline associated to coordinates and radius
@@ -326,9 +422,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         target_name : str, mandatory
             target name to be requested, mandatory
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
 
         Returns
         -------
@@ -349,9 +445,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         target_name : str, mandatory
             target name to be requested, mandatory
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
         plot: boolean
             show the long term timeseries using matplotlib
 
@@ -409,9 +505,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         target_name : str, mandatory
             target name to be requested, mandatory
         instrument : str
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
 
         output_file: str, optional
             File name and path for the downloaded file
@@ -426,8 +522,12 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         params = {'RETRIEVAL_TYPE': 'long_timeseries',
                   'source': target_name,
                   "instrument_oid": self.instrument_band_map[value]['instrument_oid']}
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                             params=params, verbose=True)
+        try:
+            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
+                                          params=params, verbose=True)
+        except Exception as e:
+            log.error('No long term timeseries have been found with these inputs. {}'.format(e))
+
 
     def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL short term timeseries associated to the target and instrument or band
@@ -439,9 +539,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
         plot: boolean, optional
             show the long term timeseries using matplotlib
 
@@ -453,6 +553,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             detectors: a list of the detector available for that instrument
             timeseries_list: A list of astropy.table object containing the short term timeseries
         """
+
+        self.__validate_epoch(target_name=target_name, epoch=epoch,
+                              instrument=instrument,band=band)
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
 
@@ -497,9 +600,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
         output_file: str, optional
             File name and path for the downloaded file
 
@@ -509,14 +612,21 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         """
 
+        self.__validate_epoch(target_name=target_name, epoch=epoch,
+                              instrument=instrument,band=band)
+
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
 
         params = {'RETRIEVAL_TYPE': 'short_timeseries',
                   'source': target_name,
                   'band_oid': self.instrument_band_map[value]['band_oid'],
                   'epoch': epoch}
-        return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file, params=params,
-                             verbose=True)
+        try:
+            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file, params=params,
+                                          verbose=True)
+        except Exception as e:
+            log.error('No short term timeseries have been found with these inputs. {}'.format(e))
+        return
 
     def get_spectra(self, target_name, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL spectra associated to the target and instrument or band
@@ -526,9 +636,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         target_name : str, mandatory
             target name to be requested, mandatory
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
         epoch : str, mandatory
             reference epoch for the short term timeseries
         plot: boolean, optional
@@ -539,6 +649,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         spectrum: a list of objects containing the parameters of the spectra and
             an astropy.table object containing the spectra
         """
+
+        self.__validate_epoch(target_name=target_name, epoch=epoch,
+                              instrument=instrument,band=band)
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
 
@@ -588,9 +701,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
         output_file: str, optional
             File name and path for the downloaded file
 
@@ -599,16 +712,22 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         A list of paths and filenames of the files with spectras
         """
 
+        self.__validate_epoch(target_name=target_name, epoch=epoch,
+                              instrument=instrument,band=band)
+
         spectrum = self.get_spectra(target_name=target_name, epoch=epoch, instrument=instrument, band=band, plot=False)
         downloaded_files = []
-        for spectra in spectrum:
-            params = {'RETRIEVAL_TYPE': 'spectras',
-                      'spectra_oid': spectra['spectra_oid']}
-            downloaded_files.append(
-                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                              params=params,
-                              verbose=True))
-        return downloaded_files
+        try:
+            for spectra in spectrum:
+                params = {'RETRIEVAL_TYPE': 'spectras',
+                          'spectra_oid': spectra['spectra_oid']}
+                downloaded_files.append(
+                    esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
+                                  params=params,
+                                  verbose=True))
+            return downloaded_files
+        except Exception as e:
+            log.error('No spectra files have been found with these inputs. {}'.format(e))
 
     def get_mosaic(self, epoch, instrument=None, band=None, *, plot=False):
         """Retrieve the INTEGRAL mosaics associated to the instrument or band
@@ -618,9 +737,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str, optional
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str, optional
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
 
         plot: boolean, optional
             show the long term timeseries using matplotlib
@@ -675,9 +794,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str
-            Possible values: jem-x, ibis
+            Possible values are in isla.instruments object
         band : str
-            Possible values: 03_20, 28_40
+            Possible values are in isla.bandsobject
 
         output_file: str, optional
             File name and path for the downloaded file
@@ -689,14 +808,17 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         mosaics = self.get_mosaic(epoch=epoch, instrument=instrument, band=band, plot=False)
         downloaded_files = []
-        for mosaic in mosaics:
-            params = {'RETRIEVAL_TYPE': 'mosaics',
-                      'mosaic_oid': mosaic['mosaic_oid']}
-            downloaded_files.append(
-                esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                              params=params,
-                              verbose=True))
-        return downloaded_files
+        try:
+            for mosaic in mosaics:
+                params = {'RETRIEVAL_TYPE': 'mosaics',
+                          'mosaic_oid': mosaic['mosaic_oid']}
+                downloaded_files.append(
+                    esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
+                                  params=params,
+                                  verbose=True))
+            return downloaded_files
+        except Exception as e:
+            log.error('No mosaics have been found with these inputs. {}'.format(e))
 
     def get_source_metadata(self, target_name):
         """Retrieve the metadata associated to an INTEGRAL target
@@ -718,7 +840,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                        tap=self.tap,
                                        query_params=query_params)
 
-    def __get_instrument_band_map(self):
+    def get_instrument_band_map(self):
         """
         Maps the bands and instruments included in ISLA
         """
@@ -733,7 +855,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                                 'instrument_oid': row['instrument_oid'],
                                                 'band_oid': row['band_oid']}
 
-        return instrument_band_map
+        instruments = instrument_band_table['instrument']
+        bands = instrument_band_table['band']
+        return instruments, bands, instrument_band_map
 
     def __get_instrument_or_band(self, instrument, band):
         if instrument and band:
@@ -773,6 +897,26 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         raise ValueError(f"Revolution number {rev_no} is not correct. It must be a four-digit number as a string, "
                          f"with leading zeros to complete the four digits")
 
+    def __validate_epoch(self, target_name, epoch, *, instrument=None, band=None):
+        """
+        Validate if the epoch is available for the target name and instrument or band
+
+        Parameters
+        ----------
+        target_name : str, mandatory
+            target name to be requested, mandatory
+        epoch : str, mandatory
+            reference epoch for the short term timeseries
+        instrument : str, optional
+            Possible values are in isla.instruments object
+        band : str, optional
+            Possible values are in isla.bandsobject
+        """
+        available_epochs = self.get_epochs(target_name=target_name, instrument=instrument, band=band)
+
+        if not epoch in available_epochs['epoch']:
+            raise ValueError(f"Epoch {epoch} is not available for this target and instrument/band.")
+
     def __get_science_window_parameter(self, science_windows, observation_id, revolution, proposal):
         """
         Verifies if only one parameter is not null and return its value
@@ -807,14 +951,16 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             elif isinstance(science_windows, list):
                 return {'scwid': ','.join(science_windows)}
 
-        if observation_id is not None:
+        if observation_id is not None and isinstance(observation_id, str):
             return {'obsid': observation_id}
 
-        if revolution is not None:
+        if revolution is not None and isinstance(observation_id, str):
             return {'REVID': revolution}
 
-        if proposal is not None:
+        if proposal is not None and isinstance(observation_id, str):
             return {'PROPID': proposal}
+
+        raise ValueError("Input parameters are wrong")
 
 
 Integral = IntegralClass()
