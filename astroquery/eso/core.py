@@ -4,6 +4,7 @@ import base64
 import email
 import json
 import os.path
+import pickle
 import re
 import shutil
 import subprocess
@@ -14,21 +15,23 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 from typing import List, Optional, Tuple, Dict, Set, Union
 from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
 
 import astropy.table
 import astropy.utils.data
+import astropy.units as u
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from bs4 import BeautifulSoup
 
-from astroquery import log
+from astroquery import log, cache_conf
 from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str, sanitize_val
+from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, hash
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -84,6 +87,25 @@ class EsoClass(QueryWithLogin):
     GUNZIP = "gunzip"
     USE_DEV_TAP = True
 
+    def __init__(self, timeout=None):
+        super().__init__()
+        self._instruments: Optional[List[str]] = None
+        self._collections: Optional[List[str]] = None
+        self._auth_info: Optional[AuthInfo] = None
+        self.timeout = timeout
+        self._hash = None
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        if hasattr(value, 'to'):
+            self._timeout = value.to(u.s).value
+        else:
+            self._timeout = value
+
     @staticmethod
     def tap_url() -> str:
         url = "http://archive.eso.org/tap_obs"
@@ -91,12 +113,35 @@ class EsoClass(QueryWithLogin):
             url = "http://dfidev5.hq.eso.org:8123/tap_obs"
         return url
 
-    def __init__(self):
-        super().__init__()
-        self._instruments: Optional[List[str]] = None
-        self._collections: Optional[List[str]] = None
-        self._auth_info: Optional[AuthInfo] = None
-        print("Using main branch")
+    def request_file(self, query_str: str):
+        h = hash(query_str=query_str, url=self.tap_url())
+        fn = self.cache_location.joinpath(h + ".pickle")
+        return fn
+
+    def from_cache(self, query_str, cache_timeout):
+        request_file = self.request_file(query_str)
+        print(f"from cache: {request_file}")
+        try:
+            if cache_timeout is None:
+                expired = False
+            else:
+                current_time = datetime.now(timezone.utc)
+                cache_time = datetime.fromtimestamp(request_file.stat().st_mtime, timezone.utc)
+                expired = current_time-cache_time > timedelta(seconds=cache_timeout)
+            if not expired:
+                with open(request_file, "rb") as f:
+                    #  TODO rename respones to table
+                    response = pickle.load(f)
+                if not isinstance(response, Table):
+                    response = None
+            else:
+                log.debug(f"Cache expired for {request_file}...")
+                response = None
+        except FileNotFoundError:
+            response = None
+        if response:
+            log.debug("Retrieved data from {0}".format(request_file))
+        return response
 
     def _authenticate(self, *, username: str, password: str) -> bool:
         """
@@ -178,17 +223,30 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def _query_tap_service(self, query_str: str) -> Optional[astropy.table.Table]:
+    def _query_tap_service(self, query_str: str, cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
         Example use:
         eso._query_tap_service("Select * from ivoa.ObsCore")
         """
+        if cache is None:  # Global caching not overridden
+            cache = cache_conf.cache_active
+
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         table_to_return = None
+
         # TODO add url to documentation in the exception
         try:
-            table_to_return = tap.search(query_str).to_table()
+
+            if not cache:
+                with cache_conf.set_temp("cache_active", False):
+                    table_to_return = tap.search(query_str).to_table()
+            else:
+                table_to_return = self.from_cache(query_str, cache_conf.cache_timeout)
+                if not table_to_return:
+                    table_to_return = tap.search(query_str).to_table()
+                    to_cache(table_to_return, self.request_file(query_str=query_str))
+
         except pyvo.dal.exceptions.DALQueryError:
             raise pyvo.dal.exceptions.DALQueryError(f"\n\nError executing the following query:\n\n{query_str}\n\n")
         except Exception as e:
@@ -312,9 +370,9 @@ class EsoClass(QueryWithLogin):
         query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        table_to_return = self._query_tap_service(query_str=query)
+        table_to_return = self._query_tap_service(query_str=query, cache=cache)
 
-        if len(table_to_return) < 1:
+        if table_to_return is None or len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
             table_to_return = None
 
