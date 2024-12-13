@@ -149,6 +149,9 @@ simbad
   A helper method was added ``astroquery.simbad.utils.CriteriaTranslator`` to
   translate between the sim-script syntax and the TAP/ADQL syntax. [#2954]
 
+- fixed ``query_objects`` that would not work in combination with the additional field
+  ``ident`` [#3149]
+
 skyview
 ^^^^^^^
 

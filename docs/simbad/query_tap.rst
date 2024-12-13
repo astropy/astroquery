@@ -195,22 +195,25 @@ that is the measurement table for rotations. Their common column is ``oidref``.
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> query = """SELECT bibcode AS "Rotation Measurements Bibcodes"
+    >>> query = """SELECT DISTINCT bibcode AS "Rotation Measurements Bibcodes"
     ...     FROM ident JOIN mesrot USING(oidref)
     ...     WHERE id = 'Sirius';
     ...     """
-    >>> Simbad.query_tap(query)
-    <Table length=7>
+    >>> bibcodes = Simbad.query_tap(query)
+    >>> bibcodes.sort("Rotation Measurements Bibcodes")
+    >>> bibcodes
+    <Table length=8>
     Rotation Measurements Bibcodes
-                object
+                object            
     ------------------------------
-               2023ApJS..266...11B
-               2016A&A...589A..83G
-               2002A&A...393..897R
-               1995ApJS...99..135A
-               1970CoKwa.189....0U
                1970CoAsi.239....1B
+               1970CoKwa.189....0U
+               1995ApJS...99..135A
+               2002A&A...393..897R
+               2005yCat.3244....0G
                2011A&A...531A.143D
+               2016A&A...589A..83G
+               2023ApJS..266...11B
 
 This returns six papers in which the SIMBAD team found rotation data for Sirius.
 
