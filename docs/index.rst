@@ -261,6 +261,7 @@ The following modules have been completed using a common API:
   esa/iso/iso.rst
   esa/jwst/jwst.rst
   esa/xmm_newton/xmm_newton.rst
+  esa/neocc/neocc.rst
   esasky/esasky.rst
   eso/eso.rst
   image_cutouts/first/first.rst
