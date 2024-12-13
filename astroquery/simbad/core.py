@@ -718,28 +718,29 @@ class SimbadClass(BaseVOQuery):
         Examples
         --------
 
-        Look for large galaxies in two cones
+        Look for largest galaxies in two cones
 
         >>> from astroquery.simbad import Simbad
         >>> from astropy.coordinates import SkyCoord
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
-        >>> simbad.add_votable_fields("otype") # doctest: +REMOTE_DATA
+        >>> simbad.add_votable_fields("otype", "dim") # doctest: +REMOTE_DATA
         >>> coordinates = SkyCoord([SkyCoord(186.6, 12.7, unit=("deg", "deg")),
         ...                         SkyCoord(170.75, 23.9, unit=("deg", "deg"))])
         >>> result = simbad.query_region(coordinates, radius="2d5m",
-        ...                              criteria="otype = 'Galaxy..' AND galdim_majaxis>8") # doctest: +REMOTE_DATA
-        >>> result.sort("main_id") # doctest: +REMOTE_DATA
-        >>> result["main_id", "otype"] # doctest: +REMOTE_DATA
+        ...                              criteria="otype = 'Galaxy..' AND galdim_majaxis>8.5") # doctest: +REMOTE_DATA
+        >>> result.sort("galdim_majaxis", reverse=True) # doctest: +REMOTE_DATA
+        >>> result["main_id", "otype", "galdim_majaxis"] # doctest: +REMOTE_DATA
         <Table length=5>
-          main_id    otype
-           object    object
-        ------------ ------
-        LEDA   40577    GiG
-        LEDA   41362    GiC
-               M  86    GiG
-               M  87    AGN
-           NGC  4438    LIN
+          main_id    otype  galdim_majaxis
+                                arcmin
+           object    object    float32
+        ------------ ------ --------------
+        LEDA   41362    GiC           11.0
+               M  86    GiG          10.47
+        LEDA   40917    AG?           10.3
+               M  87    AGN           9.12
+           NGC  4438    LIN           8.91
 
         Notes
         -----
@@ -1334,7 +1335,7 @@ class SimbadClass(BaseVOQuery):
         ...                  my_table_name=letters_table) # doctest: +REMOTE_DATA
         <Table length=3>
         alphabet
-         object
+          str1
         --------
                a
                b
