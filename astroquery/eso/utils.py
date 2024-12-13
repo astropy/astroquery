@@ -4,6 +4,20 @@ import pickle
 import copy
 from astroquery import log
 import hashlib
+from ..exceptions import RemoteServiceError
+
+
+def _check_response(content):  # required only by apex_quicklooks
+    """
+    Check the response from an ESO service query for various types of error
+
+    If all is OK, return True
+    """
+    if b"NETWORKPROBLEM" in content:
+        raise RemoteServiceError("The query resulted in a network "
+                                 "problem; the service may be offline.")
+    elif b"# No data returned !" not in content:
+        return True
 
 
 def _split_str_as_list_of_str(column_str: str):
