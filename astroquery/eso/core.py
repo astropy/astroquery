@@ -252,7 +252,10 @@ class EsoClass(QueryWithLogin):
         except Exception as e:
             raise Exception(f"\n\nUnknown exception {e} while executing the following query: \n\n{query_str}\n\n")
 
-        return table_to_return
+        if len(table_to_return) > 0:
+            return table_to_return
+        else:
+            warnings.warn("Query returned no results", NoResultsWarning)
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -350,7 +353,6 @@ class EsoClass(QueryWithLogin):
             del filters['box']
         if isinstance(primary_filter, str):
             primary_filter = _split_str_as_list_of_str(primary_filter)
-        table_to_return = None  # Return an astropy.table.Table or None
 
         primary_filter = list(map(lambda x: f"'{x.strip()}'", primary_filter))
         where_collections_str = f"{query_on.column_name} in (" + ", ".join(primary_filter) + ")"
@@ -370,27 +372,20 @@ class EsoClass(QueryWithLogin):
         query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        table_to_return = self._query_tap_service(query_str=query, cache=cache)
-
-        if table_to_return is None or len(table_to_return) < 1:
-            warnings.warn("Query returned no results", NoResultsWarning)
-            table_to_return = None
-
-        return table_to_return
+        return self._query_tap_service(query_str=query, cache=cache)
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_instrument(self, instrument: Union[List, str] = None, *,
                          column_filters: Dict = None, columns: Union[List, str] = None,
                          open_form=False, help=False, cache=True,
                          **kwargs) -> astropy.table.Table:
-        _ = self._query_instrument_or_collection(query_on=QueryOnInstrument,
-                                                 primary_filter=instrument,
-                                                 column_filters=column_filters,
-                                                 columns=columns,
-                                                 help=help,
-                                                 cache=cache,
-                                                 **kwargs)
-        return _
+        return self._query_instrument_or_collection(query_on=QueryOnInstrument,
+                                                    primary_filter=instrument,
+                                                    column_filters=column_filters,
+                                                    columns=columns,
+                                                    help=help,
+                                                    cache=cache,
+                                                    **kwargs)
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_collections(self, collections: Union[List, str] = None, *,
@@ -399,14 +394,13 @@ class EsoClass(QueryWithLogin):
                           **kwargs) -> astropy.table.Table:
         column_filters = column_filters or {}
         columns = columns or []
-        _ = self._query_instrument_or_collection(query_on=QueryOnCollection,
+        return self._query_instrument_or_collection(query_on=QueryOnCollection,
                                                  primary_filter=collections,
                                                  column_filters=column_filters,
                                                  columns=columns,
                                                  help=help,
                                                  cache=cache,
                                                  **kwargs)
-        return _
 
     def query_main(self, *, column_filters={}, columns=[],
                    open_form=False, help=False, cache=True, **kwargs):
@@ -451,13 +445,8 @@ class EsoClass(QueryWithLogin):
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        table_to_return = self._query_tap_service(query_str=query)
+        return self._query_tap_service(query_str=query)
 
-        if len(table_to_return) < 1:
-            warnings.warn("Query returned no results", NoResultsWarning)
-            table_to_return = None
-
-        return table_to_return
 
     def get_headers(self, product_ids, *, cache=True):
         """
