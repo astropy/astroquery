@@ -284,12 +284,11 @@ class EsoClass(QueryWithLogin):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        # TODO include ALMA
         if self._collections is None:
             self._collections = []
             c = QueryOnCollection.column_name
             t = QueryOnCollection.table_name
-            query_str = f"select distinct {c} from {t} where {c} != 'ALMA'"
+            query_str = f"select distinct {c} from {t}"
             res = self._query_tap_service(query_str)[c].data
 
             self._collections = list(res)
