@@ -20,6 +20,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
 SKIP_SLOW = True
 
 SGRA_COLLECTIONS = ['195.B-0283',
+                    'ALMA',
                     'ATLASGAL',
                     'ERIS-SPIFFIER',
                     'GIRAFFE',
