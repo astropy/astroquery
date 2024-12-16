@@ -234,7 +234,7 @@ class TestEso:
         result2 = eso.query_instrument('MiDi', coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
 
-        assert np.all(result1 == result2)
+        assert all(result1.values_equal(result2))
 
     def test_main_SgrAstar(self):
         eso = Eso()
