@@ -375,9 +375,12 @@ class Lookuptable(dict):
 
         Returns
         -------
-        The list of values corresponding to the matches
+        The dictionary containing only values whose keys match the regex
 
         """
+
+        if st in self:
+            return {st: self[st]}
 
         out = {}
 
