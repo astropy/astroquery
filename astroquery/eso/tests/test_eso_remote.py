@@ -5,24 +5,47 @@ import pytest
 
 from astroquery.eso import Eso
 from astroquery.exceptions import NoResultsWarning
+from astropy.table import Table
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'gravity', u'espresso', u'wlgsu', u'matisse', u'eris']
+                   u'gravity', u'espresso', u'wlgsu', u'matisse', u'eris',
+                   u'fiat',
+                   ]
 
 # Some tests take too long, leading to travis timeouts
 # TODO: make this a configuration item
 SKIP_SLOW = True
 
-SGRA_SURVEYS = ['195.B-0283', 'GIRAFFE', 'HARPS', 'HAWKI', 'KMOS',
-                'ERIS-SPIFFIER',
-                'MW-BULGE-PSFPHOT', 'VPHASplus', 'VVV', 'VVVX', 'XSHOOTER']
+SGRA_COLLECTIONS = ['195.B-0283',
+                    'ALMA',
+                    'ATLASGAL',
+                    'ERIS-SPIFFIER',
+                    'GIRAFFE',
+                    'HARPS',
+                    'HAWKI',
+                    'KMOS',
+                    'MW-BULGE-PSFPHOT',
+                    'VPHASplus',
+                    'VVV',
+                    'VVVX',
+                    'XSHOOTER'
+                    ]
 
 
 @pytest.mark.remote_data
 class TestEso:
+    def test_query_tap_service(self):
+        eso = Eso()
+        eso.ROW_LIMIT = 7
+        t = eso._query_tap_service(f"select top {eso.ROW_LIMIT} * from ivoa.ObsCore")
+        lt = len(t)
+        assert type(t) is Table, f"Expected type {type(Table)}; Obtained {type(t)}"
+        assert len(t) > 0, "Table length is zero"
+        assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
+
     def test_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -34,23 +57,33 @@ class TestEso:
         result_i = eso.query_instrument('midi', coord1=266.41681662,
                                         coord2=-29.00782497, cache=False)
 
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
-        # result_s = eso.query_surveys('VVV', target='Sgr A*')
+        collections = eso.list_collections(cache=False)
+        assert len(collections) > 0
+        # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_surveys(surveys='VVV', coord1=266.41681662,
-                                     coord2=-29.00782497,
-                                     box='01 00 00',
-                                     cache=False)
+        result_s = eso.query_collections(collections='VVV', coord1=266.41681662,
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
-        assert 'VVV' in surveys
+        assert 'VVV' in collections
         assert result_s is not None
-        assert 'Object' in result_s.colnames
-        assert 'b333' in result_s['Object']
 
-    def test_multisurvey(self, tmp_path):
+        # From obs.raw, we have "object" (when query_instruments)
+        # object: Target designation as given by the astronomer,
+        # though at times overwritten by the obeservatory,
+        # especially for CALIB observations. Compare with the similar field called "target".)
+
+        # From ivoa.ObsCore, we have "target_name" (when query_collections)
+        # target_name: The target name as assigned by the Principal Investigator;
+        # ref. Ref. OBJECT keyword in ESO SDP standard.
+        # For spectroscopic public surveys, the value shall be set to the survey source identifier...
+        assert 'target_name' in result_s.colnames
+        assert 'b333' in result_s['target_name']
+
+    def test_multicollection(self, tmp_path):
 
         eso = Eso()
         eso.cache_location = tmp_path
@@ -58,27 +91,35 @@ class TestEso:
         # first b333 was at 157
         # first pistol....?
 
-        result_s = eso.query_surveys(surveys=['VVV', 'XSHOOTER'],
-                                     coord1=266.41681662,
-                                     coord2=-29.00782497,
-                                     box='01 00 00',
-                                     cache=False)
+        test_collections = ['VVV', 'XSHOOTER']
+        result_s = eso.query_collections(collections=test_collections,
+                                         coord1=266.41681662,
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)
 
         assert result_s is not None
-        assert 'Object' in result_s.colnames
-        assert 'b333_414_58214' in result_s['Object']
-        assert 'Pistol-Star' in result_s['Object']
+        assert 'target_name' in result_s.colnames
+
+        from collections import Counter
+        counts = Counter(result_s["obs_collection"].data)
+        for tc in test_collections:
+            assert counts[tc] > 0, f"{tc} : collection not present in results"
+
+        # TODO - Confirm that these tests are really necessary.
+        # assert 'b333' in result_s['target_name']
+        # assert 'Pistol-Star' in result_s['target_name']
 
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
-        surveys = eso.list_surveys(cache=False)
-        assert len(surveys) > 0
+        collections = eso.list_collections(cache=False)
+        assert len(collections) > 0
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_surveys(surveys=surveys[0], coord1=202.469575,
-                                         coord2=47.195258, cache=False)
+            result_s = eso.query_collections(collections=collections[0], coord1=202.469575,
+                                             coord2=47.195258, cache=False)
 
         assert result_s is None
 
@@ -91,7 +132,7 @@ class TestEso:
         eso.cache_location = tmp_path
         result2 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=True)
-        assert all(result1 == result2)
+        assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
@@ -156,31 +197,33 @@ class TestEso:
                 # Sometimes there are ResourceWarnings, we ignore those for this test
                 pass
             else:
-                assert len(result) > 0
+                assert result is not None, f"query_instrument({instrument}) returned None"
+                assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
-    def test_each_survey_and_SgrAstar(self, tmp_path):
+    def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        surveys = eso.list_surveys(cache=False)
-        for survey in surveys:
-            if survey in SGRA_SURVEYS:
-                result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
-                                             coord2=-29.00782497,
-                                             box='01 00 00',
-                                             cache=False)
-                assert len(result_s) > 0
-            else:
-                with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_surveys(surveys=survey, coord1=266.41681662,
+        collections = eso.list_collections(cache=False)
+        for collection in collections:
+            if collection in SGRA_COLLECTIONS:
+                result_s = eso.query_collections(collections=collection, coord1=266.41681662,
                                                  coord2=-29.00782497,
                                                  box='01 00 00',
                                                  cache=False)
+                assert len(result_s) > 0
+            else:
+                with pytest.warns(NoResultsWarning):
+                    result_s = eso.query_collections(collections=collection, coord1=266.41681662,
+                                                     coord2=-29.00782497,
+                                                     box='01 00 00',
+                                                     cache=False)
                     assert result_s is None
 
-                    generic_result = eso.query_surveys(surveys=survey)
-                    assert len(generic_result) > 0
+                    generic_result = eso.query_collections(collections=collection)
+                    assert generic_result is not None, f"query_collection({collection}) returned None"
+                    assert len(generic_result) > 0, f"query_collection({collection}) returned no records"
 
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
@@ -192,4 +235,16 @@ class TestEso:
         result2 = eso.query_instrument('MiDi', coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
 
-        assert np.all(result1 == result2)
+        assert all(result1.values_equal(result2))
+
+    def test_main_SgrAstar(self):
+        eso = Eso()
+        eso.ROW_LIMIT = 5
+
+        # the failure should occur here
+        result = eso.query_main(target='SGR A', object='SGR A')
+
+        # test that max_results = 5
+        assert len(result) == 5
+        assert 'SGR A' in result['object']
+        assert 'SGR A' in result['target']

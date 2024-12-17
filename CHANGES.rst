@@ -36,6 +36,11 @@ ehst
 
 - Include warning in get_datalabs_path method for ehst when the data volume is not mounted in DataLabs [#3059]
 
+eso
+^^^
+
+- Deprecate functions ``list_surveys`` and ``query_surveys`` in favor of ``list_collections`` and ``query_collections``. [#3138]
+
 gama
 ^^^^
 
