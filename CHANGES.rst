@@ -7,6 +7,10 @@ New Tools and Services
 
 Service fixes and enhancements
 ------------------------------
+heasarc
+^^^^^^^
+
+- Refactor heasarc to use the VO backend. [#2997]
 
 astrometry_net
 ^^^^^^^^^^^^^^
