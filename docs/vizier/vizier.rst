@@ -14,6 +14,13 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
+.. note::
+    In earlier versions of astroquery (<0.4.8), columns with special characters like 
+    ``r'mag`` were renamed into ``r_mag`` and columns starting with a number like
+    ``2MASS`` were prepended with an underscore ``_2MASS``.
+    In astroquery >=0.4.8, the column names are the same in VizieR's webpages and in
+    the tables received (for the two examples: you'll see ``r'mag`` and ``2MASS``).
+
 Table Discover
 --------------
 
