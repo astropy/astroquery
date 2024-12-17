@@ -29,8 +29,7 @@ class Conf(_config.ConfigNamespace):
     server = _config.ConfigItem(
         [
             "https://alasky.unistra.fr/MocServer/query",
-            "http://alasky.unistra.fr/MocServer/query",
-            "http://alaskybis.unistra.fr/MocServer/query",
+            "https://alaskybis.unistra.fr/MocServer/query",
         ],
         "Name of the template_module server to use.",
     )
