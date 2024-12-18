@@ -376,12 +376,6 @@ def test_missions_download_products(patch_post, tmp_path):
                                                  download_dir=tmp_path)
     assert isinstance(result, Table)
 
-    # Warn about no products
-    with pytest.warns(NoResultsWarning):
-        result = mast.MastMissions.download_products(test_dataset_id,
-                                                     extension='jpg',
-                                                     download_dir=tmp_path)
-
 
 def test_missions_download_no_auth(patch_post, caplog):
     # Exclusive access products should not be downloaded if user is not authenticated

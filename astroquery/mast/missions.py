@@ -402,6 +402,7 @@ class MastMissionsClass(MastQueryWithLogin):
     def filter_products(self, products, *, extension=None, **filters):
         """
         Filters an `~astropy.table.Table` of mission data products based on given filters.
+
         Parameters
         ----------
         products : `~astropy.table.Table`
@@ -414,6 +415,7 @@ class MastMissionsClass(MastQueryWithLogin):
             acceptable values for that column. AND logic is applied between filters, OR logic within
             each filter set.
             For example: type="science", extension=["fits","jpg"]
+
         Returns
         -------
         response : `~astropy.table.Table`
@@ -525,6 +527,7 @@ class MastMissionsClass(MastQueryWithLogin):
     def _download_files(self, products, base_dir, *, flat=False, cache=True, verbose=True):
         """
         Downloads files listed in an `~astropy.table.Table` of data products to a specified directory.
+
         Parameters
         ----------
         products : `~astropy.table.Table`
@@ -538,6 +541,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is True. If file is found on disk, it will not be downloaded again.
         verbose : bool, optional
             Default is True. Whether to show download progress in the console.
+
         Returns
         -------
         response : `~astropy.table.Table`
@@ -568,6 +572,7 @@ class MastMissionsClass(MastQueryWithLogin):
                           cache=True, extension=None, verbose=True, **filters):
         """
         Download specified data products.
+
         Parameters
         ----------
         products : str, list, `~astropy.table.Table`
@@ -591,6 +596,7 @@ class MastMissionsClass(MastQueryWithLogin):
             acceptable values for that column. AND logic is applied between filters, OR logic within
             each filter set.
             For example: type="science", extension=["fits","jpg"]
+
         Returns
         -------
         manifest : `~astropy.table.Table`
