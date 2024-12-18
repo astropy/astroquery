@@ -10,7 +10,7 @@ European Space Agency (ESA)
 
 from astropy import config as _config
 
-ISLA_DOMAIN = 'https://isladev.esac.esa.int/tap-dev/'
+ISLA_DOMAIN = 'https://isla.esac.esa.int/tap/'
 ISLA_TAP_URL = ISLA_DOMAIN + 'tap'
 
 
