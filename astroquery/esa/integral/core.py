@@ -9,15 +9,11 @@ European Space Agency (ESA)
 
 """
 import numpy as np
-from astropy.units import Quantity
 from astropy.table import Table
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
 import warnings
-from astropy.utils.exceptions import AstropyDeprecationWarning
-import getpass
 import pyvo
-from pyvo.auth import AuthSession
 
 from . import conf
 import time
@@ -538,7 +534,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         params = {'RETRIEVAL_TYPE': 'long_timeseries',
                   'source': target_name,
-                  "instrument_oid": self.instrument_band_map[value]['instrument_oid']}
+                  'instrument_oid': self.instrument_band_map[value]['instrument_oid']}
         try:
             return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
                                           params=params, verbose=True)
@@ -726,7 +722,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                 if plot:
                     esautils.plot_result(spectra_element['spectra']['energy'], spectra_element['spectra']['rate'],
                                          'Energy (keV)', 'Counts s⁻¹ keV⁻¹',
-                                         f"Spectrum", error_x=spectra_element['spectra']['energy_error'],
+                                         'Spectrum', error_x=spectra_element['spectra']['energy_error'],
                                          error_y=spectra_element['spectra']['rate_error'], log_scale=True)
 
             self.__log_warning_message('get_spectra', 'download_spectra', show_warning)
