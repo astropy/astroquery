@@ -506,7 +506,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                          'Time', 'Rate (cps)',
                                          f"Long Term Timeseries ({detectors[i]})", error_y=timeseries['ratesError'])
 
-            self.__log_warning_message('get_long_term_timeseries', 'download_long_term_timeseries')
             return {'source_id': source_id, 'aggregation_value': aggregation_value,
                     'total_items': total_items, 'aggregation_unit': aggregation_unit,
                     'detectors': detectors, 'timeseries_list': timeseries_list}
@@ -611,7 +610,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                          'Time', 'Rate (cps)',
                                          f"Light curve ({detectors[i]})", error_y=timeseries['rates_error'])
 
-            self.__log_warning_message('get_short_term_timeseries', 'download_short_term_timeseries')
             return {'source_id': source_id, 'total_items': total_items, 'detectors': detectors,
                     'timeseries_list': timeseries_list}
         except ValueError as valueErr:
