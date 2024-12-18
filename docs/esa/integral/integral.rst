@@ -20,6 +20,10 @@ Examples
 1. ADQL Queries to ISLA TAP
 ---------------------------
 
+The Query TAP functionality facilitates the execution of custom Table Access Protocol (TAP)
+queries within the Integral Science Legacy Archive. Results can be exported to a specified
+file in the chosen format, and queries may be executed asynchronously.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
@@ -41,6 +45,10 @@ Examples
 2. Getting sources
 ------------------
 
+Users can utilize this method to retrieve a target from
+the Archive by specifying a target name. The output can be formatted and saved as
+needed.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
@@ -56,6 +64,9 @@ Examples
 3. Getting metadata associated to sources
 -----------------------------------------
 
+By invoking this method, users gain access to detailed metadata for a given source,
+identified by its target name. The metadata provides in-depth information about the source's archival.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
@@ -67,6 +78,11 @@ Examples
 ------------------------------------
 4. Retrieving observations from ISLA
 ------------------------------------
+
+Observation data can be extracted using this method, defining a criteria such as target name,
+coordinates, search radius, time range, or revolution number range.
+The data can be formatted and saved to a file, with the option to perform the
+operation asynchronously.
 
 .. doctest-remote-data::
 
@@ -89,6 +105,10 @@ Examples
 5. Downloading Science Windows
 ------------------------------
 
+Science window data can be downloaded using this method by providing only one identifier,
+such as science window IDs, observation ID, revolution number, or proposal ID.
+The results can be exported to a file for further investigation or analysis.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
@@ -99,6 +119,11 @@ Examples
 ----------------------------------
 6. Timeline retrieval and plotting
 ----------------------------------
+
+This method enables the exploration of the observation timeline for a specific region in the sky.
+Users can provide right ascension (RA) and declination (Dec) coordinates and adjust the radius
+to refine their search. Additionally, plots can be generated to illustrate details such as
+revolution numbers or distances from the observation center.
 
 .. doctest-remote-data::
 
@@ -122,6 +147,9 @@ Examples
 7. Retrieving epochs
 --------------------
 
+A list of observation epochs can be retrieved using this method, focusing on periods when data for a
+specific target, instrument, or energy band is available.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
@@ -140,9 +168,24 @@ Examples
 
 This will perform an ADQL search to the Integral database and will return the output.
 
-----------------------------------
-8. Retrieving Long-Term Timeseries
-----------------------------------
+----------------
+8. ISLA Explorer
+----------------
+
+.. note::
+    The plots and data provided by the methods in this section have been developed using
+    the automatic reduction pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual
+    scientific validation has been performed on these outputs. They should be examined
+    and validated before being used for scientific purposes. To ensure accuracy and
+    reliability, please use the methods available in section 9 to download the original
+    source files directly.
+
+8.1. Retrieving Long-Term Timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method provides access to long-term timeseries data for a specified target.
+Users can refine their results by selecting an instrument or energy band and may
+generate a plot automatically to visualize them.
 
 .. doctest-remote-data::
 
@@ -169,19 +212,12 @@ This will perform an ADQL search to the Integral database and will return the ou
   2015-09-19 22:55:18 5.5295000076293945 0.38519999384880066
   2015-09-22 10:04:41 11.792900085449219  0.7631999850273132]}
 
------------------------------------
-9. Downloading Long-Term Timeseries
------------------------------------
+8.2. Retrieving Short-Term Timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.integral import IntegralClass
-  >>> isla = IntegralClass()
-  >>> isla.download_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x') # doctest: +IGNORE_OUTPUT
-
-------------------------------------
-10. Retrieving Short-Term Timeseries
-------------------------------------
+Short-term time series data for a specific target and epoch can be accessed through this method.
+Users may apply optional filters, such as instrument or energy band,
+and can create a plot to visualize the extracted data.
 
 .. doctest-remote-data::
 
@@ -201,19 +237,12 @@ This will perform an ADQL search to the Integral database and will return the ou
   2008-11-19 15:39:18  3.6194331645965576 0.7971285581588745
   2008-11-19 15:52:14   4.299497127532959   1.06647527217865]}
 
--------------------------------------
-11. Downloading Short-Term Timeseries
--------------------------------------
+8.3. Retrieving spectra
+~~~~~~~~~~~~~~~~~~~~~~~
 
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.integral import IntegralClass
-  >>> isla = IntegralClass()
-  >>> isla.download_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
-
-----------------------
-12. Retrieving spectra
-----------------------
+Spectral data for a specified target and epoch can be obtained using this method.
+Additional parameters enable users to filter results by instrument or energy band,
+with the option to generate plots for spectral visualization.
 
 .. doctest-remote-data::
 
@@ -233,19 +262,13 @@ This will perform an ADQL search to the Integral database and will return the ou
     134.5          5.0 0.0014642734313383698 0.0035532701294869184
    143.25         3.75  0.004885881207883358  0.004115489777177572}]
 
------------------------
-13. Downloading spectra
------------------------
 
-.. doctest-remote-data::
+8.4. Retrieving mosaics
+~~~~~~~~~~~~~~~~~~~~~~~
 
-  >>> from astroquery.esa.integral import IntegralClass
-  >>> isla = IntegralClass()
-  >>> isla.download_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
-
-----------------------
-14. Retrieving mosaics
-----------------------
+A mosaic image for a specific epoch can be retrieved with this method.
+The query can be tailored by selecting an instrument or energy band.
+Plots of the mosaic image can also be generated if visualization is required.
 
 .. doctest-remote-data::
 
@@ -265,15 +288,61 @@ This will perform an ADQL search to the Integral database and will return the ou
   184.7323895179  44.5688775166     nan
   184.6941077098   44.474844758     nan}]
 
------------------------
-15. Downloading mosaics
------------------------
+----------------------------
+9. Downloading ISLA products
+----------------------------
+
+9.1. Downloading Long-Term Timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Long-term time series data can be downloaded using this method. Filters for instrument
+and energy band can be applied to narrow down the data, and the results are saved to a
+designated output file for further analysis.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.integral import IntegralClass
+  >>> isla = IntegralClass()
+  >>> isla.download_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x') # doctest: +IGNORE_OUTPUT
+
+9.2. Downloading Short-Term Timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method allows for the download of short-term time series data for a target and epoch of interest.
+Users can refine their search using instrument or energy band filters and
+the results are saved to a file for detailed examination.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.integral import IntegralClass
+  >>> isla = IntegralClass()
+  >>> isla.download_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
+
+9.3. Downloading spectra
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method allows users to download spectral data for a target and epoch.
+Users can apply filters, such as instrument or energy band, and save the results to an
+output file for further processing.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.integral import IntegralClass
+  >>> isla = IntegralClass()
+  >>> isla.download_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
+
+9.4. Downloading mosaics
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mosaic images corresponding to a specified epoch can be downloaded using this method.
+Users can filter by instrument or energy band and save the resulting image to a file for later use.
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
   >>> mosaics = isla.download_mosaic(epoch='0727_88601650001', instrument='ibis') # doctest: +IGNORE_OUTPUT
+
 
 Reference/API
 =============

@@ -19,49 +19,7 @@ from pyvo.dal import DALResults
 
 from requests import HTTPError
 
-instruments_value = ["i1"]
-bands_value = ["b1"]
-instrument_band_mock_value = {"i1": "b1"}
-
-
-def get_instrument_bands():
-    return instruments_value, bands_value, instrument_band_mock_value
-
-
-def get_dal_table():
-    data = {
-        "source_id": [123456789012345, 234567890123456, 345678901234567],
-        "ra": [266.404997, 266.424512, 266.439127],
-        "dec": [-28.936173, -28.925636, -28.917813]
-    }
-
-    # Create an Astropy Table with the mock data
-    astropy_table = Table(data)
-
-    return DALResults(VOTableFile.from_table(astropy_table))
-
-
-def get_empty_table():
-    data = {
-        "source_id": [],
-    }
-
-    # Create an Astropy Table with the mock data
-    return Table(data)
-
-
-def get_sources_table():
-    data = {
-        "name": ['Crab'],
-        "ra": [83.63320922851562],
-        "dec": [22.01447105407715],
-        "source_id": ['J053432.0+220052']
-    }
-
-    # Create an Astropy Table with the mock data
-    astropy_table = Table(data)
-
-    return DALResults(VOTableFile.from_table(astropy_table))
+from astroquery.esa.integral.tests import mocks
 
 
 class TestTap:
@@ -117,7 +75,7 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_success(self, mock_post, instrument_band_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         mock_response = Mock()
         mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
@@ -136,11 +94,10 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_error(self, mock_post, instrument_band_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         error_message = "Mocked HTTP error"
-        mock_response = Mock()
-        mock_response.raise_for_status.side_effect = HTTPError(error_message)
+        mock_response = mocks.get_mock_response(error_message)
 
         # Configure the mock post method to return the mock Response
         mock_post.return_value = mock_response
@@ -152,7 +109,7 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_success(self, mock_post, instrument_band_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         mock_response = Mock()
         mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
@@ -170,11 +127,10 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_error(self, mock_post, instrument_band_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         error_message = "Mocked HTTP error"
-        mock_response = Mock()
-        mock_response.raise_for_status.side_effect = HTTPError(error_message)
+        mock_response = mocks.get_mock_response(error_message)
 
         # Configure the mock post method to return the mock Response
         mock_post.return_value = mock_response
@@ -187,8 +143,8 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.search')
     def test_query_tap_sync(self, search_mock, instrument_band_mock, table_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
-        search_mock.return_value = get_dal_table()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        search_mock.return_value = mocks.get_dal_table()
 
         query = 'select * from ivoa.obscore'
         isla = IntegralClass()
@@ -200,9 +156,9 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.submit_job')
     def test_query_tap_async(self, submit_job_mock, instrument_band_mock, async_job_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
         async_job_mock.phase.return_value = 'COMPLETE'
-        async_job_mock.fetch_result.return_value = get_dal_table()
+        async_job_mock.fetch_result.return_value = mocks.get_dal_table()
 
         query = 'select * from ivoa.obscore'
         isla = IntegralClass()
@@ -212,9 +168,9 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_sources_success_catalogue(self, instrument_band_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
-        query_tap_mock.return_value = get_sources_table().to_table()
+        query_tap_mock.return_value = mocks.get_sources_table().to_table()
         isla = IntegralClass()
         isla.get_sources(target_name='Crab')
 
@@ -226,11 +182,11 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_sources_success_resolver(self, instrument_band_mock, query_tap_mock, resolve_target_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
         resolve_target_mock.return_value = SkyCoord(ra=12, dec=13, unit="deg")
         query = conf.ISLA_CONE_TARGET_CONDITION.format(12.0, 13.0, 0.0833)
 
-        query_tap_mock.side_effect = [get_empty_table(), get_sources_table().to_table()]
+        query_tap_mock.side_effect = [mocks.get_empty_table(), mocks.get_sources_table().to_table()]
         isla = IntegralClass()
         isla.get_sources(target_name='test')
 
@@ -239,9 +195,9 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_sources_error(self, instrument_band_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
-        query_tap_mock.return_value = get_empty_table()
+        query_tap_mock.return_value = mocks.get_empty_table()
         isla = IntegralClass()
         with pytest.raises(ValueError) as err:
             isla.get_sources(target_name='test')
@@ -250,8 +206,8 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_error(self, instrument_band_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
-        query_tap_mock.return_value = get_empty_table()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        query_tap_mock.return_value = mocks.get_empty_table()
 
         isla = IntegralClass()
         with pytest.raises(TypeError) as err:
@@ -262,11 +218,11 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_t1(self, instrument_band_mock, get_sources_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
-        get_sources_mock.return_value = get_sources_table().to_table()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        get_sources_mock.return_value = mocks.get_sources_table().to_table()
 
         # Coordinates
-        query_tap_mock.return_value = get_dal_table().to_table()
+        query_tap_mock.return_value = mocks.get_dal_table().to_table()
         isla = IntegralClass()
         isla.get_observations(target_name='crab', radius=12.0, start_revno='0290', end_revno='0599')
         query_tap_mock.assert_called_with(query="select * from ila.cons_pub_obs where "
@@ -282,11 +238,11 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_t2(self, instrument_band_mock, get_sources_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
-        get_sources_mock.return_value = get_sources_table().to_table()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        get_sources_mock.return_value = mocks.get_sources_table().to_table()
 
         # Coordinates
-        query_tap_mock.return_value = get_dal_table().to_table()
+        query_tap_mock.return_value = mocks.get_dal_table().to_table()
         isla = IntegralClass()
         isla.get_observations(target_name='crab', radius=12.0, start_time='2024-12-13T00:00:00',
                               end_time='2024-12-14T00:00:00')
@@ -303,11 +259,11 @@ class TestTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_query(self, instrument_band_mock, get_sources_mock, query_tap_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
-        get_sources_mock.return_value = get_sources_table().to_table()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        get_sources_mock.return_value = mocks.get_sources_table().to_table()
 
         # Coordinates
-        query_tap_mock.return_value = get_dal_table().to_table()
+        query_tap_mock.return_value = mocks.get_dal_table().to_table()
         isla = IntegralClass()
         query = isla.get_observations(target_name='crab', radius=12.0, start_time='2024-12-13T00:00:00',
                                       end_time='2024-12-14T00:00:00', verbose=True)
@@ -320,7 +276,7 @@ class TestTap:
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows_error(self, instrument_band_mock, download_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
         download_mock.return_value = 'file.test'
 
         isla = IntegralClass()
@@ -335,7 +291,7 @@ class TestTap:
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows(self, instrument_band_mock, download_mock):
-        instrument_band_mock.return_value = get_instrument_bands()
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
         download_mock.return_value = 'file.test'
 
         isla = IntegralClass()
@@ -347,35 +303,326 @@ class TestTap:
             isla.download_science_windows(science_windows='sc', observation_id='obs')
         assert 'Only one parameter can be provided at a time.' in err.value.args[0]
 
-    def test_get_timeline(self):
-        print('test')
+        isla.download_science_windows(science_windows='sc')
 
-    def test_get_epochs(self):
-        print('test')
+        args, kwargs = download_mock.call_args
+        assert kwargs['params']['RETRIEVAL_TYPE'] == 'SCW'
 
-    def test_get_long_term_timeseries(self):
-        print('test')
+    @patch('astroquery.esa.utils.utils.plt.show')
+    @patch('astroquery.esa.utils.utils.plt.scatter')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_timeline_no_distance(self, instrument_band_mock, servlet_mock, scatter_mock, plt_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_timeline()
 
-    def test_download_long_term_timeseries(self):
-        print('test')
+        isla = IntegralClass()
+        isla.get_timeline(ra=83.63320922851562, dec=22.01447105407715, plot=True, plot_revno=True, plot_distance=False)
 
-    def test_get_short_term_timeseries(self):
-        print('test')
+        args, kwargs = servlet_mock.call_args
+        assert kwargs['query_params']['REQUEST'] == 'timelines'
 
-    def test_download_short_term_timeseries(self):
-        print('test')
+        scatter_mock.assert_called()
+        plt_mock.assert_called_with(block=False)
 
-    def test_get_spectra(self):
-        print('test')
+    @patch('astroquery.esa.utils.utils.plt.show')
+    @patch('astroquery.esa.utils.utils.plt.scatter')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_timeline_distance(self, instrument_band_mock, servlet_mock, scatter_mock, plt_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_timeline()
 
-    def test_download_spectra(self):
-        print('test')
+        isla = IntegralClass()
+        timeline = isla.get_timeline(ra=83.63320922851562, dec=22.01447105407715, plot=True, plot_revno=True,
+                                     plot_distance=True)
+        scatter_mock.assert_not_called()
+        plt_mock.assert_called_with(block=False)
 
-    def test_get_mosaic(self):
-        print('test')
+        assert len(timeline['timeline']['scwRevs']) > 0
 
-    def test_download_mosaic(self):
-        print('test')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_epochs_error(self, instrument_band_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
 
-    def test_get_source_metadata(self):
-        print('test')
+        isla = IntegralClass()
+        with pytest.raises(ValueError) as err:
+            isla.get_epochs(target_name='J011705.1-732636', instrument='i2')
+        assert 'This is not a valid value for instrument or band.' in err.value.args[0]
+
+    @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_epochs(self, instrument_band_mock, query_tap_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+
+        isla = IntegralClass()
+        isla.get_epochs(target_name='J011705.1-732636', instrument='i1')
+
+        query_tap_mock.assert_called_with("select distinct epoch from ila.epoch where "
+                                          "source_id = 'J011705.1-732636' and "
+                                          "(instrument_oid = id1 or band_oid = id2)")
+
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_long_term_timeseries_error(self, instrument_band_mock, servlet_mock, log_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = {}
+
+        isla = IntegralClass()
+        isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
+        log_mock.error.assert_called_with('No long term timeseries have been found with these inputs. '
+                                          'Please try with different input parameters.')
+
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_long_term_timeseries_exception(self, instrument_band_mock, servlet_mock, log_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response(error_message)
+        servlet_mock.side_effect = mock_response
+
+        isla = IntegralClass()
+        isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
+        log_mock.error.assert_called_with("Problem when retrieving long term timeseries. "
+                                          "argument of type 'Mock' is not iterable")
+
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_long_term_timeseries(self, instrument_band_mock, servlet_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_timeseries()
+
+        isla = IntegralClass()
+        lt_timeseries_list = isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
+
+        args, kwargs = servlet_mock.call_args
+        assert kwargs['query_params']['REQUEST'] == 'long_timeseries'
+
+        assert len(lt_timeseries_list['timeseries_list']) == 2
+
+    @patch('astroquery.esa.utils.utils.download_file')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_download_long_term_timeseries(self, instrument_band_mock, download_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+
+        isla = IntegralClass()
+        isla.download_long_term_timeseries(target_name='J174537.0-290107', band='b1')
+
+        args, kwargs = download_mock.call_args
+        assert kwargs['params']['RETRIEVAL_TYPE'] == 'long_timeseries'
+
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_short_term_timeseries_error(self, instrument_band_mock, epoch_mock, servlet_mock, log_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        servlet_mock.return_value = {}
+
+        isla = IntegralClass()
+        isla.get_short_term_timeseries(target_name='target',
+                                       band='b1', epoch='time', plot=True)
+        log_mock.error.assert_called_with('No short term timeseries have been found with these inputs. '
+                                          'Please try with different input parameters.')
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_short_term_timeseries_exception(self, instrument_band_mock, servlet_mock, log_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response(error_message)
+        servlet_mock.side_effect = mock_response
+
+        isla = IntegralClass()
+        isla.get_short_term_timeseries(target_name='target',
+                                       band='b1', epoch='time', plot=True)
+        log_mock.error.assert_called_with("Problem when retrieving short term timeseries. "
+                                          "argument of type 'Mock' is not iterable")
+
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_short_term_timeseries_epoch_error(self, instrument_band_mock, epoch_mock, servlet_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time2']}
+        servlet_mock.return_value = mocks.get_mock_timeseries()
+
+        isla = IntegralClass()
+        with pytest.raises(ValueError) as err:
+            isla.get_short_term_timeseries(target_name='target',
+                                           band='28_40', epoch='time', plot=True)
+        assert 'Epoch time is not available for this target and instrument/band.' in err.value.args[0]
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_short_term_timeseries(self, instrument_band_mock, servlet_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        servlet_mock.return_value = mocks.get_mock_timeseries()
+
+        isla = IntegralClass()
+        st_timeseries_list = isla.get_short_term_timeseries(target_name='target',
+                                                            band='b1', epoch='time', plot=True)
+        args, kwargs = servlet_mock.call_args
+        assert kwargs['query_params']['REQUEST'] == 'short_timeseries'
+
+        assert len(st_timeseries_list['timeseries_list']) == 2
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.download_file')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_download_short_term_timeseries(self, instrument_band_mock, download_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['today']}
+        isla = IntegralClass()
+        isla.download_short_term_timeseries(target_name='J174537.0-290107', epoch='today', band='b1')
+
+        args, kwargs = download_mock.call_args
+        assert kwargs['params']['RETRIEVAL_TYPE'] == 'short_timeseries'
+        download_mock.assert_called()
+
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_spectra_error(self, instrument_band_mock, epoch_mock, servlet_mock, log_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        servlet_mock.return_value = {}
+
+        isla = IntegralClass()
+        isla.get_spectra(target_name='target',
+                         band='b1', epoch='time', plot=True)
+        log_mock.error.assert_called_with('Spectra are not available with these inputs. '
+                                          'Please try with different input parameters.')
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_spectra_exception(self, instrument_band_mock, servlet_mock, log_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response(error_message)
+        servlet_mock.side_effect = mock_response
+
+        isla = IntegralClass()
+        isla.get_spectra(target_name='target',
+                         band='b1', epoch='time', plot=True)
+        log_mock.error.assert_called_with("Problem when retrieving spectra. "
+                                          "object of type 'Mock' has no len()")
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_spectra(self, instrument_band_mock, servlet_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_spectra()
+        epoch_mock.return_value = {'epoch': ['today']}
+
+        isla = IntegralClass()
+        spectra_list = isla.get_spectra(target_name='target',
+                                        epoch='today', band='b1', plot=True)
+        args, kwargs = servlet_mock.call_args
+        assert kwargs['query_params']['REQUEST'] == 'spectra'
+
+        assert len(spectra_list) == 1
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.utils.utils.download_file')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_download_spectra(self, instrument_band_mock, download_mock, servlet_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_spectra()
+        epoch_mock.return_value = {'epoch': ['today']}
+
+        isla = IntegralClass()
+        isla.download_spectra(target_name='J174537.0-290107', epoch='today', band='b1')
+
+        args, kwargs = download_mock.call_args
+        assert kwargs['params']['RETRIEVAL_TYPE'] == 'spectras'
+        download_mock.assert_called()
+
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_mosaic_error(self, instrument_band_mock, epoch_mock, servlet_mock, log_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        servlet_mock.return_value = {}
+
+        isla = IntegralClass()
+        isla.get_mosaic(epoch='time', instrument='i1', plot=True)
+        log_mock.error.assert_called_with('Mosaics are not available for these inputs. '
+                                          'Please try with different input parameters.')
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.integral.core.log')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_mosaic_exception(self, instrument_band_mock, servlet_mock, log_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        epoch_mock.return_value = {'epoch': ['time']}
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response(error_message)
+        servlet_mock.side_effect = mock_response
+
+        isla = IntegralClass()
+        isla.get_mosaic(epoch='time', instrument='i1', plot=True)
+        log_mock.error.assert_called_with("Problem when retrieving mosaics. "
+                                          "object of type 'Mock' has no len()")
+
+    @patch('astroquery.esa.utils.utils.plt.imshow')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_mosaic(self, instrument_band_mock, servlet_mock, epoch_mock, plt_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_mosaic()
+        epoch_mock.return_value = {'epoch': ['today']}
+
+        isla = IntegralClass()
+        mosaics = isla.get_mosaic(epoch='today', instrument='i1', plot=True)
+        args, kwargs = servlet_mock.call_args
+
+        assert kwargs['query_params']['REQUEST'] == 'mosaics'
+        assert len(mosaics) == 1
+        plt_mock.assert_called()
+
+    @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.utils.utils.download_file')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_download_mosaic(self, instrument_band_mock, download_mock, servlet_mock, epoch_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = mocks.get_mock_mosaic()
+        epoch_mock.return_value = {'epoch': ['today']}
+
+        isla = IntegralClass()
+        isla.download_mosaic(epoch='today', instrument='i1')
+
+        args, kwargs = download_mock.call_args
+        assert kwargs['params']['RETRIEVAL_TYPE'] == 'mosaics'
+        download_mock.assert_called()
+
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
+    def test_get_source_metadata(self, instrument_band_mock, servlet_mock):
+        instrument_band_mock.return_value = mocks.get_instrument_bands()
+        servlet_mock.return_value = {}
+
+        isla = IntegralClass()
+        isla.get_source_metadata(target_name='test')
+
+        args, kwargs = servlet_mock.call_args
+        assert kwargs['query_params']['REQUEST'] == 'sources'
