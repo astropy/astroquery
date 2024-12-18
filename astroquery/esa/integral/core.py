@@ -482,7 +482,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
                                                               tap=self.tap,
                                                               query_params=query_params)
-            if not 'detectors' in request_result or len(request_result['detectors']) == 0:
+            if 'detectors' not in request_result or len(request_result['detectors']) == 0:
                 raise ValueError('Please try with different input parameters.')
             # Parse the long term timeseries
             source_id = request_result['sourceId']
@@ -587,7 +587,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                                               tap=self.tap,
                                                               query_params=query_params)
 
-            if not 'detectors' in request_result or len(request_result['detectors']) == 0:
+            if 'detectors' not in request_result or len(request_result['detectors']) == 0:
                 raise ValueError('Please try with different input parameters.')
 
             # Parse the short term timeseries
@@ -982,7 +982,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         """
         available_epochs = self.get_epochs(target_name=target_name, instrument=instrument, band=band)
 
-        if not epoch in available_epochs['epoch']:
+        if epoch not in available_epochs['epoch']:
             raise ValueError(f"Epoch {epoch} is not available for this target and instrument/band.")
 
     def __get_science_window_parameter(self, science_windows, observation_id, revolution, proposal):

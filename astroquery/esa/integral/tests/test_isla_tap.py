@@ -9,13 +9,11 @@ European Space Agency (ESA)
 
 """
 from astropy.coordinates import SkyCoord
-from astropy.io.votable.tree import VOTableFile
-from astropy.table import Table
+
 from astroquery.esa.integral import IntegralClass
 from astroquery.esa.integral import conf
-from unittest.mock import MagicMock, PropertyMock, patch, Mock
+from unittest.mock import PropertyMock, patch, Mock
 import pytest
-from pyvo.dal import DALResults
 
 from requests import HTTPError
 
