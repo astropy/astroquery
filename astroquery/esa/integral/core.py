@@ -19,7 +19,6 @@ from . import conf
 import time
 import astroquery.esa.utils.utils as esautils
 from datetime import datetime
-from urllib.parse import urlparse
 
 __all__ = ['Integral', 'IntegralClass']
 
