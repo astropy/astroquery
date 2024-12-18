@@ -40,7 +40,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
     # Static class variables
     _search = 'search'
-    _list_products = 'list_products'
+    _list_products = 'post_list_products'
 
     # Workaround so that observation_id is returned in ULLYSES queries that do not specify columns
     _default_ulysses_cols = ['target_name_ulysses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
@@ -59,8 +59,8 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Service attributes
         self.service = self._search  # current API service
-        self.service_dict = {self._search: {'path': 'search'},
-                             self._list_products: {'path': 'list_products'}}
+        self.service_dict = {self._search: {'path': self._search},
+                             self._list_products: {'path': self._list_products}}
 
         # Search attributes
         self._search_option_fields = ['limit', 'offset', 'sort_by', 'search_key', 'sort_desc', 'select_cols',
@@ -190,7 +190,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Dataset ID column should always be returned
         if select_cols:
-            select_cols.append(self.dataset_kwds[self.mission])
+            select_cols.append(self.dataset_kwds.get(self.mission, None))
         elif self.mission == 'ullyses':
             select_cols = self._default_ulysses_cols
 
@@ -267,7 +267,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Dataset ID column should always be returned
         if select_cols:
-            select_cols.append(self.dataset_kwds[self.mission])
+            select_cols.append(self.dataset_kwds.get(self.mission, None))
         elif self.mission == 'ullyses':
             select_cols = self._default_ulysses_cols
 
@@ -349,32 +349,38 @@ class MastMissionsClass(MastQueryWithLogin):
 
         self.service = self._list_products
 
+        if isinstance(datasets, Table) or isinstance(datasets, Row):
+            dataset_kwd = self.get_dataset_kwd()
+            if not dataset_kwd:
+                log.warning('Please input dataset IDs as a string, list of strings, or `~astropy.table.Column`.')
+                return None
+
         # Extract dataset IDs based on input type and mission
         if isinstance(datasets, Table):
-            datasets = datasets[self.dataset_kwds[self.mission]]
+            datasets = datasets[dataset_kwd].tolist()
         elif isinstance(datasets, Row):
-            datasets = np.array([datasets[self.dataset_kwds[self.mission]]])
-        elif isinstance(datasets, str) or isinstance(datasets, Column):
-            datasets = np.array([datasets])
-        elif isinstance(datasets, list):
-            datasets = np.array(datasets)
-        else:
+            datasets = [datasets[dataset_kwd]]
+        elif isinstance(datasets, Column):
+            datasets = datasets.tolist()
+        elif isinstance(datasets, str):
+            datasets = [datasets]
+        elif not isinstance(datasets, list):
             raise TypeError('Unsupported data type for `datasets`. Expected string, '
-                            'list of strings, Astropy row, or Astropy Table.')
+                            'list of strings, Astropy Row, Astropy Column, or Astropy Table.')
 
         # Filter out empty strings from IDs
-        datasets = datasets[np.char.strip(datasets) != '']
-        if datasets.size == 0:
+        datasets = [item.strip() for item in datasets if item.strip() != '' and item is not None]
+        if not len(datasets):
             raise InvalidQueryError("Dataset list is empty, no associated products.")
 
         # Send async service request
-        params = {'dataset_ids': ','.join(datasets)}
+        params = {'dataset_ids': datasets}
         return self._service_api_connection.missions_request_async(self.service, params)
 
     def get_unique_product_list(self, datasets):
         """
         Given a dataset ID or list of dataset IDs, returns a list of associated data products with unique
-        URIs.
+        filenames.
 
         Parameters
         ----------
@@ -443,6 +449,7 @@ class MastMissionsClass(MastQueryWithLogin):
     def download_file(self, uri, *, local_path=None, cache=True, verbose=True):
         """
         Downloads a single file based on the data URI.
+
         Parameters
         ----------
         uri : str
@@ -453,6 +460,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is True. If file is found on disk, it will not be downloaded again.
         verbose : bool, optional
             Default is True. Whether to show download progress in the console.
+
         Returns
         -------
         status: str
@@ -550,7 +558,7 @@ class MastMissionsClass(MastQueryWithLogin):
                                                   local_path=local_file_path,
                                                   cache=cache,
                                                   verbose=verbose)
-            manifest_entries.append([local_file_path, status, msg or '', url or ''])
+            manifest_entries.append([local_file_path, status, msg, url])
 
         # Return manifest as Astropy Table
         manifest = Table(rows=manifest_entries, names=('Local Path', 'Status', 'Message', 'URL'))
@@ -627,7 +635,6 @@ class MastMissionsClass(MastQueryWithLogin):
         -------
         response : `~astropy.table.Table` that contains columns names, types, and descriptions
         """
-
         if not self.columns.get(self.mission):
             try:
                 # Send server request to get column list for current mission
@@ -658,6 +665,21 @@ class MastMissionsClass(MastQueryWithLogin):
                                    f' for mission {self.mission}: {ex}')
 
         return self.columns[self.mission]
+
+    def get_dataset_kwd(self):
+        """
+        Return the Dataset ID keyword for the selected mission. If the keyword is unknown, returns None.
+
+        Returns
+        -------
+        keyword : str or None
+            Dataset ID keyword or None if unknown.
+        """
+        if self.mission not in self.dataset_kwds:
+            log.warning('The mission "%s" does not have a known dataset ID keyword.', self.mission)
+            return None
+
+        return self.dataset_kwds[self.mission]
 
 
 MastMissions = MastMissionsClass()

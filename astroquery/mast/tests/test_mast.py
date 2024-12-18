@@ -406,6 +406,30 @@ def test_missions_download_no_auth(patch_post, caplog):
         assert 'Please check your authentication token' in caplog.text
 
 
+def test_missions_get_dataset_kwd(patch_post, caplog):
+    m = mast.MastMissions()
+
+    # Default is HST
+    assert m.mission == 'hst'
+    assert m.get_dataset_kwd() == 'sci_data_set_name'
+
+    # Switch to JWST
+    m.mission = 'JWST'  # case-insensitive
+    assert m.mission == 'jwst'
+    assert m.get_dataset_kwd() == 'fileSetName'
+
+    # Switch to an HLSP
+    m.mission = 'Classy'
+    assert m.mission == 'classy'
+    assert m.get_dataset_kwd() == 'Target'
+
+    # Switch to an unknown
+    m.mission = 'Unknown'
+    assert m.mission == 'unknown'
+    assert m.get_dataset_kwd() is None
+    with caplog.at_level('WARNING', logger='astroquery'):
+        assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
+
 ###################
 # MastClass tests #
 ###################
