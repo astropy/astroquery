@@ -172,13 +172,6 @@ This will perform an ADQL search to the Integral database and will return the ou
 8. ISLA Explorer
 ----------------
 
-.. note::
-    The plots and data provided by the methods in this section have been developed using
-    the automatic reduction pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual
-    scientific validation has been performed on these outputs. They should be examined
-    and validated before being used for scientific purposes. To ensure accuracy and
-    reliability, please use the methods available in section 9 to download the original
-    source files directly.
 
 8.1. Retrieving Long-Term Timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,6 +233,13 @@ and can create a plot to visualize the extracted data.
 8.3. Retrieving spectra
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+.. note::
+    The plots and data provided by this method have been developed using
+    the automatic reduction pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual
+    scientific validation has been performed on these outputs. They should be examined
+    and validated before being used for scientific purposes. To ensure accuracy and
+    reliability, please use dataset downloaded as described in section 9.3.
+
 Spectral data for a specified target and epoch can be obtained using this method.
 Additional parameters enable users to filter results by instrument or energy band,
 with the option to generate plots for spectral visualization.
@@ -265,6 +265,13 @@ with the option to generate plots for spectral visualization.
 
 8.4. Retrieving mosaics
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+    The plots and data provided by this method have been developed using
+    the automatic reduction pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual
+    scientific validation has been performed on these outputs. They should be examined
+    and validated before being used for scientific purposes. To ensure accuracy and
+    reliability, please use dataset downloaded as described in section 9.4.
 
 A mosaic image for a specific epoch can be retrieved with this method.
 The query can be tailored by selecting an instrument or energy band.
