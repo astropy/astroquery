@@ -90,6 +90,7 @@ class _Join:
     column_left: Any
     column_right: Any
     join_type: str = field(default="JOIN")
+    alias: str = field(default=None)
 
 
 class SimbadClass(BaseVOQuery):
@@ -670,10 +671,11 @@ class SimbadClass(BaseVOQuery):
         upload_name = "TAP_UPLOAD.script_infos"
         columns.append(_Column(upload_name, "*"))
 
+        # join on ident needs an alias in case the users want to add the votable field ident
         left_joins = [_Join("ident", _Column(upload_name, "user_specified_id"),
-                            _Column("ident", "id"), "LEFT JOIN"),
+                            _Column("ident", "id"), "LEFT JOIN", "ident_upload"),
                       _Join("basic", _Column("basic", "oid"),
-                            _Column("ident", "oidref"), "LEFT JOIN")]
+                            _Column("ident_upload", "oidref"), "LEFT JOIN")]
         for join in joins:
             left_joins.append(_Join(join.table, join.column_left,
                                     join.column_right, "LEFT JOIN"))
@@ -716,28 +718,29 @@ class SimbadClass(BaseVOQuery):
         Examples
         --------
 
-        Look for large galaxies in two cones
+        Look for largest galaxies in two cones
 
         >>> from astroquery.simbad import Simbad
         >>> from astropy.coordinates import SkyCoord
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
-        >>> simbad.add_votable_fields("otype") # doctest: +REMOTE_DATA
+        >>> simbad.add_votable_fields("otype", "dim") # doctest: +REMOTE_DATA
         >>> coordinates = SkyCoord([SkyCoord(186.6, 12.7, unit=("deg", "deg")),
         ...                         SkyCoord(170.75, 23.9, unit=("deg", "deg"))])
         >>> result = simbad.query_region(coordinates, radius="2d5m",
-        ...                              criteria="otype = 'Galaxy..' AND galdim_majaxis>8") # doctest: +REMOTE_DATA
-        >>> result.sort("main_id") # doctest: +REMOTE_DATA
-        >>> result["main_id", "otype"] # doctest: +REMOTE_DATA
+        ...                              criteria="otype = 'Galaxy..' AND galdim_majaxis>8.5") # doctest: +REMOTE_DATA
+        >>> result.sort("galdim_majaxis", reverse=True) # doctest: +REMOTE_DATA
+        >>> result["main_id", "otype", "galdim_majaxis"] # doctest: +REMOTE_DATA
         <Table length=5>
-          main_id    otype
-           object    object
-        ------------ ------
-        LEDA   40577    GiG
-        LEDA   41362    GiC
-               M  86    GiG
-               M  87    AGN
-           NGC  4438    LIN
+          main_id    otype  galdim_majaxis
+                                arcmin
+           object    object    float32
+        ------------ ------ --------------
+        LEDA   41362    GiC           11.0
+               M  86    GiG          10.47
+        LEDA   40917    AG?           10.3
+               M  87    AGN           9.12
+           NGC  4438    LIN           8.91
 
         Notes
         -----
@@ -1332,7 +1335,7 @@ class SimbadClass(BaseVOQuery):
         ...                  my_table_name=letters_table) # doctest: +REMOTE_DATA
         <Table length=3>
         alphabet
-         object
+          str1
         --------
                a
                b
@@ -1415,7 +1418,12 @@ class SimbadClass(BaseVOQuery):
         else:
             unique_joins = []
             [unique_joins.append(join) for join in joins if join not in unique_joins]
-            join = " " + " ".join([(f'{join.join_type} {join.table} ON {join.column_left.table}."'
+            # the joined tables can have an alias. We handle the two cases here
+            join = " " + " ".join([(f'{join.join_type} {join.table} AS {join.alias} '
+                                    f'ON {join.column_left.table}."{join.column_left.name}" = '
+                                    f'{join.alias}."{join.column_right.name}"')
+                                   if join.alias is not None else
+                                   (f'{join.join_type} {join.table} ON {join.column_left.table}."'
                                     f'{join.column_left.name}" = {join.column_right.table}."'
                                     f'{join.column_right.name}"') for join in unique_joins])
 

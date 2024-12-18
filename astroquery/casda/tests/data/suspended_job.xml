@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <uws:jobId>
+        <![CDATA[a7b53da7-1201-46ee-8718-0bf5b64dd5b8]]>
+    </uws:jobId>
+    <uws:runId xsi:nil="true" />
+    <uws:ownerId xsi:nil="true" />
+    <uws:phase>SUSPENDED</uws:phase>
+    <uws:quote xsi:nil="true" />
+    <uws:startTime>2024-04-17T08:10:22.793+0800</uws:startTime>
+    <uws:endTime xsi:nil="true" />
+    <uws:executionDuration>0</uws:executionDuration>
+    <uws:destruction xsi:nil="true" />
+    <uws:parameters>
+        <uws:parameter id="id">
+            <![CDATA[ABCDEF]]>
+        </uws:parameter>
+    </uws:parameters>
+    <uws:results>
+	</uws:results>
+    <uws:errorSummary xsi:nil="true" />
+</uws:job>

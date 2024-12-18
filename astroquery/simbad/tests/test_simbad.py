@@ -408,9 +408,10 @@ def test_query_objects():
     # no wildcard and additional criteria
     adql = simbad.core.Simbad.query_objects(("m1", "m2"), criteria="otype = 'Galaxy..'",
                                             get_query_payload=True)["QUERY"]
-    expected = ('FROM TAP_UPLOAD.script_infos LEFT JOIN ident ON TAP_UPLOAD.script_infos.'
-                '"user_specified_id" = ident."id" LEFT JOIN basic ON basic."oid" = ident."oidref"'
-                ' WHERE (otype = \'Galaxy..\')')
+    expected = ('FROM TAP_UPLOAD.script_infos LEFT JOIN ident AS ident_upload '
+                'ON TAP_UPLOAD.script_infos.'
+                '"user_specified_id" = ident_upload."id" LEFT JOIN basic '
+                'ON basic."oid" = ident_upload."oidref" WHERE (otype = \'Galaxy..\')')
     assert adql.endswith(expected)
     # with wildcard
     adql = simbad.core.Simbad.query_objects(("M *", "NGC *"), wildcard=True, get_query_payload=True)["QUERY"]

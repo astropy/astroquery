@@ -26,6 +26,11 @@ alma
 
 - Changed the way galactic ranges are used in queries [#3105]
 
+casda
+^^^^^
+
+- Support jobs which are in the SUSPENDED state (used when copying data) [#3134]
+
 ehst
 ^^^^
 
@@ -42,6 +47,12 @@ esa.jwst
 - get_obs_products method supports product_type parameter as string or list [#2995]
 
 - Add download_files_from_program method to get all products by program id [#3073]
+
+ipac.irsa
+^^^^^^^^^
+
+- Add more robust handling of errors returned in Most.query_object() responses.
+  [#3140]
 
 mpc
 ^^^
@@ -138,11 +149,19 @@ simbad
   A helper method was added ``astroquery.simbad.utils.CriteriaTranslator`` to
   translate between the sim-script syntax and the TAP/ADQL syntax. [#2954]
 
+- fixed ``query_objects`` that would not work in combination with the additional field
+  ``ident`` [#3149]
+
 skyview
 ^^^^^^^
 
 - Overlay arguments ``lut``, ``grid``, and ``gridlabel`` are removed, as they
   only apply to output types not returned by Astroquery [#2979]
+
+vizier
+^^^^^^
+
+- Fixed search by UCD -- they were ignored. [#3147]
 
 vsa
 ^^^
@@ -227,7 +246,7 @@ mast
 
 - Present users with an error when nonexistent query criteria are used in ``mast.MastMissions`` query functions. [#3126]
 
-- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and 
+- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and
   ``mast.Catalogs.query_object``. [#3126]
 
 - Handle HLSP data products in ``Observations.get_cloud_uris``. [#3126]
@@ -476,6 +495,8 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Stability improvements to ``query_aliases`` to address bug that made
   method retrieve no aliases for multiple star systems. [#2506]
+
+- Fix unit inconsistency in ``pl_trandur`` from day(s) to hour(s). [#3137]
 
 jplhorizons
 ^^^^^^^^^^^

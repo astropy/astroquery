@@ -66,7 +66,7 @@ to query the messier object M1:
     main_id    ra     dec   ... coo_wavelength     coo_bibcode     matched_id
               deg     deg   ...
     ------- ------- ------- ... -------------- ------------------- ----------
-      M   1 83.6287 22.0147 ...              R 1995AuJPh..48..143S      M   1
+      M   1 83.6324 22.0174 ...              X 2022A&A...661A..38P      M   1
 
 `Wildcards`_ are supported. Note that this makes the query case-sensitive.
 This allows, for instance, to query messier objects from 1 through 9:
@@ -203,12 +203,12 @@ If the center is defined by coordinates, then the best solution is to use a
     >>> Simbad.query_region(SkyCoord(31.0087, 14.0627, unit=(u.deg, u.deg),
     ...                     frame='galactic'), radius=2 * u.arcsec)
     <Table length=2>
-          main_id               ra        ... coo_wavelength     coo_bibcode
-                               deg        ...
-           object            float64      ...      str1             object
-    ------------------- ----------------- ... -------------- -------------------
-               GJ 699 b 269.4520769586187 ...              O 2020yCat.1350....0G
-    NAME Barnard's star 269.4520769586187 ...              O 2020yCat.1350....0G
+           main_id                ra        ... coo_wavelength     coo_bibcode    
+                                 deg        ...                                   
+            object             float64      ...      str1             object      
+    --------------------- ----------------- ... -------------- -------------------
+    NAME Barnard's Star b 269.4520769586187 ...              O 2020yCat.1350....0G
+      NAME Barnard's star 269.4520769586187 ...              O 2020yCat.1350....0G
 
 .. Note::
 
@@ -466,7 +466,7 @@ with:
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_votable_fields()[["name", "description"]]
-    <Table length=115>
+    <Table length=...>
         name                          description                      
        object                            object                        
     ----------- -------------------------------------------------------
@@ -584,11 +584,12 @@ constraint on the first character of the ``mespm.bibcode`` column
     >>> simbad.add_votable_fields("mesPM", "otype")
     >>> pm_measurements = simbad.query_object("BD+30  2512", criteria=criteria)
     >>> pm_measurements[["main_id", "mespm.pmra", "mespm.pmde", "mespm.bibcode"]]
-    <Table length=6>
+    <Table length=7>
       main_id   mespm.pmra mespm.pmde    mespm.bibcode
                  mas / yr   mas / yr
        object    float32    float32          object
     ----------- ---------- ---------- -------------------
+    BD+30  2512     -631.6     -289.5 2016ApJ...817..112S
     BD+30  2512   -631.662   -308.469 2020yCat.1350....0G
     BD+30  2512     -631.6     -289.5 2016ApJS..224...36K
     BD+30  2512   -631.625   -308.495 2018yCat.1345....0G
