@@ -43,7 +43,7 @@ class MastMissionsClass(MastQueryWithLogin):
     _list_products = 'post_list_products'
 
     # Workaround so that observation_id is returned in ULLYSES queries that do not specify columns
-    _default_ulysses_cols = ['target_name_ulysses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
+    _default_ullyses_cols = ['target_name_ulysses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
@@ -192,7 +192,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if select_cols:
             select_cols.append(self.dataset_kwds.get(self.mission, None))
         elif self.mission == 'ullyses':
-            select_cols = self._default_ulysses_cols
+            select_cols = self._default_ullyses_cols
 
         # basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
@@ -269,7 +269,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if select_cols:
             select_cols.append(self.dataset_kwds.get(self.mission, None))
         elif self.mission == 'ullyses':
-            select_cols = self._default_ulysses_cols
+            select_cols = self._default_ullyses_cols
 
         # build query
         params = {"limit": self.limit, "offset": offset, 'select_cols': select_cols}
@@ -583,7 +583,7 @@ class MastMissionsClass(MastQueryWithLogin):
         flat : bool, optional
             Default is False. If False, puts files into the standard
             directory structure of "mastDownload/<mission>/<dataset ID>/".
-            If True, places files directly in `download_dir` without subdirectories.
+            If True, places files directly in ``download_dir`` without subdirectories.
         cache : bool, optional
             Default is True. If file is found on disc, it will not be downloaded again.
         extension : string or list, optional
