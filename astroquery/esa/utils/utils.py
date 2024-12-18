@@ -192,7 +192,7 @@ def get_degree_radius(radius):
             return radius
         elif isinstance(radius, int):
             return float(radius)
-    raise ValueError(f"Radius must be either a Quantity or float value")
+    raise ValueError('Radius must be either a Quantity or float value')
 
 
 def download_table(astropy_table, output_file=None, output_format=None):
