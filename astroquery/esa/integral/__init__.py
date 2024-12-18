@@ -25,14 +25,17 @@ class Conf(_config.ConfigNamespace):
     ISLA_SERVLET = _config.ConfigItem(ISLA_TAP_URL + "/sync/?PHASE=RUN",
                                       "ISLA Sync Request")
     ISLA_TARGET_RESOLVER = _config.ConfigItem(ISLA_DOMAIN + "servlet/target-resolver?TARGET_NAME={}"
-                                                             "&RESOLVER_TYPE={}&FORMAT=json",
+                                                            "&RESOLVER_TYPE={}&FORMAT=json",
                                               "ISLA Target Resolver Request")
 
     ISLA_INSTRUMENT_BAND_QUERY = _config.ConfigItem('select i.name as instrument, b."name" as band, '
                                                     'i.instrument_oid, b.band_oid from ila.instrument i join '
                                                     'ila.band b using(instrument_oid);',
                                                     "ISLA Instrument Band Query")
-    ISLA_EPOCH_QUERY = _config.ConfigItem("select distinct epoch from ila.epoch where source_id = '{}' and "
+    ISLA_EPOCH_TARGET_QUERY = _config.ConfigItem("select distinct epoch from ila.epoch where source_id = '{}' and "
+                                                 "(instrument_oid = {} or band_oid = {})",
+                                                 "ISLA Epoch Query")
+    ISLA_EPOCH_QUERY = _config.ConfigItem("select distinct epoch from ila.epoch where "
                                           "(instrument_oid = {} or band_oid = {})",
                                           "ISLA Epoch Query")
     ISLA_OBSERVATION_BASE_QUERY = _config.ConfigItem("select * from ila.cons_pub_obs",
