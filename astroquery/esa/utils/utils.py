@@ -9,26 +9,17 @@ European Space Agency (ESA)
 """
 import getpass
 import os
-from urllib.parse import urlparse
 
 import numpy as np
-import requests
 from astropy import log
 from astropy.coordinates import SkyCoord
-from astropy import units
-from astropy.table import Table
 
 from astropy.units import Quantity
-from astroquery.exceptions import RemoteServiceError
-from astroquery.ipac.ned import Ned
-from astroquery.simbad import Simbad
-from astroquery.vizier import Vizier
 from pyvo.auth.authsession import AuthSession
 from astroquery.utils import commons
 
 import matplotlib.pyplot as plt
 from requests import Response
-import json
 
 
 TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
@@ -238,7 +229,7 @@ def execute_servlet_request(url, tap, *, query_params=None):
     The request with the modified url
     """
 
-    if not 'TAPCLIENT' in query_params:
+    if 'TAPCLIENT' not in query_params:
         query_params['TAPCLIENT'] = 'ASTROQUERY'
 
     # Use the TAPService session to perform a custom GET request
@@ -410,7 +401,7 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
     The request with the modified url
     """
 
-    if not 'TAPCLIENT' in params:
+    if 'TAPCLIENT' not in params:
         params['TAPCLIENT'] = 'ASTROQUERY'
 
     with session.get(url, stream=True, params=params) as response:
