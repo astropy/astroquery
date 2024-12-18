@@ -354,12 +354,9 @@ class ServiceAPI(BaseQuery):
             'Accept': 'application/json'
         }
 
-        # Determine request method and payload based on service
-        method = 'POST' if service == 'search' else 'GET'
-        data, params = (params, None) if method == 'POST' else (None, params)
-
         # make request
-        response = self._request(method=method,
+        data, params = (params, None)
+        response = self._request(method='POST',
                                  url=request_url,
                                  params=params,
                                  data=data,
