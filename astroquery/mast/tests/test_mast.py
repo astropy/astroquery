@@ -16,7 +16,7 @@ from requests import HTTPError, Response
 
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning
+from astroquery.exceptions import InvalidQueryError, InputWarning, MaxResultsWarning
 
 from astroquery import mast
 
