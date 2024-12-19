@@ -31,10 +31,13 @@ casda
 
 - Support jobs which are in the SUSPENDED state (used when copying data) [#3134]
 
-ehst
-^^^^
+esa.hubble
+^^^^^^^^^^
 
 - Include warning in get_datalabs_path method for ehst when the data volume is not mounted in DataLabs [#3059]
+
+- Fix an inconsistency, ``get_member_observations`` now return a list for
+  both simple and composite observations. [#3157]
 
 gama
 ^^^^

@@ -299,7 +299,7 @@ class ESAHubbleClass(BaseQuery):
     def _select_related_composite(self, observation_id):
         query = f"select observation_id from ehst.observation where members like '%{observation_id}%'"
         job = self.query_tap(query=query)
-        oids = job["observation_id"]
+        oids = job["observation_id"].tolist()
         return oids
 
     def __validate_product_type(self, product_type):

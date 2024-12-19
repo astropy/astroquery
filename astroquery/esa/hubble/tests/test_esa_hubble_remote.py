@@ -103,7 +103,9 @@ class TestEsaHubbleRemoteData:
 
     def test_hap_simple_to_hap_composite(self):
         result = esa_hubble.get_member_observations(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
-        assert result == ['hst_16316_71_acs_sbc_f150lp_jec071']
+        assert result == ['hst_16316_71_acs_sbc_f150lp_jec071',
+                          'hst_16316_71_acs_sbc_total_jec071',
+                          'hst_skycell-p2478x15y09_acs_sbc_f150lp_all']
 
     def test_hap_simple_to_hst_simple(self):
         result = esa_hubble.get_hap_hst_link(observation_id='hst_16316_71_acs_sbc_f150lp_jec071i9')
