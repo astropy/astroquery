@@ -28,7 +28,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     Class to init ESA Integral Module and communicate with isla
     """
 
-    def __init__(self, tap_handler=None, auth_session=None):
+    def __init__(self, auth_session=None):
         super().__init__()
 
         # Checks if auth session has been defined. If not, create a new session
@@ -38,16 +38,22 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             self._auth_session = esautils.ESAAuthSession()
 
         self._auth_session.timeout = conf.TIMEOUT
+        self._tap = None
+        self._tap_url = conf.ISLA_TAP_SERVER
 
-        if tap_handler is None:
-            self.tap = pyvo.dal.TAPService(
+        self.instruments = []
+        self.bands = []
+        self.instrument_band_map = {}
+
+    @property
+    def tap(self) -> pyvo.dal.TAPService:
+        if self._tap is None:
+            self._tap = pyvo.dal.TAPService(
                 conf.ISLA_TAP_SERVER, session=self._auth_session)
-        else:
-            self.tap = tap_handler
-            self._data = None
+            # Retrieve the instruments and bands available within ISLA Archive
+            self.get_instrument_band_map()
 
-        # Retrieve the instruments and bands available within ISLA Archive
-        self.instruments, self.bands, self.instrument_band_map = self.get_instrument_band_map()
+        return self._tap
 
     def get_tables(self, *, only_names=False):
         """
@@ -217,13 +223,15 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         # Second attempt, resolve using a Resolver Service and cone search to the source catalogue
         try:
             coordinates = esautils.resolve_target(conf.ISLA_TARGET_RESOLVER, self.tap._session, target_name, 'ALL')
-            query = conf.ISLA_CONE_TARGET_CONDITION.format(coordinates.ra.degree, coordinates.dec.degree, 0.0833)
-            result = self.query_tap(query=query, async_job=async_job, output_file=output_file,
-                                    output_format=output_format)
+            if coordinates:
+                query = conf.ISLA_CONE_TARGET_CONDITION.format(coordinates.ra.degree, coordinates.dec.degree, 0.0833)
+                result = self.query_tap(query=query, async_job=async_job, output_file=output_file,
+                                        output_format=output_format)
 
-            if len(result) > 0:
-                return result[0]
+                if len(result) > 0:
+                    return result[0]
 
+            raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
         except ValueError:
             raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
 
@@ -900,20 +908,39 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         """
         Maps the bands and instruments included in ISLA
         """
-        instrument_band_table = self.query_tap(conf.ISLA_INSTRUMENT_BAND_QUERY)
-        instrument_band_map = {}
 
-        for row in instrument_band_table:
-            instrument_band_map[row['instrument']] = {'band': row['band'],
-                                                      'instrument_oid': row['instrument_oid'],
-                                                      'band_oid': row['band_oid']}
-            instrument_band_map[row['band']] = {'instrument': row['instrument'],
-                                                'instrument_oid': row['instrument_oid'],
-                                                'band_oid': row['band_oid']}
+        if len(self.instrument_band_map) == 0:
+            instrument_band_table = self.query_tap(conf.ISLA_INSTRUMENT_BAND_QUERY)
+            instrument_band_map = {}
 
-        instruments = instrument_band_table['instrument']
-        bands = instrument_band_table['band']
-        return instruments, bands, instrument_band_map
+            for row in instrument_band_table:
+                instrument_band_map[row['instrument']] = {'band': row['band'],
+                                                          'instrument_oid': row['instrument_oid'],
+                                                          'band_oid': row['band_oid']}
+                instrument_band_map[row['band']] = {'instrument': row['instrument'],
+                                                    'instrument_oid': row['instrument_oid'],
+                                                    'band_oid': row['band_oid']}
+
+            instruments = instrument_band_table['instrument']
+            bands = instrument_band_table['band']
+
+            self.instruments = instruments
+            self.bands = bands
+            self.instrument_band_map = instrument_band_map
+
+    def get_instruments(self):
+        """
+        Get the instruments available in ISLA
+        """
+        self.get_instrument_band_map()
+        return self.instruments
+
+    def get_bands(self):
+        """
+        Get the bands available in ISLA
+        """
+        self.get_instrument_band_map()
+        return self.bands
 
     def __get_instrument_or_band(self, instrument, band):
         if instrument and band:
@@ -928,12 +955,16 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         else:
             value = band
 
+        # Retrieve the available instruments or bands if not loaded yet
+        self.get_instrument_band_map()
+
+        # Validate the value is in the list of allowed ones
         if value in self.instrument_band_map:
             return value
 
         raise ValueError(f"This is not a valid value for instrument or band. Valid values are:\n"
-                         f"Instruments: {self.instruments}\n"
-                         f"Bands: {self.bands}")
+                         f"Instruments: {self.get_instruments()}\n"
+                         f"Bands: {self.get_bands()}")
 
     def __get_oids(self, value):
         """
@@ -1027,7 +1058,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
     def __log_warning_message(self, get_method, download_method, show_warning=True):
         if show_warning:
-            warnings.warn(
+            log.warning(
                 f"The plots and data provided by '{get_method}' have been developed using the automatic reduction "
                 f"pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual scientific validation has been "
                 f"performed on these outputs. They should be examined and validated before being used for scientific "

@@ -20,6 +20,10 @@ from requests import HTTPError
 from astroquery.esa.integral.tests import mocks
 
 
+def mock_instrument_bands(isla_module):
+    isla_module.instruments, isla_module.bands, isla_module.instrument_band_map = mocks.get_instrument_bands()
+
+
 class TestTap:
 
     def test_get_tables(self):
@@ -46,30 +50,32 @@ class TestTap:
             assert isla.get_table('ila.cons_pub_obs').name == 'ila.cons_pub_obs'
             assert isla.get_table('test') is None
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.get_job')
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.integral.core.IntegralClass.tap')
     @patch('astroquery.esa.integral.core.pyvo.dal.AsyncTAPJob')
-    def test_load_job(self, mock_get_job, isla_job_mock):
+    def test_load_job(self, isla_job_mock, mock_tap):
         jobid = '101'
         mock_job = Mock()
         mock_job.job_id = '101'
-        isla_job_mock.return_value = mock_job
-        mock_get_job.return_value = mock_job
+        isla_job_mock.job_id.return_value = '101'
+        mock_tap.get_job.return_value = mock_job
         isla = IntegralClass()
 
         job = isla.get_job(jobid=jobid)
         assert job.job_id == '101'
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.get_job_list')
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.integral.core.IntegralClass.tap')
     def test_get_job_list(self, mock_get_job_list):
         mock_job = Mock()
         mock_job.job_id = '101'
-        mock_get_job_list.return_value = [mock_job]
+        mock_get_job_list.get_job_list.return_value = [mock_job]
         isla = IntegralClass()
 
         jobs = isla.get_job_list()
-        print(jobs)
         assert len(jobs) == 1
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_success(self, mock_post, instrument_band_mock):
@@ -89,6 +95,7 @@ class TestTap:
                                           headers={'Content-type': 'application/x-www-form-urlencoded',
                                                    'Accept': 'text/plain'})
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_error(self, mock_post, instrument_band_mock):
@@ -104,6 +111,7 @@ class TestTap:
             isla.login(user='dummyUser', password='dummyPassword')
         assert error_message in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_success(self, mock_post, instrument_band_mock):
@@ -122,6 +130,7 @@ class TestTap:
                                           headers={'Content-type': 'application/x-www-form-urlencoded',
                                                    'Accept': 'text/plain'})
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_error(self, mock_post, instrument_band_mock):
@@ -137,6 +146,7 @@ class TestTap:
             isla.logout()
         assert error_message in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astropy.table.Table.write')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.search')
@@ -150,6 +160,7 @@ class TestTap:
         search_mock.assert_called_with(query)
         table_mock.assert_called()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('pyvo.dal.AsyncTAPJob')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.submit_job')
@@ -163,6 +174,7 @@ class TestTap:
         isla.query_tap(query=query, async_job=True)
         submit_job_mock.assert_called_with(query)
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_sources_success_catalogue(self, instrument_band_mock, query_tap_mock):
@@ -176,6 +188,7 @@ class TestTap:
                                                 "ila.v_cat_source src where src.name ilike '%Crab%' order by "
                                                 "src.name asc", async_job=False, output_file=None, output_format=None)
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.resolve_target')
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -190,17 +203,21 @@ class TestTap:
 
         query_tap_mock.assert_called_with(query=query, async_job=False, output_file=None, output_format=None)
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.resolve_target')
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
-    def test_get_sources_error(self, instrument_band_mock, query_tap_mock):
+    def test_get_sources_error(self, instrument_band_mock, query_tap_mock, resolve_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         query_tap_mock.return_value = mocks.get_empty_table()
+        resolve_mock.return_value = None
         isla = IntegralClass()
         with pytest.raises(ValueError) as err:
             isla.get_sources(target_name='test')
         assert 'Target test cannot be resolved for ISLA' in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_error(self, instrument_band_mock, query_tap_mock):
@@ -212,6 +229,7 @@ class TestTap:
             isla.get_observations(target_name='test', coordinates='test')
         assert 'Please use only target or coordinates as parameter.' in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -230,8 +248,8 @@ class TestTap:
                                           async_job=False,
                                           output_file=None,
                                           output_format=None)
-        print('test')
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -253,6 +271,7 @@ class TestTap:
                                           output_file=None,
                                           output_format=None)
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -271,6 +290,7 @@ class TestTap:
                          "endtime >= '2024-12-13 00:00:00' AND starttime <= "
                          "'2024-12-14 00:00:00' order by obsid")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows_error(self, instrument_band_mock, download_mock):
@@ -286,6 +306,7 @@ class TestTap:
             isla.download_science_windows(science_windows='sc', observation_id='obs')
         assert 'Only one parameter can be provided at a time.' in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows(self, instrument_band_mock, download_mock):
@@ -306,6 +327,7 @@ class TestTap:
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'SCW'
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.plt.show')
     @patch('astroquery.esa.utils.utils.plt.scatter')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -323,6 +345,7 @@ class TestTap:
         scatter_mock.assert_called()
         plt_mock.assert_called_with(block=False)
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.plt.show')
     @patch('astroquery.esa.utils.utils.plt.scatter')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -339,6 +362,7 @@ class TestTap:
 
         assert len(timeline['timeline']['scwRevs']) > 0
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_epochs_error(self, instrument_band_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
@@ -348,18 +372,21 @@ class TestTap:
             isla.get_epochs(target_name='J011705.1-732636', instrument='i2')
         assert 'This is not a valid value for instrument or band.' in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_epochs(self, instrument_band_mock, query_tap_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_epochs(target_name='J011705.1-732636', instrument='i1')
 
         query_tap_mock.assert_called_with("select distinct epoch from ila.epoch where "
                                           "source_id = 'J011705.1-732636' and "
                                           "(instrument_oid = id1 or band_oid = id2)")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -368,10 +395,12 @@ class TestTap:
         servlet_mock.return_value = {}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
         log_mock.error.assert_called_with('No long term timeseries have been found with these inputs. '
                                           'Please try with different input parameters.')
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -382,10 +411,12 @@ class TestTap:
         servlet_mock.side_effect = mock_response
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
         log_mock.error.assert_called_with("Problem when retrieving long term timeseries. "
                                           "argument of type 'Mock' is not iterable")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_long_term_timeseries(self, instrument_band_mock, servlet_mock):
@@ -393,6 +424,7 @@ class TestTap:
         servlet_mock.return_value = mocks.get_mock_timeseries()
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         lt_timeseries_list = isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1', plot=True)
 
         args, kwargs = servlet_mock.call_args
@@ -400,17 +432,20 @@ class TestTap:
 
         assert len(lt_timeseries_list['timeseries_list']) == 2
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_long_term_timeseries(self, instrument_band_mock, download_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.download_long_term_timeseries(target_name='J174537.0-290107', band='b1')
 
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'long_timeseries'
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -421,11 +456,13 @@ class TestTap:
         servlet_mock.return_value = {}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_short_term_timeseries(target_name='target',
                                        band='b1', epoch='time', plot=True)
         log_mock.error.assert_called_with('No short term timeseries have been found with these inputs. '
                                           'Please try with different input parameters.')
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -438,11 +475,13 @@ class TestTap:
         servlet_mock.side_effect = mock_response
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_short_term_timeseries(target_name='target',
                                        band='b1', epoch='time', plot=True)
         log_mock.error.assert_called_with("Problem when retrieving short term timeseries. "
                                           "argument of type 'Mock' is not iterable")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -452,11 +491,13 @@ class TestTap:
         servlet_mock.return_value = mocks.get_mock_timeseries()
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         with pytest.raises(ValueError) as err:
             isla.get_short_term_timeseries(target_name='target',
                                            band='28_40', epoch='time', plot=True)
         assert 'Epoch time is not available for this target and instrument/band.' in err.value.args[0]
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -466,6 +507,7 @@ class TestTap:
         servlet_mock.return_value = mocks.get_mock_timeseries()
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         st_timeseries_list = isla.get_short_term_timeseries(target_name='target',
                                                             band='b1', epoch='time', plot=True)
         args, kwargs = servlet_mock.call_args
@@ -473,6 +515,7 @@ class TestTap:
 
         assert len(st_timeseries_list['timeseries_list']) == 2
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -480,12 +523,14 @@ class TestTap:
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         epoch_mock.return_value = {'epoch': ['today']}
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.download_short_term_timeseries(target_name='J174537.0-290107', epoch='today', band='b1')
 
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'short_timeseries'
         download_mock.assert_called()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -496,11 +541,13 @@ class TestTap:
         servlet_mock.return_value = {}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_spectra(target_name='target',
                          band='b1', epoch='time', plot=True)
         log_mock.error.assert_called_with('Spectra are not available with these inputs. '
                                           'Please try with different input parameters.')
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -513,11 +560,13 @@ class TestTap:
         servlet_mock.side_effect = mock_response
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_spectra(target_name='target',
                          band='b1', epoch='time', plot=True)
         log_mock.error.assert_called_with("Problem when retrieving spectra. "
                                           "object of type 'Mock' has no len()")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -527,6 +576,7 @@ class TestTap:
         epoch_mock.return_value = {'epoch': ['today']}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         spectra_list = isla.get_spectra(target_name='target',
                                         epoch='today', band='b1', plot=True)
         args, kwargs = servlet_mock.call_args
@@ -534,6 +584,7 @@ class TestTap:
 
         assert len(spectra_list) == 1
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.utils.utils.download_file')
@@ -544,12 +595,14 @@ class TestTap:
         epoch_mock.return_value = {'epoch': ['today']}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.download_spectra(target_name='J174537.0-290107', epoch='today', band='b1')
 
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'spectras'
         download_mock.assert_called()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -560,10 +613,12 @@ class TestTap:
         servlet_mock.return_value = {}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_mosaic(epoch='time', instrument='i1', plot=True)
         log_mock.error.assert_called_with('Mosaics are not available for these inputs. '
                                           'Please try with different input parameters.')
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -576,10 +631,12 @@ class TestTap:
         servlet_mock.side_effect = mock_response
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_mosaic(epoch='time', instrument='i1', plot=True)
         log_mock.error.assert_called_with("Problem when retrieving mosaics. "
                                           "object of type 'Mock' has no len()")
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.plt.imshow')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -590,6 +647,7 @@ class TestTap:
         epoch_mock.return_value = {'epoch': ['today']}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         mosaics = isla.get_mosaic(epoch='today', instrument='i1', plot=True)
         args, kwargs = servlet_mock.call_args
 
@@ -597,6 +655,7 @@ class TestTap:
         assert len(mosaics) == 1
         plt_mock.assert_called()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.utils.utils.download_file')
@@ -607,12 +666,14 @@ class TestTap:
         epoch_mock.return_value = {'epoch': ['today']}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.download_mosaic(epoch='today', instrument='i1')
 
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'mosaics'
         download_mock.assert_called()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_source_metadata(self, instrument_band_mock, servlet_mock):
@@ -620,6 +681,7 @@ class TestTap:
         servlet_mock.return_value = {}
 
         isla = IntegralClass()
+        mock_instrument_bands(isla_module=isla)
         isla.get_source_metadata(target_name='test')
 
         args, kwargs = servlet_mock.call_args
