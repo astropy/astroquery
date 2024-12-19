@@ -153,7 +153,7 @@ def _mock_list_spacesys(monkeypatch):
 @pytest.mark.usefixtures("_mock_list_spacesys")
 def test_list_spacesys():
     list_spacesys = MOCServer.list_spacesys()
-    assert "C" in list_spacesys and "equatorial" in list_spacesys
+    assert "sky" in list_spacesys and "equatorial" in list_spacesys
 
 
 # ---------------------
@@ -222,6 +222,14 @@ def test_return_moc():
         meta_data="", return_moc=True, get_query_payload=True
     )
     assert payload["order"] == "max"
+
+
+def test_spacesys():
+    payload = MOCServer.query_region(
+        spacesys="sky", meta_data="", return_moc=True,
+        max_norder=5, get_query_payload=True
+    )
+    assert payload["spacesys"] == "C"
 
 
 # ----------------

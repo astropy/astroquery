@@ -362,10 +362,12 @@ sky and all other possible frames. This can take all the values listed by
 
   >>> from astroquery.mocserver import MOCServer
   >>> MOCServer.list_spacesys()
-  ['C', 'ariel', 'callisto', 'ceres', 'charon', 'dione', 'earth', 'enceladus', 'equatorial', 'europa', 'galactic', 'ganymede', 'iapetus', 'io', 'jupiter', 'mars', 'mars-pia20284', 'mars-pia24422', 'mars-stimson', 'mercury', 'mimas', 'miranda', 'moon', 'moon-pan1', 'neptune', 'oberon', 'pluto', 'rhea', 'sun', 'tethys', 'titan', 'titania', 'triton', 'umbriel', 'venus']
+  ['ariel', 'callisto', 'ceres', 'charon', 'dione', 'earth', 'enceladus', 'equatorial', 'europa', 'galactic', 'ganymede', 'iapetus', 'io', 'jupiter', 'mars', 'mars-pia20284', 'mars-pia24422', 'mars-stimson', 'mercury', 'mimas', 'miranda', 'moon', 'moon-pan1', 'neptune', 'oberon', 'pluto', 'rhea', 'sky', 'sun', 'tethys', 'titan', 'titania', 'triton', 'umbriel', 'venus']
 
-Where the special value ``C`` means any celestial frame (mainly ``equatorial`` and
-``galactic``). This can be used in any of the query methods like so:
+Where the special value ``sky`` means any celestial frame (mainly ``equatorial`` and
+``galactic``). 
+
+The ``spacesys`` can be used in any of the query methods like so:
 
 .. doctest-remote-data::
 

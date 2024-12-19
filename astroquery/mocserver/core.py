@@ -75,7 +75,7 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         spacesys: str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            the values ``sky``, ``mars``, ``moon``... The extended list can
             be printed with `list_spacesys`. Default is None, meaning that the results
             will have mixed frames.
         intersect : str, optional
@@ -162,7 +162,7 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         spacesys: str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            the values ``sky``, ``mars``, ``moon``... The extended list can
             be printed with `list_spacesys`. Default is None, meaning that the results
             will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
@@ -254,7 +254,7 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         spacesys: str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            the values ``sky``, ``mars``, ``moon``... The extended list can
             be printed with `list_spacesys`. Default is None, meaning that the results
             will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
@@ -342,7 +342,7 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         spacesys: str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``C`` (for the sky), ``mars``, ``moon``... The extended list can
+            the values ``sky``, ``mars``, ``moon``... The extended list can
             be printed with `list_spacesys`. Default is None, meaning that the results
             will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
@@ -521,7 +521,7 @@ class MOCServerClass(BaseQuery):
                                             fields=["ID", "hips_frame"],
                                             spacesys=None)["hips_frame"]))
         # `C` is a special case that corresponds to both equatorial and galactic frames
-        frames.append("C")
+        frames.append("sky")
         frames.sort()
         return frames
 
@@ -553,7 +553,7 @@ def _args_to_payload(
         "get": "record",
         "fields": _get_fields(fields, default_fields),
         "intersect": intersect.replace("encloses", "enclosed"),
-        "spacesys": spacesys,
+        "spacesys": "C" if spacesys == "sky" else spacesys,
     }
 
     if region and not isinstance(region, (MOC, STMOC, TimeMOC)):
