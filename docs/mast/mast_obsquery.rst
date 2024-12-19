@@ -294,7 +294,7 @@ To return only unique data products for an observation, use `~astroquery.mast.Ob
    ...                                   proposal_id=['12062'],
    ...                                   dataRights='PUBLIC')
    >>> unique_products = Observations.get_unique_product_list(obs)
-   INFO: 180 of 370 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.observations]
+   INFO: 180 of 370 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.utils]
    INFO: To return all products, use `Observations.get_product_list` [astroquery.mast.observations]
    >>> print(unique_products[:10]['dataURI'])
                                  dataURI                              
@@ -503,7 +503,7 @@ This approach is recommended for code brevity. Query criteria are supplied as ke
    ...                                       proposal_id=['12062'],
    ...                                       dataRights='PUBLIC',
    ...                                       filter_products={'productSubGroupDescription': 'DRZ'})
-   INFO: 2 of 4 products were duplicates. Only returning 2 unique product(s). [astroquery.mast.observations]
+   INFO: 2 of 4 products were duplicates. Only returning 2 unique product(s). [astroquery.mast.utils]
    >>> print(s3_uris)
    ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
    >>> Observations.disable_cloud_dataset()
