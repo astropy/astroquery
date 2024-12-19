@@ -79,6 +79,11 @@ mpc
 - Remove ``comettype`` parameter from ``MPC.get_observations`` without
   deprecation: it was undocumented, ignored, and had no effect.  [#3089]
 
+nvas
+^^^^
+
+- Fixed base URL to reflect upstream changes. [#3160]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
