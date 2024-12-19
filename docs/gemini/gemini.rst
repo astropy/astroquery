@@ -24,13 +24,13 @@ Positional queries can be based on a sky position.  Radius is an optional parame
                >>> coord = coordinates.SkyCoord(210.80242917, 54.34875, unit="deg")
                >>> data = Observations.query_region(coordinates=coord, radius=0.3*units.deg)
                >>> print(data[0:5])
-               exposure_time detector_roi_setting ...  release         dec
+               exposure_time detector_roi_setting ...  release         dec      
                ------------- -------------------- ... ---------- ---------------
-                    119.9986           Full Frame ... 2008-08-21  54.34877772501
-                    119.9983           Full Frame ... 2008-09-25 54.376194395654
-                    119.9986           Full Frame ... 2008-09-25 54.366916626746
-                    119.9983           Full Frame ... 2008-09-25 54.274527402457
-                     99.9983           Full Frame ... 2013-08-16 54.307561057825
+                  119.998583           Full Frame ... 2008-08-21  54.34877772501
+                  119.998312           Full Frame ... 2008-09-25 54.376194395654
+                  119.998634           Full Frame ... 2008-09-25 54.366916626746
+                  119.998292           Full Frame ... 2008-09-25 54.274527402457
+                   99.998281           Full Frame ... 2013-08-16 54.307561057825
 
 
 Observation Name Queries
@@ -43,13 +43,13 @@ You may also do a query by the name of the object you are interested in.
                 >>> from astroquery.gemini import Observations
                 >>> data = Observations.query_object(objectname='m101')
                 >>> print(data[0:5])
-                exposure_time detector_roi_setting ...  release         dec
+                exposure_time detector_roi_setting ...  release         dec      
                 ------------- -------------------- ... ---------- ---------------
                            --            Undefined ... 2013-12-21              --
                            --            Undefined ... 2013-12-21              --
-                      49.9987           Full Frame ... 2013-08-28 54.348777039949
-                      49.9987           Full Frame ... 2013-08-28 54.346975563951
-                      49.9989           Full Frame ... 2013-08-28 54.347048438693
+                    49.998716           Full Frame ... 2013-08-28 54.348777039949
+                    49.998719           Full Frame ... 2013-08-28 54.346975563951
+                    49.998904           Full Frame ... 2013-08-28 54.347048438693
 
 
 Observation Criteria Queries

@@ -141,10 +141,10 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
-    main_id    ra     dec   coo_err_maj ... coo_err_angle coo_wavelength     coo_bibcode     matched_id
-              deg     deg       mas     ...      deg                                                   
-    ------- ------- ------- ----------- ... ------------- -------------- ------------------- ----------
-      M   1 83.6287 22.0147     18500.0 ...             0              R 1995AuJPh..48..143S      M   1
+    main_id    ra     dec   coo_err_maj coo_err_min coo_err_angle coo_wavelength     coo_bibcode     matched_id
+              deg     deg       mas         mas          deg                                                   
+    ------- ------- ------- ----------- ----------- ------------- -------------- ------------------- ----------
+      M   1 83.6324 22.0174      5000.0      5000.0            90              X 2022A&A...661A..38P      M   1
 
 All query tools allow coordinate-based queries:
 
@@ -156,14 +156,14 @@ All query tools allow coordinate-based queries:
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True, max_width=80, max_lines=5)
-           main_id                ra        ... coo_wavelength     coo_bibcode    
-                                 deg        ...                                   
-    --------------------- ----------------- ... -------------- -------------------
-    COUP J053515.3-052225 83.81426666666665 ...              O 1999AJ....117.1375S
-                      ...               ... ...            ...                 ...
-            * tet01 Ori H 83.81580416666667 ...              I 2003yCat.2246....0C
-              [H97b] 9009    83.79990004111 ...              O 2020yCat.1350....0G
-    Length = 3270 rows
+              main_id                  ra       ...     coo_bibcode    
+                                      deg       ...                    
+    ---------------------------- -------------- ... -------------------
+    ALMA J053514.4142-052220.792  83.8100591667 ... 2023MNRAS.522...56V
+                             ...            ... ...                 ...
+         2MASS J05351163-0522515 83.79846499816 ... 2020yCat.1350....0G
+                     [H97b] 9009 83.79990004111 ... 2020yCat.1350....0G
+    Length = 3324 rows
 
 For additional guidance and examples, read the documentation for the individual services below.
 

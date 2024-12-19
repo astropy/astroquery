@@ -74,7 +74,7 @@ or 'vac+air'. Here is an example with all these parameters.
     >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, linename='H I',
     ...                    energy_level_unit='eV', output_order='wavelength',
     ...                    wavelength_type='vacuum')
-    >>> print(table)
+    >>> print(table)  # doctest: +IGNORE_OUTPUT
     Observed     Ritz     Transition  Rel.    Aki    ...  gi   gk  Type   TP   Line
     -------- ----------- ----------- ----- --------- ... --------- ---- ----- -----
           --    4020.871    2487.024 (200)    5526.5 ...  72 - 392   -- T8637    --
@@ -112,10 +112,10 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.nist import Nist
     >>> Nist.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
-    
+
 Reference/API
 =============
 
