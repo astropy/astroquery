@@ -3,7 +3,9 @@
 
 New Tools and Services
 ----------------------
-
+esa.integral
+^^^^^^^^^^^^
+- New module to access the ESA Integral Science Legacy Archive. [#3154]
 
 Service fixes and enhancements
 ------------------------------
