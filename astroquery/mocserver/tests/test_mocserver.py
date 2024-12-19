@@ -7,6 +7,7 @@ import pytest
 from astropy import coordinates
 from astropy.io.votable import parse_single_table
 from astropy.table import Table
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 try:
     from mocpy import MOC, STMOC, TimeMOC, FrequencyMOC
@@ -270,5 +271,6 @@ def test_cast_to_float():
 
 def test_find_datasets():
     # find datasets is useless as it does the same than query region
-    old = MOCServer.find_datasets(meta_data="ID=*Euclid*", get_query_payload=True)
+    with pytest.warns(AstropyDeprecationWarning, match="The find_datasets function *"):
+        old = MOCServer.find_datasets(meta_data="ID=*Euclid*", get_query_payload=True)
     assert old == MOCServer.query_region(meta_data="ID=*Euclid*", get_query_payload=True)

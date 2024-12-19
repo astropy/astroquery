@@ -10,6 +10,7 @@ from tempfile import NamedTemporaryFile
 
 from astropy import units as u
 from astropy.table import Table
+from astropy.utils import deprecated
 
 try:
     from mocpy import MOC, TimeMOC, STMOC
@@ -222,6 +223,8 @@ class MOCServerClass(BaseQuery):
             cache=cache,
         )
 
+    @deprecated(since="v0.4.9",
+                alternative="query_region")
     def find_datasets(
         self, meta_data,
         *,
