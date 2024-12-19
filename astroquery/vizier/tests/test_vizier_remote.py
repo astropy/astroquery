@@ -72,6 +72,13 @@ class TestVizierRemote:
         for table in result:
             assert 'Bmag' not in table.columns
 
+    def test_vizier_column_exotic_characters(self):
+        # column names can contain any ascii characters. This checks that they are not
+        # replaced by underscores, see issue #3124
+        result = Vizier(columns=["r'mag"],
+                        row_limit=1).get_catalogs(catalog="II/336/apass9")[0]
+        assert "r'mag" in result.colnames
+
     @pytest.mark.parametrize('all', ('all', '*'))
     def test_alls_withaddition(self, all):
         # Check that all the expected columns are there plus the _r

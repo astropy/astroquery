@@ -14,6 +14,13 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
+.. note::
+    In earlier versions of astroquery (<0.4.8), columns with special characters like 
+    ``r'mag`` were renamed into ``r_mag`` and columns starting with a number like
+    ``2MASS`` were prepended with an underscore ``_2MASS``.
+    In astroquery >=0.4.8, the column names are the same in VizieR's webpages and in
+    the tables received (for the two examples: you'll see ``r'mag`` and ``2MASS``).
+
 Table Discover
 --------------
 
@@ -182,7 +189,7 @@ To access an individual table from the `~astroquery.utils.TableList` object:
 
     >>> interesting_table = result['IX/8/catalog']
     >>> print(interesting_table)
-      _2XRS     RAB1950      DEB1950    Xname ... Int   _RA.icrs     _DE.icrs  
+       2XRS     RAB1950      DEB1950    Xname ... Int   _RA.icrs     _DE.icrs   
                                               ... uJy                          
     --------- ------------ ------------ ----- ... --- ------------ ------------
     06429-166 06 42 54.000 -16 39 00.00       ...  -- 06 45 08.088 -16 42 11.29
@@ -347,7 +354,7 @@ the ``"+"`` in front of ``"_r"``.
     >>> vizier = Vizier(columns=["*", "+_r"], catalog="II/246")
     >>> result = vizier.query_region("HD 226868", radius="20s")
     >>> print(result[0])
-      _r    RAJ2000    DEJ2000        _2MASS       Jmag  ... Bflg Cflg Xflg Aflg
+      _r    RAJ2000    DEJ2000        2MASS        Jmag  ... Bflg Cflg Xflg Aflg
               deg        deg                       mag   ...                    
     ------ ---------- ---------- ---------------- ------ ... ---- ---- ---- ----
      0.134 299.590280  35.201599 19582166+3512057  6.872 ...  111  000    0    0
@@ -395,8 +402,8 @@ index to the ``agn`` table (not the 0-based python convention).
 
     >>> guide = Vizier(catalog="II/246", column_filters={"Kmag":"<9.0"}).query_region(agn, radius="30s", inner_radius="2s")[0]
     >>> guide.pprint()
-     _q  RAJ2000    DEJ2000        _2MASS       Jmag  ... Rflg Bflg Cflg Xflg Aflg
-           deg        deg                       mag   ...
+     _q  RAJ2000    DEJ2000        2MASS        Jmag  ... Rflg Bflg Cflg Xflg Aflg
+           deg        deg                       mag   ...                         
     --- ---------- ---------- ---------------- ------ ... ---- ---- ---- ---- ----
       1  10.686015  41.269630 00424464+4116106  9.399 ...   20   20  0c0    2    0
       1  10.685657  41.269550 00424455+4116103 10.773 ...  200  200  c00    2    0
