@@ -12,7 +12,6 @@ import numpy as np
 from astropy.table import Table
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
-import warnings
 import pyvo
 
 from . import conf
