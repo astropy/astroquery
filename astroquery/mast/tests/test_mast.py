@@ -397,7 +397,7 @@ def test_missions_download_no_auth(patch_post, caplog):
     assert 'HTTPError' in result[1]
     with caplog.at_level('WARNING', logger='astroquery'):
         assert 'You are not authorized to download' in caplog.text
-        assert 'Please check your authentication token' in caplog.text
+        assert 'You do not have access to download this data' in caplog.text
 
 
 def test_missions_get_dataset_kwd(patch_post, caplog):

@@ -130,8 +130,6 @@ class ServiceAPI(BaseQuery):
 
         self.TIMEOUT = conf.timeout
 
-        self._column_configs = {}  # Dict to hold column configurations for services
-
     def set_service_params(self, service_dict, service_name="", server_prefix=False):
         """
         Initialize the request url and available queries for a given service.
