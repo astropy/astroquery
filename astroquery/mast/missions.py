@@ -75,8 +75,8 @@ class MastMissionsClass(MastQueryWithLogin):
 
     @mission.setter
     def mission(self, value):
-        # Need to update the service parameters if the mission is changed
-        self._mission = value.lower()
+        # Setter that updates the service parameters if the mission is changed
+        self._mission = value.lower()  # case-insensitive
         self._service_api_connection.set_service_params(self.service_dict, f'search/{self.mission}')
 
     def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
@@ -100,7 +100,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if self.service == self._search:
             results = self._service_api_connection._parse_result(response, verbose, data_key='results')
         elif self.service == self._list_products:
-            # Results from list_products endpoint need to be handled differently
+            # Results from post_list_products endpoint need to be handled differently
             results = Table(response.json()['products'])
 
         if len(results) >= self.limit:
@@ -510,8 +510,9 @@ class MastMissionsClass(MastQueryWithLogin):
             if err.response.status_code == 401:
                 no_auth_msg = f'You are not authorized to download from {data_url}.'
                 if self._authenticated:
-                    no_auth_msg += ('\nPlease check your authentication token. You can generate a new '
-                                    'token at https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
+                    no_auth_msg += ('\nYou do not have access to download this data, or your authentication '
+                                    'token may be expired. You can generate a new token at '
+                                    'https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
                                     'suggested_scope=mast:exclusive_access')
                 else:
                     no_auth_msg += ('\nPlease authenticate yourself using the `~astroquery.mast.MastMissions.login` '
