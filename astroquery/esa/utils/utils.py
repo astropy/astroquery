@@ -475,10 +475,9 @@ def resolve_target(url, session, target_name, target_resolver):
     if target_resolver not in TARGET_RESOLVERS:
         raise ValueError("This target resolver is not allowed")
 
-    params = {'TAPCLIENT': 'ASTROQUERY'}
     resolver_url = url.format(target_name, target_resolver)
 
-    with session.get(resolver_url, stream=True, params=params) as response:
+    with session.get(resolver_url, stream=True) as response:
         response.raise_for_status()
 
         try:
