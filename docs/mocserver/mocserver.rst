@@ -20,6 +20,8 @@ The space component maps the sky with the HEALPix sky
 tessellation to represent regions on the sky by hierarchically grouped HEALPix cells. 
 It other words, a Spatial MOC is a set of HEALPix cells at different orders.
 
+The idea is the same for Time MOCs. The time axis is split into time cells.
+
 For those wanting to know more about MOCs, please refer to `the MOC 2.0 specification 
 document <https://ivoa.net/documents/MOC/20220727/REC-moc-2.0-20220727.pdf>`_.
 
@@ -32,8 +34,8 @@ What's the MOC Server?
 The MOC Server is a service of astronomical resources organized by spatial and/or
 temporal coverages following the Space and Time MOC specification.
 In the MOC Server, there a few tens of thousands of astronomical collections.
-They each have and identifier ``ID`` and a set of properties that describe their content.
-This is a practical way of finding datasets with criteria on time and space.
+They each have an identifier ``ID`` and a set of properties that describe their content.
+This is a practical way of finding datasets with criteria on time and/or space.
 
 The meta-data properties are freely assigned by each publisher. You can get the list of
 properties with their frequency of usage and examples example with 
@@ -67,7 +69,7 @@ Querying with a region
 
 The MOCServer is optimized to return the datasets having at least one source lying in a
 specific sky region (or time interval).
-The regions can be provided either as astropy-regions from the ``region`` python library,
+The regions can be provided either as astropy-regions from the ``regions`` python library,
 or as an accepted MOC type (`mocpy.TimeMOC`, `mocpy.MOC`, `~mocpy.STMOC`).
 The frequency MOCs are not yet available.
 
@@ -75,7 +77,8 @@ Performing a query on a cone region
 -----------------------------------
 
 Let's get the datasets for which all the data is comprised in a cone (this is
-what the ``enclosed`` option means for intersect).
+what the ``enclosed`` option means for intersect). We also restrict our search to
+datasets describing the sky (with ``spacesys=sky``).
 
 .. doctest-remote-data::
 
@@ -85,7 +88,7 @@ what the ``enclosed`` option means for intersect).
     >>> center = coordinates.SkyCoord(10.8, 32.2, unit='deg')
     >>> radius = coordinates.Angle(0.5, unit='deg')
     >>> cone = CircleSkyRegion(center, radius)
-    >>> MOCServer.query_region(region=cone, intersect="enclosed", spacesys="C")  # doctest: +IGNORE_OUTPUT
+    >>> MOCServer.query_region(region=cone, intersect="enclosed", spacesys="sky")  # doctest: +IGNORE_OUTPUT
     <Table length=450>
                   ID               ...
                 str49              ...
@@ -112,7 +115,8 @@ what the ``enclosed`` option means for intersect).
            wfau.roe.ac.uk/UHSDR1/J ...
 
 You can also use this method with `regions.PolygonSkyRegion`, `mocpy.MOC`, `mocpy.TimeMOC`,
-and `mocpy.STMOC`.
+and `mocpy.STMOC`. Not providing the region parameter means that the search is done on
+the whole sky (or the whole planet, if we chose a different ``spacesys``).
 
 Querying by meta-data
 =====================
@@ -161,13 +165,15 @@ Let's add a criteria to get only images from the previous query:
          wfau.roe.ac.uk/P/UHSDR1/J            image           0.3083
 
 
-Looking at the ``dataproduct_type`` column, all the datasets are indeed images.
+Looking at the ``dataproduct_type`` column, all the datasets are indeed images. There
+are a few less results than when we did not apply this additional criteria.
 
-`This page <http://alasky.unistra.fr/MocServer/example>`_ on the web interface of the
-MOCServer gives examples of some filtering expressions.
+Other examples for filtering expressions can be found on the `help page of the MOC Server
+web interface <http://alasky.unistra.fr/MocServer/example>`_.
 
-Alternatively, you can search on the whole sky by ommitting the region parameter.
-The next example retrieves all the ``moc_access_url`` of the Hubble surveys:
+Let's do a search on the whole sky by omitting the region parameter.
+The next example retrieves all the ``moc_access_url`` of  datasets having ``HST`` in
+their identifier. These correspond to the Hubble surveys:
 
 .. doctest-remote-data::
 
@@ -205,7 +211,7 @@ Query for HiPS surveys
 The MOCServer contains an extensive list of HiPS, for images and catalogs. These
 progressive surveys can be displayed in applications such as Aladin or ESASky.
 The `astroquery.mocserver.MOCServerClass.query_hips` method allows to find these HiPS.
-It accepts the same parameters (``region`` and ``meta_data`` for example as the other)
+It accepts the same parameters (``region`` and ``meta_data`` for example) as the other
 methods. The only difference is that the output will only contain HiPS data.
 
 .. doctest-remote-data::
@@ -300,13 +306,13 @@ Another parameter called ``max_rec`` specifies an upper limit for the number of 
     CDS/J/ApJS/257/54/table1 ...          catalog
          CDS/III/39A/catalog ...          catalog
 
-This astropy has only 3 rows although we know that more datasets match the query.
+This result has only 3 rows although we know that more datasets match the query.
 The result will come faster than requesting all results.
 
 Returning a ``mocpy`` object as a result
 ----------------------------------------
 
-I you need want the union of all the MOCs of the datasets matching the query, you can
+If you want the union of all the MOCs of the datasets matching the query, you can
 get the result as a `mocpy.MOC`, `mocpy.TimeMOC`, or `mocpy.STMOC` object instead of an
 `astropy.table.Table` by setting the parameter ``return_moc`` to ``smoc``, ``tmoc``, or
 ``stmoc``. An additional parameter ``max_norder`` allows to set the resolution/precision
@@ -346,16 +352,17 @@ object) of the ``GALEXGR6/AIS/FUV`` survey.
     ...       f" {moc_galex.max_time.iso}.")
     GALEX GR6 contains data taken from 2010-03-31 18:02:05.602 to 2010-06-01 18:57:24.787.
 
-
-The ``mocserver`` package can therefore be used in complementarity with `mocpy`_. 
-We can now retrieve `mocpy.MOC` objects coming from the MOCServer and manipulate them
-with `mocpy`_.
+.. note:: 
+  Note that for Space-Time MOCs the ``max_norder`` parameter is not an integer but a
+  string that contains the information about both the spatial order and the time order.
+  Here, we requested a spatial order of 7 (roughly 27') and a time order of 26 (roughly
+  9 hours).
 
 Finding data on a specific solar system body
 --------------------------------------------
 
 The default value for ``spacesys`` is None. It means that we're looking for data for the
-sky and all other possible frames. This can take all the values listed by
+sky and all other possible frames. This parameter can take all the values listed by
 `astroquery.mocserver.MOCServerClass.list_spacesys`:
 
 .. doctest-remote-data::
@@ -367,17 +374,17 @@ sky and all other possible frames. This can take all the values listed by
 Where the special value ``sky`` means any celestial frame (mainly ``equatorial`` and
 ``galactic``). 
 
-The ``spacesys`` can be used in any of the query methods like so:
+The ``spacesys`` parameter can be used in any of the query methods like so:
 
 .. doctest-remote-data::
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.query_hips(spacesys="ariel") # doctest: +IGNORE_OUTPUT
+  >>> MOCServer.query_hips(spacesys="ariel")
   <Table length=1>
-           ID           obs_title                            obs_description                          dataproduct_type
-         str19            str13                                   str65                                     str5      
-  ------------------- ------------- ----------------------------------------------------------------- ----------------
-  CDS/P/Ariel/Voyager Ariel Voyager Ariel Uranus satellite map mosaicked with Voyager imagery by USGS            image
+           ID           obs_title   ... dataproduct_type
+         str19            str13     ...       str5      
+  ------------------- ------------- ... ----------------
+  CDS/P/Ariel/Voyager Ariel Voyager ...            image
 
 
 Reference/API
