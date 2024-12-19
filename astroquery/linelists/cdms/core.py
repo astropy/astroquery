@@ -220,14 +220,14 @@ class CDMSClass(BaseQuery):
         text = soup.find('pre').text
 
         starts = {'FREQ': 0,
-                  'ERR': 14,
-                  'LGINT': 25,
-                  'DR': 36,
-                  'ELO': 38,
+                  'ERR': 13,
+                  'LGINT': 24,
+                  'DR': 35,
+                  'ELO': 37,
                   'GUP': 47,
-                  'MOLWT': 51,
-                  'TAG': 54,
-                  'QNFMT': 58,
+                  'MOLWT': 50,
+                  'TAG': 53,
+                  'QNFMT': 57,
                   'Ju': 61,
                   'Ku': 63,
                   'vu': 65,
@@ -240,7 +240,7 @@ class CDMSClass(BaseQuery):
                   'F1l': 79,
                   'F2l': 81,
                   'F3l': 83,
-                  'name': 89}
+                  'name': 85}
 
         result = ascii.read(text, header_start=None, data_start=0,
                             comment=r'THIS|^\s{12,14}\d{4,6}.*',
