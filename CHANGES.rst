@@ -166,6 +166,9 @@ vizier
 
 - Fixed search by UCD -- they were ignored. [#3147]
 
+- Fixed column names -- some characters were replaced by ``_`` instead of keeping
+  the original name [#3153]
+
 vsa
 ^^^
 

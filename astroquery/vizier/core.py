@@ -844,7 +844,7 @@ def _parse_vizier_votable(data, *, verbose=False, invalid='warn',
                     name = t.name
                 if name not in table_dict.keys():
                     table_dict[name] = []
-                table_dict[name] += [t.to_table()]
+                table_dict[name] += [t.to_table(use_names_over_ids=True)]
         for name in table_dict.keys():
             if len(table_dict[name]) > 1:
                 table_dict[name] = tbl.vstack(table_dict[name])
