@@ -103,6 +103,8 @@ sdss
 
 - Support new SDSS-V DR18 access URLs. [#3017]
 
+- Fix download caching. [#3123]
+
 simbad
 ^^^^^^
 
