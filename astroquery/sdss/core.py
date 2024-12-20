@@ -345,7 +345,8 @@ class SDSSClass(BaseQuery):
                                                               region=True,
                                                               field_help=field_help,
                                                               get_query_payload=True,
-                                                              data_release=data_release)
+                                                              data_release=data_release,
+                                                              cache=cache)
 
         if width is not None:
             width = u.Quantity(width, u.degree).value
@@ -774,6 +775,7 @@ class SDSSClass(BaseQuery):
 
             link = linkstr.format(**format_args)
             results.append(commons.FileContainer(link,
+                                                 cache=cache,
                                                  encoding='binary',
                                                  remote_timeout=timeout,
                                                  show_progress=show_progress))
