@@ -57,6 +57,9 @@ ipac.irsa
 - Add more robust handling of errors returned in Most.query_object() responses.
   [#3140]
 
+- Removal of the deprecated module ``ipac.irsa.sha``. Use ``ipac.irsa`` to
+  access Spitzer data. [#3163]
+
 mpc
 ^^^
 
