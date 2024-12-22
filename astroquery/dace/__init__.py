@@ -4,29 +4,9 @@
 Dace API
 --------
 
-:author: Julien Burnier (julien.burnier@unige.ch)
+This module has beeen removed due to upstream changes and in favour of the
+standalone dace-query package.
 """
 
-from astropy import config as _config
-
-
-class Conf(_config.ConfigNamespace):
-    """
-    Configuration parameters for `astroquery.dace`.
-    """
-    server = _config.ConfigItem(
-        ['https://dace-api.unige.ch/'],
-        'Dace')
-
-    timeout = _config.ConfigItem(
-        30,
-        'Time limit for connecting to DACE server.')
-
-
-conf = Conf()
-
-from .core import Dace, DaceClass
-
-__all__ = ['Dace', 'DaceClass',
-           'Conf', 'conf',
-           ]
+raise ImportError("The DACE module has been removed from astroquery due to server-side "
+                  "changes. Use the standalone dace-query package to access DACE data.")
