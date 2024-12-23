@@ -1157,3 +1157,33 @@ def test_zcut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_list, list)
     assert len(cutout_list) == 1
     assert isinstance(cutout_list[0], fits.HDUList)
+
+
+################
+# Utils tests #
+################
+
+
+def test_utils_parse_coordinates(patch_post):
+
+    def compare_coords(coords1, coords2):
+        assert coords1.ra.deg == coords2.ra.deg
+        assert coords1.dec.deg == coords2.dec.deg
+        assert coords1.frame.name == 'icrs'
+        assert coords2.frame.name == 'icrs'
+
+    # Expected result
+    expected = SkyCoord('266.40498829 -28.93617776', unit='deg')
+
+    # Parse a string
+    coords = mast.utils.parse_coordinates('266.40498829 -28.93617776')
+    compare_coords(coords, expected)
+
+    # Parse a SkyCoord in ICRS frame
+    coords = mast.utils.parse_coordinates(expected)
+    compare_coords(coords, expected)
+
+    # Parse a SkyCoord in galactic frame
+    galactic = SkyCoord('0 0', unit='deg', frame='galactic')
+    coords = mast.utils.parse_coordinates(galactic)
+    compare_coords(coords, galactic.transform_to('icrs'))
