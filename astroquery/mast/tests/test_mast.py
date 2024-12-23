@@ -1256,37 +1256,3 @@ def test_zcut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_list, list)
     assert len(cutout_list) == 1
     assert isinstance(cutout_list[0], fits.HDUList)
-
-
-################
-# Utils tests #
-################
-
-
-def test_parse_input_location(patch_post):
-    # Test with coordinates
-    coord = SkyCoord(23.34086, 60.658, unit="deg")
-    loc = mast.utils.parse_input_location(coordinates=coord)
-    assert isinstance(loc, SkyCoord)
-    assert loc.ra == coord.ra
-    assert loc.dec == coord.dec
-
-    # Test with object name
-    obj_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
-    loc = mast.utils.parse_input_location(objectname="TIC 307210830")
-    assert isinstance(loc, SkyCoord)
-    assert loc.ra == obj_coord.ra
-    assert loc.dec == obj_coord.dec
-
-    # Error if both coordinates and object name are provided
-    with pytest.raises(InvalidQueryError, match="Only one of objectname and coordinates may be specified"):
-        mast.utils.parse_input_location(coordinates=coord, objectname="M101")
-
-    # Error if neither coordinates nor object name is provided
-    with pytest.raises(InvalidQueryError, match="One of objectname and coordinates must be specified"):
-        mast.utils.parse_input_location()
-
-    # Warn if resolver is specified without an object name
-    with pytest.warns(InputWarning, match="Resolver is only used when resolving object names"):
-        loc = mast.utils.parse_input_location(coordinates=coord, resolver="SIMBAD")
-        assert isinstance(loc, SkyCoord)

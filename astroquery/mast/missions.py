@@ -245,7 +245,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = utils.parse_coordinates(coordinates)
 
         # If radius is just a number, assume arcminutes
         radius = coord.Angle(radius, u.arcmin)
