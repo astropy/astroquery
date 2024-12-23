@@ -142,7 +142,7 @@ def parse_coordinates(coordinates):
     coordinates = commons.parse_coordinates(coordinates)
 
     # Convert to ICRS frame, if needed
-    if coordinates.frame != 'icrs':
+    if coordinates.frame.name != 'icrs':
         coordinates = coordinates.transform_to('icrs')
 
     return coordinates
