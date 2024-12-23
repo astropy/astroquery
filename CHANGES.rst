@@ -57,6 +57,34 @@ ipac.irsa
 - Add more robust handling of errors returned in Most.query_object() responses.
   [#3140]
 
+mocserver
+^^^^^^^^^
+
+- Switch to https instead of http for the default url (allows pyodide to use the module) [#3139]
+
+- Add ``TimeMOC`` and ``STMOC`` as possible entries in ``MOCServer.query_region`` to
+  allow temporal and space-time searches [#3139]
+
+- ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather than only
+  Space-MOCs [#3139]
+
+- Fix query by MOC that would write a file ``moc.fits`` where the method was executed
+  in overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
+
+- Returned tables now have a default list of fields instead of the > 130 columns returned
+  previously. The full list of fields can be displayed with the new method
+  ``MOCServer.list_fields`` [#3139]
+
+- Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
+  to ``True``) [#3139]
+
+- Add ``spacesys`` parameter to the queries to allow to filter on the different bodies
+  or frames. The list of available space systems can be printed with the new method
+  ``MOCServer.list_spacesys`` [#3139]
+
+- Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
+  surveys [#3139]
+
 mpc
 ^^^
 
