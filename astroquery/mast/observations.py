@@ -23,7 +23,7 @@ from astropy.table import Table, Row, vstack
 from astroquery import log
 from astroquery.mast.cloud import CloudAccess
 
-from ..utils import commons, async_to_sync
+from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (InvalidQueryError, RemoteServiceError,
                           NoResultsWarning, InputWarning)
@@ -227,7 +227,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = utils.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
@@ -346,7 +346,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # build the coordinates string needed by ObservationsClass._caom_filtered_position
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = utils.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
