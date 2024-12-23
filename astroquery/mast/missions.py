@@ -15,7 +15,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from requests import RequestException
 
-from astroquery.utils import commons, async_to_sync
+from astroquery.utils import async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
 from astroquery.exceptions import InvalidQueryError, MaxResultsWarning
 
@@ -142,7 +142,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = utils.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.arcmin)
