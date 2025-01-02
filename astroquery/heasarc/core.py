@@ -179,7 +179,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return Table({'name': names, 'description': desc})
 
     @deprecated(
-        since='TBD',
+        since='0.4.8',
         message=('Heasarc.query_mission_list is deprecated. '
                  'Use ~Heasarc.tables instead'),
     )
@@ -230,7 +230,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return cols
 
     @deprecated(
-        since='TBD',
+        since='0.4.8',
         message=('Heasarc.query_mission_cols is deprecated. '
                  'Use ~Heasarc.columns instead'),
     )
@@ -295,8 +295,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
          'displaymode', 'action', 'sortvar', 'cache'),
         ('table', 'columns', 'maxrec', None, None, None,
          None, None, None, None),
-        since=('TBD', 'TBD', 'TBD', 'TBD', 'TBD', 'TBD',
-               'TBD', 'TBD', 'TBD', 'TBD'),
+        since=['0.4.8']*10,
         arg_in_kwargs=(False, True, True, True, True, True,
                        True, True, True, False)
     )
@@ -435,7 +434,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return table
 
     @deprecated(
-        since='TBD',
+        since='0.4.8',
         message='query_object is being deprecated. Use query_region instead'
     )
     def query_object(self, object_name, mission, *,
