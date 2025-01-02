@@ -21,6 +21,7 @@ from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
 
+
 class HeasarcClass(BaseVOQuery, BaseQuery):
     """Class for accessing HEASARC data with VO protocol using the Xamin backend.
 
