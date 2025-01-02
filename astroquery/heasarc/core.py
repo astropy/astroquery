@@ -101,7 +101,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         defaults = meta['par']
         return defaults
 
-    def _get_default_radius(self, table_name):
+    def get_default_radius(self, table_name):
         """Get a mission-appropriate default radius for a table
 
         Parameters
@@ -326,7 +326,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             `astropy.units` may also be used. If None, a default value
             appropriate for the selected table is used. To see the default
             radius for the table, see
-            ~astroquery.heasarc.Heasarc._get_default_radius.
+            ~astroquery.heasarc.Heasarc.get_default_radius.
         width : str, `~astropy.units.Quantity` object [Required for
             spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -396,7 +396,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
             if spatial.lower() == 'cone':
                 if radius is None:
-                    radius = self._get_default_radius(table)
+                    radius = self.get_default_radius(table)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
