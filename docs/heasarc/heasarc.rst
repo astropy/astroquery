@@ -146,7 +146,7 @@ If you are interested only finding the master tables, you can also set ``master`
     chanmaster Chandra Observations
 
 Multiple keywords that are separated by space are joined with **AND**, so the 
-following finds all the tables that have both 'xmm' and 'chandra' keyworkds:
+following finds all the tables that have both 'xmm' and 'chandra' keywords:
 
 .. doctest-remote-data::
 
@@ -203,10 +203,10 @@ the data is fetched from the main HEASARC servers.
 The recommendation is to use different hosts depending on where you can is running:
 * ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
 all the archive can be mounted locally there, `~astroquery.heasarc.HeasarcClass.download_data`
-will only copy the relevent data.
+will only copy the relevant data.
 * ``host='aws'``: Use this option if you are running the analysis in Amazon Web Services (AWS).
 Data will be downloaded from AWS S3 storage.
-* ``host='heasarc'``: Use this option for other cases. Thi is the classical and most general option.
+* ``host='heasarc'``: Use this option for other cases. This is the classical and most general option.
 In this case, the requested data will be tarred and downloaded as a single file called xamin.tar
 before being untarred.
 
@@ -249,7 +249,7 @@ returns the constructed ADQL query.
 
 Complex Regions
 ---------------
-In additon to a cone search (some position and search radius), ```Heasarc.query_region``` accepts
+In addition to a cone search (some position and search radius), ```Heasarc.query_region``` accepts
 other options too, including ``'box'``, ``'polygon'`` and ``'all-sky'``. Details can be found
 in `~astroquery.heasarc.HeasarcClass.query_region`. Examples include:
 
