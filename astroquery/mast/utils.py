@@ -119,6 +119,32 @@ def resolve_object(objectname):
     return coordinates
 
 
+def parse_coordinates(coordinates):
+    """
+    Convenience function to parse user input of coordinates.
+
+    Parameters
+    ----------
+    coordinates : str or `astropy.coordinates` object, optional
+        The target around which to search. It may be specified as a
+        string or as the appropriate `astropy.coordinates` object.
+
+    Returns
+    -------
+    response : `~astropy.coordinates.SkyCoord`
+        The given coordinates as an `~astropy.coordinates.SkyCoord` object in the ICRS frame.
+    """
+
+    # Parse into SkyCoord object
+    coordinates = commons.parse_coordinates(coordinates)
+
+    # Convert to ICRS frame, if needed
+    if coordinates.frame.name != 'icrs':
+        coordinates = coordinates.transform_to('icrs')
+
+    return coordinates
+
+
 def parse_input_location(coordinates=None, objectname=None):
     """
     Convenience function to parse user input of coordinates and objectname.
@@ -137,7 +163,8 @@ def parse_input_location(coordinates=None, objectname=None):
     Returns
     -------
     response : `~astropy.coordinates.SkyCoord`
-        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object.
+        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object
+        in the ICRS frame.
     """
 
     # Checking for valid input
@@ -147,11 +174,13 @@ def parse_input_location(coordinates=None, objectname=None):
     if not (objectname or coordinates):
         raise InvalidQueryError("One of objectname and coordinates must be specified.")
 
+    # Resolve object, if given
     if objectname:
         obj_coord = resolve_object(objectname)
 
+    # Parse coordinates, if given
     if coordinates:
-        obj_coord = commons.parse_coordinates(coordinates)
+        obj_coord = parse_coordinates(coordinates)
 
     return obj_coord
 

@@ -274,6 +274,8 @@ mast
 
 - Handle HLSP data products in ``Observations.get_cloud_uris``. [#3126]
 
+- Handle coordinates that are not in the ICRS frame in positional query functions. [#3164]
+
 mpc
 ^^^
 
