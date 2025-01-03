@@ -142,7 +142,7 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
     main_id    ra     dec   coo_err_maj coo_err_min coo_err_angle coo_wavelength     coo_bibcode     matched_id
-              deg     deg       mas         mas          deg                                                   
+              deg     deg       mas         mas          deg
     ------- ------- ------- ----------- ----------- ------------- -------------- ------------------- ----------
       M   1 83.6324 22.0174      5000.0      5000.0            90              X 2022A&A...661A..38P      M   1
 
@@ -156,8 +156,8 @@ All query tools allow coordinate-based queries:
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True, max_width=80, max_lines=5)
-              main_id                  ra       ...     coo_bibcode    
-                                      deg       ...                    
+              main_id                  ra       ...     coo_bibcode
+                                      deg       ...
     ---------------------------- -------------- ... -------------------
     ALMA J053514.4142-052220.792  83.8100591667 ... 2023MNRAS.522...56V
                              ...            ... ...                 ...
@@ -182,7 +182,7 @@ uncomment the relevant configuration item(s), and insert your desired value(s).
 
 
 .. _astroquery_cache:
- 
+
 Caching
 -------
 
@@ -222,7 +222,7 @@ Each service's cache is cleared with the ``clear_cache`` function within that se
 
 Astroquery-wide settings
 ^^^^^^^^^^^^^^^^^^^^^^^^
-    
+
 Whether caching is active and when cached files expire are controlled centrally through the
 astroquery ``cache_conf`` module, and shared among all services.
 Astroquery uses the Astropy configuration infrastructure, information about
@@ -255,7 +255,6 @@ The following modules have been completed using a common API:
   cadc/cadc.rst
   casda/casda.rst
   linelists/cdms/cdms.rst
-  dace/dace.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
   esa/iso/iso.rst

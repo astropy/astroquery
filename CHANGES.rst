@@ -31,6 +31,13 @@ casda
 
 - Support jobs which are in the SUSPENDED state (used when copying data) [#3134]
 
+dace
+^^^^
+
+- Module has been removed as it was incompatible with server changes. A
+  standalone library called dace-query is available to access DACE
+  data. [#3162]
+
 esa.hubble
 ^^^^^^^^^^
 
