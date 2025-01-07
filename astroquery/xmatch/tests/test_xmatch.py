@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from pathlib import Path
+import re
 
 import requests
 import pytest
@@ -114,3 +115,13 @@ def test_two_local_tables():
                              max_distance=1 * arcsec,
                              get_query_payload=True)
     assert 'cat1' in payload[1]["files"] and 'cat2' in payload[1]["files"]
+
+
+def test_table_not_available(monkeypatch):
+    xm = XMatch()
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
+    cat1 = "vizier:J/A+A/331/81/table2"
+    cat2 = "blabla"
+    # reproduces #1464
+    with pytest.raises(ValueError, match=f"'{re.escape(cat1)}' is not available *"):
+        xm.query_async(cat1=cat1, cat2=cat2, max_distance=5 * arcsec)

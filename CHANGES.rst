@@ -286,6 +286,9 @@ xmatch
 - Fix xmatch query for two local tables. The second table was written over the first one,
   resulting in a confusing "missing cat1" error. [#3116]
 
+- Make the error message clearer about VizieR tables not available for
+  crossmatching [#3168]
+
 
 0.4.7 (2024-03-08)
 ==================
