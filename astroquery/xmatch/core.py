@@ -147,7 +147,7 @@ class XMatchClass(BaseQuery):
         if not self.is_table_available(cat):
             if ((colRA is None) or (colDec is None)):
                 raise ValueError(
-                    f"'{cat}' is not available on the XMatch server.If you are "
+                    f"'{cat}' is not available on the XMatch server. If you are "
                     "using a VizieR table name, note that only tables with "
                     "coordinates are available on the XMatch server. If you are "
                     f"using a local table, the arguments 'colRA{cat_index}' and "
