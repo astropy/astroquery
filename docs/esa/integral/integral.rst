@@ -45,9 +45,8 @@ file in the chosen format, and queries may be executed asynchronously.
 2. Getting sources
 ------------------
 
-Users can utilize this method to retrieve a target from
-the Archive by specifying a target name. The output can be formatted and saved as
-needed.
+Users can utilize this method to retrieve a target from the Archive by specifying a target name.
+The output can be formatted and saved as needed.
 
 .. doctest-remote-data::
 
