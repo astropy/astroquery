@@ -1047,7 +1047,7 @@ class MPCClass(BaseQuery):
             content = result.content.decode()
             table_start = content.find('<pre>')
             if table_start == -1:
-                raise InvalidQueryError(content)
+                raise InvalidQueryError(BeautifulSoup(content, "html.parser").get_text())
             table_end = content.find('</pre>')
             text_table = content[table_start + 5:table_end]
             SKY = 'raty=a' in result.request.body

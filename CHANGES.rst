@@ -89,6 +89,10 @@ mpc
 - Remove ``comettype`` parameter from ``MPC.get_observations`` without
   deprecation: it was undocumented, ignored, and had no effect.  [#3089]
 
+- When ``MPC.get_ephemeris`` raises an ``InvalidQueryError`` message, instead of
+  returning the original HTML formatted text, strip the HTML tags and return a
+  plain text message.  [#3171]
+
 nvas
 ^^^^
 
