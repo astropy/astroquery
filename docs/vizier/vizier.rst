@@ -49,7 +49,8 @@ Get a whole catalog
 
 From the result of the precedent example, let's select ``J/ApJ/788/39``.
 We call :meth:`~astroquery.vizier.VizierClass.get_catalogs`. Let's fix the number of
-returned rows to 1 for now while we inspect the result:
+returned rows to 1 for now, to minimize the amount of data we download and speed up
+exploration, while we inspect the result:
 
 .. doctest-remote-data::
     
