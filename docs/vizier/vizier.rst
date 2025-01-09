@@ -21,8 +21,8 @@ individual columns before retrieving the results.
     In astroquery >=0.4.8, the column names are the same in VizieR's webpages and in
     the tables received (for the two examples: you'll see ``r'mag`` and ``2MASS``).
 
-Table Discover
---------------
+Catalogs exploration
+--------------------
 
 If you want to search for a set of tables, e.g. based on author name or other keywords,
 the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
@@ -40,89 +40,111 @@ the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
     J/AJ/157/217 : Transit times of five hot Jupiter WASP exoplanets (Bouma+, 2019)
     J/A+A/635/A122 : CoRoT-30b and CoRoT-31b radial velocity curves (Border+, 2020)
 
-From this result, you could either get any of these as a complete catalog or
-query them for individual objects or regions.
+From this list, you can either get any catalog completely (all the lines) or make
+sub-selections with :meth:`~astroquery.vizier.VizierClass.query_region`, 
+or with additional criteria.
 
 Get a whole catalog
 -------------------
 
+From the result of the precedent example, let's select ``J/ApJ/788/39``.
+We call :meth:`~astroquery.vizier.VizierClass.get_catalogs`. Let's fix the number of
+returned rows to 1 for now while we inspect the result:
 
-If you know the name of the catalog you wish to retrieve, e.g. from doing a
-:meth:`~astroquery.vizier.VizierClass.find_catalogs` search as above, you can then grab
-the complete contents of those catalogs:
+.. doctest-remote-data::
+    
+    >>> vizier.ROW_LIMIT = 1
+    >>> exoplanets = vizier.get_catalogs("J/ApJ/788/39")
+    >>> exoplanets
+    TableList with 2 tables:
+        '0:J/ApJ/788/39/stars' with 7 column(s) and 1 row(s)
+        '1:J/ApJ/788/39/table4' with 48 column(s) and 1 row(s)
+
+.. note::
+
+    ``ROW_LIMIT`` is set to 50 per default.
+
+We see that this catalog has two tables. One named ``J/ApJ/788/39/stars`` and the
+other one is ``J/ApJ/788/39/table4``.
+
+Let's look at the columns of ``J/ApJ/788/39/stars`` from the single row that we just
+downloaded:
 
 .. doctest-remote-data::
 
-    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
-    TableList with 10 tables:
-      '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
-       '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
-       '2:J/A+A/635/A205/20171231' with 7 column(s) and 50 row(s) 
-       '3:J/A+A/635/A205/20180114' with 7 column(s) and 50 row(s) 
-       '4:J/A+A/635/A205/ccf-mask' with 3 column(s) and 50 row(s) 
-       '5:J/ApJ/788/39/stars' with 7 column(s) and 17 row(s) 
-       '6:J/ApJ/788/39/table4' with 48 column(s) and 50 row(s) 
-       '7:J/AJ/157/217/transits' with 8 column(s) and 50 row(s) 
-       '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
-       '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
+    >>> exoplanets[0]
+    <Table length=1>
+      Name    RAJ2000     DEJ2000     Vmag  Name1  lines Simbad
+                                      mag                      
+      str9     str11       str11    float32  str8   str5  str6 
+    ------- ----------- ----------- ------- ------ ----- ------
+    CoRoT-2 19 27 06.50 +01 23 01.4   12.57 COROT2 lines Simbad
 
-Similarly, the ``Resource`` objects (the values of the dictionary resulting from
-:meth:`~astroquery.vizier.VizierClass.find_catalogs`) can be used in the same
-way:
+.. note::
+
+    The coordinates columns often have the information about the frame and epoch in
+    their descriptions:
 
 .. doctest-remote-data::
 
-    >>> catalogs = vizier.get_catalogs(catalog_list.values())
-    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
-    TableList with 10 tables:
-       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
-       '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
-       '2:J/A+A/635/A205/20171231' with 7 column(s) and 50 row(s) 
-       '3:J/A+A/635/A205/20180114' with 7 column(s) and 50 row(s) 
-       '4:J/A+A/635/A205/ccf-mask' with 3 column(s) and 50 row(s) 
-       '5:J/ApJ/788/39/stars' with 7 column(s) and 17 row(s) 
-       '6:J/ApJ/788/39/table4' with 48 column(s) and 50 row(s) 
-       '7:J/AJ/157/217/transits' with 8 column(s) and 50 row(s) 
-       '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
-       '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
+    >>> exoplanets[0]["RAJ2000"].description
+    'Simbad Hour of Right Ascension (J2000)'
 
-.. doctest-remote-data::
-
-    >>> catalogs = vizier.get_catalogs(catalog_list.keys())
-    >>> print(catalogs) # doctest: +IGNORE_OUTPUT
-    TableList with 10 tables:
-       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
-       '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
-       '2:J/A+A/635/A205/20171231' with 7 column(s) and 50 row(s) 
-       '3:J/A+A/635/A205/20180114' with 7 column(s) and 50 row(s) 
-       '4:J/A+A/635/A205/ccf-mask' with 3 column(s) and 50 row(s) 
-       '5:J/ApJ/788/39/stars' with 7 column(s) and 17 row(s) 
-       '6:J/ApJ/788/39/table4' with 48 column(s) and 50 row(s) 
-       '7:J/AJ/157/217/transits' with 8 column(s) and 50 row(s) 
-       '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
-       '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
-
-Note that the row limit is set to 50 by default, so if you want to get a truly
-complete catalog, you need to change that:
+When we're ready to download the complete table, we can set the row limit to -1 (for 
+infinity).
 
 .. doctest-remote-data::
 
     >>> vizier.ROW_LIMIT = -1
+    >>> stars = vizier.get_catalogs("J/ApJ/788/39/stars")
+    >>> # stars is a TableList with only one table. Here is its first and only element
+    >>> stars[0]
+    <Table length=17>
+       Name     RAJ2000     DEJ2000     Vmag   Name1   lines Simbad
+                                        mag                        
+       str9      str11       str11    float32   str8    str5  str6 
+    --------- ----------- ----------- ------- -------- ----- ------
+      CoRoT-2 19 27 06.50 +01 23 01.4   12.57   COROT2 lines Simbad
+       TrES-4 17 53 13.06 +37 12 42.4   11.59    TRES4 lines Simbad
+       TrES-2 19 07 14.04 +49 18 59.1   11.25    TRES2 lines Simbad
+       WASP-2 20 30 54.13 +06 25 46.4   11.98    WASP2 lines Simbad
+      WASP-12 06 30 32.79 +29 40 20.3   11.57   WASP12 lines Simbad
+    HD 149026 16 30 29.62 +38 20 50.3    8.14 HD149026 lines Simbad
+      HAT-P-1 22 57 46.84 +38 40 30.3   10.40    HATP1 lines Simbad
+        XO-2S 07 48 07.48 +50 13 03.3   11.25     XO2S lines Simbad
+        XO-2N 07 48 06.47 +50 13 33.0   11.25     XO2N lines Simbad
+         XO-1 16 02 11.85 +28 10 10.4   11.25      XO1 lines Simbad
+       TRES-3 17 52 07.02 +37 32 46.2   12.40    TRES3 lines Simbad
+    HD 189733 20 00 43.71 +22 42 39.1    7.68 HD189733 lines Simbad
+     HD 80606 09 22 37.58 +50 36 13.4    9.00  HD80606 lines Simbad
+      HAT-P-7 19 28 59.35 +47 58 10.2   10.48    HATP7 lines Simbad
+     HAT-P-13 08 39 31.81 +47 21 07.3   10.42   HATP13 lines Simbad
+     HAT-P-16 00 38 17.56 +42 27 47.2   10.91   HATP16 lines Simbad
+      WASP-32 00 15 50.81 +01 12 01.6   11.26   WASP32 lines Simbad
+
+
+Alternatively, we could have downloaded all the catalogs from the results of 
+:meth:`~astroquery.vizier.VizierClass.find_catalogs`.
+Be careful when doing so, as this might be huge.
+
+.. doctest-remote-data::
+
+    >>> vizier.ROW_LIMIT = 50 # we reset to the default value
     >>> catalogs = vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs) # doctest: +IGNORE_OUTPUT
     TableList with 10 tables:
-       '0:J/A+A/635/A205/20140119' with 7 column(s) and 235 row(s) 
-       '1:J/A+A/635/A205/20140123' with 7 column(s) and 195 row(s) 
-       '2:J/A+A/635/A205/20171231' with 7 column(s) and 248 row(s) 
-       '3:J/A+A/635/A205/20180114' with 7 column(s) and 307 row(s) 
-       '4:J/A+A/635/A205/ccf-mask' with 3 column(s) and 1828 row(s) 
+       '0:J/A+A/635/A205/20140119' with 7 column(s) and 50 row(s) 
+       '1:J/A+A/635/A205/20140123' with 7 column(s) and 50 row(s) 
+       '2:J/A+A/635/A205/20171231' with 7 column(s) and 50 row(s) 
+       '3:J/A+A/635/A205/20180114' with 7 column(s) and 50 row(s) 
+       '4:J/A+A/635/A205/ccf-mask' with 3 column(s) and 50 row(s) 
        '5:J/ApJ/788/39/stars' with 7 column(s) and 17 row(s) 
-       '6:J/ApJ/788/39/table4' with 48 column(s) and 106 row(s) 
-       '7:J/AJ/157/217/transits' with 8 column(s) and 236 row(s) 
+       '6:J/ApJ/788/39/table4' with 48 column(s) and 50 row(s) 
+       '7:J/AJ/157/217/transits' with 8 column(s) and 50 row(s) 
        '8:J/A+A/635/A122/table2' with 4 column(s) and 18 row(s) 
        '9:J/A+A/635/A122/table3' with 4 column(s) and 17 row(s) 
-    >>> vizier.ROW_LIMIT = 50
+
+We downloaded the 50 first rows of these 10 tables.
 
 Get a catalog's associated metadata
 -----------------------------------
