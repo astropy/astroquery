@@ -256,17 +256,17 @@ def test__list_columns(mock_tap, mock_default_cols):
     assert list(cols['description']) == ['desc-2', 'desc-3']
 
 
-def test_get_datalink():
+def test_locate_data():
     with pytest.raises(ValueError, match="query_result is None"):
-        Heasarc.get_datalinks()
+        Heasarc.locate_data()
 
     with pytest.raises(
         TypeError, match="query_result need to be an astropy.table.Table"
     ):
-        Heasarc.get_datalinks([1, 2])
+        Heasarc.locate_data([1, 2])
 
     with pytest.raises(ValueError, match="No __row column found"):
-        Heasarc.get_datalinks(Table({"id": [1, 2, 3.0]}), catalog_name="xray")
+        Heasarc.locate_data(Table({"id": [1, 2, 3.0]}), catalog_name="xray")
 
 
 def test_download_data__empty():
@@ -286,7 +286,7 @@ def test_download_data__missingcolumn(host):
     host_col = "access_url" if host == "heasarc" else host
     with pytest.raises(
         ValueError,
-        match=f"No {host_col} column found in the table. Call ~get_datalinks first"
+        match=f"No {host_col} column found in the table. Call ~locate_data first"
     ):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 

@@ -459,7 +459,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-    def get_datalinks(self, query_result=None, catalog_name=None):
+    def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products
         Use vo/datalinks to query the data products for some query_results.
 
@@ -578,7 +578,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table`
-            The result from get_datalinks
+            The result from locate_data
         host : str
             The data host. The options are: heasarc (default), sciserver, aws.
             If host == 'sciserver', data is copied from the local mounted
@@ -605,7 +605,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if host_column not in links.colnames:
             raise ValueError(
                 f'No {host_column} column found in the table. Call '
-                '~get_datalinks first'
+                '~locate_data first'
             )
 
         if host == 'heasarc':
@@ -632,7 +632,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table`
-            The result from get_datalinks
+            The result from locate_data
         location : str
             local folder where the downloaded file will be saved.
             Default is current working directory
@@ -666,7 +666,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._download_file(self.TAR_URL, local_filepath,
                             timeout=self.timeout,
                             continuation=False, cache=False, method="POST",
-                            head_safe=False, data=params)
+                            head_safe=False, data=params, verbose=False)
 
         # if all good and we have a tar file untar it
         if tarfile.is_tarfile(local_filepath):

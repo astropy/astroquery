@@ -173,14 +173,14 @@ class TestHeasarc:
         remote_default = list(Heasarc._get_default_columns(catalog))
         assert remote_default == tdef
 
-    def test_get_datalinks__wrongcatalog(self):
+    def test_locate_data__wrongcatalog(self):
         with pytest.raises(ValueError, match="Unknown catalog name:"):
-            Heasarc.get_datalinks(
+            Heasarc.locate_data(
                 Table({"__row": [1, 2, 3.0]}), catalog_name="wrongcatalog"
             )
 
-    def test_get_datalinks__xmmmaster(self):
-        links = Heasarc.get_datalinks(
+    def test_locate_data__xmmmaster(self):
+        links = Heasarc.locate_data(
             Table({"__row": [4154, 4155]}), catalog_name="xmmmaster"
         )
         assert len(links) == 2
