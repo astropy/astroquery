@@ -58,7 +58,7 @@ The following example, with ``get_query_payload = True``, returns the payload:
    ...                             molecule="028503 CO",
    ...                             get_query_payload=True)
    >>> print(response)
-   [('MinNu', 100.0), ('MaxNu', 1000.0), ('UnitNu', 'GHz'), ('StrLim', -500), ('temp', 300), ('logscale', 'yes'), ('mol_sort_query', 'tag'), ('sort', 'frequency'), ('output', 'text'), ('but_action', 'Submit'), ('Molecules', '028503 CO')]
+   {'MinNu': 100.0, 'MaxNu': 1000.0, 'UnitNu': 'GHz', 'StrLim': -500, 'temp': 300, 'logscale': 'yes', 'mol_sort_query': 'tag', 'sort': 'frequency', 'output': 'text', 'but_action': 'Submit', 'Molecules': '028503 CO'}
 
 The units of the columns of the query can be displayed by calling
 ``response.info``:
@@ -125,8 +125,8 @@ simplified version of the data above is shown below:
 The parameters and response keys are described in detail under the
 Reference/API section.
 
-Looking Up More Information from the catdir.cat file
-------------------------------------------------------
+Looking Up More Information from the partition function file
+------------------------------------------------------------
 
 If you have found a molecule you are interested in, the ``tag`` column in the
 results provides enough information to access specific molecule information
@@ -141,9 +141,9 @@ laboratory but not in space
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['tag'] == 28503]
    >>> mol.pprint(max_width=160)
-   tag  molecule #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) lg(Q(225)) lg(Q(150)) lg(Q(75)) lg(Q(37.5)) lg(Q(18.75)) lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725))
-   ----- -------- ------ ----------- ---------- ---------- ---------- ---------- --------- ----------- ------------ ------------ ------------ ------------
-   28503  CO, v=0     95      2.5595     2.2584     2.0369     1.9123      1.737    1.4386      1.1429       0.8526       0.5733       0.3389       0.1478
+    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry   
+   ----- -------- --------- ------ ----------- ---------- ---------- ... ------------ ------------ ------------ ---- ------------- ------------- -----------
+   28503  CO, v=0 CO, v = 0     95      2.5595     2.2584     2.0369 ...       0.5733       0.3389       0.1478    1   e028503.cat     Oct. 2000 w028503.cat
 
 
 One of the advantages of using CDMS is the availability in the catalog of the

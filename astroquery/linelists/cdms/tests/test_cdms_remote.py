@@ -109,3 +109,26 @@ def test_complex_molecule_remote():
     assert tbl['F1u'][0].mask
     assert tbl['F1l'][0].mask
     assert tbl['Lab'][0]
+
+
+@pytest.mark.remote_data
+def test_retrieve_species_table():
+    species_table = CDMS.get_species_table(use_cached=False)
+    # as of 2025/01/16
+    assert len(species_table) >= 1293
+    assert 'int' in species_table['tag'].dtype.name
+    assert 'int' in species_table['#lines'].dtype.name
+    assert 'float' in species_table['lg(Q(1000))'].dtype.name
+
+
+@pytest.mark.bigdata
+@pytest.mark.remote_data
+def test_regression_allcats():
+    """
+    Expensive test - try all the molecules
+    """
+    species_table = CDMS.get_species_table()
+    for row in species_table:
+        tag = f"{row['tag']:06d}"
+        result = CDMS.get_molecule(tag)
+        assert len(result) >= 1

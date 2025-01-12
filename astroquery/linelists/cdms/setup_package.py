@@ -11,7 +11,8 @@ def get_package_data():
                   os.path.join('data', 'HC7N.data'),
                   os.path.join('data', 'post_response.html'),
                   ]
-    paths_data = [os.path.join('data', 'catdir.cat')]
+    paths_data = [os.path.join('data', 'catdir.cat'),
+                  os.path.join('data', 'partfunc.cat')]
 
     return {'astroquery.linelists.cdms.tests': paths_test,
             'astroquery.linelists.cdms': paths_data, }

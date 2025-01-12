@@ -5,6 +5,7 @@ import os
 
 from bs4 import BeautifulSoup
 import astropy.units as u
+from astropy import table
 from astropy.io import ascii
 from astroquery.query import BaseQuery
 from astroquery.utils import async_to_sync
@@ -26,8 +27,11 @@ def data_path(filename):
 @async_to_sync
 class CDMSClass(BaseQuery):
     # use the Configuration Items imported from __init__.py
-    URL = conf.server
+    URL = conf.search
+    SERVER = conf.server
+    CLASSIC_URL = conf.classic_server
     TIMEOUT = conf.timeout
+    MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028582 H2NC', '058501 H2C2S', '064527 HC3HCN']
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
@@ -143,8 +147,6 @@ class CDMSClass(BaseQuery):
             else:
                 payload['Molecules'] = molecule
 
-        payload = list(payload.items())
-
         if get_query_payload:
             return payload
         # BaseQuery classes come with a _request method that includes a
@@ -169,6 +171,13 @@ class CDMSClass(BaseQuery):
 
         response2 = self._request(method='GET', url=fullurl,
                                   timeout=self.TIMEOUT, cache=cache)
+
+        # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
+        badlist = (self.MALFORMATTED_MOLECULE_LIST +  # noqa
+                   [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
+        if payload['Molecules'] in badlist:
+            raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
+                             f"Try get_molecule({payload['Molecules']}) instead.")
 
         return response2
 
@@ -278,8 +287,9 @@ class CDMSClass(BaseQuery):
 
         return result
 
-    def get_species_table(self, *, catfile='catdir.cat', use_cached=True,
-                          catfile_url=conf.catfile_url):
+    def get_species_table(self, *, catfile='partfunc.cat', use_cached=True,
+                          catfile_url=conf.catfile_url,
+                          catfile2='catdir.cat', catfile_url2=conf.catfile_url2):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -302,9 +312,35 @@ class CDMSClass(BaseQuery):
         """
 
         if use_cached:
-            result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
+            try:
+                result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
+                result2 = ascii.read(data_path(catfile2), format='fixed_width', delimiter='|')
+            except UnicodeDecodeError:
+                with open(data_path(catfile), 'rb') as fh:
+                    content = fh.read()
+                text = content.decode('ascii', errors='replace')
+                result = ascii.read(text, format='basic', delimiter='|')
+                with open(data_path(catfile2), 'rb') as fh:
+                    content = fh.read()
+                text = content.decode('ascii', errors='replace')
+                result2 = ascii.read(text, format='basic', delimiter='|')
         else:
             result = retrieve_catfile(catfile_url)
+            result2 = retrieve_catfile2(catfile_url2)
+            result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
+            result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
+
+        merged = table.join(result, result2, keys=['tag'])
+        if not all(merged['#lines'] == merged['# lines']):
+            raise ValueError("Inconsistent table of molecules from CDMS.")
+        del merged['# lines']
+
+        # reorder columns
+        result = merged[['tag', 'molecule', 'Name', '#lines', 'lg(Q(1000))',
+                         'lg(Q(500))', 'lg(Q(300))', 'lg(Q(225))', 'lg(Q(150))', 'lg(Q(75))',
+                         'lg(Q(37.5))', 'lg(Q(18.75))', 'lg(Q(9.375))', 'lg(Q(5.000))',
+                         'lg(Q(2.725))',
+                         'Ver.', 'Documentation', 'Date of entry', 'Entry']]
 
         meta = {'lg(Q(1000))': 1000.0,
                 'lg(Q(500))': 500.0,
@@ -330,6 +366,96 @@ class CDMSClass(BaseQuery):
 
         result.meta = {'Temperature (K)': [1000., 500., 300., 225., 150., 75.,
                                            37.5, 18.75, 9.375, 5., 2.725]}
+
+        result.add_index('tag')
+
+        return result
+
+    def get_molecule(self, molecule_id, *, cache=True):
+        """
+        Retrieve the whole molecule table for a given molecule id
+        """
+        if not isinstance(molecule_id, str) or len(molecule_id) != 6:
+            raise ValueError("molecule_id should be a length-6 string of numbers")
+        url = f'{self.CLASSIC_URL}/entries/c{molecule_id}.cat'
+        response = self._request(method='GET', url=url,
+                                 timeout=self.TIMEOUT, cache=cache)
+        result = self._parse_cat(response)
+
+        species_table = self.get_species_table()
+        result.meta = dict(species_table.loc[int(molecule_id)])
+
+        return result
+
+    def _parse_cat(self, response, *, verbose=False):
+        """
+        Parse a catalog response into an `~astropy.table.Table`
+
+        See details in _parse_response; this is a very similar function,
+        but the catalog responses have a slightly different format.
+        """
+
+        if 'Zero lines were found' in response.text:
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+
+        text = response.text
+
+        # notes about the format
+        # [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN  noqa
+        #      13 21 29  31     41  44  51  55  57 59 61 63 65 67  69 71 73 75 77 79                   noqa
+        starts = {'FREQ': 0,
+                  'ERR': 14,
+                  'LGINT': 22,
+                  'DR': 30,
+                  'ELO': 32,
+                  'GUP': 42,
+                  'TAG': 45,
+                  'QNFMT': 52,
+                  'Q1': 56,
+                  'Q2': 58,
+                  'Q3': 60,
+                  'Q4': 62,
+                  'Q5': 64,
+                  'Q6': 66,
+                  'Q7': 68,
+                  'Q8': 70,
+                  'Q9': 72,
+                  'Q10': 74,
+                  'Q11': 76,
+                  'Q12': 78,
+                  'Q13': 80,
+                  'Q14': 82,
+                  }
+
+        result = ascii.read(text, header_start=None, data_start=0,
+                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
+                            names=list(starts.keys()),
+                            col_starts=list(starts.values()),
+                            format='fixed_width', fast_reader=False)
+
+        # int truncates - which is what we want
+        result['MOLWT'] = [int(x/1e4) for x in result['TAG']]
+
+        result['FREQ'].unit = u.MHz
+        result['ERR'].unit = u.MHz
+
+        result['Lab'] = result['MOLWT'] < 0
+        result['MOLWT'] = np.abs(result['MOLWT'])
+        result['MOLWT'].unit = u.Da
+
+        fix_keys = ['GUP']
+        for suf in '':
+            for qn in (f'Q{ii}' for ii in range(1, 15)):
+                qnind = qn+suf
+                fix_keys.append(qnind)
+        for key in fix_keys:
+            if not np.issubdtype(result[key].dtype, np.integer):
+                intcol = np.array(list(map(parse_letternumber, result[key])),
+                                  dtype=int)
+                result[key] = intcol
+
+        result['LGINT'].unit = u.nm**2 * u.MHz
+        result['ELO'].unit = u.cm**(-1)
 
         return result
 
@@ -375,9 +501,12 @@ class Lookuptable(dict):
 
         Returns
         -------
-        The list of values corresponding to the matches
+        The dictionary containing only values whose keys match the regex
 
         """
+
+        if st in self:
+            return {st: self[st]}
 
         out = {}
 
@@ -394,24 +523,89 @@ class Lookuptable(dict):
 def build_lookup():
 
     result = CDMS.get_species_table()
+
+    # start with the 'molecule' column
     keys = list(result['molecule'][:])  # convert NAME column to list
     values = list(result['tag'][:])  # convert TAG column to list
     dictionary = dict(zip(keys, values))  # make k,v dictionary
+
+    # repeat with the Name column
+    keys = list(result['Name'][:])
+    values = list(result['tag'][:])
+    dictionary2 = dict(zip(keys, values))
+    dictionary.update(dictionary2)
+
     lookuptable = Lookuptable(dictionary)  # apply the class above
 
     return lookuptable
 
 
-def retrieve_catfile(url='https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html'):
+def retrieve_catfile(url=f'{conf.classic_server}/entries/partition_function.html'):
     """
     Simple retrieve index function
     """
     response = requests.get(url)
     response.raise_for_status()
-    tbl = ascii.read(response.text, header_start=None, data_start=15, data_end=-5,
-                     names=['tag', 'molecule', '#lines', 'lg(Q(1000))', 'lg(Q(500))', 'lg(Q(300))', 'lg(Q(225))',
-                            'lg(Q(150))', 'lg(Q(75))', 'lg(Q(37.5))', 'lg(Q(18.75))', 'lg(Q(9.375))', 'lg(Q(5.000))',
-                            'lg(Q(2.725))'],
-                     col_starts=(0, 7, 34, 41, 53, 66, 79, 92, 106, 117, 131, 145, 159, 173),
-                     format='fixed_width', delimiter=' ')
+    lines = response.text.split("\n")
+
+    # used to convert '---' to nan
+    def tryfloat(x):
+        try:
+            return float(x)
+        except ValueError:
+            return np.nan
+
+    # the 'fixed width' table reader fails because there are rows that violate fixed width
+    tbl_rows = []
+    for row in lines[15:-5]:
+        split = row.split()
+        tag = int(split[0])
+        molecule_and_lines = row[7:41]
+        molecule = " ".join(molecule_and_lines.split()[:-1])
+        nlines = int(molecule_and_lines.split()[-1])
+        partfunc = map(tryfloat, row[41:].split())
+        partfunc_dict = dict(zip(['lg(Q(1000))', 'lg(Q(500))', 'lg(Q(300))', 'lg(Q(225))',
+                                  'lg(Q(150))', 'lg(Q(75))', 'lg(Q(37.5))', 'lg(Q(18.75))',
+                                  'lg(Q(9.375))', 'lg(Q(5.000))', 'lg(Q(2.725))'], partfunc))
+        tbl_rows.append({'tag': tag,
+                         'molecule': molecule,
+                         '#lines': nlines,
+                         })
+        tbl_rows[-1].update(partfunc_dict)
+    tbl = table.Table(tbl_rows)
+    # tbl = ascii.read(response.text, header_start=None, data_start=15, data_end=-5,
+    #                  names=['tag', 'molecule', '#lines', 'lg(Q(1000))', 'lg(Q(500))', 'lg(Q(300))', 'lg(Q(225))',
+    #                         'lg(Q(150))', 'lg(Q(75))', 'lg(Q(37.5))', 'lg(Q(18.75))', 'lg(Q(9.375))', 'lg(Q(5.000))',
+    #                         'lg(Q(2.725))'],
+    #                  col_starts=(0, 7, 34, 41, 53, 66, 79, 92, 106, 117, 131, 145, 159, 173),
+    #                  format='fixed_width', delimiter=' ')
+    return tbl
+
+
+def retrieve_catfile2(url=f'{conf.classic_server}/predictions/catalog/catdir.html'):
+    """
+    Simple retrieve index function
+    """
+    response = requests.get(url)
+    response.raise_for_status()
+    try:
+        tbl = ascii.read(response.text, format='html')
+    except UnicodeDecodeError:
+        # based on https://github.com/astropy/astropy/issues/3826#issuecomment-256113937
+        # which suggests to start with the bytecode content and decode with 'replace errors'
+        text = response.content.decode('ascii', errors='replace')
+        tbl = ascii.read(text, format='html')
+
+    # delete a junk column (wastes space)
+    del tbl['Catalog']
+
+    # for joining - want same capitalization
+    tbl.rename_column("Tag", "tag")
+
+    # one of these is a unicode dash, the other is a normal dash.... in theory
+    if 'Entry in cm–1' in tbl.colnames:
+        tbl.rename_column('Entry in cm–1', 'Entry')
+    if 'Entry in cm-1' in tbl.colnames:
+        tbl.rename_column('Entry in cm-1', 'Entry')
+
     return tbl
