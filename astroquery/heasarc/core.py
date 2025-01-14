@@ -298,7 +298,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        True, True, True, False)
     )
     def query_region(self, position=None, catalog=None, radius=None, *,
-                     spatial='cone', width=None, polygon=None,
+                     spatial='cone', width=None, polygon=None, add_offset=False,
                      get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
                      **kwargs):
@@ -335,6 +335,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
             `astropy.coordinates.ICRS`.
+        add_offset: bool
+            If True and spatial=='cone', add a search_offset column that
+            indicates the separation (in arcmin) between the requested
+            coordinate and the entry coordinates in the catalog. Default is False.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
@@ -399,9 +403,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                     radius = coordinates.Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
                          f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
-                # add search_offset_ for the case of cone
-                columns += (",DISTANCE(POINT('ICRS',ra,dec), "
-                            f"POINT('ICRS',{ra},{dec})) as search_offset_")
+                # add search_offset for the case of cone
+                if add_offset:
+                    columns += (",DISTANCE(POINT('ICRS',ra,dec), "
+                                f"POINT('ICRS',{ra},{dec})) as search_offset")
             elif spatial.lower() == 'box':
                 if isinstance(width, str):
                     width = coordinates.Angle(width)
@@ -423,8 +428,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._catalog_name = catalog
 
         table = response.to_table()
-        if 'search_offset_' in table.colnames:
-            table['search_offset_'].unit = u.arcmin
+        if add_offset:
+            table['search_offset'].unit = u.arcmin
         if len(table) == 0:
             warnings.warn(
                 NoResultsWarning("No matching rows were found in the query.")

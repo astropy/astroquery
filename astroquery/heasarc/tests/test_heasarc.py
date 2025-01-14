@@ -82,7 +82,8 @@ def mock_meta():
 
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("radius", SIZE_LIST)
-def test_query_region_cone(coordinates, radius):
+@pytest.mark.parametrize("offset", [True, False])
+def test_query_region_cone(coordinates, radius, offset):
     # use columns='*' to avoid remote call to obtain the default columns
     query = Heasarc.query_region(
         coordinates,
@@ -91,12 +92,16 @@ def test_query_region_cone(coordinates, radius):
         radius=radius,
         columns="*",
         get_query_payload=True,
+        add_offset=True,
     )
 
     # We don't fully float compare in this string, there are slight
     # differences due to the name-coordinate resolution and conversions
-    assert ("SELECT *,DISTANCE(POINT('ICRS',ra,dec), "
-            "POINT('ICRS',182.63") in query
+    if offset:
+        distance_text = ",DISTANCE(POINT('ICRS',ra,dec), POINT('ICRS',182.63"
+    else:
+        distance_text = ""
+    assert (f"SELECT *{distance_text}") in query
     assert (
         "FROM suzamaster WHERE CONTAINS(POINT('ICRS',ra,dec),"
         "CIRCLE('ICRS',182.63" in query
