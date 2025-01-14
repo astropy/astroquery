@@ -37,6 +37,9 @@ def _catch_deprecated_fields_with_arguments(votable_field):
     if votable_field.startswith("bibcodelist("):
         raise ValueError("Selecting a range of years for bibcode is removed. You can still use "
                          "bibcodelist without parenthesis and get the full list of bibliographic references.")
+    if votable_field in ["membership", "link_bibcode"]:
+        raise ValueError("The hierarchy information is no longer an additional field. "
+                         "It has been replaced by the 'query_hierarchy' method.")
 
 # ----------------------------
 # Support wildcard argument

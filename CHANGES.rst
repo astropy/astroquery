@@ -176,6 +176,9 @@ simbad
 - fixed ``query_objects`` that would not work in combination with the additional field
   ``ident`` [#3149]
 
+- added ``query_hierarchy``: a new method that allows to get the parents, children, or
+  siblings of an object [#3175]
+
 skyview
 ^^^^^^^
 

@@ -345,6 +345,37 @@ def test_query_catalog():
     assert adql.endswith(where_clause)
 
 
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_hierarchy():
+    simbad_instance = simbad.Simbad()
+    detailed = ('h_link."link_bibcode" AS "hierarchy_bibcode", h_link."membership"'
+                ' AS "membership_certainty"')
+    # the three possible cases
+    adql = simbad_instance.query_hierarchy("test", hierarchy="parents",
+                                           detailed_hierarchy=True,
+                                           get_query_payload=True)["QUERY"]
+    assert "h_link.child = name.oidref" in adql
+    assert detailed in adql
+    adql = simbad_instance.query_hierarchy("test", hierarchy="children",
+                                           criteria="test=test",
+                                           get_query_payload=True)["QUERY"]
+    assert "h_link.parent = name.oidref" in adql
+    assert "test=test" in adql
+    assert detailed not in adql
+    adql = simbad_instance.query_hierarchy("test", hierarchy="siblings",
+                                           get_query_payload=True)["QUERY"]
+    assert "h_link.parent = parents.oid" in adql
+    # if the keyword does not correspond
+    with pytest.raises(ValueError, match="'hierarchy' can only take the values "
+                       "'parents', 'siblings', or 'children'. Got 'test'."):
+        simbad_instance.query_hierarchy("object", hierarchy="test",
+                                        get_query_payload=True)
+    # if the people were used to the old votable_fields
+    with pytest.raises(ValueError, match="The hierarchy information is no longer an "
+                       "additional field. *"):
+        simbad_instance.add_votable_fields("membership")
+
+
 @pytest.mark.parametrize(('coordinates', 'radius', 'where'),
                          [(ICRS_COORDS, 2*u.arcmin,
                            r"WHERE CONTAINS\(POINT\('ICRS', basic\.ra, basic\.dec\), "
