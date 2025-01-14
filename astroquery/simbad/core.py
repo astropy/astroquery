@@ -176,6 +176,7 @@ class SimbadClass(BaseVOQuery):
         - `query_objects`,
         - `query_region`,
         - `query_catalog`,
+        - `query_hierarchy`,
         - `query_bibobj`,
         - `query_criteria`.
 
@@ -359,6 +360,7 @@ class SimbadClass(BaseVOQuery):
         - `query_objects`,
         - `query_region`,
         - `query_catalog`,
+        - `query_hierarchy`,
         - `query_bibobj`,
         - `query_criteria`.
 
@@ -487,6 +489,7 @@ class SimbadClass(BaseVOQuery):
         - `query_objects`,
         - `query_region`,
         - `query_catalog`,
+        - `query_hierarchy`,
         - `query_bibobj`,
         - `query_criteria`.
 
@@ -853,6 +856,86 @@ class SimbadClass(BaseVOQuery):
             instance_criteria.append(f"({criteria})")
 
         return self._query(top, columns, joins, instance_criteria,
+                           get_query_payload=get_query_payload)
+
+    def query_hierarchy(self, name, hierarchy, *,
+                        detailed_hierarchy=False,
+                        criteria=None, get_query_payload=False):
+        """Query either the parents or the children of the object.
+
+        Parameters
+        ----------
+        name : str
+            name of the object
+        hierarchy : str
+            Can take the values "parents" to return the parents of the object (ex: a
+            galaxy cluster is a parent of a galaxy), the value "children" to return
+            the children of an object (ex: stars can be children of a globular cluster),
+            or the value "siblings" to return the object that share a parent with the
+            given one (ex: the stars of an open cluster are all siblings).
+        detailed_hierarchy : bool
+            Whether to add the two extra columns 'hierarchy_bibcode' that gives the
+            article in which the hierarchy link is mentioned, and
+            'membership_certainty'. membership_certainty is an integer that reflects the
+            certainty of the hierarchy link according to the authors. Ranges between 0
+            and 100 where 100 means that the authors were certain of the classification.
+            Defaults to False.
+        criteria : str
+            Criteria to be applied to the query. These should be written in the ADQL
+            syntax in a single string. See example.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> parent = Simbad.query_hierarchy("2MASS J18511048-0615470",
+        ...                                 hierarchy="parents")  # doctest: +REMOTE_DATA
+        >>> parent[["main_id", "ra", "dec"]] # doctest: +REMOTE_DATA
+        <Table length=1>
+         main_id     ra     dec
+                    deg     deg
+          object  float64 float64
+        --------- ------- -------
+        NGC  6705 282.766  -6.272
+        """
+        top, columns, joins, instance_criteria = self._get_query_parameters()
+
+        sub_query = ("(SELECT oidref FROM ident "
+                     f"WHERE id = '{name}') AS name")
+
+        if detailed_hierarchy:
+            columns.append(_Column("h_link", "link_bibcode", "hierarchy_bibcode"))
+            columns.append(_Column("h_link", "membership", "membership_certainty"))
+
+        if hierarchy == "parents":
+            joins += [_Join("h_link", _Column("basic", "oid"), _Column("h_link", "parent"))]
+            instance_criteria.append("h_link.child = name.oidref")
+        elif hierarchy == "children":
+            joins += [_Join("h_link", _Column("basic", "oid"), _Column("h_link", "child"))]
+            instance_criteria.append("h_link.parent = name.oidref")
+        elif hierarchy == "siblings":
+            sub_query = ("(SELECT DISTINCT basic.oid FROM "
+                         f"{sub_query}, basic JOIN h_link ON basic.oid = h_link.parent "
+                         "WHERE h_link.child = name.oidref) AS parents")
+            joins += [_Join("h_link", _Column("basic", "oid"), _Column("h_link", "child"))]
+            instance_criteria.append("h_link.parent = parents.oid")
+        else:
+            raise ValueError("'hierarchy' can only take the values 'parents', "
+                             f"'siblings', or 'children'. Got '{hierarchy}'.")
+
+        if criteria:
+            instance_criteria.append(f"({criteria})")
+
+        return self._query(top, columns, joins, instance_criteria,
+                           from_table=f"{sub_query}, basic", distinct=True,
                            get_query_payload=get_query_payload)
 
     @deprecated_renamed_argument(["verbose"], new_name=[None],
@@ -1369,7 +1452,7 @@ class SimbadClass(BaseVOQuery):
         """Get the current building blocks of an ADQL query."""
         return tuple(map(copy.deepcopy, (self.ROW_LIMIT, self.columns_in_output, self.joins, self.criteria)))
 
-    def _query(self, top, columns, joins, criteria, from_table="basic",
+    def _query(self, top, columns, joins, criteria, from_table="basic", distinct=False,
                get_query_payload=False, **uploads):
         """Generate an ADQL string from the given query parameters and executes the query.
 
@@ -1386,6 +1469,8 @@ class SimbadClass(BaseVOQuery):
             with an AND clause.
         from_table : str, optional
             The table after 'FROM' in the ADQL string. Defaults to "basic".
+        distinct : bool, optional
+            Whether to add the DISTINCT instruction to the query.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
@@ -1400,6 +1485,7 @@ class SimbadClass(BaseVOQuery):
         `~astropy.table.Table`
             The result of the query to SIMBAD.
         """
+        distinct_results = " DISTINCT" if distinct else ""
         top_part = f" TOP {top}" if top != -1 else ""
 
         # columns
@@ -1433,7 +1519,7 @@ class SimbadClass(BaseVOQuery):
         else:
             criteria = ""
 
-        query = f"SELECT{top_part}{columns} FROM {from_table}{join}{criteria}"
+        query = f"SELECT{distinct_results}{top_part}{columns} FROM {from_table}{join}{criteria}"
 
         response = self.query_tap(query, get_query_payload=get_query_payload,
                                   maxrec=self.hardlimit,

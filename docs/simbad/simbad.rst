@@ -155,6 +155,96 @@ associated with an object.
             NAME North Star
                   WEB  2438
 
+Query to get all parents (or children, or siblings) of an object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Let's find the galaxies composing the galaxy pair ``Mrk 116``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> galaxies = Simbad.query_hierarchy("Mrk 116",
+    ...                                   hierarchy="children", criteria="otype='G..'")
+    >>> galaxies[["main_id", "ra", "dec"]]
+    <Table length=2>
+     main_id         ra            dec
+                    deg            deg
+      object      float64        float64
+    --------- --------------- --------------
+    Mrk  116A 143.50821525019 55.24105273196
+    Mrk  116B      143.509956      55.239762
+
+Alternatively, if we know one member of a group, we can find the others by asking for
+``siblings``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> galaxies = Simbad.query_hierarchy("Mrk 116A",
+    ...                                   hierarchy="siblings", criteria="otype='G..'")
+    >>> galaxies[["main_id", "ra", "dec"]]
+    <Table length=2>
+     main_id         ra            dec
+                    deg            deg
+      object      float64        float64
+    --------- --------------- --------------
+    Mrk  116A 143.50821525019 55.24105273196
+    Mrk  116B      143.509956      55.239762
+
+Note that if we had not added the criteria on the object type, we would also get
+some stars that are part of these galaxies in the result.
+
+And the other way around, let's find which cluster of stars contains
+``2MASS J18511048-0615470``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> cluster = Simbad.query_hierarchy("2MASS J18511048-0615470", hierarchy="parents")
+    >>> cluster[["main_id", "ra", "dec"]]
+    <Table length=1>
+     main_id     ra     dec
+                deg     deg
+      object  float64 float64
+    --------- ------- -------
+    NGC  6705 282.766  -6.272
+
+If needed, we can get a more detailed report with the two extra columns:
+ - ``hierarchy_bibcode`` : the paper in which the hierarchy is established,
+ - ``membership_certainty``: if present in the paper, a certainty index (100 meaning
+   100% sure).
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> cluster = Simbad.query_hierarchy("2MASS J18511048-0615470", 
+    ...                                  hierarchy="parents",
+    ...                                  detailed_hierarchy=True)
+    >>> cluster[["main_id", "ra", "dec", "hierarchy_bibcode", "membership_certainty"]]
+    <Table length=13>
+     main_id     ra     dec    hierarchy_bibcode  membership_certainty
+                deg     deg                             percent
+      object  float64 float64        object              int16
+    --------- ------- ------- ------------------- --------------------
+    NGC  6705 282.766  -6.272 2014A&A...563A..44M                  100
+    NGC  6705 282.766  -6.272 2015A&A...573A..55T                  100
+    NGC  6705 282.766  -6.272 2016A&A...591A..37J                  100
+    NGC  6705 282.766  -6.272 2018A&A...618A..93C                  100
+    NGC  6705 282.766  -6.272 2020A&A...633A..99C                  100
+    NGC  6705 282.766  -6.272 2020A&A...640A...1C                  100
+    NGC  6705 282.766  -6.272 2020A&A...643A..71G                  100
+    NGC  6705 282.766  -6.272 2020ApJ...903...55P                  100
+    NGC  6705 282.766  -6.272 2020MNRAS.496.4701J                  100
+    NGC  6705 282.766  -6.272 2021A&A...647A..19T                  100
+    NGC  6705 282.766  -6.272 2021A&A...651A..84M                  100
+    NGC  6705 282.766  -6.272 2021MNRAS.503.3279S                   99
+    NGC  6705 282.766  -6.272 2022MNRAS.509.1664J                  100
+
+Here, we see that the Simbad team found 13 papers mentioning the fact that 
+``2MASS J18511048-0615470`` is a member of ``NGC  6705`` and that the authors of these
+articles gave high confidence indices for this membership (``membership_certainty`` is
+close to 100 for all bibcodes).
+
 
 Query a region
 ^^^^^^^^^^^^^^
@@ -421,6 +511,7 @@ Some query methods outputs can be customized. This is the case for:
 - `~astroquery.simbad.SimbadClass.query_objects`
 - `~astroquery.simbad.SimbadClass.query_region`
 - `~astroquery.simbad.SimbadClass.query_catalog`
+- `~astroquery.simbad.SimbadClass.query_hierarchy`
 - `~astroquery.simbad.SimbadClass.query_bibobj`
 
 For these methods, the default columns in the output are:
@@ -523,6 +614,7 @@ Most query methods take a ``criteria`` argument. They are listed here:
 - `~astroquery.simbad.SimbadClass.query_objects`
 - `~astroquery.simbad.SimbadClass.query_region`
 - `~astroquery.simbad.SimbadClass.query_catalog`
+- `~astroquery.simbad.SimbadClass.query_hierarchy`
 - `~astroquery.simbad.SimbadClass.query_bibobj`
 - `~astroquery.simbad.SimbadClass.query_bibcode`
 - `~astroquery.simbad.SimbadClass.query_objectids`
