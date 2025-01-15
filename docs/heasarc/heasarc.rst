@@ -23,7 +23,7 @@ Heasarc Main Interface
 
 Query a Catalog
 ---------------
-The basic use case is one where we wants to query a catalog from some position in the sky.
+The basic use case is one where we want to query a catalog from some position in the sky.
 In this example, we query the NuSTAR master catalog ``numaster`` for all observations
 of the AGN ``NGC 3783``. We use `~astropy.coordinates.SkyCoord` to obtain the coordinates
 and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`:
@@ -200,16 +200,16 @@ the local path to the data on Sciserver. The last gives the S3 URI to the data i
 You can specify where the data are to be downloaded using the ``location`` parameter.
 
 To download the data, you can pass ``links`` table to `~astroquery.heasarc.HeasarcClass.download_data`,
-specifying from where you want the data to fetched by specifying the ``host`` parameter. By default,
+specifying from where you want the data to be fetched by specifying the ``host`` parameter. By default,
 the data is fetched from the main HEASARC servers.
-The recommendation is to use different hosts depending on where you can is running:
+The recommendation is to use different hosts depending on where your code is running:
 * ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
 all the archive can be mounted locally there, `~astroquery.heasarc.HeasarcClass.download_data`
 will only copy the relevant data.
 * ``host='aws'``: Use this option if you are running the analysis in Amazon Web Services (AWS).
 Data will be downloaded from AWS S3 storage.
 * ``host='heasarc'``: Use this option for other cases. This is the classical and most general option.
-In this case, the requested data will be tarred and downloaded as a single file called heasarc-data.tar
+In this case, the requested data will be tarred and downloaded as a single file called ``heasarc-data.tar``
 before being untarred.
 
 Advanced Queries
