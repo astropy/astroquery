@@ -111,7 +111,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Returns
         -------
-        The radius as ~astropy.units.Quantity
+        The radius as `~astropy.units.Quantity`
 
         """
         meta = self._meta[
@@ -126,12 +126,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        session : ~requests.Session
+        session : `~requests.Session`
             The requests.Session to use
 
         """
         if not isinstance(session, requests.Session):
-            raise ValueError('session is not a ~requests.Session instance')
+            raise ValueError('session is not a `~requests.Session` instance')
 
         self._session = session
 
@@ -187,7 +187,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use ~Heasarc.list_catalogs instead.
+        the Browse interface. Please use `~Heasarc.list_catalogs` instead.
 
         """
         return self.list_catalogs(master=False)
@@ -212,7 +212,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         tables = self.tap.tables
         if catalog_name not in tables.keys():
             msg = (f'{catalog_name} is not available as a public catalog. '
-                   'Try passing keywords to ~Heasarc.list_catalogs() to find '
+                   'Try passing keywords to `~Heasarc.list_catalogs` to find '
                    'the catalog name')
             raise ValueError(msg)
 
@@ -238,7 +238,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         NOTE: This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use ~Heasarc.list_columns instead.
+        the Browse interface. Please use `~Heasarc.list_columns` instead.
 
         Parameters
         ----------
@@ -324,7 +324,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             `astropy.units` may also be used. If None, a default value
             appropriate for the selected catalog is used. To see the default
             radius for the catalog, see
-            ~astroquery.heasarc.Heasarc.get_default_radius.
+            `~astroquery.heasarc.Heasarc.get_default_radius`.
         width : str, `~astropy.units.Quantity` object [Required for
             spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -610,7 +610,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if host_column not in links.colnames:
             raise ValueError(
                 f'No {host_column} column found in the table. Call '
-                '~locate_data first'
+                '`~locate_data` first'
             )
 
         if host == 'heasarc':
@@ -632,7 +632,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """Download data from the heasarc main server using xamin's tar servlet
 
         Do not call directly.
-        Users should be using ~self.download_data instead
+        Users should be using `~self.download_data` instead
 
         Parameters
         ----------
@@ -689,7 +689,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """Copy data from the local archive on sciserver
 
         Do not call directly.
-        Users should be using ~self.download_data instead
+        Users should be using `~self.download_data` instead
 
         """
         if not (os.path.exists('/FTP/') and os.environ['HOME'].split('/')[-1] == 'idies'):
@@ -720,7 +720,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Assuming open access.
 
         Do not call directly.
-        Users should be using ~self.download_data instead
+        Users should be using `~self.download_data` instead
 
         """
         keys_list = [link for link in links['aws']]
