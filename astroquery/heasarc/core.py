@@ -99,7 +99,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         ]
         meta.sort('value')
         defaults = meta['par']
-        return defaults
+        return list(defaults)
 
     def get_default_radius(self, catalog_name):
         """Get a mission-appropriate default radius for a catalog
@@ -118,10 +118,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             (self._meta['table'] == catalog_name)
             & (self._meta['par'] == '')
         ]
-        radius = np.double(meta['value'][0]) * u.arcmin
+        radius = np.float32(meta['value'][0]) * u.arcmin
         return radius
 
-    def set_session(self, session):
+    def _set_session(self, session):
         """Set requests.Session to use when querying the data
 
         Parameters
@@ -424,8 +424,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         response = self.query_tap(query=adql, maxrec=maxrec)
 
         # save the response in case we want to use it later
-        self._query_result = response
-        self._catalog_name = catalog
+        self._last_result = response
+        self._last_catalog_name = catalog
 
         table = response.to_table()
         if add_offset:
@@ -484,13 +484,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         if query_result is None:
             if (
-                not hasattr(self, '_query_result')
-                or self._query_result is None
+                not hasattr(self, '_last_result')
+                or self._last_result is None
             ):
                 raise ValueError('query_result is None, and none '
                                  'found from a previous search')
             else:
-                query_result = self._query_result
+                query_result = self._last_result
 
         if not isinstance(query_result, Table):
             raise TypeError('query_result need to be an astropy.table.Table')
@@ -502,7 +502,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                              'query_region or a subset.')
 
         if catalog_name is None:
-            catalog_name = self._catalog_name
+            catalog_name = self._last_catalog_name
         if not (
             isinstance(catalog_name, str)
             and catalog_name in self.tap.tables.keys()
@@ -661,10 +661,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         }
 
         # get local_filepath name
-        local_filepath = f'{location}/xamin.tar'
+        local_filepath = f'{location}/heasarc-data.tar'
         iname = 1
         while os.path.exists(local_filepath):
-            local_filepath = f'{location}/xamin.{iname}.tar'
+            local_filepath = f'{location}/heasarc-data.{iname}.tar'
             iname += 1
 
         log.info(f'Downloading to {local_filepath} ...')

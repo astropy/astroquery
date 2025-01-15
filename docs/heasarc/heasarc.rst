@@ -11,9 +11,8 @@ This is a python interface for querying the
 `HEASARC <https://heasarc.gsfc.nasa.gov/>`__
 archive web service.
 
-The main interface for the Heasarc services``heasarc.Heasarc`` now uses
-Virtual Observatory protocols with the Xamin interface, which offers
-more powerful search options than the old Browse interface.
+The main interface for the Heasarc services ``heasarc.Heasarc`` uses
+Virtual Observatory protocols, which offer powerful archive search options.
 
 - :ref:`Heasarc Main Interface`.
 
@@ -35,16 +34,18 @@ and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`:
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3783')
     >>> tab = Heasarc.query_region(pos, catalog='numaster')
+    >>> tab = tab[tab['time'] > 0] 
+    >>> tab.sort('time')
     >>> tab['name', 'obsid', 'ra', 'dec'][:3].pprint()
-      name    obsid      ra      dec   
+    name      obsid       ra      dec   
                         deg      deg   
-    -------- -------- -------- --------
-    NGC_3783 80701617 174.7573 -37.7386
-    NGC_3783 60901023 174.7571 -37.7385
-    NGC_3783 60902005 174.7571 -37.7385
+    -------- ----------- -------- --------
+    NGC_3783 60101110002 174.7236 -37.7230
+    NGC_3783 60101110004 174.7253 -37.7277
+    NGC_3783 80202006002 174.7838 -37.7277
 
 To query a region around some position, specifying the search radius,
-we use `~~astropy.units.Quantity`:
+we use `~astropy.units.Quantity`:
 
 .. doctest-remote-data::
 
@@ -53,23 +54,24 @@ we use `~~astropy.units.Quantity`:
     >>> from astropy import units as u
     >>> pos = SkyCoord('120 38', unit=u.deg)
     >>> tab = Heasarc.query_region(pos, catalog='chanmaster', radius=2*u.deg)
-    >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint()
+    >>> tab.sort('time')
+    >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint(align='<')
                name           obsid     ra      dec   
                                        deg      deg   
     ------------------------- ----- --------- --------
-                    ABELL 611  3194 120.23708 36.05722
-                   B2 0755+37   858 119.61750 37.78667
+    B2 0755+37                858   119.61750 37.78667
+    ABELL 611                 3194  120.23708 36.05722
+    1RXS J075526.1+391111     13008 118.85875 39.18639
+    SDSS J080040.77+391700.5  18110 120.17000 39.28344
     WISEA J080357.73+390823.1 28213 120.99060 39.13980
-        1RXS J075526.1+391111 13008 118.85875 39.18639
-     SDSS J080040.77+391700.5 18110 120.17000 39.28344
 
 If no radius value is given, a default that is appropriate
 for each catalog is used. You can see the value of the default
-radius values by calling `~~astroquery.heasarc.HeasarcClass.get_default_radius`,
+radius values by calling `~astroquery.heasarc.HeasarcClass.get_default_radius`,
 passing the name of the catalog.
 
 The list of returned columns can also be given as a comma-separated string to
-`~~astroquery.heasarc.HeasarcClass.query_region`:
+`~astroquery.heasarc.HeasarcClass.query_region`:
 
 .. doctest-remote-data::
     >>> from astroquery.heasarc import Heasarc
@@ -79,17 +81,17 @@ The list of returned columns can also be given as a comma-separated string to
     >>> tab = Heasarc.query_region(pos, catalog='chanmaster', radius=2*u.deg,
     ...                            columns='obsid, name, time, pi')
     >>> tab[:5].pprint()
-    obsid            name                 time          pi     search_offset_
-                                           d                       arcmin
-    ----- ------------------------- ---------------- ------- ------------------
-     3194                 ABELL 611 52216.7805324074   Allen  1.951975323208395
-      858                B2 0755+37 51637.0090740741 Worrall 0.3696266904766543
-    28213 WISEA J080357.73+390823.1 60315.9524768519  Pooley 1.3780163330932278
-    29168 WISEA J080357.73+390823.1 60316.2761805556  Pooley 1.3780163330932278
-    13008     1RXS J075526.1+391111 55536.6453587963     Liu 1.4842785992883953
+    obsid            name                 time          pi  
+                                        d                
+    ----- ------------------------- ---------------- -------
+    3194                 ABELL 611 52216.7805324074   Allen
+    858                B2 0755+37 51637.0090740741 Worrall
+    28213 WISEA J080357.73+390823.1 60315.9524768519  Pooley
+    29168 WISEA J080357.73+390823.1 60316.2761805556  Pooley
+    13008     1RXS J075526.1+391111 55536.6453587963     Liu
 
 If no columns are given, the call will return a set of default columns.
-If you want all the columns returned, use ``columns='*'```
+If you want all the columns returned, use ``columns='*'``
 
 List Available Catalogs
 -----------------------
@@ -109,7 +111,7 @@ catalogs.
     ascamaster ASCA Master Catalog                                          
     chanmaster Chandra Observations                                         
     cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
-    erosmaster eROSITA Observations Master Catalog
+    ...
 
 If you do not know the name of the catalog you are looking for, you can use the ``keywords`` 
 parameter in `~astroquery.heasarc.HeasarcClass.list_catalogs`. For example, if you want to find all catalogs that 
@@ -184,13 +186,13 @@ with those results.
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3516')
     >>> tab = Heasarc.query_region(pos, catalog='nicermastr')
+    >>> tab = tab[tab['exposure'] > 0]
     >>> links = Heasarc.locate_data(tab[:2])
-    >>> links.pprint(max_width=120)
-      ID                                access_url                              ... content_length
-                                                                                ...      byte     
-    ----- --------------------------------------------------------------------- ... --------------
-    52637 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/ ...      868252835
-    52641 https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/ ...       79508896
+    >>> links['access_url'].pprint()
+                                access_url                             
+    ---------------------------------------------------------------------
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/
 
 The ``links`` table has three relevant columns: ``access_url``, ``sciserver`` and ``aws``.
 The first gives the url to the data from the main heasarc server. The second gives
@@ -207,7 +209,7 @@ will only copy the relevant data.
 * ``host='aws'``: Use this option if you are running the analysis in Amazon Web Services (AWS).
 Data will be downloaded from AWS S3 storage.
 * ``host='heasarc'``: Use this option for other cases. This is the classical and most general option.
-In this case, the requested data will be tarred and downloaded as a single file called xamin.tar
+In this case, the requested data will be tarred and downloaded as a single file called heasarc-data.tar
 before being untarred.
 
 Advanced Queries
@@ -224,17 +226,16 @@ returns the constructed ADQL query.
     >>> from astropy import units as u
     >>> pos = SkyCoord('120 38', unit=u.deg)
     >>> query = Heasarc.query_region(pos, catalog='xmmmaster', radius=2*u.deg,
-    >>>                             get_query_payload=True)
+    ...                              columns='*', get_query_payload=True)
     >>> query
     "SELECT * FROM xmmmaster WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"
-    ...
     >>> # The query can be modified and then submitted using:
     >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster 
     ...            WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
     >>> tab = Heasarc.query_tap(query).to_table()
     >>> tab[:10].pprint()
         ra      dec            name           obsid   
-       deg      deg                                   
+    deg      deg                                   
     --------- -------- -------------------- ----------
     120.22707 36.04139            Abell 611 0781590301
     120.25583 36.04944            Abell 611 0781590501
@@ -243,8 +244,8 @@ returns the constructed ADQL query.
     120.24624 36.07305            Abell 611 0781590201
     120.39708 36.46875 RMJ080135.3+362807.5 0881901001
     119.61710 37.78661           B2 0755+37 0602390101
-    121.92084 39.00417              UGC4229 0138951401
     121.92084 39.00417              UGC4229 0138950101
+    121.92084 39.00417              UGC4229 0138951401
     121.92099 39.00422              MRK 622 0852180501
 
 Complex Regions
@@ -275,20 +276,18 @@ in the XMM master catalog ``xmmmaster``:
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
-    >>> columns = Heasarc.list_columns(catalog_name='xmmmaster')
+    >>> columns = Heasarc.list_columns(catalog_name='suzamaster')
+    >>> columns.sort('name')
     >>> columns[:10].pprint(align='<')
-         name                                description                          
-    -------------- ---------------------------------------------------------------
-    rgs2_time      Total RGS-2 Exposure Time (s)                                  
-    ra             Right Ascension of Target                                      
-    pn_mode        Flags Indicate PN Instrument Modes                             
-    obsid          Unique Observation Identifier                                  
-    pps_flag       Flag Indicates PPS Products Available                          
-    om_time        Total OM Exposure Time (s)                                     
-    rgs2_num       Number of RGS-2 Exposures                                      
-    name           Target Designation                                             
-    xmm_revolution XMM-Newton Revolution (Orbit) Number                           
-    status         Status of Observation: scheduled, observed, processed, archived
+          name                    description                 unit 
+    --------------- ---------------------------------------- ------
+    dec             Declination (Pointing Position)          degree
+    exposure        Effective Total Observation Exposure (s) s     
+    name            Designation of the Pointed Source              
+    obsid           Unique Observation/Sequence Number             
+    processing_date Date of Processing                       mjd   
+    public_date     Public Date                              mjd   
+    ra              Right Ascension (Pointing Position)      degree
 
 Reference/API
 =============

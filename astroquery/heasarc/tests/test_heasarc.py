@@ -8,7 +8,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import astropy.units as u
 
-from astroquery.heasarc import Heasarc
+from astroquery.heasarc import Heasarc, HeasarcClass
 from astroquery.exceptions import InvalidQueryError
 
 try:
@@ -199,6 +199,8 @@ def test_no_catalog():
 
 
 def test_tap_def():
+    # Use a new HeasarcClass object
+    Heasarc = HeasarcClass()
     assert Heasarc._tap is None
     Heasarc.tap
     assert Heasarc._tap is not None
@@ -208,6 +210,8 @@ def test_meta_def():
     class MockResult:
         def to_table(self):
             return Table({'value': ['1.5', '1.2', '-0.3']})
+    # Use a new HeasarcClass object
+    Heasarc = HeasarcClass()
     assert Heasarc._meta_info is None
     with patch('astroquery.heasarc.core.HeasarcClass.query_tap') as mock_query_tap:
         mock_query_tap.return_value = MockResult()
@@ -216,18 +220,22 @@ def test_meta_def():
 
 
 def test__get_default_columns(mock_meta):
+    # Use a new HeasarcClass object
+    Heasarc = HeasarcClass()
     cols = Heasarc._get_default_columns('tab1')
     assert list(cols) == ['p1', 'p3']
 
 
 def test__get_default_radius(mock_meta):
+    # Use a new HeasarcClass object
+    Heasarc = HeasarcClass()
     radius = Heasarc.get_default_radius('tab1')
     assert radius.value == 3.0
 
 
-def test_set_session():
+def test__set_session():
     with pytest.raises(ValueError):
-        Heasarc.set_session('not session object')
+        Heasarc._set_session('not session object')
 
 
 def test__list_catalogs(mock_tap):

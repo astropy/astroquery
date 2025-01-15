@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
-import shutil
 import pytest
+import tempfile
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
@@ -83,6 +83,7 @@ class TestHeasarc:
             spatial="cone",
             columns="*",
             radius=1 * u.arcmin,
+            add_offset=True
         )
         assert isinstance(result, Table)
         assert len(result) == 3
@@ -95,11 +96,12 @@ class TestHeasarc:
         """
         result = Heasarc.query_region(
             "NGC 4151", catalog="suzamaster", columns="ra,dec,obsid",
-            radius=10 * u.arcmin
+            radius=10 * u.arcmin,
+            add_offset=True
         )
         assert len(result) == 4
         # assert only selected columns are returned
-        assert result.colnames == ["ra", "dec", "obsid", "search_offset_"]
+        assert result.colnames == ["ra", "dec", "obsid", "search_offset"]
 
     def test_query_region_box(self):
         result = Heasarc.query_region(
@@ -196,9 +198,9 @@ class TestHeasarc:
                  f"data/archive/{filename}")
             ]
         })
-        Heasarc.download_data(tab, host="heasarc", location=".")
-        assert os.path.exists(filename)
-        os.remove(filename)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Heasarc.download_data(tab, host="heasarc", location=tmpdir)
+            assert os.path.exists(f'{tmpdir}/{filename}')
 
     def test_download_data__heasarc_folder(self):
         tab = Table({
@@ -207,21 +209,22 @@ class TestHeasarc:
                  "AO10/P91129/91129-01-68-00A/stdprod")
             ]
         })
-        Heasarc.download_data(tab, host="heasarc", location=".")
-        assert os.path.exists("stdprod")
-        assert os.path.exists("stdprod/FHed_1791a7b9-1791a931.gz")
-        assert os.path.exists("stdprod/FHee_1791a7b9-1791a92f.gz")
-        assert os.path.exists("stdprod/FHef_1791a7b9-1791a92f.gz")
-        shutil.rmtree("stdprod")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Heasarc.download_data(tab, host="heasarc", location=tmpdir)
+            assert os.path.exists(f"{tmpdir}/stdprod")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
 
     def test_download_data__s3_file(self):
         filename = "00README"
         tab = Table(
             {"aws": [f"s3://nasa-heasarc/rxte/data/archive/{filename}"]}
         )
-        Heasarc.download_data(tab, host="aws", location=".")
-        assert os.path.exists(filename)
-        os.remove(filename)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Heasarc.enable_cloud(provider='aws', profile=None)
+            Heasarc.download_data(tab, host="aws", location=tmpdir)
+            assert os.path.exists(f'{tmpdir}/{filename}')
 
     @pytest.mark.parametrize("slash", ["", "/"])
     def test_download_data__s3_folder(self, slash):
@@ -233,12 +236,13 @@ class TestHeasarc:
                 ]
             }
         )
-        Heasarc.download_data(tab, host="aws", location=".")
-        assert os.path.exists("stdprod")
-        assert os.path.exists("stdprod/FHed_1791a7b9-1791a931.gz")
-        assert os.path.exists("stdprod/FHee_1791a7b9-1791a92f.gz")
-        assert os.path.exists("stdprod/FHef_1791a7b9-1791a92f.gz")
-        shutil.rmtree("stdprod")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Heasarc.enable_cloud(provider='aws', profile=None)
+            Heasarc.download_data(tab, host="aws", location=tmpdir)
+            assert os.path.exists(f"{tmpdir}/stdprod")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
+            assert os.path.exists(f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
 
     def test_query_mission_columns(self):
         with pytest.warns(AstropyDeprecationWarning):
