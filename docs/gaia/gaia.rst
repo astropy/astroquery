@@ -279,7 +279,7 @@ time of the query exceeds time execution limit; see here archive_tips_ for detai
 of the synchronous queries is limited to 2000 rows. If you need more than that, you must use
 asynchronous queries.
 
-.. _archive_tips: https://www.cosmos.esa.int/web/gaia/archive-tips
+.. _archive_tips: https://www.cosmos.esa.int/web/gaia/faqs
 
 The results can be saved in memory (default) or in a file.
 

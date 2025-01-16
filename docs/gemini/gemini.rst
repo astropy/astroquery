@@ -24,7 +24,7 @@ Positional queries can be based on a sky position.  Radius is an optional parame
                >>> coord = coordinates.SkyCoord(210.80242917, 54.34875, unit="deg")
                >>> data = Observations.query_region(coordinates=coord, radius=0.3*units.deg)
                >>> print(data[0:5])
-               exposure_time detector_roi_setting ...  release         dec      
+               exposure_time detector_roi_setting ...  release         dec
                ------------- -------------------- ... ---------- ---------------
                   119.998583           Full Frame ... 2008-08-21  54.34877772501
                   119.998312           Full Frame ... 2008-09-25 54.376194395654
@@ -43,7 +43,7 @@ You may also do a query by the name of the object you are interested in.
                 >>> from astroquery.gemini import Observations
                 >>> data = Observations.query_object(objectname='m101')
                 >>> print(data[0:5])
-                exposure_time detector_roi_setting ...  release         dec      
+                exposure_time detector_roi_setting ...  release         dec
                 ------------- -------------------- ... ---------- ---------------
                            --            Undefined ... 2013-12-21              --
                            --            Undefined ... 2013-12-21              --
@@ -133,7 +133,7 @@ Authenticated Sessions
 ----------------------
 
 The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you login
-with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login`
+with on the GOA homepage at `<https://archive.gemini.edu/searchform>`__.  The `astroquery.gemini.ObservationsClass.login`
 method returns `True` if successful.
 
 .. doctest-skip::

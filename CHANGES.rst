@@ -1374,7 +1374,7 @@ casda
 dace
 ^^^^
 
-- Added DACE Service. See https://dace.unige.ch/ for details. [#1370]
+- Added DACE Service. See DACE website for details. [#1370]
 
 gemini
 ^^^^^^
@@ -1831,8 +1831,8 @@ Infrastructure, Utility and Other Changes and Additions
 - Fix NASA ADS, which had an internal syntax error [#602]
 - Bugfix in NRAO queries: telescope config was parsed incorrectly [#629]
 - IBE - added new module for locating data from PTF, WISE, and 2MASS from IRSA.
-  See <http://irsa.ipac.caltech.edu/ibe/> for more information about IBE and
-  <http://www.ptf.caltech.edu/page/ibe> for more information about PTF survey
+  See <https://irsa.ipac.caltech.edu:443/ibe/> for more information about IBE and
+  <https://www.ptf.caltech.edu/page/ibe> for more information about PTF survey
   data in particular. [#450]
 
 0.3.0 (2015-10-26)

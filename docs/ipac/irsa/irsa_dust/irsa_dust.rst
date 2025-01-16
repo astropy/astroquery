@@ -186,5 +186,5 @@ Reference/API
 .. automodapi:: astroquery.ipac.irsa.irsa_dust
     :no-inheritance-diagram:
 
-.. _IRSA Dust Extinction Service: http://irsa.ipac.caltech.edu/applications/DUST/index.html
-.. _IRSA DUST coordinates description page: http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+.. _IRSA Dust Extinction Service: https://irsa.ipac.caltech.edu:443/applications/DUST/index.html
+.. _IRSA DUST coordinates description page: https://irsa.ipac.caltech.edu:443/applications/DUST/docs/coordinate.html

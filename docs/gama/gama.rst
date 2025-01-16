@@ -71,4 +71,4 @@ Reference/API
 .. automodapi:: astroquery.gama
     :no-inheritance-diagram:
 
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
+.. _astropy.table.Table: https://docs.astropy.org/en/latest/table/index.html

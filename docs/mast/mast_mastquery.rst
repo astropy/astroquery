@@ -7,7 +7,7 @@ The Mast class provides more direct access to the MAST interface.  It requires
 more knowledge of the inner workings of the MAST API, and should be rarely
 needed.  However in the case of new functionality not yet implemented in
 astroquery, this class does allow access.  See the
-`MAST api documentation <https://mast.stsci.edu/api>`__ for more
+`MAST api documentation <https://mast.stsci.edu/api/v0/>`__ for more
 information.
 
 The basic MAST query function allows users to query through the following
@@ -69,7 +69,7 @@ Valid parameters for TIC and CTL services are detailed in the
    >>> observations = Mast.mast_query('Mast.Catalogs.Filtered.Tic.Rows',
    ...                                columns='id',
    ...                                dec=[{'min': -90, 'max': -30}],
-   ...                                Teff=[{'min': 4250, 'max': 4500}], 
+   ...                                Teff=[{'min': 4250, 'max': 4500}],
    ...                                logg=[{'min': 4.5, 'max': 5.0}],
    ...                                Tmag=[{'min': 8, 'max': 10}])
    >>> print(observations) # doctest: +IGNORE_OUTPUT
@@ -102,7 +102,7 @@ not mask the output tables using the columns parameter. Additionally, using a
    >>> observations = Mast.mast_query('Mast.Catalogs.Filtered.Tic.Rows',
    ...                                columns = 'COUNT_BIG(*)',
    ...                                dec=[{'min': -90, 'max': -30}],
-   ...                                Teff=[{'min': 4250, 'max': 4500}], 
+   ...                                Teff=[{'min': 4250, 'max': 4500}],
    ...                                logg=[{'min': 4.5, 'max': 5.0}],
    ...                                Tmag=[{'min': 8, 'max': 10}])
    Traceback (most recent call last):
@@ -163,7 +163,7 @@ for more information on valid service parameters.
    ...
    >>> observations = Mast.mast_query('Mast.Caom.Cone',
    ...                                columns='ra',
-   ...                                Teff=[{'min': 4250, 'max': 4500}], 
+   ...                                Teff=[{'min': 4250, 'max': 4500}],
    ...                                logg=[{'min': 4.5, 'max': 5.0}])
    Traceback (most recent call last):
    ...

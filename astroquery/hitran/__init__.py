@@ -13,7 +13,7 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.hitran`.
     """
-    query_url = _config.ConfigItem('http://hitran.org/lbl/api',
+    query_url = _config.ConfigItem('https://hitran.org/lbl/api',
                                    'HITRAN web interface URL.')
     timeout = _config.ConfigItem(60,
                                  'Time limit for connecting to HITRAN server.')

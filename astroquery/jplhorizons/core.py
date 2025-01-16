@@ -236,7 +236,7 @@ class HorizonsClass(BaseQuery):
         The following tables list the values queried, their definitions, data
         types, units, and original Horizons designations (where available). For
         more information on the definitions of these quantities, please refer to
-        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/horizons/manual.html>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -561,12 +561,12 @@ class HorizonsClass(BaseQuery):
             corresponding to all the quantities to be queried from JPL Horizons
             using the coding according to the `JPL Horizons User Manual
             Definition of Observer Table Quantities
-            <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
+            <https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan>`_;
             default: all quantities
 
         optional_settings: dict, optional
             key-value based dictionary to inject some additional optional settings
-            See `Optional observer-table settings" <https://ssd.jpl.nasa.gov/horizons.cgi?s_tset=1>`_;
+            See `Optional observer-table settings" <https://ssd.jpl.nasa.gov/horizons/app.html>`_;
             default: empty optional setting
 
         get_query_payload : boolean, optional
@@ -744,7 +744,7 @@ class HorizonsClass(BaseQuery):
         The following table lists the values queried, their definitions, data
         types, units, and original Horizons designations (where available). For
         more information on the definitions of these quantities, please refer to
-        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/horizons/manual.html>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -974,7 +974,7 @@ class HorizonsClass(BaseQuery):
         The following table lists the values queried, their definitions, data
         types, units, and original Horizons designations (where available). For
         more information on the definitions of these quantities, please refer to
-        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/horizons/manual.html>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |

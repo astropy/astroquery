@@ -198,3 +198,14 @@ if eval(setup_cfg.get('edit_on_github')):
 
 nitpicky = True
 nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin')]
+
+
+# -- Linkcheck builder options ----------------------------------------------
+#
+
+# These anchors don't resolve with the linkchecker, but work well from the browser
+linkcheck_ignore = ['https://mast.stsci.edu/search/ui/#/jwst',
+                    'https://mast.stsci.edu/search/ui/#/hst',
+                    'https://nxsa.esac.esa.int/nxsa-web/#aio',
+                    'https://ssd.jpl.nasa.gov/horizons/manual.html#center',
+                    'https://splatalogue.online/#/basic']

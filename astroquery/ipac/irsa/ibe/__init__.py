@@ -24,12 +24,10 @@ class Conf(_config.ConfigNamespace):
 
     dataset = _config.ConfigItem(
         'images',
-        ('Default data set. See, for example, '
-         'https://irsa.ipac.caltech.edu/ibe/search/ptf for options.'))
+        ('Default data set.'))
     table = _config.ConfigItem(
         'level1',
-        ('Default table. See, for example, '
-         'https://irsa.ipac.caltech.edu/ibe/search/ptf/images for options.'))
+        ('Default table.'))
     timeout = _config.ConfigItem(
         120,
         'Time limit for connecting to the IRSA server.')

@@ -24,7 +24,7 @@ try:
     from regions import CircleSkyRegion, PolygonSkyRegion
 except ImportError:
     print("Could not import astropy-regions, which is a requirement for the CDS service."
-          "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+          "Please refer to https://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
 
 __all__ = ['MOCServerClass', 'MOCServer']
 

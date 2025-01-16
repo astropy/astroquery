@@ -346,7 +346,7 @@ class AstrometryNetClass(BaseQuery):
         """
         Plate solve from an image, either by uploading the image to
         astrometry.net or by finding sources locally using
-        `photutils <https://photutils.rtfd.io>`_ and solving with source
+        `photutils <https://photutils.readthedocs.io/en/stable/>`_ and solving with source
         locations.
 
         Parameters

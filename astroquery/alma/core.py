@@ -217,7 +217,7 @@ def get_enhanced_table(result):
     except ImportError:
         print(
             "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma."
-            "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+            "Please refer to https://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
         raise
 
     def _parse_stcs_string(input):
@@ -1143,7 +1143,7 @@ class AlmaClass(QueryWithLogin):
         List the file contents of a UID from Cycle 0.  Will raise an error
         if the UID is from cycle 1+, since those data have been released in
         a different and more consistent format.  See
-        https://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+        https://almascience.nrao.edu/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
         for details.
         """
 

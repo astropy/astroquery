@@ -178,7 +178,7 @@ class SkyViewClass(BaseQuery):
 
         References
         ----------
-        .. [1] http://skyview.gsfc.nasa.gov/current/help/fields.html
+        .. [1] https://skyview.gsfc.nasa.gov/current/help/fields.html
 
         Examples
         --------

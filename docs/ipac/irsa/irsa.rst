@@ -183,10 +183,6 @@ star HIP 12 with just the ra, dec and w1mpro columns would be:
     --------- ----------- ------
     0.0407905 -35.9602605  4.837
 
-A list of available columns for each catalog can be found at
-https://irsa.ipac.caltech.edu/holdings/catalogs.html. The "Long Form" button
-at the top of the column names table must be clicked to access a full list
-of all available columns.
 
 Direct TAP query to the IRSA server
 -----------------------------------

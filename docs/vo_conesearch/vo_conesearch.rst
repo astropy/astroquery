@@ -193,7 +193,7 @@ The one that a typical user needs is the :ref:`vo-sec-client-scs` component
 See Also
 ========
 
-- `Simple Cone Search Version 1.03, IVOA Recommendation (22 February 2008) <http://www.ivoa.net/Documents/REC/DAL/ConeSearch-20080222.html>`_
+- `Simple Cone Search Version 1.03, IVOA Recommendation (22 February 2008) <http://www.ivoa.net/documents/REC/DAL/ConeSearch-20080222.html>`_
 
 - `STScI VAO Registry <http://vao.stsci.edu/directory/NVORegInt.asmx?op=VOTCapabilityPredOpt>`_
 
@@ -210,10 +210,10 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.vo_conesearch import ConeSearch
     >>> ConeSearch.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
-  
+
 Reference/API
 =============
 
