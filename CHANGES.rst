@@ -1,39 +1,32 @@
-0.4.8 (unreleased)
+0.4.8 (2025-01-16)
 ==================
-
-New Tools and Services
-----------------------
-
 
 Service fixes and enhancements
 ------------------------------
-heasarc
-^^^^^^^
-
-- Refactor heasarc to use the VO backend. [#2997]
 
 astrometry_net
 ^^^^^^^^^^^^^^
 
-- Remove photutils from Astroquery astrometry.net [#3067]
+- Removed photutils from Astroquery astrometry.net. [#3067]
 
-- Reduce the number of API calls when polling for job status [#3079]
+- Reduced the number of API calls when polling for job status. [#3079]
 
 alma
 ^^^^
 
-- Added method to return quantities instead of values and regions footprint in alma [#2855]
+- Added method to return quantities instead of values and regions footprint
+  in alma. [#2855]
 
-- Added support for frequency_resolution in KHz [#3035]
+- Added support for frequency_resolution in KHz. [#3035]
 
-- Added support for temporary upload tables in query_tap [#3118]
+- Added support for temporary upload tables in query_tap. [#3118]
 
-- Changed the way galactic ranges are used in queries [#3105]
+- Changed the way galactic ranges are used in queries. [#3105]
 
 casda
 ^^^^^
 
-- Support jobs which are in the SUSPENDED state (used when copying data) [#3134]
+- Support jobs which are in the SUSPENDED state (used when copying data). [#3134]
 
 dace
 ^^^^
@@ -45,52 +38,144 @@ dace
 esa.hubble
 ^^^^^^^^^^
 
-- Include warning in get_datalabs_path method for ehst when the data volume is not mounted in DataLabs [#3059]
+- Include warning in get_datalabs_path method for ehst when the data volume
+  is not mounted in DataLabs. [#3059]
 
-- Fix an inconsistency, ``get_member_observations`` now return a list for
+- Fixed an inconsistency, ``get_member_observations`` now return a list for
   both simple and composite observations. [#3157]
 
-gama
-^^^^
-
-- Change URL to https and thus making the module functional again. [#3056]
+- New method ``get_datalabs_path`` to return the complete path of a file in
+  datalabs by combining the datalabs volume path with the path of the file
+  in the table ehst.artifact [#2998]
 
 esa.jwst
 ^^^^^^^^
 
-- get_obs_products method supports product_type parameter as string or list [#2995]
+- get_obs_products method now supports product_type parameter as string or list.
+  [#2995]
 
-- Add download_files_from_program method to get all products by program id [#3073]
+- Added download_files_from_program method to get all products by program id.
+  [#3073]
+
+esasky
+^^^^^^
+
+- Added support for eROSITA downloads. [#3111]
+
+gaia
+^^^^
+
+- Included table size in the class TapTableMeta returned by the functions
+  ``load_tables`` and ``load_table``, in the class Tap. [#2970]
+
+- For the functions that return files in FITS/ECSV format, the files are now
+  provided as uncompressed files. [#2983]
+
+- New parameter USE_NAMES_OVER_IDS that gives preference to ``name`` over ID
+  attributes of columns as the names of columns in the ``astropy.table.Table``
+  instance. By default, value True is set, that gives name preference. [#2967]
+
+- Change the signature of the method ``load_data``: the parameter
+  ``output_file`` that defined the file where the results were
+  saved, is replaced by boolean parameter ``dump_to_file``, that in case it
+  is true, a compressed directory named "datalink_output.zip" with
+  all the DataLink files is made. So the users cannot specified the output
+  file anymore.  [#3014]
+
+- New retrieval types for datalink (Gaia DR4 release). [#3110]
+
+- The output file name built by the method ``load_data``, includes
+  microsecond resolution. This is based on the previous. [#3130]
+
+gama
+^^^^
+
+- Changed URL to https and thus making the module functional again. [#3056]
+
+heasarc
+^^^^^^^
+
+- Refactor heasarc to use the VO backend. [#2997]
+
 
 ipac.irsa
 ^^^^^^^^^
 
-- Add more robust handling of errors returned in Most.query_object() responses.
+- Added more robust handling of errors returned in Most.query_object() responses.
   [#3140]
 
 - Removal of the deprecated module ``ipac.irsa.sha``. Use ``ipac.irsa`` to
   access Spitzer data. [#3163]
 
+ipac.nexsci.nasa_explanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix unit inconsistency in ``pl_trandur`` from day(s) to hour(s). [#3137]
+
+jplhorizons
+^^^^^^^^^^^
+
+- Add missing column definitions, especially for ``refraction=True`` and
+  ``extra_precision=True``. [#2986]
+
+mast
+^^^^
+
+- Fixed bug in which the ``local_path`` parameter for the
+  ``mast.observations.download_file`` method does not accept a directory. [#3016]
+
+- Added ``verbose`` parameter to modulate output in
+  ``mast.observations.download_products`` method. [#3031]
+
+- Fixed bug in ``Catalogs.query_criteria()`` to use ``page`` and
+  ``pagesize`` parameters correctly. [#3065]
+
+- Modified ``mast.Observations.get_cloud_uris`` to also accept query
+  criteria and data product filters. [#3064]
+
+- Increased the speed of ``mast.Observations.get_cloud_uris`` by obtaining
+  multiple URIs from MAST at once. [#3064]
+
+- Raise an error rather than a warning when nonexistent query criteria are
+  used in ``Observations.query_criteria``, ``Catalogs.query_criteria``,
+  ``Catalogs.query_region``, ``Catalogs.query_object``, and
+  ``MastMissions`` query methods,   [#3084, #3126]
+
+- Added support for case-insensitive criteria keyword arguments in
+  ``mast.Observations.query_criteria`` and ``mast.Catalogs.query_criteria``.
+  [#3087]
+
+- Added function ``mast.Observations.get_unique_product_list`` to return the
+  unique data products associated with given observations. [#3096]
+
+- Deprecated ``enable_cloud_dataset`` and ``disable_cloud_dataset`` in
+  classes where they are non-operational. [#3113]
+
+- Handle HLSP data products in ``Observations.get_cloud_uris``. [#3126]
+
 mpc
 ^^^
 
-- Parse star catalog information when querying observations database [#2957]
+- Rename ``MPC.get_mpc_object_endpoint`` to ``MPC._get_mpc_object_endpoint`` to
+  indicate that it is a private method. [#3089]
 
-- Parse ephemeris with sky motion with three digit precision [#3026]
+- Parse star catalog information when querying observations database. [#2957]
+
+- Parse ephemeris with sky motion with three digit precision. [#3026]
 
 - Raise EmptyResponseError when empty ephemeris response is returned [#3026]
 
-- Deprecate ``get_raw_response`` parameter from ``MPC.get_observations``. The
+- Deprecated ``get_raw_response`` parameter from ``MPC.get_observations``. The
   raw response may be retrieved from the _async() method. [#3089]
 
-- Remove ``get_raw_response`` parameter from ``MPC.get_ephemeris`` and
+- Removed ``get_raw_response`` parameter from ``MPC.get_ephemeris`` and
   ``MPC.get_observatory_codes`` without deprecation as the parameters were
   ignored and had no effect. [#3089]
 
-- Fix bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter
+- Fixed bug in ``MPC.get_ephemeris`` that caused the ``cache`` keyword parameter
   to be ignored. [#3089]
 
-- Remove ``comettype`` parameter from ``MPC.get_observations`` without
+- Removed ``comettype`` parameter from ``MPC.get_observations`` without
   deprecation: it was undocumented, ignored, and had no effect.  [#3089]
 
 - When ``MPC.get_ephemeris`` raises an ``InvalidQueryError`` message, instead of
@@ -105,31 +190,20 @@ nvas
 linelists.cdms
 ^^^^^^^^^^^^^^
 
-- Fix result parsing incompatibility with astropy 6.1 on Windows systems. [#3008]
+- Fixed result parsing incompatibility with astropy 6.1 on Windows systems.
+  [#3008]
 
 ogle
 ^^^^
 
-- Change URL to https and thus making the module functional again. [#3048]
-
-
-splatalogue
-^^^^^^^^^^^
-
-- Fix incompatibilities with the major changes made to the Splatalogue's upstream server in March 2024. [#2960]
-
-vizier
-^^^^^^
-
-- Change the type of raised error when the catalog is not found in ``Vizier.get_catalog_metadata``
-  from ``IndexError`` to ``EmptyResponseError`` [#2980]
+- Changed URL to https and thus making the module functional again. [#3048]
 
 sdss
 ^^^^
 
 - Support new SDSS-V DR18 access URLs. [#3017]
 
-- Fix download caching. [#3123]
+- Fixed download caching. [#3123]
 
 simbad
 ^^^^^^
@@ -156,7 +230,7 @@ simbad
   ``list_columns`` and ``list_table``.
   The payload output contains the ADQL under the ``QUERY`` key. [#2954]
 
-- all query methods except ``query_tap`` and ``query_criteria`` now accept a
+- All query methods except ``query_tap`` and ``query_criteria`` now accept a
   ``criteria`` argument to restrict the results with custom criteria. [#2954]
 
 - ``query_objects`` outputs now have an additional column ``user_specified_id``
@@ -177,31 +251,51 @@ simbad
   A helper method was added ``astroquery.simbad.utils.CriteriaTranslator`` to
   translate between the sim-script syntax and the TAP/ADQL syntax. [#2954]
 
-- fixed ``query_objects`` that would not work in combination with the additional field
-  ``ident`` [#3149]
+- Fixed ``query_objects`` that would not work in combination with the
+  additional field ``ident``. [#3149]
 
-- added ``query_hierarchy``: a new method that allows to get the parents, children, or
-  siblings of an object [#3175]
+- Added ``query_hierarchy``: a new method that allows to get the parents,
+  children, or siblings of an object. [#3175]
+
+- Added ``NoResultsWarning`` when a query returns an empty table. [#3068]
 
 skyview
 ^^^^^^^
 
 - Overlay arguments ``lut``, ``grid``, and ``gridlabel`` are removed, as they
-  only apply to output types not returned by Astroquery [#2979]
+  only apply to output types not returned by Astroquery. [#2979]
+
+splatalogue
+^^^^^^^^^^^
+
+- Fix incompatibilities with the major changes made to the Splatalogue's
+  upstream server in March 2024. [#2960]
 
 vizier
 ^^^^^^
 
+- Changed the type of raised error when the catalog is not found in
+  ``Vizier.get_catalog_metadata`` from ``IndexError`` to
+  ``EmptyResponseError``. [#2980]
+
 - Fixed search by UCD -- they were ignored. [#3147]
 
 - Fixed column names -- some characters were replaced by ``_`` instead of keeping
-  the original name [#3153]
+  the original name. [#3153]
 
 vsa
 ^^^
 
-- Updating base URL to fix 404 responses. [#3033]
+- Updated base URL to fix 404 responses. [#3033]
 
+xmatch
+^^^^^^
+
+- Fixed xmatch query for two local tables. The second table was written over
+  the first one, resulting in a confusing "missing cat1" error. [#3116]
+
+- Made the error message clearer about VizieR tables not available for
+  crossmatching. [#3168]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
@@ -212,93 +306,16 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of PyVO <1.5 are no longer supported. [#3002]
 
-- Dropped ``setuptools`` as a runtime dependency. [#3071]
-
 utils.tap
 ^^^^^^^^^
 
 - ``TapPlus.upload_table`` should not allow table names to contain a
   dot. ``ValueError`` is now raised for such cases. [#2971]
 
-- Fix method read_http_response to retrieve json files. This fixes the previous PR #2947. [#2990]
+- Fix method read_http_response to retrieve json files. This fixes the
+  previous PR #2947. [#2990]
 
-gaia
-^^^^
-
-- Include table size in the class TapTableMeta returned by the functions load_tables and load_table, in the class Tap.
-  [#2970]
-
-- For the functions that return files in FITS/ECSV format, the files are now provided as uncompressed files.
-  [#2983]
-
-- New parameter USE_NAMES_OVER_IDS that gives preference to ``name`` over ID attributes of columns as the names of
-  columns in the `astropy.table.Table` instance. By default, value True is set, that gives name preference.  [#2967]
-
-- Fix method search_async_jobs in the class TapPlus. [#2967]
-
-- Change the signature of the function load_data: the parameter output_file that defined the file where the results were
-  saved, is replaced by boolean parameter dump_to_file, that in case it is true, a compressed directory named "datalink_output.zip" with
-  all the DataLink files is made. So the users cannot specified the output file anymore  [#3014]
-
-- New retrieval types for datalink (Gaia DR4 release). [#3110]
-
-- The output file name built by the method load_data, includes microsecond resolution. This is based on the previous PR [#3014]. [#3130]
-
-
-jplhorizons
-^^^^^^^^^^^
-
-- Add missing column definitions, especially for ``refraction=True`` and ``extra_precision=True``. [#2986]
-
-mast
-^^^^
-
-- Fix bug in which the ``local_path`` parameter for the ``mast.observations.download_file`` method does not accept a directory. [#3016]
-
-- Optimize remote test suite to improve performance and reduce execution time. [#3036]
-
-- Add ``verbose`` parameter to modulate output in ``mast.observations.download_products`` method. [#3031]
-
-- Fix bug in ``Catalogs.query_criteria()`` to use ``page`` and ``pagesize`` parameters correctly. [#3065]
-
-- Modify ``mast.Observations.get_cloud_uris`` to also accept query criteria and data product filters. [#3064]
-
-- Increased the speed of ``mast.Observations.get_cloud_uris`` by obtaining multiple
-  URIs from MAST at once. [#3064]
-
-- Present users with an error rather than a warning when nonexistent query criteria are used in ``mast.Observations.query_criteria``
-  and ``mast.Catalogs.query_criteria``. [#3084]
-
-- Support for case-insensitive criteria keyword arguments in ``mast.Observations.query_criteria`` and
-  ``mast.Catalogs.query_criteria``. [#3087]
-
-- Added function ``mast.Observations.get_unique_product_list`` to return the unique data products associated with
-  given observations. [#3096]
-
-- Deprecated ``enable_cloud_dataset`` and ``disable_cloud_dataset`` in classes where they
-  are non-operational. They will be removed in a future release. [#3113]
-
-- Present users with an error when nonexistent query criteria are used in ``mast.MastMissions`` query functions. [#3126]
-
-- Present users with an error when nonexistent query criteria are used in ``mast.Catalogs.query_region`` and
-  ``mast.Catalogs.query_object``. [#3126]
-
-- Handle HLSP data products in ``Observations.get_cloud_uris``. [#3126]
-
-mpc
-^^^
-
-- Rename ``MPC.get_mpc_object_endpoint`` to ``MPC._get_mpc_object_endpoint`` to
-  indicate that it is a private method. [#3089]
-
-xmatch
-^^^^^^
-
-- Fix xmatch query for two local tables. The second table was written over the first one,
-  resulting in a confusing "missing cat1" error. [#3116]
-
-- Make the error message clearer about VizieR tables not available for
-  crossmatching [#3168]
+- Fixed method ``search_async_jobs`` in the class TapPlus. [#2967]
 
 
 0.4.7 (2024-03-08)
@@ -445,10 +462,6 @@ esa.hubble
 - New methods to retrieve metadata (``get_observations_from_program``) and
   files (``download_files_from_program``) associated to a proposal. [#2910]
 
-- New method ``get_datalabs_path`` to return the complete path of a file in
-  datalabs by combining the datalabs volume path with the path of the file
-  in the table ehst.artifact [#2998, #3010]
-
 esa.jwst
 ^^^^^^^^
 
@@ -498,8 +511,6 @@ gaia
   epoch photometry service to return all data associated to a given source.
   [#2376]
 
-- New retrieval types for datalink (Gaia DR4 release). [#3110]
-
 - Default Gaia catalog updated to DR3. [#2596]
 
 heasarc
@@ -532,8 +543,6 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Stability improvements to ``query_aliases`` to address bug that made
   method retrieve no aliases for multiple star systems. [#2506]
-
-- Fix unit inconsistency in ``pl_trandur`` from day(s) to hour(s). [#3137]
 
 jplhorizons
 ^^^^^^^^^^^
@@ -888,8 +897,6 @@ esa.esasky
 ^^^^^^^^^^
 
 - Added Solar System Object functionality. [#2106]
-
-- Added support for eROSITA downloads. [#3111]
 
 ipac
 ^^^^
