@@ -692,16 +692,17 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Users should be using `~self.download_data` instead
 
         """
-        if not (os.path.exists('/FTP/') and os.environ['HOME'].split('/')[-1] == 'idies'):
+        if not os.path.exists('/FTP/'):
             raise FileNotFoundError(
                 'No data archive found. This should be run on Sciserver '
                 'with the data drive mounted.'
             )
 
-        if not os.path.exists(location):
-            os.mkdir(location)
+        # make sure the output folder exits
+        os.makedirs(location, exist_ok=True)
 
         for link in links['sciserver']:
+            link = str(link)
             log.info(f'Copying to {link} from the data drive ...')
             if not os.path.exists(link):
                 raise ValueError(
@@ -711,7 +712,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                     'Heasarc Help desk'
                 )
             if os.path.isdir(link):
-                shutil.copytree(link, location)
+                download_dir = os.path.basename(link.strip('/'))
+                shutil.copytree(link, f'{location}/{download_dir}')
             else:
                 shutil.copy(link, location)
 
