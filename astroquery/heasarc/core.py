@@ -677,7 +677,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if tarfile.is_tarfile(local_filepath):
             log.info(f'Untar {local_filepath} to {location} ...')
             tfile = tarfile.TarFile(local_filepath)
-            tfile.extractall(path=location)
+            tfile.extractall(path=location, filter="fully_trusted")
             tfile.close()
             os.remove(local_filepath)
         else:
