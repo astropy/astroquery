@@ -26,7 +26,9 @@ Query a Catalog
 The basic use case is one where we want to query a catalog from some position in the sky.
 In this example, we query the NuSTAR master catalog ``numaster`` for all observations
 of the AGN ``NGC 3783``. We use `~astropy.coordinates.SkyCoord` to obtain the coordinates
-and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`:
+and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`. In following, we
+also select only columns with ``time > 0``. Zero values are typically used for observations
+that have been approved but not observed.
 
 .. doctest-remote-data::
 
