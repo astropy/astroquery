@@ -34,7 +34,7 @@ want to reload the cache, clear the cache and remove the molecule dictionary as 
     >>> Lamda.clear_cache()
     >>> os.remove(Lamda.moldict_path)
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 You can query for any molecule in that dictionary.
@@ -54,4 +54,4 @@ Reference/API
 .. automodapi:: astroquery.lamda
     :no-inheritance-diagram:
 
-.. _LAMDA: http://home.strw.leidenuniv.nl/~moldata/
+.. _LAMDA: https://home.strw.leidenuniv.nl/~moldata/

@@ -49,7 +49,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.ogle import Ogle
     >>> Ogle.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 
@@ -59,4 +59,4 @@ Reference/API
 .. automodapi:: astroquery.ogle
     :no-inheritance-diagram:
 
-.. _calculator: http://ogle.astrouw.edu.pl/
+.. _calculator: https://ogle.astrouw.edu.pl/

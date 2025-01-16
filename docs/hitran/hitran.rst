@@ -65,4 +65,4 @@ Reference/API
 .. automodapi:: astroquery.hitran
     :no-inheritance-diagram:
 
-.. _HITRAN: http://hitran.org
+.. _HITRAN: https://hitran.org

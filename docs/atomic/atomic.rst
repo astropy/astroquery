@@ -13,7 +13,7 @@ parameters of which all are optional. In the example below, only a
 restricted set of the available parameters is used to keep it simple:
 ``wavelength_range``, ``wavelength_type``, ``wavelength_accuracy`` and
 ``element_spectrum``.  The respective web form for Atomic Line List can be
-found at http://www.pa.uky.edu/~peter/atomic/. As can be seen there, the
+found at https://linelist.pa.uky.edu/atomic/. As can be seen there, the
 first form fields are "Wavelength range" and "Unit". Because astroquery
 encourages the usage of AstroPy units, the expected type for the parameter
 ``wavelength_range`` is a tuple with two AstroPy quantities in it. This has
@@ -50,7 +50,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.atomic import AtomicLineList
     >>> AtomicLineList.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 
@@ -60,4 +60,4 @@ Reference/API
 .. automodapi:: astroquery.atomic
     :no-inheritance-diagram:
 
-.. _source: http://www.pa.uky.edu/~peter/atomic/documentation.html
+.. _source: https://linelist.pa.uky.edu/atomic/documentation.html

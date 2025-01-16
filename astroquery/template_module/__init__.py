@@ -8,7 +8,7 @@
 """
 
 # Make the URL of the server, timeout and other items configurable
-# See <http://docs.astropy.org/en/latest/config/index.html#developer-usage>
+# See <https://docs.astropy.org/en/latest/config/index.html#developer-usage>
 # for docs and examples on how to do this
 # Below is a common use case
 from astropy import config as _config

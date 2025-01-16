@@ -402,7 +402,7 @@ def predict_search(url, *args, **kwargs):
 
     plot : bool
         If `True`, plot will be displayed.
-        Plotting uses `matplotlib <http://matplotlib.sourceforge.net/>`_.
+        Plotting uses matplotlib.
 
     args, kwargs
         See :meth:`astroquery.vo_conesearch.core.ConeSearchClass.query_region`.

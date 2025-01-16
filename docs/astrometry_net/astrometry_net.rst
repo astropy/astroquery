@@ -47,7 +47,7 @@ For more information about `astropy.config`, see: https://docs.astropy.org/en/st
 
 Using keyring to store API key
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You can use the `keyring <https://pypi.python.org/pypi/keyring>`_ module to store your API key.
+You can use the `keyring <https://pypi.org/project/keyring>`_ library to store your API key.
 
 .. code-block:: python
 
@@ -56,7 +56,7 @@ You can use the `keyring <https://pypi.python.org/pypi/keyring>`_ module to stor
 
 If you have multiple users and keys you can change ``None`` to another name to assign usernames to different keys.
 
-Now you can include the `keyring <https://pypi.python.org/pypi/keyring>`_ module to set your API key.
+Now you can include the ``keyring`` module to set your API key.
 
 .. code-block:: python
 
@@ -76,7 +76,7 @@ For multiple users, replace the empty argument with the desired username.
 .. code-block:: python
 
     >>> ast.api_key = keyring.get_password('astroquery:astrometry_net', 'username')
-    
+
 .. note::
 
     Be aware that some information you submit to `astrometry.net`_ is publicly
@@ -404,4 +404,4 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _astrometry.net: https://astrometry.net/
-.. _photutils: https://photutils.readthedocs.io
+.. _photutils: https://photutils.readthedocs.io/en/stable/

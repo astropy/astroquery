@@ -3,9 +3,9 @@
 Access to the Open Exoplanet Catalogue.
 Hanno Rein 2013
 
-https://github.com/hannorein/open_exoplanet_catalogue
-https://github.com/hannorein/oec_meta
-http://openexoplanetcatalogue.com
+https://github.com/OpenExoplanetCatalogue/open_exoplanet_catalogue
+https://github.com/OpenExoplanetCatalogue/oec_meta
+https://openexoplanetcatalogue.com
 """
 from .oec_query import xml_element_to_dict, findvalue, get_catalogue
 

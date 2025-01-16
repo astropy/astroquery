@@ -104,7 +104,7 @@ via the ALMA OIDC (OpenID Connect) service, Keycloak.
     Successfully logged in to asa.alma.cl
 
 Your password will be stored by the `keyring
-<https://pypi.python.org/pypi/keyring>`_ module.
+<https://pypi.org/project/keyring>`_ module.
 You can choose not to store your password by passing the argument
 ``store_password=False`` to ``Alma.login``.  You can delete your password later
 with the command ``keyring.delete_password('astroquery:asa.alma.cl',

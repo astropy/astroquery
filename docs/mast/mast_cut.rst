@@ -57,9 +57,9 @@ not explicitly called for TICA.
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU      57   ()      
-   1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
-   2  APERTURE      1 ImageHDU        82   (5, 5)   int32  
+   0  PRIMARY       1 PrimaryHDU      57   ()
+   1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
+   2  APERTURE      1 ImageHDU        82   (5, 5)   int32
 
 
 For users with time-sensitive targets who would like cutouts from the latest observations,
@@ -72,7 +72,7 @@ this example shows a request for TICA cutouts:
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, 
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord,
    ...                               product='tica',
    ...                               sector=28)
    >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
@@ -100,7 +100,7 @@ and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
 The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname``
 input is the object name or ID understood by the
-`JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
+`JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons/app.html>`__.
 The default value for moving_target is set to False. Therefore, a non-moving target can be input
 simply with either the objectname or coordinates.
 
@@ -125,9 +125,9 @@ parameter will result in an error when set to 'TICA'.
 
    >>> from astroquery.mast import Tesscut
    ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", 
-   ...                               product='tica', 
-   ...                               moving_target=True, 
+   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora",
+   ...                               product='tica',
+   ...                               moving_target=True,
    ...                               sector=6)
    Traceback (most recent call last):
    ...
@@ -148,7 +148,7 @@ pixel file will be produced for each one.
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord,
    ...                                     size=[5, 5]*u.arcmin,
    ...                                     sector=9) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=9 to ./tesscut_20210716150026.zip ... [Done]
@@ -168,9 +168,9 @@ and because the TICA products are not available for sectors 1-26, we request cut
    >>> import astropy.units as u
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, 
-   ...                                     product='tica', 
-   ...                                     size=[5, 7]*u.arcmin, 
+   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord,
+   ...                                     product='tica',
+   ...                                     size=[5, 7]*u.arcmin,
    ...                                     sector=27) # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&product=TICA&sector=27 to ./tesscut_20230214150644.zip ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
@@ -293,9 +293,9 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    >>> from astropy.coordinates import SkyCoord
    ...
    >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, 
-   ...                                  size=[5, 10], 
-   ...                                  units="px", 
+   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord,
+   ...                                  size=[5, 10],
+   ...                                  units="px",
    ...                                  survey="3dhst_goods-n")  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20210125155545.zip ... [Done]
    Inflating...
@@ -304,15 +304,15 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
                                  Local Path
    -------------------------------------------------------------------------
    ./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits
-   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, 
-   ...                                  size=[5, 10], 
-   ...                                  units="px", 
+   >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord,
+   ...                                  size=[5, 10],
+   ...                                  units="px",
    ...                                  survey="3dhst_goods-n",
    ...                                  cutout_format="jpg")  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
    ...
    >>> print(manifest)
-                                                Local Path                                             
+                                                Local Path
    -----------------------------------------------------------------------------------------------------
       ./hlsp_3dhst_spitzer_irac_goods-n_irac1_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg
    ./hlsp_3dhst_spitzer_irac_goods-n-s2_irac3_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut.jpg

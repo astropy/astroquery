@@ -238,7 +238,7 @@ TAP provides two operation modes:
 The functions can be run as an authenticated user, the
 `~astroquery.cadc.CadcClass.list_async_jobs` function will error if
 not authenticated. For authentication you need an account with the
-CADC, go to http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/, choose a
+CADC, go to https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/, choose a
 language, click on Login in the top right area, click on the Request
 an Account link, enter your information and wait for confirmation of
 your account creation.

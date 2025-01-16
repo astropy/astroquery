@@ -129,7 +129,7 @@ size of the printout and assist with doctests; it is not needed as the default
           1370                                             CH<sub>3</sub>O<sup>13</sup>CHO (TopModel)                       Methyl Formate ...                        None             0
          21026                                                                   CH3O13CHO, vt = 0, 1 Methyl formate, v<sub>t</sub> = 0, 1 ...                        None             0
           1314                     H<sub>2</sub>NCH<sub>2</sub>COOH - II <font color="red">v=1</font>                              Glycine ...                        None             0
-          1284                                   cis-CH<sub>2</sub>OHCHO <font color="red">v=3</font>                       Glycolaldehyde ...                        None             0          
+          1284                                   cis-CH<sub>2</sub>OHCHO <font color="red">v=3</font>                       Glycolaldehyde ...                        None             0
 
 Querying just by frequency isn't particularly effective; a nicer approach is to
 use both frequency and chemical name.  If you can remember that CO 2-1 is approximately
@@ -260,10 +260,10 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.splatalogue import Splatalogue
     >>> Splatalogue.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
-       
+
 Reference/API
 =============
 
@@ -272,4 +272,4 @@ Reference/API
 
 .. _Splatalogue: https://www.splatalogue.online
 .. _Splatalogue web service: https://splatalogue.online/
-.. _query interface: https://splatalogue.online//b.php
+.. _query interface: https://splatalogue.online/#/basic

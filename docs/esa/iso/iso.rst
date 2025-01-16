@@ -12,7 +12,7 @@ jointly covered wavelengths from 2.5 to around 240 microns with spatial resoluti
 arcseconds (at the shortest wavelengths) to 90 arcseconds (at the longer wavelengths). Its 60 cm diameter
 telescope was cooled by superfluid liquid helium to temperatures of 2-4 K.
 
-This package allows the access to the `ISO Data Archive <http://nida.esac.esa.int/nida-cl-web/>`__.
+This package allows the access to the `ISO Data Archive <https://nida.esac.esa.int/nida-cl-web/>`__.
 It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the
 ESA experts at ESAC.
 
@@ -120,7 +120,7 @@ There are two valid values for 'retrieval_type': OBSERVATION and STANDALONE. OBS
 used commonly to download data from the archive and STANDALONE returns a Virtual Observatory
 product (if any).
 
-For more info on the data products, please check 'http://nida.esac.esa.int/nida-cl-web/',
+For more info on the data products, please check 'https://nida.esac.esa.int/nida-cl-web/',
 "IDA USERS GUIDE" section.
 
 Both query and download methods are designed to be used in coordination. For example, we can query
@@ -248,7 +248,7 @@ All these tables can be queried using the TAP interface and allow geometrical qu
   >>> result_table = Simbad.query_object("M31")
   >>> print(result_table)    # doctest: +IGNORE_OUTPUT
   main_id         ra                dec         ...     coo_bibcode     matched_id
-                 deg                deg         ...                               
+                 deg                deg         ...
   ------- ------------------ ------------------ ... ------------------- ----------
     M  31 10.684708333333333 41.268750000000004 ... 2006AJ....131.1163S      M  31
   >>> c = SkyCoord(result_table['ra'], result_table['dec'], unit=(u.deg, u.deg),

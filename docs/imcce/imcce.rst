@@ -463,7 +463,7 @@ This submodule makes use of IMCCE's `SkyBoT
 Miriade service
 <https://ssp.imcce.fr/webservices/miriade//>`_. Additional information on
 SkyBoT can be obtained from `Berthier et al. 2006
-<https://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
+<https://ui.adsabs.harvard.edu/abs/2006ASPC..351..367B/abstract>`_.
 
 Please consider the following notes from IMCCE:
 
@@ -471,7 +471,7 @@ Please consider the following notes from IMCCE:
   acknowledgment would be appreciated: "*This research has made use of
   IMCCE's SkyBoT VO tool*", or cite the following article
   `2006ASPC..351..367B
-  <https://adsabs.harvard.edu/abs/2006ASPC..351..367B>`_.
+  <https://ui.adsabs.harvard.edu/abs/2006ASPC..351..367B/abstract>`_.
 * If Miriade was helpful for your research work, the following
   acknowledgment would be appreciated: "*This research has made use of
   IMCCE's Miriade VO tool*"

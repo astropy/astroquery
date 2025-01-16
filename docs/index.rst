@@ -2,7 +2,7 @@ Astroquery
 ==========
 
 This is the documentation for the Astroquery coordinated package of `astropy
-<http://www.astropy.org>`__.
+<https://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -99,24 +99,24 @@ Astroquery works with Python 3.9 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <http://www.numpy.org>`_ >= 1.20
-* `astropy <http://www.astropy.org>`__ (>=5.0)
+* `numpy <https://numpy.org>`_ >= 1.20
+* `astropy <https://www.astropy.org>`__ (>=5.0)
 * `pyVO`_ (>=1.5)
 * `requests <https://requests.readthedocs.io/en/latest/>`_
-* `keyring <https://pypi.python.org/pypi/keyring>`_
+* `keyring <https://pypi.org/project/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
-* `html5lib <https://pypi.python.org/pypi/html5lib>`_
+* `html5lib <https://pypi.org/project/html5lib>`_
 
 and for running the tests:
 
-* `curl <https://curl.haxx.se/>`__
+* `curl <https://curl.se/>`__
 * `pytest-astropy <https://github.com/astropy/pytest-astropy>`__
 * `pytest-rerunfailures <https://github.com/pytest-dev/pytest-rerunfailures>`__
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mocserver`, `~astroquery.alma`, and `~astroquery.xmatch` modules:
 
-* `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
+* `astropy-healpix <https://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
 * `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.9
 
@@ -128,7 +128,7 @@ For the `~astroquery.vamdc` module:
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mast` module:
 
-* `boto3 <https://boto3.readthedocs.io/>`_
+* `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`_
 
 Using astroquery
 ----------------

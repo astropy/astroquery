@@ -46,7 +46,7 @@ class MastQueryWithLogin(QueryWithLogin):
             Default is None.
             The token to authenticate the user.
             This can be generated at
-            https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
+            https://ssoportal.stsci.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1
             If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
         store_token : bool, optional
             Default False.

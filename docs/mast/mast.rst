@@ -54,7 +54,7 @@ or by initializing a class instance with credentials.
 
 If a token is not supplied, the user will be prompted to enter one.
 
-To view tokens accessible through your account, visit https://auth.mast.stsci.edu
+To view tokens accessible through your account, visit https://auth.mast.stsci.edu/info
 
 .. doctest-skip::
 

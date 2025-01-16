@@ -9,7 +9,7 @@ The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched
 It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor,
 the first flown on an X-ray observatory.
 
-This package allows the access to the `XMM-Newton Science Archive <http://nxsa.esac.esa.int/nxsa-web/>`__.
+This package allows the access to the `XMM-Newton Science Archive <https://nxsa.esac.esa.int/nxsa-web/>`__.
 It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the
 XMM-Newton Science Operations Centre.
 
@@ -35,7 +35,7 @@ This will download all PPS files for the observation '0505720401' and instrument
 it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.
 
 For more details of the parameters check the section 3.4 at:
-		'http://nxsa.esac.esa.int/nxsa-web/#aio'
+		'https://nxsa.esac.esa.int/nxsa-web/#aio'
 
 --------------------------------------
 2. Getting XMM-Newton proprietary data

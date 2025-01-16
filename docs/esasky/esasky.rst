@@ -14,13 +14,13 @@ ESASky Queries (`astroquery.esasky`)
 Getting started
 ===============
 
-This is a python interface for querying the `ESASky web service <http://www.cosmos.esa.int/web/esdc/esasky>`__.
+This is a python interface for querying the `ESASky web service <https://www.cosmos.esa.int/web/esdc/esasky-how-to>`__.
 This module supports cone searches and download of data products from all missions available in ESASky. You can also use
 the ESASky Solar System Object crossmatch methods to get all observations (both targeted and serendipitous) of a solar
 system object.
 
 There are 4 categories of methods, based on the type of data: catalogs, observations, spectra, and SSO. `Documentation
-on the ESASky web service can be found here. <http://www.cosmos.esa.int/web/esdc/esasky-help>`__
+on the ESASky web service can be found here. <https://www.cosmos.esa.int/web/esdc/esasky-help>`__
 
 Get the available catalog names
 -------------------------------

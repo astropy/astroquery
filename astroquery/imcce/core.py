@@ -396,7 +396,7 @@ Miriade = MiriadeClass()
 @async_to_sync
 class SkybotClass(BaseQuery):
     """A class for querying the `IMCCE SkyBoT
-    <http://vo.imcce.fr/webservices/skybot>`_ service.
+    <https://vo.imcce.fr/webservices/skybot/>`_ service.
     """
     _uri = None  # query uri
     _get_raw_response = False

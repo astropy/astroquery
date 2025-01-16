@@ -18,7 +18,7 @@ class SBDBClass(BaseQuery):
 
     """
     A class for querying the `JPL Small-Body Database Browser
-    <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ service.
+    <https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html>`_ service.
     """
 
     # internal flag whether to return the raw reponse
@@ -46,7 +46,7 @@ class SBDBClass(BaseQuery):
                     cache=True):
         """
         This method queries the `JPL Small-Body Database Browser
-        <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ and returns an
+        <https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html>`_ and returns an
         `~collections.OrderedDict` with all queried information.
 
         Parameters
@@ -94,7 +94,7 @@ class SBDBClass(BaseQuery):
         virtual_impactor: boolean, optional
             Provide information on a potential virtual impactor nature of the
             target from the `JPL Sentry system
-            <http://cneos.jpl.nasa.gov/sentry/>`_. Default: ``False``
+            <https://cneos.jpl.nasa.gov/sentry/>`_. Default: ``False``
         discovery: boolean, optional
             Output discovery circumstances and IAU name citation data.
             Default: ``False``

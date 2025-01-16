@@ -19,7 +19,7 @@ class HitranClass(BaseQuery):
                  'mol_name': 4}
 
 # Copied from the hapi.py code (Academic Free License)
-# http://hitran.org/static/hapi/hapi.py
+# https://hitran.org/static/hapi/hapi.py
 # M I id iso_name abundance mass mol_name
     ISO = {
         (1, 1): [1, 'H2(16O)', 0.997317, 18.010565, 'H2O'],

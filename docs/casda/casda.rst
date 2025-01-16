@@ -5,9 +5,9 @@ CASDA Queries (`astroquery.casda`)
 **********************************
 
 The CSIRO ASKAP Science Data Archive (CASDA) provides access to science-ready data products
-from observations at the `Australian Square Kilometre Array Pathfinder (ASKAP) <https://www.atnf.csiro.au/projects/askap/index.html>`_ telescope.
+from observations at the `Australian Square Kilometre Array Pathfinder (ASKAP) <https://www.csiro.au/en/about/facilities-collections/atnf/askap-radio-telescope>`_ telescope.
 These data products include source catalogues, images, spectral line and polarisation cubes, spectra and visbilities.
-This package allows querying of the data products available in CASDA (`<https://casda.csiro.au/>`_).
+This package allows querying of the data products available in CASDA (`<https://research.csiro.au/casda>`_).
 
 Listing Data Products
 =====================
@@ -204,7 +204,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.casda import Casda
     >>> Casda.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

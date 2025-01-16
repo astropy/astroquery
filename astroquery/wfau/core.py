@@ -26,7 +26,7 @@ class BaseWFAUClass(QueryWithLogin):
     """
     The BaseWFAUQuery class.  This is intended to be inherited by other classes
     that implement specific interfaces to Wide-Field Astronomy Unit
-    (http://www.roe.ac.uk/ifa/wfau/) archives
+    (https://www.roe.ac.uk/ifa/wfau/) archives
     """
     BASE_URL = ""
     LOGIN_URL = BASE_URL + "DBLogin"

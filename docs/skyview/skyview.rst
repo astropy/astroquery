@@ -7,7 +7,7 @@ Skyview Queries (`astroquery.skyview`)
 Getting started
 ===============
 
-The `SkyView <https://skyview.gsfc.nasa.gov/>`_ service offers a cutout service for a
+The `SkyView <https://skyview.gsfc.nasa.gov/current/cgi/titlepage.pl>`_ service offers a cutout service for a
 number of imaging surveys.
 
 To see the list of surveys, use the `~astroquery.skyview.SkyViewClass.list_surveys` method.
@@ -237,7 +237,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.skyview import SkyView
     >>> SkyView.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

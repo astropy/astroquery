@@ -78,7 +78,7 @@ Automatic password
 ------------------
 
 As shown above, your password can be stored by the `keyring
-<https://pypi.python.org/pypi/keyring>`_ module, if you
+<https://pypi.org/project/keyring>`_ module, if you
 pass the argument ``store_password=True`` to ``Eso.login()``.
 For security reason, storing the password is turned off by default.
 
@@ -92,7 +92,7 @@ Automatic login
 
 You can further automate the authentication process by configuring a default username.
 The astroquery configuration file, which can be found following the procedure
-detailed in `astropy.config <http://docs.astropy.org/en/stable/config/index.html>`_,
+detailed in `astropy.config <https://docs.astropy.org/en/stable/config/index.html>`_,
 needs to be edited by adding ``username = ICONDOR`` in the ``[eso]`` section.
 
 When configured, the username in the ``login()`` method call can be omitted
@@ -393,7 +393,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.eso import Eso
     >>> Eso.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

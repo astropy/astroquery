@@ -41,4 +41,4 @@ Reference/API
 .. automodapi:: astroquery.vamdc
     :no-inheritance-diagram:
 
-.. _vamdclib: http://vamdclib.readthedocs.io/en/latest/
+.. _vamdclib: https://vamdclib.readthedocs.io/en/latest/

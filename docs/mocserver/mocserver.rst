@@ -19,7 +19,7 @@ For those wanting to know more about MOCs, please refer to this `IVOA paper
 <http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf>`_ and the `MOCPy's documentation
 <https://github.com/cds-astro/mocpy>`_ developed by the CDS.
 
-CDS has set up a server known as the `MOCServer <http://alasky.unistra.fr/MocServer/query?>`_ storing data-set names
+CDS has set up a server known as the `MOCServer <http://alasky.unistra.fr/MocServer/query>`_ storing data-set names
 each associated with a MOC spatial coverage and some meta-datas giving a more detailed explanation of the data-set.
 
 The MOCServer aims at returning the data-sets having at least one source lying in a specific sky region defined by the
@@ -448,6 +448,6 @@ Reference/API
 
 .. _CDS MOCServer: http://alasky.unistra.fr/MocServer/query
 .. _IVOA standard: http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf
-.. _astropy-healpix: http://astropy-healpix.readthedocs.io/en/latest/
+.. _astropy-healpix: https://astropy-healpix.readthedocs.io/en/latest/
 .. _regions: https://github.com/astropy/regions
 .. _mocpy: https://github.com/cds-astro/mocpy

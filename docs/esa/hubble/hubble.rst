@@ -14,7 +14,7 @@ important science projects ever, with over 500 000 observations of more than
 30000 targets available for retrieval from the Archive.
 
 This package allows the access to the `European Space Agency Hubble Archive
-<http://hst.esac.esa.int/ehst/>`__. All the HST observations available
+<https://hst.esac.esa.int/ehst/>`__. All the HST observations available
 in the EHST are synchronised with the MAST services for HST reprocessed
 public data and corresponding metadata.  Therefore, excluding proprietary
 data, all HST data in the EHST are identical to those in MAST.
