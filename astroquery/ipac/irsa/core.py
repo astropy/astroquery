@@ -91,7 +91,7 @@ class IrsaClass(BaseVOQuery):
         Returns
         -------
         Results in `pyvo.dal.SIAResults` format.
-        result.table in Astropy table format
+        result.to_table() in Astropy table format
         """
         return self.sia.search(
             pos=pos,

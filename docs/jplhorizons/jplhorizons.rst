@@ -561,8 +561,6 @@ provided as ISO dates (YYYY-MM-DD HH-MM UT). If you have your epoch dates in one
 of these formats but you need the other format, make use of
 :class:`astropy.time.Time` for the conversion. An example is provided here:
 
-.. doctest-requires:: astropy
-
     >>> from astropy.time import Time
     >>> mydate_fromiso = Time('2018-07-23 15:55:23')  # pass date as string
     >>> print(mydate_fromiso.jd)  # convert Time object to Julian date

@@ -652,8 +652,8 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        Results in ``pyvo.dal.sia2.SIA2Results`` format.
-        result.table in Astropy table format
+        Results in `~pyvo.dal.sia2.SIA2Results` format.
+        result.to_qtable in `~astropy.table.QTable` format
         """
         return self.sia.search(
             pos=pos,
@@ -680,13 +680,13 @@ class AlmaClass(QueryWithLogin):
 
     def query_tap(self, query, *, maxrec=None, uploads=None):
         """
-        Send query to the ALMA TAP. Results in pyvo.dal.TapResult format.
-        result.table in Astropy table format
+        Send query to the ALMA TAP. Results in `~pyvo.dal.TAPResults` format.
+        result.to_qtable in `~astropy.table.QTable` format
 
         Parameters
         ----------
         query : str
-            ADQL query to execute
+            ADQL query to be executed
         maxrec : int
             maximum number of records to return
         uploads : dict
@@ -701,6 +701,11 @@ class AlmaClass(QueryWithLogin):
     --------
     >>> uploads = {'tmptable': '/tmp/tmptable_def.xml'}
     >>> rslt = query_tap(self, query, maxrec=None, uploads=uploads)
+
+        Return
+        ------
+        result : `~pyvo.dal.TAPResults`
+            TAP query result
 
         """
         log.debug('TAP query: {}'.format(query))
