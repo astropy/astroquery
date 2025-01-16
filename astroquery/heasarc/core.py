@@ -187,7 +187,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use `~Heasarc.list_catalogs` instead.
+        the Browse interface. Please use `list_catalogs` instead.
 
         """
         return self.list_catalogs(master=False)
@@ -238,7 +238,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         NOTE: This method is deprecated, and is included only for limited
         backward compatibility with the old astroquery.Heasarc that uses
-        the Browse interface. Please use `~Heasarc.list_columns` instead.
+        the Browse interface. Please use `list_columns` instead.
 
         Parameters
         ----------
@@ -324,7 +324,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             `astropy.units` may also be used. If None, a default value
             appropriate for the selected catalog is used. To see the default
             radius for the catalog, see
-            `~astroquery.heasarc.Heasarc.get_default_radius`.
+            `get_default_radius`.
         width : str, `~astropy.units.Quantity` object [Required for
             spatial == ``'box'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The

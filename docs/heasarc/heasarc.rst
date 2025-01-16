@@ -36,11 +36,11 @@ that have been approved but not observed.
     >>> from astropy.coordinates import SkyCoord
     >>> pos = SkyCoord.from_name('ngc 3783')
     >>> tab = Heasarc.query_region(pos, catalog='numaster')
-    >>> tab = tab[tab['time'] > 0] 
+    >>> tab = tab[tab['time'] > 0]
     >>> tab.sort('time')
     >>> tab['name', 'obsid', 'ra', 'dec'][:3].pprint()
-    name      obsid       ra      dec   
-                        deg      deg   
+    name      obsid       ra      dec
+                        deg      deg
     -------- ----------- -------- --------
     NGC_3783 60101110002 174.7236 -37.7230
     NGC_3783 60101110004 174.7253 -37.7277
@@ -58,8 +58,8 @@ we use `~astropy.units.Quantity`:
     >>> tab = Heasarc.query_region(pos, catalog='chanmaster', radius=2*u.deg)
     >>> tab.sort('time')
     >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint(align='<')
-               name           obsid     ra      dec   
-                                       deg      deg   
+               name           obsid     ra      dec
+                                       deg      deg
     ------------------------- ----- --------- --------
     B2 0755+37                858   119.61750 37.78667
     ABELL 611                 3194  120.23708 36.05722
@@ -83,8 +83,8 @@ The list of returned columns can also be given as a comma-separated string to
     >>> tab = Heasarc.query_region(pos, catalog='chanmaster', radius=2*u.deg,
     ...                            columns='obsid, name, time, pi')
     >>> tab[:5].pprint()
-    obsid            name                 time          pi  
-                                        d                
+    obsid            name                 time          pi
+                                        d
     ----- ------------------------- ---------------- -------
     3194                 ABELL 611 52216.7805324074   Allen
     858                B2 0755+37 51637.0090740741 Worrall
@@ -97,9 +97,9 @@ If you want all the columns returned, use ``columns='*'``
 
 List Available Catalogs
 -----------------------
-The collection of available catalogs can be obtained by calling the `~astroquery.heasarc.HeasarcClass.list_catalogs` 
+The collection of available catalogs can be obtained by calling the `~astroquery.heasarc.HeasarcClass.list_catalogs`
 method. In this example, we query the master catalogs only by passing ``master=True``.
-which is ``False`` by default (i.e. return all catalogs). `~astroquery.heasarc.HeasarcClass.list_catalogs` returns an 
+which is ``False`` by default (i.e. return all catalogs). `~astroquery.heasarc.HeasarcClass.list_catalogs` returns an
 `~astropy.table.Table` with two columns containing the names and description of the available
 catalogs.
 
@@ -108,15 +108,15 @@ catalogs.
     >>> from astroquery.heasarc import Heasarc
     >>> catalogs = Heasarc.list_catalogs(master=True)
     >>> catalogs.pprint(align='<')
-       name                             description                         
+       name                             description
     ---------- -------------------------------------------------------------
-    ascamaster ASCA Master Catalog                                          
-    chanmaster Chandra Observations                                         
+    ascamaster ASCA Master Catalog
+    chanmaster Chandra Observations
     cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
     ...
 
-If you do not know the name of the catalog you are looking for, you can use the ``keywords`` 
-parameter in `~astroquery.heasarc.HeasarcClass.list_catalogs`. For example, if you want to find all catalogs that 
+If you do not know the name of the catalog you are looking for, you can use the ``keywords``
+parameter in `~astroquery.heasarc.HeasarcClass.list_catalogs`. For example, if you want to find all catalogs that
 are related to Chandra, you can do:
 
 .. doctest-remote-data::
@@ -125,7 +125,7 @@ are related to Chandra, you can do:
     >>> catalogs = Heasarc.list_catalogs(keywords='chandra')
     >>> # list the first 10
     >>> catalogs[:10].pprint()
-       name                              description                           
+       name                              description
     ---------- ----------------------------------------------------------------
     acceptcat Archive of Chandra Cluster Entropy Profile Tables (ACCEPT) Catal
         aegisx  AEGIS-X Chandra Extended Groth Strip X-Ray Point Source Catalog
@@ -145,11 +145,11 @@ If you are interested only finding the master catalogs, you can also set ``maste
     >>> from astroquery.heasarc import Heasarc
     >>> catalog = Heasarc.list_catalogs(keywords='chandra', master=True)
     >>> catalog.pprint()
-       name        description     
+       name        description
     ---------- --------------------
     chanmaster Chandra Observations
 
-Multiple keywords that are separated by space are joined with **AND**, so the 
+Multiple keywords that are separated by space are joined with **AND**, so the
 following finds all the catalogs that have both 'xmm' and 'chandra' keywords:
 
 .. doctest-remote-data::
@@ -157,7 +157,7 @@ following finds all the catalogs that have both 'xmm' and 'chandra' keywords:
     >>> from astroquery.heasarc import Heasarc
     >>> catalog = Heasarc.list_catalogs(keywords='xmm chandra')
     >>> catalog.pprint()
-       name                              description                           
+       name                              description
     ---------- ----------------------------------------------------------------
     gmrt1hxcsf Giant Metrewave Radio Telescope 1h XMM/Chandra Survey Fld 610-MH
     ic10xmmcxo          IC 10 XMM-Newton and Chandra X-Ray Point Source Catalog
@@ -172,7 +172,7 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     >>> from astroquery.heasarc import Heasarc
     >>> catalog = Heasarc.list_catalogs(keywords=['nicer', 'swift'], master=True)
     >>> catalog.pprint()
-       name        description     
+       name        description
     ---------- --------------------
     nicermastr NICER Master Catalog
     swiftmastr Swift Master Catalog
@@ -191,7 +191,7 @@ with those results.
     >>> tab = tab[tab['exposure'] > 0]
     >>> links = Heasarc.locate_data(tab[:2])
     >>> links['access_url'].pprint()
-                                access_url                             
+                                access_url
     ---------------------------------------------------------------------
     https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/
     https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/
@@ -216,7 +216,7 @@ before being untarred.
 
 Advanced Queries
 ----------------
-Behind the scenes, `~astroquery.heasarc.HeasarcClass.query_region` constructs an query in the 
+Behind the scenes, `~astroquery.heasarc.HeasarcClass.query_region` constructs an query in the
 Astronomical Data Query Language ADQL, which is powerful in constructing
 complex queries. Passing ``get_query_payload=True`` to `~astroquery.heasarc.HeasarcClass.query_region`
 returns the constructed ADQL query.
@@ -232,12 +232,12 @@ returns the constructed ADQL query.
     >>> query
     "SELECT * FROM xmmmaster WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"
     >>> # The query can be modified and then submitted using:
-    >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster 
+    >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster
     ...            WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
     >>> tab = Heasarc.query_tap(query).to_table()
     >>> tab[:10].pprint()
-        ra      dec            name           obsid   
-    deg      deg                                   
+        ra      dec            name           obsid
+    deg      deg
     --------- -------- -------------------- ----------
     120.22707 36.04139            Abell 611 0781590301
     120.25583 36.04944            Abell 611 0781590501
@@ -268,7 +268,7 @@ for ``'box'`` and:
     >>> Heasarc.query_region(catalog='xmmmaster', spatial='polygon',
                   polygon=[(226.2,10.6),(225.9,10.5),(225.8,10.2),(226.2,10.3)])
 
-for ``'polygon'``.  
+for ``'polygon'``.
 
 List Catalog Columns
 --------------------
@@ -281,14 +281,14 @@ in the XMM master catalog ``xmmmaster``:
     >>> columns = Heasarc.list_columns(catalog_name='suzamaster')
     >>> columns.sort('name')
     >>> columns[:10].pprint(align='<')
-          name                    description                 unit 
+          name                    description                 unit
     --------------- ---------------------------------------- ------
     dec             Declination (Pointing Position)          degree
-    exposure        Effective Total Observation Exposure (s) s     
-    name            Designation of the Pointed Source              
-    obsid           Unique Observation/Sequence Number             
-    processing_date Date of Processing                       mjd   
-    public_date     Public Date                              mjd   
+    exposure        Effective Total Observation Exposure (s) s
+    name            Designation of the Pointed Source
+    obsid           Unique Observation/Sequence Number
+    processing_date Date of Processing                       mjd
+    public_date     Public Date                              mjd
     ra              Right Ascension (Pointing Position)      degree
 
 Reference/API
