@@ -119,28 +119,27 @@ class EsoClass(QueryWithLogin):
         return fn
 
     def from_cache(self, query_str, cache_timeout):
-        request_file = self.request_file(query_str)
+        table_file = self.request_file(query_str)
         try:
             if cache_timeout is None:
                 expired = False
             else:
                 current_time = datetime.now(timezone.utc)
-                cache_time = datetime.fromtimestamp(request_file.stat().st_mtime, timezone.utc)
+                cache_time = datetime.fromtimestamp(table_file.stat().st_mtime, timezone.utc)
                 expired = current_time-cache_time > timedelta(seconds=cache_timeout)
             if not expired:
-                with open(request_file, "rb") as f:
-                    #  TODO rename respones to table
-                    response = pickle.load(f)
-                if not isinstance(response, Table):
-                    response = None
+                with open(table_file, "rb") as f:
+                    cached_table = pickle.load(f)
+                if not isinstance(cached_table, Table):
+                    cached_table = None
             else:
-                log.debug(f"Cache expired for {request_file}...")
-                response = None
+                log.debug(f"Cache expired for {table_file}...")
+                cached_table = None
         except FileNotFoundError:
-            response = None
-        if response:
-            log.debug("Retrieved data from {0}".format(request_file))
-        return response
+            cached_table = None
+        if cached_table:
+            log.debug("Retrieved data from {0}".format(table_file))
+        return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
         """
