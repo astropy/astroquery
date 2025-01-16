@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
-import shutil
 import pytest
 import tempfile
 from unittest.mock import patch, PropertyMock
@@ -304,6 +303,7 @@ def test_download_data__missingcolumn(host):
     ):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 
+
 def test_download_data__sciserver():
     with tempfile.TemporaryDirectory() as tmpdir:
         datadir = f'{tmpdir}/data'
@@ -320,6 +320,7 @@ def test_download_data__sciserver():
         assert os.path.exists(f'{downloaddir}/file.txt')
         assert os.path.exists(f'{downloaddir}/data')
         assert os.path.exists(f'{downloaddir}/data/file.txt')
+
 
 def test_download_data__outside_sciserver():
     with pytest.raises(
