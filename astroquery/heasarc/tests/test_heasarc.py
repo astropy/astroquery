@@ -299,7 +299,7 @@ def test_download_data__missingcolumn(host):
     host_col = "access_url" if host == "heasarc" else host
     with pytest.raises(
         ValueError,
-        match=f"No {host_col} column found in the table. Call ~locate_data first"
+        match=f"No {host_col} column found in the table. Call `~locate_data` first"
     ):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 
