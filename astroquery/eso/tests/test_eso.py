@@ -131,7 +131,7 @@ def test_apex_quicklooks(monkeypatch):
 
     assert len(table) == 5
     assert set(table['Release Date']) == {'2015-07-17', '2015-07-18',
-                                         '2015-09-15', '2015-09-18'}
+                                          '2015-09-15', '2015-09-18'}
 
 
 def test_authenticate(monkeypatch):
