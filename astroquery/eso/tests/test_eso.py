@@ -86,67 +86,43 @@ def calselector_request(url, **kwargs):
     return response
 
 
-# @pytest.fixture
-# def patch_get(request):
-#    mp = request.getfixturevalue("monkeypatch")
-#
-#    mp.setattr(Eso, 'request', eso_request)
-#    return mp
-
-# This test should attempt to access the internet and therefore should fail
-# (_activate_form always connects to the internet)
-# @pytest.mark.xfail
 def test_sinfoni_SgrAstar(monkeypatch):
-    # Local caching prevents a remote query here
-
-    eso = Eso()
-
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
+    eso = Eso()
     monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
-    # set up local cache path to prevent remote query
-    eso.cache_location = DATA_DIR
-
-    # the failure should occur here
     result = eso.query_instrument('sinfoni', target='SGRA')
-
-    # test that max_results = 50
+    # test all results are there and the expected target is present
     assert len(result) == 50
     assert 'SGRA' in result['target']
 
 
 def test_main_SgrAstar(monkeypatch):
-    # Local caching prevents a remote query here
-    eso = Eso()
-
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
+    eso = Eso()
     monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
-    # set up local cache path to prevent remote query
-    eso.cache_location = DATA_DIR
-
-    # the failure should occur here
     result = eso.query_main(target='SGR A', object='SGR A')
-
-    # test that max_results = 5
+    # test all results are there and the expected target is present
     assert len(result) == 23
     assert 'SGR A' in result['object']
     assert 'SGR A' in result['target']
 
 
 def test_vvv(monkeypatch):
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
-    eso.cache_location = DATA_DIR
-
-    result_s = eso.query_collections(collections='VVV',
-                                     coord1=266.41681662, coord2=-29.00782497,
-                                     box='01 00 00',
-                                     )
-    assert result_s is not None
-    assert 'target_name' in result_s.colnames
-    assert 'b333' in result_s['target_name']
+    result = eso.query_collections(collections='VVV',
+                                   coord1=266.41681662, coord2=-29.00782497,
+                                   box='01 00 00',
+                                   )
+    # test all results are there and the expected target is present
+    assert len(result) == 50
+    assert 'target_name' in result.colnames
+    assert 'b333' in result['target_name']
 
 
 def test_authenticate(monkeypatch):
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, '_request', eso_request)
     eso.cache_location = DATA_DIR
@@ -155,6 +131,7 @@ def test_authenticate(monkeypatch):
 
 
 def test_download(monkeypatch, tmp_path):
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     eso.cache_location = tmp_path
     fileid = 'testfile'
@@ -185,6 +162,7 @@ def test_cached_file():
 
 
 def test_calselector(monkeypatch, tmp_path):
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     eso.cache_location = tmp_path
     dataset = 'FORS2.2021-01-02T00:59:12.533'
@@ -196,6 +174,7 @@ def test_calselector(monkeypatch, tmp_path):
 
 
 def test_calselector_multipart(monkeypatch, tmp_path):
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     eso.cache_location = tmp_path
     datasets = ['FORS2.2021-01-02T00:59:12.533', 'FORS2.2021-01-02T00:59:12.534']
