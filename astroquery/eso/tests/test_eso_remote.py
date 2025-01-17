@@ -7,12 +7,12 @@ from astroquery.eso import Eso
 from astroquery.exceptions import NoResultsWarning
 from astropy.table import Table
 
-instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
-                   u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
-                   u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
-                   u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'gravity', u'espresso', u'wlgsu', u'matisse', u'eris',
-                   u'fiat',
+instrument_list = ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
+                   'hawki', 'isaac', 'naco', 'visir', 'vircam', 'apex',
+                   'giraffe', 'uves', 'xshooter', 'muse', 'crires',
+                   'kmos', 'sinfoni', 'amber', 'midi', 'pionier',
+                   'gravity', 'espresso', 'wlgsu', 'matisse', 'eris',
+                   'fiat',
                    ]
 
 # Some tests take too long, leading to travis timeouts
@@ -40,7 +40,7 @@ class TestEso:
     def test_query_tap_service(self):
         eso = Eso()
         eso.ROW_LIMIT = 7
-        t = eso._query_tap_service(f"select top {eso.ROW_LIMIT} * from ivoa.ObsCore")
+        t = eso.query_tap_service(f"select top {eso.ROW_LIMIT} * from ivoa.ObsCore")
         lt = len(t)
         assert type(t) is Table, f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
@@ -140,7 +140,7 @@ class TestEso:
         inst = set(Eso.list_instruments(cache=False))
 
         # we only care about the sets matching
-        assert set(inst) == set(instrument_list)
+        assert set(inst) == set(instrument_list), f"Expected result {instrument_list}; Obtained: {inst}"
 
     def test_retrieve_data(self):
         eso = Eso()
@@ -170,7 +170,7 @@ class TestEso:
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()
-        eso.query_instrument(instrument, help=True)
+        eso.query_instrument(instrument, print_help=True)
 
     def test_apex_retrieval(self):
         eso = Eso()

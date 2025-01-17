@@ -4,20 +4,6 @@ import pickle
 import copy
 from astroquery import log
 import hashlib
-from ..exceptions import RemoteServiceError
-
-
-def _check_response(content):  # required only by apex_quicklooks
-    """
-    Check the response from an ESO service query for various types of error
-
-    If all is OK, return True
-    """
-    if b"NETWORKPROBLEM" in content:
-        raise RemoteServiceError("The query resulted in a network "
-                                 "problem; the service may be offline.")
-    elif b"# No data returned !" not in content:
-        return True
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -63,14 +49,14 @@ def py2adql(table: str, columns: Union[List, str] = None, where_constraints: Lis
     return query_string.strip()
 
 
-def hash(query_str: str, url: str):
+def eso_hash(query_str: str, url: str):
     request_key = (query_str, url)
     h = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
     return h
 
 
 def to_cache(table, cache_file):
-    log.debug("Caching data to {0}".format(cache_file))
+    log.debug("Caching data to %s", cache_file)
 
     table = copy.deepcopy(table)
     with open(cache_file, "wb") as f:
