@@ -49,7 +49,7 @@ class MOCServerClass(BaseQuery):
         fields=None,
         max_rec=None,
         casesensitive=False,
-        spacesys=None,
+        coordinate_system=None,
         get_query_payload=False,
         verbose=False,
         cache=True,
@@ -74,11 +74,11 @@ class MOCServerClass(BaseQuery):
         fields : [str], optional
             Specifies which columns to retrieve. Defaults to a pre-defined subset of
             fields. The complete list of fields can be obtained with `list_fields`.
-        spacesys: str, optional
+        coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
             the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `list_spacesys`. Default is None, meaning that the results
-            will have mixed frames.
+            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            Default is None, meaning that the results will have mixed frames.
         intersect : str, optional
             This parameter can take three different values:
 
@@ -122,7 +122,7 @@ class MOCServerClass(BaseQuery):
             fields=fields,
             max_rec=max_rec,
             casesensitive=casesensitive,
-            spacesys=spacesys,
+            coordinate_system=coordinate_system,
             get_query_payload=get_query_payload,
             cache=cache,
         )
@@ -141,7 +141,7 @@ class MOCServerClass(BaseQuery):
         fields=None,
         max_rec=None,
         casesensitive=False,
-        spacesys=None,
+        coordinate_system=None,
         get_query_payload=False,
         verbose=False,
         cache=True,
@@ -161,11 +161,11 @@ class MOCServerClass(BaseQuery):
         fields : [str], optional
             Specifies which columns to retrieve. Defaults to a pre-defined subset of
             fields. The complete list of fields can be obtained with `list_fields`.
-        spacesys: str, optional
+        coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
             the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `list_spacesys`. Default is None, meaning that the results
-            will have mixed frames.
+            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`
             The region to query the MOCServer with. Note that this can also be a
@@ -217,7 +217,7 @@ class MOCServerClass(BaseQuery):
             fields=fields,
             max_rec=max_rec,
             casesensitive=casesensitive,
-            spacesys=spacesys,
+            coordinate_system=coordinate_system,
             get_query_payload=get_query_payload,
             verbose=verbose,
             cache=cache,
@@ -235,7 +235,7 @@ class MOCServerClass(BaseQuery):
         fields=None,
         max_rec=None,
         casesensitive=False,
-        spacesys=None,
+        coordinate_system=None,
         get_query_payload=False,
         verbose=False,
         cache=True,
@@ -255,11 +255,11 @@ class MOCServerClass(BaseQuery):
         fields : [str], optional
             Specifies which columns to retrieve. Defaults to a pre-defined subset of
             fields. The complete list of fields can be obtained with `list_fields`.
-        spacesys: str, optional
+        coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
             the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `list_spacesys`. Default is None, meaning that the results
-            will have mixed frames.
+            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`
             The region to query the MOCServer with. Note that this can also be a
@@ -307,7 +307,7 @@ class MOCServerClass(BaseQuery):
             fields=fields,
             max_rec=max_rec,
             casesensitive=casesensitive,
-            spacesys=spacesys,
+            coordinate_system=coordinate_system,
             get_query_payload=get_query_payload,
             verbose=verbose,
             cache=cache,
@@ -323,7 +323,7 @@ class MOCServerClass(BaseQuery):
         fields=None,
         max_rec=None,
         intersect="overlaps",
-        spacesys=None,
+        coordinate_system=None,
         casesensitive=False,
         get_query_payload=False,
         cache=True,
@@ -343,11 +343,11 @@ class MOCServerClass(BaseQuery):
         fields : [str], optional
             Specifies which columns to retrieve. Defaults to a pre-defined subset of
             fields. The complete list of fields can be obtained with `list_fields`.
-        spacesys: str, optional
+        coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
             the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `list_spacesys`. Default is None, meaning that the results
-            will have mixed frames.
+            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`
             The region to query the MOCServer with. Note that this can also be a
@@ -392,7 +392,7 @@ class MOCServerClass(BaseQuery):
             max_rec=max_rec,
             region=region,
             intersect=intersect,
-            spacesys=spacesys,
+            coordinate_system=coordinate_system,
             casesensitive=casesensitive,
             default_fields=self.DEFAULT_FIELDS,
         )
@@ -509,20 +509,20 @@ class MOCServerClass(BaseQuery):
             params={"get": "example", "fmt": "json"},
         )
 
-    def list_spacesys(self):
-        """Return the list of "spacesys" currently available in the MOC Server.
+    def list_coordinate_systems(self):
+        """Return the list of coordinate systems currently available in the MOC Server.
 
         This list may be enriched later, as new datasets are added into the MOC Server.
 
         Returns
         -------
         list
-            The list of spacesys currently available in the MOC Server
+            The list of coordinate systems currently available in the MOC Server
 
         """
         frames = list(set(self.query_region(meta_data="hips_frame=*",
                                             fields=["ID", "hips_frame"],
-                                            spacesys=None)["hips_frame"]))
+                                            coordinate_system=None)["hips_frame"]))
         # `C` is a special case that corresponds to both equatorial and galactic frames
         frames.append("sky")
         frames.sort()
@@ -538,7 +538,7 @@ def _args_to_payload(
     max_rec=None,
     region=None,
     intersect="overlaps",
-    spacesys=None,
+    coordinate_system=None,
     casesensitive=False,
     default_fields=None,
 ):
@@ -556,7 +556,7 @@ def _args_to_payload(
         "get": "record",
         "fields": _get_fields(fields, default_fields),
         "intersect": intersect.replace("encloses", "enclosed"),
-        "spacesys": "C" if spacesys == "sky" else spacesys,
+        "spacesys": "C" if coordinate_system == "sky" else coordinate_system,
     }
 
     if region and not isinstance(region, (MOC, STMOC, TimeMOC)):

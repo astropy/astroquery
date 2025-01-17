@@ -85,7 +85,7 @@ class TestMOCServerRemote:
         assert all(result["moc_sky_fraction"] > 0.5)
 
     def test_query_hips(self):
-        result = MOCServer.query_hips(spacesys="venus", fields="hips_frame")
+        result = MOCServer.query_hips(coordinate_system="venus", fields="hips_frame")
         assert all(result["hips_frame"] == "venus")
 
     def test_list_fields(self):

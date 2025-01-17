@@ -129,18 +129,18 @@ def test_list_fields():
     assert "ID" in fields["field_name"]
 
 
-# -------------
-# List spacesys
-# -------------
+# -----------------------
+# List coordinate systems
+# -----------------------
 
 
 @pytest.fixture
-def _mock_list_spacesys(monkeypatch):
+def _mock_list_coordinate_systems(monkeypatch):
     # This list changes upstream. To regenerate it, do:
     # >>> from astroquery.mocserver import MOCServer
     # >>> hips_frames = MOCServer.query_region(meta_data="hips_frame=*",
     # ...                                       fields=["hips_frame"],
-    # ...                                       spacesys=None, max_rec=100)
+    # ...                                       coordinate_system=None, max_rec=100)
     # >>> hips_frames.remove_column("ID")
     # >>> hips_frames.write("hips_frames.vot", format="votable", overwrite=True)
     with open(Path(__file__).parent / "data" / "hips_frames.vot", "rb") as f:
@@ -151,10 +151,10 @@ def _mock_list_spacesys(monkeypatch):
 
 
 @pytest.mark.skipif(not HAS_MOCPY, reason="mocpy is required")
-@pytest.mark.usefixtures("_mock_list_spacesys")
-def test_list_spacesys():
-    list_spacesys = MOCServer.list_spacesys()
-    assert "sky" in list_spacesys and "equatorial" in list_spacesys
+@pytest.mark.usefixtures("_mock_list_coordinate_systems")
+def test_list_coordinate_systems():
+    list_coordinate_system = MOCServer.list_coordinate_systems()
+    assert "sky" in list_coordinate_system and "equatorial" in list_coordinate_system
 
 
 # ---------------------
@@ -225,9 +225,9 @@ def test_return_moc():
     assert payload["order"] == "max"
 
 
-def test_spacesys():
+def test_coordinate_system():
     payload = MOCServer.query_region(
-        spacesys="sky", meta_data="", return_moc=True,
+        coordinate_system="sky", meta_data="", return_moc=True,
         max_norder=5, get_query_payload=True
     )
     assert payload["spacesys"] == "C"

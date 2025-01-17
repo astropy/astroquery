@@ -78,7 +78,7 @@ Performing a query on a cone region
 
 Let's get the datasets for which all the data is comprised in a cone (this is
 what the ``enclosed`` option means for intersect). We also restrict our search to
-datasets describing the sky (with ``spacesys=sky``).
+datasets describing the sky (with ``coordinate_system=sky``).
 
 .. doctest-remote-data::
 
@@ -88,7 +88,7 @@ datasets describing the sky (with ``spacesys=sky``).
     >>> center = coordinates.SkyCoord(10.8, 32.2, unit='deg')
     >>> radius = coordinates.Angle(0.5, unit='deg')
     >>> cone = CircleSkyRegion(center, radius)
-    >>> MOCServer.query_region(region=cone, intersect="enclosed", spacesys="sky")  # doctest: +IGNORE_OUTPUT
+    >>> MOCServer.query_region(region=cone, intersect="enclosed", coordinate_system="sky")  # doctest: +IGNORE_OUTPUT
     <Table length=450>
                   ID               ...
                 str49              ...
@@ -116,7 +116,7 @@ datasets describing the sky (with ``spacesys=sky``).
 
 You can also use this method with `regions.PolygonSkyRegion`, `mocpy.MOC`, `mocpy.TimeMOC`,
 and `mocpy.STMOC`. Not providing the region parameter means that the search is done on
-the whole sky (or the whole planet, if we chose a different ``spacesys``).
+the whole sky (or the whole planet, if we chose a different ``coordinate_system``).
 
 Querying by meta-data
 =====================
@@ -217,7 +217,7 @@ methods. The only difference is that the output will only contain HiPS data.
 .. doctest-remote-data::
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.query_hips(spacesys="mars") # doctest: +IGNORE_OUTPUT
+  >>> MOCServer.query_hips(coordinate_system="mars") # doctest: +IGNORE_OUTPUT
   <Table length=25>
                    ID                 ...
                  str35                ...
@@ -361,25 +361,25 @@ object) of the ``GALEXGR6/AIS/FUV`` survey.
 Finding data on a specific solar system body
 --------------------------------------------
 
-The default value for ``spacesys`` is None. It means that we're looking for data for the
-sky and all other possible frames. This parameter can take all the values listed by
-`astroquery.mocserver.MOCServerClass.list_spacesys`:
+The default value for ``coordinate_system`` is ``None``. It means that we're looking for
+data for the sky and all other possible frames. This parameter can take all the values
+listed by `astroquery.mocserver.MOCServerClass.list_coordinate_systems`:
 
 .. doctest-remote-data::
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.list_spacesys()
+  >>> MOCServer.list_coordinate_systems()
   ['ariel', 'callisto', 'ceres', 'charon', 'dione', 'earth', 'enceladus', 'equatorial', 'europa', 'galactic', 'ganymede', 'iapetus', 'io', 'jupiter', 'mars', 'mars-pia20284', 'mars-pia24422', 'mars-stimson', 'mercury', 'mimas', 'miranda', 'moon', 'moon-pan1', 'neptune', 'oberon', 'pluto', 'rhea', 'sky', 'sun', 'tethys', 'titan', 'titania', 'triton', 'umbriel', 'venus']
 
 Where the special value ``sky`` means any celestial frame (mainly ``equatorial`` and
 ``galactic``). 
 
-The ``spacesys`` parameter can be used in any of the query methods like so:
+The ``coordinate_system`` parameter can be used in any of the query methods like so:
 
 .. doctest-remote-data::
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.query_hips(spacesys="ariel")
+  >>> MOCServer.query_hips(coordinate_system="ariel")
   <Table length=1>
            ID           obs_title   ... dataproduct_type
          str19            str13     ...       str5      

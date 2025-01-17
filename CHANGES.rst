@@ -41,9 +41,9 @@ mocserver
 - Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
   to ``True``) [#3139]
 
-- Add ``spacesys`` parameter to the queries to allow to filter on the different bodies
-  or frames. The list of available space systems can be printed with the new method
-  ``MOCServer.list_spacesys`` [#3139]
+- Add ``coordinate_system`` parameter to the queries to allow to filter on the different
+  bodies or frames. The list of available space systems can be printed with the new
+  method ``MOCServer.list_coordinates_systems`` [#3139]
 
 - Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
   surveys [#3139]
