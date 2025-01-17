@@ -375,6 +375,8 @@ eso
 
 - Deprecate functions ``list_surveys`` and ``query_surveys`` in favor of ``list_collections`` and ``query_collections``. [#3138]
 
+- Use TAP backend instead of WDB. [#3141]
+
 gaia
 ^^^^
 
