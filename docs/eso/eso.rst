@@ -279,7 +279,7 @@ In addition to raw data, ESO makes available processed data.
 In this section, we show how to obtain these processed collection data from the archive.
 
 Identify available collections
---------------------------
+------------------------------
 
 The list of available collections can be obtained with :meth:`astroquery.eso.EsoClass.list_collections` as follows:
 
@@ -288,7 +288,7 @@ The list of available collections can be obtained with :meth:`astroquery.eso.Eso
     >>> collections = eso.list_collections()
 
 Query a specific collection with constraints
-----------------------------------------
+--------------------------------------------
 
 Let's assume that we work with the ``HARPS`` collection, and that we are interested in
 target ``HD203608``.
