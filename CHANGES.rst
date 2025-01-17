@@ -8,6 +8,17 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add whole catalog retrieval, improve error messaging for unparseable lines,
+  improve metadata catalog, and improve lookuptable behavior [#3173,#2901]
+
+jplspec
+^^^^^^^
+
+- minor improvement to lookuptable behavior [#3173,#2901]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

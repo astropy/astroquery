@@ -4,13 +4,13 @@ import re
 
 class Lookuptable(dict):
 
-    def find(self, s, flags):
+    def find(self, st, flags):
         """
         Search dictionary keys for a regex match to string s
 
         Parameters
         ----------
-        s : str
+        st : str
             String to compile as a regular expression
             Can be entered non-specific for broader results
             ('H2O' yields 'H2O' but will also yield 'HCCCH2OD')
@@ -22,17 +22,20 @@ class Lookuptable(dict):
 
         Returns
         -------
-        The list of values corresponding to the matches
+        The dictionary containing only values whose keys match the regex
 
         """
 
-        R = re.compile(s, flags)
+        if st in self:
+            return {st: self[st]}
+
+        R = re.compile(st, flags)
 
         out = {}
 
-        for k, v in self.items():
-            match = R.search(str(k))
+        for key, val in self.items():
+            match = R.search(str(key))
             if match:
-                out[k] = v
+                out[key] = val
 
         return out

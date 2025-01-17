@@ -5,7 +5,7 @@ import os
 
 from astropy import units as u
 from astropy.table import Table
-from astroquery.linelists.cdms.core import CDMS, parse_letternumber
+from astroquery.linelists.cdms.core import CDMS, parse_letternumber, build_lookup
 from astroquery.utils.mocks import MockResponse
 
 colname_set = set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP', 'TAG', 'QNFMT',
@@ -159,3 +159,44 @@ def test_hc7n(patch_post):
     assert tbl['F1u'][0].mask
     assert tbl['F1l'][0].mask
     assert tbl['Lab'][0]
+
+
+def test_retrieve_species_table_local():
+    species_table = CDMS.get_species_table(use_cached=True)
+    assert len(species_table) == 1293
+    assert 'int' in species_table['tag'].dtype.name
+    assert 'int' in species_table['#lines'].dtype.name
+    assert 'float' in species_table['lg(Q(1000))'].dtype.name
+
+
+def test_lut_multitable():
+    # Regression test for the different names used in the partition table and the other tables
+    lut = build_lookup()
+
+    assert lut.find('ethyl formate', 0)['ethyl formate'] == 74514
+    assert lut.find('C2H5OCHO', 0)['C2H5OCHO'] == 74514
+    assert lut.find('C2H4O', 0)['c-C2H4O'] == 44504
+    assert lut.find('Ethylene oxide', 0)['Ethylene oxide'] == 44504
+
+
+def test_lut_literal():
+    # regression for 2901
+    lut = build_lookup()
+
+    hcop = lut.find('HCO+', 0)
+    assert len(hcop) >= 16
+
+    hcopv0 = lut.find('HCO+, v=0', 0)
+    assert len(hcopv0) == 1
+    assert hcopv0['HCO+, v=0'] == 29507
+
+    # two spacings exist in the tables
+    hcopv0 = lut.find('HCO+, v = 0', 0)
+    assert len(hcopv0) == 1
+    assert hcopv0['HCO+, v = 0'] == 29507
+
+    thirteenco = lut.find('13CO', 0)
+    assert len(thirteenco) == 1
+    assert thirteenco['13CO'] == 29501
+    thirteencostar = lut.find('13CO*', 0)
+    assert len(thirteencostar) >= 252
