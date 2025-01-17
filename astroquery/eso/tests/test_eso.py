@@ -31,13 +31,13 @@ DATA_FILES = {
     'ADQL':
         {
             # TODO: The second query should point to an IST, rather than dbo.raw:
-            "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and " +\
-            "intersects(circle('ICRS', 266.41681662, -29.00782497, 0.1775), s_region)=1": \
+            "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and "
+            "intersects(circle('ICRS', 266.41681662, -29.00782497, 0.1775), s_region)=1":
             "query_coll_vvv_sgra.pickle",
-            "select top 50 * from dbo.raw where instrument in ('sinfoni') and " +\
-            "target = 'SGRA'": \
+            "select top 50 * from dbo.raw where instrument in ('sinfoni') and "
+            "target = 'SGRA'":
             "query_inst_sinfoni_sgra.pickle",
-            "select top 50 * from dbo.raw where target = 'SGR A' and object = 'SGR A'": \
+            "select top 50 * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
             "query_main_sgra.pickle",
         }
 }
