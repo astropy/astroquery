@@ -990,9 +990,9 @@ class EsoClass(QueryWithLogin):
         """
         self.log_info("List of accepted column_filters parameters.")
         self.log_info("The presence of a column in the result table can be "
-                      + "controlled if prefixed with a [ ] checkbox.")
+                      "controlled if prefixed with a [ ] checkbox.")
         self.log_info("The default columns in the result table are shown as "
-                      + "already ticked: [x].")
+                      "already ticked: [x].")
 
         result_string = []
 
