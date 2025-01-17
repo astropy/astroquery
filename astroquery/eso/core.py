@@ -23,6 +23,7 @@ import requests.exceptions
 from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from bs4 import BeautifulSoup
+import pyvo
 
 from astroquery import log, cache_conf
 from . import conf
@@ -30,7 +31,6 @@ from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, adql_sanitize_val, to_cache, eso_hash
-import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -262,7 +262,6 @@ class EsoClass(QueryWithLogin):
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         table_to_return = None
 
-        # TODO add url to documentation in the exception
         try:
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
@@ -275,16 +274,19 @@ class EsoClass(QueryWithLogin):
 
         except pyvo.dal.exceptions.DALQueryError as e:
             raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
-                                                    Error executing the following query:\n\n{query_str}\n\n") from e
+                            Error executing the following query:\n\n{query_str}\n\n\
+                            See examples here: http://archive.eso.org/tap_obs/examples\n\n") from e
         except UnknownException as e:
             raise RuntimeError(f"\n\n\
-                            Unknown exception {e} while executing the following query: \n\n{query_str}\n\n") from e
+                            Unknown exception {e} while executing the\
+                            following query: \n\n{query_str}\n\n\
+                            See examples here: http://archive.eso.org/tap_obs/examples\n\n") from e
 
-        if len(table_to_return) > 0:
-            return table_to_return
-        else:
+        if len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
             return None
+
+        return table_to_return
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -323,6 +325,13 @@ class EsoClass(QueryWithLogin):
 
             self._collections = list(res)
         return self._collections
+
+    def print_table_help(self, table_name):
+        help_query = \
+            f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{table_name}'"
+        h = self.query_tap_service(help_query)
+        self.log_info(f"Columns present in the table {table_name}: {h}")
+        return
 
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField, primary_filter: Union[List[str], str], *,
@@ -365,12 +374,8 @@ class EsoClass(QueryWithLogin):
         column_filters = column_filters or {}
         columns = columns or []
 
-        # TODO - move help printing to its own function
         if print_help:
-            help_query = \
-                f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
-            h = self.query_tap_service(help_query)
-            self.log_info(f"Columns present in the table: {h}")
+            self.print_table_help(query_on.table_name)
             return
 
         filters = {**dict(kwargs), **column_filters}
@@ -393,11 +398,11 @@ class EsoClass(QueryWithLogin):
                 [f"intersects(circle('ICRS', {c1}, {c2}, {c_size}), s_region)=1"]
             # http://archive.eso.org/tap_obs/examples
 
-        # TODO
-        # Check whether v is string or number, put in single quotes if string
-        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()] + coord_constraint
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}"
+                                     for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
+        query = py2adql(table=query_on.table_name, columns=columns,
+                        where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
         return self.query_tap_service(query_str=query, cache=cache)
@@ -796,6 +801,8 @@ class EsoClass(QueryWithLogin):
         >>> tbl = ...
         >>> files = ...
         """
+        # TODO All this function
+        _ = project_id, print_help, open_form, kwargs
         if cache:
             query = "APEX_QUERY_PLACEHOLDER"
             return self.query_tap_service(query_str=query, cache=cache)
