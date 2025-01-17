@@ -421,7 +421,7 @@ class MOCServerClass(BaseQuery):
             return request_payload
         return self._request(**params_d)
 
-    def list_fields(self, keyword=None, cache=True):
+    def list_fields(self, keyword=None, *, cache=True):
         """List MOC Server fields.
 
         In the MOC Server, the fields are free. This means that anyone publishing there
@@ -458,7 +458,9 @@ class MOCServerClass(BaseQuery):
         hips_publisher         14                       CDS
 
         """
-        fields_descriptions = dict(self.list_fields_async(cache=cache).json()[0])
+        fields_descriptions = dict(
+            self._request(method="GET", url=self.URL, timeout=self.TIMEOUT, cache=cache,
+                          params={"get": "example", "fmt": "json"}).json()[0])
         occurrences = [
             int(value.split("x")[0][1:]) for value in fields_descriptions.values()
         ]
@@ -477,37 +479,6 @@ class MOCServerClass(BaseQuery):
                 ]
             ]
         return list_fields
-
-    def list_fields_async(self, cache=True):
-        """List MOC Server fields asynchronously.
-
-        In the MOC Server, the fields are free. This means that anyone publishing there
-        can set a new field. This results in a long set of possible fields, that are
-        more or less frequent in the database.
-        This method allows to retrieve all fields currently existing, with their
-        occurrences and an example.
-
-        Parameters
-        ----------
-        keyword : str, optional
-            A keyword to filter the output for fields that have the keyword in their
-            name. This is not case-sensitive.
-            If you don't give a keyword, you will retrieve all existing fields.
-        cache: bool, optional
-            Whether the response should be cached.
-
-        Returns
-        -------
-        `~requests.models.Response`
-
-        """
-        return self._request(
-            method="GET",
-            url=self.URL,
-            timeout=self.TIMEOUT,
-            cache=cache,
-            params={"get": "example", "fmt": "json"},
-        )
 
     def list_coordinate_systems(self):
         """Return the list of coordinate systems currently available in the MOC Server.

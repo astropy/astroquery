@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
+import requests
 
 from astropy import coordinates
 from astropy.io.votable import parse_single_table
@@ -107,7 +108,9 @@ def _mock_list_fields(monkeypatch):
     # This response changes with time. To regenerate it, do:
     # >>> from astroquery.mocserver import MOCServer
     # >>> import json
-    # >>> response = MOCServer.list_fields_async()
+    # >>> response = MOCServer._request(method="GET", url=self.URL,
+    # ...                               timeout=self.TIMEOUT, cache=cache,
+    # ...                               params={"get": "example", "fmt": "json"}).json()[0]
     # >>> with open("list_fields.json", "w") as f:
     # ...     json.dump(dict(response.json()[0]))
     class MockedListFields:
@@ -115,17 +118,14 @@ def _mock_list_fields(monkeypatch):
             with open(Path(__file__).parent / "data" / "list_fields.json", "r") as f:
                 return [json.load(f)]
 
-    monkeypatch.setattr(
-        mocserver.MOCServerClass,
-        "list_fields_async",
-        lambda self, cache: MockedListFields(),
-    )
+    monkeypatch.setattr(requests.Session, 'send',
+                        lambda *args, **kwargs: MockedListFields())
 
 
 @pytest.mark.skipif(not HAS_MOCPY, reason="mocpy is required")
 @pytest.mark.usefixtures("_mock_list_fields")
 def test_list_fields():
-    fields = MOCServer.list_fields("id")
+    fields = MOCServer.list_fields("id", cache=False)
     assert "ID" in fields["field_name"]
 
 
