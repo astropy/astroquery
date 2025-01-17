@@ -1,9 +1,15 @@
 #!/usr/bin/env/python
-from typing import Union, List
-import pickle
+
+"""
+utils.py: helper functions for the astropy.eso module
+"""
+
 import copy
-from astroquery import log
 import hashlib
+import pickle
+from typing import Union, List
+
+from astroquery import log
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -14,7 +20,10 @@ def _split_str_as_list_of_str(column_str: str):
     return column_list
 
 
-def sanitize_val(x):
+def adql_sanitize_val(x):
+    """
+    If the value is a string, put it into single quotes
+    """
     if isinstance(x, str):
         return f"'{x}'"
     else:
@@ -23,9 +32,13 @@ def sanitize_val(x):
 
 def py2adql(table: str, columns: Union[List, str] = None, where_constraints: List = None,
             order_by: str = '', order_by_desc=True, top: int = None):
+    """
+    Return the adql string corresponding to the parameters passed
+    """
     # Initialize / validate
     query_string = None
-    wc = [] if where_constraints is None else where_constraints[:]  # do not modify the original list
+    # do not modify the original list
+    wc = [] if where_constraints is None else where_constraints[:]
     if isinstance(columns, str):
         columns = _split_str_as_list_of_str(columns)
     if columns is None or len(columns) < 1:
@@ -50,12 +63,18 @@ def py2adql(table: str, columns: Union[List, str] = None, where_constraints: Lis
 
 
 def eso_hash(query_str: str, url: str):
+    """
+    Return a hash given an adql query string and an url.
+    """
     request_key = (query_str, url)
     h = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
     return h
 
 
 def to_cache(table, cache_file):
+    """
+    Dump a table to a pickle file
+    """
     log.debug("Caching data to %s", cache_file)
 
     table = copy.deepcopy(table)
