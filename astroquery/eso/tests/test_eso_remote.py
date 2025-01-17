@@ -15,10 +15,6 @@ instrument_list = ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
                    'fiat',
                    ]
 
-# Some tests take too long, leading to travis timeouts
-# TODO: make this a configuration item
-SKIP_SLOW = True
-
 SGRA_COLLECTIONS = ['195.B-0283',
                     'ALMA',
                     'ATLASGAL',
@@ -88,8 +84,6 @@ class TestEso:
         eso = Eso()
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 1000
-        # first b333 was at 157
-        # first pistol....?
 
         test_collections = ['VVV', 'XSHOOTER']
         result_s = eso.query_collections(collections=test_collections,
@@ -165,8 +159,6 @@ class TestEso:
         assert isinstance(result, list)
         assert len(result) == 2
 
-    # TODO: remove filter when https://github.com/astropy/astroquery/issues/2539 is fixed
-    @pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()
