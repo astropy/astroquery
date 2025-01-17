@@ -30,7 +30,8 @@ DATA_FILES = {
         },
     'ADQL':
         {
-            # TODO: The second query should point to an IST, rather than dbo.raw:
+            # TODO: Point the second query to an IST when the ISTs are available.
+            # TODO: Fix the apex query when the backend is available.
             "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and "
             "intersects(circle('ICRS', 266.41681662, -29.00782497, 0.1775), s_region)=1":
             "query_coll_vvv_sgra.pickle",
@@ -39,6 +40,7 @@ DATA_FILES = {
             "query_inst_sinfoni_sgra.pickle",
             "select top 50 * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
             "query_main_sgra.pickle",
+            "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
         }
 }
 
@@ -119,6 +121,17 @@ def test_vvv(monkeypatch):
     assert len(result) == 50
     assert 'target_name' in result.colnames
     assert 'b333' in result['target_name']
+
+
+def test_apex_quicklooks(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    p_id = '095.F-9802'
+    table = eso.query_apex_quicklooks(prog_id=p_id, cache=True)
+
+    assert len(table) == 5
+    assert set(table['Release Date']) == {'2015-07-17', '2015-07-18',
+                                         '2015-09-15', '2015-09-18'}
 
 
 def test_authenticate(monkeypatch):
