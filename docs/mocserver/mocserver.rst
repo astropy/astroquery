@@ -46,10 +46,10 @@ This method also accepts a string to limit the number of responses. Let's try wi
 
 ..
    We ignore output here, as occurrence is changing often
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.list_fields("MOC") # doctest: +IGNORE_OUTPUT
+  >>> MOCServer.list_fields("MOC") # doctest: +IGNORE_OUTPUT +REMOTE_DATA
   <Table length=7>
      field_name    occurrence                                example                                
        str27         int64                                    str70                                 
@@ -83,7 +83,7 @@ Let's get the datasets for which all the data is comprised in a cone (this is
 what the ``enclosed`` option means for intersect). We also restrict our search to
 datasets describing the sky (with ``coordinate_system=sky``).
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from astropy import coordinates
     >>> from regions import CircleSkyRegion
@@ -91,7 +91,7 @@ datasets describing the sky (with ``coordinate_system=sky``).
     >>> center = coordinates.SkyCoord(10.8, 32.2, unit='deg')
     >>> radius = coordinates.Angle(0.5, unit='deg')
     >>> cone = CircleSkyRegion(center, radius)
-    >>> MOCServer.query_region(region=cone, intersect="enclosed", coordinate_system="sky")  # doctest: +IGNORE_OUTPUT
+    >>> MOCServer.query_region(region=cone, intersect="enclosed", coordinate_system="sky")  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=450>
                   ID               ...
                 str49              ...
@@ -131,7 +131,7 @@ The ``meta_data`` parameter of :meth:`~astroquery.mocserver.MOCServerClass.query
 allows to write an algebraic expression on the metadata.
 Let's add a criteria to get only images from the previous query:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from astropy import coordinates
     >>> from regions import CircleSkyRegion
@@ -141,7 +141,7 @@ Let's add a criteria to get only images from the previous query:
     >>> cone = CircleSkyRegion(center, radius)
     >>> MOCServer.query_region(region=cone, intersect="enclosed",
     ...                 fields=['ID', 'dataproduct_type', 'moc_sky_fraction'],
-    ...                 meta_data="dataproduct_type=image")  # doctest: +IGNORE_OUTPUT
+    ...                 meta_data="dataproduct_type=image")  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=336>
                   ID               dataproduct_type moc_sky_fraction
                 str49                    str5           float64     
@@ -178,11 +178,11 @@ Let's do a search on the whole sky by omitting the region parameter.
 The next example retrieves all the ``moc_access_url`` of  datasets having ``HST`` in
 their identifier. These correspond to the Hubble surveys:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> MOCServer.query_region(meta_data="ID=*HST*",
     ...                        fields=['ID', 'moc_access_url'],
-    ...                        casesensitive=False)  # doctest: +IGNORE_OUTPUT
+    ...                        casesensitive=False)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=45>
                 ID                                moc_access_url                  
               str26                                   str51                       
@@ -218,10 +218,10 @@ such as `ipyaladin <https://github.com/cds-astro/ipyaladin>`_. The
 It accepts the same parameters (``region`` and ``meta_data`` for example) as the other
 methods. The only difference is that the output will only contain HiPS data.
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.query_hips(coordinate_system="mars") # doctest: +IGNORE_OUTPUT
+  >>> MOCServer.query_hips(coordinate_system="mars") # doctest: +IGNORE_OUTPUT +REMOTE_DATA
   <Table length=25>
                    ID                 ...
                  str35                ...
@@ -263,7 +263,7 @@ are ``ID``, ``obs_title``, ``obs_description``, ``nb_rows``, ``obs_regime``,
 To change this default behavior, use the ``fields`` parameter.
 Let's say we would like only the ``ID``, and the ``moc_sky_fraction`` for this query:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from astropy import coordinates
     >>> from regions import CircleSkyRegion
@@ -273,7 +273,7 @@ Let's say we would like only the ``ID``, and the ``moc_sky_fraction`` for this q
     >>> cone = CircleSkyRegion(center, radius)
     >>> MOCServer.query_region(region=cone, 
     ...                        intersect="enclosed", 
-    ...                        fields=['ID', 'moc_sky_fraction'])  # doctest: +IGNORE_OUTPUT
+    ...                        fields=['ID', 'moc_sky_fraction'])  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=450>
                    ID               moc_sky_fraction
                  str49                  float64    
@@ -297,11 +297,11 @@ Limiting the number of returned datasets
 
 Another parameter called ``max_rec`` specifies an upper limit for the number of data-sets to be returned:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from astroquery.mocserver import MOCServer
     >>> from mocpy import MOC
-    >>> MOCServer.query_region(region=MOC.from_string("5/22-24"), max_rec=3) # doctest: +IGNORE_OUTPUT
+    >>> MOCServer.query_region(region=MOC.from_string("5/22-24"), max_rec=3) # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=3>
                ID            ... dataproduct_type
              str24           ...       str7      
@@ -325,14 +325,14 @@ of the returned MOC.
 As an example, we would like to obtain the union of the space coverage of all the 
 Hubble surveys:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from mocpy import MOC
     >>> import matplotlib.pyplot as plt
     >>> from astroquery.mocserver import MOCServer
     >>> moc = MOCServer.query_region(return_moc="smoc", 
     ...                              max_norder=20, 
-    ...                              meta_data="ID=*HST*")
+    ...                              meta_data="ID=*HST*") # doctest: +REMOTE_DATA
 
 The resulting MOC looks like:
 
@@ -346,14 +346,14 @@ To retrieve the MOC of a specific dataset, we can use
 This example will show you how to get the space-time MOC (i.e. a `mocpy.STMOC`
 object) of the ``GALEXGR6/AIS/FUV`` survey.
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
     >>> from mocpy import MOC
     >>> from astroquery.mocserver import MOCServer
     >>> moc_galex = MOCServer.query_region(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", 
-    ...                                    return_moc="stmoc", max_norder="s7 t26")
+    ...                                    return_moc="stmoc", max_norder="s7 t26")  # doctest: +REMOTE_DATA
     >>> print(f"GALEX GR6 contains data taken from {moc_galex.min_time.iso} to"
-    ...       f" {moc_galex.max_time.iso}.")
+    ...       f" {moc_galex.max_time.iso}.")  # doctest: +REMOTE_DATA
     GALEX GR6 contains data taken from 2010-03-31 18:02:05.602 to 2010-06-01 18:57:24.787.
 
 .. note:: 
@@ -369,10 +369,10 @@ The default value for ``coordinate_system`` is ``None``. It means that we're loo
 data for the sky and all other possible frames. This parameter can take all the values
 listed by `astroquery.mocserver.MOCServerClass.list_coordinate_systems`:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.list_coordinate_systems()
+  >>> MOCServer.list_coordinate_systems()  # doctest: +REMOTE_DATA
   ['ariel', 'callisto', 'ceres', 'charon', 'dione', 'earth', 'enceladus', 'equatorial', 'europa', 'galactic', 'ganymede', 'iapetus', 'io', 'jupiter', 'mars', 'mars-pia20284', 'mars-pia24422', 'mars-stimson', 'mercury', 'mimas', 'miranda', 'moon', 'moon-pan1', 'neptune', 'oberon', 'pluto', 'rhea', 'sky', 'sun', 'tethys', 'titan', 'titania', 'triton', 'umbriel', 'venus']
 
 Where the special value ``sky`` means any celestial frame (mainly ``equatorial`` and
@@ -380,10 +380,10 @@ Where the special value ``sky`` means any celestial frame (mainly ``equatorial``
 
 The ``coordinate_system`` parameter can be used in any of the query methods like so:
 
-.. doctest-remote-data::
+.. doctest-requires:: mocpy
 
   >>> from astroquery.mocserver import MOCServer
-  >>> MOCServer.query_hips(coordinate_system="ariel")
+  >>> MOCServer.query_hips(coordinate_system="ariel") # doctest: +REMOTE_DATA
   <Table length=1>
            ID           obs_title   ... dataproduct_type
          str19            str13     ...       str5      
