@@ -76,8 +76,8 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            the values ``sky``, ``mars``, ``moon``... The extended list can be printed
+            with `~astroquery.mocserver.MOCServerClass.list_coordinate_systems`.
             Default is None, meaning that the results will have mixed frames.
         intersect : str, optional
             This parameter can take three different values:
@@ -163,8 +163,8 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            the values ``sky``, ``mars``, ``moon``... The extended list can be printed
+            with `~astroquery.mocserver.MOCServerClass.list_coordinate_systems`.
             Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`
@@ -257,8 +257,8 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            the values ``sky``, ``mars``, ``moon``... The extended list can be printed
+            with `~astroquery.mocserver.MOCServerClass.list_coordinate_systems`.
             Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`
@@ -345,8 +345,8 @@ class MOCServerClass(BaseQuery):
             fields. The complete list of fields can be obtained with `list_fields`.
         coordinate_system : str, optional
             This is the space system on which the coordinates are expressed. Can take
-            the values ``sky``, ``mars``, ``moon``... The extended list can
-            be printed with `~astroquery.mocserver.MOCServer.list_coordinate_systems`.
+            the values ``sky``, ``mars``, ``moon``... The extended list can be printed
+            with `~astroquery.mocserver.MOCServerClass.list_coordinate_systems`.
             Default is None, meaning that the results will have mixed frames.
         region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion`, `mocpy.MOC`,
             `mocpy.TimeMOC`, or `mocpy.STMOC`

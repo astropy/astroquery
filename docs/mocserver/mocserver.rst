@@ -13,20 +13,22 @@ What's a MOC?
 -------------
 
 MOC means Multi-Order Coverage. It's an `IVOA standard`_ that allows to describe 
-Space-Time coverages of arbitrary sky regions --with or without
-an associated time of observation.
+Space-Time coverages of arbitrary sky regions, with or without an associated time of
+observation.
 
-The space component maps the sky with the HEALPix sky
-tessellation to represent regions on the sky by hierarchically grouped HEALPix cells. 
-It other words, a Spatial MOC is a set of HEALPix cells at different orders.
+The space component maps the sky with the `HEALPix sky tessellation
+<https://arxiv.org/abs/astro-ph/9905275>`_ to represent regions on the sky
+by hierarchically grouped HEALPix cells. It other words, a Spatial MOC is a set of
+HEALPix cells at different orders.
 
 The idea is the same for Time MOCs. The time axis is split into time cells.
 
 For those wanting to know more about MOCs, please refer to `the MOC 2.0 specification 
 document <https://ivoa.net/documents/MOC/20220727/REC-moc-2.0-20220727.pdf>`_.
 
-MOCPy is a Python library allowing to manipulate these Space-Time Coverage objects.
-You're welcome to have a look at `MOCPy's documentation <https://github.com/cds-astro/mocpy>`_.
+`MOCPy <https://github.com/cds-astro/mocpy>`_ is a Python library allowing to manipulate
+these Space-Time Coverage objects. You're welcome to have a look at
+`MOCPy's documentation <https://cds-astro.github.io/mocpy/>`_.
 
 What's the MOC Server?
 ----------------------
@@ -37,8 +39,8 @@ In the MOC Server, there a few tens of thousands of astronomical collections.
 They each have an identifier ``ID`` and a set of properties that describe their content.
 This is a practical way of finding datasets with criteria on time and/or space.
 
-The meta-data properties are freely assigned by each publisher. You can get the list of
-properties with their frequency of usage and examples example with 
+The meta data properties are freely assigned by each publisher. You can get the current
+list of properties with their frequency of usage and examples example with 
 `astroquery.mocserver.MOCServerClass.list_fields`.
 This method also accepts a string to limit the number of responses. Let's try with ``MOC``:
 
@@ -69,7 +71,8 @@ Querying with a region
 
 The MOCServer is optimized to return the datasets having at least one source lying in a
 specific sky region (or time interval).
-The regions can be provided either as astropy-regions from the ``regions`` python library,
+The regions can be provided either as astropy-regions from the
+`regions <https://astropy-regions.readthedocs.io/en/stable/>`_ python library,
 or as an accepted MOC type (`mocpy.TimeMOC`, `mocpy.MOC`, `~mocpy.STMOC`).
 The frequency MOCs are not yet available.
 
@@ -205,12 +208,13 @@ their identifier. These correspond to the Hubble surveys:
               ESAVO/P/HST/WFPC                                                  --
              ESAVO/P/HST/WFPC2                                                  --
 
-Query for HiPS surveys
-======================
+Query for Hierarchical Progressive Surveys (HiPS)
+=================================================
 
-The MOCServer contains an extensive list of HiPS, for images and catalogs. These
-progressive surveys can be displayed in applications such as Aladin or ESASky.
-The `astroquery.mocserver.MOCServerClass.query_hips` method allows to find these HiPS.
+The MOCServer contains an extensive list of `HiPS <https://ivoa.net/documents/HiPS/>`_,
+for images and catalogs. These progressive surveys can be displayed in applications
+such as `ipyaladin <https://github.com/cds-astro/ipyaladin>`_. The
+`astroquery.mocserver.MOCServerClass.query_hips` method allows to find these HiPS.
 It accepts the same parameters (``region`` and ``meta_data`` for example) as the other
 methods. The only difference is that the output will only contain HiPS data.
 
@@ -396,6 +400,3 @@ Reference/API
 
 .. _CDS MOCServer: http://alasky.unistra.fr/MocServer/query
 .. _IVOA standard: http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf
-.. _astropy-healpix: https://astropy-healpix.readthedocs.io/en/latest/
-.. _regions: https://github.com/astropy/regions
-.. _mocpy: https://github.com/cds-astro/mocpy
