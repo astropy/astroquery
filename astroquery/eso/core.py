@@ -43,6 +43,12 @@ class CalSelectorError(Exception):
     """
 
 
+class UnknownException(Exception):
+    """
+    Raised when an exception is not foreseen.
+    """
+
+
 class AuthInfo:
     def __init__(self, username: str, password: str, token: str):
         self.username = username
@@ -100,6 +106,26 @@ class EsoClass(QueryWithLogin):
     def timeout(self):
         return self._timeout
 
+    # The logging module needs strings
+    # written in %s style. This wrappers
+    # are used for that purpose.
+    # [W1203 - logging-fstring-interpolation]
+    @staticmethod
+    def log_info(message):
+        log.info("%s", message)
+
+    @staticmethod
+    def log_warning(message):
+        log.warning("%s", message)
+
+    @staticmethod
+    def log_error(message):
+        log.error("%s", message)
+
+    @staticmethod
+    def log_debug(message):
+        log.debug("%s", message)
+
     @timeout.setter
     def timeout(self, value):
         if hasattr(value, 'to'):
@@ -134,12 +160,12 @@ class EsoClass(QueryWithLogin):
                 if not isinstance(cached_table, Table):
                     cached_table = None
             else:
-                log.debug("Cache expired for %s ... ", table_file)
+                self.log_debug(f"Cache expired for {table_file} ...")
                 cached_table = None
         except FileNotFoundError:
             cached_table = None
         if cached_table:
-            log.debug("Retrieved data from %s", table_file)
+            self.log_debug(f"Retrieved data from {table_file} ...")
         return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
@@ -153,15 +179,15 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        log.info("Authenticating %s on 'www.eso.org' ...", username)
+        self.log_info(f"Authenticating {username} on 'www.eso.org' ...")
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
             self._auth_info = AuthInfo(username=username, password=password, token=token)
-            log.info("Authentication successful!")
+            self.log_info("Authentication successful!")
             return True
         else:
-            log.error("Authentication failed!")
+            self.log_error("Authentication failed!")
             return False
 
     def _get_auth_info(self, username: str, *, store_password: bool = False,
@@ -214,7 +240,7 @@ class EsoClass(QueryWithLogin):
 
     def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
-            log.info("Authentication token has expired! Re-authenticating ...")
+            self.log_info("Authentication token has expired! Re-authenticating ...")
             self._authenticate(username=self._auth_info.username,
                                password=self._auth_info.password)
         if self._auth_info and not self._auth_info.expired():
@@ -249,7 +275,7 @@ class EsoClass(QueryWithLogin):
         except pyvo.dal.exceptions.DALQueryError as e:
             raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
                                                     Error executing the following query:\n\n{query_str}\n\n") from e
-        except Exception as e:
+        except UnknownException as e:
             raise RuntimeError(f"\n\n\
                             Unknown exception {e} while executing the following query: \n\n{query_str}\n\n") from e
 
@@ -342,7 +368,7 @@ class EsoClass(QueryWithLogin):
             help_query = \
                 f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
             h = self.query_tap_service(help_query)
-            log.info("Columns present in the table: %s", h)
+            self.log_info(f"Columns present in the table: {h}")
             return
 
         filters = {**dict(kwargs), **column_filters}
@@ -379,6 +405,7 @@ class EsoClass(QueryWithLogin):
                          column_filters: Dict = None, columns: Union[List, str] = None,
                          open_form=False, print_help=False, cache=True,
                          **kwargs) -> astropy.table.Table:
+        _ = open_form
         return self._query_instrument_or_collection(query_on=QueryOnInstrument,
                                                     primary_filter=instrument,
                                                     column_filters=column_filters,
@@ -394,6 +421,7 @@ class EsoClass(QueryWithLogin):
                           **kwargs) -> astropy.table.Table:
         column_filters = column_filters or {}
         columns = columns or []
+        _ = open_form
         return self._query_instrument_or_collection(query_on=QueryOnCollection,
                                                     primary_filter=collections,
                                                     column_filters=column_filters,
@@ -444,7 +472,7 @@ class EsoClass(QueryWithLogin):
             help_query = \
                 "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'dbo.raw'"
             h = self.query_tap_service(help_query, cache=cache)
-            log.info("Columns present in the table: %s", h)
+            self.log_info(f"Columns present in the table: {h}")
             return
 
         query = py2adql(table="dbo.raw",
@@ -543,7 +571,7 @@ class EsoClass(QueryWithLogin):
             files_to_check.append(filename.rsplit(".", 1)[0])
         for file in files_to_check:
             if os.path.exists(file):
-                log.info(f"Found cached file {file}")
+                EsoClass.log_info(f"Found cached file {file}")
                 return True
         return False
 
@@ -557,7 +585,7 @@ class EsoClass(QueryWithLogin):
             filename = os.path.join(destination, filename)
             part_filename = filename + ".part"
             if os.path.exists(part_filename):
-                log.info(f"Removing partially downloaded file {part_filename}")
+                self.log_info(f"Removing partially downloaded file {part_filename}")
                 os.remove(part_filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
@@ -573,23 +601,23 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         nfiles = len(file_ids)
-        log.info(f"Downloading {nfiles} files ...")
+        self.log_info(f"Downloading {nfiles} files ...")
         downloaded_files = []
         for i, file_id in enumerate(file_ids, 1):
             file_link = self.DOWNLOAD_URL + file_id
-            log.info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            self.log_info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
             try:
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
                 if downloaded:
-                    log.info(f"Successfully downloaded dataset {file_id} to {filename}")
+                    self.log_info(f"Successfully downloaded dataset {file_id} to {filename}")
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
-                    log.error(f"Access denied to {file_link}")
+                    self.log_error(f"Access denied to {file_link}")
                 else:
-                    log.error(f"Failed to download {file_link}. {http_error}")
-            except Exception as ex:
-                log.error(f"Failed to download {file_link}. {ex}")
+                    self.log_error(f"Failed to download {file_link}. {http_error}")
+            except RuntimeError as ex:
+                self.log_error(f"Failed to download {file_link}. {ex}")
         return downloaded_files
 
     def _unzip_file(self, filename: str) -> str:
@@ -602,12 +630,12 @@ class EsoClass(QueryWithLogin):
         if filename.endswith(('fits.Z', 'fits.gz')):
             uncompressed_filename = filename.rsplit(".", 1)[0]
             if not os.path.exists(uncompressed_filename):
-                log.info(f"Uncompressing file {filename}")
+                self.log_info(f"Uncompressing file {filename}")
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
-                except Exception as ex:
+                except UnknownException as ex:
                     uncompressed_filename = None
-                    log.error(f"Failed to unzip {filename}: {ex}")
+                    self.log_error(f"Failed to unzip {filename}: {ex}")
         return uncompressed_filename or filename
 
     def _unzip_files(self, files: List[str]) -> List[str]:
@@ -628,7 +656,7 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         filename = os.path.join(destination, filename)
-        log.info(f"Saving Calselector association tree to {filename}")
+        self.log_info(f"Saving Calselector association tree to {filename}")
         with open(filename, "wb") as fd:
             fd.write(payload)
 
@@ -685,7 +713,8 @@ class EsoClass(QueryWithLogin):
 
     @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None),
                                  since=['0.4.7', '0.4.7'])
-    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None, unzip=True,
+    def retrieve_data(self, datasets, *, continuation=False, destination=None,
+                      with_calib=None, unzip=True,
                       request_all_objects=None, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
@@ -733,7 +762,7 @@ class EsoClass(QueryWithLogin):
 
         associated_files = []
         if with_calib:
-            log.info(f"Retrieving associated '{with_calib}' calibration files ...")
+            self.log_info(f"Retrieving associated '{with_calib}' calibration files ...")
             try:
                 # batch calselector requests to avoid possible issues on the ESO server
                 BATCH_SIZE = 100
@@ -741,16 +770,16 @@ class EsoClass(QueryWithLogin):
                 for i in range(0, len(sorted_datasets), BATCH_SIZE):
                     associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
                 associated_files = list(set(associated_files))
-                log.info(f"Found {len(associated_files)} associated files")
-            except Exception as ex:
-                log.error(f"Failed to retrieve associated files: {ex}")
+                self.log_info(f"Found {len(associated_files)} associated files")
+            except UnknownException as ex:
+                self.log_error(f"Failed to retrieve associated files: {ex}")
 
         all_datasets = datasets + associated_files
-        log.info("Downloading datasets ...")
+        self.log_info("Downloading datasets ...")
         files = self._download_eso_files(all_datasets, destination, continuation)
         if unzip:
             files = self._unzip_files(files)
-        log.info("Done!")
+        self.log_info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs=None,
@@ -880,12 +909,12 @@ class EsoClass(QueryWithLogin):
 
         # for future debugging
         self._payload = payload
-        log.debug("Form: payload={0}".format(payload))
+        self.log_debug("Form: payload={0}".format(payload))
 
         if method is not None:
             fmt = method
 
-        log.debug("Method/format = {0}".format(fmt))
+        self.log_debug("Method/format = {0}".format(fmt))
 
         # Send payload
         if fmt == 'get':
@@ -955,11 +984,11 @@ class EsoClass(QueryWithLogin):
         """
         Download a form and print it in a quasi-human-readable way
         """
-        log.info("List of accepted column_filters parameters.")
-        log.info("The presence of a column in the result table can be "
-                 "controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as "
-                 "already ticked: [x].")
+        self.log_info("List of accepted column_filters parameters.")
+        self.log_info("The presence of a column in the result table can be "
+                      + "controlled if prefixed with a [ ] checkbox.")
+        self.log_info("The default columns in the result table are shown as "
+                      + "already ticked: [x].")
 
         result_string = []
 
@@ -1008,7 +1037,7 @@ class EsoClass(QueryWithLogin):
                     result_string.append("{0} {1}: {2}"
                                          .format(checkbox, name, value))
 
-        log.info("\n".join(result_string))
+        self.log_info("\n".join(result_string))
         return result_string
 
     @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
