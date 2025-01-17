@@ -10,9 +10,7 @@ import shutil
 import subprocess
 import time
 import warnings
-import webbrowser
 import xml.etree.ElementTree as ET
-from io import BytesIO
 from typing import List, Optional, Tuple, Dict, Set, Union
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
@@ -266,7 +264,6 @@ class EsoClass(QueryWithLogin):
 
         # TODO add url to documentation in the exception
         try:
-
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
                     table_to_return = tap.search(query_str).to_table()
@@ -287,6 +284,7 @@ class EsoClass(QueryWithLogin):
             return table_to_return
         else:
             warnings.warn("Query returned no results", NoResultsWarning)
+            return None
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -484,7 +482,7 @@ class EsoClass(QueryWithLogin):
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        return self.query_tap_service(query_str=query)
+        return self.query_tap_service(query_str=query, cache=cache)
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -786,150 +784,6 @@ class EsoClass(QueryWithLogin):
         self.log_info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
-    def _activate_form(self, response, *, form_index=0, form_id=None, inputs=None,
-                       cache=True, method=None):
-        """
-        Parameters
-        ----------
-        method: None or str
-            Can be used to override the form-specified method
-        """
-        inputs = inputs or {}
-        # Extract form from response
-        root = BeautifulSoup(response.content, 'html5lib')
-        if form_id is None:
-            form = root.find_all('form')[form_index]
-        else:
-            form = root.find_all('form', id=form_id)[form_index]
-        # Construct base url
-        form_action = form.get('action')
-        if "://" in form_action:
-            url = form_action
-        elif form_action.startswith('/'):
-            url = '/'.join(response.url.split('/', 3)[:3]) + form_action
-        else:
-            url = response.url.rsplit('/', 1)[0] + '/' + form_action
-        # Identify payload format
-        fmt = None
-        form_method = form.get('method').lower()
-        if form_method == 'get':
-            fmt = 'get'  # get(url, params=payload)
-        elif form_method == 'post':
-            if 'enctype' in form.attrs:
-                if form.attrs['enctype'] == 'multipart/form-data':
-                    fmt = 'multipart/form-data'  # post(url, files=payload)
-                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
-                    fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
-                else:
-                    raise RuntimeError("enctype={0} is not supported!".format(form.attrs['enctype']))
-            else:
-                fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
-        # Extract payload from form
-        payload = []
-        for form_elem in form.find_all(['input', 'select', 'textarea']):
-            value = None
-            is_file = False
-            tag_name = form_elem.name
-            key = form_elem.get('name')
-            if tag_name == 'input':
-                is_file = (form_elem.get('type') == 'file')
-                value = form_elem.get('value')
-                if form_elem.get('type') in ['checkbox', 'radio']:
-                    if form_elem.has_attr('checked'):
-                        if not value:
-                            value = 'on'
-                    else:
-                        value = None
-            elif tag_name == 'select':
-                if form_elem.get('multiple') is not None:
-                    value = []
-                    if form_elem.select('option[value]'):
-                        for option in form_elem.select('option[value]'):
-                            if option.get('selected') is not None:
-                                value.append(option.get('value'))
-                    else:
-                        for option in form_elem.select('option'):
-                            if option.get('selected') is not None:
-                                # bs4 NavigableString types have bad,
-                                # undesirable properties that result
-                                # in recursion errors when caching
-                                value.append(str(option.string))
-                else:
-                    if form_elem.select('option[value]'):
-                        for option in form_elem.select('option[value]'):
-                            if option.get('selected') is not None:
-                                value = option.get('value')
-                        # select the first option field if none is selected
-                        if value is None:
-                            value = form_elem.select(
-                                'option[value]')[0].get('value')
-                    else:
-                        # survey form just uses text, not value
-                        for option in form_elem.select('option'):
-                            if option.get('selected') is not None:
-                                value = str(option.string)
-                        # select the first option field if none is selected
-                        if value is None:
-                            value = str(form_elem.select('option')[0].string)
-
-            if key in inputs:
-                if isinstance(inputs[key], list):
-                    # list input is accepted (for array uploads)
-                    value = inputs[key]
-                else:
-                    value = str(inputs[key])
-
-            if (key is not None):  # and (value is not None):
-                if fmt == 'multipart/form-data':
-                    if is_file:
-                        payload.append(
-                            (key, ('', '', 'application/octet-stream')))
-                    else:
-                        if type(value) is list:
-                            for v in value:
-                                entry = (key, ('', v))
-                                # Prevent redundant key, value pairs
-                                # (can happen if the form repeats them)
-                                if entry not in payload:
-                                    payload.append(entry)
-                        elif value is None:
-                            entry = (key, ('', ''))
-                            if entry not in payload:
-                                payload.append(entry)
-                        else:
-                            entry = (key, ('', value))
-                            if entry not in payload:
-                                payload.append(entry)
-                else:
-                    if type(value) is list:
-                        for v in value:
-                            entry = (key, v)
-                            if entry not in payload:
-                                payload.append(entry)
-                    else:
-                        entry = (key, value)
-                        if entry not in payload:
-                            payload.append(entry)
-
-        # for future debugging
-        self._payload = payload
-        self.log_debug("Form: payload={0}".format(payload))
-
-        if method is not None:
-            fmt = method
-
-        self.log_debug("Method/format = {0}".format(fmt))
-
-        # Send payload
-        if fmt == 'get':
-            response = self._request("GET", url, params=payload, cache=cache)
-        elif fmt == 'multipart/form-data':
-            response = self._request("POST", url, files=payload, cache=cache)
-        elif fmt == 'application/x-www-form-urlencoded':
-            response = self._request("POST", url, data=payload, cache=cache)
-
-        return response
-
     def query_apex_quicklooks(self, *, project_id=None, print_help=False,
                               open_form=False, cache=True, **kwargs):
         """
@@ -939,110 +793,14 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> tbl = Eso.query_apex_quicklooks(project_id='093.C-0144')
-        >>> files = Eso.retrieve_data(tbl['Product ID'])
+        >>> tbl = ...
+        >>> files = ...
         """
-
-        apex_query_url = 'http://archive.eso.org/wdb/wdb/eso/apex_product/form'
-
-        table = None
-        if open_form:
-            webbrowser.open(apex_query_url)
-        elif print_help:
-            # TODO: print some sensible help message
-            return "No help available for apex at the moment."
+        if cache:
+            query = "APEX_QUERY_PLACEHOLDER"
+            return self.query_tap_service(query_str=query, cache=cache)
         else:
-
-            payload = {'wdbo': 'csv/download'}
-            if project_id is not None:
-                payload['prog_id'] = project_id
-            payload.update(kwargs)
-
-            apex_form = self._request("GET", apex_query_url, cache=cache)
-            apex_response = self._activate_form(
-                apex_form, form_id='queryform', form_index=0, inputs=payload,
-                cache=cache, method='application/x-www-form-urlencoded')
-
-            content = apex_response.content
-            if content:
-                # First line is always garbage
-                content = content.split(b'\n', 1)[1]
-                try:
-                    table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False,  # header_start=1,
-                                       comment="#", encoding='utf-8')
-                except ValueError as ex:
-                    if 'the encoding parameter is not supported on Python 2' in str(ex):
-                        # astropy python2 does not accept the encoding parameter
-                        table = Table.read(BytesIO(content), format="ascii.csv",
-                                           guess=False,
-                                           comment="#")
-                    else:
-                        raise ex
-            else:
-                raise RemoteServiceError("Query returned no results")
-
-            return table
-
-    def _print_query_help(self, url, *, cache=True):
-        """
-        Download a form and print it in a quasi-human-readable way
-        """
-        self.log_info("List of accepted column_filters parameters.")
-        self.log_info("The presence of a column in the result table can be "
-                      "controlled if prefixed with a [ ] checkbox.")
-        self.log_info("The default columns in the result table are shown as "
-                      "already ticked: [x].")
-
-        result_string = []
-
-        resp = self._request("GET", url, cache=cache)
-        doc = BeautifulSoup(resp.content, 'html5lib')
-        form = doc.select("html body form pre")[0]
-        # Unwrap all paragraphs
-        paragraph = form.find('p')
-        while paragraph:
-            paragraph.unwrap()
-            paragraph = form.find('p')
-        # For all sections
-        for section in form.select("table"):
-            section_title = "".join(section.stripped_strings)
-            section_title = "\n".join(["", section_title,
-                                       "-" * len(section_title)])
-            result_string.append(section_title)
-            checkbox_name = ""
-            checkbox_value = ""
-            for tag in section.next_siblings:
-                if tag.name == "table":
-                    break
-                elif tag.name == "input":
-                    if tag.get('type') == "checkbox":
-                        checkbox_name = tag['name']
-                        checkbox_value = "[x]" if ('checked' in tag.attrs) else "[ ]"
-                        name = ""
-                        value = ""
-                    else:
-                        name = tag['name']
-                        value = ""
-                elif tag.name == "select":
-                    options = []
-                    for option in tag.select("option"):
-                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
-                    name = tag["name"]
-                    value = ", ".join(options)
-                else:
-                    name = ""
-                    value = ""
-                if "tab_" + name == checkbox_name:
-                    checkbox = checkbox_value
-                else:
-                    checkbox = "   "
-                if name != "":
-                    result_string.append("{0} {1}: {2}"
-                                         .format(checkbox, name, value))
-
-        self.log_info("\n".join(result_string))
-        return result_string
+            raise NotImplementedError
 
     @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
                                          "Use the list_collections  function instead."))
