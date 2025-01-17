@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 
+import pickle
 import pytest
 
 from astroquery.utils.mocks import MockResponse
@@ -19,9 +20,6 @@ def data_path(filename):
 DATA_FILES = {
     'GET':
         {
-            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form': 'main_query_form.html',
-            'http://archive.eso.org/wdb/wdb/eso/amber/form': 'amber_query_form.html',
-            'http://archive.eso.org/wdb/wdb/adp/phase3_main/form': 'vvv_sgra_form.html',
             Eso.AUTH_URL: 'oidc_token.json',
         },
     'POST':
@@ -29,17 +27,39 @@ DATA_FILES = {
             'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query': 'main_sgra_query.tbl',
             'http://archive.eso.org/wdb/wdb/eso/amber/query': 'amber_sgra_query.tbl',
             'http://archive.eso.org/wdb/wdb/adp/phase3_main/query': 'vvv_sgra_survey_response.tbl',
+        },
+    'ADQL':
+        {
+            # TODO: The second query should point to an IST, rather than dbo.raw:
+            "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and " +\
+            "intersects(circle('ICRS', 266.41681662, -29.00782497, 0.1775), s_region)=1": \
+            "query_coll_vvv_sgra.pickle",
+            "select top 50 * from dbo.raw where instrument in ('sinfoni') and " +\
+            "target = 'SGRA'": \
+            "query_inst_sinfoni_sgra.pickle",
+            "select top 50 * from dbo.raw where target = 'SGR A' and object = 'SGR A'": \
+            "query_main_sgra.pickle",
         }
 }
 
 
 def eso_request(request_type, url, **kwargs):
+    _ = kwargs
     with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
     return response
 
 
+def monkey_tap(query_str, **kwargs):
+    _ = kwargs
+    table_file = data_path(DATA_FILES['ADQL'][query_str])
+    with open(table_file, "rb") as f:
+        table = pickle.load(f)
+    return table
+
+
 def download_request(url, **kwargs):
+    _ = kwargs
     filename = 'testfile.fits.Z'
     with open(data_path(filename), 'rb') as f:
         header = {'Content-Disposition': f'filename={filename}'}
@@ -52,7 +72,8 @@ def calselector_request(url, **kwargs):
     if is_multipart:
         filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw_multipart.xml'
         header = {
-            'Content-Type': 'multipart/form-data; boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
+            'Content-Type': 'multipart/form-data; '
+            + 'boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
         }
     else:
         filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw.xml'
@@ -75,22 +96,22 @@ def calselector_request(url, **kwargs):
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
 # @pytest.mark.xfail
-def test_amber_SgrAstar(monkeypatch):
+def test_sinfoni_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
     eso = Eso()
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
-    monkeypatch.setattr(eso, '_request', eso_request)
+    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
     # set up local cache path to prevent remote query
     eso.cache_location = DATA_DIR
 
     # the failure should occur here
-    result = eso.query_instrument('amber', target='Sgr A*')
+    result = eso.query_instrument('sinfoni', target='SGRA')
 
     # test that max_results = 50
     assert len(result) == 50
-    assert 'GC_IRS7' in result['Object']
+    assert 'SGRA' in result['target']
 
 
 def test_main_SgrAstar(monkeypatch):
@@ -98,21 +119,22 @@ def test_main_SgrAstar(monkeypatch):
     eso = Eso()
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
-    monkeypatch.setattr(eso, '_request', eso_request)
+    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
     # set up local cache path to prevent remote query
     eso.cache_location = DATA_DIR
 
     # the failure should occur here
-    result = eso.query_main(target='Sgr A*')
+    result = eso.query_main(target='SGR A', object='SGR A')
 
-    # test that max_results = 50
-    assert len(result) == 50
-    assert 'GC_IRS7' in result['OBJECT']
+    # test that max_results = 5
+    assert len(result) == 23
+    assert 'SGR A' in result['object']
+    assert 'SGR A' in result['target']
 
 
 def test_vvv(monkeypatch):
     eso = Eso()
-    monkeypatch.setattr(eso, '_request', eso_request)
+    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
     eso.cache_location = DATA_DIR
 
     result_s = eso.query_collections(collections='VVV',
@@ -120,8 +142,8 @@ def test_vvv(monkeypatch):
                                      box='01 00 00',
                                      )
     assert result_s is not None
-    assert 'Object' in result_s.colnames
-    assert 'b333' in result_s['Object']
+    assert 'target_name' in result_s.colnames
+    assert 'b333' in result_s['target_name']
 
 
 def test_authenticate(monkeypatch):
