@@ -31,7 +31,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, hash, _check_response
+from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, eso_hash
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -41,7 +41,6 @@ class CalSelectorError(Exception):
     """
     Raised on failure to parse CalSelector's response.
     """
-    pass
 
 
 class AuthInfo:
@@ -94,6 +93,8 @@ class EsoClass(QueryWithLogin):
         self._auth_info: Optional[AuthInfo] = None
         self.timeout = timeout
         self._hash = None
+        # for future debugging
+        self._payload = None
 
     @property
     def timeout(self):
@@ -114,7 +115,7 @@ class EsoClass(QueryWithLogin):
         return url
 
     def request_file(self, query_str: str):
-        h = hash(query_str=query_str, url=self.tap_url())
+        h = eso_hash(query_str=query_str, url=self.tap_url())
         fn = self.cache_location.joinpath(h + ".pickle")
         return fn
 
@@ -133,12 +134,12 @@ class EsoClass(QueryWithLogin):
                 if not isinstance(cached_table, Table):
                     cached_table = None
             else:
-                log.debug(f"Cache expired for {table_file}...")
+                log.debug("Cache expired for %s ... ", table_file)
                 cached_table = None
         except FileNotFoundError:
             cached_table = None
         if cached_table:
-            log.debug("Retrieved data from {0}".format(table_file))
+            log.debug("Retrieved data from %s", table_file)
         return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
@@ -152,7 +153,7 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        log.info(f"Authenticating {username} on 'www.eso.org' ...")
+        log.info("Authenticating %s on 'www.eso.org' ...", username)
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
@@ -187,8 +188,8 @@ class EsoClass(QueryWithLogin):
 
         return username, password
 
-    def _login(self, *, username: str = None, store_password: bool = False,
-               reenter_password: bool = False) -> bool:
+    def _login(self, *args, username: str = None, store_password: bool = False,
+               reenter_password: bool = False, **kwargs) -> bool:
         """
         Login to the ESO User Portal.
 
@@ -221,7 +222,7 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def _query_tap_service(self, query_str: str, cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
+    def query_tap_service(self, query_str: str, cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
         Example use:
@@ -245,10 +246,12 @@ class EsoClass(QueryWithLogin):
                     table_to_return = tap.search(query_str).to_table()
                     to_cache(table_to_return, self.request_file(query_str=query_str))
 
-        except pyvo.dal.exceptions.DALQueryError:
-            raise pyvo.dal.exceptions.DALQueryError(f"\n\nError executing the following query:\n\n{query_str}\n\n")
+        except pyvo.dal.exceptions.DALQueryError as e:
+            raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
+                                                    Error executing the following query:\n\n{query_str}\n\n") from e
         except Exception as e:
-            raise Exception(f"\n\nUnknown exception {e} while executing the following query: \n\n{query_str}\n\n")
+            raise RuntimeError(f"\n\n\
+                            Unknown exception {e} while executing the following query: \n\n{query_str}\n\n") from e
 
         if len(table_to_return) > 0:
             return table_to_return
@@ -269,7 +272,7 @@ class EsoClass(QueryWithLogin):
         if self._instruments is None:
             self._instruments = []
             query_str = "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name"
-            res = self._query_tap_service(query_str)["table_name"].data
+            res = self.query_tap_service(query_str, cache=cache)["table_name"].data
             self._instruments = list(map(lambda x: x.split(".")[1], res))
         return self._instruments
 
@@ -288,7 +291,7 @@ class EsoClass(QueryWithLogin):
             c = QueryOnCollection.column_name
             t = QueryOnCollection.table_name
             query_str = f"select distinct {c} from {t}"
-            res = self._query_tap_service(query_str)[c].data
+            res = self.query_tap_service(query_str, cache=cache)[c].data
 
             self._collections = list(res)
         return self._collections
@@ -296,7 +299,7 @@ class EsoClass(QueryWithLogin):
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField, primary_filter: Union[List[str], str], *,
                                         column_filters: Dict = None,
-                                        columns: Union[List, str] = None, help=False, cache=True,
+                                        columns: Union[List, str] = None, print_help=False, cache=True,
                                         **kwargs) -> astropy.table.Table:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
@@ -335,18 +338,18 @@ class EsoClass(QueryWithLogin):
         columns = columns or []
 
         # TODO - move help printing to its own function
-        if help:
+        if print_help:
             help_query = \
                 f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{query_on.table_name}'"
-            h = self._query_tap_service(help_query)
-            log.info(f"Columns present in the table: {h}")
+            h = self.query_tap_service(help_query)
+            log.info("Columns present in the table: %s", h)
             return
 
         filters = {**dict(kwargs), **column_filters}
         c_size = 0.1775  # so that even HARPS fits to pass the tests
         if 'box' in filters.keys():
             # TODO make c_size a parameter
-            c_size = c_size
+            # c_size = c_size
             del filters['box']
         if isinstance(primary_filter, str):
             primary_filter = _split_str_as_list_of_str(primary_filter)
@@ -369,25 +372,25 @@ class EsoClass(QueryWithLogin):
         query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        return self._query_tap_service(query_str=query, cache=cache)
+        return self.query_tap_service(query_str=query, cache=cache)
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_instrument(self, instrument: Union[List, str] = None, *,
                          column_filters: Dict = None, columns: Union[List, str] = None,
-                         open_form=False, help=False, cache=True,
+                         open_form=False, print_help=False, cache=True,
                          **kwargs) -> astropy.table.Table:
         return self._query_instrument_or_collection(query_on=QueryOnInstrument,
                                                     primary_filter=instrument,
                                                     column_filters=column_filters,
                                                     columns=columns,
-                                                    help=help,
+                                                    print_help=print_help,
                                                     cache=cache,
                                                     **kwargs)
 
     @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
     def query_collections(self, collections: Union[List, str] = None, *,
                           column_filters: Dict = None, columns: Union[List, str] = None,
-                          open_form=False, help=False, cache=True,
+                          open_form=False, print_help=False, cache=True,
                           **kwargs) -> astropy.table.Table:
         column_filters = column_filters or {}
         columns = columns or []
@@ -395,12 +398,12 @@ class EsoClass(QueryWithLogin):
                                                     primary_filter=collections,
                                                     column_filters=column_filters,
                                                     columns=columns,
-                                                    help=help,
+                                                    print_help=print_help,
                                                     cache=cache,
                                                     **kwargs)
 
-    def query_main(self, *, column_filters={}, columns=[],
-                   open_form=False, help=False, cache=True, **kwargs):
+    def query_main(self, *, column_filters=None, columns=None,
+                   print_help=False, cache=True, **kwargs):
         """
         Query raw data contained in the ESO archive.
 
@@ -437,12 +440,19 @@ class EsoClass(QueryWithLogin):
         where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()]
         where_constraints = where_constraints_strlist
 
+        if print_help:
+            help_query = \
+                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'dbo.raw'"
+            h = self.query_tap_service(help_query, cache=cache)
+            log.info("Columns present in the table: %s", h)
+            return
+
         query = py2adql(table="dbo.raw",
                         columns=columns,
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
-        return self._query_tap_service(query_str=query)
+        return self.query_tap_service(query_str=query)
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -572,8 +582,7 @@ class EsoClass(QueryWithLogin):
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
                 if downloaded:
-                    log.info(f"Successfully downloaded dataset"
-                             f" {file_id} to {filename}")
+                    log.info(f"Successfully downloaded dataset {file_id} to {filename}")
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
                     log.error(f"Access denied to {file_link}")
@@ -674,9 +683,10 @@ class EsoClass(QueryWithLogin):
         # remove input datasets from calselector results
         return list(associated_files.difference(set(datasets)))
 
-    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None), since=['0.4.7', '0.4.7'])
-    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None,
-                      request_all_objects=False, unzip=True, request_id=None):
+    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None),
+                                 since=['0.4.7', '0.4.7'])
+    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None, unzip=True,
+                      request_all_objects=None, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -711,6 +721,7 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
+        _ = request_all_objects, request_id
         return_string = False
         if isinstance(datasets, str):
             return_string = True
@@ -742,7 +753,7 @@ class EsoClass(QueryWithLogin):
         log.info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
-    def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
+    def _activate_form(self, response, *, form_index=0, form_id=None, inputs=None,
                        cache=True, method=None):
         """
         Parameters
@@ -750,6 +761,7 @@ class EsoClass(QueryWithLogin):
         method: None or str
             Can be used to override the form-specified method
         """
+        inputs = inputs or {}
         # Extract form from response
         root = BeautifulSoup(response.content, 'html5lib')
         if form_id is None:
@@ -776,7 +788,7 @@ class EsoClass(QueryWithLogin):
                 elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
                     fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
                 else:
-                    raise Exception("enctype={0} is not supported!".format(form.attrs['enctype']))
+                    raise RuntimeError("enctype={0} is not supported!".format(form.attrs['enctype']))
             else:
                 fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
         # Extract payload from form
@@ -885,7 +897,7 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def query_apex_quicklooks(self, *, project_id=None, help=False,
+    def query_apex_quicklooks(self, *, project_id=None, print_help=False,
                               open_form=False, cache=True, **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
@@ -903,8 +915,9 @@ class EsoClass(QueryWithLogin):
         table = None
         if open_form:
             webbrowser.open(apex_query_url)
-        elif help:
-            return self._print_instrument_help(apex_query_url, 'apex')
+        elif print_help:
+            # TODO: print some sensible help message
+            return "No help available for apex at the moment."
         else:
 
             payload = {'wdbo': 'csv/download'}
@@ -918,7 +931,7 @@ class EsoClass(QueryWithLogin):
                 cache=cache, method='application/x-www-form-urlencoded')
 
             content = apex_response.content
-            if _check_response(content):
+            if content:
                 # First line is always garbage
                 content = content.split(b'\n', 1)[1]
                 try:
@@ -967,31 +980,31 @@ class EsoClass(QueryWithLogin):
             checkbox_name = ""
             checkbox_value = ""
             for tag in section.next_siblings:
-                if tag.name == u"table":
+                if tag.name == "table":
                     break
-                elif tag.name == u"input":
-                    if tag.get(u'type') == u"checkbox":
+                elif tag.name == "input":
+                    if tag.get('type') == "checkbox":
                         checkbox_name = tag['name']
-                        checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+                        checkbox_value = "[x]" if ('checked' in tag.attrs) else "[ ]"
                         name = ""
                         value = ""
                     else:
                         name = tag['name']
                         value = ""
-                elif tag.name == u"select":
+                elif tag.name == "select":
                     options = []
                     for option in tag.select("option"):
                         options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
-                    name = tag[u"name"]
+                    name = tag["name"]
                     value = ", ".join(options)
                 else:
                     name = ""
                     value = ""
-                if u"tab_" + name == checkbox_name:
+                if "tab_" + name == checkbox_name:
                     checkbox = checkbox_value
                 else:
                     checkbox = "   "
-                if name != u"":
+                if name != "":
                     result_string.append("{0} {1}: {2}"
                                          .format(checkbox, name, value))
 

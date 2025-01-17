@@ -89,7 +89,7 @@ def calselector_request(url, **kwargs):
 def test_sinfoni_SgrAstar(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_instrument('sinfoni', target='SGRA')
     # test all results are there and the expected target is present
     assert len(result) == 50
@@ -99,7 +99,7 @@ def test_sinfoni_SgrAstar(monkeypatch):
 def test_main_SgrAstar(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_main(target='SGR A', object='SGR A')
     # test all results are there and the expected target is present
     assert len(result) == 23
@@ -110,7 +110,7 @@ def test_main_SgrAstar(monkeypatch):
 def test_vvv(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, '_query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_collections(collections='VVV',
                                    coord1=266.41681662, coord2=-29.00782497,
                                    box='01 00 00',
