@@ -73,7 +73,7 @@ def calselector_request(url, **kwargs):
         filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw_multipart.xml'
         header = {
             'Content-Type': 'multipart/form-data; '
-            + 'boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
+            'boundary=uFQlfs9nBIDEAIoz0_ZM-O2SXKsZ2iSd4h7H;charset=UTF-8'
         }
     else:
         filename = 'FORS2.2021-01-02T00_59_12.533_raw2raw.xml'
