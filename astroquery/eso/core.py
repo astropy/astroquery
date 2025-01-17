@@ -31,7 +31,7 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str, sanitize_val, to_cache, eso_hash
+from .utils import py2adql, _split_str_as_list_of_str, adql_sanitize_val, to_cache, eso_hash
 import pyvo
 
 __doctest_skip__ = ['EsoClass.*']
@@ -112,18 +112,22 @@ class EsoClass(QueryWithLogin):
     # [W1203 - logging-fstring-interpolation]
     @staticmethod
     def log_info(message):
+        "Wrapper for logging function"
         log.info("%s", message)
 
     @staticmethod
     def log_warning(message):
+        "Wrapper for logging function"
         log.warning("%s", message)
 
     @staticmethod
     def log_error(message):
+        "Wrapper for logging function"
         log.error("%s", message)
 
     @staticmethod
     def log_debug(message):
+        "Wrapper for logging function"
         log.debug("%s", message)
 
     @timeout.setter
@@ -393,7 +397,7 @@ class EsoClass(QueryWithLogin):
 
         # TODO
         # Check whether v is string or number, put in single quotes if string
-        where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()] + coord_constraint
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()] + coord_constraint
         where_constraints = [where_collections_str] + where_constraints_strlist
         query = py2adql(table=query_on.table_name, columns=columns, where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
@@ -465,7 +469,7 @@ class EsoClass(QueryWithLogin):
         columns = columns or []
         filters = {**dict(kwargs), **column_filters}
 
-        where_constraints_strlist = [f"{k} = {sanitize_val(v)}" for k, v in filters.items()]
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
         where_constraints = where_constraints_strlist
 
         if print_help:
