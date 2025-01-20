@@ -382,7 +382,8 @@ class SimbadClass(BaseVOQuery):
         # the legacy way of adding fluxes
         args = list(args)
         fluxes_to_add = []
-        for arg in args:
+        args_copy = args.copy()
+        for arg in args_copy:
             if arg.startswith("flux_"):
                 raise ValueError("The votable fields 'flux_***(filtername)' are removed and replaced "
                                  "by 'flux' that will add all information for every filters. "
@@ -390,7 +391,8 @@ class SimbadClass(BaseVOQuery):
                                  "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html"
                                  " to see the new ways to interact with SIMBAD's fluxes.")
             if re.match(r"^flux.*\(.+\)$", arg):
-                warnings.warn("The notation 'flux(U)' is deprecated since 0.4.8 in favor of 'U'. "
+                warnings.warn("The notation 'flux(XXX)' is deprecated since 0.4.8 in favor of 'XXX'. "
+                              "You will see the column appearing with its new name in the output. "
                               "See section on filters in "
                               "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html "
                               "to see the new ways to interact with SIMBAD's fluxes.", DeprecationWarning, stacklevel=2)

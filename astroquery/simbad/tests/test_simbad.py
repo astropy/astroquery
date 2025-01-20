@@ -265,7 +265,7 @@ def test_add_votable_fields():
     simbad_instance = simbad.SimbadClass()
     with pytest.raises(ValueError, match=r"The votable fields \'flux_\*\*\*\(filtername\)\' are removed *"):
         simbad_instance.add_votable_fields("flux_error(u)")
-    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(U\)\' is deprecated since 0.4.8 *"):
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(XXX\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(u)")
         assert "u_" in str(simbad_instance.columns_in_output)
     with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported*"):
@@ -282,6 +282,16 @@ def test_add_votable_fields():
                        "listed with 'list_votable_fields'. Did you mean 'alltypes' or 'otype' or 'otypes'?"):
         simbad_instance.add_votable_fields("ALLTYPE")
     # bundles and tables require a connection to the tap_schema and are thus tested in test_simbad_remote
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.usefixtures("_mock_linked_to_basic")
+def test_add_list_of_fluxes():
+    # regression test for https://github.com/astropy/astroquery/issues/3185#issuecomment-2599191953
+    simbad_instance = simbad.Simbad()
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(XXX\)\' is deprecated since 0.4.8 *"):
+        simbad_instance.add_votable_fields("flux(U)", "flux(J)")
 
 
 def test_list_wildcards(capsys):

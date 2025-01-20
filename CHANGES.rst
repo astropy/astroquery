@@ -19,6 +19,12 @@ jplspec
 
 - minor improvement to lookuptable behavior [#3173,#2901]
 
+simbad
+^^^^^^
+
+- Fixed adding a list of fluxes with the deprecated notation 
+  ``Simbad.add_votable_fields("flux(U)", "flux(J)")`` [#3186]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
