@@ -42,7 +42,7 @@ class MOCServerClass(BaseQuery):
     def query_region(
         self, region=None,
         *,
-        meta_data=None,
+        criteria=None,
         intersect="overlaps",
         return_moc=None,
         max_norder=None,
@@ -63,8 +63,8 @@ class MOCServerClass(BaseQuery):
             The region to query the MOCServer with. Note that this can also be a
             space-time region with the Time-MOCs and Space-Time-MOCs.
             Defaults to None, which means that the search will be on the whole sky.
-        meta_data : str
-            Algebraic expression to select the datasets.
+        criteria : str
+            Expression to select the datasets.
             Examples of expressions can be found `on the mocserver's examples page
             <http://alasky.unistra.fr/MocServer/example>`_.
             Example: "ID=*HST*" will return datasets with HST in their ID column. The
@@ -114,7 +114,7 @@ class MOCServerClass(BaseQuery):
 
         """
         response = self.query_async(
-            meta_data=meta_data,
+            criteria=criteria,
             region=region,
             intersect=intersect,
             return_moc=return_moc,
@@ -133,7 +133,7 @@ class MOCServerClass(BaseQuery):
     def query_hips(
         self,
         *,
-        meta_data=None,
+        criteria=None,
         region=None,
         intersect="overlaps",
         return_moc=None,
@@ -150,8 +150,8 @@ class MOCServerClass(BaseQuery):
 
         Parameters
         ----------
-        meta_data : str
-            Algebraic expression to select the datasets.
+        criteria : str
+            Expression to select the datasets.
             Examples of expressions can be found `on the mocserver's examples page
             <http://alasky.unistra.fr/MocServer/example>`_.
             Example: "ID=*HST*" will return datasets with HST in their ID column. The
@@ -204,12 +204,12 @@ class MOCServerClass(BaseQuery):
             union of the MOCs from all the retrieved data-sets.
 
         """
-        if meta_data:
-            meta_data = f"({meta_data})&&hips_frame=*"
+        if criteria:
+            criteria = f"({criteria})&&hips_frame=*"
         else:
-            meta_data = "hips_frame=*"
+            criteria = "hips_frame=*"
         return self.query_region(
-            meta_data=meta_data,
+            criteria=criteria,
             region=region,
             intersect=intersect,
             return_moc=return_moc,
@@ -224,7 +224,9 @@ class MOCServerClass(BaseQuery):
         )
 
     @deprecated(since="v0.4.9",
-                alternative="query_region")
+                message="'find_datasets' is replaced by 'query_region' which has a new "
+                        "parameter 'criteria' that accepts the expressions that "
+                        "'meta_data' was accepting.")
     def find_datasets(
         self, meta_data,
         *,
@@ -245,7 +247,7 @@ class MOCServerClass(BaseQuery):
         Parameters
         ----------
         meta_data : str
-            Algebraic expression to select the datasets.
+            Expression to select the datasets.
             Examples of expressions can be found `on the mocserver's examples page
             <http://alasky.unistra.fr/MocServer/example>`_.
             Example: "ID=*HST*" will return datasets with HST in their ID column. The
@@ -299,7 +301,7 @@ class MOCServerClass(BaseQuery):
 
         """
         return self.query_region(
-            meta_data=meta_data,
+            criteria=meta_data,
             region=region,
             intersect=intersect,
             return_moc=return_moc,
@@ -317,7 +319,7 @@ class MOCServerClass(BaseQuery):
         self,
         *,
         region=None,
-        meta_data=None,
+        criteria=None,
         return_moc=None,
         max_norder=None,
         fields=None,
@@ -332,8 +334,8 @@ class MOCServerClass(BaseQuery):
 
         Parameters
         ----------
-        meta_data : str
-            Algebraic expression to select the datasets.
+        criteria : str
+            Expression to select the datasets.
             Examples of expressions can be found `on the mocserver's examples page
             <http://alasky.unistra.fr/MocServer/example>`_.
             Example: "ID=*HST*" will return datasets with HST in their ID column. The
@@ -385,7 +387,7 @@ class MOCServerClass(BaseQuery):
 
         """
         request_payload = _args_to_payload(
-            meta_data=meta_data,
+            criteria=criteria,
             return_moc=return_moc,
             max_norder=max_norder,
             fields=fields,
@@ -491,7 +493,7 @@ class MOCServerClass(BaseQuery):
             The list of coordinate systems currently available in the MOC Server
 
         """
-        frames = list(set(self.query_region(meta_data="hips_frame=*",
+        frames = list(set(self.query_region(criteria="hips_frame=*",
                                             fields=["ID", "hips_frame"],
                                             coordinate_system=None)["hips_frame"]))
         # `C` is a special case that corresponds to both equatorial and galactic frames
@@ -502,7 +504,7 @@ class MOCServerClass(BaseQuery):
 
 def _args_to_payload(
     *,
-    meta_data=None,
+    criteria=None,
     return_moc=None,
     max_norder=None,
     fields=None,
@@ -566,8 +568,8 @@ def _args_to_payload(
                 f" or 'mocpy.STMOC', but is of type '{type(region)}'."
             )
 
-    if meta_data:
-        request_payload.update({"expr": meta_data})
+    if criteria:
+        request_payload.update({"expr": criteria})
 
     if max_rec:
         request_payload.update({"MAXREC": str(max_rec)})

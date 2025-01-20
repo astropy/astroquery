@@ -31,12 +31,12 @@ mocserver
 - ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather than only
   Space-MOCs [#3139]
 
-- Fix query by MOC that would write a file ``moc.fits`` where the method was executed
-  in overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
+- Fix query by MOC that would write a file ``moc.fits`` where the method was executed in
+  overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
 
-- Returned tables now have a default list of fields instead of the > 130 columns returned
-  previously. The full list of fields can be displayed with the new method
-  ``MOCServer.list_fields`` [#3139]
+- [:warning: BREAKING] Returned tables now have a default list of fields instead of the
+  > 130 columns returned previously. The full list of fields can be displayed with the
+  new method ``MOCServer.list_fields`` [#3139]
 
 - Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
   to ``True``) [#3139]
@@ -47,6 +47,9 @@ mocserver
 
 - Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
   surveys [#3139]
+
+- New parameter ``criteria`` in ``query_region`` and ``query_hips`` that has the same
+  use than ``meta_data`` in the deprecated method ``find_datasets`` [#3139]
 
 simbad
 ^^^^^^
@@ -60,6 +63,7 @@ simbad
 - Fix the deprecated votable fields ``otype(V)`` and ``otype(S)`` [#3186]
 
 - Fixed non existing flux filters as votable fields would fail silently [#3186]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

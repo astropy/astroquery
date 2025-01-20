@@ -59,7 +59,7 @@ class TestMOCServerRemote:
     def test_stmoc_as_outputs(self):
         # chose a dataset with a MOC with few cells
         stmoc = MOCServer.query_region(
-            meta_data="ID=CDS/J/AJ/157/109/table1", return_moc="stmoc"
+            criteria="ID=CDS/J/AJ/157/109/table1", return_moc="stmoc"
         )
         assert isinstance(stmoc, STMOC)
 
@@ -69,7 +69,7 @@ class TestMOCServerRemote:
             region=tmoc,
             fields=["t_min"],
             max_rec=100,
-            meta_data="dataproduct_type='image'&&t_min=*",
+            criteria="dataproduct_type='image'&&t_min=*",
         )
         min_time_result = Time(result["t_min"].value, format="mjd")
         # the resulting datasets should only have starting times after the
@@ -78,7 +78,7 @@ class TestMOCServerRemote:
 
     def test_no_region(self):
         result = MOCServer.query_region(
-            meta_data="moc_sky_fraction>0.5&&moc_sky_fraction=*",
+            criteria="moc_sky_fraction>0.5&&moc_sky_fraction=*",
             fields=["ID", "moc_sky_fraction"],
             max_rec=100,
         )

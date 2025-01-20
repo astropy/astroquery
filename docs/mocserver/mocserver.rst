@@ -127,8 +127,8 @@ Querying by meta-data
 Retrieving datasets based on their meta-data values
 ----------------------------------------------------
 
-The ``meta_data`` parameter of :meth:`~astroquery.mocserver.MOCServerClass.query_region`
-allows to write an algebraic expression on the metadata.
+The ``criteria`` parameter of :meth:`~astroquery.mocserver.MOCServerClass.query_region`
+allows to write an expression on the dataset's metadata to filter the output.
 Let's add a criteria to get only images from the previous query:
 
 .. doctest-requires:: mocpy
@@ -141,7 +141,7 @@ Let's add a criteria to get only images from the previous query:
     >>> cone = CircleSkyRegion(center, radius)
     >>> MOCServer.query_region(region=cone, intersect="enclosed",
     ...                 fields=['ID', 'dataproduct_type', 'moc_sky_fraction'],
-    ...                 meta_data="dataproduct_type=image")  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
+    ...                 criteria="dataproduct_type=image")  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=336>
                   ID               dataproduct_type moc_sky_fraction
                 str49                    str5           float64     
@@ -180,7 +180,7 @@ their identifier. These correspond to the Hubble surveys:
 
 .. doctest-requires:: mocpy
 
-    >>> MOCServer.query_region(meta_data="ID=*HST*",
+    >>> MOCServer.query_region(criteria="ID=*HST*",
     ...                        fields=['ID', 'moc_access_url'],
     ...                        casesensitive=False)  # doctest: +IGNORE_OUTPUT +REMOTE_DATA
     <Table length=45>
@@ -215,7 +215,7 @@ The MOCServer contains an extensive list of `HiPS <https://ivoa.net/documents/Hi
 for images and catalogs. These progressive surveys can be displayed in applications
 such as `ipyaladin <https://github.com/cds-astro/ipyaladin>`_. The
 `astroquery.mocserver.MOCServerClass.query_hips` method allows to find these HiPS.
-It accepts the same parameters (``region`` and ``meta_data`` for example) as the other
+It accepts the same parameters (``region`` and ``criteria`` for example) as the other
 methods. The only difference is that the output will only contain HiPS data.
 
 .. doctest-requires:: mocpy
@@ -332,7 +332,7 @@ Hubble surveys:
     >>> from astroquery.mocserver import MOCServer
     >>> moc = MOCServer.query_region(return_moc="smoc", 
     ...                              max_norder=20, 
-    ...                              meta_data="ID=*HST*") # doctest: +REMOTE_DATA
+    ...                              criteria="ID=*HST*") # doctest: +REMOTE_DATA
 
 The resulting MOC looks like:
 
@@ -350,7 +350,7 @@ object) of the ``GALEXGR6/AIS/FUV`` survey.
 
     >>> from mocpy import MOC
     >>> from astroquery.mocserver import MOCServer
-    >>> moc_galex = MOCServer.query_region(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", 
+    >>> moc_galex = MOCServer.query_region(criteria="ID=CDS/P/GALEXGR6/AIS/FUV", 
     ...                                    return_moc="stmoc", max_norder="s7 t26")  # doctest: +REMOTE_DATA
     >>> print(f"GALEX GR6 contains data taken from {moc_galex.min_time.iso} to"
     ...       f" {moc_galex.max_time.iso}.")  # doctest: +REMOTE_DATA

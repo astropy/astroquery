@@ -92,7 +92,7 @@ def test_query_hips():
     payload = MOCServer.query_hips(get_query_payload=True)
     assert payload["expr"] == "hips_frame=*"
     # with meta
-    payload = MOCServer.query_hips(meta_data="TEST", get_query_payload=True)
+    payload = MOCServer.query_hips(criteria="TEST", get_query_payload=True)
     assert payload["expr"] == "(TEST)&&hips_frame=*"
 
 
@@ -138,7 +138,7 @@ def test_list_fields():
 def _mock_list_coordinate_systems(monkeypatch):
     # This list changes upstream. To regenerate it, do:
     # >>> from astroquery.mocserver import MOCServer
-    # >>> hips_frames = MOCServer.query_region(meta_data="hips_frame=*",
+    # >>> hips_frames = MOCServer.query_region(criteria="hips_frame=*",
     # ...                                       fields=["hips_frame"],
     # ...                                       coordinate_system=None, max_rec=100)
     # >>> hips_frames.remove_column("ID")
@@ -180,54 +180,54 @@ def test_intersect_param(intersect):
 
 def test_fields():
     # check that it works for a single field
-    payload = MOCServer.query_region(meta_data="", fields="ID", get_query_payload=True)
+    payload = MOCServer.query_region(criteria="", fields="ID", get_query_payload=True)
     assert payload["fields"] == "ID"
     # as well as more fields
     payload = MOCServer.query_region(
-        meta_data="", fields=["ID", "hips_properties"], get_query_payload=True
+        criteria="", fields=["ID", "hips_properties"], get_query_payload=True
     )
     # cannot test the order, due to the use of set
     assert "hips_properties" in payload["fields"] and "ID" in payload["fields"]
     # ID has to be in fields
     payload = MOCServer.query_region(
-        meta_data="", fields="hips_body", get_query_payload=True
+        criteria="", fields="hips_body", get_query_payload=True
     )
     assert "ID" in payload["fields"]
 
 
 def test_caseinsensitive():
     # casesensitive was hardcoded to true until astroquery 0.4.8. It is now an option
-    payload = MOCServer.query_region(meta_data="", fields="ID", get_query_payload=True)
+    payload = MOCServer.query_region(criteria="", fields="ID", get_query_payload=True)
     assert payload["casesensitive"] == "false"
     payload = MOCServer.query_region(
-        meta_data="", fields="ID", get_query_payload=True, casesensitive=True
+        criteria="", fields="ID", get_query_payload=True, casesensitive=True
     )
     assert payload["casesensitive"] == "true"
 
 
 def test_maxrec():
-    payload = MOCServer.query_region(meta_data="", max_rec=100, get_query_payload=True)
+    payload = MOCServer.query_region(criteria="", max_rec=100, get_query_payload=True)
     assert payload["MAXREC"] == "100"
 
 
 def test_return_moc():
     # legacy compatibility, return_moc=True means a space-MOC
     payload = MOCServer.query_region(
-        meta_data="", return_moc=True, max_norder=5, get_query_payload=True
+        criteria="", return_moc=True, max_norder=5, get_query_payload=True
     )
     assert payload["get"] == "moc"
     assert payload["fmt"] == "ascii"
     assert payload["order"] == 5
     # no max_norder means maximum order available
     payload = MOCServer.query_region(
-        meta_data="", return_moc=True, get_query_payload=True
+        criteria="", return_moc=True, get_query_payload=True
     )
     assert payload["order"] == "max"
 
 
 def test_coordinate_system():
     payload = MOCServer.query_region(
-        coordinate_system="sky", meta_data="", return_moc=True,
+        coordinate_system="sky", criteria="", return_moc=True,
         max_norder=5, get_query_payload=True
     )
     assert payload["spacesys"] == "C"
@@ -271,6 +271,8 @@ def test_cast_to_float():
 
 def test_find_datasets():
     # find datasets is useless as it does the same than query region
-    with pytest.warns(AstropyDeprecationWarning, match="The find_datasets function *"):
+    # and 'meta_data' is replaced byt the new argument 'criteria' in query_region
+    with pytest.warns(AstropyDeprecationWarning, match="'find_datasets' is replaced "
+                                                       "by 'query_region' *"):
         old = MOCServer.find_datasets(meta_data="ID=*Euclid*", get_query_payload=True)
-    assert old == MOCServer.query_region(meta_data="ID=*Euclid*", get_query_payload=True)
+    assert old == MOCServer.query_region(criteria="ID=*Euclid*", get_query_payload=True)
