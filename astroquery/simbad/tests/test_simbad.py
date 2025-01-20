@@ -390,6 +390,7 @@ def test_query_hierarchy():
     assert detailed in adql
     adql = simbad_instance.query_hierarchy("test", hierarchy="children",
                                            criteria="test=test",
+                                           detailed_hierarchy=False,
                                            get_query_payload=True)["QUERY"]
     assert "h_link.parent = name.oidref" in adql
     assert "test=test" in adql

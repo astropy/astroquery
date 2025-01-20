@@ -4,6 +4,14 @@
 New Tools and Services
 ----------------------
 
+API changes
+-----------
+
+simbad
+^^^^^^
+
+- The detailed hierarchy is now returned by default in ``query_hierarchy``
+  (it was hidden by default in the previous versions) [#3195]
 
 Service fixes and enhancements
 ------------------------------
@@ -18,7 +26,6 @@ xmatch
 
 - the API is more flexible: you can now ommit the ``vizier:`` before the catalog name
   when crossmatching with a vizier table [#3194]
-
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

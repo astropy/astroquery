@@ -155,8 +155,38 @@ associated with an object.
             NAME North Star
                   WEB  2438
 
-Query to get all parents (or children, or siblings) of an object
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Query hierarchy: to get all parents (or children, or siblings) of an object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SIMBAD also records hierarchy links between objects. For example, two galaxies in a pair
+of galaxies are siblings, a cluster of stars is composed of stars: its children. This
+information can be accessed with the `~astroquery.simbad.SimbadClass.query_hierarchy`
+method.
+
+Whenever available, membership probabilities are recorded in SIMBAD as given by
+the authors, though rounded to an integer. When authors do not give a value but
+assessments, they are translated in SIMBAD as follows:
+
++-------------------+------------------------+
+| assessment        | membership certainty   |
++===================+========================+
+| member            | 100                    |
++-------------------+------------------------+
+| likely member     | 75                     |
++-------------------+------------------------+
+| possible member   | 50                     |
++-------------------+------------------------+
+| likely not member | 25                     |
++-------------------+------------------------+
+| non member        | 0                      |
++-------------------+------------------------+
+
+For gravitational lens systems, double stars, and blends (superimposition of two
+non-physically linked objects), the SIMBAD team does not assign a probability
+value (this will be a ``None``).
+
+You can find more details in the `hierarchy documentation 
+<https://simbad.cds.unistra.fr/guide/dataHierarchy.htx>`_ of SIMBAD's webpages.
 
 Let's find the galaxies composing the galaxy pair ``Mrk 116``:
 
@@ -165,14 +195,14 @@ Let's find the galaxies composing the galaxy pair ``Mrk 116``:
     >>> from astroquery.simbad import Simbad
     >>> galaxies = Simbad.query_hierarchy("Mrk 116",
     ...                                   hierarchy="children", criteria="otype='G..'")
-    >>> galaxies[["main_id", "ra", "dec"]]
+    >>> galaxies[["main_id", "ra", "dec", "membership_certainty"]]
     <Table length=2>
-     main_id         ra            dec
-                    deg            deg
-      object      float64        float64
-    --------- --------------- --------------
-    Mrk  116A 143.50821525019 55.24105273196
-    Mrk  116B      143.509956      55.239762
+     main_id         ra            dec       membership_certainty
+                    deg            deg             percent       
+      object      float64        float64            int16        
+    --------- --------------- -------------- --------------------
+    Mrk  116A 143.50821525019 55.24105273196                   --
+    Mrk  116B      143.509956      55.239762                   --
 
 Alternatively, if we know one member of a group, we can find the others by asking for
 ``siblings``:
@@ -182,14 +212,14 @@ Alternatively, if we know one member of a group, we can find the others by askin
     >>> from astroquery.simbad import Simbad
     >>> galaxies = Simbad.query_hierarchy("Mrk 116A",
     ...                                   hierarchy="siblings", criteria="otype='G..'")
-    >>> galaxies[["main_id", "ra", "dec"]]
+    >>> galaxies[["main_id", "ra", "dec", "membership_certainty"]]
     <Table length=2>
-     main_id         ra            dec
-                    deg            deg
-      object      float64        float64
-    --------- --------------- --------------
-    Mrk  116A 143.50821525019 55.24105273196
-    Mrk  116B      143.509956      55.239762
+     main_id         ra            dec       membership_certainty
+                    deg            deg             percent       
+      object      float64        float64            int16        
+    --------- --------------- -------------- --------------------
+    Mrk  116A 143.50821525019 55.24105273196                   --
+    Mrk  116B      143.509956      55.239762                   --
 
 Note that if we had not added the criteria on the object type, we would also get
 some stars that are part of these galaxies in the result.
@@ -200,7 +230,8 @@ And the other way around, let's find which cluster of stars contains
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
-    >>> cluster = Simbad.query_hierarchy("2MASS J18511048-0615470", hierarchy="parents")
+    >>> cluster = Simbad.query_hierarchy("2MASS J18511048-0615470", 
+    ...                                  hierarchy="parents", detailed_hierarchy=False)
     >>> cluster[["main_id", "ra", "dec"]]
     <Table length=1>
      main_id     ra     dec
@@ -209,7 +240,7 @@ And the other way around, let's find which cluster of stars contains
     --------- ------- -------
     NGC  6705 282.766  -6.272
 
-If needed, we can get a more detailed report with the two extra columns:
+By default, we get a more detailed report with the two extra columns:
  - ``hierarchy_bibcode`` : the paper in which the hierarchy is established,
  - ``membership_certainty``: if present in the paper, a certainty index (100 meaning
    100% sure).
@@ -240,11 +271,40 @@ If needed, we can get a more detailed report with the two extra columns:
     NGC  6705 282.766  -6.272 2021MNRAS.503.3279S                   99
     NGC  6705 282.766  -6.272 2022MNRAS.509.1664J                  100
 
-Here, we see that the Simbad team found 13 papers mentioning the fact that 
+Here, we see that the SIMBAD team found 13 papers mentioning the fact that 
 ``2MASS J18511048-0615470`` is a member of ``NGC  6705`` and that the authors of these
 articles gave high confidence indices for this membership (``membership_certainty`` is
 close to 100 for all bibcodes).
 
+A note of caution on hierarchy
+""""""""""""""""""""""""""""""
+
+In some tricky cases, low membership values represent extremely important information.
+Let's for example look at the star ``V* V787 Cep``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> parents = Simbad.query_hierarchy("V* V787 Cep", 
+    ...                                  hierarchy="parents",
+    ...                                  detailed_hierarchy=True)
+    >>> parents[["main_id", "ra", "dec", "hierarchy_bibcode", "membership_certainty"]]
+    <Table length=4>
+     main_id          ra           dec    hierarchy_bibcode  membership_certainty
+                     deg           deg                             percent       
+      object       float64       float64        object              int16
+    --------- ------------------ ------- ------------------- --------------------
+    NGC   188 11.797999999999998  85.244 2003AJ....126.2922P                   46
+    NGC   188 11.797999999999998  85.244 2004PASP..116.1012S                   46
+    NGC   188 11.797999999999998  85.244 2018A&A...616A..10G                  100
+    NGC   188 11.797999999999998  85.244 2021MNRAS.503.3279S                    1
+
+Here, we see that the link between ``V* V787 Cep`` and the open cluster ``NGC 188`` is
+opened for debate: the only way to build an opinion is to read the four articles.
+This information would be hidden if we did not print the detailed hierarchy report.
+
+These somewhat contradicting results are an inherent part of SIMBAD, which simply
+translates the literature into a database.
 
 Query a region
 ^^^^^^^^^^^^^^

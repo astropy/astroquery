@@ -868,7 +868,7 @@ class SimbadClass(BaseVOQuery):
                            get_query_payload=get_query_payload)
 
     def query_hierarchy(self, name, hierarchy, *,
-                        detailed_hierarchy=False,
+                        detailed_hierarchy=True,
                         criteria=None, get_query_payload=False):
         """Query either the parents or the children of the object.
 
@@ -906,6 +906,7 @@ class SimbadClass(BaseVOQuery):
         --------
         >>> from astroquery.simbad import Simbad
         >>> parent = Simbad.query_hierarchy("2MASS J18511048-0615470",
+        ...                                 detailed_hierarchy=False,
         ...                                 hierarchy="parents")  # doctest: +REMOTE_DATA
         >>> parent[["main_id", "ra", "dec"]] # doctest: +REMOTE_DATA
         <Table length=1>
